@@ -2,6 +2,8 @@ import { Avatar, Button, Card, Descriptions, Space, theme } from "antd"
 import React, { useState } from "react"
 import type { DescriptionsProps } from "antd"
 import "./index.scss"
+import { MyTeam } from "./my-team"
+import { BaseInfo } from "./base-info"
 
 export interface SelfManageProps {
   children?: React.ReactNode
@@ -19,12 +21,12 @@ const SelfManage: React.FC<SelfManageProps> = (props) => {
   const items: DescriptionsProps["items"] = [
     {
       key: "username",
-      label: "用户名",
+      label: "用户",
       children: <b>admin</b>,
     },
     {
       key: "phone",
-      label: "手机号",
+      label: "手机",
       children: (
         <Space size={4}>
           <div>1810000000</div>
@@ -60,16 +62,14 @@ const SelfManage: React.FC<SelfManageProps> = (props) => {
 
   const showTab = (t: TabType) => {
     switch (t) {
-      case "basic":
-        return <div>基本信息</div>
       case "team":
-        return <div>我的团队</div>
+        return <MyTeam />
       case "notify":
         return <div>通知历史</div>
       case "password":
         return <div>修改密码</div>
       default:
-        return <div>基本信息</div>
+        return <BaseInfo />
     }
   }
 

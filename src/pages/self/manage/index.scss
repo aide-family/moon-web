@@ -3,7 +3,7 @@
   @include flex-base($direction: column, $justify: "", $align: "");
   //   background-color: aliceblue;
   gap: 20px;
-  padding: 12px;
+  // padding: 12px;
   &-user {
     padding: 20px;
     @include flex-base($justify: "");
