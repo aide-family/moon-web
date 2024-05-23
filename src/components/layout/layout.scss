@@ -34,3 +34,10 @@
   margin-top: 12px;
   flex: 1;
 }
+
+// 卡片样式操作栏居中
+.ant-card-actions {
+  .anticon {
+    justify-content: center;
+  }
+}
