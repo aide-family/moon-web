@@ -1,10 +1,10 @@
-import { FC, useContext } from 'react'
+import { FC, useContext } from "react"
 
-import logoIcon from '@/assets/logo.svg'
-import { GlobalContext } from '@/utils/context'
+import logoIcon from "@/assets/images/logo.svg"
+import { GlobalContext } from "@/utils/context"
 
 const HeaderTitle: FC = () => {
-  const { title = 'Moon' } = useContext(GlobalContext)
+  const { title = "Moon" } = useContext(GlobalContext)
 
   return (
     <div className='center gap8'>

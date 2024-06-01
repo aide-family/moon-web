@@ -1,0 +1,32 @@
+/** 混合 **/
+
+@mixin flex-base($direction: row, $justify: center, $align: center) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+}
+@mixin flex-child($flex: 1, $order: 0) {
+  flex: $flex;
+  order: $order;
+}
+@mixin flex-child-base(
+  $flex: 1,
+  $order: 0,
+  $direction: row,
+  $justify: center,
+  $align: center
+) {
+  @include flex-base($direction, $justify, $align);
+  @include flex-child($flex, $order);
+}
+@mixin flex-child-base-col(
+  $flex: 1,
+  $order: 0,
+  $direction: column,
+  $justify: center,
+  $align: center
+) {
+  @include flex-base($direction, $justify, $align);
+  @include flex-child($flex, $order);
+}
