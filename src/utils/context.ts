@@ -1,11 +1,12 @@
-import { BreadcrumbNameType } from "@/config/menu"
-import { theme } from "antd"
-import { ItemType } from "antd/es/menu/hooks/useItems"
-import { SpaceSize } from "antd/es/space"
-import { createContext } from "react"
+import { UserItem } from '@/api/authorization/user'
+import { BreadcrumbNameType } from '@/config/menu'
+import { theme } from 'antd'
+import { ItemType } from 'antd/es/menu/hooks/useItems'
+import { SpaceSize } from 'antd/es/space'
+import { createContext } from 'react'
 
-export type ThemeType = "light" | "dark"
-export type LangType = "zh-CN" | "en-US"
+export type ThemeType = 'light' | 'dark'
+export type LangType = 'zh-CN' | 'en-US'
 
 export type GlobalContextType = {
   theme?: ThemeType
@@ -19,18 +20,20 @@ export type GlobalContextType = {
   breadcrumbNameMap?: Record<string, BreadcrumbNameType>
   collapsed?: boolean
   setCollapsed?: (collapsed: boolean) => void
+  userInfo?: UserItem
+  setUserInfo?: (userInfo: UserItem) => void
 }
 
 export const GlobalContext = createContext<GlobalContextType>({
-  lang: "zh-CN",
+  lang: 'zh-CN',
   setLang: () => void 0,
-  theme: "light",
+  theme: 'light',
   setTheme: () => void 0,
-  size: "middle",
+  size: 'middle',
   setSize: () => void 0,
-  title: "Moon监控",
+  title: 'Moon监控',
 })
 
 export const getUseTheme = (t?: ThemeType) => {
-  return t === "dark" ? theme.darkAlgorithm : undefined
+  return t === 'dark' ? theme.darkAlgorithm : undefined
 }

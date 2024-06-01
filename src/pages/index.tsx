@@ -1,28 +1,31 @@
-import { Suspense } from "react"
+import { Suspense } from 'react'
 
-import { ConfigProvider, theme } from "antd"
+import { ConfigProvider, theme } from 'antd'
 import {
   GlobalContext,
   GlobalContextType,
   LangType,
   ThemeType,
   getUseTheme,
-} from "@/utils/context"
-import { createHashRouter, RouterProvider } from "react-router-dom"
-import { routers } from "@/config/router"
-import { breadcrumbNameMap, defaultMenuItems } from "@/config/menu"
-import { SpaceSize } from "antd/es/space"
-import useStorage from "@/utils/storage"
-import "@/assets/styles/index.scss"
+} from '@/utils/context'
+import { createHashRouter, RouterProvider } from 'react-router-dom'
+import { routers } from '@/config/router'
+import { breadcrumbNameMap, defaultMenuItems } from '@/config/menu'
+import { SpaceSize } from 'antd/es/space'
+import useStorage from '@/utils/storage'
+import '@/assets/styles/index.scss'
+import { UserItem } from '@/api/authorization/user'
 
 const { useToken } = theme
 
 function App() {
   const { token } = useToken()
-  const [theme, setTheme] = useStorage<ThemeType>("theme", "dark")
-  const [lang, setLang] = useStorage<LangType>("lang", "zh-CN")
-  const [size, setSize] = useStorage<SpaceSize>("size", "middle")
-  const [collapsed, setCollapsed] = useStorage<boolean>("collapsed", false)
+
+  const [theme, setTheme] = useStorage<ThemeType>('theme', 'dark')
+  const [lang, setLang] = useStorage<LangType>('lang', 'zh-CN')
+  const [size, setSize] = useStorage<SpaceSize>('size', 'middle')
+  const [collapsed, setCollapsed] = useStorage<boolean>('collapsed', false)
+  const [userInfo, setUserInfo] = useStorage<UserItem>('userInfo', undefined)
   const contextValue: GlobalContextType = {
     theme: theme,
     setTheme: setTheme,
@@ -30,11 +33,13 @@ function App() {
     setLang: setLang,
     size: size,
     setSize: setSize,
-    title: "Moon 监控",
+    title: 'Moon 监控',
     menuItems: defaultMenuItems,
     collapsed: collapsed,
     setCollapsed: setCollapsed,
     breadcrumbNameMap: breadcrumbNameMap,
+    userInfo: userInfo,
+    setUserInfo: setUserInfo,
   }
   return (
     <>
@@ -43,10 +48,10 @@ function App() {
           components: {
             Layout: {
               colorTextBase: token.colorTextBase,
-              headerColor: "#FFF",
+              headerColor: '#FFF',
             },
             Badge: {
-              colorBorderBg: "none",
+              colorBorderBg: 'none',
             },
           },
           algorithm: getUseTheme(theme),

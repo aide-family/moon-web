@@ -13,6 +13,8 @@
     "@ant-design/icons": "^5.3.7",
     "@types/postcss-pxtorem": "^6.0.3",
     "antd": "^5.17.0",
+    "axios": "^1.7.2",
+    "crypto-js": "^4.2.0",
     "monaco-editor": "^0.48.0",
     "postcss-pxtorem": "^6.1.0",
     "react": "^18.2.0",
@@ -21,6 +23,7 @@
     "sass": "^1.77.1"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
     "@types/node": "^20.12.11",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
