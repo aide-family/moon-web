@@ -1,5 +1,3 @@
-import { Suspense } from 'react'
-
 import { ConfigProvider, theme } from 'antd'
 import {
   GlobalContext,
@@ -62,9 +60,7 @@ function App() {
         }}
       >
         <GlobalContext.Provider value={contextValue}>
-          <Suspense fallback={<div>loading...</div>}>
-            <RouterProvider router={createHashRouter(routers)} />
-          </Suspense>
+          <RouterProvider router={createHashRouter(routers)} />
         </GlobalContext.Provider>
       </ConfigProvider>
     </>

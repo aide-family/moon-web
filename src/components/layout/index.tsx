@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { Suspense, useContext, useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Layout, Menu, message, theme } from 'antd'
 
@@ -95,17 +95,19 @@ const MoonLayout: React.FC = () => {
             <Layout>
               <Content className='content'>
                 <RouteBreadcrumb />
-                <div
-                  className='outlet'
-                  style={{
-                    background: token.colorBgContainer,
-                    display: 'flex',
-                  }}
-                >
-                  <div style={{ flex: 1 }}>
-                    <Outlet />
+                <Suspense fallback={<div>loading...</div>}>
+                  <div
+                    className='outlet'
+                    style={{
+                      background: token.colorBgContainer,
+                      display: 'flex',
+                    }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <Outlet />
+                    </div>
                   </div>
-                </div>
+                </Suspense>
               </Content>
               <Footer
                 className='footer center'
