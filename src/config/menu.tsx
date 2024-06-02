@@ -1,110 +1,115 @@
-import type { ItemType } from "antd/es/menu/hooks/useItems"
-import { IconFont } from "@/components/icon"
+import type { ItemType } from 'antd/es/menu/hooks/useItems'
+import { IconFont } from '@/components/icon'
 
 export const defaultMenuItems: ItemType[] = [
   {
-    label: "个人中心",
-    key: "/home/self",
+    label: '系统用户',
+    key: '/home/system/users',
+    icon: <IconFont type='icon-kehuguanli1' />,
+  },
+  {
+    label: '个人中心',
+    key: '/home/self',
     icon: <IconFont type='icon-user_role' />,
     children: [
       {
-        label: "团队管理",
-        key: "/home/self/space-manage",
+        label: '团队管理',
+        key: '/home/self/space-manage',
       },
       {
-        label: "个人设置",
-        key: "/home/self/manage",
+        label: '个人设置',
+        key: '/home/self/manage',
       },
     ],
   },
   {
-    label: "实时监控",
-    key: "/home/monitor",
+    label: '实时监控',
+    key: '/home/monitor',
     icon: <IconFont type='icon-monitor3' />,
     children: [
       {
-        label: "数据大盘",
-        key: "/home/monitor/dashboar",
+        label: '数据大盘',
+        key: '/home/monitor/dashboar',
       },
       {
-        label: "实时告警",
-        key: "/home/monitor/realtime",
+        label: '实时告警',
+        key: '/home/monitor/realtime',
       },
     ],
   },
   {
-    label: "数据源",
-    key: "/home/datasource",
+    label: '数据源',
+    key: '/home/datasource',
     icon: <IconFont type='icon-zichanguanli2' />,
     children: [
       {
-        label: "Metric",
-        key: "/home/datasource/metric",
+        label: 'Metric',
+        key: '/home/datasource/metric',
       },
       {
-        label: "Log",
-        key: "/home/datasource/log",
+        label: 'Log',
+        key: '/home/datasource/log',
       },
       {
-        label: "Trace",
-        key: "/home/datasource/trace",
+        label: 'Trace',
+        key: '/home/datasource/trace',
       },
     ],
   },
   {
-    label: "策略管理",
-    key: "/home/strategy",
+    label: '策略管理',
+    key: '/home/strategy',
     icon: <IconFont type='icon-tongzhimoban' />,
     children: [
       {
-        label: "策略组",
-        key: "/home/strategy/group",
+        label: '策略组',
+        key: '/home/strategy/group',
       },
       {
-        label: "策略",
-        key: "/home/strategy/list",
+        label: '策略',
+        key: '/home/strategy/list',
       },
     ],
   },
   {
-    label: "告警通知",
-    key: "/home/notify",
+    label: '告警通知',
+    key: '/home/notify',
     icon: <IconFont type='icon-icon_notice' />,
     children: [
       {
-        label: "告警组",
-        key: "/home/notify/group",
+        label: '告警组',
+        key: '/home/notify/group',
       },
       {
-        label: "Hook",
-        key: "/home/notify/hook",
+        label: 'Hook',
+        key: '/home/notify/hook',
       },
       {
-        label: "通知规则",
-        key: "/home/notify/rule",
+        label: '通知规则',
+        key: '/home/notify/rule',
       },
       {
-        label: "告警记录",
-        key: "/home/notify/record",
+        label: '告警记录',
+        key: '/home/notify/record',
       },
     ],
   },
   {
-    label: "告警归档",
-    key: "/home/archive",
+    label: '告警归档',
+    key: '/home/archive',
     icon: <IconFont type='icon-zichanguanli1' />,
     children: [
       {
-        label: "历史告警",
-        key: "/home/archive/history",
+        label: '历史告警',
+        key: '/home/archive/history',
       },
       {
-        label: "告警统计",
-        key: "/home/archive/statistics",
+        label: '告警统计',
+        key: '/home/archive/statistics',
       },
       {
-        label: "历史通知",
-        key: "/home/archive/notice",
+        label: '历史通知',
+        key: '/home/archive/notice',
       },
     ],
   },
@@ -116,73 +121,79 @@ export type BreadcrumbNameType = {
 }
 
 export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
-  "/home": {
-    name: "首页",
+  '/home': {
+    name: '首页',
   },
-  "/home/self": {
-    name: "个人中心",
+  '/home/system': {
+    name: '系统管理',
   },
-  "/home/self/space-manage": {
-    name: "团队管理",
+  '/home/system/users': {
+    name: '系统用户',
   },
-  "/home/self/manage": {
-    name: "个人设置",
+  '/home/self': {
+    name: '个人中心',
   },
-  "/home/monitor": {
-    name: "实时监控",
+  '/home/self/space-manage': {
+    name: '团队管理',
   },
-  "/home/monitor/dashboar": {
-    name: "数据大盘",
+  '/home/self/manage': {
+    name: '个人设置',
   },
-  "/home/monitor/realtime": {
-    name: "实时告警",
+  '/home/monitor': {
+    name: '实时监控',
   },
-  "/home/datasource": {
-    name: "数据源",
+  '/home/monitor/dashboar': {
+    name: '数据大盘',
   },
-  "/home/datasource/metric": {
-    name: "Metric",
+  '/home/monitor/realtime': {
+    name: '实时告警',
   },
-  "/home/datasource/log": {
-    name: "Log",
+  '/home/datasource': {
+    name: '数据源',
   },
-  "/home/datasource/trace": {
-    name: "Trace",
+  '/home/datasource/metric': {
+    name: 'Metric',
   },
-  "/home/strategy": {
-    name: "策略管理",
+  '/home/datasource/log': {
+    name: 'Log',
   },
-  "/home/strategy/group": {
-    name: "策略组",
+  '/home/datasource/trace': {
+    name: 'Trace',
   },
-  "/home/strategy/list": {
-    name: "策略",
+  '/home/strategy': {
+    name: '策略管理',
   },
-  "/home/notify": {
-    name: "告警通知",
+  '/home/strategy/group': {
+    name: '策略组',
   },
-  "/home/notify/group": {
-    name: "告警组",
+  '/home/strategy/list': {
+    name: '策略',
   },
-  "/home/notify/hook": {
-    name: "Hook",
+  '/home/notify': {
+    name: '告警通知',
   },
-  "/home/notify/rule": {
-    name: "通知规则",
+  '/home/notify/group': {
+    name: '告警组',
   },
-  "/home/notify/record": {
-    name: "告警记录",
+  '/home/notify/hook': {
+    name: 'Hook',
   },
-  "/home/archive": {
-    name: "告警归档",
+  '/home/notify/rule': {
+    name: '通知规则',
   },
-  "/home/archive/history": {
-    name: "历史告警",
+  '/home/notify/record': {
+    name: '告警记录',
   },
-  "/home/archive/statistics": {
-    name: "告警统计",
+  '/home/archive': {
+    name: '告警归档',
   },
-  "/home/archive/notice": {
-    name: "历史通知",
+  '/home/archive/history': {
+    name: '历史告警',
+  },
+  '/home/archive/statistics': {
+    name: '告警统计',
+  },
+  '/home/archive/notice': {
+    name: '历史通知',
   },
 }

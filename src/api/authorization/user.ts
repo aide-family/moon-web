@@ -1,5 +1,5 @@
 // POST /v1/authorization/login
-
+import { Gender, Pagination, Status, SystemRole } from '../global'
 import request from '../request'
 
 export interface LoginCaptcha {
@@ -35,6 +35,14 @@ export interface LoginResponse {
   user: UserItem
   token: string
   redirect?: string
+}
+
+export interface SearchUsersParams {
+  pagination: Pagination
+  keyword: string
+  status: Status
+  gender: Gender
+  role: SystemRole
 }
 
 export const login = (params: LoginRequest) => {

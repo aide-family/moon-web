@@ -26,6 +26,10 @@ export const routers: RouteObject[] = [
         ],
       },
       {
+        path: '/home/system/users',
+        Component: lazy(() => import('@/pages/system/users')),
+      },
+      {
         // 403
         path: '/home/*',
         element: <Error403 />,
