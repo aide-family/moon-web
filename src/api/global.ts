@@ -5,6 +5,10 @@ export interface Pagination {
   pageSize: number
 }
 
+export interface PaginationResponse<T> extends Pagination {
+  list: T[]
+}
+
 export enum Status {
   ALL = 0,
   ENABLE = 1,

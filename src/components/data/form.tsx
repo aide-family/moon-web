@@ -1,13 +1,6 @@
-import {
-  type FormItemProps,
-  type FormInstance,
-  Form,
-  FormProps,
-  Row,
-  Col,
-} from "antd"
-import React, { FC } from "react"
-import { DataInput, DataInputProps } from "./child/data-input"
+import { type FormItemProps, Form, FormProps, Row, Col } from 'antd'
+import React, { FC } from 'react'
+import { DataInput, DataInputProps } from './child/data-input'
 
 export type DataFromItem = {
   name: string
@@ -18,16 +11,14 @@ export type DataFromItem = {
 
 export interface DataFromProps {
   items: (DataFromItem | DataFromItem[])[]
-  form?: FormInstance
   props?: FormProps
   children?: React.ReactNode
 }
 
 export const DataFrom: React.FC<DataFromProps> = (props) => {
-  const { items, form, children } = props
-
+  const { items, children } = props
   return (
-    <Form {...props.props} form={form}>
+    <Form {...props.props}>
       <Row gutter={12}>
         <RenderForm items={items} />
       </Row>

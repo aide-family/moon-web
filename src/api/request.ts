@@ -66,16 +66,28 @@ export const isLogin = () => {
   return !!getToken()
 }
 
+export type NullObject = Record<string, never>
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const GET = async <T>(url: string, params?: any) => {
-  return request.get<unknown, T>(url, { params })
+  return request.get<NullObject, T>(url, { params })
 }
 
 const POST = async <T>(url: string, data?: any) => {
-  return request.post<unknown, T>(url, data)
+  return request.post<NullObject, T>(url, data)
+}
+
+const PUT = async <T>(url: string, data?: any) => {
+  return request.put<NullObject, T>(url, data)
+}
+
+const DELTED = async <T>(url: string, data?: any) => {
+  return request.delete<NullObject, T>(url, { data })
 }
 
 export default {
   GET,
   POST,
+  PUT,
+  DELTED,
 }

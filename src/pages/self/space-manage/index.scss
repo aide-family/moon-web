@@ -3,11 +3,17 @@
 
   .operator {
     padding-bottom: 12px;
+
+    .right {
+      display: flex;
+      gap: 12px;
+    }
   }
 
   .cardItem {
-    width: 400px;
-
+    // width: 400px;
+    // max-width: 540px;
+    // min-width: 400px;
     .logo {
       width: 44px;
       height: 44px;
