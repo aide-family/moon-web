@@ -146,8 +146,12 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
             />
           </Col>
         </Row>
-        <Spin spinning={loading}>
-          <Row gutter={[12, 12]}>
+        {loading ? (
+          <Spin spinning={loading} style={{ height: '600px' }}>
+            <div></div>
+          </Spin>
+        ) : (
+          <Row gutter={[12, 12]} style={{ flex: 1, overflow: 'auto' }}>
             {teamList?.map((item, index) => {
               const { name, logo, status, id, remark } = item
               const items: DescriptionsProps['items'] = [
@@ -210,7 +214,7 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
               )
             })}
           </Row>
-        </Spin>
+        )}
       </div>
     </>
   )

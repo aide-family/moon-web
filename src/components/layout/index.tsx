@@ -71,13 +71,19 @@ const MoonLayout: React.FC = () => {
   return (
     <>
       <Layout
-        style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}
+        style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}
       >
         <Header className='header'>
           <HeaderTitle />
           <HeaderOp />
         </Header>
-        <Content style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Content
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           <Layout style={{ flex: 1 }}>
             <Sider style={{ background: 'none' }} collapsed={collapsed}>
               <Menu
@@ -101,6 +107,7 @@ const MoonLayout: React.FC = () => {
                     style={{
                       background: token.colorBgContainer,
                       display: 'flex',
+                      overflow: 'hidden',
                     }}
                   >
                     <div style={{ flex: 1 }}>
