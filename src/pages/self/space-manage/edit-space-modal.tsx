@@ -11,7 +11,7 @@ export interface EditSpaceModalProps extends ModalProps {
   spaceId?: number
 }
 
-const items = (op: 'add' | 'update'): (DataFromItem | DataFromItem[])[] => [
+const items: (DataFromItem | DataFromItem[])[] = [
   [
     {
       label: '团队名称',
@@ -40,7 +40,7 @@ const items = (op: 'add' | 'update'): (DataFromItem | DataFromItem[])[] => [
           value: Number(key),
         })),
         optionType: 'button',
-        disabled: op === 'update',
+        // disabled: op === 'update',
       },
       formProps: {
         rules: [
@@ -59,7 +59,7 @@ const items = (op: 'add' | 'update'): (DataFromItem | DataFromItem[])[] => [
     props: {
       placeholder: '请输入团队LOGO',
       maxLength: 200,
-      disabled: op === 'update',
+      // disabled: op === 'update',
     },
   },
   {
@@ -99,9 +99,8 @@ export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
     if (spaceId) {
       // TODO: 更新团队
       return team.updateTeamApi({
+        ...params,
         id: spaceId,
-        name: params.name,
-        remark: params.remark,
       })
     } else {
       // TODO: 创建团队
@@ -138,10 +137,7 @@ export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
       onOk={hendleOnOK}
       onCancel={onCancel}
     >
-      <DataFrom
-        items={items(spaceId ? 'update' : 'add')}
-        props={{ layout: 'vertical', form }}
-      />
+      <DataFrom items={items} props={{ layout: 'vertical', form }} />
     </Modal>
   )
 }

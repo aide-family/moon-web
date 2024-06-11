@@ -13,6 +13,7 @@ import {
   Dropdown,
   MenuProps,
   Spin,
+  Typography,
 } from 'antd'
 import React, { useEffect } from 'react'
 import './index.scss'
@@ -153,13 +154,15 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
         ) : (
           <Row gutter={[12, 12]} style={{ flex: 1, overflow: 'auto' }}>
             {teamList?.map((item, index) => {
-              const { name, logo, status, id, remark } = item
+              const { name, logo, status, id, remark, leader, admin } = item
               const items: DescriptionsProps['items'] = [
                 {
                   key: 'leader',
                   label: '负责人',
                   children: (
-                    <Avatar src='https://api.dicebear.com/7.x/miniavs/svg?seed=8' />
+                    <Avatar src={leader?.avatar}>
+                      {leader?.nickname || leader?.name}
+                    </Avatar>
                   ),
                   span: 1,
                 },
@@ -168,8 +171,13 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
                   label: '管理员',
                   children: (
                     <Avatar.Group size='small'>
-                      <Avatar src='https://api.dicebear.com/7.x/miniavs/svg?seed=8' />
-                      <Avatar src='https://api.dicebear.com/7.x/miniavs/svg?seed=8' />
+                      {admin
+                        ? admin?.map((item) => (
+                            <Avatar src={item?.user?.avatar}>
+                              {item?.user?.nickname || item?.user?.name}
+                            </Avatar>
+                          ))
+                        : '-'}
                     </Avatar.Group>
                   ),
                   span: 2,
@@ -177,7 +185,16 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
                 {
                   key: '3',
                   label: '团队描述',
-                  children: remark || '-',
+                  children: (
+                    <Typography.Paragraph
+                      ellipsis={{
+                        rows: 2,
+                        expandable: 'collapsible',
+                      }}
+                    >
+                      {remark || '-'}
+                    </Typography.Paragraph>
+                  ),
                 },
               ]
               return (

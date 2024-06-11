@@ -14,6 +14,8 @@ export interface UpdateTeamRequest {
   id: number
   name: string
   remark?: string
+  logo?: string
+  status?: number
 }
 
 export interface TeamListRequest {

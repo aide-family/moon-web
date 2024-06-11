@@ -14,6 +14,8 @@ import useStorage from '@/utils/storage'
 import '@/assets/styles/index.scss'
 import { UserItem } from '@/api/authorization/user'
 import { TeamItemType } from '@/api/team/types'
+import zhCN from 'antd/locale/zh_CN'
+import enUS from 'antd/locale/en_US'
 
 const { useToken } = theme
 
@@ -81,6 +83,7 @@ function App() {
   return (
     <>
       <ConfigProvider
+        locale={lang === 'zh-CN' ? zhCN : enUS}
         theme={{
           components: {
             Layout: {

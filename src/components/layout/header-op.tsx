@@ -45,8 +45,11 @@ export const HeaderOp: React.FC = () => {
         style={{ color: '#FFF' }}
         onClick={() => {
           setLang?.(lang === 'zh-CN' ? 'en-US' : 'zh-CN')
+          window.location.reload()
         }}
-      />
+      >
+        {lang === 'zh-CN' ? 'English' : '中文'}
+      </Button>
       <Button
         type='text'
         icon={theme === 'dark' ? <SunOutlined /> : <MoonOutlined />}
