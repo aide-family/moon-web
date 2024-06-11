@@ -1,4 +1,5 @@
 import { UserItem } from '@/api/authorization/user'
+import { TeamItemType } from '@/api/team/types'
 import { BreadcrumbNameType } from '@/config/menu'
 import { theme } from 'antd'
 import { ItemType } from 'antd/es/menu/hooks/useItems'
@@ -22,6 +23,8 @@ export type GlobalContextType = {
   setCollapsed?: (collapsed: boolean) => void
   userInfo?: UserItem
   setUserInfo?: (userInfo: UserItem) => void
+  teamInfo?: TeamItemType
+  setTeamInfo?: (teamInfo: TeamItemType) => void
 }
 
 export const GlobalContext = createContext<GlobalContextType>({

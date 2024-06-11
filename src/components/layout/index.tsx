@@ -90,7 +90,11 @@ const MoonLayout: React.FC = () => {
                 theme={theme}
                 mode='inline'
                 items={menuItems}
-                style={{ height: '100%', borderInlineEnd: 'none' }}
+                style={{
+                  height: '100%',
+                  borderInlineEnd: 'none',
+                  overflow: 'auto',
+                }}
                 openKeys={collapsed ? [] : openKeys}
                 defaultOpenKeys={openKeys}
                 onSelect={({ key }) => handleOnSelect(key)}

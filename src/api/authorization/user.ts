@@ -48,3 +48,19 @@ export interface SearchUsersParams {
 export const login = (params: LoginRequest) => {
   return request.POST<LoginResponse>('/v1/authorization/login', params)
 }
+
+/**
+ * 登出
+ * POST /v1/authorization/logout
+ */
+export const logout = () => {
+  return request.POST<{ redirect: string }>('/v1/authorization/logout', {})
+}
+
+/**
+ * 刷新token
+ * POST /v1/authorization/refresh
+ */
+export const refreshToken = (teamId: number) => {
+  return request.POST<LoginResponse>('/v1/authorization/refresh', { teamId })
+}

@@ -1,4 +1,5 @@
-import { Pagination, PaginationResponse } from '../global'
+import { UserItem } from '../authorization/user'
+import { Pagination, PaginationResponse, Status } from '../global'
 
 export interface CreateTeamRequest {
   name: string
@@ -25,6 +26,20 @@ export interface TeamListRequest {
 
 export interface TeamItemResponse extends PaginationResponse<TeamItemType> {}
 
+export interface MyTeam {
+  list?: TeamItemType[]
+}
+
+export interface TeamMemberItem {
+  userId: number
+  id: number
+  roles?: number[]
+  status: Status
+  createdAt: string
+  updatedAt: string
+  user?: UserItem
+}
+
 export interface TeamItemType {
   id: number
   name: string
@@ -35,4 +50,7 @@ export interface TeamItemType {
   adminIds?: number[]
   createTime?: string
   updateTime?: string
+  leader?: UserItem
+  creator?: UserItem
+  admin?: TeamMemberItem[]
 }

@@ -13,17 +13,54 @@ import { SpaceSize } from 'antd/es/space'
 import useStorage from '@/utils/storage'
 import '@/assets/styles/index.scss'
 import { UserItem } from '@/api/authorization/user'
+import { TeamItemType } from '@/api/team/types'
 
 const { useToken } = theme
+
+function getUserInfo() {
+  const userInfo = localStorage.getItem('userInfo')
+  if (userInfo) {
+    try {
+      return JSON.parse(userInfo)
+    } catch (e) {
+      return {}
+    }
+  }
+  return {}
+}
+
+const defaultTeamInfo: TeamItemType = {
+  id: 0,
+  name: '请选择团队信息',
+}
+
+function getTeamInfo() {
+  const teamInfo = localStorage.getItem('teamInfo')
+  if (teamInfo) {
+    try {
+      return JSON.parse(teamInfo)
+    } catch (e) {
+      return defaultTeamInfo
+    }
+  }
+  return defaultTeamInfo
+}
 
 function App() {
   const { token } = useToken()
 
-  const [theme, setTheme] = useStorage<ThemeType>('theme', 'dark')
+  const [theme, setTheme] = useStorage<ThemeType>('theme', 'light')
   const [lang, setLang] = useStorage<LangType>('lang', 'zh-CN')
   const [size, setSize] = useStorage<SpaceSize>('size', 'middle')
   const [collapsed, setCollapsed] = useStorage<boolean>('collapsed', false)
-  const [userInfo, setUserInfo] = useStorage<UserItem>('userInfo', undefined)
+  const [userInfo, setUserInfo] = useStorage<UserItem>(
+    'userInfo',
+    getUserInfo()
+  )
+  const [teamInfo, setTeamInfo] = useStorage<TeamItemType>(
+    'teamInfo',
+    getTeamInfo()
+  )
   const contextValue: GlobalContextType = {
     theme: theme,
     setTheme: setTheme,
@@ -38,6 +75,8 @@ function App() {
     breadcrumbNameMap: breadcrumbNameMap,
     userInfo: userInfo,
     setUserInfo: setUserInfo,
+    teamInfo: teamInfo,
+    setTeamInfo: setTeamInfo,
   }
   return (
     <>

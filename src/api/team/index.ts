@@ -1,5 +1,6 @@
 import {
   CreateTeamRequest,
+  MyTeam,
   TeamItemResponse,
   TeamItemType,
   TeamListRequest,
@@ -50,10 +51,19 @@ const setTeamStatusApi = (id: number, status: Status) => {
   return PUT<NullObject>(`/v1/team/${id}/status`, { status })
 }
 
+/**
+ * 我的团队， 查看当前用户的团队列表
+ * GET /v1/my/team
+ */
+const getMyTeamApi = () => {
+  return request.GET<MyTeam>('/v1/my/team')
+}
+
 export default {
   createTeamApi,
   updateTeamApi,
   getTeamApi,
   getTeamListApi,
   setTeamStatusApi,
+  getMyTeamApi,
 }
