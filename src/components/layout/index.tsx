@@ -70,66 +70,52 @@ const MoonLayout: React.FC = () => {
 
   return (
     <>
-      <Layout
-        style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}
-      >
-        <Header className='header'>
-          <HeaderTitle />
-          <HeaderOp />
-        </Header>
-        <Content
+      <Layout style={{ overflow: 'hidden', height: '100vh', width: '100vw' }}>
+        <Sider style={{ background: 'none' }} collapsed={collapsed}>
+          <Header className='header'>
+            <HeaderTitle />
+          </Header>
+          <Menu
+            theme={theme}
+            mode='inline'
+            items={menuItems}
+            style={{
+              height: '100%',
+              borderInlineEnd: 'none',
+              overflow: 'auto',
+            }}
+            openKeys={collapsed ? [] : openKeys}
+            defaultOpenKeys={openKeys}
+            onSelect={({ key }) => handleOnSelect(key)}
+            selectedKeys={selectedKeys}
+            onOpenChange={handleMenuOpenChange}
+          />
+        </Sider>
+        <Layout
           style={{
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
           }}
         >
-          <Layout style={{ flex: 1 }}>
-            <Sider style={{ background: 'none' }} collapsed={collapsed}>
-              <Menu
-                theme={theme}
-                mode='inline'
-                items={menuItems}
-                style={{
-                  height: '100%',
-                  borderInlineEnd: 'none',
-                  overflow: 'auto',
-                }}
-                openKeys={collapsed ? [] : openKeys}
-                defaultOpenKeys={openKeys}
-                onSelect={({ key }) => handleOnSelect(key)}
-                selectedKeys={selectedKeys}
-                onOpenChange={handleMenuOpenChange}
-              />
-            </Sider>
-            <Layout>
-              <Content className='content'>
-                <RouteBreadcrumb />
-                <Suspense fallback={<div>loading...</div>}>
-                  <div
-                    className='outlet'
-                    style={{
-                      background: token.colorBgContainer,
-                      display: 'flex',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <div style={{ flex: 1 }}>
-                      <Outlet />
-                    </div>
-                  </div>
-                </Suspense>
-              </Content>
-              <Footer
-                className='footer center'
-                style={{ background: token.colorBgContainer }}
-              >
-                <CopyrightOutlined />
-                {window.location.host}
-              </Footer>
-            </Layout>
-          </Layout>
-        </Content>
+          <Header className='header'>
+            <RouteBreadcrumb />
+            <HeaderOp />
+          </Header>
+
+          <Content className='content' style={{ flex: 1 }}>
+            <Suspense fallback={<div>loading...</div>}>
+              <Outlet />
+            </Suspense>
+          </Content>
+          <Footer
+            className='footer center'
+            style={{ background: token.colorBgContainer }}
+          >
+            <CopyrightOutlined />
+            {window.location.host}
+          </Footer>
+        </Layout>
       </Layout>
     </>
   )

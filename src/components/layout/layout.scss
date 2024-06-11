@@ -26,13 +26,7 @@
 }
 
 .content {
-  padding: 12px;
   @include flex-base($direction: column, $justify: "", $align: "");
-}
-
-.outlet {
-  margin-top: 12px;
-  flex: 1;
 }
 
 // 卡片样式操作栏居中
