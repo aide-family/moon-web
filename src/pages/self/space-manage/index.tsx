@@ -205,8 +205,8 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
                     hoverable
                     extra={
                       <Switch
-                        checkedChildren='开启'
-                        unCheckedChildren='关闭'
+                        checkedChildren='正常'
+                        unCheckedChildren='禁用'
                         value={status === Status.ENABLE}
                         onChange={(checked) => handleChangeStatus(id, checked)}
                       />
