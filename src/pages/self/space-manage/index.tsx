@@ -106,14 +106,20 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
 
   const handleEditModalOnOK = () => {
     setOpenEditModal(false)
+    setOperatorTeam(undefined)
     handleRefresh()
+  }
+
+  const handleOnCancel = () => {
+    setOpenEditModal(false)
+    setOperatorTeam(undefined)
   }
 
   return (
     <>
       <EditSpaceModal
         open={openEditModal}
-        onCancel={() => setOpenEditModal(false)}
+        onCancel={handleOnCancel}
         onOk={handleEditModalOnOK}
         spaceId={operatorTeam?.id}
       />

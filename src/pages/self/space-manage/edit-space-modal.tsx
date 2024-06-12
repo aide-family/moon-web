@@ -1,8 +1,8 @@
 import { StatusData } from '@/api/global'
-import { NullObject } from '@/api/request'
+import { ErrorResponse, NullObject } from '@/api/request'
 import team from '@/api/team'
 import { CreateTeamRequest, TeamItemType } from '@/api/team/types'
-import { DataFrom, DataFromItem } from '@/components/data/form'
+import { DataFrom, DataFromItem, ValidateType } from '@/components/data/form'
 import { Modal, ModalProps } from 'antd'
 import { useForm } from 'antd/es/form/Form'
 import React, { useEffect } from 'react'
@@ -68,7 +68,7 @@ const items: (DataFromItem | DataFromItem[])[] = [
     type: 'textarea',
     props: {
       placeholder: '请输入团队描述',
-      maxLength: 100,
+      maxLength: 200,
       showCount: true,
       autoSize: {
         minRows: 2,
@@ -82,6 +82,8 @@ export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
   const { spaceId, open, onOk, onCancel } = props
   const [form] = useForm<CreateTeamRequest>()
   const [detail, setDetail] = React.useState<TeamItemType>()
+  const [validates, setValidates] =
+    React.useState<Record<string, ValidateType>>()
 
   const handleGetTeamDetail = (id?: number) => {
     if (id) {
@@ -109,35 +111,51 @@ export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
   }
 
   const hendleOnOK = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    form
-      .validateFields()
-      .then((values) => {
-        save(values)
-        onOk?.(e)
-        return values
-      })
-      .then(() => {
-        onCancel?.(e)
-      })
+    form.validateFields().then((values) => {
+      save(values)
+        .then(() => {
+          form.resetFields()
+          setValidates(undefined)
+          onOk?.(e)
+        })
+        .catch((err: ErrorResponse) => {
+          Object.keys(err.metadata).map((key) => {
+            setValidates({
+              [key]: {
+                validateStatus: 'error',
+                help: err.metadata[key],
+              },
+            })
+          })
+        })
+      return values
+    })
+  }
+
+  const handleCancel = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    form.resetFields()
+    setValidates(undefined)
+    onCancel?.(e)
   }
 
   useEffect(() => {
     if (!form || !detail) return
     form?.setFieldsValue({
-      name: detail?.name,
-      remark: detail?.remark,
-      logo: detail?.logo,
-      status: detail?.status,
+      ...detail,
     })
-  }, [detail, form])
+  }, [detail])
   return (
     <Modal
       title={spaceId ? '编辑团队信息' : '创建团队信息'}
       open={open}
       onOk={hendleOnOK}
-      onCancel={onCancel}
+      onCancel={handleCancel}
     >
-      <DataFrom items={items} props={{ layout: 'vertical', form }} />
+      <DataFrom
+        items={items}
+        props={{ layout: 'vertical', form }}
+        validates={validates}
+      />
     </Modal>
   )
 }

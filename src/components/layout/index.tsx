@@ -30,7 +30,7 @@ const MoonLayout: React.FC = () => {
   }
   const location = useLocation()
   const { token } = useToken()
-  const { menuItems, collapsed, theme } = useContext(GlobalContext)
+  const { menuItems, collapsed } = useContext(GlobalContext)
 
   const [openKeys, setOpenKeys] = useState<string[]>([])
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
@@ -71,12 +71,13 @@ const MoonLayout: React.FC = () => {
   return (
     <>
       <Layout style={{ overflow: 'hidden', height: '100vh', width: '100vw' }}>
-        <Sider style={{ background: 'none' }} collapsed={collapsed}>
+        <Sider collapsed={collapsed}>
           <Header className='header'>
             <HeaderTitle />
           </Header>
           <Menu
-            theme={theme}
+            // theme={theme}
+            theme='dark'
             mode='inline'
             items={menuItems}
             style={{
@@ -98,7 +99,13 @@ const MoonLayout: React.FC = () => {
             flexDirection: 'column',
           }}
         >
-          <Header className='header'>
+          <Header
+            className='header'
+            style={{
+              background: token.colorBgContainer,
+              color: token.colorText,
+            }}
+          >
             <RouteBreadcrumb />
             <HeaderOp />
           </Header>

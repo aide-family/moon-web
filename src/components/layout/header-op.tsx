@@ -37,12 +37,11 @@ export const HeaderOp: React.FC = () => {
         href={github}
         target='_blank'
         icon={<GithubOutlined />}
-        style={{ color: '#FFF' }}
       />
       <Button
         type='text'
         icon={<TranslationOutlined />}
-        style={{ color: '#FFF' }}
+        // style={{ color: '#FFF' }}
         onClick={() => {
           setLang?.(lang === 'zh-CN' ? 'en-US' : 'zh-CN')
           window.location.reload()
@@ -53,7 +52,7 @@ export const HeaderOp: React.FC = () => {
       <Button
         type='text'
         icon={theme === 'dark' ? <SunOutlined /> : <MoonOutlined />}
-        style={{ color: '#FFF' }}
+        // style={{ color: '#FFF' }}
         onClick={() => {
           setTheme?.(theme === 'dark' ? 'light' : 'dark')
         }}

@@ -17,7 +17,7 @@ const request = axios.create({
   timeout: 10000,
 })
 
-type ErrorResponse = {
+export type ErrorResponse = {
   code: number
   message: string
   metadata: Record<string, string>
@@ -31,9 +31,17 @@ request.interceptors.response.use(
   (error) => {
     const resp = error.response
     const respData = resp.data as ErrorResponse
-    notification.warning({
-      message: respData?.message || '请求失败',
-    })
+    switch (respData.code) {
+      case 500:
+        notification.error({
+          message: respData?.message || '请求失败',
+        })
+        break
+      default:
+        notification.warning({
+          message: respData?.message || '请求失败',
+        })
+    }
 
     return Promise.reject(respData)
   }

@@ -49,10 +49,6 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
           }
         }),
       }}
-      overlayStyle={{
-        height: 200,
-        overflow: 'auto',
-      }}
       placement='bottom'
     >
       <Space>
