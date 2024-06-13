@@ -37,6 +37,13 @@ request.interceptors.response.use(
           message: respData?.message || '请求失败',
         })
         break
+      case 401:
+        notification.error({
+          message: respData?.message || '登录失效',
+        })
+        removeToken()
+
+        break
       default:
         notification.warning({
           message: respData?.message || '请求失败',
