@@ -1,36 +1,51 @@
-import { Button, Input, Layout, Menu, Tabs, TabsProps, theme } from 'antd'
+import { Button, Input, Menu, Tabs, TabsProps, theme } from 'antd'
 import React, { useEffect } from 'react'
 import './index.scss'
 import { Metadata } from './metadata'
 import { TimelyQuery } from './timely-query'
 import { AlarmTemplate } from './alarm-template'
+import datasourceapi, {
+  DatasourceItemType,
+  DatasourceListRequest,
+} from '@/api/datasource'
+import { EditModal } from './edit-modal'
+import { Basics } from './basics'
 
 export interface MetricProps {}
 
-const { Sider, Content } = Layout
 const { useToken } = theme
 
-const defaultDatasource = Array.from({ length: 100 }, (_, i) => ({
-  key: i,
-  label: `数据源${i}`.repeat(4),
-}))
+const defaultSearchDatasourceParams: DatasourceListRequest = {
+  pagination: {
+    pageNum: 1,
+    pageSize: 100,
+  },
+}
 
+let searchTimer: NodeJS.Timeout | null = null
 const Metric: React.FC<MetricProps> = () => {
   const { token } = useToken()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [datasource, setDatasource] = React.useState<any[]>([])
-  const [datasourceUrl, setDatasourceUrl] = React.useState<string>()
-  const [activeKey, setActiveKey] = React.useState('1')
+  const [datasource, setDatasource] = React.useState<DatasourceItemType[]>([])
+  const [datasourceDetail, setDatasourceDetail] =
+    React.useState<DatasourceItemType>()
+
+  const [searchDatasourceParams, setSearchDatasourceParams] =
+    React.useState<DatasourceListRequest>(defaultSearchDatasourceParams)
+  const [openAddModal, setOpenAddModal] = React.useState(false)
+  const [refresh, setRefresh] = React.useState(false)
+
+  const handleRefresh = () => {
+    setRefresh((prev) => !prev)
+  }
+
   const tabsItems: TabsProps['items'] = [
     {
       key: 'basics',
       label: '基本信息',
       children: (
         <div className='box' style={{ overflow: 'auto' }}>
-          基本信息
-          {Array.from({ length: 100 }, (_, i) => (
-            <div key={i}>{i}</div>
-          ))}
+          <Basics datasource={datasourceDetail} refresh={handleRefresh} />
         </div>
       ),
     },
@@ -39,7 +54,7 @@ const Metric: React.FC<MetricProps> = () => {
       label: '元数据',
       children: (
         <div className='box'>
-          <Metadata datasource={datasourceUrl} />
+          <Metadata datasource={datasourceDetail} />
         </div>
       ),
     },
@@ -48,7 +63,7 @@ const Metric: React.FC<MetricProps> = () => {
       label: '及时查询',
       children: (
         <div className='box'>
-          <TimelyQuery datasource={datasourceUrl} />
+          <TimelyQuery datasource={datasourceDetail} />
         </div>
       ),
     },
@@ -57,52 +72,89 @@ const Metric: React.FC<MetricProps> = () => {
       label: '告警模板',
       children: (
         <div className='box'>
-          <AlarmTemplate datasource={datasourceUrl} />
+          <AlarmTemplate datasource={datasourceDetail} />
         </div>
       ),
     },
   ]
 
-  const tabsOnChange = (activeKey: string) => {}
+  const handleDatasourceChange = (key: number) => {
+    setDatasourceDetail(datasource.find((item) => item.id === key))
+  }
 
-  const handleDatasourceChange = (key: string) => {
-    setDatasourceUrl(key)
+  const handleDatasourceSearch = () => {
+    if (searchTimer) {
+      clearTimeout(searchTimer)
+    }
+    searchTimer = setTimeout(() => {
+      datasourceapi.getDatasourceList(searchDatasourceParams).then((res) => {
+        setDatasource(res?.list || [])
+      })
+    }, 500)
+  }
+
+  const handleEditModalOnOK = () => {
+    setOpenAddModal(false)
+    handleRefresh()
+  }
+  const handleEditModalOnCancel = () => {
+    setOpenAddModal(false)
+  }
+
+  const handleOnAdd = () => {
+    setOpenAddModal(true)
+  }
+
+  const handleOnSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchDatasourceParams({
+      ...searchDatasourceParams,
+      keyword: e.target.value + '%',
+    })
   }
 
   useEffect(() => {
     if (!datasource || !datasource.length) return
-    setDatasourceUrl(datasource?.[0].key)
+    setDatasourceDetail(datasource?.[0])
   }, [datasource])
 
   useEffect(() => {
-    setDatasource(defaultDatasource)
-  }, [])
+    handleDatasourceSearch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refresh, searchDatasourceParams])
   return (
-    <Layout className='metricDatasourceBox'>
+    <div className='metricDatasourceBox'>
+      <EditModal
+        width='50%'
+        open={openAddModal}
+        onOk={handleEditModalOnOK}
+        onCancel={handleEditModalOnCancel}
+      />
       <div className='sider' style={{ background: token.colorBgContainer }}>
-        <Button type='primary' style={{ width: '100%' }}>
+        <Button type='primary' style={{ width: '100%' }} onClick={handleOnAdd}>
           新建数据源
         </Button>
-        <Input.Search placeholder='数据源' />
+        <Input.Search
+          placeholder='数据源'
+          onChange={handleOnSearch}
+          onSearch={handleDatasourceSearch}
+        />
         <Menu
-          items={datasource}
+          items={datasource?.map((item) => {
+            return {
+              key: item.id,
+              label: item.name,
+            }
+          })}
+          selectedKeys={[datasourceDetail?.id + '']}
           className='menu'
-          onSelect={(k) => handleDatasourceChange(k.key)}
+          onSelect={(k) => handleDatasourceChange(+k.key)}
         />
       </div>
-      <Layout>
-        <Content
-          className='content'
-          style={{ background: token.colorBgContainer }}
-        >
-          <Tabs
-            defaultActiveKey='1'
-            items={tabsItems}
-            onChange={tabsOnChange}
-          />
-        </Content>
-      </Layout>
-    </Layout>
+
+      <div className='content' style={{ background: token.colorBgContainer }}>
+        <Tabs defaultActiveKey='basics' items={tabsItems} />
+      </div>
+    </div>
   )
 }
 

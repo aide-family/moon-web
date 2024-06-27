@@ -15,12 +15,13 @@ import {
   Spin,
   Typography,
 } from 'antd'
-import React, { useEffect } from 'react'
+import React, { useContext, useEffect } from 'react'
 import './index.scss'
 import { EditSpaceModal } from './edit-space-modal'
 import { TeamItemType, TeamListRequest } from '@/api/team/types'
 import team from '@/api/team'
 import { Status } from '@/api/global'
+import { GlobalContext } from '@/utils/context'
 
 export interface SpaceManageProps {
   children?: React.ReactNode
@@ -37,6 +38,7 @@ const defaultSearchParams: TeamListRequest = {
 let timeout: NodeJS.Timeout | null = null
 let searchTimeout: NodeJS.Timeout | null = null
 const SpaceManage: React.FC<SpaceManageProps> = () => {
+  const { setRefreshMyTeamList } = useContext(GlobalContext)
   const [openEditModal, setOpenEditModal] = React.useState(false)
   const [operatorTeam, setOperatorTeam] = React.useState<TeamItemType>()
   const [searchParams, setSearchParams] =
@@ -108,6 +110,7 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
     setOpenEditModal(false)
     setOperatorTeam(undefined)
     handleRefresh()
+    setRefreshMyTeamList?.()
   }
 
   const handleOnCancel = () => {

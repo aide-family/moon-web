@@ -16,6 +16,7 @@ import { UserItem } from '@/api/authorization/user'
 import { TeamItemType } from '@/api/team/types'
 import zhCN from 'antd/locale/zh_CN'
 import enUS from 'antd/locale/en_US'
+import { useState } from 'react'
 
 const { useToken } = theme
 
@@ -63,6 +64,8 @@ function App() {
     'teamInfo',
     getTeamInfo()
   )
+  const [refreshMyTeamList, setRefreshMyTeamList] = useState<boolean>(false)
+
   const contextValue: GlobalContextType = {
     theme: theme,
     setTheme: setTheme,
@@ -79,6 +82,8 @@ function App() {
     setUserInfo: setUserInfo,
     teamInfo: teamInfo,
     setTeamInfo: setTeamInfo,
+    refreshMyTeamList: refreshMyTeamList,
+    setRefreshMyTeamList: () => setRefreshMyTeamList(!refreshMyTeamList),
   }
   return (
     <>

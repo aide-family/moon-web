@@ -1,8 +1,9 @@
+import { DatasourceItemType } from '@/api/datasource'
 import { Input, Tabs, TabsProps } from 'antd'
 import React from 'react'
 
 export interface TimelyQueryProps {
-  datasource?: string
+  datasource?: DatasourceItemType
 }
 
 export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
@@ -28,7 +29,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
         <Input placeholder='PromQL...' />
       </div>
       <Tabs defaultActiveKey='1' items={tabsItems} onChange={tabsOnChange} />
-      TimelyQuery {datasource}
+      TimelyQuery {JSON.stringify(datasource)}
     </div>
   )
 }

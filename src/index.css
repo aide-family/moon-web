@@ -41,3 +41,7 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background-color: #1677ff;
 }
+
+.ant-alert-info .ant-alert-icon {
+  color: var(--ant-color-info);
+}

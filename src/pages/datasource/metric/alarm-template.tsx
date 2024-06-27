@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { DatasourceItemType } from '@/api/datasource'
 import { Button, Flex, Input, Space, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import React from 'react'
 
 export interface AlarmTemplateProps {
-  datasource?: string
+  datasource?: DatasourceItemType
 }
 
 export const AlarmTemplate: React.FC<AlarmTemplateProps> = (props) => {
@@ -66,7 +67,7 @@ export const AlarmTemplate: React.FC<AlarmTemplateProps> = (props) => {
         <Input.Search placeholder='请输入模板名称' className='search' />
       </Flex>
       <Table rowKey={(row) => row.id} columns={columns} dataSource={data} />
-      AlarmTemplate {datasource}
+      AlarmTemplate {JSON.stringify(datasource)}
     </div>
   )
 }
