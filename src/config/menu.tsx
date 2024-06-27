@@ -113,6 +113,21 @@ export const defaultMenuItems: ItemType[] = [
       },
     ],
   },
+  {
+    label: 'Moon社区',
+    key: '/home/community',
+    icon: <IconFont type='icon-tongzhimoban' />,
+    children: [
+      {
+        label: '策略仓库',
+        key: '/home/community/strategy-template',
+      },
+      {
+        label: '讨论',
+        key: '/home/community/discussion',
+      },
+    ],
+  },
 ]
 
 export type BreadcrumbNameType = {
@@ -195,5 +210,14 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   },
   '/home/archive/notice': {
     name: '历史通知',
+  },
+  '/home/community': {
+    name: 'Moon社区',
+  },
+  '/home/community/strategy-template': {
+    name: '策略仓库',
+  },
+  '/home/community/discussion': {
+    name: '讨论',
   },
 }

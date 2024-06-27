@@ -15,6 +15,7 @@
     "antd": "^5.17.0",
     "axios": "^1.7.2",
     "crypto-js": "^4.2.0",
+    "dayjs": "^1.11.11",
     "monaco-editor": "^0.48.0",
     "postcss-pxtorem": "^6.1.0",
     "react": "^18.2.0",

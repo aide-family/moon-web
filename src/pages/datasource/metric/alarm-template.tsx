@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DatasourceItemType } from '@/api/datasource'
-import { Button, Flex, Input, Space, Table } from 'antd'
+import { Button, Flex, Form, Input, Select, Space, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import React from 'react'
 
@@ -52,10 +52,11 @@ export const AlarmTemplate: React.FC<AlarmTemplateProps> = (props) => {
     {
       title: '操作',
       key: 'action',
+      width: 120,
       render: (_, record) => (
         <Space size='middle'>
-          <a>Invite {record.name}</a>
-          <a>Delete</a>
+          <a>详情</a>
+          <a>删除</a>
         </Space>
       ),
     },
@@ -64,10 +65,16 @@ export const AlarmTemplate: React.FC<AlarmTemplateProps> = (props) => {
     <div className='alarm-template'>
       <Flex justify='space-between' align='center' gap={12} className='op'>
         <Button type='primary'>新建模板</Button>
-        <Input.Search placeholder='请输入模板名称' className='search' />
+        <Form layout='inline'>
+          <Form.Item>
+            <Select placeholder='请选择模板类型' className='select' />
+          </Form.Item>
+          <Form.Item>
+            <Input.Search placeholder='请输入模板名称' className='search' />
+          </Form.Item>
+        </Form>
       </Flex>
       <Table rowKey={(row) => row.id} columns={columns} dataSource={data} />
-      AlarmTemplate {JSON.stringify(datasource)}
     </div>
   )
 }

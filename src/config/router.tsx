@@ -39,6 +39,17 @@ export const routers: RouteObject[] = [
         ],
       },
       {
+        path: '/home/community',
+        children: [
+          {
+            path: '/home/community/strategy-template',
+            Component: lazy(
+              () => import('@/pages/community/strategy-template')
+            ),
+          },
+        ],
+      },
+      {
         // 403
         path: '/home/*',
         element: <Error403 />,

@@ -40,7 +40,7 @@ export const Basics: React.FC<BasicsProps> = (props) => {
     {
       label: '创建者',
       span: 2,
-      children: datasource?.creator?.name,
+      children: datasource?.creator?.user?.name || '-',
     },
     {
       label: '创建时间',
