@@ -1,5 +1,6 @@
 import { DatasourceItemType } from '@/api/datasource'
 import { Status } from '@/api/global'
+import { GlobalContext } from '@/utils/context'
 import { RedoOutlined } from '@ant-design/icons'
 import {
   Badge,
@@ -8,7 +9,7 @@ import {
   DescriptionsProps,
   Typography,
 } from 'antd'
-import React from 'react'
+import React, { useContext } from 'react'
 import ReactJson from 'react-json-view'
 
 export interface BasicsProps {
@@ -18,6 +19,7 @@ export interface BasicsProps {
 
 export const Basics: React.FC<BasicsProps> = (props) => {
   const { datasource, refresh } = props
+  const { theme } = useContext(GlobalContext)
 
   const items: DescriptionsProps['items'] = [
     {
@@ -38,35 +40,33 @@ export const Basics: React.FC<BasicsProps> = (props) => {
     {
       label: '创建者',
       span: 2,
-      // span: { xl: 2, xxl: 2 },
       children: datasource?.creator?.name,
     },
     {
       label: '创建时间',
       span: 2,
-      // span: { xl: 2, xxl: 2 },
       children: datasource?.createdAt,
     },
     {
       label: '地址',
       span: 2,
-      children: '$60.00',
+      children: datasource?.endpoint,
     },
     {
       label: '更新时间',
       span: 2,
-      // span: { xl: 2, xxl: 2 },
       children: datasource?.updatedAt,
     },
     {
       label: '配置明细',
-      span: { xs: 1, sm: 2, md: 3, lg: 3, xl: 2, xxl: 2 },
+      span: 4,
       children: (
         <>
           <ReactJson
             src={datasource?.config || {}}
             name={false}
             displayDataTypes={false}
+            theme={theme === 'dark' ? 'bright' : 'bright:inverted'}
             iconStyle='square'
           />
         </>
@@ -74,7 +74,7 @@ export const Basics: React.FC<BasicsProps> = (props) => {
     },
     {
       label: '说明信息',
-      span: { xs: 1, sm: 2, md: 3, lg: 3, xl: 2, xxl: 2 },
+      span: 4,
       children: (
         <>
           <Typography.Text type='secondary'>
