@@ -80,6 +80,9 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
       dataIndex: 'name',
       key: 'name',
       // width: 200,
+      render(value) {
+        return <a>{value}</a>
+      },
     },
     {
       title: '指标描述',
@@ -132,7 +135,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
         .getMetricList(searchMetricParams)
         .then(({ list, pagination: { total } }) => {
           setMetricList(list)
-          setMetricListTotal(total)
+          setMetricListTotal(total || 0)
         })
         .finally(() => {
           setLoading(false)
@@ -229,6 +232,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
         </Form>
       </Flex>
       <Table
+        rowKey={(record) => record.id}
         loading={loading}
         size='small'
         dataSource={metricList}

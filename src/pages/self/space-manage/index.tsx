@@ -14,6 +14,7 @@ import {
   MenuProps,
   Spin,
   Typography,
+  Empty,
 } from 'antd'
 import React, { useContext, useEffect } from 'react'
 import './index.scss'
@@ -156,6 +157,7 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
             />
           </Col>
         </Row>
+        <div className='center'>{!teamList?.length && <Empty />}</div>
         {loading ? (
           <Spin spinning={loading} style={{ height: '600px' }}>
             <div></div>

@@ -5,10 +5,12 @@ export interface Pagination {
   pageSize: number
 }
 
+export interface PaginationReply extends Pagination {
+  total?: number
+}
+
 export interface PaginationResponse<T> {
-  pagination: Pagination & {
-    total: number
-  }
+  pagination: PaginationReply
   list: T[]
 }
 

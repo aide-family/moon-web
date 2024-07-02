@@ -61,6 +61,13 @@
           }
         }
       }
+
+      .timely-query {
+        .tab-content {
+          overflow: auto;
+          height: calc(100vh - 340px);
+        }
+      }
     }
   }
 }

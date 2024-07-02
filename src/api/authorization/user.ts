@@ -1,5 +1,11 @@
 // POST /v1/authorization/login
-import { Gender, Pagination, Status, SystemRole } from '../global'
+import {
+  Gender,
+  Pagination,
+  PaginationResponse,
+  Status,
+  SystemRole,
+} from '../global'
 import request from '../request'
 
 export interface LoginCaptcha {
@@ -63,4 +69,12 @@ export const logout = () => {
  */
 export const refreshToken = (teamId: number) => {
   return request.POST<LoginResponse>('/v1/authorization/refresh', { teamId })
+}
+
+/**
+ * 列表用户
+ * POST /v1/user/list
+ */
+export const searchUsers = (params: SearchUsersParams) => {
+  return request.POST<PaginationResponse<UserItem>>('/v1/user/list', params)
 }

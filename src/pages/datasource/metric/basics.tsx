@@ -24,12 +24,12 @@ export const Basics: React.FC<BasicsProps> = (props) => {
   const items: DescriptionsProps['items'] = [
     {
       label: '数据源名称',
-      span: 2,
+      // span: 2,
       children: datasource?.name,
     },
     {
       label: '状态',
-      span: 2,
+      // span: 2,
       children: (
         <Badge
           status={datasource?.status === Status.ENABLE ? 'success' : 'error'}
@@ -39,27 +39,29 @@ export const Basics: React.FC<BasicsProps> = (props) => {
     },
     {
       label: '创建者',
-      span: 2,
-      children: datasource?.creator?.user?.name || '-',
+      // span: 2,
+      children: `${datasource?.creator?.name || '-'}(${
+        datasource?.creator?.nickname || '-'
+      })`,
     },
     {
       label: '创建时间',
-      span: 2,
+      // span: 2,
       children: datasource?.createdAt,
     },
     {
       label: '地址',
-      span: 2,
+      // span: 2,
       children: datasource?.endpoint,
     },
     {
       label: '更新时间',
-      span: 2,
+      // span: 2,
       children: datasource?.updatedAt,
     },
     {
       label: '配置明细',
-      span: 4,
+      span: { xs: 1, sm: 2, md: 2, lg: 2, xl: 2, xxl: 2 },
       children: (
         <>
           <ReactJson
@@ -74,7 +76,7 @@ export const Basics: React.FC<BasicsProps> = (props) => {
     },
     {
       label: '说明信息',
-      span: 4,
+      span: { xs: 1, sm: 2, md: 2, lg: 2, xl: 2, xxl: 2 },
       children: (
         <>
           <Typography.Text type='secondary'>
@@ -99,7 +101,7 @@ export const Basics: React.FC<BasicsProps> = (props) => {
           </div>
         }
         bordered
-        column={{ xs: 1, sm: 2, md: 3, lg: 3, xl: 4, xxl: 4 }}
+        column={{ xs: 1, sm: 2, md: 2, lg: 2, xl: 2, xxl: 2 }}
         items={items}
       />
     </div>

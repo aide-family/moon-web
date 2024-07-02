@@ -1,4 +1,4 @@
-import { Button, Input, Menu, Tabs, TabsProps, theme } from 'antd'
+import { Button, Empty, Input, Menu, Tabs, TabsProps, theme } from 'antd'
 import React, { useEffect } from 'react'
 import './index.scss'
 import { Metadata } from './metadata'
@@ -152,7 +152,13 @@ const Metric: React.FC<MetricProps> = () => {
       </div>
 
       <div className='content' style={{ background: token.colorBgContainer }}>
-        <Tabs defaultActiveKey='basics' items={tabsItems} />
+        {datasourceDetail ? (
+          <Tabs defaultActiveKey='basics' items={tabsItems} />
+        ) : (
+          <div style={{ height: '100%', width: '100%' }} className='center'>
+            <Empty />
+          </div>
+        )}
       </div>
     </div>
   )

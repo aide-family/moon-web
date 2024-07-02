@@ -1,16 +1,31 @@
 import type { ItemType } from 'antd/es/menu/hooks/useItems'
 import { IconFont } from '@/components/icon'
+import { SettingOutlined, UserOutlined } from '@ant-design/icons'
 
 export const defaultMenuItems: ItemType[] = [
   {
-    label: '系统用户',
-    key: '/home/system/users',
-    icon: <IconFont type='icon-kehuguanli1' />,
+    label: '系统管理',
+    key: '/home/system',
+    icon: <SettingOutlined />,
+    children: [
+      {
+        label: '系统用户',
+        key: '/home/system/users',
+      },
+      {
+        label: '系统字典',
+        key: '/home/system/dict',
+      },
+      {
+        label: '系统菜单',
+        key: '/home/system/menu',
+      },
+    ],
   },
   {
     label: '个人中心',
     key: '/home/self',
-    icon: <IconFont type='icon-user_role' />,
+    icon: <UserOutlined />,
     children: [
       {
         label: '团队管理',
@@ -144,6 +159,12 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   },
   '/home/system/users': {
     name: '系统用户',
+  },
+  '/home/system/dict': {
+    name: '系统字典',
+  },
+  '/home/system/menu': {
+    name: '系统菜单',
   },
   '/home/self': {
     name: '个人中心',

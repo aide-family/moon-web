@@ -1,3 +1,4 @@
+import { UserItem } from '../authorization/user'
 import {
   DataSourceType,
   Pagination,
@@ -6,7 +7,6 @@ import {
   StorageType,
 } from '../global'
 import request from '../request'
-import { TeamMemberItem } from '../team/types'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface DatasourceItemType {
@@ -20,7 +20,7 @@ export interface DatasourceItemType {
   config?: Record<string, any>
   remark?: string
   storageType?: StorageType
-  creator?: TeamMemberItem
+  creator?: UserItem
 }
 
 export interface DatasourceListRequest {

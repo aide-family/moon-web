@@ -25,6 +25,10 @@ body {
   align-items: center;
 }
 
+.padding {
+  padding: 12px;
+}
+
 
 ::-webkit-scrollbar {
   width: 12px;

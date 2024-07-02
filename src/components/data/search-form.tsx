@@ -35,7 +35,7 @@ const SearchForm: FC<SearchFormProps> = (props) => {
 
   return (
     <>
-      <Form {...props} layout='vertical'>
+      <Form {...props.props} layout='vertical'>
         <Row gutter={16}>{renderFormItems(items)}</Row>
       </Form>
     </>

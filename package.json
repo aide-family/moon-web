@@ -11,6 +11,13 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.3.7",
+    "@ant-design/plots": "^2.2.4",
+    "@codemirror/autocomplete": "6.7.1",
+    "@codemirror/commands": "6.2.4",
+    "@codemirror/language": "6.7.0",
+    "@codemirror/lint": "^6.4.2",
+    "@codemirror/search": "6.5.0",
+    "@prometheus-io/codemirror-promql": "^0.47.2",
     "@types/postcss-pxtorem": "^6.0.3",
     "antd": "^5.17.0",
     "axios": "^1.7.2",

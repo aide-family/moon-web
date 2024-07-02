@@ -94,7 +94,7 @@ const LoginForm: FC = () => {
           name='password'
           rules={[{ required: true, message: '请输入密码' }]}
         >
-          <Input
+          <Input.Password
             prefix={<LockOutlined className='site-form-item-icon' />}
             type='password'
             placeholder='Password'
