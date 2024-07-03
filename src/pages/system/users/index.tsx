@@ -41,9 +41,7 @@ const Users: React.FC<UsersProps> = () => {
   const { token } = useToken()
   const [searchForm] = useForm<SearchUsersParams>()
   const [users, setUsers] = useState<UserItem[]>([])
-  const [page, setPage] = useState<PaginationReply>(
-    defaultSearchParams.pagination
-  )
+  const [page, setPage] = useState<PaginationReply>()
   const [loading, setLoading] = useState(false)
   const [searchParams, setSearchParams] =
     useState<SearchUsersParams>(defaultSearchParams)

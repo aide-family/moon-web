@@ -45,7 +45,7 @@ const MoonLayout: React.FC = () => {
       openKeyList = ['/' + openKeyList.join('/')]
     }
     setOpenKeys(openKeyList)
-    setSelectedKeys(keys)
+    // setSelectedKeys(keys)
   }
 
   const handleOnSelect = (key: string) => {
@@ -86,9 +86,10 @@ const MoonLayout: React.FC = () => {
               overflow: 'auto',
             }}
             openKeys={collapsed ? [] : openKeys}
-            defaultOpenKeys={openKeys}
+            defaultOpenKeys={collapsed ? [] : openKeys}
             onSelect={({ key }) => handleOnSelect(key)}
             selectedKeys={selectedKeys}
+            defaultSelectedKeys={selectedKeys}
             onOpenChange={handleMenuOpenChange}
           />
         </Sider>

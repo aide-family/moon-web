@@ -6,12 +6,27 @@ export interface Pagination {
 }
 
 export interface PaginationReply extends Pagination {
-  total?: number
+  total: number
 }
 
 export interface PaginationResponse<T> {
   pagination: PaginationReply
   list: T[]
+}
+
+export interface SelectExtendType {
+  icon?: string
+  color?: string
+  remark?: string
+  image?: string
+}
+
+export interface SelectType {
+  value: number
+  label: string
+  children?: SelectType[]
+  disabled: boolean
+  extend?: SelectExtendType
 }
 
 export enum Status {

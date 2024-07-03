@@ -1,0 +1,14 @@
+.box {
+  padding: 12px;
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  .search {
+    padding: 12px;
+  }
+  .op {
+    padding: 12px;
+  }
+  .table {
+  }
+}
