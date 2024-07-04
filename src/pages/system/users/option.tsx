@@ -1,5 +1,12 @@
 import { UserItem } from '@/api/authorization/user'
-import { Gender, Status, StatusData } from '@/api/global'
+import {
+  Gender,
+  GenderData,
+  Status,
+  StatusData,
+  SystemRoleData,
+} from '@/api/global'
+import { DataFromItem } from '@/components/data/form'
 import { ManOutlined, WomanOutlined } from '@ant-design/icons'
 import { Avatar, Tooltip, Image, Button, Badge } from 'antd'
 
@@ -42,3 +49,56 @@ export const Username: React.FC<UserItem> = (props: UserItem) => {
     </Button>
   )
 }
+
+export const userListSearchItems: DataFromItem[] = [
+  {
+    name: 'keyword',
+    label: '模糊查询',
+    type: 'input',
+    props: {
+      placeholder: '请输入用户名、昵称、手机号、邮箱',
+      allowClear: true,
+    },
+  },
+  {
+    name: 'status',
+    label: '状态',
+    type: 'radio-group',
+    props: {
+      optionType: 'button',
+      options: Object.entries(StatusData).map(([key, value]) => {
+        return {
+          label: value.text,
+          value: Number(key),
+        }
+      }),
+    },
+  },
+  {
+    name: 'gender',
+    label: '性别',
+    type: 'radio-group',
+    props: {
+      optionType: 'button',
+      options: Object.entries(GenderData).map(([key, value]) => {
+        return {
+          label: value,
+          value: Number(key),
+        }
+      }),
+    },
+  },
+  {
+    name: 'role',
+    label: '角色',
+    type: 'select',
+    props: {
+      options: Object.entries(SystemRoleData).map(([key, value]) => {
+        return {
+          label: value,
+          value: Number(key),
+        }
+      }),
+    },
+  },
+]

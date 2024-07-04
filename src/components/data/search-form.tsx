@@ -5,16 +5,15 @@ import { Form, Col, Row } from 'antd'
 import { DataInput } from './child/data-input'
 import { DataFromItem } from './form'
 
-export type SearchFormProps = {
+export interface SearchFormProps extends FormProps {
   items?: DataFromItem[]
-  props?: FormProps
   onClear?: () => void
 }
 
 const SearchForm: FC<SearchFormProps> = (props) => {
   const { items = [] } = props
 
-  const renderFormItem = (item: DataFromItem) => {
+  function renderFormItem(item: DataFromItem) {
     const { name, label, formProps } = item
     return (
       <Form.Item {...formProps} name={name} label={label} key={name + label}>
@@ -23,7 +22,7 @@ const SearchForm: FC<SearchFormProps> = (props) => {
     )
   }
 
-  const renderFormItems = (items: DataFromItem[]) => {
+  function renderFormItems(items: DataFromItem[]) {
     return items.map((item, index) => {
       return (
         <Col key={index} xs={24} sm={24} md={12} lg={12} xl={8} xxl={6}>
@@ -35,7 +34,7 @@ const SearchForm: FC<SearchFormProps> = (props) => {
 
   return (
     <>
-      <Form {...props.props} layout='vertical'>
+      <Form {...props} layout='vertical'>
         <Row gutter={16}>{renderFormItems(items)}</Row>
       </Form>
     </>

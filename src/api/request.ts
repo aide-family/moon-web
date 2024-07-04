@@ -42,7 +42,6 @@ request.interceptors.response.use(
           message: respData?.message || '登录失效',
         })
         removeToken()
-
         break
       default:
         notification.warning({
@@ -71,6 +70,7 @@ export const setToken = (token: string) => {
 
 export const removeToken = () => {
   localStorage.removeItem('token')
+  window.location.href = '/login'
 }
 
 export const getToken = () => {

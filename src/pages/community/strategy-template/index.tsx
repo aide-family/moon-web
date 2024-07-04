@@ -4,19 +4,12 @@ import {
   GetStrategyTemplateListRequest,
   StrategyTemplateItemType,
 } from '@/api/template/types'
-import {
-  Flex,
-  Button,
-  Form,
-  Table,
-  Space,
-  Badge,
-  theme,
-  Input,
-  Radio,
-} from 'antd'
+import { Flex, Button, Form, Table, Space, Badge, theme } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import React, { useEffect, useState } from 'react'
+import SearchForm from '@/components/data/search-form'
+import { searchItems } from './options'
+
 import './index.scss'
 
 export interface StrategyTemplateProps {}
@@ -28,6 +21,8 @@ const defaultSearchParams: GetStrategyTemplateListRequest = {
     pageNum: 1,
     pageSize: 10,
   },
+  keyword: '',
+  status: Status.ALL,
 }
 
 let searchTimeout: NodeJS.Timeout | null = null
@@ -143,28 +138,20 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
 
   return (
     <div className='box'>
-      <div style={{ background: token.colorBgContainer }}>
-        <Form
+      <div
+        style={{
+          background: token.colorBgContainer,
+          borderRadius: token.borderRadius,
+        }}
+      >
+        <SearchForm
+          initialValues={defaultSearchParams}
+          items={searchItems}
           form={form}
           layout='inline'
           className='search'
           onValuesChange={onValuesChange}
-        >
-          <Form.Item name='keyword' label='模板名称'>
-            <Input placeholder='请输入模板名称' allowClear />
-          </Form.Item>
-          <Form.Item name='status' label='状态'>
-            <Radio.Group
-              optionType='button'
-              options={Object.entries(StatusData).map(([key, value]) => {
-                return {
-                  label: value.text,
-                  value: Number(key),
-                }
-              })}
-            />
-          </Form.Item>
-        </Form>
+        />
 
         <Flex justify='space-between' align='center' gap={12} className='op'>
           <Button type='primary'>新建模板</Button>
@@ -178,7 +165,10 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
       </div>
       <Table
         className='table'
-        style={{ background: token.colorBgContainer }}
+        style={{
+          background: token.colorBgContainer,
+          borderRadius: token.borderRadius,
+        }}
         rowKey={(record) => record.id}
         columns={columns}
         dataSource={datasource}

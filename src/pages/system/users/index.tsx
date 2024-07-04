@@ -1,25 +1,23 @@
 import React, { useEffect, useState } from 'react'
 
 import { useForm } from 'antd/es/form/Form'
-import { StatusBadge, UserAvatar, Username } from './option'
+import {
+  StatusBadge,
+  UserAvatar,
+  userListSearchItems,
+  Username,
+} from './option'
 import {
   SearchUsersParams,
   UserItem,
   searchUsers,
 } from '@/api/authorization/user'
-import {
-  Gender,
-  GenderData,
-  PaginationReply,
-  Status,
-  StatusData,
-  SystemRole,
-  SystemRoleData,
-} from '@/api/global'
+import { Gender, PaginationReply, Status, SystemRole } from '@/api/global'
 import { AutoTable, AutoTableColumnType } from '@/components/table'
-import { Button, Form, Input, Radio, Select, Space, theme } from 'antd'
+import { Button, Space, theme } from 'antd'
 
 import './index.scss'
+import SearchForm from '@/components/data/search-form'
 
 export interface UsersProps {}
 
@@ -31,7 +29,7 @@ const defaultSearchParams: SearchUsersParams = {
     pageSize: 10,
   },
   keyword: '',
-  status: Status.ENABLE,
+  status: Status.ALL,
   gender: Gender.ALL,
   role: SystemRole.ROLE_ALL,
 }
@@ -160,14 +158,15 @@ const Users: React.FC<UsersProps> = () => {
 
   useEffect(() => {
     handleSearch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])
 
   return (
     <div className='userBox' style={{ height: '100%' }}>
       <div style={{ background: token.colorBgContainer }} className='padding'>
-        <Form
+        <SearchForm
+          items={userListSearchItems}
           form={searchForm}
-          layout='inline'
           initialValues={searchParams}
           onValuesChange={() =>
             setSearchParams({
@@ -175,45 +174,7 @@ const Users: React.FC<UsersProps> = () => {
               ...searchForm.getFieldsValue(),
             })
           }
-        >
-          <Form.Item name='keyword' label='模糊查询'>
-            <Input allowClear placeholder='模糊查询' style={{ width: 400 }} />
-          </Form.Item>
-          <Form.Item name='status' label='状态'>
-            <Radio.Group
-              optionType='button'
-              options={Object.entries(StatusData).map(([key, value]) => {
-                return {
-                  label: value.text,
-                  value: Number(key),
-                }
-              })}
-            />
-          </Form.Item>
-          <Form.Item name='gender' label='性别'>
-            <Radio.Group
-              optionType='button'
-              options={Object.entries(GenderData).map(([key, value]) => {
-                return {
-                  label: value,
-                  value: Number(key),
-                }
-              })}
-            />
-          </Form.Item>
-          <Form.Item name='role' label='角色'>
-            <Select
-              // mode='tags'
-              style={{ width: 150 }}
-              options={Object.entries(SystemRoleData).map(([key, value]) => {
-                return {
-                  label: value,
-                  value: Number(key),
-                }
-              })}
-            />
-          </Form.Item>
-        </Form>
+        />
       </div>
 
       <div style={{ background: token.colorBgContainer }}>
