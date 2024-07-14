@@ -302,7 +302,7 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
             style={{
               borderRadius: '0 6px 6px 0',
             }}
-            disabled={!doc || status !== 'success' || !prefix}
+            disabled={!doc || !prefix}
             icon={<ThunderboltOutlined />}
           />
         )}

@@ -1,5 +1,28 @@
-import { StatusData } from '@/api/global'
+import { Condition, StatusData, SustainType } from '@/api/global'
 import { DataFromItem } from '@/components/data/form'
+
+export type TemplateEditModalFormData = {
+  alert: string
+  datasource: string
+  expr: string
+  labelsItems: {
+    key: string
+    value: string
+  }[]
+  annotations: {
+    summary: string
+    description: string
+  }
+  levelItems: {
+    condition: Condition
+    count: number
+    duration: number
+    levelId: number
+    sustainType: SustainType
+    threshold: 1
+  }[]
+  remark: string
+}
 
 export const searchItems: DataFromItem[] = [
   {

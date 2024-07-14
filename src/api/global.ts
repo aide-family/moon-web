@@ -154,3 +154,51 @@ export const StorageTypeData: Record<StorageType, string> = {
   [StorageType.StorageTypeUnknown]: '全部',
   [StorageType.StorageTypePrometheus]: 'Prometheus',
 }
+
+// 判断条件
+export enum Condition {
+  // 等于
+  ConditionEQ = 1,
+
+  // 不等于
+  ConditionNE = 2,
+
+  // 大于
+  ConditionGT = 3,
+
+  // 大于等于
+  ConditionGTE = 4,
+
+  // 小于
+  ConditionLT = 5,
+
+  // 小于等于
+  ConditionLTE = 6,
+}
+
+export const ConditionData: Record<Condition, string> = {
+  [Condition.ConditionEQ]: '等于(==)',
+  [Condition.ConditionNE]: '不等于(!=)',
+  [Condition.ConditionGT]: '大于(>)',
+  [Condition.ConditionGTE]: '大于等于(>=)',
+  [Condition.ConditionLT]: '小于(<)',
+  [Condition.ConditionLTE]: '小于等于(<=)',
+}
+
+// 持续类型
+export enum SustainType {
+  // m时间内出现n次
+  SustainTypeFor = 1,
+
+  // m时间内最多出现n次
+  SustainTypeMax = 2,
+
+  // m时间内最少出现n次
+  SustainTypeMin = 3,
+}
+
+export const SustainTypeData: Record<SustainType, string> = {
+  [SustainType.SustainTypeFor]: 'm时间内出现n次',
+  [SustainType.SustainTypeMax]: 'm时间内最多出现n次',
+  [SustainType.SustainTypeMin]: 'm时间内最少出现n次',
+}

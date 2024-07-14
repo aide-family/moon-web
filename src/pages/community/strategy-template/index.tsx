@@ -1,16 +1,18 @@
-import { Status, StatusData } from '@/api/global'
+import { SelectType, Status, StatusData } from '@/api/global'
 import { getStrategyTemplateList } from '@/api/template'
 import {
   GetStrategyTemplateListRequest,
   StrategyTemplateItemType,
 } from '@/api/template/types'
-import { Flex, Button, Form, Table, Space, Badge, theme } from 'antd'
+import { Flex, Button, Form, Table, Space, Badge, theme, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import React, { useEffect, useState } from 'react'
 import SearchForm from '@/components/data/search-form'
 import { searchItems } from './options'
+import { UserItem } from '@/api/authorization/user'
 
 import './index.scss'
+import { TemplateEditModal } from './template-edit-modal'
 
 export interface StrategyTemplateProps {}
 
@@ -35,6 +37,17 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
+  const [openTemplateEditModal, setOpenTemplateEditModal] = useState(false)
+  const [editTemplateId, setEditTemplateId] = useState<number>()
+  const handleOpenTemplateEditModal = (editId?: number) => {
+    setEditTemplateId(editId)
+    setOpenTemplateEditModal(true)
+  }
+
+  const handleCloseTemplateEditModal = () => {
+    setOpenTemplateEditModal(false)
+    setEditTemplateId(0)
+  }
 
   function onRefresh() {
     setRefresh(!refresh)
@@ -64,10 +77,21 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
     },
     {
       title: '类型',
-      dataIndex: 'category',
-      key: 'category',
+      dataIndex: 'categories',
+      key: 'categories',
       width: 200,
-      render: (text) => <a>{text}</a>,
+      render: (categories?: SelectType[]) => (
+        <>
+          {categories?.map((item, index) => {
+            const { label, extend } = item
+            return (
+              <Tag key={index} color={extend?.color}>
+                {label}
+              </Tag>
+            )
+          })}
+        </>
+      ),
     },
     {
       title: '状态',
@@ -89,11 +113,20 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
       title: '创建人',
       dataIndex: 'creator',
       key: 'creator',
+      width: 200,
+      render: (creator?: UserItem) => {
+        if (!creator) {
+          return '-'
+        }
+        const { name, nickname } = creator
+        return <a>{`${name}(${nickname})`}</a>
+      },
     },
     {
       title: '创建时间',
       dataIndex: 'createdAt',
       key: 'createdAt',
+      width: 200,
     },
     {
       title: '操作',
@@ -138,6 +171,14 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
 
   return (
     <div className='box'>
+      <TemplateEditModal
+        title={editTemplateId ? '编辑模板' : '新建模板'}
+        width='60%'
+        style={{ minWidth: 504 }}
+        open={openTemplateEditModal}
+        onCancel={handleCloseTemplateEditModal}
+        onOk={handleCloseTemplateEditModal}
+      />
       <div
         style={{
           background: token.colorBgContainer,
@@ -154,7 +195,9 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
         />
 
         <Flex justify='space-between' align='center' gap={12} className='op'>
-          <Button type='primary'>新建模板</Button>
+          <Button type='primary' onClick={() => handleOpenTemplateEditModal()}>
+            新建模板
+          </Button>
           <Space size={8}>
             <Button type='primary' onClick={onRefresh}>
               刷新
@@ -164,6 +207,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
         </Flex>
       </div>
       <Table
+        size='middle'
         className='table'
         style={{
           background: token.colorBgContainer,

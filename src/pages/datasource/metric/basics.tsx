@@ -100,6 +100,11 @@ export const Basics: React.FC<BasicsProps> = (props) => {
             <span>名称：{datasource?.name}</span>
           </div>
         }
+        extra={
+          <Button type='dashed' onClick={refresh}>
+            编辑
+          </Button>
+        }
         bordered
         column={{ xs: 1, sm: 2, md: 2, lg: 2, xl: 2, xxl: 2 }}
         items={items}

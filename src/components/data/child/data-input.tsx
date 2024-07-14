@@ -44,6 +44,7 @@ import {
   WechatTemplateEditorProps,
   WechatTemplateEditor,
 } from './wechat-template-editor'
+import { JsonInputEditor, JsonInputEditorProps } from './json-input'
 
 export type DataInputProps = {
   value?: any
@@ -113,6 +114,10 @@ export type DataInputProps = {
   | {
       type: 'json-template-editor'
       props?: JsonTemplateEditorProps
+    }
+  | {
+      type: 'json-input'
+      props?: JsonInputEditorProps
     }
   | {
       type: 'feishu-template-editor'
@@ -287,6 +292,15 @@ export const DataInput: FC<DataInputProps> = (props) => {
       case 'annotation-template-editor':
         return (
           <AnnotationEditor
+            {...props.props}
+            value={value}
+            defaultValue={defaultValue}
+            onChange={onChange}
+          />
+        )
+      case 'json-input':
+        return (
+          <JsonInputEditor
             {...props.props}
             value={value}
             defaultValue={defaultValue}

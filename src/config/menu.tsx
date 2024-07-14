@@ -4,40 +4,6 @@ import { SettingOutlined, UserOutlined } from '@ant-design/icons'
 
 export const defaultMenuItems: ItemType[] = [
   {
-    label: '系统管理',
-    key: '/home/system',
-    icon: <SettingOutlined />,
-    children: [
-      {
-        label: '系统用户',
-        key: '/home/system/users',
-      },
-      {
-        label: '系统字典',
-        key: '/home/system/dict',
-      },
-      {
-        label: '系统菜单',
-        key: '/home/system/menu',
-      },
-    ],
-  },
-  {
-    label: '个人中心',
-    key: '/home/self',
-    icon: <UserOutlined />,
-    children: [
-      {
-        label: '团队管理',
-        key: '/home/self/space-manage',
-      },
-      {
-        label: '个人设置',
-        key: '/home/self/manage',
-      },
-    ],
-  },
-  {
     label: '实时监控',
     key: '/home/monitor',
     icon: <IconFont type='icon-monitor3' />,
@@ -125,6 +91,40 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: '历史通知',
         key: '/home/archive/notice',
+      },
+    ],
+  },
+  {
+    label: '个人中心',
+    key: '/home/self',
+    icon: <UserOutlined />,
+    children: [
+      {
+        label: '团队管理',
+        key: '/home/self/space-manage',
+      },
+      {
+        label: '个人设置',
+        key: '/home/self/manage',
+      },
+    ],
+  },
+  {
+    label: '系统管理',
+    key: '/home/system',
+    icon: <SettingOutlined />,
+    children: [
+      {
+        label: '系统用户',
+        key: '/home/system/users',
+      },
+      {
+        label: '系统字典',
+        key: '/home/system/dict',
+      },
+      {
+        label: '系统菜单',
+        key: '/home/system/menu',
       },
     ],
   },

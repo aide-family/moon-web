@@ -37,6 +37,7 @@ export interface DatasourceCreateRequest {
   endpoint: string
   status: Status
   config?: Record<string, any>
+  configStr?: string
   remark?: string
   storageType: StorageType
 }

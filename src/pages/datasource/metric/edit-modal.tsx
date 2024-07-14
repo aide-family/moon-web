@@ -19,10 +19,18 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
   const [loading, setLoading] = React.useState(false)
   const handleOnOk = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     form.validateFields().then((values) => {
-      console.log('values', values)
       setLoading(true)
+      let config = {}
+      try {
+        config = JSON.parse(values.configStr || '{}')
+      } catch (error) {
+        console.log('error', error)
+      }
       datasourceapi
-        .createDatasource(values)
+        .createDatasource({
+          ...values,
+          config: config,
+        })
         .then(() => {
           form.resetFields()
           onOk?.(e)
@@ -65,11 +73,13 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
               return {
                 label: item[1],
                 value: +item[0],
+                disabled: +item[0] !== DataSourceType.DataSourceTypeMetric,
               }
             }),
           optionType: 'button',
         },
         formProps: {
+          initialValue: DataSourceType.DataSourceTypeMetric,
           rules: [{ required: true, message: '请选择数据源类型' }],
         },
       },
@@ -126,6 +136,14 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
       },
       formProps: {
         rules: [{ required: true, message: '请输入数据源地址' }],
+      },
+    },
+    {
+      label: '数据源配置',
+      name: 'configStr',
+      type: 'json-input',
+      props: {
+        height: 200,
       },
     },
     {

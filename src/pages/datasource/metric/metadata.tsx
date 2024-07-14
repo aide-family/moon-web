@@ -195,7 +195,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
             })
           }}
         >
-          <Form.Item name='metricType'>
+          <Form.Item name='metricType' initialValue={0}>
             <DataInput
               type='radio-group'
               props={{

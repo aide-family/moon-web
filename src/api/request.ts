@@ -70,7 +70,6 @@ export const setToken = (token: string) => {
 
 export const removeToken = () => {
   localStorage.removeItem('token')
-  window.location.href = '/login'
 }
 
 export const getToken = () => {
