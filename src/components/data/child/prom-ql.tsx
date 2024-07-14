@@ -11,7 +11,7 @@ import {
   EditorView,
   highlightSpecialChars,
   keymap,
-  placeholder,
+  placeholder as placeholderPlugin,
   ViewUpdate,
 } from '@codemirror/view'
 import { Compartment, EditorState, Prec } from '@codemirror/state'
@@ -45,7 +45,7 @@ import {
   promqlHighlighter,
 } from './prom/CMTheme'
 import { HistoryCompleteStrategy } from './prom/HistoryCompleteStrategy'
-import { Button, theme } from 'antd'
+import { Button, InputProps, theme } from 'antd'
 
 import { ThunderboltOutlined } from '@ant-design/icons'
 
@@ -59,14 +59,9 @@ export type PromValidate = {
   validateStatus?: ValidateStatus
 }
 
-export interface PromQLInputProps {
+export interface PromQLInputProps extends InputProps {
   pathPrefix: string
-  onChange?: (expression?: string) => void
   formatExpression?: boolean
-  placeholderString?: string
-  value?: string
-  defaultValue?: string
-  disabled?: boolean
   ref?: MutableRefObject<any>
   buttonRef?: MutableRefObject<any>
   showBorder?: boolean
@@ -130,7 +125,7 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
     pathPrefix,
     onChange,
     formatExpression,
-    placeholderString = 'Please input your PromQL',
+    placeholder = '请输入查询语句',
     value,
     defaultValue,
     ref,
@@ -144,7 +139,7 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
   const { theme } = useContext(GlobalContext)
   const containerRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
-  const [doc, setDoc] = useState<string | undefined>(value || defaultValue)
+  const [doc, setDoc] = useState<any>(value || defaultValue)
   const onExpressionChange = (expression: string) => {
     setDoc(expression)
   }
@@ -174,74 +169,70 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
       promqlExtension.asExtension(),
       theme === 'dark' ? darkTheme : lightTheme,
     ]
-
+    const startState = EditorState.create({
+      doc: (value || defaultValue) as string,
+      extensions: [
+        baseTheme,
+        highlightSpecialChars(),
+        history(),
+        EditorState.allowMultipleSelections.of(true),
+        indentOnInput(),
+        bracketMatching(),
+        closeBrackets(),
+        autocompletion(),
+        highlightSelectionMatches(),
+        EditorView.lineWrapping,
+        keymap.of([
+          ...closeBracketsKeymap,
+          ...defaultKeymap,
+          ...historyKeymap,
+          ...completionKeymap,
+          ...lintKeymap,
+        ]),
+        placeholderPlugin(placeholder),
+        dynamicConfigCompartment.of(dynamicConfig),
+        keymap.of([
+          {
+            key: 'Escape',
+            run: (v: EditorView): boolean => {
+              v.contentDOM.blur()
+              return false
+            },
+          },
+        ]),
+        Prec.highest(
+          keymap.of([
+            {
+              key: 'Shift-Enter',
+              run: (): boolean => {
+                return true
+              },
+            },
+            {
+              key: 'Enter',
+              run: insertNewlineAndIndent,
+            },
+          ])
+        ),
+        EditorView.updateListener.of((update: ViewUpdate): void => {
+          if (update.docChanged) {
+            onExpressionChange(update.state.doc.toString())
+          }
+        }),
+      ],
+    })
     const view = viewRef.current
     if (view === null) {
       if (!containerRef.current) {
         throw new Error('expected CodeMirror container element to exist')
       }
-      const startState = EditorState.create({
-        doc: doc,
-        extensions: [
-          baseTheme,
-          highlightSpecialChars(),
-          history(),
-          EditorState.allowMultipleSelections.of(true),
-          indentOnInput(),
-          bracketMatching(),
-          closeBrackets(),
-          autocompletion(),
-          highlightSelectionMatches(),
-          EditorView.lineWrapping,
-          keymap.of([
-            ...closeBracketsKeymap,
-            ...defaultKeymap,
-            ...historyKeymap,
-            ...completionKeymap,
-            ...lintKeymap,
-          ]),
-          placeholder(placeholderString),
-          dynamicConfigCompartment.of(dynamicConfig),
-          keymap.of([
-            {
-              key: 'Escape',
-              run: (v: EditorView): boolean => {
-                v.contentDOM.blur()
-                return false
-              },
-            },
-          ]),
-          Prec.highest(
-            keymap.of([
-              {
-                key: 'Shift-Enter',
-                run: (): boolean => {
-                  return true
-                },
-              },
-              {
-                key: 'Enter',
-                run: insertNewlineAndIndent,
-              },
-            ])
-          ),
-          EditorView.updateListener.of((update: ViewUpdate): void => {
-            if (update.docChanged) {
-              onExpressionChange(update.state.doc.toString())
-            }
-          }),
-        ],
-      })
+
       const view = new EditorView({
         state: startState,
         parent: containerRef.current,
       })
 
       viewRef.current = view
-      if (disabled) {
-        viewRef.current.contentDOM.contentEditable = 'false'
-      }
-      view?.focus()
     } else {
       view.dispatch(
         view.state.update({
@@ -250,15 +241,25 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
           changes: {
             from: 0,
             to: view.state.doc.length,
-            insert: defaultValue || value,
+            insert: doc,
           },
         })
       )
+
+      const view2 = new EditorView({
+        state: startState,
+        // parent: containerRef.current as any,
+      })
+
+      viewRef.current = view2
     }
-  }, [containerRef, pathPrefix])
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [disabled, containerRef, pathPrefix, placeholder, prefix, theme, doc])
 
   useEffect(() => {
     onChange?.(doc)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doc])
 
   useEffect(() => {
@@ -266,7 +267,8 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
       return
     }
     setDoc(defaultValue || value)
-  }, [defaultValue, value])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value])
 
   return (
     <div ref={ref}>
@@ -287,10 +289,8 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
                 : token.colorBgContainer
               : '',
             color: token.colorTextBase,
-            // border: token.Input?.activeBg
           }}
           ref={containerRef}
-          contentEditable='false'
         />
 
         {formatExpression && (

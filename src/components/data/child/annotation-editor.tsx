@@ -1,14 +1,14 @@
-import React, { useContext } from "react"
-import { useRef, useState, useEffect } from "react"
+import React, { useContext } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api"
-import { GlobalToken, theme } from "antd"
-import "./userWorker"
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import { GlobalToken, theme } from 'antd'
+import './userWorker'
 
-import { GlobalContext, ThemeType } from "@/utils/context"
-import { defaultTheme } from "./color"
+import { GlobalContext, ThemeType } from '@/utils/context'
+import { defaultTheme } from './color'
 
-import "./style.css"
+import './style.css'
 
 export interface AnnotationEditorProps {
   value?: string
@@ -21,25 +21,25 @@ export interface AnnotationEditorProps {
 
 const { useToken } = theme
 
-const AnnotationTemplate = "AnnotationTemplate"
-const AnnotationTemplateTheme = "AnnotationTemplateTheme"
+const AnnotationTemplate = 'AnnotationTemplate'
+const AnnotationTemplateTheme = 'AnnotationTemplateTheme'
 
-const tpl = "告警实例: {{ \\$labels.instance }}告警，当前值: {{ \\$value }}"
+const tpl = '告警实例: {{ \\$labels.instance }}告警，当前值: {{ \\$value }}'
 
 // TODO 根据元数据补充
 const keywords: string[] = [
-  "app_kubernetes_io_managed_by",
-  "chart",
-  "component",
-  "heritage",
-  "instance",
-  "job",
-  "namespace",
-  "node",
-  "release",
-  "service",
-  "app",
-  "instance",
+  'app_kubernetes_io_managed_by',
+  'chart',
+  'component',
+  'heritage',
+  'instance',
+  'job',
+  'namespace',
+  'node',
+  'release',
+  'service',
+  'app',
+  'instance',
 ]
 
 function createDependencyProposals(range: monaco.IRange) {
@@ -47,7 +47,7 @@ function createDependencyProposals(range: monaco.IRange) {
     {
       label: '"labels"',
       kind: monaco.languages.CompletionItemKind.Keyword,
-      insertText: "{{ \\$labels.${1:labelName} }}",
+      insertText: '{{ \\$labels.${1:labelName} }}',
       range: range,
       insertTextRules:
         monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
@@ -55,7 +55,7 @@ function createDependencyProposals(range: monaco.IRange) {
     {
       label: '"eventsAt"',
       kind: monaco.languages.CompletionItemKind.Keyword,
-      insertText: "{{ \\$eventsAt }}",
+      insertText: '{{ \\$eventsAt }}',
       range: range,
       insertTextRules:
         monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
@@ -73,12 +73,12 @@ function createDependencyProposals(range: monaco.IRange) {
     {
       label: '"value"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "{{ \\$value }}",
+      insertText: '{{ \\$value }}',
       range: range,
     },
 
     {
-      label: "tpl",
+      label: 'tpl',
       kind: monaco.languages.CompletionItemKind.Snippet,
       insertText: tpl,
       insertTextRules:
@@ -128,7 +128,7 @@ const init = (token: GlobalToken, theme?: ThemeType) => {
   // Register a tokens provider for the language
   monaco.languages.setMonarchTokensProvider(AnnotationTemplate, {
     tokenizer: {
-      root: [[/\{\{[ ]*\$[ ]*[^}]*[ ]*\}\}/, "keyword"]],
+      root: [[/\{\{[ ]*\$[ ]*[^}]*[ ]*\}\}/, 'keyword']],
     },
   })
 
@@ -146,8 +146,8 @@ export const AnnotationEditor: React.FC<AnnotationEditorProps> = (props) => {
     defaultValue,
     onChange,
     disabled,
-    width = "100%",
-    height = "100%",
+    width = '100%',
+    height = '100%',
   } = props
 
   const { token } = useToken()
@@ -161,7 +161,7 @@ export const AnnotationEditor: React.FC<AnnotationEditorProps> = (props) => {
     setEditor((editor) => {
       if (editor) {
         if (!editor.getValue()) {
-          editor.setValue(value || defaultValue || "")
+          editor.setValue(value || defaultValue || '')
         }
         editor.updateOptions({
           readOnly: disabled,
@@ -175,7 +175,7 @@ export const AnnotationEditor: React.FC<AnnotationEditorProps> = (props) => {
         theme: AnnotationTemplateTheme,
         language: AnnotationTemplate,
         value: value || defaultValue,
-        lineNumbers: "off",
+        lineNumbers: 'off',
         // 展示行号和内容的边框
         lineNumbersMinChars: 4,
         readOnly: disabled,
@@ -194,9 +194,10 @@ export const AnnotationEditor: React.FC<AnnotationEditorProps> = (props) => {
       editor.onDidChangeModelContent(() => {
         onChange?.(editor.getValue())
       })
+      console.log('editor', editor)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [editor])
 
   useEffect(() => {
     if (editor) {
@@ -204,6 +205,7 @@ export const AnnotationEditor: React.FC<AnnotationEditorProps> = (props) => {
         readOnly: disabled,
       })
     }
+    console.log('editor1', editor)
   }, [disabled, editor])
 
   return (

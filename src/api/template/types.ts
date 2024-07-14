@@ -4,22 +4,8 @@ import {
   PaginationReply,
   SelectType,
   Status,
+  SustainType,
 } from '../global'
-
-/** 持续类型枚举 */
-export enum SustainType {
-  // 未知持续类型
-  SustainTypeUnknown = 0,
-
-  // m时间内出现n次
-  SustainTypeFor = 1,
-
-  // m时间内最多出现n次
-  SustainTypeMax = 2,
-
-  // m时间内最少出现n次
-  SustainTypeMin = 3,
-}
 
 /** 策略模块空响应体 */
 export interface StrategyTemplateNullResponse {}
@@ -74,7 +60,7 @@ export interface StrategyLevelTemplateItemType {
   // 持续次数
   count: number
   // 持续的类型
-  sustainType: SelectType
+  sustainType: SustainType
   // 执行频率
   interval: string
   // 状态
@@ -96,7 +82,7 @@ export interface StrategyTemplateItemType {
   // 策略模板ID
   id: number
   // 策略名称
-  Alert: string
+  alert: string
   // 策略表达式
   expr: string
   // 策略各等级明细
@@ -104,7 +90,11 @@ export interface StrategyTemplateItemType {
   // 策略标签
   labels: Record<string, string>
   // 策略注解
-  annotations: Record<string, string>
+  annotations: {
+    [key: string]: string
+    summary: string
+    description: string
+  }
   // 策略状态
   status: Status
   // 创建时间
@@ -113,6 +103,8 @@ export interface StrategyTemplateItemType {
   updatedAt: string
   // 策略说明信息
   remark: string
+  //策略类型列表
+  categories?: SelectType[]
 }
 
 /** 获取策略模板相应参数 */

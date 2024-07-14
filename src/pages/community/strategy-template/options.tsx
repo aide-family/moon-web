@@ -1,9 +1,20 @@
 import { Condition, Status, StatusData, SustainType } from '@/api/global'
 import { DataFromItem } from '@/components/data/form'
 
+export type LevelItemType = {
+  condition: Condition
+  count: number
+  duration: number
+  levelId: number
+  sustainType: SustainType
+  threshold: number
+  status: Status
+  id?: number
+}
+
 export type TemplateEditModalFormData = {
   alert: string
-  datasource: string
+  datasource?: string
   expr: string
   labelsItems: {
     key: string
@@ -13,16 +24,7 @@ export type TemplateEditModalFormData = {
     summary: string
     description: string
   }
-  levelItems: {
-    condition: Condition
-    count: number
-    duration: number
-    levelId: number
-    sustainType: SustainType
-    threshold: number
-    status: Status
-    id?: number
-  }[]
+  levelItems: LevelItemType[]
   remark: string
   categoriesIds: number[]
 }

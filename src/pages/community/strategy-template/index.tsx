@@ -1,5 +1,9 @@
 import { SelectType, Status, StatusData } from '@/api/global'
-import { createStrategyTemplate, getStrategyTemplateList } from '@/api/template'
+import {
+  createStrategyTemplate,
+  getStrategyTemplateList,
+  updateStrategyTemplate,
+} from '@/api/template'
 import {
   GetStrategyTemplateListRequest,
   StrategyTemplateItemType,
@@ -39,6 +43,8 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
   const [total, setTotal] = useState(0)
   const [openTemplateEditModal, setOpenTemplateEditModal] = useState(false)
   const [editTemplateId, setEditTemplateId] = useState<number>()
+  const [disabledEditTemplateModal, setDisabledEditTemplateModal] =
+    useState(false)
   const handleOpenTemplateEditModal = (editId?: number) => {
     setEditTemplateId(editId)
     setOpenTemplateEditModal(true)
@@ -47,6 +53,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
   const handleCloseTemplateEditModal = () => {
     setOpenTemplateEditModal(false)
     setEditTemplateId(0)
+    setDisabledEditTemplateModal(false)
   }
 
   function onRefresh() {
@@ -73,7 +80,11 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
       title: '模板名称',
       dataIndex: 'alert',
       key: 'alert',
-      render: (text) => <a>{text}</a>,
+      render: (text, record) => (
+        <Button type='link' onClick={() => showDetail(record.id)}>
+          {text}
+        </Button>
+      ),
     },
     {
       title: '类型',
@@ -134,15 +145,30 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
       width: 120,
       align: 'center',
       render: (_, record) => (
-        <Space size='middle'>
-          <a onClick={() => showDetail(record.id)}>详情</a>
-          <a onClick={() => onDelete(record.id)}>删除</a>
+        <Space size={8}>
+          <Button size='small' type='link' onClick={() => onEdit(record.id)}>
+            编辑
+          </Button>
+          <Button
+            size='small'
+            type='link'
+            danger
+            onClick={() => onDelete(record.id)}
+          >
+            删除
+          </Button>
         </Space>
       ),
     },
   ]
   function showDetail(id: number) {
-    console.log(id)
+    setEditTemplateId(id)
+    setDisabledEditTemplateModal(true)
+    setOpenTemplateEditModal(true)
+  }
+
+  function onEdit(id: number) {
+    handleOpenTemplateEditModal(id)
   }
 
   function onDelete(id: number) {
@@ -150,15 +176,25 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
   }
 
   function handleTemplateEditModalSubmit(data: TemplateEditModalData) {
-    createStrategyTemplate({
-      alert: data.alert,
-      expr: data.expr,
-      remark: data.remark,
-      labels: data.labels,
-      annotations: data.annotations,
-      level: data.level,
-      categoriesIds: data.categoriesIds,
-    }).then(() => {
+    const { alert, expr, remark, labels, annotations, level, categoriesIds } =
+      data
+    const params = {
+      alert: alert,
+      expr: expr,
+      remark: remark,
+      labels: labels,
+      annotations: annotations,
+      level: level,
+      categoriesIds: categoriesIds,
+    }
+    const call = () => {
+      if (!editTemplateId) {
+        return createStrategyTemplate(params)
+      } else {
+        return updateStrategyTemplate(editTemplateId, params)
+      }
+    }
+    return call().then(() => {
       handleCloseTemplateEditModal()
       onRefresh()
     })
@@ -187,12 +223,20 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
   return (
     <div className='box'>
       <TemplateEditModal
-        title={editTemplateId ? '编辑模板' : '新建模板'}
+        title={
+          editTemplateId
+            ? disabledEditTemplateModal
+              ? '模版详情'
+              : '编辑模板'
+            : '新建模板'
+        }
         width='60%'
         style={{ minWidth: 504 }}
         open={openTemplateEditModal}
         onCancel={handleCloseTemplateEditModal}
         submit={handleTemplateEditModalSubmit}
+        templateId={editTemplateId}
+        disabled={disabledEditTemplateModal}
       />
       <div
         style={{
