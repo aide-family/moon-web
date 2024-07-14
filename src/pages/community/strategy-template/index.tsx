@@ -1,5 +1,5 @@
 import { SelectType, Status, StatusData } from '@/api/global'
-import { getStrategyTemplateList } from '@/api/template'
+import { createStrategyTemplate, getStrategyTemplateList } from '@/api/template'
 import {
   GetStrategyTemplateListRequest,
   StrategyTemplateItemType,
@@ -12,7 +12,7 @@ import { searchItems } from './options'
 import { UserItem } from '@/api/authorization/user'
 
 import './index.scss'
-import { TemplateEditModal } from './template-edit-modal'
+import { TemplateEditModal, TemplateEditModalData } from './template-edit-modal'
 
 export interface StrategyTemplateProps {}
 
@@ -149,6 +149,21 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
     console.log(id)
   }
 
+  function handleTemplateEditModalSubmit(data: TemplateEditModalData) {
+    createStrategyTemplate({
+      alert: data.alert,
+      expr: data.expr,
+      remark: data.remark,
+      labels: data.labels,
+      annotations: data.annotations,
+      level: data.level,
+      categoriesIds: data.categoriesIds,
+    }).then(() => {
+      handleCloseTemplateEditModal()
+      onRefresh()
+    })
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function onValuesChange(_: any, allValues: any) {
     setSearchPrams((prev) => {
@@ -177,7 +192,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
         style={{ minWidth: 504 }}
         open={openTemplateEditModal}
         onCancel={handleCloseTemplateEditModal}
-        onOk={handleCloseTemplateEditModal}
+        submit={handleTemplateEditModalSubmit}
       />
       <div
         style={{

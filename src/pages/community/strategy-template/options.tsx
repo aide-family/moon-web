@@ -1,4 +1,4 @@
-import { Condition, StatusData, SustainType } from '@/api/global'
+import { Condition, Status, StatusData, SustainType } from '@/api/global'
 import { DataFromItem } from '@/components/data/form'
 
 export type TemplateEditModalFormData = {
@@ -19,9 +19,12 @@ export type TemplateEditModalFormData = {
     duration: number
     levelId: number
     sustainType: SustainType
-    threshold: 1
+    threshold: number
+    status: Status
+    id?: number
   }[]
   remark: string
+  categoriesIds: number[]
 }
 
 export const searchItems: DataFromItem[] = [

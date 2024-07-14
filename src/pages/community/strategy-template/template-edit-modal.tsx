@@ -1,10 +1,6 @@
 import { ConditionData, SustainTypeData } from '@/api/global'
 import PromQLInput from '@/components/data/child/prom-ql'
-import {
-  CloseOutlined,
-  MinusCircleOutlined,
-  PlusOutlined,
-} from '@ant-design/icons'
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 import {
   Button,
   Card,
@@ -20,15 +16,38 @@ import {
 } from 'antd'
 import React from 'react'
 import { TemplateEditModalFormData } from './options'
+import {
+  MutationStrategyLevelTemplateType,
+  StrategyLevelIDType,
+} from '@/api/template/types'
 
 const { useToken } = theme
 
+export type TemplateEditModalData = {
+  id?: number
+  // 策略名称
+  alert: string
+  // 策略表达式
+  expr: string
+  // 策略说明信息
+  remark: string
+  // 标签
+  labels: Record<string, string>
+  // 注解
+  annotations: Record<string, string>
+  // 策略等级
+  level: Record<StrategyLevelIDType, MutationStrategyLevelTemplateType>
+  // 策略模板类型
+  categoriesIds: number[]
+}
+
 export interface TemplateEditModalProps extends ModalProps {
   templateId?: number
+  submit?: (data: TemplateEditModalData) => void
 }
 
 export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
-  const { onCancel, onOk, open, title, templateId } = props
+  const { onCancel, submit, open, title, templateId } = props
 
   const { token } = useToken()
 
@@ -39,16 +58,69 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
     onCancel?.(e)
   }
 
-  const handleOnOk = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleOnOk = () => {
     form
       .validateFields()
-      .then((values) => {
-        console.log(values)
+      .then((formValues) => {
+        const {
+          alert,
+          expr,
+          remark,
+          annotations,
+          labelsItems,
+          levelItems,
+          categoriesIds,
+        } = formValues
+        // 使用 reduce 方法将数组转换为 Map
+        const labels = labelsItems.reduce(
+          (acc: Record<string, string>, { key, value }) => {
+            acc[key] = value
+            return acc
+          },
+          {}
+        )
+        const levelMap = levelItems.reduce(
+          (
+            acc: Record<StrategyLevelIDType, MutationStrategyLevelTemplateType>,
+            {
+              condition,
+              count,
+              duration,
+              sustainType,
+              threshold,
+              levelId,
+              status,
+              id,
+            }
+          ) => {
+            acc[levelId] = {
+              condition: condition,
+              count: count,
+              duration: `${duration}s`,
+              sustainType: sustainType,
+              threshold: threshold,
+              id: id,
+              levelId: levelId,
+              status: status,
+            }
+            return acc
+          },
+          {}
+        )
+        submit?.({
+          id: templateId,
+          alert: alert,
+          expr: expr,
+          remark: remark,
+          labels: labels,
+          annotations: annotations,
+          level: levelMap,
+          categoriesIds: categoriesIds,
+        })
       })
       .catch((errorInfo) => {
         console.log(errorInfo)
       })
-    // onOk?.(e)
   }
 
   return (
@@ -88,6 +160,15 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
               </Form.Item>
             </Col>
           </Row>
+          <Form.Item
+            label='模板类型'
+            name='categoriesIds'
+            rules={[{ required: true, message: '请选择模板类型' }]}
+          >
+            <Select mode='multiple' allowClear placeholder='请选择模板类型'>
+              <Select.Option value={1}>类目一</Select.Option>
+            </Select>
+          </Form.Item>
           <Form.Item label='模板说明' name='remark'>
             <Input.TextArea
               placeholder='请输入模板说明'
@@ -212,7 +293,8 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                       title={`策略等级明细 ${field.name + 1}`}
                       key={field.key}
                       extra={
-                        <CloseOutlined
+                        <MinusCircleOutlined
+                          style={{ color: token.colorError }}
                           onClick={() => {
                             remove(field.name)
                           }}
@@ -251,7 +333,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                               placeholder='请选择判断条件'
                               options={Object.entries(ConditionData).map(
                                 ([key, value]) => ({
-                                  value: key,
+                                  value: +key,
                                   label: value,
                                 })
                               )}
@@ -290,7 +372,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                               placeholder='请选择触发类型'
                               options={Object.entries(SustainTypeData).map(
                                 ([key, value]) => ({
-                                  value: key,
+                                  value: +key,
                                   label: value,
                                 })
                               )}

@@ -1,4 +1,10 @@
-import { Pagination, PaginationReply, SelectType, Status } from '../global'
+import {
+  Condition,
+  Pagination,
+  PaginationReply,
+  SelectType,
+  Status,
+} from '../global'
 
 /** 持续类型枚举 */
 export enum SustainType {
@@ -15,9 +21,6 @@ export enum SustainType {
   SustainTypeMin = 3,
 }
 
-/** 条件枚举 */
-export type Condition = '=' | '!=' | '>' | '<' | '>=' | '<='
-
 /** 策略模块空响应体 */
 export interface StrategyTemplateNullResponse {}
 
@@ -29,14 +32,16 @@ export interface MutationStrategyLevelTemplateType {
   count: number
   // 持续的类型
   sustainType: SustainType
-  // 执行频率
-  interval: string
   // 条件
-  condition: string
+  condition: Condition
   // 阈值
   threshold: number
   // ID
-  id: number
+  id?: number
+  // LevelID
+  levelId: number
+  // 状态
+  status: Status
 }
 
 /** 策略等级ID类型 */
@@ -56,6 +61,8 @@ export interface CreateStrategyTemplateRequest {
   annotations: Record<string, string>
   // 策略等级明细
   level: Record<StrategyLevelIDType, MutationStrategyLevelTemplateType>
+  // 策略模板类型
+  categoriesIds: number[]
 }
 
 /** 策略等级模板详情 */
