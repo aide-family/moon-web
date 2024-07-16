@@ -21,6 +21,7 @@ import {
   StrategyLevelIDType,
 } from '@/api/template/types'
 import { getStrategyTemplate } from '@/api/template'
+import { AnnotationsEditor } from '@/components/data/child/annotation-editor'
 
 const { useToken } = theme
 
@@ -348,15 +349,14 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                 label='告警摘要'
                 rules={[{ required: true, message: '请输入告警摘要' }]}
               >
-                <Input.TextArea placeholder='请输入告警摘要' allowClear />
-                {/* <AnnotationEditor /> */}
+                <AnnotationsEditor />
               </Form.Item>
               <Form.Item
                 name={['annotations', 'description']}
                 label='告警明细'
                 rules={[{ required: true, message: '请输入告警明细' }]}
               >
-                <Input.TextArea placeholder='请输入告警明细' allowClear />
+                <AnnotationsEditor />
               </Form.Item>
             </Form.Item>
 

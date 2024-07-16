@@ -21,7 +21,7 @@ import {
 } from 'antd'
 import { RangePickerProps } from 'antd/es/date-picker'
 import { PasswordProps, TextAreaProps } from 'antd/es/input'
-import { AnnotationEditorProps, AnnotationEditor } from './annotation-editor'
+import { AnnotationsEditorProps, AnnotationsEditor } from './annotation-editor'
 import {
   DingTemplateEditorProps,
   DingTemplateEditor,
@@ -129,7 +129,7 @@ export type DataInputProps = {
     }
   | {
       type: 'annotation-template-editor'
-      props?: AnnotationEditorProps
+      props?: AnnotationsEditorProps
     }
 )
 
@@ -291,10 +291,9 @@ export const DataInput: FC<DataInputProps> = (props) => {
         )
       case 'annotation-template-editor':
         return (
-          <AnnotationEditor
+          <AnnotationsEditor
             {...props.props}
             value={value}
-            defaultValue={defaultValue}
             onChange={onChange}
           />
         )

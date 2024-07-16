@@ -243,7 +243,7 @@
     d3-array "^3.2.4"
     d3-hierarchy "^3.1.2"
 
-"@antv/g2@^5.1.18", "@antv/g2@^5.1.8", "@antv/g2@^5.2.0":
+"@antv/g2@^5.1.18", "@antv/g2@^5.1.8":
   version "5.2.0"
   resolved "https://mirrors.cloud.tencent.com/npm/@antv/g2/-/g2-5.2.0.tgz#b670b56271befef37001c8a53d864d879df384a2"
   integrity sha512-wruxga0RdaCtUi2LcJ5qgrBTP37tUwCYbBJYc3R8dW7oywB5ZqUmPWI7qh6lUh2hIS+hGsNsWvVa7vQOQSIeSw==
@@ -850,6 +850,20 @@
   integrity sha512-/gKJun8NNiWGZJkGzI/Ragc53cOdcLNdzjLaIa+GEjguQs0ulsurx8WN0jijdK9yPqDvziX995sMRLyLt1uZMQ==
   dependencies:
     call-bind "^1.0.7"
+
+"@monaco-editor/loader@^1.4.0":
+  version "1.4.0"
+  resolved "https://mirrors.cloud.tencent.com/npm/@monaco-editor/loader/-/loader-1.4.0.tgz#f08227057331ec890fa1e903912a5b711a2ad558"
+  integrity sha512-00ioBig0x642hytVspPl7DbQyaSWRaolYie/UFNjoTdvoKPzo6xrXLhTk9ixgIKcLH5b5vDOjVNiGyY+uDCUlg==
+  dependencies:
+    state-local "^1.0.6"
+
+"@monaco-editor/react@^4.6.0":
+  version "4.6.0"
+  resolved "https://mirrors.cloud.tencent.com/npm/@monaco-editor/react/-/react-4.6.0.tgz#bcc68671e358a21c3814566b865a54b191e24119"
+  integrity sha512-RFkU9/i7cN2bsq/iTkurMWOEErmYcY6JiQI3Jn+WeR/FGISH8JbHERjpS9oRuSOPvDMJI0Z8nJeKkbOs9sBYQw==
+  dependencies:
+    "@monaco-editor/loader" "^1.4.0"
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -3744,6 +3758,11 @@ source-map@~0.5.1:
   version "0.5.7"
   resolved "https://mirrors.cloud.tencent.com/npm/source-map/-/source-map-0.5.7.tgz#8a039d2d1021d22d1ea14c80d8ea468ba2ef3fcc"
   integrity sha512-LbrmJOMUSdEVxIKvdcJzQC+nQhe8FUZQTXQy6+I75skNgn3OoQ0DZA8YnFa7gp8tqtL3KPf1kmo0R5DoApeSGQ==
+
+state-local@^1.0.6:
+  version "1.0.7"
+  resolved "https://mirrors.cloud.tencent.com/npm/state-local/-/state-local-1.0.7.tgz#da50211d07f05748d53009bee46307a37db386d5"
+  integrity sha512-HTEHMNieakEnoe33shBYcZ7NX83ACUjCu8c40iOGEZsngj9zRnkqS9j1pqQPXwobB0ZcVTk27REb7COQ0UR59w==
 
 string-convert@^0.2.0:
   version "0.2.1"

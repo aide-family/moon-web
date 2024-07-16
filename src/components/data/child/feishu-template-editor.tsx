@@ -1,13 +1,13 @@
-import React, { useContext } from "react"
-import { useRef, useState, useEffect } from "react"
+import React, { useContext } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api"
-import { GlobalToken, theme } from "antd"
-import "./userWorker"
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import { GlobalToken, theme } from 'antd'
+import './userWorker'
 
-import "./style.css"
-import { defaultTheme } from "./color"
-import { GlobalContext, ThemeType } from "@/utils/context"
+import './style.css'
+import { defaultTheme } from './color'
+import { GlobalContext, ThemeType } from '@/utils/context'
 
 export interface FeishuTemplateEditorProps {
   value?: string
@@ -19,8 +19,8 @@ export interface FeishuTemplateEditorProps {
 
 const { useToken } = theme
 
-const FeishuTemplate = "json"
-const FeishuTemplateTheme = "FeishuTemplateTheme"
+const FeishuTemplate = 'json'
+const FeishuTemplateTheme = 'FeishuTemplateTheme'
 
 const tpl = `Moon监控系统告警通知
 告警状态: {{ .Status }}
@@ -39,7 +39,7 @@ function createDependencyProposals(range: monaco.IRange) {
     {
       label: '"Labels"',
       kind: monaco.languages.CompletionItemKind.Keyword,
-      insertText: "{{ .Labels.${1:labelName} }}",
+      insertText: '{{ .Labels.${1:labelName} }}',
       range: range,
       insertTextRules:
         monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
@@ -47,7 +47,7 @@ function createDependencyProposals(range: monaco.IRange) {
     {
       label: '"Annotations"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "{{ .Annotations.${1:annotationName} }}",
+      insertText: '{{ .Annotations.${1:annotationName} }}',
       range: range,
       insertTextRules:
         monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
@@ -55,54 +55,54 @@ function createDependencyProposals(range: monaco.IRange) {
     {
       label: '"summary"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "summary",
+      insertText: 'summary',
       range: range,
     },
     {
       label: '"description"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "description",
+      insertText: 'description',
       range: range,
     },
     {
       label: '"Status"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "{{ .Status }}",
+      insertText: '{{ .Status }}',
       range: range,
     },
     {
       label: '"StartsAt"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "{{ .StartsAt }}",
+      insertText: '{{ .StartsAt }}',
       range: range,
     },
     {
       label: '"EndsAt"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "{{ .EndsAt }}",
+      insertText: '{{ .EndsAt }}',
       range: range,
     },
     {
       label: '"GeneratorURL"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "{{ .GeneratorURL }}",
+      insertText: '{{ .GeneratorURL }}',
       range: range,
     },
     {
       label: '"Fingerprint"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "{{ .Fingerprint }}",
+      insertText: '{{ .Fingerprint }}',
       range: range,
     },
     {
       label: '"Value"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "{{ .Value }}",
+      insertText: '{{ .Value }}',
       range: range,
     },
 
     {
-      label: "tpl",
+      label: 'tpl',
       kind: monaco.languages.CompletionItemKind.Snippet,
       insertText: tpl,
       insertTextRules:
@@ -181,7 +181,7 @@ const tplInteractive = `{
 function feishuJsonTemplateProposals(range: monaco.IRange) {
   return [
     {
-      label: "tplText",
+      label: 'tplText',
       kind: monaco.languages.CompletionItemKind.Snippet,
       insertText: tplText,
       insertTextRules:
@@ -189,7 +189,7 @@ function feishuJsonTemplateProposals(range: monaco.IRange) {
       range: range,
     },
     {
-      label: "tplMarkdown",
+      label: 'tplMarkdown',
       kind: monaco.languages.CompletionItemKind.Snippet,
       insertText: tplMarkdown,
       insertTextRules:
@@ -197,7 +197,7 @@ function feishuJsonTemplateProposals(range: monaco.IRange) {
       range: range,
     },
     {
-      label: "tplInteractive",
+      label: 'tplInteractive',
       kind: monaco.languages.CompletionItemKind.Snippet,
       insertText: tplInteractive,
       insertTextRules:
@@ -239,41 +239,41 @@ const provideCompletionItems = (
   }
 }
 
-const modelUri = monaco.Uri.parse("./json/feishu.json")
+const modelUri = monaco.Uri.parse('./json/feishu.json')
 
-const model = monaco.editor.createModel("", FeishuTemplate, modelUri)
+const model = monaco.editor.createModel('', FeishuTemplate, modelUri)
 
 const i18nJsonSchema = {
-  type: "object",
+  type: 'object',
   properties: {
     title: {
-      type: "string",
+      type: 'string',
     },
     content: {
-      type: "array",
+      type: 'array',
       items: {
-        type: "object",
+        type: 'object',
         properties: {
           tag: {
-            type: "string",
+            type: 'string',
           },
           text: {
-            type: "string",
+            type: 'string',
           },
           un_escape: {
-            type: "string",
+            type: 'string',
           },
           href: {
-            type: "string",
+            type: 'string',
           },
           user_id: {
-            type: "string",
+            type: 'string',
           },
           user_name: {
-            type: "string",
+            type: 'string',
           },
           image_key: {
-            type: "string",
+            type: 'string',
           },
         },
       },
@@ -284,7 +284,7 @@ const i18nJsonSchema = {
 const init = (token: GlobalToken, theme?: ThemeType) => {
   monaco.languages.setMonarchTokensProvider(FeishuTemplate, {
     tokenizer: {
-      root: [[/\{\{[ ]*\.[ ]*[^}]*[ ]*\}\}/, "keyword"]],
+      root: [[/\{\{[ ]*\.[ ]*[^}]*[ ]*\}\}/, 'keyword']],
     },
   })
 
@@ -292,28 +292,28 @@ const init = (token: GlobalToken, theme?: ThemeType) => {
     validate: false,
     schemas: [
       {
-        uri: "./json/feishu.json", // id of the first schema
+        uri: './json/feishu.json', // id of the first schema
         fileMatch: [modelUri.toString()], // associate with our model
         schema: {
-          type: "object",
+          type: 'object',
           properties: {
             msg_type: {
-              enum: ["text", "post", "image", "share_chat", "interactive"],
+              enum: ['text', 'post', 'image', 'share_chat', 'interactive'],
             },
             content: {
-              type: "object",
+              type: 'object',
               properties: {
                 text: {
-                  type: "string",
+                  type: 'string',
                 },
                 share_chat_id: {
-                  type: "string",
+                  type: 'string',
                 },
                 image_key: {
-                  type: "string",
+                  type: 'string',
                 },
                 post: {
-                  type: "object",
+                  type: 'object',
                   properties: {
                     zh_cn: {
                       ...i18nJsonSchema,
@@ -326,56 +326,56 @@ const init = (token: GlobalToken, theme?: ThemeType) => {
               },
             },
             card: {
-              type: "object",
+              type: 'object',
               properties: {
                 elements: {
-                  type: "array",
+                  type: 'array',
                   items: {
-                    type: "object",
+                    type: 'object',
                     properties: {
                       tag: {
-                        type: "string",
-                        enum: ["div", "at", "text", "a", "img"],
+                        type: 'string',
+                        enum: ['div', 'at', 'text', 'a', 'img'],
                       },
                       text: {
-                        type: "object",
+                        type: 'object',
                         properties: {
                           content: {
-                            type: "string",
+                            type: 'string',
                           },
                           tag: {
-                            type: "string",
+                            type: 'string',
                           },
                         },
                       },
                       actions: {
-                        type: "array",
+                        type: 'array',
                         items: {
-                          type: "object",
+                          type: 'object',
                           properties: {
                             tag: {
-                              type: "string",
+                              type: 'string',
                             },
                             text: {
-                              type: "object",
+                              type: 'object',
                               properties: {
                                 content: {
-                                  type: "string",
+                                  type: 'string',
                                 },
                                 tag: {
-                                  type: "string",
+                                  type: 'string',
                                 },
                               },
                             },
                             url: {
-                              type: "string",
+                              type: 'string',
                             },
                             type: {
-                              type: "string",
-                              enum: ["default"],
+                              type: 'string',
+                              enum: ['default'],
                             },
                             value: {
-                              type: "object",
+                              type: 'object',
                             },
                           },
                         },
@@ -384,16 +384,16 @@ const init = (token: GlobalToken, theme?: ThemeType) => {
                   },
                 },
                 header: {
-                  type: "object",
+                  type: 'object',
                   properties: {
                     title: {
-                      type: "object",
+                      type: 'object',
                       properties: {
                         content: {
-                          type: "string",
+                          type: 'string',
                         },
                         tag: {
-                          type: "string",
+                          type: 'string',
                         },
                       },
                     },
@@ -422,8 +422,8 @@ export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = (
     value,
     defaultValue,
     onChange,
-    width = "100%",
-    height = "100%",
+    width = '100%',
+    height = '100%',
   } = props
 
   const { token } = useToken()
@@ -449,7 +449,7 @@ export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = (
         lineNumbersMinChars: 4,
         minimap: {
           // enabled: false
-          size: "fit",
+          size: 'fit',
         },
       })
       e.onDidChangeModelContent(() => {

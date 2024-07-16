@@ -1,224 +1,211 @@
-import React, { useContext } from 'react'
-import { useRef, useState, useEffect } from 'react'
+import { Editor, Monaco } from '@monaco-editor/react'
+import React, { useEffect, useRef, useState } from 'react'
+import { editor } from 'monaco-editor'
+import { Position } from 'monaco-editor/esm/vs/editor/editor.api'
+import type { languages } from 'monaco-editor/esm/vs/editor/editor.api'
+import { Form } from 'antd'
 
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import { GlobalToken, theme } from 'antd'
-import './userWorker'
-
-import { GlobalContext, ThemeType } from '@/utils/context'
-import { defaultTheme } from './color'
-
-import './style.css'
-
-export interface AnnotationEditorProps {
+export interface AnnotationsEditorProps {
+  onChange?: (value?: string) => void
   value?: string
-  defaultValue?: string
-  onChange?: (value: string) => void
-  width?: number | string
+  language?: string
   height?: number | string
-  disabled?: boolean
 }
 
-const { useToken } = theme
-
-const AnnotationTemplate = 'AnnotationTemplate'
-const AnnotationTemplateTheme = 'AnnotationTemplateTheme'
-
-const tpl = '告警实例: {{ \\$labels.instance }}告警，当前值: {{ \\$value }}'
-
-// TODO 根据元数据补充
-const keywords: string[] = [
-  'app_kubernetes_io_managed_by',
-  'chart',
-  'component',
-  'heritage',
-  'instance',
-  'job',
-  'namespace',
-  'node',
-  'release',
-  'service',
-  'app',
-  'instance',
+const structList = ['labels', 'value', 'time']
+const fieldList = ['instance', 'endpoint', 'app']
+const functionList = [
+  'now',
+  'hasPrefix',
+  'hasSuffix',
+  'contains',
+  'trimSpace',
+  'trimPrefix',
+  'trimSuffix',
+  'toUpper',
+  'toLower',
+  'replace',
+  'split',
 ]
 
-function createDependencyProposals(range: monaco.IRange) {
-  return [
-    {
-      label: '"labels"',
-      kind: monaco.languages.CompletionItemKind.Keyword,
-      insertText: '{{ \\$labels.${1:labelName} }}',
-      range: range,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-    },
-    {
-      label: '"eventsAt"',
-      kind: monaco.languages.CompletionItemKind.Keyword,
-      insertText: '{{ \\$eventsAt }}',
-      range: range,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-    },
-    ...keywords.map((key) => {
-      return {
-        label: `"${key}"`,
-        kind: monaco.languages.CompletionItemKind.Keyword,
-        insertText: `{{ \\$labels.${key} }}`,
-        range: range,
-        insertTextRules:
-          monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      }
-    }),
-    {
-      label: '"value"',
-      kind: monaco.languages.CompletionItemKind.Function,
-      insertText: '{{ \\$value }}',
-      range: range,
-    },
+export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
+  const { onChange, value, language = 'gotemplate', height = 64 * 2 } = props
 
-    {
-      label: 'tpl',
-      kind: monaco.languages.CompletionItemKind.Snippet,
-      insertText: tpl,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      range: range,
-    },
-  ]
-}
+  const [code, setCode] = useState('')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const editorRef = useRef<any>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const monacoRef = useRef<any>(null)
 
-const createKeyDependencyProposals = (range: monaco.IRange) => {
-  return keywords.map((key) => {
-    return {
-      label: key,
-      kind: monaco.languages.CompletionItemKind.Keyword,
-      insertText: key,
-      range: range,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-    }
-  })
-}
+  const handleEditorDidMount = (
+    editor: editor.IStandaloneCodeEditor,
+    monaco: Monaco
+  ) => {
+    editorRef.current = editor
+    monacoRef.current = monaco
 
-const provideCompletionItems = (
-  model: monaco.editor.ITextModel,
-  position: monaco.Position
-) => {
-  const word = model.getWordUntilPosition(position)
-
-  const range = {
-    startLineNumber: position.lineNumber,
-    endLineNumber: position.lineNumber,
-    startColumn: word.startColumn,
-    endColumn: word.endColumn,
-  }
-
-  // 如果都匹配，返回空建议（这种情况理论上不应该发生，除非正则表达式有误）
-  return {
-    suggestions: [
-      ...createDependencyProposals(range),
-      ...createKeyDependencyProposals(range),
-    ],
-  }
-}
-
-const init = (token: GlobalToken, theme?: ThemeType) => {
-  monaco.languages.register({ id: AnnotationTemplate })
-  // Register a tokens provider for the language
-  monaco.languages.setMonarchTokensProvider(AnnotationTemplate, {
-    tokenizer: {
-      root: [[/\{\{[ ]*\$[ ]*[^}]*[ ]*\}\}/, 'keyword']],
-    },
-  })
-
-  // Define a new theme that contains only rules that match this language
-  monaco.editor.defineTheme(AnnotationTemplateTheme, defaultTheme(token, theme))
-
-  monaco.languages.registerCompletionItemProvider(AnnotationTemplate, {
-    provideCompletionItems: provideCompletionItems,
-  })
-}
-
-export const AnnotationEditor: React.FC<AnnotationEditorProps> = (props) => {
-  const {
-    value,
-    defaultValue,
-    onChange,
-    disabled,
-    width = '100%',
-    height = '100%',
-  } = props
-
-  const { token } = useToken()
-  const { theme } = useContext(GlobalContext)
-
-  const [editor, setEditor] =
-    useState<monaco.editor.IStandaloneCodeEditor | null>(null)
-  const monacoEl = useRef(null)
-
-  useEffect(() => {
-    setEditor((editor) => {
-      if (editor) {
-        if (!editor.getValue()) {
-          editor.setValue(value || defaultValue || '')
-        }
-        editor.updateOptions({
-          readOnly: disabled,
-        })
-        editor.layout()
-        return editor
-      }
-
-      const curr = monacoEl.current!
-      const e = monaco.editor.create(curr, {
-        theme: AnnotationTemplateTheme,
-        language: AnnotationTemplate,
-        value: value || defaultValue,
-        lineNumbers: 'off',
-        // 展示行号和内容的边框
-        lineNumbersMinChars: 4,
-        readOnly: disabled,
-        minimap: {
-          enabled: false,
-        },
-      })
-
-      return e
+    monaco.editor.defineTheme('myTheme', {
+      base: 'vs',
+      inherit: true,
+      rules: [
+        { token: 'struct', foreground: '#E708C2' },
+        { token: 'field', foreground: '#FF8216' },
+        { token: 'function', foreground: '#1677FF' },
+      ],
+      colors: {
+        'editor.foreground': '#000000',
+      },
     })
-  }, [defaultValue, disabled, editor, monacoEl, onChange, value])
+    // 使用主题
+    monaco.editor.setTheme('myTheme')
+    monaco.languages.register({ id: 'gotemplate' })
+
+    monaco.languages.setMonarchTokensProvider('gotemplate', {
+      tokenizer: {
+        root: [
+          [new RegExp(`(${structList.join('|')})`), 'struct'],
+          [/{{/, 'keyword'],
+          [/}}/, 'keyword'],
+          [new RegExp(`(${fieldList.join('|')})`), 'field'],
+          [new RegExp(`(${functionList.join('|')})`), 'function'],
+        ],
+      },
+    })
+
+    // monaco.editor.setTheme('myTheme')
+    monaco.languages.registerCompletionItemProvider('gotemplate', {
+      provideCompletionItems: (
+        model: editor.ITextModel,
+        position: Position
+      ): languages.ProviderResult<languages.CompletionList> => {
+        const range = {
+          startLineNumber: position.lineNumber,
+          startColumn: 1,
+          endLineNumber: position.lineNumber,
+          endColumn: position.column,
+        }
+        let textUntilPosition = model.getValueInRange(range)
+
+        // 去除textUntilPosition的换行前的keyword
+        textUntilPosition = textUntilPosition.replace(/\{\{[^\\}]*\}\}/g, '')
+
+        const word = model.getWordUntilPosition(position)
+
+        const newRang = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: word.endColumn,
+        }
+        // console.log('newtextUntilPosition', newtextUntilPosition)
+        // console.log('textUntilPosition', textUntilPosition)
+        // console.log('word', word)
+        // 判断word前是空格还是.
+        const startColumn = word.startColumn - 2
+        const firstCh = textUntilPosition[startColumn]
+        // console.log('firstCh', firstCh)
+        // 获取textUntilPosition startColumn前的字符串
+        const preText = textUntilPosition.substring(0, startColumn)
+        switch (firstCh) {
+          case '.':
+            // console.log('preText', preText)
+            if (preText.endsWith('labels')) {
+              return {
+                suggestions: fieldList.map((item) => ({
+                  label: item,
+                  kind: monacoRef?.current.languages.CompletionItemKind.Field,
+                  insertText: item,
+                  range: newRang,
+                })),
+              }
+            }
+            return {
+              suggestions: structList.map((item) => ({
+                label: item,
+                kind: monacoRef?.current.languages.CompletionItemKind.Struct,
+                insertText: item,
+                range: newRang,
+              })),
+            }
+          case ' ':
+            return {
+              suggestions: [
+                ...functionList.map((item) => ({
+                  label: item,
+                  kind: monacoRef?.current.languages.CompletionItemKind
+                    .Function,
+                  insertText: item,
+                  range: newRang,
+                })),
+              ],
+            }
+        }
+
+        return {
+          suggestions: [],
+        }
+      },
+    })
+
+    editor.onDidChangeModelContent(() => {
+      const position = editor.getPosition()
+      const model = editor.getModel()
+      if (!model) return
+      if (!position) return
+      const text = model?.getValueInRange({
+        startLineNumber: position.lineNumber,
+        startColumn: Math.max(1, position.column - 8),
+        endLineNumber: position.lineNumber,
+        endColumn: position.column,
+      })
+      console.log('text', text)
+      if (text.endsWith('{{')) {
+        editor.executeEdits('', [
+          {
+            range: new monaco.Range(
+              position.lineNumber,
+              position.column,
+              position.lineNumber,
+              position.column
+            ),
+            text: '  }}',
+            forceMoveMarkers: true,
+          },
+        ])
+
+        editor.setPosition({
+          lineNumber: position.lineNumber,
+          column: position.column + 1,
+        })
+      }
+    })
+  }
+
+  const { status } = Form.Item.useStatus()
 
   useEffect(() => {
-    init(token, theme)
-    if (editor) {
-      editor.onDidChangeModelContent(() => {
-        onChange?.(editor.getValue())
-      })
-      console.log('editor', editor)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor])
-
-  useEffect(() => {
-    if (editor) {
-      editor.updateOptions({
-        readOnly: disabled,
-      })
-    }
-    console.log('editor1', editor)
-  }, [disabled, editor])
-
+    setCode(value as string)
+  }, [value])
   return (
-    <div
-      style={{
-        width: width,
-        height: height,
-        borderColor: token.colorBorder,
-        // 设置disabled
-        // pointerEvents: disabled ? 'none' : 'auto'
+    <Editor
+      className={`editorInput ${status}`}
+      height={height}
+      language={language}
+      line={11}
+      value={code}
+      onChange={(value) => {
+        onChange?.(value)
       }}
-      className='editorInput'
-      ref={monacoEl}
+      onMount={handleEditorDidMount}
+      // 设置style
+      options={{
+        // minimap: {
+        //   enabled: false,
+        // },
+        overviewRulerBorder: false,
+        fontSize: 14,
+        fontFamily: 'Monaco, Consolas, "Courier New", monospace',
+      }}
     />
   )
 }
