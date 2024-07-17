@@ -20,10 +20,10 @@
   border-width: 1px;
   border-style: solid;
   /* border-color: #d9d9d9; */
-  border-radius: 6px 0 0 6px;
+  border-radius: 6px;
   transition: all 0.2s;
   &:hover {
-    border-color: #2877fb;
+    border-color: #1677ff;
   }
   overflow-y: auto;
   overflow-x: auto;
@@ -31,4 +31,18 @@
 
 .monaco-scrollable-element {
   left: 0 !important;
+}
+
+/* "success" | "warning" | "error" | "validating" */
+.editorInput.error {
+  border-color: #ff4d4f;
+}
+.editorInput.warning {
+  border-color: #faad14;
+}
+/* .editorInput.success {
+  border-color: #52c41a;
+} */
+.editorInput.validating {
+  border-color: #1677ff;
 }

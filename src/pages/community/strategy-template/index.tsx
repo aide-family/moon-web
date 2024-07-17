@@ -276,6 +276,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
         columns={columns}
         dataSource={datasource}
         loading={loading}
+        scroll={{ x: 'auto', y: 'calc(100vh - 400px)' }}
         pagination={{
           total,
           showSizeChanger: true,

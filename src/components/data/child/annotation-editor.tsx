@@ -1,19 +1,21 @@
 import { Editor, Monaco } from '@monaco-editor/react'
 import React, { useEffect, useRef, useState } from 'react'
-import { editor } from 'monaco-editor'
+import { editor as editorNameSpace } from 'monaco-editor'
 import { Position } from 'monaco-editor/esm/vs/editor/editor.api'
 import type { languages } from 'monaco-editor/esm/vs/editor/editor.api'
-import { Form } from 'antd'
+import { Form, Input } from 'antd'
+import './style.css'
 
 export interface AnnotationsEditorProps {
   onChange?: (value?: string) => void
   value?: string
-  language?: string
+  language: string
   height?: number | string
+  disabled?: boolean
 }
 
-const structList = ['labels', 'value', 'time']
-const fieldList = ['instance', 'endpoint', 'app']
+const structList = ['labels', 'value', 'alert', 'level', 'timestamp']
+const defaultFieldList = ['instance', 'endpoint', 'app']
 const functionList = [
   'now',
   'hasPrefix',
@@ -29,16 +31,23 @@ const functionList = [
 ]
 
 export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
-  const { onChange, value, language = 'gotemplate', height = 64 * 2 } = props
+  const {
+    onChange,
+    value,
+    language = 'gotemplate',
+    height = 32 * 3,
+    disabled,
+  } = props
 
   const [code, setCode] = useState('')
+  const [fieldList] = useState<string[]>(defaultFieldList)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const editorRef = useRef<any>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const monacoRef = useRef<any>(null)
 
   const handleEditorDidMount = (
-    editor: editor.IStandaloneCodeEditor,
+    editor: editorNameSpace.IStandaloneCodeEditor,
     monaco: Monaco
   ) => {
     editorRef.current = editor
@@ -58,9 +67,9 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
     })
     // 使用主题
     monaco.editor.setTheme('myTheme')
-    monaco.languages.register({ id: 'gotemplate' })
+    monaco.languages.register({ id: language })
 
-    monaco.languages.setMonarchTokensProvider('gotemplate', {
+    monaco.languages.setMonarchTokensProvider(language, {
       tokenizer: {
         root: [
           [new RegExp(`(${structList.join('|')})`), 'struct'],
@@ -73,9 +82,9 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
     })
 
     // monaco.editor.setTheme('myTheme')
-    monaco.languages.registerCompletionItemProvider('gotemplate', {
+    monaco.languages.registerCompletionItemProvider(language, {
       provideCompletionItems: (
-        model: editor.ITextModel,
+        model: editorNameSpace.ITextModel,
         position: Position
       ): languages.ProviderResult<languages.CompletionList> => {
         const range = {
@@ -84,11 +93,9 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
           endLineNumber: position.lineNumber,
           endColumn: position.column,
         }
-        let textUntilPosition = model.getValueInRange(range)
+        const textUntilPosition = model.getValueInRange(range)
 
         // 去除textUntilPosition的换行前的keyword
-        textUntilPosition = textUntilPosition.replace(/\{\{[^\\}]*\}\}/g, '')
-
         const word = model.getWordUntilPosition(position)
 
         const newRang = {
@@ -187,25 +194,31 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
     setCode(value as string)
   }, [value])
   return (
-    <Editor
-      className={`editorInput ${status}`}
-      height={height}
-      language={language}
-      line={11}
-      value={code}
-      onChange={(value) => {
-        onChange?.(value)
-      }}
-      onMount={handleEditorDidMount}
-      // 设置style
-      options={{
-        // minimap: {
-        //   enabled: false,
-        // },
-        overviewRulerBorder: false,
-        fontSize: 14,
-        fontFamily: 'Monaco, Consolas, "Courier New", monospace',
-      }}
-    />
+    <>
+      {disabled ? (
+        <Input.TextArea value={value} disabled minLength={1} />
+      ) : (
+        <Editor
+          className={`editorInput ${status}`}
+          height={height}
+          language={language}
+          line={11}
+          value={code}
+          onChange={(value) => {
+            onChange?.(value)
+          }}
+          onMount={handleEditorDidMount}
+          // 设置style
+          options={{
+            minimap: {
+              enabled: false,
+            },
+            overviewRulerBorder: false,
+            fontSize: 14,
+            fontFamily: 'Monaco, Consolas, "Courier New", monospace',
+          }}
+        />
+      )}
+    </>
   )
 }

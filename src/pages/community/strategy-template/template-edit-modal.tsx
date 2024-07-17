@@ -113,6 +113,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
       setTemplateDetail(undefined)
     }
     getTemplateDetail()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateId])
 
   useEffect(() => {
@@ -257,9 +258,13 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
             <Form.Item
               label='查询语句'
               name='expr'
-              rules={[{ required: true, message: '请输入查询语句' }]}
+              rules={[{ required: true, message: '请检查查询语句' }]}
             >
-              <PromQLInput pathPrefix={datasource} formatExpression />
+              <PromQLInput
+                pathPrefix={datasource}
+                formatExpression
+                disabled={disabled}
+              />
             </Form.Item>
             <Form.Item label={<b>标签</b>} required>
               <Form.List
@@ -281,51 +286,53 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                   <div key={`${fields.length}_1`}>
                     <Row gutter={12} wrap>
                       {fields.map(({ key, name, ...restField }) => (
-                        <>
-                          <Col span={4} key={`${key}_1`}>
-                            <Form.Item
-                              {...restField}
-                              name={[name, 'key']}
-                              label={[name, 'key'].join('.')}
-                              rules={[
-                                {
-                                  required: true,
-                                  message: '标签Key不允许为空',
-                                },
-                              ]}
-                            >
-                              <Input placeholder='key' />
-                            </Form.Item>
-                          </Col>
-                          <Col span={8} key={`${key}_2`}>
-                            <span
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 8,
-                              }}
-                            >
+                        <Col span={12} key={key}>
+                          <Row gutter={12} style={{ width: '200%' }}>
+                            <Col span={4}>
                               <Form.Item
                                 {...restField}
-                                name={[name, 'value']}
-                                label={[name, 'value'].join('.')}
+                                name={[name, 'key']}
+                                label={[name, 'key'].join('.')}
                                 rules={[
                                   {
                                     required: true,
-                                    message: '标签值不允许为空',
+                                    message: '标签Key不允许为空',
                                   },
                                 ]}
-                                style={{ flex: 1 }}
                               >
-                                <Input placeholder='value' />
+                                <Input placeholder='key' />
                               </Form.Item>
-                              <MinusCircleOutlined
-                                onClick={() => remove(name)}
-                                style={{ color: token.colorError }}
-                              />
-                            </span>
-                          </Col>
-                        </>
+                            </Col>
+                            <Col span={8}>
+                              <span
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 8,
+                                }}
+                              >
+                                <Form.Item
+                                  {...restField}
+                                  name={[name, 'value']}
+                                  label={[name, 'value'].join('.')}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: '标签值不允许为空',
+                                    },
+                                  ]}
+                                  style={{ flex: 1 }}
+                                >
+                                  <Input placeholder='value' />
+                                </Form.Item>
+                                <MinusCircleOutlined
+                                  onClick={() => remove(name)}
+                                  style={{ color: token.colorError }}
+                                />
+                              </span>
+                            </Col>
+                          </Row>
+                        </Col>
                       ))}
                     </Row>
                     <Form.Item>
@@ -349,14 +356,14 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                 label='告警摘要'
                 rules={[{ required: true, message: '请输入告警摘要' }]}
               >
-                <AnnotationsEditor />
+                <AnnotationsEditor language='summary' disabled={disabled} />
               </Form.Item>
               <Form.Item
                 name={['annotations', 'description']}
                 label='告警明细'
                 rules={[{ required: true, message: '请输入告警明细' }]}
               >
-                <AnnotationsEditor />
+                <AnnotationsEditor language='description' disabled={disabled} />
               </Form.Item>
             </Form.Item>
 

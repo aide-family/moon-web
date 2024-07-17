@@ -45,14 +45,15 @@ import {
   promqlHighlighter,
 } from './prom/CMTheme'
 import { HistoryCompleteStrategy } from './prom/HistoryCompleteStrategy'
-import { Button, InputProps, theme } from 'antd'
+import { Button, Form, Input, InputProps, theme } from 'antd'
 
 import { ThunderboltOutlined } from '@ant-design/icons'
 
 import type { ValidateStatus } from 'antd/es/form/FormItem'
 
-import styles from './prom/index.module.scss'
 import { GlobalContext } from '@/utils/context'
+
+import './prom/index.css'
 
 export type PromValidate = {
   help?: string
@@ -65,6 +66,7 @@ export interface PromQLInputProps extends InputProps {
   ref?: MutableRefObject<any>
   buttonRef?: MutableRefObject<any>
   showBorder?: boolean
+  name?: string
 }
 
 const promqlExtension = new PromQLExtension()
@@ -80,10 +82,14 @@ const buildPathPrefix = (s?: string) => {
   return promPathPrefix
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const formatExpressionFunc = (pathPrefix: string, doc?: string) => {
   const prefix = buildPathPrefix(pathPrefix)
-  if (!doc || !prefix || prefix === '') {
-    return Promise.reject('empty expression')
+  if (!doc) {
+    return Promise.reject('请输入PromQL查询语句')
+  }
+  if (!prefix || prefix === '') {
+    return Promise.reject('请配置一个数据源用于智能提示')
   }
   return fetch(
     `${prefix}/api/v1/query?${new URLSearchParams({
@@ -96,7 +102,7 @@ export const formatExpressionFunc = (pathPrefix: string, doc?: string) => {
   )
     .then((resp) => {
       if (!resp.ok && resp.status !== 400) {
-        return Promise.reject(`format HTTP request failed: ${resp.statusText}`)
+        return Promise.reject(`HTTP 请求失败: ${resp.statusText}`)
       }
 
       return resp.json()
@@ -127,6 +133,7 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
     formatExpression,
     placeholder = '请输入查询语句',
     value,
+    name = 'expr',
     defaultValue,
     ref,
     buttonRef,
@@ -140,11 +147,15 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
   const [doc, setDoc] = useState<any>(value || defaultValue)
+  const { status } = Form.Item.useStatus()
+  const form = Form.useFormInstance()
+
   const onExpressionChange = (expression: string) => {
     setDoc(expression)
   }
 
   useEffect(() => {
+    if (!containerRef || !containerRef.current) return
     promqlExtension.activateCompletion(true).activateLinter(true)
     promqlExtension.setComplete({
       completeStrategy: new HistoryCompleteStrategy(
@@ -258,7 +269,23 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
   }, [disabled, containerRef, pathPrefix, placeholder, prefix, theme, doc])
 
   useEffect(() => {
-    onChange?.(doc)
+    if (disabled) return
+    formatExpressionFunc(prefix, doc)
+      .then(() => {
+        onChange?.(doc)
+      })
+      .catch((err) => {
+        form?.setFields([
+          {
+            name: name,
+            errors: [err],
+            value: undefined,
+            touched: true,
+            validating: false,
+            validated: false,
+          },
+        ])
+      })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doc])
 
@@ -272,26 +299,27 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
 
   return (
     <div ref={ref}>
-      <div className={styles.promInputContent}>
-        <div
-          className={
-            'cm-expression-input ' + (showBorder ? styles.promInput : '')
-          }
-          style={{
-            borderColor: showBorder
-              ? status === 'error'
-                ? 'red'
-                : token.colorBorder
-              : '',
-            background: showBorder
-              ? disabled
-                ? token.colorBgContainerDisabled
-                : token.colorBgContainer
-              : '',
-            color: token.colorTextBase,
-          }}
-          ref={containerRef}
-        />
+      <div className='promInputContent'>
+        {disabled ? (
+          <Input.TextArea value={doc} disabled minLength={1} />
+        ) : (
+          <div
+            className={`cm-expression-input promInput ${status}`}
+            style={{
+              minHeight: 40,
+              padding: '4px 11px',
+              fontSize: '14px',
+              lineHeight: 1.5714285714285714,
+              background: showBorder
+                ? disabled
+                  ? token.colorBgContainerDisabled
+                  : token.colorBgContainer
+                : '',
+              color: token.colorTextBase,
+            }}
+            ref={containerRef}
+          />
+        )}
 
         {formatExpression && (
           <Button
@@ -302,7 +330,7 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
             style={{
               borderRadius: '0 6px 6px 0',
             }}
-            disabled={!doc || !prefix}
+            disabled={!doc || !prefix || status !== 'success'}
             icon={<ThunderboltOutlined />}
           />
         )}
