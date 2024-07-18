@@ -1,6 +1,10 @@
 import { ConditionData, SustainTypeData } from '@/api/global'
 import PromQLInput from '@/components/data/child/prom-ql'
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import {
+  MinusCircleOutlined,
+  PlusOutlined,
+  QuestionCircleOutlined,
+} from '@ant-design/icons'
 import {
   Button,
   Card,
@@ -10,9 +14,13 @@ import {
   InputNumber,
   Modal,
   ModalProps,
+  Popover,
   Row,
   Select,
+  Space,
   theme,
+  Tooltip,
+  Typography,
 } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { LevelItemType, TemplateEditModalFormData } from './options'
@@ -20,7 +28,7 @@ import {
   MutationStrategyLevelTemplateType,
   StrategyLevelIDType,
 } from '@/api/template/types'
-import { getStrategyTemplate } from '@/api/template'
+import { getStrategyTemplate, validateAnnotationTemplate } from '@/api/template'
 import { AnnotationsEditor } from '@/components/data/child/annotation-editor'
 
 const { useToken } = theme
@@ -49,13 +57,29 @@ export interface TemplateEditModalProps extends ModalProps {
   submit?: (data: TemplateEditModalData) => Promise<void>
 }
 
+let summaryTimeout: NodeJS.Timeout | null = null
+let descriptionTimeout: NodeJS.Timeout | null = null
 export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
   const { onCancel, submit, open, title, templateId, disabled } = props
 
   const { token } = useToken()
 
   const [form] = Form.useForm<TemplateEditModalFormData>()
-  const datasource = Form.useWatch('datasource', form) || ''
+  const datasource = Form.useWatch('datasource', form)
+
+  const summary = Form.useWatch(['annotations', 'summary'], form)
+  const description = Form.useWatch(['annotations', 'description'], form)
+  const [summaryOkInfo, setSummaryOkInfo] = useState<{
+    info: string
+  }>({
+    info: '',
+  })
+  const [descriptionOkInfo, setDescriptionOkInfo] = useState<{
+    info: string
+  }>({
+    info: '',
+  })
+
   const [loading, setLoading] = useState(false)
 
   const [templdateDetail, setTemplateDetail] =
@@ -129,6 +153,86 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
     form.resetFields()
     setTemplateDetail(undefined)
   }
+
+  const checkExpression = (tmpValue: string) => {
+    const { labelsItems, expr, levelItems, alert, datasource } =
+      form.getFieldsValue()
+    if (!tmpValue || !datasource) return
+    const level = levelItems?.[0]
+    return validateAnnotationTemplate({
+      annotations: tmpValue,
+      expr: expr,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      labels: labelsItems?.reduce((acc: any, { key, value }) => {
+        acc[key] = value
+        return acc
+      }),
+      level: 'levelItems?.[0]?.levelId',
+      alert: alert,
+      datasource: datasource,
+      datasourceId: 0,
+      duration: `${level?.duration}s`,
+      count: level?.count,
+      sustainType: level?.sustainType,
+    })
+  }
+
+  useEffect(() => {
+    if (!description) return
+    if (descriptionTimeout) {
+      clearTimeout(descriptionTimeout)
+    }
+    descriptionTimeout = setTimeout(() => {
+      checkExpression(description)?.then((res) => {
+        if (res?.errors) {
+          form.setFields([
+            {
+              name: ['annotations', 'description'],
+              errors: [res.errors],
+              // value: description,
+              touched: true,
+              validating: false,
+              validated: false,
+            },
+          ])
+        } else {
+          setDescriptionOkInfo({
+            info: res?.annotations || '',
+          })
+        }
+      })
+    }, 500)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [description])
+
+  useEffect(() => {
+    if (!summary) return
+    if (summaryTimeout) {
+      clearTimeout(summaryTimeout)
+    }
+    summaryTimeout = setTimeout(() => {
+      checkExpression(summary)?.then((res) => {
+        if (res?.errors) {
+          form.setFields([
+            {
+              name: ['annotations', 'summary'],
+              errors: [res.errors],
+              // value: summary,
+              touched: true,
+              validating: false,
+              validated: false,
+            },
+          ])
+        } else {
+          setSummaryOkInfo({
+            info: res?.annotations || '',
+          })
+        }
+      })
+    }, 500)
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [summary])
 
   const handleOnOk = () => {
     form.validateFields().then((formValues) => {
@@ -261,7 +365,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
               rules={[{ required: true, message: '请检查查询语句' }]}
             >
               <PromQLInput
-                pathPrefix={datasource}
+                pathPrefix={datasource || ''}
                 formatExpression
                 disabled={disabled}
               />
@@ -350,17 +454,57 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
               </Form.List>
             </Form.Item>
 
-            <Form.Item label={<b>注解</b>} required>
+            <Form.Item
+              tooltip='注解用于告警展示的内容编辑'
+              label={<b>注解</b>}
+              required
+            >
               <Form.Item
                 name={['annotations', 'summary']}
-                label='告警摘要'
+                label={
+                  <Space size={8}>
+                    告警摘要
+                    <Popover
+                      title='告警摘要, 告警内容如下所示'
+                      content={
+                        <Typography.Text
+                          ellipsis
+                          copyable
+                          style={{ width: '30vw' }}
+                        >
+                          {summaryOkInfo.info}
+                        </Typography.Text>
+                      }
+                    >
+                      <QuestionCircleOutlined />
+                    </Popover>
+                  </Space>
+                }
                 rules={[{ required: true, message: '请输入告警摘要' }]}
               >
                 <AnnotationsEditor language='summary' disabled={disabled} />
               </Form.Item>
               <Form.Item
                 name={['annotations', 'description']}
-                label='告警明细'
+                label={
+                  <Space size={8}>
+                    告警明细
+                    <Popover
+                      title='告警明细, 告警内容如下所示'
+                      content={
+                        <Typography.Text
+                          ellipsis
+                          copyable
+                          style={{ width: '30vw' }}
+                        >
+                          {descriptionOkInfo.info}
+                        </Typography.Text>
+                      }
+                    >
+                      <QuestionCircleOutlined />
+                    </Popover>
+                  </Space>
+                }
                 rules={[{ required: true, message: '请输入告警明细' }]}
               >
                 <AnnotationsEditor

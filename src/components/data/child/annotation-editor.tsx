@@ -16,7 +16,7 @@ export interface AnnotationsEditorProps {
   disabled?: boolean
 }
 
-const keywordList: string[] = ['if', 'else', 'else if', 'end', 'rang', 'with']
+const keywordList: string[] = ['if', 'else', 'else if', 'end', 'range', 'with']
 
 const keywordRegExpList: string[] = [
   '{{',
@@ -28,10 +28,16 @@ const keywordRegExpList: string[] = [
   '\\s+else(?=\\s)',
   '\\s+else\\s+if(?=\\s)',
   '\\s+end(?=\\s)',
-  '\\s+rang(?=\\s)',
+  '\\s+range(?=\\s)',
   '\\s+with(?=\\s)',
 ]
-const structList: string[] = ['labels', 'value', 'eventAt', 'strategy']
+const structList: string[] = [
+  'labels',
+  'value',
+  'eventAt',
+  'strategy',
+  'status',
+]
 const labelsFieldList: string[] = [
   'instance',
   'endpoint',
@@ -265,7 +271,7 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
         endLineNumber: position.lineNumber,
         endColumn: position.column,
       })
-      console.log('text', text)
+      // console.log('text', text)
       if (text.endsWith('{{')) {
         editor.executeEdits('', [
           {

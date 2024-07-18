@@ -150,11 +150,23 @@ export interface UpdateStrategyTemplateRequest {
 /** 校验annotation模板 */
 export interface ValidateAnnotationTemplateRequest {
   annotations: string
-  expr: string
-  labels: Record<string, string>
-  level: string
-  alert: string
-  // 二选一即可
+  expr?: string
+  labels?: Record<string, string>
+  level?: string
+  alert?: string
   datasource?: string
   datasourceId?: number
+  duration?: string
+  count?: number
+  sustainType?: SustainType
+  condition?: Condition
+  threshold?: number
+  categories?: string[]
+}
+
+/** 校验annotation模板响应 */
+export interface ValidateAnnotationTemplateResponse {
+  annotations?: string
+  errors?: string
+  labels?: string[]
 }

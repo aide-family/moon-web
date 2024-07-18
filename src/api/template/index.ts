@@ -7,6 +7,8 @@ import {
   StrategyTemplateItemType,
   StrategyTemplateNullResponse,
   UpdateStrategyTemplateRequest,
+  ValidateAnnotationTemplateRequest,
+  ValidateAnnotationTemplateResponse,
 } from './types'
 import { Status } from '../global'
 
@@ -104,6 +106,19 @@ async function updateStrategyTemplate(
   )
 }
 
+/**
+ * 模板校验（返回校验成功的数据或者错误明细）
+ * POST /v1/template/annotations/validate
+ */
+async function validateAnnotationTemplate(
+  params: ValidateAnnotationTemplateRequest
+): Promise<ValidateAnnotationTemplateResponse> {
+  return await POST<ValidateAnnotationTemplateResponse>(
+    '/v1/template/annotations/validate',
+    params
+  )
+}
+
 export {
   createStrategyTemplate,
   deleteStrategyTemplate,
@@ -111,4 +126,5 @@ export {
   getStrategyTemplateList,
   changeStrategyTemplateStatus,
   updateStrategyTemplate,
+  validateAnnotationTemplate,
 }
