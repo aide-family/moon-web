@@ -146,3 +146,15 @@ export interface UpdateStrategyTemplateRequest {
   // 策略等级
   level: Record<StrategyLevelIDType, MutationStrategyLevelTemplateType>
 }
+
+/** 校验annotation模板 */
+export interface ValidateAnnotationTemplateRequest {
+  annotations: string
+  expr: string
+  labels: Record<string, string>
+  level: string
+  alert: string
+  // 二选一即可
+  datasource?: string
+  datasourceId?: number
+}

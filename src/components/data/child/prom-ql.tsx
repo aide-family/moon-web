@@ -304,7 +304,7 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
           <Input.TextArea value={doc} disabled minLength={1} />
         ) : (
           <div
-            className={`cm-expression-input promInput ${status}`}
+            className={`cm-expression-input promInput input-border ${status}`}
             style={{
               minHeight: 40,
               padding: '4px 11px',

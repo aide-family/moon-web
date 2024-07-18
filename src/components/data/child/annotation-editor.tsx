@@ -3,8 +3,10 @@ import React, { useEffect, useRef, useState } from 'react'
 import { editor as editorNameSpace } from 'monaco-editor'
 import { Position } from 'monaco-editor/esm/vs/editor/editor.api'
 import type { languages } from 'monaco-editor/esm/vs/editor/editor.api'
-import { Form, Input } from 'antd'
+import { Form, Input, theme } from 'antd'
 import './style.css'
+
+const { useToken } = theme
 
 export interface AnnotationsEditorProps {
   onChange?: (value?: string) => void
@@ -14,8 +16,40 @@ export interface AnnotationsEditorProps {
   disabled?: boolean
 }
 
-const structList = ['labels', 'value', 'alert', 'level', 'timestamp']
-const defaultFieldList = ['instance', 'endpoint', 'app']
+const keywordList: string[] = ['if', 'else', 'else if', 'end', 'rang', 'with']
+
+const keywordRegExpList: string[] = [
+  '{{',
+  '}}',
+  '\\|',
+  '\\(',
+  '\\)',
+  '\\s+if(?=\\s)',
+  '\\s+else(?=\\s)',
+  '\\s+else\\s+if(?=\\s)',
+  '\\s+end(?=\\s)',
+  '\\s+rang(?=\\s)',
+  '\\s+with(?=\\s)',
+]
+const structList: string[] = ['labels', 'value', 'eventAt', 'strategy']
+const labelsFieldList: string[] = [
+  'instance',
+  'endpoint',
+  'app',
+  '__name__',
+  'env',
+]
+const strategyFieldList: string[] = [
+  'alert',
+  'level',
+  'expr',
+  'duration',
+  'count',
+  'sustainType',
+  'condition',
+  'threshold',
+  'categories',
+]
 const functionList = [
   'now',
   'hasPrefix',
@@ -28,6 +62,46 @@ const functionList = [
   'toLower',
   'replace',
   'split',
+  'print',
+  'printf',
+  'println',
+  'not',
+  'and',
+  'or',
+  'eq',
+  'ne',
+  'lt',
+  'le',
+  'gt',
+  'ge',
+  'len',
+]
+
+const functionRegExpList: string[] = [
+  '\\s+now(?=\\s)',
+  '\\s+hasPrefix(?=\\s)',
+  '\\s+hasSuffix(?=\\s)',
+  '\\s+contains(?=\\s)',
+  '\\s+trimSpace(?=\\s)',
+  '\\s+trimPrefix(?=\\s)',
+  '\\s+trimSuffix(?=\\s)',
+  '\\s+toUpper(?=\\s)',
+  '\\s+toLower(?=\\s)',
+  '\\s+replace(?=\\s)',
+  '\\s+split(?=\\s)',
+  '\\s+print(?=\\s)',
+  '\\s+printf(?=\\s)',
+  '\\s+println(?=\\s)',
+  '\\s+not(?=\\s)',
+  '\\s+and(?=\\s)',
+  '\\s+or(?=\\s)',
+  '\\s+eq(?=\\s)',
+  '\\s+ne(?=\\s)',
+  '\\s+lt(?=\\s)',
+  '\\s+le(?=\\s)',
+  '\\s+gt(?=\\s)',
+  '\\s+ge(?=\\s)',
+  '\\s+len(?=\\s)',
 ]
 
 export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
@@ -38,9 +112,10 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
     height = 32 * 3,
     disabled,
   } = props
+  // const { theme } = useContext(GlobalContext)
+  const { token } = useToken()
 
   const [code, setCode] = useState('')
-  const [fieldList] = useState<string[]>(defaultFieldList)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const editorRef = useRef<any>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -53,35 +128,44 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
     editorRef.current = editor
     monacoRef.current = monaco
 
-    monaco.editor.defineTheme('myTheme', {
+    monaco.editor.defineTheme('annotationTheme', {
       base: 'vs',
       inherit: true,
       rules: [
         { token: 'struct', foreground: '#E708C2' },
         { token: 'field', foreground: '#FF8216' },
-        { token: 'function', foreground: '#1677FF' },
+        { token: 'function', foreground: token.colorPrimary },
+        { token: 'keyword', foreground: token.colorSuccess },
+        { token: 'variable', foreground: token.colorError },
       ],
       colors: {
-        'editor.foreground': '#000000',
+        'editor.foreground': token.colorWarning,
+        'editor.background': token.colorBgContainer,
+        'editorCursor.foreground': token.colorErrorActive,
+        'editor.lineHighlightBackground': token.colorBgContainer,
+        'scrollbarSlider.background': token.colorPrimary,
+        'scrollbarSlider.hoverBackground': token.colorPrimary,
+        'scrollbarSlider.activeBackground': token.colorPrimary,
       },
     })
     // 使用主题
-    monaco.editor.setTheme('myTheme')
+    monaco.editor.setTheme('annotationTheme')
     monaco.languages.register({ id: language })
 
     monaco.languages.setMonarchTokensProvider(language, {
       tokenizer: {
         root: [
           [new RegExp(`(${structList.join('|')})`), 'struct'],
-          [/{{/, 'keyword'],
-          [/}}/, 'keyword'],
-          [new RegExp(`(${fieldList.join('|')})`), 'field'],
-          [new RegExp(`(${functionList.join('|')})`), 'function'],
+          [new RegExp(`(${keywordRegExpList.join('|')})`), 'keyword'],
+          [new RegExp(`(${labelsFieldList.join('|')})`), 'field'],
+          [new RegExp(`(${strategyFieldList.join('|')})`), 'field'],
+          [new RegExp(`(${functionRegExpList.join('|')})`), 'function'],
+          [/\s+\$[a-zA-Z0-9_]+(?=\s)/g, 'variable'],
         ],
       },
     })
 
-    // monaco.editor.setTheme('myTheme')
+    // monaco.editor.setTheme('annotationTheme')
     monaco.languages.registerCompletionItemProvider(language, {
       provideCompletionItems: (
         model: editorNameSpace.ITextModel,
@@ -118,7 +202,17 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
             // console.log('preText', preText)
             if (preText.endsWith('labels')) {
               return {
-                suggestions: fieldList.map((item) => ({
+                suggestions: labelsFieldList.map((item) => ({
+                  label: item,
+                  kind: monacoRef?.current.languages.CompletionItemKind.Field,
+                  insertText: item,
+                  range: newRang,
+                })),
+              }
+            }
+            if (preText.endsWith('strategy')) {
+              return {
+                suggestions: strategyFieldList.map((item) => ({
                   label: item,
                   kind: monacoRef?.current.languages.CompletionItemKind.Field,
                   insertText: item,
@@ -141,6 +235,12 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
                   label: item,
                   kind: monacoRef?.current.languages.CompletionItemKind
                     .Function,
+                  insertText: item,
+                  range: newRang,
+                })),
+                ...keywordList.map((item) => ({
+                  label: item,
+                  kind: monacoRef?.current.languages.CompletionItemKind.Keyword,
                   insertText: item,
                   range: newRang,
                 })),
@@ -199,7 +299,7 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
         <Input.TextArea value={value} disabled minLength={1} />
       ) : (
         <Editor
-          className={`editorInput ${status}`}
+          className={`editorInput input-border ${status}`}
           height={height}
           language={language}
           line={11}
@@ -211,7 +311,13 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
           // 设置style
           options={{
             minimap: {
-              enabled: false,
+              enabled: true,
+              showSlider: 'mouseover',
+            },
+            'semanticHighlighting.enabled': true,
+            scrollbar: {
+              horizontalScrollbarSize: 12,
+              verticalScrollbarSize: 4,
             },
             overviewRulerBorder: false,
             fontSize: 14,

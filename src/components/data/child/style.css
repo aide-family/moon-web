@@ -19,14 +19,8 @@
   background-image: none;
   border-width: 1px;
   border-style: solid;
-  /* border-color: #d9d9d9; */
   border-radius: 6px;
   transition: all 0.2s;
-  &:hover {
-    border-color: #1677ff;
-  }
-  overflow-y: auto;
-  overflow-x: auto;
 }
 
 .monaco-scrollable-element {

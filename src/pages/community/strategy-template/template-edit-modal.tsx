@@ -363,7 +363,11 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                 label='告警明细'
                 rules={[{ required: true, message: '请输入告警明细' }]}
               >
-                <AnnotationsEditor language='description' disabled={disabled} />
+                <AnnotationsEditor
+                  height={64 * 2}
+                  language='description'
+                  disabled={disabled}
+                />
               </Form.Item>
             </Form.Item>
 
