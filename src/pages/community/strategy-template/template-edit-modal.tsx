@@ -19,7 +19,6 @@ import {
   Select,
   Space,
   theme,
-  Tooltip,
   Typography,
 } from 'antd'
 import React, { useEffect, useState } from 'react'
@@ -71,11 +70,13 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
   const description = Form.useWatch(['annotations', 'description'], form)
   const [summaryOkInfo, setSummaryOkInfo] = useState<{
     info: string
+    labels?: string[]
   }>({
     info: '',
   })
   const [descriptionOkInfo, setDescriptionOkInfo] = useState<{
     info: string
+    labels?: string[]
   }>({
     info: '',
   })
@@ -482,7 +483,11 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                 }
                 rules={[{ required: true, message: '请输入告警摘要' }]}
               >
-                <AnnotationsEditor language='summary' disabled={disabled} />
+                <AnnotationsEditor
+                  labels={summaryOkInfo.labels}
+                  language='summary'
+                  disabled={disabled}
+                />
               </Form.Item>
               <Form.Item
                 name={['annotations', 'description']}
@@ -509,6 +514,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
               >
                 <AnnotationsEditor
                   height={64 * 2}
+                  labels={descriptionOkInfo.labels}
                   language='description'
                   disabled={disabled}
                 />

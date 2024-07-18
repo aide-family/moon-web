@@ -14,6 +14,7 @@ export interface AnnotationsEditorProps {
   language: string
   height?: number | string
   disabled?: boolean
+  labels?: string[]
 }
 
 const keywordList: string[] = ['if', 'else', 'else if', 'end', 'range', 'with']
@@ -117,6 +118,7 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
     language = 'gotemplate',
     height = 32 * 3,
     disabled,
+    labels = labelsFieldList,
   } = props
   // const { theme } = useContext(GlobalContext)
   const { token } = useToken()
@@ -163,7 +165,7 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
         root: [
           [new RegExp(`(${structList.join('|')})`), 'struct'],
           [new RegExp(`(${keywordRegExpList.join('|')})`), 'keyword'],
-          [new RegExp(`(${labelsFieldList.join('|')})`), 'field'],
+          [new RegExp(`(${labels.join('|')})`), 'field'],
           [new RegExp(`(${strategyFieldList.join('|')})`), 'field'],
           [new RegExp(`(${functionRegExpList.join('|')})`), 'function'],
           [/\s+\$[a-zA-Z0-9_]+(?=\s)/g, 'variable'],
@@ -208,7 +210,7 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
             // console.log('preText', preText)
             if (preText.endsWith('labels')) {
               return {
-                suggestions: labelsFieldList.map((item) => ({
+                suggestions: labels.map((item) => ({
                   label: item,
                   kind: monacoRef?.current.languages.CompletionItemKind.Field,
                   insertText: item,
