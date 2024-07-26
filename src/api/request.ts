@@ -8,8 +8,8 @@ const localhost = 'http://localhost:5173'
 const local127 = 'http://127.0.0.1:5173'
 
 export const hostMap: { [key: string]: string } = {
-  [localhost]: 'http://localhost:8000',
-  [local127]: 'http://localhost:8000',
+  [localhost]: 'http://dev-palace.aide-cloud.cn/',
+  [local127]: 'http://dev-palace.aide-cloud.cn/',
 }
 
 const request = axios.create({
