@@ -1,0 +1,20 @@
+.box {
+  padding: 20px;
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  .search {
+    padding: 12px;
+  }
+  .op {
+    padding: 12px;
+  }
+  .table {
+  }
+}
+
+.edit_content {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 76vh;
+}

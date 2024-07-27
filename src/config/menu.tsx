@@ -48,7 +48,7 @@ export const defaultMenuItems: ItemType[] = [
       },
       {
         label: '策略',
-        key: '/home/strategy/list',
+        key: '/home/strategy/metric',
       },
     ],
   },
@@ -202,7 +202,7 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   '/home/strategy/group': {
     name: '策略组',
   },
-  '/home/strategy/list': {
+  '/home/strategy/metric': {
     name: '策略',
   },
   '/home/notify': {

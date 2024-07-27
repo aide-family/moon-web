@@ -1,0 +1,34 @@
+.a_table {
+  :global {
+    .ant-table-wrapper,
+    .custom-table-wrapper {
+      margin-bottom: 20px;
+    }
+
+    .ant-table-cell,
+    .custom-table-cell {
+      height: 50px;
+      color: #666;
+      border: none;
+    }
+
+    .ant-table-thead>tr>th.ant-table-cell {
+      background-color: #EBEBEB;
+      color: #333;
+      height: 50px;
+    }
+
+    .custom-table-thead>tr>th.custom-table-cell {
+      background-color: #EBEBEB;
+      color: #333;
+      height: 50px;
+    }
+
+    .gray {
+      background-color: #F8F8F8;
+    }
+    .ant-pagination {
+      text-align: end;
+    }
+  }
+}

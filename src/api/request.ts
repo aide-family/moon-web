@@ -13,7 +13,8 @@ export const hostMap: { [key: string]: string } = {
 }
 
 const request = axios.create({
-  baseURL: hostMap[host] || host,
+  // baseURL: hostMap[host] || host,
+  baseURL: 'http://dev-palace.aide-cloud.cn/',
   timeout: 10000,
 })
 

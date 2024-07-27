@@ -1,32 +1,32 @@
-import { BadgeProps } from 'antd'
+import { BadgeProps } from "antd";
 
 export interface Pagination {
-  pageNum: number
-  pageSize: number
+  pageNum: number;
+  pageSize: number;
 }
 
 export interface PaginationReply extends Pagination {
-  total: number
+  total: number;
 }
 
 export interface PaginationResponse<T> {
-  pagination: PaginationReply
-  list: T[]
+  pagination: PaginationReply;
+  list: T[];
 }
 
 export interface SelectExtendType {
-  icon?: string
-  color?: string
-  remark?: string
-  image?: string
+  icon?: string;
+  color?: string;
+  remark?: string;
+  image?: string;
 }
 
 export interface SelectType {
-  value: number
-  label: string
-  children?: SelectType[]
-  disabled: boolean
-  extend?: SelectExtendType
+  value: number;
+  label: string;
+  children?: SelectType[];
+  disabled: boolean;
+  extend?: SelectExtendType;
 }
 
 export enum Status {
@@ -37,18 +37,18 @@ export enum Status {
 
 export const StatusData: Record<Status, BadgeProps> = {
   [Status.ALL]: {
-    color: 'blue',
-    text: '全部',
+    color: "blue",
+    text: "全部",
   },
   [Status.ENABLE]: {
-    color: 'green',
-    text: '启用',
+    color: "green",
+    text: "启用",
   },
   [Status.DISABLE]: {
-    color: 'red',
-    text: '禁用',
+    color: "red",
+    text: "禁用",
   },
-}
+};
 
 export enum Gender {
   ALL = 0,
@@ -57,10 +57,10 @@ export enum Gender {
 }
 
 export const GenderData: Record<Gender, string> = {
-  [Gender.ALL]: '全部',
-  [Gender.MALE]: '男',
-  [Gender.FEMALE]: '女',
-}
+  [Gender.ALL]: "全部",
+  [Gender.MALE]: "男",
+  [Gender.FEMALE]: "女",
+};
 
 export enum SystemRole {
   // 全部 / 未知
@@ -74,11 +74,11 @@ export enum SystemRole {
 }
 
 export const SystemRoleData: Record<SystemRole, string> = {
-  [SystemRole.ROLE_ALL]: '全部',
-  [SystemRole.ROLE_SUPPER_ADMIN]: '超级管理员',
-  [SystemRole.ROLE_ADMIN]: '管理员',
-  [SystemRole.ROLE_USER]: '普通用户',
-}
+  [SystemRole.ROLE_ALL]: "全部",
+  [SystemRole.ROLE_SUPPER_ADMIN]: "超级管理员",
+  [SystemRole.ROLE_ADMIN]: "管理员",
+  [SystemRole.ROLE_USER]: "普通用户",
+};
 
 // MetricType 指标类型
 export enum MetricType {
@@ -95,32 +95,32 @@ export enum MetricType {
 }
 
 export type TagItemType = {
-  text: string
-  color: string
-}
+  text: string;
+  color: string;
+};
 
 export const MetricTypeData: Record<MetricType, TagItemType> = {
   [MetricType.MetricTypeUnknown]: {
-    text: '全部',
-    color: '',
+    text: "全部",
+    color: "",
   },
   [MetricType.MetricTypeCounter]: {
-    text: 'Counter',
-    color: 'green',
+    text: "Counter",
+    color: "green",
   },
   [MetricType.MetricTypeGauge]: {
-    text: 'Gauge',
-    color: 'blue',
+    text: "Gauge",
+    color: "blue",
   },
   [MetricType.MetricTypeHistogram]: {
-    text: 'Histogram',
-    color: 'purple',
+    text: "Histogram",
+    color: "purple",
   },
   [MetricType.MetricTypeSummary]: {
-    text: 'Summary',
-    color: 'orange',
+    text: "Summary",
+    color: "orange",
   },
-}
+};
 
 // 数据源类型
 export enum DataSourceType {
@@ -135,11 +135,11 @@ export enum DataSourceType {
 }
 
 export const DataSourceTypeData: Record<DataSourceType, string> = {
-  [DataSourceType.DataSourceTypeUnknown]: '全部',
-  [DataSourceType.DataSourceTypeMetric]: 'Metric',
-  [DataSourceType.DataSourceTypeLog]: 'Log',
-  [DataSourceType.DataSourceTypeTrace]: 'Trace',
-}
+  [DataSourceType.DataSourceTypeUnknown]: "全部",
+  [DataSourceType.DataSourceTypeMetric]: "Metric",
+  [DataSourceType.DataSourceTypeLog]: "Log",
+  [DataSourceType.DataSourceTypeTrace]: "Trace",
+};
 
 // 存储器类型
 export enum StorageType {
@@ -151,9 +151,9 @@ export enum StorageType {
 }
 
 export const StorageTypeData: Record<StorageType, string> = {
-  [StorageType.StorageTypeUnknown]: '全部',
-  [StorageType.StorageTypePrometheus]: 'Prometheus',
-}
+  [StorageType.StorageTypeUnknown]: "全部",
+  [StorageType.StorageTypePrometheus]: "Prometheus",
+};
 
 // 判断条件
 export enum Condition {
@@ -177,13 +177,13 @@ export enum Condition {
 }
 
 export const ConditionData: Record<Condition, string> = {
-  [Condition.ConditionEQ]: '等于(==)',
-  [Condition.ConditionNE]: '不等于(!=)',
-  [Condition.ConditionGT]: '大于(>)',
-  [Condition.ConditionGTE]: '大于等于(>=)',
-  [Condition.ConditionLT]: '小于(<)',
-  [Condition.ConditionLTE]: '小于等于(<=)',
-}
+  [Condition.ConditionEQ]: "等于(==)",
+  [Condition.ConditionNE]: "不等于(!=)",
+  [Condition.ConditionGT]: "大于(>)",
+  [Condition.ConditionGTE]: "大于等于(>=)",
+  [Condition.ConditionLT]: "小于(<)",
+  [Condition.ConditionLTE]: "小于等于(<=)",
+};
 
 // 持续类型
 export enum SustainType {
@@ -198,7 +198,20 @@ export enum SustainType {
 }
 
 export const SustainTypeData: Record<SustainType, string> = {
-  [SustainType.SustainTypeFor]: 'm时间内出现n次',
-  [SustainType.SustainTypeMax]: 'm时间内最多出现n次',
-  [SustainType.SustainTypeMin]: 'm时间内最少出现n次',
+  [SustainType.SustainTypeFor]: "m时间内出现n次",
+  [SustainType.SustainTypeMax]: "m时间内最多出现n次",
+  [SustainType.SustainTypeMin]: "m时间内最少出现n次",
+};
+
+export interface OptionsType {
+  label: number | string;
+  value: number | string;
+}
+export interface SearchFormItem {
+  type: number;
+  name: string;
+  label: string;
+  placeholder: string;
+  options?: OptionsType[];
+  allowClear?: boolean;
 }
