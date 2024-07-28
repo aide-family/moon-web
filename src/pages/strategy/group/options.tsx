@@ -1,7 +1,7 @@
-import { Condition, Status, StatusData, SustainType, SearchFormItem } from '@/api/global'
+import { Status, StatusData, SearchFormItem, ActionKey, SelectType } from '@/api/global'
+import { StrategyGroupItemType } from '@/api/strategy/types'
 import { Button, Tooltip, Badge, Space } from 'antd'
-import { DataFromItem } from '@/components/data/form'
-import MoreMenu from "@/components/moreMenu"
+import MoreMenu from '@/components/moreMenu'
 
 export type GroupEditModalFormData = {
   name: string,
@@ -13,14 +13,14 @@ export type GroupEditModalFormData = {
 
 export const formList: SearchFormItem[] = [
   {
-    type: 1,
+    type: 'input',
     label: '名称',
     name: 'keyword',
     placeholder: '规则组名称',
     allowClear: true,
   },
   {
-    type: 4,
+    type: 'select',
     name: 'teamId',
     label: '分类',
     placeholder: '规则分类',
@@ -28,7 +28,7 @@ export const formList: SearchFormItem[] = [
     options: [],
   },
   {
-    type: 4,
+    type: 'select',
     name: 'status',
     label: '状态',
     placeholder: '规则组状态',
@@ -52,98 +52,87 @@ export const getColumnList = (props: GroupColumnProps) => {
   ): MenuProps['items'] => [
       record.status === Status.STATUS_DISABLED
         ? {
-          key: 1,
+          key: ActionKey.ENABLE,
           label: (
             <Button
-              type="link"
-              size="small"
-  
-            >
+              type='link'
+              size='small'>
               启用
             </Button>
           )
         }
         : {
-          key: 1,
+          key: ActionKey.DISABLE,
           label: (
             <Button
-              type="link"
-              size="small"
-              danger
-  
-            >
+              type='link'
+              size='small'
+              danger>
               禁用
             </Button>
           )
         },
       {
-        key: 5,
+        key: ActionKey.OPERATION_LOG,
         label: (
           <Button
-            size="small"
-            type="link"
-  
-          >
+            size='small'
+            type='link'>
             操作日志
           </Button>
         )
       },
       {
-        key: 6,
+        key: ActionKey.DETAIL,
         label: (
           <Button
-            size="small"
-            type="link"
-  
-          >
+            size='small'
+            type='link'>
             编辑
           </Button>
         )
       },
       {
-        key: 7,
+        key: ActionKey.DELETE,
         label: (
           <Button
-          type="link"
-          size="small"
-          danger
-
-        >
+            type='link'
+            size='small'
+            danger>
             删除
           </Button>
         )
       },
     ]
-  
+
   return [
     {
       title: '序号',
       dataIndex: 'index',
       key: 'index',
-      align: "center",
+      align: 'center',
       width: 60,
       fixed: 'left',
-      render: (text: any, record: any, index: any) => {
-        return <span>{index + 1}</span>;
+      render: (text: StrategyGroupItemType, record: StrategyGroupItemType, index: number) => {
+        return <span>{index + 1}</span>
       },
     },
     {
       title: '名称',
       dataIndex: 'name',
       key: 'name',
-      align: "center",
+      align: 'center',
       width: 200,
       render: (text: string) => {
         return (
           <Tooltip
-            placement="top"
+            placement='top'
             title={() => {
               return <div>{text}</div>
             }}
           >
-            <span
-            >
-              {text ? text : "-"}
+            <span>
+              {text ? text : '-'}
             </span>
           </Tooltip>
         );
@@ -153,7 +142,7 @@ export const getColumnList = (props: GroupColumnProps) => {
       title: '类型',
       dataIndex: 'categories',
       key: 'categories',
-      align: "center",
+      align: 'center',
       width: 160,
       render: (categories?: SelectType[]) => (
         <>
@@ -205,19 +194,18 @@ export const getColumnList = (props: GroupColumnProps) => {
       title: '描述',
       dataIndex: 'remark',
       key: 'remark',
-      align: "center",
+      align: 'center',
       width: 300,
       render: (text: string) => {
         return (
           <Tooltip
-            placement="top"
+            placement='top'
             title={() => {
               return <div>{text}</div>
             }}
           >
-            <span
-            >
-              {text ? text : "-"}
+            <span>
+              {text ? text : '-'}
             </span>
           </Tooltip>
         );
@@ -227,19 +215,18 @@ export const getColumnList = (props: GroupColumnProps) => {
       title: '创建时间',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      align: "center",
+      align: 'center',
       width: 180,
       render: (text: string) => {
         return (
           <Tooltip
-            placement="top"
+            placement='top'
             title={() => {
               return <div>{text}</div>
             }}
           >
-            <span
-            >
-              {text ? text : "-"}
+            <span>
+              {text ? text : '-'}
             </span>
           </Tooltip>
         );
@@ -249,19 +236,18 @@ export const getColumnList = (props: GroupColumnProps) => {
       title: '更新时间',
       dataIndex: 'updatedAt',
       key: 'updatedAt',
-      align: "center",
+      align: 'center',
       width: 180,
       render: (text: string) => {
         return (
           <Tooltip
-            placement="top"
+            placement='top'
             title={() => {
               return <div>{text}</div>
             }}
           >
-            <span
-            >
-              {text ? text : "-"}
+            <span>
+              {text ? text : '-'}
             </span>
           </Tooltip>
         );
@@ -270,23 +256,21 @@ export const getColumnList = (props: GroupColumnProps) => {
     {
       title: '操作',
       key: 'action',
-      align: "center",
+      align: 'center',
       ellipsis: true,
       fixed: 'right',
       width: 120,
       render: (_, record) => (
         <Space size={20}>
-          <Button size='small' type='link' onClick={() => onHandleMenuOnClick(record, '1')}>
+          <Button size='small' type='link' onClick={() => onHandleMenuOnClick(record, ActionKey.DETAIL)}>
             详情
           </Button>
           {tableOperationItems && tableOperationItems?.length > 0 && (
             <MoreMenu
               items={tableOperationItems(record)}
-              onClick={(key) =>{
+              onClick={(key: ActionKey) => {
                 onHandleMenuOnClick(record, key)
-               }
-               
-              }
+              }}
             />
           )}
         </Space>

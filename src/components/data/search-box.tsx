@@ -1,12 +1,12 @@
 import React, { forwardRef, memo, useImperativeHandle, useState, useEffect } from 'react'
 import { SearchFormItem } from '@/api/global'
 import { Button, Col, Form, Input, Row, Space, Select } from 'antd'
-import { SearchOutlined, ReloadOutlined, UpOutlined } from '@ant-design/icons'
-import styles from "./index.module.scss"
+import { UpOutlined } from '@ant-design/icons'
+import styles from './index.module.scss'
 
 export interface SearchProps {
-  formList: SearchFormItem[],
-  onSearch: (values: any) => void,
+  formList: SearchFormItem[]
+  onSearch: (values: any) => void
 }
 
 const SearchBox = forwardRef(function fnRef(props: SearchProps, ref) {
@@ -65,7 +65,7 @@ const SearchBox = forwardRef(function fnRef(props: SearchProps, ref) {
         return (
           <Select
             showSearch
-            optionFilterProp="label"
+            optionFilterProp='label'
             getPopupContainer={(triggerNode) => triggerNode.parentNode}
             {...obj}
           />
@@ -130,10 +130,10 @@ const SearchBox = forwardRef(function fnRef(props: SearchProps, ref) {
           >
             <Space>
               <Button type="primary" htmlType="submit">
-                {'搜索'}
+                搜索
               </Button>
               <Button htmlType="reset" onClick={reset}>
-                {'重置'}
+                重置
               </Button>
               {
                 formList && formList.length > 3

@@ -18,7 +18,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import SearchForm from '@/components/data/search-form'
 import SearchBox from '@/components/data/search-box'
 
-import { searchItems, formList  } from './options'
+import { searchItems, formList } from './options'
 import { UserItem } from '@/api/authorization/user'
 
 import styles from './index.module.scss'
@@ -58,7 +58,7 @@ const StrategyMetric: React.FC<StrategyTemplateProps> = () => {
   const searchRef = useRef(null)
   const [disabledEditTemplateModal, setDisabledEditTemplateModal] =
     useState(false)
-    const [searchDatasourceParams, setSearchDatasourceParams] =
+  const [searchDatasourceParams, setSearchDatasourceParams] =
     React.useState<DatasourceListRequest>(defaultSearchDatasourceParams)
   const handleOpenTemplateEditModal = (editId?: number) => {
     setEditTemplateId(editId)
@@ -283,10 +283,10 @@ const StrategyMetric: React.FC<StrategyTemplateProps> = () => {
           borderRadius: token.borderRadius,
         }}
       >
-       <SearchBox
+        <SearchBox
           formList={formList}
           onSearch={onSearch}
-        ></SearchBox>
+        />
       </div>
       <Table
         size='middle'

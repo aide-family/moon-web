@@ -1,4 +1,4 @@
-import request from "@/api/request";
+import request from '@/api/request'
 import { 
   CreateDictRequest,
   CreateDictNullResponse,
@@ -11,7 +11,7 @@ import {
   DictSelectRes,
   MyAlarmPageListResponse,
   UpdateDict,
-  dictBatchDeleteType } from "./types";
+  dictBatchDeleteType } from './types'
 import { Status } from '../global'
 const { POST, PUT, DELTED, GET } = request
 

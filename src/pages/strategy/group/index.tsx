@@ -1,11 +1,9 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
-import { SelectType, Status, StatusData } from '@/api/global'
-import { Flex, Button, Form, Table, Space, Badge, theme, Tag, message, Tooltip, InputNumber, Modal } from 'antd'
-import { ColumnsType } from 'antd/es/table'
-import AutoTable from "@/components/table/index"
-import SearchForm from '@/components/data/search-form'
+import { Status, ActionKey } from '@/api/global'
+import { Flex, Button, Space, Badge, theme, message } from 'antd'
+import AutoTable from '@/components/table/index'
 import SearchBox from '@/components/data/search-box'
-import { useContainerHeightTop } from "@/hooks/useContainerHeightTop"
+import { useContainerHeightTop } from '/hooks/useContainerHeightTop'
 import { formList, getColumnList } from './options'
 import {
   getStrategyGroupList,
@@ -13,11 +11,11 @@ import {
   deleteStrategyGroup,
   updateStrategyGroup,
   changeStrategyGroup
-} from "@/api/strategy"
+} from '@/api/strategy'
 import {
   ListStrategyGroupRequest,
   StrategyGroupItemType,
-} from "@/api/strategy/types"
+} from '@/api/strategy/types'
 import { GroupEditModal, GroupEditModalData } from './group-edit-modal'
 import { ExclamationCircleFilled } from '@ant-design/icons'
 import styles from './index.module.scss'
@@ -31,12 +29,11 @@ const defaultSearchParams: ListStrategyGroupRequest = {
   },
   keyword: '',
   status: Status.ALL,
-  // teamId: ""
+  // teamId: ''
 }
 
 let searchTimeout: NodeJS.Timeout | null = null
 const Group: React.FC = () => {
-  const [form] = Form.useForm()
   const { token } = useToken()
   const [datasource, setDatasource] = useState<StrategyGroupItemType[]>([])
   const [searchPrams, setSearchPrams] =
@@ -62,7 +59,7 @@ const Group: React.FC = () => {
     setDisabledEditGroupModal(false)
   }
 
-  const  onRefresh = () => {
+  const onRefresh = () => {
     setRefresh(!refresh)
   }
 
@@ -140,7 +137,7 @@ const Group: React.FC = () => {
     }
     setSearchPrams({
       ...searchPrams,
-        ...formData,
+      ...formData,
       pagination: {
         pageNum: 1,
         pageSize: searchPrams.pagination.pageSize,
@@ -175,29 +172,38 @@ const Group: React.FC = () => {
     })
   }
 
-  const onHandleMenuOnClick =  (item: StrategyGroupItemType, key: string) => {
+  const onHandleMenuOnClick = (item: StrategyGroupItemType, key: ActionKey) => {
     switch (key) {
-      case '1':
-        changeStrategyGroup([item.id],  item.status == 1 ? 2 : 1).then((res) => {
+      case ActionKey.ENABLE:
+        changeStrategyGroup([item.id], 2).then((res) => {
           message.success('更改状态成功')
           fetchData()
-         })
+        })
         break;
-      case '4':
+      case ActionKey.DISABLE:
+        changeStrategyGroup([item.id], 1).then((res) => {
+          message.success('更改状态成功')
+          fetchData()
+        })
         break;
-      case '6':
+      case ActionKey.OPERATION_LOG:
+        break;
+      case ActionKey.DETAIL:
+        console.log('详情。')
+        break;
+      case ActionKey.DETAIL:
         handleEditModal(item.id)
         break;
-      case '7':
+      case ActionKey.DELETE:
         confirm({
           title: `请确认是否删除该策略组?`,
           icon: <ExclamationCircleFilled />,
           content: '此操作不可逆',
           onOk() {
-             deleteStrategyGroup(item.id).then((res) => {
+            deleteStrategyGroup(item.id).then((res) => {
               message.success('删除成功')
               fetchData()
-             })
+            })
           },
           onCancel() {
             message.info('取消操作')
@@ -234,7 +240,7 @@ const Group: React.FC = () => {
         <SearchBox
           formList={formList}
           onSearch={onSearch}
-        ></SearchBox>
+        />
       </div>
       <div className={styles.main}>
         <div className={styles.main_toolbar}>

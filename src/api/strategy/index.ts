@@ -1,4 +1,4 @@
-import request from "@/api/request";
+import request from '@/api/request'
 import {
   GetStrategyGroupListRequest,
   StrategyGroupNullResponse,
@@ -6,9 +6,9 @@ import {
   GetStrategyGroupListResponse,
   StrategyGroupItemType,
   GetStrategyGroupResponse,
-} from "./types";
-import { Status } from "../global";
-const { POST, PUT, DELTED, GET } = request;
+} from './types'
+import { Status } from '../global'
+const { POST, PUT, DELTED, GET } = request
 
 /**
  * 获取策略组详情
@@ -19,8 +19,8 @@ const { POST, PUT, DELTED, GET } = request;
 async function getStrategyGroup(id: number): Promise<StrategyGroupItemType> {
   const { detail } = await GET<GetStrategyGroupResponse>(
     `/v1/group/strategy/${id}`
-  );
-  return detail;
+  )
+  return detail
 }
 
 /**
@@ -33,9 +33,9 @@ async function getStrategyGroupList(
   params: GetStrategyGroupListRequest
 ): Promise<GetStrategyGroupListResponse> {
   return await POST<GetStrategyGroupListResponse>(
-    "/v1/group/strategy/list",
+    '/v1/group/strategy/list',
     params
-  );
+  )
 }
 
 /**
@@ -48,9 +48,9 @@ async function createStrategyGroup(
   params: CreateStrategyGroupRequest
 ): Promise<StrategyGroupNullResponse> {
   return await POST<StrategyGroupNullResponse>(
-    "/v1/group/strategy/create",
+    '/v1/group/strategy/create',
     params
-  );
+  )
 }
 
 /**
@@ -62,7 +62,7 @@ async function createStrategyGroup(
 async function deleteStrategyGroup(
   id: number
 ): Promise<StrategyGroupNullResponse> {
-  return await DELTED(`/v1/group/strategy/${id}`);
+  return await DELTED(`/v1/group/strategy/${id}`)
 }
 
 /**
@@ -78,7 +78,7 @@ async function updateStrategyGroup(
   return await PUT<StrategyGroupNullResponse>(
     `/v1/group/strategy/${id}`,
     params
-  );
+  )
 }
 
 /**
@@ -98,7 +98,7 @@ async function changeStrategyGroup(
       ids,
       status,
     }
-  );
+  )
 }
 
 export {
@@ -107,5 +107,5 @@ export {
   getStrategyGroup,
   deleteStrategyGroup,
   updateStrategyGroup,
-  changeStrategyGroup,
-};
+  changeStrategyGroup
+}

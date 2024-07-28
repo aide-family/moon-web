@@ -5,7 +5,7 @@ import {
   SelectType,
   Status,
   SustainType,
-} from "../global";
+} from '../global'
 
 /**策略组空响应参数 */
 export interface StrategyGroupNullResponse {}
@@ -13,80 +13,79 @@ export interface StrategyGroupNullResponse {}
 /** 策略组创建人 */
 export interface StrategyGroupCreatorType {
   // 用户id
-  id: number;
+  id: number
   // 用户名
-  name: string;
+  name: string
   // 昵称
-  nickname: string;
+  nickname: string
   // 邮箱
-  email: string;
+  email: string
   // 手机
-  phone: string;
+  phone: string
   // 状态
-  status: number;
+  status: number
   // 角色
-  role: number;
+  role: number
   // 头像
-  avatar: string;
+  avatar: string
   // 个人说明
-  remark: string;
+  remark: string
   // 创建时间
-  createdAt: string;
+  createdAt: string
   // 更新时间
-  updatedAt: string;
+  updatedAt: string
 }
 
 /** 策略组 */
 export interface StrategyGroupItemType {
   // 策略组ID
-  id: number;
+  id: number
   // 策略组名称
-  name: string;
+  name: string
   // 策略组状态
-  status: number;
+  status: number
   // 创建时间
-  createdAt: string;
+  createdAt: string
   // 更新时间
-  updatedAt: string;
+  updatedAt: string
   // 策略组说明信息
-  remark: string;
+  remark: string
   // 策略组创建人
-  creator: StrategyGroupCreatorType;
+  creator: StrategyGroupCreatorType
   // 创建人的id
-  creatorId: string;
+  creatorId: string
 }
 
 /**策略组列表响应参数 */
 export interface GetStrategyGroupListResponse {
   // 策略组列表
-  list: StrategyGroupItemType[];
+  list: StrategyGroupItemType[]
   // 分页信息
-  pagination: PaginationReply;
+  pagination: PaginationReply
 }
 
 /** 策略组列表请求参数 */
 export interface GetStrategyGroupListRequest {
   // 分页参数
-  pagination: Pagination;
+  pagination: Pagination
   // 搜索关键字
-  keyword?: string;
+  keyword?: string
   // 规则组状态
-  status?: Status;
+  status?: Status
   // 规则分类
-  teamId?: number;
+  teamId?: number
 }
-
 
 /** 创建策略组请求参数 */
 export interface CreateStrategyGroupRequest {
   // 策略组名称
-  name: string,
+  name: string
   // 策略组说明信息
-  remark: string,
+  remark: string
   // 策略组状态
-  status: number,
+  status: number
   // 策略分组类型
-  categoriesIds: number[],
+  categoriesIds: number[]
   // 策略分组类型
   teamId: number
 }
