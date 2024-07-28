@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Status, ActionKey } from '@/api/global'
-import { Flex, Button, Space, Badge, theme, message } from 'antd'
+import { Flex, Button, Space, Badge, theme, message, Modal } from 'antd'
 import AutoTable from '@/components/table/index'
 import SearchBox from '@/components/data/search-box'
-import { useContainerHeightTop } from '/hooks/useContainerHeightTop'
+import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { formList, getColumnList } from './options'
 import {
   getStrategyGroupList,
@@ -191,7 +191,7 @@ const Group: React.FC = () => {
       case ActionKey.DETAIL:
         console.log('详情。')
         break;
-      case ActionKey.DETAIL:
+      case ActionKey.EDIT:
         handleEditModal(item.id)
         break;
       case ActionKey.DELETE:

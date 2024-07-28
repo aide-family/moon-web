@@ -83,7 +83,7 @@ export const getColumnList = (props: GroupColumnProps) => {
         )
       },
       {
-        key: ActionKey.DETAIL,
+        key: ActionKey.EDIT,
         label: (
           <Button
             size='small'
