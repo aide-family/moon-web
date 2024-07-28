@@ -43,25 +43,25 @@ const SearchBox = forwardRef(function fnRef(props: SearchProps, ref) {
       style,
     } = obj;
     switch (type) {
-      case 1:
+      case 'input':
         return (
           <Input
             {...obj}
           />
         );
-      case 2:
+      case 'date-picker':
         return (
           <DatePicker
             {...obj}
           />
         );
-      case 3:
+      case 'range-picker':
         return (
           <RangePicker
             {...obj}
           />
         );
-      case 4:
+      case 'select':
         return (
           <Select
             showSearch
@@ -70,7 +70,7 @@ const SearchBox = forwardRef(function fnRef(props: SearchProps, ref) {
             {...obj}
           />
         );
-      case 5:
+      case 'tree-select':
         return (
           <TreeSelect
             showSearch
@@ -78,7 +78,7 @@ const SearchBox = forwardRef(function fnRef(props: SearchProps, ref) {
             {...obj}
           />
         );
-      case 6:
+      case 'radio-group':
         return (
           <Radio.Group
             {...obj}

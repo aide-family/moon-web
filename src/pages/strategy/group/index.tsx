@@ -133,7 +133,6 @@ const Group: React.FC = () => {
         pageNum: 1,
         pageSize: searchPrams.pagination.pageSize,
       },
-      status: 0
     }
     setSearchPrams({
       ...searchPrams,

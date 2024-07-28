@@ -216,8 +216,10 @@ type SearchType =
   | 'radio'
   | 'radio-group'
   | 'checkbox'
-  | 'date'
-  | 'textarea'
+  | 'date-picker'
+  | 'textarea' 
+  | 'range-picker'
+  | 'tree-select'
 export interface SearchFormItem {
   type: SearchType
   name: string
