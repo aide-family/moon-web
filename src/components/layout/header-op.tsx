@@ -1,12 +1,7 @@
 import { GlobalContext } from '@/utils/context'
 import { Avatar, Button, Dropdown, MenuProps } from 'antd'
 import React, { useContext } from 'react'
-import {
-  GithubOutlined,
-  MoonOutlined,
-  SunOutlined,
-  TranslationOutlined,
-} from '@ant-design/icons'
+import { GithubOutlined, MoonOutlined, SunOutlined, TranslationOutlined } from '@ant-design/icons'
 import { TeamMenu } from './team-menu'
 import { removeToken } from '@/api/request'
 import { logout } from '@/api/authorization/user'
@@ -26,18 +21,13 @@ export const HeaderOp: React.FC = () => {
           removeToken()
           navigate(redirect)
         })
-      },
-    },
+      }
+    }
   ]
   return (
     <div className='center gap8'>
       <TeamMenu />
-      <Button
-        type='text'
-        href={github}
-        target='_blank'
-        icon={<GithubOutlined />}
-      />
+      <Button type='text' href={github} target='_blank' icon={<GithubOutlined />} />
       <Button
         type='text'
         icon={<TranslationOutlined />}
@@ -58,9 +48,7 @@ export const HeaderOp: React.FC = () => {
         }}
       />
       <Dropdown menu={{ items: dropdownItems }}>
-        <Avatar src={userInfo?.avatar}>
-          {userInfo?.nickname || userInfo?.name}
-        </Avatar>
+        <Avatar src={userInfo?.avatar}>{userInfo?.nickname || userInfo?.name}</Avatar>
       </Dropdown>
     </div>
   )

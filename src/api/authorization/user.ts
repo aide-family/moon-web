@@ -1,69 +1,63 @@
 // POST /v1/authorization/login
-import {
-	Gender,
-	Pagination,
-	PaginationResponse,
-	Status,
-	SystemRole,
-} from '../global'
+import { Gender, Pagination, PaginationResponse, Status, SystemRole } from '../global'
 import request from '../request'
 
 export interface LoginCaptcha {
-	code: string
-	id: string
+  code: string
+  id: string
 }
 
 export interface LoginRequest {
-	username: string
-	password: string
-	captcha: LoginCaptcha
-	redirect?: string
-	teamId?: number
-	teamRoleId?: number
+  username: string
+  password: string
+  captcha: LoginCaptcha
+  redirect?: string
+  teamId?: number
+  teamRoleId?: number
 }
 
 export interface UserItem {
-	id: number
-	name: string
-	nickname: string
-	email: string
-	phone: string
-	status: number
-	gender: number
-	role: number
-	avatar: string
-	remark: string
-	createdAt: string
-	updatedAt: string
+  id: number
+  name: string
+  nickname: string
+  email: string
+  phone: string
+  status: number
+  gender: number
+  role: number
+  avatar: string
+  remark: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface LoginResponse {
-	user: UserItem
-	token: string
-	redirect?: string
+  user: UserItem
+  token: string
+  redirect?: string
 }
 
 export interface SearchUsersParams {
-	pagination: Pagination
-	keyword: string
-	status: Status
-	gender: Gender
-	role: SystemRole
+  pagination: Pagination
+  keyword: string
+  status: Status
+  gender: Gender
+  role: SystemRole
 }
 
 export interface UpDateUserSelfBaseParams {
-	nickname: string
-	gender: number
-	remark: string
+  nickname: string
+  gender: number
+  remark: string
 }
 
 export interface UpDateUserPasswordParams {
-	oldPassword: string
-	newPassword: string
+  oldPassword: string
+  newPassword: string
 }
 
 export const login = (params: LoginRequest) => {
-	return request.POST<LoginResponse>('/v1/authorization/login', params)
+  return request.POST<LoginResponse>('/v1/authorization/login', params)
 }
 
 /**
@@ -71,7 +65,7 @@ export const login = (params: LoginRequest) => {
  * POST /v1/authorization/logout
  */
 export const logout = () => {
-	return request.POST<{ redirect: string }>('/v1/authorization/logout', {})
+  return request.POST<{ redirect: string }>('/v1/authorization/logout', {})
 }
 
 /**
@@ -79,7 +73,7 @@ export const logout = () => {
  * POST /v1/authorization/refresh
  */
 export const refreshToken = (teamId: number) => {
-	return request.POST<LoginResponse>('/v1/authorization/refresh', { teamId })
+  return request.POST<LoginResponse>('/v1/authorization/refresh', { teamId })
 }
 
 /**
@@ -87,7 +81,7 @@ export const refreshToken = (teamId: number) => {
  * POST /v1/user/list
  */
 export const searchUsers = (params: SearchUsersParams) => {
-	return request.POST<PaginationResponse<UserItem>>('/v1/user/list', params)
+  return request.POST<PaginationResponse<UserItem>>('/v1/user/list', params)
 }
 
 /**
@@ -95,7 +89,7 @@ export const searchUsers = (params: SearchUsersParams) => {
  * GET /v1/user/{id}
  */
 export const getUser = (id: number) => {
-	return request.GET<{ user: UserItem }>(`/v1/user/${id}`)
+  return request.GET<{ user: UserItem }>(`/v1/user/${id}`)
 }
 
 /**
@@ -103,7 +97,7 @@ export const getUser = (id: number) => {
  * PUT /v1/user/phone
  */
 export const updateUserPhone = (phone: string) => {
-	return request.PUT('/v1/user/phone', phone)
+  return request.PUT('/v1/user/phone', phone)
 }
 
 /**
@@ -111,7 +105,7 @@ export const updateUserPhone = (phone: string) => {
  * PUT /v1/user/email
  */
 export const updateUserEmail = (email: string) => {
-	return request.PUT('/v1/user/email', email)
+  return request.PUT('/v1/user/email', email)
 }
 
 /**
@@ -119,7 +113,7 @@ export const updateUserEmail = (email: string) => {
  * PUT /v1/user/self/base
  */
 export const updateUserSelfBase = (params: UpDateUserSelfBaseParams) => {
-	return request.PUT('/v1/user/self/base', params)
+  return request.PUT('/v1/user/self/base', params)
 }
 
 /**
@@ -127,7 +121,7 @@ export const updateUserSelfBase = (params: UpDateUserSelfBaseParams) => {
  * PUT /v1/user/password/self
  */
 export const updateUserPassword = (params: UpDateUserPasswordParams) => {
-	return request.PUT('/v1/user/password/self', params)
+  return request.PUT('/v1/user/password/self', params)
 }
 
 /**
@@ -135,5 +129,5 @@ export const updateUserPassword = (params: UpDateUserPasswordParams) => {
  * PUT /v1/user/avatar
  */
 export const updateUserAvatar = (avatar: string) => {
-	return request.PUT('/v1/user/avatar', avatar)
+  return request.PUT('/v1/user/avatar', avatar)
 }

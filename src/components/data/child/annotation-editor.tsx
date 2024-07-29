@@ -30,22 +30,10 @@ const keywordRegExpList: string[] = [
   '\\s+else\\s+if(?=\\s)',
   '\\s+end(?=\\s)',
   '\\s+range(?=\\s)',
-  '\\s+with(?=\\s)',
+  '\\s+with(?=\\s)'
 ]
-const structList: string[] = [
-  'labels',
-  'value',
-  'eventAt',
-  'strategy',
-  'status',
-]
-const labelsFieldList: string[] = [
-  'instance',
-  'endpoint',
-  'app',
-  '__name__',
-  'env',
-]
+const structList: string[] = ['labels', 'value', 'eventAt', 'strategy', 'status']
+const labelsFieldList: string[] = ['instance', 'endpoint', 'app', '__name__', 'env']
 const strategyFieldList: string[] = [
   'alert',
   'level',
@@ -55,7 +43,7 @@ const strategyFieldList: string[] = [
   'sustainType',
   'condition',
   'threshold',
-  'categories',
+  'categories'
 ]
 const functionList = [
   'now',
@@ -81,7 +69,7 @@ const functionList = [
   'le',
   'gt',
   'ge',
-  'len',
+  'len'
 ]
 
 const functionRegExpList: string[] = [
@@ -108,18 +96,11 @@ const functionRegExpList: string[] = [
   '\\s+le(?=\\s)',
   '\\s+gt(?=\\s)',
   '\\s+ge(?=\\s)',
-  '\\s+len(?=\\s)',
+  '\\s+len(?=\\s)'
 ]
 
 export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
-  const {
-    onChange,
-    value,
-    language = 'gotemplate',
-    height = 32 * 3,
-    disabled,
-    labels = labelsFieldList,
-  } = props
+  const { onChange, value, language = 'gotemplate', height = 32 * 3, disabled, labels = labelsFieldList } = props
   // const { theme } = useContext(GlobalContext)
   const { token } = useToken()
 
@@ -129,10 +110,7 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const monacoRef = useRef<any>(null)
 
-  const handleEditorDidMount = (
-    editor: editorNameSpace.IStandaloneCodeEditor,
-    monaco: Monaco
-  ) => {
+  const handleEditorDidMount = (editor: editorNameSpace.IStandaloneCodeEditor, monaco: Monaco) => {
     editorRef.current = editor
     monacoRef.current = monaco
 
@@ -144,7 +122,7 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
         { token: 'field', foreground: '#FF8216' },
         { token: 'function', foreground: token.colorPrimary },
         { token: 'keyword', foreground: token.colorSuccess },
-        { token: 'variable', foreground: token.colorError },
+        { token: 'variable', foreground: token.colorError }
       ],
       colors: {
         'editor.foreground': token.colorWarning,
@@ -153,8 +131,8 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
         'editor.lineHighlightBackground': token.colorBgContainer,
         'scrollbarSlider.background': token.colorPrimary,
         'scrollbarSlider.hoverBackground': token.colorPrimary,
-        'scrollbarSlider.activeBackground': token.colorPrimary,
-      },
+        'scrollbarSlider.activeBackground': token.colorPrimary
+      }
     })
     // 使用主题
     monaco.editor.setTheme('annotationTheme')
@@ -168,9 +146,9 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
           [new RegExp(`(${labels.join('|')})`), 'field'],
           [new RegExp(`(${strategyFieldList.join('|')})`), 'field'],
           [new RegExp(`(${functionRegExpList.join('|')})`), 'function'],
-          [/\s+\$[a-zA-Z0-9_]+(?=\s)/g, 'variable'],
-        ],
-      },
+          [/\s+\$[a-zA-Z0-9_]+(?=\s)/g, 'variable']
+        ]
+      }
     })
 
     // monaco.editor.setTheme('annotationTheme')
@@ -183,7 +161,7 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
           startLineNumber: position.lineNumber,
           startColumn: 1,
           endLineNumber: position.lineNumber,
-          endColumn: position.column,
+          endColumn: position.column
         }
         const textUntilPosition = model.getValueInRange(range)
 
@@ -194,7 +172,7 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
           startLineNumber: position.lineNumber,
           endLineNumber: position.lineNumber,
           startColumn: word.startColumn,
-          endColumn: word.endColumn,
+          endColumn: word.endColumn
         }
         // console.log('newtextUntilPosition', newtextUntilPosition)
         // console.log('textUntilPosition', textUntilPosition)
@@ -214,8 +192,8 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
                   label: item,
                   kind: monacoRef?.current.languages.CompletionItemKind.Field,
                   insertText: item,
-                  range: newRang,
-                })),
+                  range: newRang
+                }))
               }
             }
             if (preText.endsWith('strategy')) {
@@ -224,8 +202,8 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
                   label: item,
                   kind: monacoRef?.current.languages.CompletionItemKind.Field,
                   insertText: item,
-                  range: newRang,
-                })),
+                  range: newRang
+                }))
               }
             }
             return {
@@ -233,33 +211,32 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
                 label: item,
                 kind: monacoRef?.current.languages.CompletionItemKind.Struct,
                 insertText: item,
-                range: newRang,
-              })),
+                range: newRang
+              }))
             }
           case ' ':
             return {
               suggestions: [
                 ...functionList.map((item) => ({
                   label: item,
-                  kind: monacoRef?.current.languages.CompletionItemKind
-                    .Function,
+                  kind: monacoRef?.current.languages.CompletionItemKind.Function,
                   insertText: item,
-                  range: newRang,
+                  range: newRang
                 })),
                 ...keywordList.map((item) => ({
                   label: item,
                   kind: monacoRef?.current.languages.CompletionItemKind.Keyword,
                   insertText: item,
-                  range: newRang,
-                })),
-              ],
+                  range: newRang
+                }))
+              ]
             }
         }
 
         return {
-          suggestions: [],
+          suggestions: []
         }
-      },
+      }
     })
 
     editor.onDidChangeModelContent(() => {
@@ -271,26 +248,21 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
         startLineNumber: position.lineNumber,
         startColumn: Math.max(1, position.column - 8),
         endLineNumber: position.lineNumber,
-        endColumn: position.column,
+        endColumn: position.column
       })
       // console.log('text', text)
       if (text.endsWith('{{')) {
         editor.executeEdits('', [
           {
-            range: new monaco.Range(
-              position.lineNumber,
-              position.column,
-              position.lineNumber,
-              position.column
-            ),
+            range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column),
             text: '  }}',
-            forceMoveMarkers: true,
-          },
+            forceMoveMarkers: true
+          }
         ])
 
         editor.setPosition({
           lineNumber: position.lineNumber,
-          column: position.column + 1,
+          column: position.column + 1
         })
       }
     })
@@ -320,16 +292,16 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
           options={{
             minimap: {
               enabled: true,
-              showSlider: 'mouseover',
+              showSlider: 'mouseover'
             },
             'semanticHighlighting.enabled': true,
             scrollbar: {
               horizontalScrollbarSize: 12,
-              verticalScrollbarSize: 4,
+              verticalScrollbarSize: 4
             },
             overviewRulerBorder: false,
             fontSize: 14,
-            fontFamily: 'Monaco, Consolas, "Courier New", monospace',
+            fontFamily: 'Monaco, Consolas, "Courier New", monospace'
           }}
         />
       )}

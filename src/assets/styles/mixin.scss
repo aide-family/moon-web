@@ -10,23 +10,11 @@
   flex: $flex;
   order: $order;
 }
-@mixin flex-child-base(
-  $flex: 1,
-  $order: 0,
-  $direction: row,
-  $justify: center,
-  $align: center
-) {
+@mixin flex-child-base($flex: 1, $order: 0, $direction: row, $justify: center, $align: center) {
   @include flex-base($direction, $justify, $align);
   @include flex-child($flex, $order);
 }
-@mixin flex-child-base-col(
-  $flex: 1,
-  $order: 0,
-  $direction: column,
-  $justify: center,
-  $align: center
-) {
+@mixin flex-child-base-col($flex: 1, $order: 0, $direction: column, $justify: center, $align: center) {
   @include flex-base($direction, $justify, $align);
   @include flex-child($flex, $order);
 }

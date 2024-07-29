@@ -19,16 +19,16 @@ const items: (DataFromItem | DataFromItem[])[] = [
       type: 'input',
       props: {
         placeholder: '请输入团队名称',
-        maxLength: 20,
+        maxLength: 20
       },
       formProps: {
         rules: [
           {
             required: true,
-            message: '请输入团队名称',
-          },
-        ],
-      },
+            message: '请输入团队名称'
+          }
+        ]
+      }
     },
     {
       label: '是否启用',
@@ -37,20 +37,20 @@ const items: (DataFromItem | DataFromItem[])[] = [
       props: {
         options: Object.entries(StatusData).map(([key, value]) => ({
           label: value.text,
-          value: Number(key),
+          value: Number(key)
         })),
-        optionType: 'button',
+        optionType: 'button'
         // disabled: op === 'update',
       },
       formProps: {
         rules: [
           {
             required: true,
-            message: '请选择状态',
-          },
-        ],
-      },
-    },
+            message: '请选择状态'
+          }
+        ]
+      }
+    }
   ],
   {
     label: 'LOGO',
@@ -58,9 +58,9 @@ const items: (DataFromItem | DataFromItem[])[] = [
     type: 'input',
     props: {
       placeholder: '请输入团队LOGO',
-      maxLength: 200,
+      maxLength: 200
       // disabled: op === 'update',
-    },
+    }
   },
   {
     label: '团队描述',
@@ -72,18 +72,17 @@ const items: (DataFromItem | DataFromItem[])[] = [
       showCount: true,
       autoSize: {
         minRows: 2,
-        maxRows: 4,
-      },
-    },
-  },
+        maxRows: 4
+      }
+    }
+  }
 ]
 
 export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
   const { spaceId, open, onOk, onCancel } = props
   const [form] = useForm<CreateTeamRequest>()
   const [detail, setDetail] = React.useState<TeamItemType>()
-  const [validates, setValidates] =
-    React.useState<Record<string, ValidateType>>()
+  const [validates, setValidates] = React.useState<Record<string, ValidateType>>()
 
   const handleGetTeamDetail = (id?: number) => {
     if (id) {
@@ -102,7 +101,7 @@ export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
       // TODO: 更新团队
       return team.updateTeamApi({
         ...params,
-        id: spaceId,
+        id: spaceId
       })
     } else {
       // TODO: 创建团队
@@ -123,8 +122,8 @@ export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
             setValidates({
               [key]: {
                 validateStatus: 'error',
-                help: err.metadata[key],
-              },
+                help: err.metadata[key]
+              }
             })
           })
         })
@@ -141,21 +140,12 @@ export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
   useEffect(() => {
     if (!form || !detail) return
     form?.setFieldsValue({
-      ...detail,
+      ...detail
     })
   }, [detail])
   return (
-    <Modal
-      title={spaceId ? '编辑团队信息' : '创建团队信息'}
-      open={open}
-      onOk={hendleOnOK}
-      onCancel={handleCancel}
-    >
-      <DataFrom
-        items={items}
-        props={{ layout: 'vertical', form }}
-        validates={validates}
-      />
+    <Modal title={spaceId ? '编辑团队信息' : '创建团队信息'} open={open} onOk={hendleOnOK} onCancel={handleCancel}>
+      <DataFrom items={items} props={{ layout: 'vertical', form }} validates={validates} />
     </Modal>
   )
 }

@@ -1,10 +1,6 @@
 import { ConditionData, SustainTypeData } from '@/api/global'
 import PromQLInput from '@/components/data/child/prom-ql'
-import {
-  MinusCircleOutlined,
-  PlusOutlined,
-  QuestionCircleOutlined,
-} from '@ant-design/icons'
+import { MinusCircleOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import {
   Button,
   Card,
@@ -19,14 +15,11 @@ import {
   Select,
   Space,
   theme,
-  Typography,
+  Typography
 } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { LevelItemType, TemplateEditModalFormData } from './options'
-import {
-  MutationStrategyLevelTemplateType,
-  StrategyLevelIDType,
-} from '@/api/template/types'
+import { MutationStrategyLevelTemplateType, StrategyLevelIDType } from '@/api/template/types'
 import { getStrategyTemplate, validateAnnotationTemplate } from '@/api/template'
 import { AnnotationsEditor } from '@/components/data/child/annotation-editor'
 
@@ -73,46 +66,35 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
     info: string
     labels?: string[]
   }>({
-    info: '',
+    info: ''
   })
   const [descriptionOkInfo, setDescriptionOkInfo] = useState<{
     info: string
     labels?: string[]
   }>({
-    info: '',
+    info: ''
   })
 
   const [loading, setLoading] = useState(false)
 
-  const [templdateDetail, setTemplateDetail] =
-    useState<TemplateEditModalFormData>()
+  const [templdateDetail, setTemplateDetail] = useState<TemplateEditModalFormData>()
 
   const getTemplateDetail = async () => {
     if (templateId) {
       setLoading(true)
       const res = await getStrategyTemplate(templateId)
-      const { alert, expr, labels, levels, annotations, remark, categories } =
-        res
+      const { alert, expr, labels, levels, annotations, remark, categories } = res
       setTemplateDetail({
         alert,
         expr,
         labelsItems: Object.entries(labels).map(([key, value]) => ({
           key,
-          value,
+          value
         })),
         annotations,
         remark,
         levelItems: levels.map((item): LevelItemType => {
-          const {
-            condition,
-            count,
-            duration,
-            levelId,
-            sustainType,
-            threshold,
-            status,
-            id,
-          } = item
+          const { condition, count, duration, levelId, sustainType, threshold, status, id } = item
           const levelItem: LevelItemType = {
             condition: condition,
             count: count,
@@ -121,14 +103,14 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
             sustainType: sustainType,
             threshold: threshold,
             status: status,
-            id: id,
+            id: id
           }
           return levelItem
         }),
         categoriesIds:
           categories?.map((item) => {
             return item.value
-          }) || [],
+          }) || []
       })
       setLoading(false)
     }
@@ -175,7 +157,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
       datasourceId: 0,
       duration: `${level?.duration}s`,
       count: level?.count,
-      sustainType: level?.sustainType,
+      sustainType: level?.sustainType
     })
   }
 
@@ -194,12 +176,12 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
               // value: description,
               touched: true,
               validating: false,
-              validated: false,
-            },
+              validated: false
+            }
           ])
         } else {
           setDescriptionOkInfo({
-            info: res?.annotations || '',
+            info: res?.annotations || ''
           })
         }
       })
@@ -222,12 +204,12 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
               // value: summary,
               touched: true,
               validating: false,
-              validated: false,
-            },
+              validated: false
+            }
           ])
         } else {
           setSummaryOkInfo({
-            info: res?.annotations || '',
+            info: res?.annotations || ''
           })
         }
       })
@@ -238,36 +220,16 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
 
   const handleOnOk = () => {
     form.validateFields().then((formValues) => {
-      const {
-        alert,
-        expr,
-        remark,
-        annotations,
-        labelsItems,
-        levelItems,
-        categoriesIds,
-      } = formValues
+      const { alert, expr, remark, annotations, labelsItems, levelItems, categoriesIds } = formValues
       // 使用 reduce 方法将数组转换为 Map
-      const labels = labelsItems.reduce(
-        (acc: Record<string, string>, { key, value }) => {
-          acc[key] = value
-          return acc
-        },
-        {}
-      )
+      const labels = labelsItems.reduce((acc: Record<string, string>, { key, value }) => {
+        acc[key] = value
+        return acc
+      }, {})
       const levelMap = levelItems.reduce(
         (
           acc: Record<StrategyLevelIDType, MutationStrategyLevelTemplateType>,
-          {
-            condition,
-            count,
-            duration,
-            sustainType,
-            threshold,
-            levelId,
-            status,
-            id,
-          }
+          { condition, count, duration, sustainType, threshold, levelId, status, id }
         ) => {
           acc[levelId] = {
             condition: condition,
@@ -277,7 +239,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
             threshold: threshold,
             id: id,
             levelId: levelId,
-            status: status,
+            status: status
           }
           return acc
         },
@@ -292,7 +254,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
         labels: labels,
         annotations: annotations,
         level: levelMap,
-        categoriesIds: categoriesIds,
+        categoriesIds: categoriesIds
       }).then(() => {
         setLoading(false)
         form?.resetFields()
@@ -312,19 +274,10 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
         confirmLoading={loading}
       >
         <div className='edit-content'>
-          <Form
-            form={form}
-            layout='vertical'
-            autoComplete='off'
-            disabled={disabled || loading}
-          >
+          <Form form={form} layout='vertical' autoComplete='off' disabled={disabled || loading}>
             <Row gutter={12}>
               <Col span={12}>
-                <Form.Item
-                  label='模板名称'
-                  name='alert'
-                  rules={[{ required: true, message: '请输入模板名称' }]}
-                >
+                <Form.Item label='模板名称' name='alert' rules={[{ required: true, message: '请输入模板名称' }]}>
                   <Input placeholder='请输入模板名称' allowClear />
                 </Form.Item>
               </Col>
@@ -336,41 +289,24 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                   rules={[
                     {
                       required: true,
-                      message: '请输入模板测试数据源（用于辅助模板编辑）',
-                    },
+                      message: '请输入模板测试数据源（用于辅助模板编辑）'
+                    }
                   ]}
                 >
                   <Input placeholder='请输入数据源' allowClear />
                 </Form.Item>
               </Col>
             </Row>
-            <Form.Item
-              label='模板类型'
-              name='categoriesIds'
-              rules={[{ required: true, message: '请选择模板类型' }]}
-            >
+            <Form.Item label='模板类型' name='categoriesIds' rules={[{ required: true, message: '请选择模板类型' }]}>
               <Select mode='multiple' allowClear placeholder='请选择模板类型'>
                 <Select.Option value={1}>类目一</Select.Option>
               </Select>
             </Form.Item>
             <Form.Item label='模板说明' name='remark'>
-              <Input.TextArea
-                placeholder='请输入模板说明'
-                allowClear
-                maxLength={200}
-                showCount
-              />
+              <Input.TextArea placeholder='请输入模板说明' allowClear maxLength={200} showCount />
             </Form.Item>
-            <Form.Item
-              label='查询语句'
-              name='expr'
-              rules={[{ required: true, message: '请检查查询语句' }]}
-            >
-              <PromQLInput
-                pathPrefix={datasource || ''}
-                formatExpression
-                disabled={disabled}
-              />
+            <Form.Item label='查询语句' name='expr' rules={[{ required: true, message: '请检查查询语句' }]}>
+              <PromQLInput pathPrefix={datasource || ''} formatExpression disabled={disabled} />
             </Form.Item>
             <Form.Item label={<b>标签</b>} required>
               <Form.List
@@ -384,8 +320,8 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                       } else {
                         callback()
                       }
-                    },
-                  },
+                    }
+                  }
                 ]}
               >
                 {(fields, { add, remove }) => (
@@ -402,8 +338,8 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                 rules={[
                                   {
                                     required: true,
-                                    message: '标签Key不允许为空',
-                                  },
+                                    message: '标签Key不允许为空'
+                                  }
                                 ]}
                               >
                                 <Input placeholder='key' />
@@ -414,7 +350,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                 style={{
                                   display: 'flex',
                                   alignItems: 'center',
-                                  gap: 8,
+                                  gap: 8
                                 }}
                               >
                                 <Form.Item
@@ -424,17 +360,14 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                   rules={[
                                     {
                                       required: true,
-                                      message: '标签值不允许为空',
-                                    },
+                                      message: '标签值不允许为空'
+                                    }
                                   ]}
                                   style={{ flex: 1 }}
                                 >
                                   <Input placeholder='value' />
                                 </Form.Item>
-                                <MinusCircleOutlined
-                                  onClick={() => remove(name)}
-                                  style={{ color: token.colorError }}
-                                />
+                                <MinusCircleOutlined onClick={() => remove(name)} style={{ color: token.colorError }} />
                               </span>
                             </Col>
                           </Row>
@@ -442,12 +375,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                       ))}
                     </Row>
                     <Form.Item>
-                      <Button
-                        type='dashed'
-                        onClick={() => add()}
-                        block
-                        icon={<PlusOutlined />}
-                      >
+                      <Button type='dashed' onClick={() => add()} block icon={<PlusOutlined />}>
                         添加新标签
                       </Button>
                     </Form.Item>
@@ -456,11 +384,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
               </Form.List>
             </Form.Item>
 
-            <Form.Item
-              tooltip='注解用于告警展示的内容编辑'
-              label={<b>注解</b>}
-              required
-            >
+            <Form.Item tooltip='注解用于告警展示的内容编辑' label={<b>注解</b>} required>
               <Form.Item
                 name={['annotations', 'summary']}
                 label={
@@ -469,11 +393,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                     <Popover
                       title='告警摘要, 告警内容如下所示'
                       content={
-                        <Typography.Text
-                          ellipsis
-                          copyable
-                          style={{ width: '30vw' }}
-                        >
+                        <Typography.Text ellipsis copyable style={{ width: '30vw' }}>
                           {summaryOkInfo.info}
                         </Typography.Text>
                       }
@@ -484,11 +404,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                 }
                 rules={[{ required: true, message: '请输入告警摘要' }]}
               >
-                <AnnotationsEditor
-                  labels={summaryOkInfo.labels}
-                  language='summary'
-                  disabled={disabled}
-                />
+                <AnnotationsEditor labels={summaryOkInfo.labels} language='summary' disabled={disabled} />
               </Form.Item>
               <Form.Item
                 name={['annotations', 'description']}
@@ -498,11 +414,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                     <Popover
                       title='告警明细, 告警内容如下所示'
                       content={
-                        <Typography.Text
-                          ellipsis
-                          copyable
-                          style={{ width: '30vw' }}
-                        >
+                        <Typography.Text ellipsis copyable style={{ width: '30vw' }}>
                           {descriptionOkInfo.info}
                         </Typography.Text>
                       }
@@ -529,7 +441,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                     style={{
                       display: 'flex',
                       rowGap: 16,
-                      flexDirection: 'column',
+                      flexDirection: 'column'
                     }}
                   >
                     {fields.map((field) => (
@@ -554,20 +466,14 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                               rules={[
                                 {
                                   required: true,
-                                  message: '请选择告警等级',
-                                },
+                                  message: '请选择告警等级'
+                                }
                               ]}
                             >
                               <Select placeholder='请选择策略等级'>
-                                <Select.Option value={1}>
-                                  一级告警
-                                </Select.Option>
-                                <Select.Option value={2}>
-                                  二级告警
-                                </Select.Option>
-                                <Select.Option value={3}>
-                                  三级告警
-                                </Select.Option>
+                                <Select.Option value={1}>一级告警</Select.Option>
+                                <Select.Option value={2}>二级告警</Select.Option>
+                                <Select.Option value={3}>三级告警</Select.Option>
                               </Select>
                             </Form.Item>
                           </Col>
@@ -578,18 +484,16 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                               rules={[
                                 {
                                   required: true,
-                                  message: '请选择判断条件',
-                                },
+                                  message: '请选择判断条件'
+                                }
                               ]}
                             >
                               <Select
                                 placeholder='请选择判断条件'
-                                options={Object.entries(ConditionData).map(
-                                  ([key, value]) => ({
-                                    value: +key,
-                                    label: value,
-                                  })
-                                )}
+                                options={Object.entries(ConditionData).map(([key, value]) => ({
+                                  value: +key,
+                                  label: value
+                                }))}
                               ></Select>
                             </Form.Item>
                           </Col>
@@ -600,14 +504,11 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                               rules={[
                                 {
                                   required: true,
-                                  message: '请输入阈值',
-                                },
+                                  message: '请输入阈值'
+                                }
                               ]}
                             >
-                              <InputNumber
-                                style={{ width: '100%' }}
-                                placeholder='请输入阈值'
-                              />
+                              <InputNumber style={{ width: '100%' }} placeholder='请输入阈值' />
                             </Form.Item>
                           </Col>
                           <Col span={12}>
@@ -617,18 +518,16 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                               rules={[
                                 {
                                   required: true,
-                                  message: '请选择触发类型',
-                                },
+                                  message: '请选择触发类型'
+                                }
                               ]}
                             >
                               <Select
                                 placeholder='请选择触发类型'
-                                options={Object.entries(SustainTypeData).map(
-                                  ([key, value]) => ({
-                                    value: +key,
-                                    label: value,
-                                  })
-                                )}
+                                options={Object.entries(SustainTypeData).map(([key, value]) => ({
+                                  value: +key,
+                                  label: value
+                                }))}
                               ></Select>
                             </Form.Item>
                           </Col>
@@ -641,15 +540,11 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                               rules={[
                                 {
                                   required: true,
-                                  message: '请输入持续时间',
-                                },
+                                  message: '请输入持续时间'
+                                }
                               ]}
                             >
-                              <InputNumber
-                                addonAfter='秒'
-                                style={{ width: '100%' }}
-                                placeholder='请输入持续时间'
-                              />
+                              <InputNumber addonAfter='秒' style={{ width: '100%' }} placeholder='请输入持续时间' />
                             </Form.Item>
                           </Col>
                           <Col span={6}>
@@ -660,27 +555,18 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                               rules={[
                                 {
                                   required: true,
-                                  message: '请输入持续次数',
-                                },
+                                  message: '请输入持续次数'
+                                }
                               ]}
                             >
-                              <InputNumber
-                                addonAfter='次'
-                                style={{ width: '100%' }}
-                                placeholder='请输入持续次数'
-                              />
+                              <InputNumber addonAfter='次' style={{ width: '100%' }} placeholder='请输入持续次数' />
                             </Form.Item>
                           </Col>
                         </Row>
                       </Card>
                     ))}
 
-                    <Button
-                      type='dashed'
-                      onClick={() => add()}
-                      block
-                      icon={<PlusOutlined />}
-                    >
+                    <Button type='dashed' onClick={() => add()} block icon={<PlusOutlined />}>
                       添加策略等级
                     </Button>
                   </div>

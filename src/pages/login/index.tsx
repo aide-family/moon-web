@@ -1,15 +1,10 @@
-import React, { useContext } from "react"
-import Banner from "./banner"
-import "./index.scss"
-import LoginForm from "./form"
-import {
-  CopyrightOutlined,
-  GithubOutlined,
-  MoonOutlined,
-  SunOutlined,
-} from "@ant-design/icons"
-import { Button, theme } from "antd"
-import { GlobalContext } from "@/utils/context"
+import React, { useContext } from 'react'
+import Banner from './banner'
+import './index.scss'
+import LoginForm from './form'
+import { CopyrightOutlined, GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
+import { Button, theme } from 'antd'
+import { GlobalContext } from '@/utils/context'
 
 export interface LoginProps {}
 const { useToken } = theme
@@ -23,7 +18,7 @@ const Login: React.FC<LoginProps> = () => {
       className='login'
       style={{
         background: token.colorBgBase,
-        color: token.colorTextBase,
+        color: token.colorTextBase
       }}
     >
       <div className='login-left'>
@@ -36,10 +31,10 @@ const Login: React.FC<LoginProps> = () => {
         <Button type='primary' icon={<GithubOutlined />} />
         <Button
           type='primary'
-          icon={theme === "dark" ? <SunOutlined /> : <MoonOutlined />}
-          style={{ color: "#FFF" }}
+          icon={theme === 'dark' ? <SunOutlined /> : <MoonOutlined />}
+          style={{ color: '#FFF' }}
           onClick={() => {
-            setTheme?.(theme === "dark" ? "light" : "dark")
+            setTheme?.(theme === 'dark' ? 'light' : 'dark')
           }}
         />
       </div>

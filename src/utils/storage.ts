@@ -3,10 +3,7 @@
 
 import { useEffect, useState } from 'react'
 
-function useStorage<T = string>(
-  key: string,
-  defaultValue?: T
-): [T | undefined, (value: T) => void, () => void] {
+function useStorage<T = string>(key: string, defaultValue?: T): [T | undefined, (value: T) => void, () => void] {
   const [storedValue, setStoredValue] = useState(defaultValue)
 
   const setStorageValue = (value: T) => {
@@ -44,6 +41,7 @@ function useStorage<T = string>(
         setStorageValue(defaultValue as T)
     }
     return () => void 0
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key])
 
   return [storedValue, setStorageValue, removeStorage]
@@ -71,6 +69,7 @@ function toString<T = string>(val: T): string {
   return res
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getValue<T>(value: string | null, defalutVal: T): any {
   if (value === null) {
     return defalutVal

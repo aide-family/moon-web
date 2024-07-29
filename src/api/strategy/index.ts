@@ -5,7 +5,7 @@ import {
   CreateStrategyGroupRequest,
   GetStrategyGroupListResponse,
   StrategyGroupItemType,
-  GetStrategyGroupResponse,
+  GetStrategyGroupResponse
 } from './types'
 import { Status } from '../global'
 
@@ -18,9 +18,7 @@ const { POST, PUT, DELTED, GET } = request
  * @returns {StrategyGroupItemType}
  */
 async function getStrategyGroup(id: number): Promise<StrategyGroupItemType> {
-  const { detail } = await GET<GetStrategyGroupResponse>(
-    `/v1/group/strategy/${id}`
-  )
+  const { detail } = await GET<GetStrategyGroupResponse>(`/v1/group/strategy/${id}`)
   return detail
 }
 
@@ -30,13 +28,8 @@ async function getStrategyGroup(id: number): Promise<StrategyGroupItemType> {
  * @param {CreateStrategyGroupRequest} params
  * @returns {GetStrategyGroupListResponse}
  */
-async function getStrategyGroupList(
-  params: GetStrategyGroupListRequest
-): Promise<GetStrategyGroupListResponse> {
-  return await POST<GetStrategyGroupListResponse>(
-    '/v1/group/strategy/list',
-    params
-  )
+async function getStrategyGroupList(params: GetStrategyGroupListRequest): Promise<GetStrategyGroupListResponse> {
+  return await POST<GetStrategyGroupListResponse>('/v1/group/strategy/list', params)
 }
 
 /**
@@ -45,13 +38,8 @@ async function getStrategyGroupList(
  * @param {CreateStrategyGroupRequest} params
  * @returns {StrategyGroupNullResponse}
  */
-async function createStrategyGroup(
-  params: CreateStrategyGroupRequest
-): Promise<StrategyGroupNullResponse> {
-  return await POST<StrategyGroupNullResponse>(
-    '/v1/group/strategy/create',
-    params
-  )
+async function createStrategyGroup(params: CreateStrategyGroupRequest): Promise<StrategyGroupNullResponse> {
+  return await POST<StrategyGroupNullResponse>('/v1/group/strategy/create', params)
 }
 
 /**
@@ -60,9 +48,7 @@ async function createStrategyGroup(
  * @param {number} id
  * @returns {StrategyGroupNullResponse}
  */
-async function deleteStrategyGroup(
-  id: number
-): Promise<StrategyGroupNullResponse> {
+async function deleteStrategyGroup(id: number): Promise<StrategyGroupNullResponse> {
   return await DELTED(`/v1/group/strategy/${id}`)
 }
 
@@ -72,14 +58,8 @@ async function deleteStrategyGroup(
  * @param {number} id
  * @returns {StrategyGroupNullResponse}
  */
-async function updateStrategyGroup(
-  id: number,
-  params: CreateStrategyGroupRequest
-): Promise<StrategyGroupNullResponse> {
-  return await PUT<StrategyGroupNullResponse>(
-    `/v1/group/strategy/${id}`,
-    params
-  )
+async function updateStrategyGroup(id: number, params: CreateStrategyGroupRequest): Promise<StrategyGroupNullResponse> {
+  return await PUT<StrategyGroupNullResponse>(`/v1/group/strategy/${id}`, params)
 }
 
 /**
@@ -89,17 +69,11 @@ async function updateStrategyGroup(
  * @param {Status} status
  * @returns {StrategyGroupNullResponse}
  */
-async function changeStrategyGroup(
-  ids: number[],
-  status: Status
-): Promise<StrategyGroupNullResponse> {
-  return await PUT<StrategyGroupNullResponse>(
-    `/v1/group/strategy/update/status`,
-    {
-      ids,
-      status,
-    }
-  )
+async function changeStrategyGroup(ids: number[], status: Status): Promise<StrategyGroupNullResponse> {
+  return await PUT<StrategyGroupNullResponse>(`/v1/group/strategy/update/status`, {
+    ids,
+    status
+  })
 }
 
 export {

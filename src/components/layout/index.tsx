@@ -83,7 +83,7 @@ const MoonLayout: React.FC = () => {
             style={{
               height: '100%',
               borderInlineEnd: 'none',
-              overflow: 'auto',
+              overflow: 'auto'
             }}
             openKeys={collapsed ? [] : openKeys}
             defaultOpenKeys={collapsed ? [] : openKeys}
@@ -97,14 +97,14 @@ const MoonLayout: React.FC = () => {
           style={{
             flex: 1,
             display: 'flex',
-            flexDirection: 'column',
+            flexDirection: 'column'
           }}
         >
           <Header
             className='header'
             style={{
               background: token.colorBgContainer,
-              color: token.colorText,
+              color: token.colorText
             }}
           >
             <RouteBreadcrumb />
@@ -116,10 +116,7 @@ const MoonLayout: React.FC = () => {
               <Outlet />
             </Suspense>
           </Content>
-          <Footer
-            className='footer center'
-            style={{ background: token.colorBgContainer }}
-          >
+          <Footer className='footer center' style={{ background: token.colorBgContainer }}>
             <CopyrightOutlined />
             {window.location.host}
           </Footer>

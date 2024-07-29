@@ -1,6 +1,6 @@
-import { SelectProps, Spin } from "antd"
-import Select, { DefaultOptionType } from "antd/es/select"
-import React, { useEffect } from "react"
+import { SelectProps, Spin } from 'antd'
+import Select, { DefaultOptionType } from 'antd/es/select'
+import React, { useEffect } from 'react'
 
 export interface FetchSelectProps {
   width?: number | string
@@ -9,25 +9,13 @@ export interface FetchSelectProps {
   selectProps?: SelectProps
   value?: number | string
   defaultValue?: number | string
-  onChange?: (
-    value: number | string,
-    option: DefaultOptionType | DefaultOptionType[]
-  ) => void
+  onChange?: (value: number | string, option: DefaultOptionType | DefaultOptionType[]) => void
 }
 
 const FetchSelect: React.FC<FetchSelectProps> = (props) => {
   let fetchTimeout: NodeJS.Timeout
-  const {
-    value,
-    onChange,
-    handleFetch,
-    width = "100%",
-    selectProps,
-    defaultValue,
-    defaultOptions = [],
-  } = props
-  const [options, setOptions] =
-    React.useState<DefaultOptionType[]>(defaultOptions)
+  const { value, onChange, handleFetch, width = '100%', selectProps, defaultValue, defaultOptions = [] } = props
+  const [options, setOptions] = React.useState<DefaultOptionType[]>(defaultOptions)
   const [loading, setLoading] = React.useState(false)
 
   const getOptions = (keyword: string) => {
@@ -52,7 +40,7 @@ const FetchSelect: React.FC<FetchSelectProps> = (props) => {
   }
 
   useEffect(() => {
-    getOptions("")
+    getOptions('')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

@@ -12,10 +12,7 @@ import {
   updateStrategyGroup,
   changeStrategyGroup
 } from '@/api/strategy'
-import {
-  ListStrategyGroupRequest,
-  StrategyGroupItemType,
-} from '@/api/strategy/types'
+import { ListStrategyGroupRequest, StrategyGroupItemType } from '@/api/strategy/types'
 import { GroupEditModal, GroupEditModalData } from './group-edit-modal'
 import { ExclamationCircleFilled } from '@ant-design/icons'
 import styles from './index.module.scss'
@@ -25,10 +22,10 @@ const { useToken } = theme
 const defaultSearchParams: ListStrategyGroupRequest = {
   pagination: {
     pageNum: 1,
-    pageSize: 10,
+    pageSize: 10
   },
   keyword: '',
-  status: Status.ALL,
+  status: Status.ALL
   // teamId: ''
 }
 
@@ -36,15 +33,13 @@ let searchTimeout: NodeJS.Timeout | null = null
 const Group: React.FC = () => {
   const { token } = useToken()
   const [datasource, setDatasource] = useState<StrategyGroupItemType[]>([])
-  const [searchParams, setSearchParams] =
-    useState<ListStrategyGroupRequest>(defaultSearchParams)
+  const [searchParams, setSearchParams] = useState<ListStrategyGroupRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
   const [openGroupEditModal, setOpenGroupEditModal] = useState(false)
   const [editGroupId, setEditGroupId] = useState<number>()
-  const [disabledEditGroupModal, setDisabledEditGroupModal] =
-    useState(false)
+  const [disabledEditGroupModal, setDisabledEditGroupModal] = useState(false)
   const handleEditModal = (editId?: number) => {
     setEditGroupId(editId)
     setOpenGroupEditModal(true)
@@ -83,10 +78,10 @@ const Group: React.FC = () => {
     const params = {
       remark,
       name,
-      categoriesIds,
+      categoriesIds
     }
     const upParams = {
-      update: params,
+      update: params
     }
     const call = () => {
       if (!editGroupId) {
@@ -113,16 +108,13 @@ const Group: React.FC = () => {
       ...formData,
       pagination: {
         pageNum: 1,
-        pageSize: searchParams.pagination.pageSize,
-      },
+        pageSize: searchParams.pagination.pageSize
+      }
     })
   }
 
   // 批量操作
-  const handlerBatchData = (
-    selectedRowKeys: Key[],
-    selectedRows: StrategyGroupItemType[]
-  ) => {
+  const handlerBatchData = (selectedRowKeys: Key[], selectedRows: StrategyGroupItemType[]) => {
     console.log(selectedRowKeys, selectedRows)
   }
 
@@ -132,8 +124,8 @@ const Group: React.FC = () => {
       ...searchParams,
       pagination: {
         pageNum: page,
-        pageSize: pageSize,
-      },
+        pageSize: pageSize
+      }
     })
   }
 
@@ -149,21 +141,21 @@ const Group: React.FC = () => {
           message.success('更改状态成功')
           fetchData()
         })
-        break;
+        break
       case ActionKey.DISABLE:
         changeStrategyGroup([item.id], 1).then((res) => {
           message.success('更改状态成功')
           fetchData()
         })
-        break;
+        break
       case ActionKey.OPERATION_LOG:
-        break;
+        break
       case ActionKey.DETAIL:
         console.log('详情。')
-        break;
+        break
       case ActionKey.EDIT:
         handleEditModal(item.id)
-        break;
+        break
       case ActionKey.DELETE:
         confirm({
           title: `请确认是否删除该策略组?`,
@@ -179,7 +171,7 @@ const Group: React.FC = () => {
             message.info('取消操作')
           }
         })
-        break;
+        break
     }
   }
 
@@ -188,13 +180,7 @@ const Group: React.FC = () => {
   return (
     <div className={styles.box}>
       <GroupEditModal
-        title={
-          editGroupId
-            ? disabledEditGroupModal
-              ? '分组详情'
-              : '编辑分组'
-            : '新建分组'
-        }
+        title={editGroupId ? (disabledEditGroupModal ? '分组详情' : '编辑分组') : '新建分组'}
         width='60%'
         style={{ minWidth: 504 }}
         open={openGroupEditModal}
@@ -206,28 +192,30 @@ const Group: React.FC = () => {
       <div
         style={{
           background: token.colorBgContainer,
-          borderRadius: token.borderRadius,
+          borderRadius: token.borderRadius
         }}
       >
-        <SearchBox
-          ref={searchRef}
-          formList={formList}
-          onSearch={onSearch}
-          onReset={onReset}
-        />
+        <SearchBox ref={searchRef} formList={formList} onSearch={onSearch} onReset={onReset} />
       </div>
-      <div className={styles.main}  
-         style={{
+      <div
+        className={styles.main}
+        style={{
           background: token.colorBgContainer,
-          borderRadius: token.borderRadius,
+          borderRadius: token.borderRadius
         }}
-        >
+      >
         <div className={styles.main_toolbar}>
-          <div className={styles.main_toolbar_left} style={{ fontSize: '16px' }}>策略组</div>
+          <div className={styles.main_toolbar_left} style={{ fontSize: '16px' }}>
+            策略组
+          </div>
           <Space size={8}>
-            <Button type='primary' onClick={() => handleEditModal()}>添加</Button>
+            <Button type='primary' onClick={() => handleEditModal()}>
+              添加
+            </Button>
             <Button onClick={() => handleEditModal()}>批量导入</Button>
-            <Button type='primary' onClick={onRefresh}>刷新</Button>
+            <Button type='primary' onClick={onRefresh}>
+              刷新
+            </Button>
           </Space>
         </div>
         <div style={{ marginTop: '20px' }} ref={ADivRef}>
@@ -243,12 +231,15 @@ const Group: React.FC = () => {
             showSizeChanger={true}
             style={{
               background: token.colorBgContainer,
-              borderRadius: token.borderRadius,
+              borderRadius: token.borderRadius
             }}
             rowSelection={{
               onChange: handlerBatchData
             }}
-            scroll={{ y: `calc(100vh - 170px  - ${AutoTableHeight}px)`, x: 1000 }}
+            scroll={{
+              y: `calc(100vh - 170px  - ${AutoTableHeight}px)`,
+              x: 1000
+            }}
             size='middle'
           ></AutoTable>
         </div>

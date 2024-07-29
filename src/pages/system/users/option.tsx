@@ -1,11 +1,5 @@
 import { UserItem } from '@/api/authorization/user'
-import {
-  Gender,
-  GenderData,
-  Status,
-  StatusData,
-  SystemRoleData,
-} from '@/api/global'
+import { Gender, GenderData, Status, StatusData, SystemRoleData } from '@/api/global'
 import { DataFromItem } from '@/components/data/form'
 import { ManOutlined, WomanOutlined } from '@ant-design/icons'
 import { Avatar, Tooltip, Image, Button, Badge } from 'antd'
@@ -27,9 +21,7 @@ export const UserAvatar: React.FC<UserItem> = (props: UserItem) => {
 
 export const StatusBadge: React.FC<{ status: Status }> = (props) => {
   const { status } = props
-  return (
-    <Badge color={StatusData[status].color} text={StatusData[status].text} />
-  )
+  return <Badge color={StatusData[status].color} text={StatusData[status].text} />
 }
 
 export const Username: React.FC<UserItem> = (props: UserItem) => {
@@ -57,8 +49,8 @@ export const userListSearchItems: DataFromItem[] = [
     type: 'input',
     props: {
       placeholder: '请输入用户名、昵称、手机号、邮箱',
-      allowClear: true,
-    },
+      allowClear: true
+    }
   },
   {
     name: 'status',
@@ -69,10 +61,10 @@ export const userListSearchItems: DataFromItem[] = [
       options: Object.entries(StatusData).map(([key, value]) => {
         return {
           label: value.text,
-          value: Number(key),
+          value: Number(key)
         }
-      }),
-    },
+      })
+    }
   },
   {
     name: 'gender',
@@ -83,10 +75,10 @@ export const userListSearchItems: DataFromItem[] = [
       options: Object.entries(GenderData).map(([key, value]) => {
         return {
           label: value,
-          value: Number(key),
+          value: Number(key)
         }
-      }),
-    },
+      })
+    }
   },
   {
     name: 'role',
@@ -96,9 +88,9 @@ export const userListSearchItems: DataFromItem[] = [
       options: Object.entries(SystemRoleData).map(([key, value]) => {
         return {
           label: value,
-          value: Number(key),
+          value: Number(key)
         }
-      }),
-    },
-  },
+      })
+    }
+  }
 ]

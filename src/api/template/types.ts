@@ -1,11 +1,4 @@
-import {
-  Condition,
-  Pagination,
-  PaginationResponse,
-  SelectType,
-  Status,
-  SustainType,
-} from '../global'
+import { Condition, Pagination, PaginationResponse, SelectType, Status, SustainType } from '../global'
 
 /** 策略模块空响应体 */
 export interface StrategyTemplateNullResponse {}
@@ -124,8 +117,7 @@ export interface GetStrategyTemplateListRequest {
 }
 
 /** 策略模板列表响应参数 */
-export interface GetStrategyTemplateListResponse
-  extends PaginationResponse<StrategyTemplateItemType> {}
+export interface GetStrategyTemplateListResponse extends PaginationResponse<StrategyTemplateItemType> {}
 
 /** 更新策略模板请求参数 */
 export interface UpdateStrategyTemplateRequest {

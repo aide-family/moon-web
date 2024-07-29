@@ -8,8 +8,7 @@ import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
 
 let timer: NodeJS.Timeout | null = null
 const RouteBreadcrumb: FC = () => {
-  const { breadcrumbNameMap, collapsed, setCollapsed } =
-    useContext(GlobalContext)
+  const { breadcrumbNameMap, collapsed, setCollapsed } = useContext(GlobalContext)
   const location = useLocation()
   const pathSnippets = location.pathname.split('/').filter((i) => i)
   const navigate = useNavigate()
@@ -20,8 +19,7 @@ const RouteBreadcrumb: FC = () => {
     const url = `/${pathSnippets.slice(0, index + 1).join('/')}`
     const breadcrumbName = breadcrumbNameMap?.[url]
 
-    const disabled =
-      breadcrumbName?.disabled || index === pathSnippets.length - 1
+    const disabled = breadcrumbName?.disabled || index === pathSnippets.length - 1
     if (index === pathSnippets.length - 1) {
       if (timer) {
         clearTimeout(timer)
@@ -36,7 +34,7 @@ const RouteBreadcrumb: FC = () => {
         <a
           style={{
             color: disabled ? '' : token['blue-6'],
-            cursor: disabled ? 'no-drop' : 'pointer',
+            cursor: disabled ? 'no-drop' : 'pointer'
           }}
           onClick={() => {
             navigate(url)
@@ -44,7 +42,7 @@ const RouteBreadcrumb: FC = () => {
         >
           {breadcrumbName?.name}
         </a>
-      ),
+      )
     }
   })
   const breadcrumbItems = extraBreadcrumbItems

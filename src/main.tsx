@@ -6,7 +6,7 @@ import App from './pages'
 import './index.css'
 
 const px2rem = px2remTransformer({
-  rootValue: 32, // 32px = 1rem; @default 16
+  rootValue: 32 // 32px = 1rem; @default 16
 })
 
 const root = createRoot(document.getElementById('root')!)

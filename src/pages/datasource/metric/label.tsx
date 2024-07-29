@@ -1,7 +1,4 @@
-import metricapi, {
-  MetricItemType,
-  MetricLabelType,
-} from '@/api/datasource/metric'
+import metricapi, { MetricItemType, MetricLabelType } from '@/api/datasource/metric'
 import { MetricType, MetricTypeData } from '@/api/global'
 import { Button, Modal, ModalProps, Space, Table, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
@@ -16,8 +13,7 @@ let searchTimer: NodeJS.Timeout | null = null
 export const Label: React.FC<LabelProps> = (props) => {
   const { metricDetail, open, onCancel, onOk } = props
   const [metricLabels, setMetricLabels] = React.useState<MetricLabelType[]>([])
-  const [metricLabelDetail, setMetricLabelDetail] =
-    React.useState<MetricLabelType>()
+  const [metricLabelDetail, setMetricLabelDetail] = React.useState<MetricLabelType>()
   const [openEditModal, setOpenEditModal] = React.useState(false)
 
   const handleEdit = (detail: MetricLabelType) => {
@@ -39,18 +35,18 @@ export const Label: React.FC<LabelProps> = (props) => {
       title: '标签名',
       dataIndex: 'name',
       key: 'name',
-      width: 300,
+      width: 300
     },
     {
       title: '标签值',
       dataIndex: 'value',
       key: 'value',
-      width: 200,
+      width: 200
     },
     {
       title: '备注',
       dataIndex: 'remark',
-      key: 'remark',
+      key: 'remark'
     },
     {
       title: '操作',
@@ -65,8 +61,8 @@ export const Label: React.FC<LabelProps> = (props) => {
             </Button>
           </Space>
         )
-      },
-    },
+      }
+    }
   ]
 
   const getMetricLabels = async () => {
@@ -85,7 +81,7 @@ export const Label: React.FC<LabelProps> = (props) => {
     if (!metricType) {
       return {
         color: '',
-        text: '未知',
+        text: '未知'
       }
     }
     return MetricTypeData[metricType]
@@ -108,9 +104,7 @@ export const Label: React.FC<LabelProps> = (props) => {
         title={
           <Space>
             {metricDetail?.name}
-            <Tag color={getMetricType(metricDetail?.type).color}>
-              {getMetricType(metricDetail?.type).text}
-            </Tag>
+            <Tag color={getMetricType(metricDetail?.type).color}>{getMetricType(metricDetail?.type).text}</Tag>
           </Space>
         }
         width='60%'

@@ -16,33 +16,41 @@ export interface AutoTableProps<T = any> extends TableProps {
 }
 
 export const AutoTable: React.FC<AutoTableProps> = (props) => {
-  const { columns, dataSource, total, pageSize, pageNum, handleTurnPage, showQuickJumper, showSizeChanger, onShowSizeChange, selectedRowKey, style } = props
+  const {
+    columns,
+    dataSource,
+    total,
+    pageSize,
+    pageNum,
+    handleTurnPage,
+    showQuickJumper,
+    showSizeChanger,
+    onShowSizeChange,
+    selectedRowKey,
+    style
+  } = props
 
   const showTotal = (total: number) => {
     return `共 ${total} 条`
   }
-  
-  return <div className={styles.a_table}>
-    <Table
-      {...props}
-      columns={columns}
-      dataSource={dataSource}
-      pagination={false}
-      style={style}
-    />
-    {
-      total > 0 && <Pagination
-        total={total}
-        onChange={(e, size) => handleTurnPage(e, size)}
-        pageSize={pageSize}
-        defaultCurrent={1}
-        current={pageNum}
-        showQuickJumper={showQuickJumper}
-        showSizeChanger={showSizeChanger} // 是否展示切换size 大于50时默认为true，写死
-        onShowSizeChange={onShowSizeChange}
-        showTotal={showTotal}
-      ></Pagination>
-    }
-  </div>
+
+  return (
+    <div className={styles.a_table}>
+      <Table {...props} columns={columns} dataSource={dataSource} pagination={false} style={style} />
+      {total > 0 && (
+        <Pagination
+          total={total}
+          onChange={(e, size) => handleTurnPage(e, size)}
+          pageSize={pageSize}
+          defaultCurrent={1}
+          current={pageNum}
+          showQuickJumper={showQuickJumper}
+          showSizeChanger={showSizeChanger} // 是否展示切换size 大于50时默认为true，写死
+          onShowSizeChange={onShowSizeChange}
+          showTotal={showTotal}
+        ></Pagination>
+      )}
+    </div>
+  )
 }
 export default AutoTable

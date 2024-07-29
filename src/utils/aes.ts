@@ -13,7 +13,7 @@ export const AesEncrypt = (plaintext: string) => {
   const ciphertext = CryptoJS.AES.encrypt(plaintext, KEY, {
     mode: CryptoJS.mode.CBC,
     padding: CryptoJS.pad.Pkcs7,
-    iv: CryptoJS.enc.Utf8.parse(iv),
+    iv: CryptoJS.enc.Utf8.parse(iv)
   }).toString()
 
   return ciphertext
@@ -28,7 +28,7 @@ export const AesDecrypt = (jsonStr: string) => {
   const plaintext = CryptoJS.AES.decrypt(jsonStr, KEY, {
     mode: CryptoJS.mode.CBC,
     padding: CryptoJS.pad.Pkcs7,
-    iv: CryptoJS.enc.Utf8.parse(iv),
+    iv: CryptoJS.enc.Utf8.parse(iv)
   }).toString(CryptoJS.enc.Utf8)
 
   return plaintext

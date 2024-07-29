@@ -1,7 +1,5 @@
 // 判断是否是PC端
-const isPc = !/Android|iPhone|SymbianOS|Windows Phone|iPad|iPod/i.test(
-  navigator.userAgent
-)
+const isPc = !/Android|iPhone|SymbianOS|Windows Phone|iPad|iPod/i.test(navigator.userAgent)
 // 设置基础根文件大小
 const baseSize = 16
 // rem 函数
@@ -15,8 +13,7 @@ function setRem() {
     enlarge = 1
     scale = clientWidth / 1920 // 980 是PC端设计稿的宽度
   }
-  document.documentElement.style.fontSize =
-    baseSize * Math.min(scale, enlarge) + "px"
+  document.documentElement.style.fontSize = baseSize * Math.min(scale, enlarge) + 'px'
 }
 // 调用方法
 setRem()

@@ -48,11 +48,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
                 <Alert
                   message={
                     <div>
-                      共查询到{' '}
-                      <b style={{ color: 'violet' }}>
-                        {promDetailData?.length || 0}
-                      </b>{' '}
-                      条数据
+                      共查询到 <b style={{ color: 'violet' }}>{promDetailData?.length || 0}</b> 条数据
                     </div>
                   }
                   // description='Prometheus'
@@ -71,14 +67,12 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
                     style={{
                       width: '100%',
                       gap: 8,
-                      justifyContent: 'space-between',
+                      justifyContent: 'space-between'
                     }}
                   >
                     <Paragraph copyable>
                       {item?.metric?.__name__
-                        ? `${item?.metric?.__name__}{${Object.keys(
-                            item?.metric || {}
-                          )
+                        ? `${item?.metric?.__name__}{${Object.keys(item?.metric || {})
                             .filter((key) => key !== '__name__' && key !== 'id')
                             .map((key) => `${key}="${item?.metric[key]}"`)
                             .join(', ')}}`
@@ -93,7 +87,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
             }}
           />
         </div>
-      ),
+      )
     },
     {
       key: 'graph',
@@ -106,7 +100,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
             <Empty />
           )}
         </div>
-      ),
+      )
     },
     {
       key: 'json',
@@ -120,35 +114,27 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
                 display: 'flex',
                 flexDirection: 'column',
                 height: '100%',
-                overflow: 'auto',
+                overflow: 'auto'
               }}
             >
               <Alert
                 message={
                   <div>
-                    共查询到{' '}
-                    <b style={{ color: 'violet' }}>
-                      {promDetailData?.length || 0}
-                    </b>{' '}
-                    条数据
+                    共查询到 <b style={{ color: 'violet' }}>{promDetailData?.length || 0}</b> 条数据
                   </div>
                 }
                 // description='Prometheus'
                 type='info'
                 showIcon
               />
-              <ReactJson
-                src={promDetailData || promRangeData || {}}
-                name={false}
-                displayDataTypes={false}
-              />
+              <ReactJson src={promDetailData || promRangeData || {}} name={false} displayDataTypes={false} />
             </div>
           ) : (
             <Empty />
           )}
         </div>
-      ),
-    },
+      )
+    }
   ]
   const tabsOnChange = (key: TableKey) => {
     setTabKey(key)
@@ -160,7 +146,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
     }
     let path: string = ''
     const params: URLSearchParams = new URLSearchParams({
-      query: expr,
+      query: expr
     })
     path = 'query'
     const abortController = new AbortController()
@@ -180,7 +166,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
     fetch(`${datasource?.endpoint}${apiPath}/${path}?${params}`, {
       cache: 'no-store',
       credentials: 'same-origin',
-      signal: abortController.signal,
+      signal: abortController.signal
     })
       .then((resp) => resp?.json() || {})
       .catch((err) => {
@@ -233,16 +219,9 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
   return (
     <div className='timely-query'>
       <div>
-        <PromQLInput
-          pathPrefix={datasource?.endpoint || ''}
-          onChange={(exp) => onChange(exp || '')}
-        />
+        <PromQLInput pathPrefix={datasource?.endpoint || ''} onChange={(exp) => onChange(exp || '')} />
       </div>
-      <Tabs
-        defaultActiveKey='table'
-        items={tabsItems}
-        onChange={(tab) => tabsOnChange(tab as TableKey)}
-      />
+      <Tabs defaultActiveKey='table' items={tabsItems} onChange={(tab) => tabsOnChange(tab as TableKey)} />
     </div>
   )
 }

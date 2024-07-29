@@ -10,8 +10,7 @@ import React, { useContext, useEffect } from 'react'
 export interface TeamMenuProps {}
 
 export const TeamMenu: React.FC<TeamMenuProps> = () => {
-  const { teamInfo, setTeamInfo, setUserInfo, refreshMyTeamList } =
-    useContext(GlobalContext)
+  const { teamInfo, setTeamInfo, setUserInfo, refreshMyTeamList } = useContext(GlobalContext)
   const [teamList, setTeamList] = React.useState<TeamItemType[]>([])
 
   const handleGetMyTeamList = () => {
@@ -47,9 +46,9 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
                 setTeamInfo?.(item)
                 window.location.reload()
               })
-            },
+            }
           }
-        }),
+        })
       }}
       placement='bottom'
     >

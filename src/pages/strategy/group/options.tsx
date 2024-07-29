@@ -1,14 +1,14 @@
 import { Status, StatusData, ActionKey, SelectType } from '@/api/global'
 import type { SearchFormItem } from '@/components/data/search-box'
-import  { StrategyGroupItemType } from '@/api/strategy/types'
+import { StrategyGroupItemType } from '@/api/strategy/types'
 import { Button, Tooltip, Badge, Space } from 'antd'
 import MoreMenu from '@/components/moreMenu'
 
 export type GroupEditModalFormData = {
-  name: string,
-  remark: string,
-  status: number,
-  categoriesIds: number[],
+  name: string
+  remark: string
+  status: number
+  categoriesIds: number[]
   teamId: number
 }
 
@@ -19,7 +19,7 @@ export const formList: SearchFormItem[] = [
     dataProps: {
       type: 'input',
       placeholder: '规则组名称',
-      allowClear: true,
+      allowClear: true
     }
   },
   {
@@ -42,12 +42,12 @@ export const formList: SearchFormItem[] = [
       options: Object.entries(StatusData).map(([key, value]) => {
         return {
           label: value.text,
-          value: Number(key),
+          value: Number(key)
         }
-      }),
+      })
     }
-  },
-];
+  }
+]
 
 interface GroupColumnProps {
   onHandleMenuOnClick: Function
@@ -55,63 +55,49 @@ interface GroupColumnProps {
 
 export const getColumnList = (props: GroupColumnProps) => {
   let { onHandleMenuOnClick } = props
-  const tableOperationItems = (
-    record: StrategyGroupItemType
-  ): MenuProps['items'] => [
-      record.status === Status.STATUS_DISABLED
-        ? {
+  const tableOperationItems = (record: StrategyGroupItemType): MenuProps['items'] => [
+    record.status === Status.STATUS_DISABLED
+      ? {
           key: ActionKey.ENABLE,
           label: (
-            <Button
-              type='link'
-              size='small'>
+            <Button type='link' size='small'>
               启用
             </Button>
           )
         }
-        : {
+      : {
           key: ActionKey.DISABLE,
           label: (
-            <Button
-              type='link'
-              size='small'
-              danger>
+            <Button type='link' size='small' danger>
               禁用
             </Button>
           )
         },
-      {
-        key: ActionKey.OPERATION_LOG,
-        label: (
-          <Button
-            size='small'
-            type='link'>
-            操作日志
-          </Button>
-        )
-      },
-      {
-        key: ActionKey.EDIT,
-        label: (
-          <Button
-            size='small'
-            type='link'>
-            编辑
-          </Button>
-        )
-      },
-      {
-        key: ActionKey.DELETE,
-        label: (
-          <Button
-            type='link'
-            size='small'
-            danger>
-            删除
-          </Button>
-        )
-      },
-    ]
+    {
+      key: ActionKey.OPERATION_LOG,
+      label: (
+        <Button size='small' type='link'>
+          操作日志
+        </Button>
+      )
+    },
+    {
+      key: ActionKey.EDIT,
+      label: (
+        <Button size='small' type='link'>
+          编辑
+        </Button>
+      )
+    },
+    {
+      key: ActionKey.DELETE,
+      label: (
+        <Button type='link' size='small' danger>
+          删除
+        </Button>
+      )
+    }
+  ]
 
   return [
     {
@@ -123,7 +109,7 @@ export const getColumnList = (props: GroupColumnProps) => {
       fixed: 'left',
       render: (text: StrategyGroupItemType, record: StrategyGroupItemType, index: number) => {
         return <div>{index + 1}</div>
-      },
+      }
     },
     {
       title: '名称',
@@ -141,7 +127,7 @@ export const getColumnList = (props: GroupColumnProps) => {
           >
             <div>{text ? text : '-'}</div>
           </Tooltip>
-        );
+        )
       }
     },
     {
@@ -160,7 +146,7 @@ export const getColumnList = (props: GroupColumnProps) => {
           >
             <div>{text ? text : '-'}</div>
           </Tooltip>
-        );
+        )
       }
     },
     {
@@ -172,7 +158,7 @@ export const getColumnList = (props: GroupColumnProps) => {
       render: (status: Status) => {
         const { text, color } = StatusData[status]
         return <Badge color={color} text={text} />
-      },
+      }
     },
     {
       // 策略数量
@@ -181,17 +167,12 @@ export const getColumnList = (props: GroupColumnProps) => {
       key: 'strategyCount',
       width: 120,
       align: 'center',
-      render: (
-        strategyCount: number | string,
-        record: StrategyGroupItemType
-      ) => {
+      render: (strategyCount: number | string, record: StrategyGroupItemType) => {
         return (
           <b>
             <span style={{ color: '' }}>{strategyCount}</span>
             {' / '}
-            <span style={{ color: 'green' }}>
-              {record.enableStrategyCount}
-            </span>
+            <span style={{ color: 'green' }}>{record.enableStrategyCount}</span>
           </b>
         )
       }
@@ -212,7 +193,7 @@ export const getColumnList = (props: GroupColumnProps) => {
           >
             <div>{text ? text : '-'}</div>
           </Tooltip>
-        );
+        )
       }
     },
     {
@@ -231,7 +212,7 @@ export const getColumnList = (props: GroupColumnProps) => {
           >
             <div>{text ? text : '-'}</div>
           </Tooltip>
-        );
+        )
       }
     },
     {
@@ -248,9 +229,9 @@ export const getColumnList = (props: GroupColumnProps) => {
               return <div>{text}</div>
             }}
           >
-             <div>{text ? text : '-'}</div>
+            <div>{text ? text : '-'}</div>
           </Tooltip>
-        );
+        )
       }
     },
     {
@@ -274,7 +255,7 @@ export const getColumnList = (props: GroupColumnProps) => {
             />
           )}
         </Space>
-      ),
-    },
+      )
+    }
   ]
 }

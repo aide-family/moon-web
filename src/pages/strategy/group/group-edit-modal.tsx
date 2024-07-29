@@ -1,23 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import {
-  Button,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  ModalProps,
-  Row,
-  Select,
-  Space,
-  theme,
-} from 'antd'
+import { Button, Form, Input, InputNumber, Modal, ModalProps, Row, Select, Space, theme } from 'antd'
 import { GroupEditModalFormData } from './options'
-import {
-  getStrategyGroup,
-} from '@/api/strategy'
-import {
-  StrategyGroupItemType,
-} from '@/api/strategy/types'
+import { getStrategyGroup } from '@/api/strategy'
+import { StrategyGroupItemType } from '@/api/strategy/types'
 import styles from './index.module.scss'
 
 const { useToken } = theme
@@ -45,19 +30,17 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
   const [form] = Form.useForm<GroupEditModalFormData>()
   const datasource = Form.useWatch('datasource', form)
   const [loading, setLoading] = useState(false)
-  const [grounpDetail, setGroupDetail] =
-    useState<GroupEditModalFormData>()
+  const [grounpDetail, setGroupDetail] = useState<GroupEditModalFormData>()
 
   const getGroupDetail = async () => {
     if (GroupId) {
       setLoading(true)
       const res = await getStrategyGroup(GroupId)
-      const { name, remark, creatorId } =
-        res
+      const { name, remark, creatorId } = res
       setGroupDetail({
         name,
         remark,
-        creatorId,
+        creatorId
       })
       setLoading(false)
     }
@@ -87,20 +70,20 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
 
   const handleOnOk = () => {
     form?.validateFields().then((formValues) => {
-      const {
-        name,
-        remark,
-        categoriesIds,
-      } = formValues
+      const { name, remark, categoriesIds } = formValues
       setLoading(true)
       submit?.({
         id: GroupId,
         name,
         remark,
-        categoriesIds,
-      }).then(() => {
-        form?.resetFields()
-      }).finally(() => { setLoading(false) })
+        categoriesIds
+      })
+        .then(() => {
+          form?.resetFields()
+        })
+        .finally(() => {
+          setLoading(false)
+        })
     })
   }
 
@@ -116,35 +99,17 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
         confirmLoading={loading}
       >
         <div className={styles.edit_content}>
-          <Form
-            form={form}
-            layout='vertical'
-            autoComplete='off'
-            disabled={disabled || loading}
-          >
-            <Form.Item
-              label='规则组名称'
-              name='name'
-              rules={[{ required: true, message: '请输入规则组名称' }]}
-            >
+          <Form form={form} layout='vertical' autoComplete='off' disabled={disabled || loading}>
+            <Form.Item label='规则组名称' name='name' rules={[{ required: true, message: '请输入规则组名称' }]}>
               <Input placeholder='请输入规则组名称' allowClear />
             </Form.Item>
-            <Form.Item
-              label='规则分类'
-              name='categoriesIds'
-              rules={[{ required: true, message: '请选择规则分类' }]}
-            >
+            <Form.Item label='规则分类' name='categoriesIds' rules={[{ required: true, message: '请选择规则分类' }]}>
               <Select mode='multiple' allowClear placeholder='请选择规则分类'>
                 <Select.Option value={1}>类目一</Select.Option>
               </Select>
             </Form.Item>
             <Form.Item label='规则组描述' name='remark'>
-              <Input.TextArea
-                placeholder='请输入200字以内的规则组描述'
-                allowClear
-                maxLength={200}
-                showCount
-              />
+              <Input.TextArea placeholder='请输入200字以内的规则组描述' allowClear maxLength={200} showCount />
             </Form.Item>
           </Form>
         </div>

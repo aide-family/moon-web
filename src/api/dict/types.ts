@@ -1,6 +1,4 @@
-import {
-  Status
-} from '../global'
+import { Status } from '../global'
 
 /** 创建字典空响应体 */
 export interface CreateDictNullResponse {}

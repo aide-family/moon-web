@@ -36,7 +36,7 @@ export const GlobalContext = createContext<GlobalContextType>({
   setTheme: () => void 0,
   size: 'middle',
   setSize: () => void 0,
-  title: 'Moon监控',
+  title: 'Moon监控'
 })
 
 export const getUseTheme = (t?: ThemeType) => {

@@ -1,12 +1,5 @@
 import datasourceapi, { DatasourceCreateRequest } from '@/api/datasource'
-import {
-  DataSourceType,
-  DataSourceTypeData,
-  Status,
-  StatusData,
-  StorageType,
-  StorageTypeData,
-} from '@/api/global'
+import { DataSourceType, DataSourceTypeData, Status, StatusData, StorageType, StorageTypeData } from '@/api/global'
 import { DataFrom, DataFromItem } from '@/components/data/form'
 import { Form, Modal, ModalProps } from 'antd'
 import React from 'react'
@@ -29,7 +22,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
       datasourceapi
         .createDatasource({
           ...values,
-          config: config,
+          config: config
         })
         .then(() => {
           form.resetFields()
@@ -40,9 +33,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
     })
   }
 
-  const handleOnCancel = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
+  const handleOnCancel = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     form.resetFields()
     onCancel?.(e)
   }
@@ -54,11 +45,11 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
         name: 'name',
         type: 'input',
         props: {
-          placeholder: '请输入数据源名称',
+          placeholder: '请输入数据源名称'
         },
         formProps: {
-          rules: [{ required: true, message: '请输入数据源名称' }],
-        },
+          rules: [{ required: true, message: '请输入数据源名称' }]
+        }
       },
       {
         label: '数据源类型',
@@ -73,16 +64,16 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
               return {
                 label: item[1],
                 value: +item[0],
-                disabled: +item[0] !== DataSourceType.DataSourceTypeMetric,
+                disabled: +item[0] !== DataSourceType.DataSourceTypeMetric
               }
             }),
-          optionType: 'button',
+          optionType: 'button'
         },
         formProps: {
           initialValue: DataSourceType.DataSourceTypeMetric,
-          rules: [{ required: true, message: '请选择数据源类型' }],
-        },
-      },
+          rules: [{ required: true, message: '请选择数据源类型' }]
+        }
+      }
     ],
     [
       {
@@ -98,13 +89,13 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
             .map((item) => {
               return {
                 label: item[1],
-                value: +item[0],
+                value: +item[0]
               }
-            }),
+            })
         },
         formProps: {
-          rules: [{ required: true, message: '请选择存储器类型' }],
-        },
+          rules: [{ required: true, message: '请选择存储器类型' }]
+        }
       },
       {
         label: '状态',
@@ -118,33 +109,33 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
             .map((item) => {
               return {
                 label: item[1].text,
-                value: +item[0],
+                value: +item[0]
               }
-            }),
+            })
         },
         formProps: {
-          rules: [{ required: true, message: '请选择状态' }],
-        },
-      },
+          rules: [{ required: true, message: '请选择状态' }]
+        }
+      }
     ],
     {
       label: '数据源地址',
       name: 'endpoint',
       type: 'input',
       props: {
-        placeholder: '请输入数据源地址',
+        placeholder: '请输入数据源地址'
       },
       formProps: {
-        rules: [{ required: true, message: '请输入数据源地址' }],
-      },
+        rules: [{ required: true, message: '请输入数据源地址' }]
+      }
     },
     {
       label: '数据源配置',
       name: 'configStr',
       type: 'json-input',
       props: {
-        height: 200,
-      },
+        height: 200
+      }
     },
     {
       label: '说明信息',
@@ -153,9 +144,9 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
       props: {
         placeholder: '请输入数据源认证',
         maxLength: 200,
-        showCount: true,
-      },
-    },
+        showCount: true
+      }
+    }
   ]
 
   return (

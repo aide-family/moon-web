@@ -1,13 +1,6 @@
 import { SelectType, Status, StatusData } from '@/api/global'
-import {
-  createStrategyTemplate,
-  getStrategyTemplateList,
-  updateStrategyTemplate,
-} from '@/api/template'
-import {
-  GetStrategyTemplateListRequest,
-  StrategyTemplateItemType,
-} from '@/api/template/types'
+import { createStrategyTemplate, getStrategyTemplateList, updateStrategyTemplate } from '@/api/template'
+import { GetStrategyTemplateListRequest, StrategyTemplateItemType } from '@/api/template/types'
 import { Flex, Button, Form, Table, Space, Badge, theme, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import React, { useEffect, useState } from 'react'
@@ -25,10 +18,10 @@ const { useToken } = theme
 const defaultSearchParams: GetStrategyTemplateListRequest = {
   pagination: {
     pageNum: 1,
-    pageSize: 10,
+    pageSize: 10
   },
   keyword: '',
-  status: Status.ALL,
+  status: Status.ALL
 }
 
 let searchTimeout: NodeJS.Timeout | null = null
@@ -36,15 +29,13 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
   const [form] = Form.useForm()
   const { token } = useToken()
   const [datasource, setDatasource] = useState<StrategyTemplateItemType[]>([])
-  const [searchParams, setSearchParams] =
-    useState<GetStrategyTemplateListRequest>(defaultSearchParams)
+  const [searchParams, setSearchParams] = useState<GetStrategyTemplateListRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
   const [openTemplateEditModal, setOpenTemplateEditModal] = useState(false)
   const [editTemplateId, setEditTemplateId] = useState<number>()
-  const [disabledEditTemplateModal, setDisabledEditTemplateModal] =
-    useState(false)
+  const [disabledEditTemplateModal, setDisabledEditTemplateModal] = useState(false)
   const handleOpenTemplateEditModal = (editId?: number) => {
     setEditTemplateId(editId)
     setOpenTemplateEditModal(true)
@@ -84,7 +75,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
         <Button type='link' onClick={() => showDetail(record.id)}>
           {text}
         </Button>
-      ),
+      )
     },
     {
       title: '类型',
@@ -102,7 +93,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
             )
           })}
         </>
-      ),
+      )
     },
     {
       title: '状态',
@@ -113,12 +104,12 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
       render: (status: Status) => {
         const { text, color } = StatusData[status]
         return <Badge color={color} text={text} />
-      },
+      }
     },
     {
       title: '模板描述',
       dataIndex: 'remark',
-      key: 'remark',
+      key: 'remark'
     },
     {
       title: '创建人',
@@ -131,13 +122,13 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
         }
         const { name, nickname } = creator
         return <a>{`${name}(${nickname})`}</a>
-      },
+      }
     },
     {
       title: '创建时间',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      width: 200,
+      width: 200
     },
     {
       title: '操作',
@@ -149,17 +140,12 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
           <Button size='small' type='link' onClick={() => onEdit(record.id)}>
             编辑
           </Button>
-          <Button
-            size='small'
-            type='link'
-            danger
-            onClick={() => onDelete(record.id)}
-          >
+          <Button size='small' type='link' danger onClick={() => onDelete(record.id)}>
             删除
           </Button>
         </Space>
-      ),
-    },
+      )
+    }
   ]
   function showDetail(id: number) {
     setEditTemplateId(id)
@@ -176,8 +162,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
   }
 
   function handleTemplateEditModalSubmit(data: TemplateEditModalData) {
-    const { alert, expr, remark, labels, annotations, level, categoriesIds } =
-      data
+    const { alert, expr, remark, labels, annotations, level, categoriesIds } = data
     const params = {
       alert: alert,
       expr: expr,
@@ -185,7 +170,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
       labels: labels,
       annotations: annotations,
       level: level,
-      categoriesIds: categoriesIds,
+      categoriesIds: categoriesIds
     }
     const call = () => {
       if (!editTemplateId) {
@@ -205,7 +190,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
     setSearchParams((prev) => {
       return {
         ...prev,
-        ...allValues,
+        ...allValues
       }
     })
   }
@@ -223,13 +208,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
   return (
     <div className='box'>
       <TemplateEditModal
-        title={
-          editTemplateId
-            ? disabledEditTemplateModal
-              ? '模版详情'
-              : '编辑模板'
-            : '新建模板'
-        }
+        title={editTemplateId ? (disabledEditTemplateModal ? '模版详情' : '编辑模板') : '新建模板'}
         width='60%'
         style={{ minWidth: 504 }}
         open={openTemplateEditModal}
@@ -241,7 +220,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
       <div
         style={{
           background: token.colorBgContainer,
-          borderRadius: token.borderRadius,
+          borderRadius: token.borderRadius
         }}
       >
         <SearchForm
@@ -270,7 +249,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
         className='table'
         style={{
           background: token.colorBgContainer,
-          borderRadius: token.borderRadius,
+          borderRadius: token.borderRadius
         }}
         rowKey={(record) => record.id}
         columns={columns}
@@ -287,10 +266,10 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
               ...searchParams,
               pagination: {
                 pageNum: page,
-                pageSize: pageSize,
-              },
+                pageSize: pageSize
+              }
             })
-          },
+          }
         }}
       />
     </div>
