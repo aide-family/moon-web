@@ -65,7 +65,7 @@ const SearchBox = forwardRef(function fnRef(props: SearchProps, ref) {
     // 设置部分表单值
     onSearchSome<T>: (obj: T) => {
       form.setFieldsValue({
-        obj
+        ...obj
       })
      }
    }))

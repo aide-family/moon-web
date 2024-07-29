@@ -18,21 +18,16 @@ export interface AutoTableProps<T = any> extends TableProps {
 export const AutoTable: React.FC<AutoTableProps> = (props) => {
   const { columns, dataSource, total, pageSize, pageNum, handleTurnPage, showQuickJumper, showSizeChanger, onShowSizeChange, selectedRowKey, style } = props
 
-  const getRowClassName = (record: any, index: number) => {
-    if (index % 2 !== 0) {
-      return `gray`
-    }
-  };
   const showTotal = (total: number) => {
     return `共 ${total} 条`
   }
+  
   return <div className={styles.a_table}>
     <Table
       {...props}
       columns={columns}
       dataSource={dataSource}
       pagination={false}
-      rowClassName={getRowClassName}
       style={style}
     />
     {
