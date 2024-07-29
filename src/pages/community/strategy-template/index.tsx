@@ -68,8 +68,8 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
       setLoading(true)
       getStrategyTemplateList(searchParams)
         .then(({ list, pagination }) => {
-          setDatasource(list)
-          setTotal(pagination.total)
+          setDatasource(list || [])
+          setTotal(pagination?.total || 0)
         })
         .finally(() => setLoading(false))
     }, 500)
