@@ -1,7 +1,7 @@
 import {
   Condition,
   Pagination,
-  PaginationReply,
+  PaginationResponse,
   SelectType,
   Status,
   SustainType,
@@ -68,7 +68,7 @@ export interface StrategyLevelTemplateItemType {
   // 策略等级
   levelId: number
   // 策略等级明细
-  level: SelectType
+  level?: SelectType
   // 阈值
   threshold: number
   // 条件
@@ -124,12 +124,8 @@ export interface GetStrategyTemplateListRequest {
 }
 
 /** 策略模板列表响应参数 */
-export interface GetStrategyTemplateListResponse {
-  // 策略模板列表
-  list: StrategyTemplateItemType[]
-  // 分页信息
-  pagination: PaginationReply
-}
+export interface GetStrategyTemplateListResponse
+  extends PaginationResponse<StrategyTemplateItemType> {}
 
 /** 更新策略模板请求参数 */
 export interface UpdateStrategyTemplateRequest {

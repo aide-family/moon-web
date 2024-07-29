@@ -125,6 +125,7 @@ export const formatExpressionFunc = (pathPrefix: string, doc?: string) => {
     })
 }
 
+let timeoutInterval: NodeJS.Timeout | null = null
 const PromQLInput: React.FC<PromQLInputProps> = (props) => {
   const { token } = useToken()
   const {
@@ -270,22 +271,28 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
 
   useEffect(() => {
     if (disabled) return
-    formatExpressionFunc(prefix, doc)
-      .then(() => {
-        onChange?.(doc)
-      })
-      .catch((err) => {
-        form?.setFields([
-          {
-            name: name,
-            errors: [err],
-            value: undefined,
-            touched: true,
-            validating: false,
-            validated: false,
-          },
-        ])
-      })
+    if (timeoutInterval) {
+      clearTimeout(timeoutInterval)
+    }
+    timeoutInterval = setTimeout(() => {
+      formatExpressionFunc(prefix, doc)
+        .then(() => {
+          onChange?.(doc)
+        })
+        .catch((err) => {
+          form?.setFields([
+            {
+              name: name,
+              errors: [err],
+              value: undefined,
+              touched: true,
+              validating: false,
+              validated: false,
+            },
+          ])
+        })
+    }, 500)
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doc])
 
