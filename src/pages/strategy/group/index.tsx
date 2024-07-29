@@ -216,9 +216,14 @@ const Group: React.FC = () => {
           onReset={onReset}
         />
       </div>
-      <div className={styles.main}>
+      <div className={styles.main}  
+         style={{
+          background: token.colorBgContainer,
+          borderRadius: token.borderRadius,
+        }}
+        >
         <div className={styles.main_toolbar}>
-          <div className={styles.main_toolbar_left}>策略组</div>
+          <div className={styles.main_toolbar_left} style={{ fontSize: '16px' }}>策略组</div>
           <Space size={8}>
             <Button type='primary' onClick={() => handleEditModal()}>添加</Button>
             <Button onClick={() => handleEditModal()}>批量导入</Button>
