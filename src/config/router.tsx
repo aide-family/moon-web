@@ -26,6 +26,16 @@ export const routers: RouteObject[] = [
         ],
       },
       {
+        path: '/home/strategy',
+        Component: lazy(() => import('@/pages/strategy')),
+        children: [
+          {
+            path: '/home/strategy/group',
+            Component: lazy(() => import('@/pages/strategy/group')),
+          },
+        ],
+      },
+      {
         path: '/home/system/users',
         Component: lazy(() => import('@/pages/system/users')),
       },

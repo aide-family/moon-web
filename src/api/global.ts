@@ -202,3 +202,19 @@ export const SustainTypeData: Record<SustainType, string> = {
   [SustainType.SustainTypeMax]: 'm时间内最多出现n次',
   [SustainType.SustainTypeMin]: 'm时间内最少出现n次',
 }
+
+// 操作
+export enum ActionKey {
+  /** 详情 */
+  DETAIL = '__detail__',
+  /** 编辑 */
+  EDIT = '__edit__',
+  /** 删除 */
+  DELETE = '__delete__',
+  /** 启用 */
+  ENABLE = '__enable__',
+  /** 禁用 */
+  DISABLE = '__disable__',
+  /** 操作日志 */
+  OPERATION_LOG = '__operation_log__'
+}

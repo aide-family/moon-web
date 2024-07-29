@@ -1,0 +1,18 @@
+.box {
+  padding: 20px;
+  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  .main {
+    background-color: var(--ant-color-bg-base);
+    padding: 20px;
+    .main_toolbar {
+      display: flex; 
+      justify-content: space-between;
+      .main_toolbar_left {
+        font-weight: bold; 
+        font-size: 16px; 
+      }
+    }
+  }
+}
