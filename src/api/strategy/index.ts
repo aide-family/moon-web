@@ -8,6 +8,7 @@ import {
   GetStrategyGroupResponse,
 } from './types'
 import { Status } from '../global'
+
 const { POST, PUT, DELTED, GET } = request
 
 /**

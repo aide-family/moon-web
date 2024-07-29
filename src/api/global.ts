@@ -203,32 +203,6 @@ export const SustainTypeData: Record<SustainType, string> = {
   [SustainType.SustainTypeMin]: 'm时间内最少出现n次',
 }
 
-export interface OptionsType {
-  label: number | string
-  value: number | string
-}
-type SearchType =
-  | 'input'
-  | 'select'
-  | 'inputNumber'
-  | 'password'
-  | 'time-range'
-  | 'radio'
-  | 'radio-group'
-  | 'checkbox'
-  | 'date-picker'
-  | 'textarea' 
-  | 'range-picker'
-  | 'tree-select'
-export interface SearchFormItem {
-  type: SearchType
-  name: string
-  label: string
-  placeholder: string
-  options?: OptionsType[]
-  allowClear?: boolean
-}
-
 // 操作
 export enum ActionKey {
   /** 详情 */

@@ -1,5 +1,6 @@
-import { Status, StatusData, SearchFormItem, ActionKey, SelectType } from '@/api/global'
-import { StrategyGroupItemType } from '@/api/strategy/types'
+import { Status, StatusData, ActionKey, SelectType } from '@/api/global'
+import type { SearchFormItem } from '@/components/data/search-box'
+import  { StrategyGroupItemType } from '@/api/strategy/types'
 import { Button, Tooltip, Badge, Space } from 'antd'
 import MoreMenu from '@/components/moreMenu'
 
@@ -13,34 +14,41 @@ export type GroupEditModalFormData = {
 
 export const formList: SearchFormItem[] = [
   {
-    type: 'input',
-    label: '名称',
     name: 'keyword',
-    placeholder: '规则组名称',
-    allowClear: true,
+    label: '名称',
+    dataProps: {
+      type: 'input',
+      placeholder: '规则组名称',
+      allowClear: true,
+    }
   },
   {
-    type: 'select',
     name: 'teamId',
     label: '分类',
-    placeholder: '规则分类',
-    allowClear: true,
-    options: [],
+    dataProps: {
+      type: 'select',
+      placeholder: '规则分类',
+      allowClear: true,
+      options: []
+    }
   },
   {
-    type: 'select',
     name: 'status',
     label: '状态',
-    placeholder: '规则组状态',
-    allowClear: true,
-    options: Object.entries(StatusData).map(([key, value]) => {
-      return {
-        label: value.text,
-        value: Number(key),
-      }
-    }),
+    dataProps: {
+      type: 'select',
+      placeholder: '规则组状态',
+      allowClear: true,
+      options: Object.entries(StatusData).map(([key, value]) => {
+        return {
+          label: value.text,
+          value: Number(key),
+        }
+      }),
+    }
   },
 ];
+
 interface GroupColumnProps {
   onHandleMenuOnClick: Function
 }
@@ -114,7 +122,7 @@ export const getColumnList = (props: GroupColumnProps) => {
       width: 60,
       fixed: 'left',
       render: (text: StrategyGroupItemType, record: StrategyGroupItemType, index: number) => {
-        return <span>{index + 1}</span>
+        return <div>{index + 1}</div>
       },
     },
     {
@@ -131,9 +139,7 @@ export const getColumnList = (props: GroupColumnProps) => {
               return <div>{text}</div>
             }}
           >
-            <span>
-              {text ? text : '-'}
-            </span>
+            <div>{text ? text : '-'}</div>
           </Tooltip>
         );
       }
@@ -144,18 +150,18 @@ export const getColumnList = (props: GroupColumnProps) => {
       key: 'categories',
       align: 'center',
       width: 160,
-      render: (categories?: SelectType[]) => (
-        <>
-          {categories?.map((item, index) => {
-            const { label, extend } = item
-            return (
-              <Tag key={index} color={extend?.color}>
-                {label}
-              </Tag>
-            )
-          })}
-        </>
-      ),
+      render: (text: string) => {
+        return (
+          <Tooltip
+            placement='top'
+            title={() => {
+              return <div>{text}</div>
+            }}
+          >
+            <div>{text ? text : '-'}</div>
+          </Tooltip>
+        );
+      }
     },
     {
       title: '状态',
@@ -204,9 +210,7 @@ export const getColumnList = (props: GroupColumnProps) => {
               return <div>{text}</div>
             }}
           >
-            <span>
-              {text ? text : '-'}
-            </span>
+            <div>{text ? text : '-'}</div>
           </Tooltip>
         );
       }
@@ -225,9 +229,7 @@ export const getColumnList = (props: GroupColumnProps) => {
               return <div>{text}</div>
             }}
           >
-            <span>
-              {text ? text : '-'}
-            </span>
+            <div>{text ? text : '-'}</div>
           </Tooltip>
         );
       }
@@ -246,9 +248,7 @@ export const getColumnList = (props: GroupColumnProps) => {
               return <div>{text}</div>
             }}
           >
-            <span>
-              {text ? text : '-'}
-            </span>
+             <div>{text ? text : '-'}</div>
           </Tooltip>
         );
       }

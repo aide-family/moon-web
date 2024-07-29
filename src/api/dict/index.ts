@@ -1,19 +1,10 @@
 import request from '@/api/request'
 import { 
   CreateDictRequest,
-  CreateDictNullResponse,
-  DictBatchUpdateStatusType,
-  DictById,
-  DictDetailRes,
-  DictListReq,
-  DictListRes,
-  DictSelectReq,
-  DictSelectRes,
-  MyAlarmPageListResponse,
-  UpdateDict,
-  dictBatchDeleteType } from './types'
-import { Status } from '../global'
-const { POST, PUT, DELTED, GET } = request
+  CreateDictNullResponse
+ } from './types'
+ 
+const { POST } = request
 
 /**
  * 创建字典
@@ -21,10 +12,11 @@ const { POST, PUT, DELTED, GET } = request
  * @param {CreateDictRequest} params
  * @returns {CreateDictNullResponse}
  */
+
 async function createDict(
   params: CreateDictRequest
 ): Promise<CreateDictNullResponse> {
-  return await POST<StrategyTemplateNullResponse>(
+  return await POST<CreateDictNullResponse>(
     '/v1/dict/create',
     params
   )

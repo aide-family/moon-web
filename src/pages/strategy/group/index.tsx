@@ -36,20 +36,20 @@ let searchTimeout: NodeJS.Timeout | null = null
 const Group: React.FC = () => {
   const { token } = useToken()
   const [datasource, setDatasource] = useState<StrategyGroupItemType[]>([])
-  const [searchPrams, setSearchPrams] =
+  const [searchParams, setSearchParams] =
     useState<ListStrategyGroupRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
   const [openGroupEditModal, setOpenGroupEditModal] = useState(false)
   const [editGroupId, setEditGroupId] = useState<number>()
-  const searchRef = useRef(null)
   const [disabledEditGroupModal, setDisabledEditGroupModal] =
     useState(false)
   const handleEditModal = (editId?: number) => {
     setEditGroupId(editId)
     setOpenGroupEditModal(true)
   }
+  const searchRef: React.RefObject<HTMLDivElement> = useRef(null)
   const ADivRef: React.RefObject<HTMLDivElement> = useRef(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource)
 
@@ -63,16 +63,14 @@ const Group: React.FC = () => {
     setRefresh(!refresh)
   }
 
-  const fetchData = (prams?: ListStrategyGroupRequest) => {
-    setLoading(true)
+  const fetchData = () => {
     if (searchTimeout) {
       clearTimeout(searchTimeout)
     }
     searchTimeout = setTimeout(() => {
       setLoading(true)
-      getStrategyGroupList(prams ? prams : searchPrams)
+      getStrategyGroupList(searchParams)
         .then(({ list, pagination }) => {
-          setLoading(false)
           setDatasource(list)
           setTotal(pagination.total)
         })
@@ -80,23 +78,8 @@ const Group: React.FC = () => {
     }, 500)
   }
 
-  function showDetail(id: number) {
-    setEditGroupId(id)
-    setDisabledEditGroupModal(true)
-    setOpenGroupEditModal(true)
-  }
-
-  function onEdit(id: number) {
-    handleOpenGroupEditModal(id)
-  }
-
-  function onDelete(id: number) {
-    console.log(id)
-  }
-
-  function handleGroupEditModalSubmit(data: GroupEditModalData) {
-    const { name, remark, categoriesIds } =
-      data
+  const handleGroupEditModalSubmit = (data: GroupEditModalData) => {
+    const { name, remark, categoriesIds } = data
     const params = {
       remark,
       name,
@@ -119,56 +102,44 @@ const Group: React.FC = () => {
     })
   }
 
-
   useEffect(() => {
     fetchData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh])
+  }, [refresh, searchParams])
 
   const onSearch = (formData: ListStrategyGroupRequest) => {
-    const params = {
-      ...searchPrams,
+    setSearchParams({
+      ...searchParams,
       ...formData,
       pagination: {
         pageNum: 1,
-        pageSize: searchPrams.pagination.pageSize,
-      },
-    }
-    setSearchPrams({
-      ...searchPrams,
-      ...formData,
-      pagination: {
-        pageNum: 1,
-        pageSize: searchPrams.pagination.pageSize,
+        pageSize: searchParams.pagination.pageSize,
       },
     })
-    fetchData(params)
   }
 
-  // 可以批量操作的数据
+  // 批量操作
   const handlerBatchData = (
     selectedRowKeys: Key[],
     selectedRows: StrategyGroupItemType[]
   ) => {
     console.log(selectedRowKeys, selectedRows)
   }
+
   // 切换分页
   const handleTurnPage = (page: number, pageSize: number) => {
-    const params = {
-      ...searchPrams,
-      pagination: {
-        pageNum: page,
-        pageSize: pageSize,
-      },
-    }
-    fetchData(params)
-    setSearchPrams({
-      ...searchPrams,
+    setSearchParams({
+      ...searchParams,
       pagination: {
         pageNum: page,
         pageSize: pageSize,
       },
     })
+  }
+
+  // 重置
+  const onReset = () => {
+    setSearchParams(defaultSearchParams)
   }
 
   const onHandleMenuOnClick = (item: StrategyGroupItemType, key: ActionKey) => {
@@ -211,7 +182,9 @@ const Group: React.FC = () => {
         break;
     }
   }
+
   const columns = getColumnList({ onHandleMenuOnClick })
+
   return (
     <div className={styles.box}>
       <GroupEditModal
@@ -237,8 +210,10 @@ const Group: React.FC = () => {
         }}
       >
         <SearchBox
+          ref={searchRef}
           formList={formList}
           onSearch={onSearch}
+          onReset={onReset}
         />
       </div>
       <div className={styles.main}>
@@ -258,8 +233,8 @@ const Group: React.FC = () => {
             loading={loading}
             columns={columns}
             handleTurnPage={handleTurnPage}
-            pageSize={searchPrams.pagination.pageSize}
-            pageNum={searchPrams.pagination.pageNum}
+            pageSize={searchParams.pagination.pageSize}
+            pageNum={searchParams.pagination.pageNum}
             showSizeChanger={true}
             style={{
               background: token.colorBgContainer,

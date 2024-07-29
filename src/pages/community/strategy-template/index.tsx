@@ -36,7 +36,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
   const [form] = Form.useForm()
   const { token } = useToken()
   const [datasource, setDatasource] = useState<StrategyTemplateItemType[]>([])
-  const [searchPrams, setSearchPrams] =
+  const [searchParams, setSearchParams] =
     useState<GetStrategyTemplateListRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
@@ -66,7 +66,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
     }
     searchTimeout = setTimeout(() => {
       setLoading(true)
-      getStrategyTemplateList(searchPrams)
+      getStrategyTemplateList(searchParams)
         .then(({ list, pagination }) => {
           setDatasource(list)
           setTotal(pagination.total)
@@ -202,7 +202,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function onValuesChange(_: any, allValues: any) {
-    setSearchPrams((prev) => {
+    setSearchParams((prev) => {
       return {
         ...prev,
         ...allValues,
@@ -213,7 +213,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
   useEffect(() => {
     onRefresh()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchPrams])
+  }, [searchParams])
 
   useEffect(() => {
     fetchData()
@@ -283,8 +283,8 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
           showQuickJumper: true,
           showTotal: (total) => `共 ${total} 条`,
           onChange: (page, pageSize) => {
-            setSearchPrams({
-              ...searchPrams,
+            setSearchParams({
+              ...searchParams,
               pagination: {
                 pageNum: page,
                 pageSize: pageSize,

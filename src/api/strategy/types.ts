@@ -1,7 +1,7 @@
 import {
   Condition,
   Pagination,
-  PaginationReply,
+  PaginationResponse,
   SelectType,
   Status,
   SustainType,
@@ -57,12 +57,7 @@ export interface StrategyGroupItemType {
 }
 
 /**策略组列表响应参数 */
-export interface GetStrategyGroupListResponse {
-  // 策略组列表
-  list: StrategyGroupItemType[]
-  // 分页信息
-  pagination: PaginationReply
-}
+export interface GetStrategyGroupListResponse extends PaginationResponse<StrategyGroupItemType> {}
 
 /** 策略组列表请求参数 */
 export interface GetStrategyGroupListRequest {
@@ -93,5 +88,5 @@ export interface CreateStrategyGroupRequest {
 /** 获取策略组详情相应参数 */
 export interface GetStrategyGroupResponse {
   // 策略模板详情
-  detail: StrategyGroupItemType
+  detail?: StrategyGroupItemType
 }

@@ -47,6 +47,7 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
   const [loading, setLoading] = useState(false)
   const [grounpDetail, setGroupDetail] =
     useState<GroupEditModalFormData>()
+
   const getGroupDetail = async () => {
     if (GroupId) {
       setLoading(true)
@@ -72,21 +73,20 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
 
   useEffect(() => {
     if (open && form && grounpDetail) {
-      form.setFieldsValue(grounpDetail)
+      form?.setFieldsValue(grounpDetail)
       return
     }
-    form.resetFields()
+    form?.resetFields()
   }, [grounpDetail, open, form])
 
   const handleOnCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     onCancel?.(e)
-    form.resetFields()
+    form?.resetFields()
     setGroupDetail(undefined)
   }
 
-
   const handleOnOk = () => {
-    form.validateFields().then((formValues) => {
+    form?.validateFields().then((formValues) => {
       const {
         name,
         remark,
@@ -99,9 +99,8 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
         remark,
         categoriesIds,
       }).then(() => {
-        setLoading(false)
         form?.resetFields()
-      })
+      }).finally(() => { setLoading(false) })
     })
   }
 
