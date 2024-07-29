@@ -10,8 +10,8 @@ export interface PaginationReply extends Pagination {
 }
 
 export interface PaginationResponse<T> {
-  pagination: PaginationReply
-  list: T[]
+  pagination?: PaginationReply
+  list?: T[]
 }
 
 export interface SelectExtendType {

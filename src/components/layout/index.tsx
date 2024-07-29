@@ -15,118 +15,118 @@ const { useToken } = theme
 
 let timer: NodeJS.Timeout | null = null
 const MoonLayout: React.FC = () => {
-	const navigate = useNavigate()
-	if (!isLogin()) {
-		if (timer) {
-			clearTimeout(timer)
-		}
+  const navigate = useNavigate()
+  if (!isLogin()) {
+    if (timer) {
+      clearTimeout(timer)
+    }
 
-		timer = setTimeout(() => {
-			message.error('登录已过期，请重新登录')
-			setTimeout(() => {
-				navigate('/login')
-			}, 1000)
-		}, 1000)
-	}
-	const location = useLocation()
-	const { token } = useToken()
-	const { menuItems, collapsed } = useContext(GlobalContext)
+    timer = setTimeout(() => {
+      message.error('登录已过期，请重新登录')
+      setTimeout(() => {
+        navigate('/login')
+      }, 1000)
+    }, 1000)
+  }
+  const location = useLocation()
+  const { token } = useToken()
+  const { menuItems, collapsed } = useContext(GlobalContext)
 
-	const [openKeys, setOpenKeys] = useState<string[]>([])
-	const [selectedKeys, setSelectedKeys] = useState<string[]>([])
-	const [locationPath, setLocationPath] = useState<string>(location.pathname)
+  const [openKeys, setOpenKeys] = useState<string[]>([])
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([])
+  const [locationPath, setLocationPath] = useState<string>(location.pathname)
 
-	const handleMenuOpenChange = (keys: string[]) => {
-		let openKeyList: string[] = keys
-		if (openKeyList.length === 0) {
-			openKeyList = locationPath.split('/').slice(1)
-			// 去掉最后一级
-			openKeyList.pop()
-			openKeyList = ['/' + openKeyList.join('/')]
-		}
-		setOpenKeys(openKeyList)
-		// setSelectedKeys(keys)
-	}
+  const handleMenuOpenChange = (keys: string[]) => {
+    let openKeyList: string[] = keys
+    if (openKeyList.length === 0) {
+      openKeyList = locationPath.split('/').slice(1)
+      // 去掉最后一级
+      openKeyList.pop()
+      openKeyList = ['/' + openKeyList.join('/')]
+    }
+    setOpenKeys(openKeyList)
+    // setSelectedKeys(keys)
+  }
 
-	const handleOnSelect = (key: string) => {
-		navigate(key)
-	}
+  const handleOnSelect = (key: string) => {
+    navigate(key)
+  }
 
-	useEffect(() => {
-		setSelectedKeys([location.pathname])
+  useEffect(() => {
+    setSelectedKeys([location.pathname])
 
-		const openKey = location.pathname.split('/').slice(1)
-		const keys: string[] = []
-		let key: string
-		openKey.forEach((item) => {
-			key += '/' + item
-			keys.push(key)
-		})
-		// 去掉最后一级
-		openKey.pop()
-		setOpenKeys([...keys, '/' + openKey.join('/')])
-		setLocationPath(location.pathname)
-	}, [location.pathname, collapsed])
+    const openKey = location.pathname.split('/').slice(1)
+    const keys: string[] = []
+    let key: string
+    openKey.forEach((item) => {
+      key += '/' + item
+      keys.push(key)
+    })
+    // 去掉最后一级
+    openKey.pop()
+    setOpenKeys([...keys, '/' + openKey.join('/')])
+    setLocationPath(location.pathname)
+  }, [location.pathname, collapsed])
 
-	return (
-		<>
-			<Layout style={{ overflow: 'hidden', height: '100vh', width: '100vw' }}>
-				<Sider collapsed={collapsed}>
-					<div className='menu-header'>
-						<HeaderTitle />
-					</div>
-					<Menu
-						// theme={theme}
-						theme='dark'
-						mode='inline'
-						items={menuItems}
-						style={{
-							height: '100%',
-							borderInlineEnd: 'none',
-							overflow: 'auto',
-						}}
-						openKeys={collapsed ? [] : openKeys}
-						defaultOpenKeys={collapsed ? [] : openKeys}
-						onSelect={({ key }) => handleOnSelect(key)}
-						selectedKeys={selectedKeys}
-						defaultSelectedKeys={selectedKeys}
-						onOpenChange={handleMenuOpenChange}
-					/>
-				</Sider>
-				<Layout
-					style={{
-						flex: 1,
-						display: 'flex',
-						flexDirection: 'column',
-					}}
-				>
-					<Header
-						className='header'
-						style={{
-							background: token.colorBgContainer,
-							color: token.colorText,
-						}}
-					>
-						<RouteBreadcrumb />
-						<HeaderOp />
-					</Header>
+  return (
+    <>
+      <Layout style={{ overflow: 'hidden', height: '100vh', width: '100vw' }}>
+        <Sider collapsed={collapsed}>
+          <div className='menu-header'>
+            <HeaderTitle />
+          </div>
+          <Menu
+            // theme={theme}
+            theme='dark'
+            mode='inline'
+            items={menuItems}
+            style={{
+              height: '100%',
+              borderInlineEnd: 'none',
+              overflow: 'auto',
+            }}
+            openKeys={collapsed ? [] : openKeys}
+            defaultOpenKeys={collapsed ? [] : openKeys}
+            onSelect={({ key }) => handleOnSelect(key)}
+            selectedKeys={selectedKeys}
+            defaultSelectedKeys={selectedKeys}
+            onOpenChange={handleMenuOpenChange}
+          />
+        </Sider>
+        <Layout
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <Header
+            className='header'
+            style={{
+              background: token.colorBgContainer,
+              color: token.colorText,
+            }}
+          >
+            <RouteBreadcrumb />
+            <HeaderOp />
+          </Header>
 
-					<Content className='content' style={{ flex: 1 }}>
-						<Suspense fallback={<div>loading...</div>}>
-							<Outlet />
-						</Suspense>
-					</Content>
-					<Footer
-						className='footer center'
-						style={{ background: token.colorBgContainer }}
-					>
-						<CopyrightOutlined />
-						{window.location.host}
-					</Footer>
-				</Layout>
-			</Layout>
-		</>
-	)
+          <Content className='content' style={{ flex: 1 }}>
+            <Suspense fallback={<div>loading...</div>}>
+              <Outlet />
+            </Suspense>
+          </Content>
+          <Footer
+            className='footer center'
+            style={{ background: token.colorBgContainer }}
+          >
+            <CopyrightOutlined />
+            {window.location.host}
+          </Footer>
+        </Layout>
+      </Layout>
+    </>
+  )
 }
 
 export default MoonLayout

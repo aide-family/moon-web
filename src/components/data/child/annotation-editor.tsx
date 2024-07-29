@@ -11,7 +11,7 @@ const { useToken } = theme
 export interface AnnotationsEditorProps {
   onChange?: (value?: string) => void
   value?: string
-  language: string
+  language?: string
   height?: number | string
   disabled?: boolean
   labels?: string[]

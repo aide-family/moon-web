@@ -66,6 +66,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
   const [form] = Form.useForm<TemplateEditModalFormData>()
   const datasource = Form.useWatch('datasource', form)
 
+  const expr = Form.useWatch('expr', form)
   const summary = Form.useWatch(['annotations', 'summary'], form)
   const description = Form.useWatch(['annotations', 'description'], form)
   const [summaryOkInfo, setSummaryOkInfo] = useState<{
@@ -156,8 +157,8 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
   }
 
   const checkExpression = (tmpValue: string) => {
-    const { labelsItems, expr, levelItems, alert, datasource } =
-      form.getFieldsValue()
+    if (!expr) return
+    const { labelsItems, levelItems, alert, datasource } = form.getFieldsValue()
     if (!tmpValue || !datasource) return
     const level = levelItems?.[0]
     return validateAnnotationTemplate({
@@ -204,7 +205,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
       })
     }, 500)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [description])
+  }, [description, expr])
 
   useEffect(() => {
     if (!summary) return
@@ -233,7 +234,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
     }, 500)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [summary])
+  }, [summary, expr])
 
   const handleOnOk = () => {
     form.validateFields().then((formValues) => {

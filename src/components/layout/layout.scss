@@ -8,7 +8,6 @@
   background: none;
   display: flex;
   justify-content: space-between;
-  color: #fff;
   padding: 0 22px;
 }
 
@@ -17,7 +16,7 @@
 }
 
 .content {
-  @include flex-base($direction: column, $justify: "", $align: "");
+  @include flex-base($direction: column, $justify: '', $align: '');
 }
 
 // 卡片样式操作栏居中
@@ -32,6 +31,7 @@
   justify-items: center;
   align-items: center;
   height: 60px;
+  color: #fff;
 }
 .header-title {
   width: 100%;
