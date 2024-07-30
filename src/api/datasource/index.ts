@@ -1,11 +1,5 @@
 import { UserItem } from '../authorization/user'
-import {
-  DataSourceType,
-  Pagination,
-  PaginationResponse,
-  Status,
-  StorageType,
-} from '../global'
+import { DataSourceType, Pagination, PaginationResponse, Status, StorageType } from '../global'
 import request from '../request'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -47,10 +41,7 @@ export interface DatasourceCreateRequest {
  * POST /v1/datasource/list
  */
 const getDatasourceList = (params: DatasourceListRequest) => {
-  return request.POST<PaginationResponse<DatasourceItemType>>(
-    '/v1/datasource/list',
-    params
-  )
+  return request.POST<PaginationResponse<DatasourceItemType>>('/v1/datasource/list', params)
 }
 
 /**
@@ -63,5 +54,5 @@ const createDatasource = (params: DatasourceCreateRequest) => {
 
 export default {
   getDatasourceList,
-  createDatasource,
+  createDatasource
 }

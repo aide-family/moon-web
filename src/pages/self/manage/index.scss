@@ -1,48 +1,48 @@
 .manage {
-	height: 100%;
-	@include flex-base($direction: column, $justify: '', $align: '');
-	gap: 12px;
-	padding: 12px;
-	&-user {
-		padding: 20px;
-		@include flex-base($justify: '');
-		gap: 60px;
-		&-avatar {
-			position: relative;
-			backdrop-filter: blur(10px);
-			&-box {
-				width: 120px;
-				height: 120px;
-			}
-			&-mask {
-				position: absolute;
-				width: 100%;
-				height: 100%;
-				top: 0;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				color: var(--ant-color-text-light-solid);
-				background: rgba(0, 0, 0, 0.5);
-				cursor: pointer;
-				opacity: 0;
-				transition: opacity var(--ant-motion-duration-slow);
-				border-radius: 50%;
-				font-size: 20px;
-				&:hover {
-					opacity: 1;
-				}
-			}
-		}
-		&-descriptions {
-			flex: 1;
-		}
-	}
-	&-content {
-		flex: 1;
+  height: 100%;
+  @include flex-base($direction: column, $justify: '', $align: '');
+  gap: 12px;
+  padding: 12px;
+  &-user {
+    padding: 20px;
+    @include flex-base($justify: '');
+    gap: 60px;
+    &-avatar {
+      position: relative;
+      backdrop-filter: blur(10px);
+      &-box {
+        width: 120px;
+        height: 120px;
+      }
+      &-mask {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: var(--ant-color-text-light-solid);
+        background: rgba(0, 0, 0, 0.5);
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity var(--ant-motion-duration-slow);
+        border-radius: 50%;
+        font-size: 20px;
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+    &-descriptions {
+      flex: 1;
+    }
+  }
+  &-content {
+    flex: 1;
 
-		&-detail {
-			padding-top: 12px;
-		}
-	}
+    &-detail {
+      padding-top: 12px;
+    }
+  }
 }

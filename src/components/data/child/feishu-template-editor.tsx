@@ -41,74 +41,71 @@ function createDependencyProposals(range: monaco.IRange) {
       kind: monaco.languages.CompletionItemKind.Keyword,
       insertText: '{{ .Labels.${1:labelName} }}',
       range: range,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
     },
     {
       label: '"Annotations"',
       kind: monaco.languages.CompletionItemKind.Function,
       insertText: '{{ .Annotations.${1:annotationName} }}',
       range: range,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
     },
     {
       label: '"summary"',
       kind: monaco.languages.CompletionItemKind.Function,
       insertText: 'summary',
-      range: range,
+      range: range
     },
     {
       label: '"description"',
       kind: monaco.languages.CompletionItemKind.Function,
       insertText: 'description',
-      range: range,
+      range: range
     },
     {
       label: '"Status"',
       kind: monaco.languages.CompletionItemKind.Function,
       insertText: '{{ .Status }}',
-      range: range,
+      range: range
     },
     {
       label: '"StartsAt"',
       kind: monaco.languages.CompletionItemKind.Function,
       insertText: '{{ .StartsAt }}',
-      range: range,
+      range: range
     },
     {
       label: '"EndsAt"',
       kind: monaco.languages.CompletionItemKind.Function,
       insertText: '{{ .EndsAt }}',
-      range: range,
+      range: range
     },
     {
       label: '"GeneratorURL"',
       kind: monaco.languages.CompletionItemKind.Function,
       insertText: '{{ .GeneratorURL }}',
-      range: range,
+      range: range
     },
     {
       label: '"Fingerprint"',
       kind: monaco.languages.CompletionItemKind.Function,
       insertText: '{{ .Fingerprint }}',
-      range: range,
+      range: range
     },
     {
       label: '"Value"',
       kind: monaco.languages.CompletionItemKind.Function,
       insertText: '{{ .Value }}',
-      range: range,
+      range: range
     },
 
     {
       label: 'tpl',
       kind: monaco.languages.CompletionItemKind.Snippet,
       insertText: tpl,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      range: range,
-    },
+      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      range: range
+    }
   ]
 }
 
@@ -184,38 +181,32 @@ function feishuJsonTemplateProposals(range: monaco.IRange) {
       label: 'tplText',
       kind: monaco.languages.CompletionItemKind.Snippet,
       insertText: tplText,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      range: range,
+      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      range: range
     },
     {
       label: 'tplMarkdown',
       kind: monaco.languages.CompletionItemKind.Snippet,
       insertText: tplMarkdown,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      range: range,
+      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      range: range
     },
     {
       label: 'tplInteractive',
       kind: monaco.languages.CompletionItemKind.Snippet,
       insertText: tplInteractive,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      range: range,
-    },
+      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      range: range
+    }
   ]
 }
 
-const provideCompletionItems = (
-  model: monaco.editor.ITextModel,
-  position: monaco.Position
-) => {
+const provideCompletionItems = (model: monaco.editor.ITextModel, position: monaco.Position) => {
   const extUntilPosition = model.getValueInRange({
     startLineNumber: 1,
     startColumn: 1,
     endLineNumber: position.lineNumber,
-    endColumn: position.column,
+    endColumn: position.column
   })
 
   // 匹配json格式
@@ -226,16 +217,16 @@ const provideCompletionItems = (
     startLineNumber: position.lineNumber,
     endLineNumber: position.lineNumber,
     startColumn: word.startColumn,
-    endColumn: word.endColumn,
+    endColumn: word.endColumn
   }
   if (!match) {
     return {
-      suggestions: feishuJsonTemplateProposals(range),
+      suggestions: feishuJsonTemplateProposals(range)
     }
   }
 
   return {
-    suggestions: createDependencyProposals(range),
+    suggestions: createDependencyProposals(range)
   }
 }
 
@@ -247,7 +238,7 @@ const i18nJsonSchema = {
   type: 'object',
   properties: {
     title: {
-      type: 'string',
+      type: 'string'
     },
     content: {
       type: 'array',
@@ -255,37 +246,37 @@ const i18nJsonSchema = {
         type: 'object',
         properties: {
           tag: {
-            type: 'string',
+            type: 'string'
           },
           text: {
-            type: 'string',
+            type: 'string'
           },
           un_escape: {
-            type: 'string',
+            type: 'string'
           },
           href: {
-            type: 'string',
+            type: 'string'
           },
           user_id: {
-            type: 'string',
+            type: 'string'
           },
           user_name: {
-            type: 'string',
+            type: 'string'
           },
           image_key: {
-            type: 'string',
-          },
-        },
-      },
-    },
-  },
+            type: 'string'
+          }
+        }
+      }
+    }
+  }
 }
 
 const init = (token: GlobalToken, theme?: ThemeType) => {
   monaco.languages.setMonarchTokensProvider(FeishuTemplate, {
     tokenizer: {
-      root: [[/\{\{[ ]*\.[ ]*[^}]*[ ]*\}\}/, 'keyword']],
-    },
+      root: [[/\{\{[ ]*\.[ ]*[^}]*[ ]*\}\}/, 'keyword']]
+    }
   })
 
   monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
@@ -298,32 +289,32 @@ const init = (token: GlobalToken, theme?: ThemeType) => {
           type: 'object',
           properties: {
             msg_type: {
-              enum: ['text', 'post', 'image', 'share_chat', 'interactive'],
+              enum: ['text', 'post', 'image', 'share_chat', 'interactive']
             },
             content: {
               type: 'object',
               properties: {
                 text: {
-                  type: 'string',
+                  type: 'string'
                 },
                 share_chat_id: {
-                  type: 'string',
+                  type: 'string'
                 },
                 image_key: {
-                  type: 'string',
+                  type: 'string'
                 },
                 post: {
                   type: 'object',
                   properties: {
                     zh_cn: {
-                      ...i18nJsonSchema,
+                      ...i18nJsonSchema
                     },
                     en_us: {
-                      ...i18nJsonSchema,
-                    },
-                  },
-                },
-              },
+                      ...i18nJsonSchema
+                    }
+                  }
+                }
+              }
             },
             card: {
               type: 'object',
@@ -335,18 +326,18 @@ const init = (token: GlobalToken, theme?: ThemeType) => {
                     properties: {
                       tag: {
                         type: 'string',
-                        enum: ['div', 'at', 'text', 'a', 'img'],
+                        enum: ['div', 'at', 'text', 'a', 'img']
                       },
                       text: {
                         type: 'object',
                         properties: {
                           content: {
-                            type: 'string',
+                            type: 'string'
                           },
                           tag: {
-                            type: 'string',
-                          },
-                        },
+                            type: 'string'
+                          }
+                        }
                       },
                       actions: {
                         type: 'array',
@@ -354,34 +345,34 @@ const init = (token: GlobalToken, theme?: ThemeType) => {
                           type: 'object',
                           properties: {
                             tag: {
-                              type: 'string',
+                              type: 'string'
                             },
                             text: {
                               type: 'object',
                               properties: {
                                 content: {
-                                  type: 'string',
+                                  type: 'string'
                                 },
                                 tag: {
-                                  type: 'string',
-                                },
-                              },
+                                  type: 'string'
+                                }
+                              }
                             },
                             url: {
-                              type: 'string',
+                              type: 'string'
                             },
                             type: {
                               type: 'string',
-                              enum: ['default'],
+                              enum: ['default']
                             },
                             value: {
-                              type: 'object',
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
+                              type: 'object'
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                 },
                 header: {
                   type: 'object',
@@ -390,47 +381,38 @@ const init = (token: GlobalToken, theme?: ThemeType) => {
                       type: 'object',
                       properties: {
                         content: {
-                          type: 'string',
+                          type: 'string'
                         },
                         tag: {
-                          type: 'string',
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    ],
+                          type: 'string'
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
   })
 
   // Define a new theme that contains only rules that match this language
   monaco.editor.defineTheme(FeishuTemplateTheme, defaultTheme(token, theme))
 
   monaco.languages.registerCompletionItemProvider(FeishuTemplate, {
-    provideCompletionItems: provideCompletionItems,
+    provideCompletionItems: provideCompletionItems
   })
 }
 
-export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = (
-  props
-) => {
-  const {
-    value,
-    defaultValue,
-    onChange,
-    width = '100%',
-    height = '100%',
-  } = props
+export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = (props) => {
+  const { value, defaultValue, onChange, width = '100%', height = '100%' } = props
 
   const { token } = useToken()
   const { theme } = useContext(GlobalContext)
 
-  const [editor, setEditor] =
-    useState<monaco.editor.IStandaloneCodeEditor | null>(null)
+  const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   const monacoEl = useRef(null)
 
   useEffect(() => {
@@ -449,8 +431,8 @@ export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = (
         lineNumbersMinChars: 4,
         minimap: {
           // enabled: false
-          size: 'fit',
-        },
+          size: 'fit'
+        }
       })
       e.onDidChangeModelContent(() => {
         onChange?.(e.getValue())
@@ -469,7 +451,7 @@ export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = (
       style={{
         width: width,
         height: height,
-        borderColor: token.colorBorder,
+        borderColor: token.colorBorder
       }}
       className='editorInput'
       ref={monacoEl}

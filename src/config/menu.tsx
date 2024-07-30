@@ -10,13 +10,13 @@ export const defaultMenuItems: ItemType[] = [
     children: [
       {
         label: '数据大盘',
-        key: '/home/monitor/dashboar',
+        key: '/home/monitor/dashboar'
       },
       {
         label: '实时告警',
-        key: '/home/monitor/realtime',
-      },
-    ],
+        key: '/home/monitor/realtime'
+      }
+    ]
   },
   {
     label: '数据源',
@@ -25,17 +25,17 @@ export const defaultMenuItems: ItemType[] = [
     children: [
       {
         label: 'Metric',
-        key: '/home/datasource/metric',
+        key: '/home/datasource/metric'
       },
       {
         label: 'Log',
-        key: '/home/datasource/log',
+        key: '/home/datasource/log'
       },
       {
         label: 'Trace',
-        key: '/home/datasource/trace',
-      },
-    ],
+        key: '/home/datasource/trace'
+      }
+    ]
   },
   {
     label: '策略管理',
@@ -44,13 +44,13 @@ export const defaultMenuItems: ItemType[] = [
     children: [
       {
         label: '策略组',
-        key: '/home/strategy/group',
+        key: '/home/strategy/group'
       },
       {
         label: '策略',
-        key: '/home/strategy/metric',
-      },
-    ],
+        key: '/home/strategy/metric'
+      }
+    ]
   },
   {
     label: '告警通知',
@@ -59,21 +59,21 @@ export const defaultMenuItems: ItemType[] = [
     children: [
       {
         label: '告警组',
-        key: '/home/notify/group',
+        key: '/home/notify/group'
       },
       {
         label: 'Hook',
-        key: '/home/notify/hook',
+        key: '/home/notify/hook'
       },
       {
         label: '通知规则',
-        key: '/home/notify/rule',
+        key: '/home/notify/rule'
       },
       {
         label: '告警记录',
-        key: '/home/notify/record',
-      },
-    ],
+        key: '/home/notify/record'
+      }
+    ]
   },
   {
     label: '告警归档',
@@ -82,17 +82,17 @@ export const defaultMenuItems: ItemType[] = [
     children: [
       {
         label: '历史告警',
-        key: '/home/archive/history',
+        key: '/home/archive/history'
       },
       {
         label: '告警统计',
-        key: '/home/archive/statistics',
+        key: '/home/archive/statistics'
       },
       {
         label: '历史通知',
-        key: '/home/archive/notice',
-      },
-    ],
+        key: '/home/archive/notice'
+      }
+    ]
   },
   {
     label: '个人中心',
@@ -101,13 +101,13 @@ export const defaultMenuItems: ItemType[] = [
     children: [
       {
         label: '团队管理',
-        key: '/home/self/space-manage',
+        key: '/home/self/space-manage'
       },
       {
         label: '个人设置',
-        key: '/home/self/manage',
-      },
-    ],
+        key: '/home/self/manage'
+      }
+    ]
   },
   {
     label: '系统管理',
@@ -116,17 +116,17 @@ export const defaultMenuItems: ItemType[] = [
     children: [
       {
         label: '系统用户',
-        key: '/home/system/users',
+        key: '/home/system/users'
       },
       {
         label: '系统字典',
-        key: '/home/system/dict',
+        key: '/home/system/dict'
       },
       {
         label: '系统菜单',
-        key: '/home/system/menu',
-      },
-    ],
+        key: '/home/system/menu'
+      }
+    ]
   },
   {
     label: 'Moon社区',
@@ -135,14 +135,14 @@ export const defaultMenuItems: ItemType[] = [
     children: [
       {
         label: '策略仓库',
-        key: '/home/community/strategy-template',
+        key: '/home/community/strategy-template'
       },
       {
         label: '讨论',
-        key: '/home/community/discussion',
-      },
-    ],
-  },
+        key: '/home/community/discussion'
+      }
+    ]
+  }
 ]
 
 export type BreadcrumbNameType = {
@@ -152,93 +152,93 @@ export type BreadcrumbNameType = {
 
 export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   '/home': {
-    name: '首页',
+    name: '首页'
   },
   '/home/system': {
-    name: '系统管理',
+    name: '系统管理'
   },
   '/home/system/users': {
-    name: '系统用户',
+    name: '系统用户'
   },
   '/home/system/dict': {
-    name: '系统字典',
+    name: '系统字典'
   },
   '/home/system/menu': {
-    name: '系统菜单',
+    name: '系统菜单'
   },
   '/home/self': {
-    name: '个人中心',
+    name: '个人中心'
   },
   '/home/self/space-manage': {
-    name: '团队管理',
+    name: '团队管理'
   },
   '/home/self/manage': {
-    name: '个人设置',
+    name: '个人设置'
   },
   '/home/monitor': {
-    name: '实时监控',
+    name: '实时监控'
   },
   '/home/monitor/dashboar': {
-    name: '数据大盘',
+    name: '数据大盘'
   },
   '/home/monitor/realtime': {
-    name: '实时告警',
+    name: '实时告警'
   },
   '/home/datasource': {
-    name: '数据源',
+    name: '数据源'
   },
   '/home/datasource/metric': {
-    name: 'Metric',
+    name: 'Metric'
   },
   '/home/datasource/log': {
-    name: 'Log',
+    name: 'Log'
   },
   '/home/datasource/trace': {
-    name: 'Trace',
+    name: 'Trace'
   },
   '/home/strategy': {
-    name: '策略管理',
+    name: '策略管理'
   },
   '/home/strategy/group': {
-    name: '策略组',
+    name: '策略组'
   },
   '/home/strategy/metric': {
-    name: '策略',
+    name: '策略'
   },
   '/home/notify': {
-    name: '告警通知',
+    name: '告警通知'
   },
   '/home/notify/group': {
-    name: '告警组',
+    name: '告警组'
   },
   '/home/notify/hook': {
-    name: 'Hook',
+    name: 'Hook'
   },
   '/home/notify/rule': {
-    name: '通知规则',
+    name: '通知规则'
   },
   '/home/notify/record': {
-    name: '告警记录',
+    name: '告警记录'
   },
   '/home/archive': {
-    name: '告警归档',
+    name: '告警归档'
   },
   '/home/archive/history': {
-    name: '历史告警',
+    name: '历史告警'
   },
   '/home/archive/statistics': {
-    name: '告警统计',
+    name: '告警统计'
   },
   '/home/archive/notice': {
-    name: '历史通知',
+    name: '历史通知'
   },
   '/home/community': {
-    name: 'Moon社区',
+    name: 'Moon社区'
   },
   '/home/community/strategy-template': {
-    name: '策略仓库',
+    name: '策略仓库'
   },
   '/home/community/discussion': {
-    name: '讨论',
-  },
+    name: '讨论'
+  }
 }

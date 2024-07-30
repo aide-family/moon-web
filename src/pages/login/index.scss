@@ -32,7 +32,7 @@
 .login-banner {
   &-logo {
     width: 100%;
-    @include flex-base($justify: "");
+    @include flex-base($justify: '');
     padding: 24px;
     font-size: 24px;
     color: #fff;

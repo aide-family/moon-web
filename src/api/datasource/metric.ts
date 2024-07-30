@@ -34,10 +34,7 @@ export interface MetricListRequest {
  * POST /v1/datasource/metric/list
  */
 const getMetricList = (params: MetricListRequest) => {
-  return request.POST<PaginationResponse<MetricItemType>>(
-    '/v1/datasource/metric/list',
-    params
-  )
+  return request.POST<PaginationResponse<MetricItemType>>('/v1/datasource/metric/list', params)
 }
 
 /**
@@ -54,12 +51,12 @@ const syncMetric = (datasourceId: number) => {
  */
 const getMetricDetail = (id: number, withRelation: boolean = false) => {
   return request.GET<{ data: MetricItemType }>(`/v1/datasource/metric/${id}`, {
-    withRelation,
+    withRelation
   })
 }
 
 export default {
   getMetricList,
   syncMetric,
-  getMetricDetail,
+  getMetricDetail
 }

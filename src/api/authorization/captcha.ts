@@ -17,14 +17,11 @@ export interface GetCaptchaResponse {
 
 const defaultGetCaptchaParams: GetCaptchaRequest = {
   captchaType: 0,
-  theme:
-    (localStorage.getItem('theme') || 'dark') === 'dark' ? 'light' : 'dark',
+  theme: (localStorage.getItem('theme') || 'dark') === 'dark' ? 'light' : 'dark',
   width: 100,
-  height: 40,
+  height: 40
 }
 
-export const getCaptcha = (
-  params: GetCaptchaRequest = defaultGetCaptchaParams
-) => {
+export const getCaptcha = (params: GetCaptchaRequest = defaultGetCaptchaParams) => {
   return request.POST<GetCaptchaResponse>('/v1/authorization/captcha', params)
 }

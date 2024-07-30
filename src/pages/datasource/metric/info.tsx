@@ -12,9 +12,7 @@ export const Info: React.FC<InfoProps> = (props) => {
     <>
       <Alert
         banner
-        message={`数据源：${datasource?.name} ${datasource?.remark || ''} ${
-          datasource?.id
-        }`}
+        message={`数据源：${datasource?.name} ${datasource?.remark || ''} ${datasource?.id}`}
         type='info'
         showIcon
       />

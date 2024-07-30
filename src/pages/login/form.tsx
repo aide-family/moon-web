@@ -51,9 +51,9 @@ const LoginForm: FC = () => {
       password: AesEncrypt(values.password),
       captcha: {
         code: values.code,
-        id: captcha?.id,
+        id: captcha?.id
       },
-      redirect: '/',
+      redirect: '/'
     })
   }
 
@@ -81,45 +81,24 @@ const LoginForm: FC = () => {
         onFinish={onFinish}
         size='large'
       >
-        <Form.Item
-          name='username'
-          rules={[{ required: true, message: '请输入用户名' }]}
-        >
-          <Input
-            prefix={<UserOutlined className='site-form-item-icon' />}
-            placeholder='Username'
-          />
+        <Form.Item name='username' rules={[{ required: true, message: '请输入用户名' }]}>
+          <Input prefix={<UserOutlined className='site-form-item-icon' />} placeholder='Username' />
         </Form.Item>
-        <Form.Item
-          name='password'
-          rules={[{ required: true, message: '请输入密码' }]}
-        >
+        <Form.Item name='password' rules={[{ required: true, message: '请输入密码' }]}>
           <Input.Password
             prefix={<LockOutlined className='site-form-item-icon' />}
             type='password'
             placeholder='Password'
           />
         </Form.Item>
-        <Form.Item
-          name='code'
-          rules={[{ required: true, message: '请输入验证码' }]}
-        >
+        <Form.Item name='code' rules={[{ required: true, message: '请输入验证码' }]}>
           <div className='login-form-captcha'>
             <Input placeholder='验证码' />
-            <img
-              src={captcha?.captcha}
-              alt='点击获取'
-              className='login-form-captcha-img'
-              onClick={handleCaptcha}
-            />
+            <img src={captcha?.captcha} alt='点击获取' className='login-form-captcha-img' onClick={handleCaptcha} />
           </div>
         </Form.Item>
         <Form.Item>
-          <Button
-            type='primary'
-            htmlType='submit'
-            className='login-form-button'
-          >
+          <Button type='primary' htmlType='submit' className='login-form-button'>
             登录
           </Button>
         </Form.Item>

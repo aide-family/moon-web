@@ -1,13 +1,13 @@
-import React, { useContext } from "react"
-import { useRef, useState, useEffect } from "react"
+import React, { useContext } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api"
-import { GlobalToken, theme } from "antd"
-import "./userWorker"
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import { GlobalToken, theme } from 'antd'
+import './userWorker'
 
-import "./style.css"
-import { GlobalContext, ThemeType } from "@/utils/context"
-import { defaultTheme } from "./color"
+import './style.css'
+import { GlobalContext, ThemeType } from '@/utils/context'
+import { defaultTheme } from './color'
 
 export interface DingTemplateEditorProps {
   value?: string
@@ -19,8 +19,8 @@ export interface DingTemplateEditorProps {
 
 const { useToken } = theme
 
-const DingTemplate = "json"
-const DingTemplateTheme = "DingTemplateTheme"
+const DingTemplate = 'json'
+const DingTemplateTheme = 'DingTemplateTheme'
 
 const tpl = `Moon监控系统告警通知
 告警状态: {{ .Status }}
@@ -39,76 +39,73 @@ function createDependencyProposals(range: monaco.IRange) {
     {
       label: '"Labels"',
       kind: monaco.languages.CompletionItemKind.Keyword,
-      insertText: "{{ .Labels.${1:labelName} }}",
+      insertText: '{{ .Labels.${1:labelName} }}',
       range: range,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
     },
     {
       label: '"Annotations"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "{{ .Annotations.${1:annotationName} }}",
+      insertText: '{{ .Annotations.${1:annotationName} }}',
       range: range,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
     },
     {
       label: '"summary"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "summary",
-      range: range,
+      insertText: 'summary',
+      range: range
     },
     {
       label: '"description"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "description",
-      range: range,
+      insertText: 'description',
+      range: range
     },
     {
       label: '"Status"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "{{ .Status }}",
-      range: range,
+      insertText: '{{ .Status }}',
+      range: range
     },
     {
       label: '"StartsAt"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "{{ .StartsAt }}",
-      range: range,
+      insertText: '{{ .StartsAt }}',
+      range: range
     },
     {
       label: '"EndsAt"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "{{ .EndsAt }}",
-      range: range,
+      insertText: '{{ .EndsAt }}',
+      range: range
     },
     {
       label: '"GeneratorURL"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "{{ .GeneratorURL }}",
-      range: range,
+      insertText: '{{ .GeneratorURL }}',
+      range: range
     },
     {
       label: '"Fingerprint"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "{{ .Fingerprint }}",
-      range: range,
+      insertText: '{{ .Fingerprint }}',
+      range: range
     },
     {
       label: '"Value"',
       kind: monaco.languages.CompletionItemKind.Function,
-      insertText: "{{ .Value }}",
-      range: range,
+      insertText: '{{ .Value }}',
+      range: range
     },
 
     {
-      label: "tpl",
+      label: 'tpl',
       kind: monaco.languages.CompletionItemKind.Snippet,
       insertText: tpl,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      range: range,
-    },
+      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      range: range
+    }
   ]
 }
 
@@ -187,57 +184,49 @@ const tplFeedCard = `{
 function dingJsonTemplateProposals(range: monaco.IRange) {
   return [
     {
-      label: "tplText",
+      label: 'tplText',
       kind: monaco.languages.CompletionItemKind.Snippet,
       insertText: tplText,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      range: range,
+      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      range: range
     },
     {
-      label: "tplLink",
+      label: 'tplLink',
       kind: monaco.languages.CompletionItemKind.Snippet,
       insertText: tplLink,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      range: range,
+      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      range: range
     },
     {
-      label: "tplMarkdown",
+      label: 'tplMarkdown',
       kind: monaco.languages.CompletionItemKind.Snippet,
       insertText: tplMarkdown,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      range: range,
+      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      range: range
     },
     {
-      label: "tplActionCard",
+      label: 'tplActionCard',
       kind: monaco.languages.CompletionItemKind.Snippet,
       insertText: tplActionCard,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      range: range,
+      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      range: range
     },
     {
-      label: "tplFeedCard",
+      label: 'tplFeedCard',
       kind: monaco.languages.CompletionItemKind.Snippet,
       insertText: tplFeedCard,
-      insertTextRules:
-        monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      range: range,
-    },
+      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+      range: range
+    }
   ]
 }
 
-const provideCompletionItems = (
-  model: monaco.editor.ITextModel,
-  position: monaco.Position
-) => {
+const provideCompletionItems = (model: monaco.editor.ITextModel, position: monaco.Position) => {
   const extUntilPosition = model.getValueInRange({
     startLineNumber: 1,
     startColumn: 1,
     endLineNumber: position.lineNumber,
-    endColumn: position.column,
+    endColumn: position.column
   })
 
   // 匹配json格式
@@ -248,186 +237,177 @@ const provideCompletionItems = (
     startLineNumber: position.lineNumber,
     endLineNumber: position.lineNumber,
     startColumn: word.startColumn,
-    endColumn: word.endColumn,
+    endColumn: word.endColumn
   }
   if (!match) {
     return {
-      suggestions: dingJsonTemplateProposals(range),
+      suggestions: dingJsonTemplateProposals(range)
     }
   }
 
   return {
-    suggestions: createDependencyProposals(range),
+    suggestions: createDependencyProposals(range)
   }
 }
 
-const modelUri = monaco.Uri.parse("./json/ding.json")
+const modelUri = monaco.Uri.parse('./json/ding.json')
 
-const model = monaco.editor.createModel("", DingTemplate, modelUri)
+const model = monaco.editor.createModel('', DingTemplate, modelUri)
 
 const init = (token: GlobalToken, theme?: ThemeType) => {
   monaco.languages.setMonarchTokensProvider(DingTemplate, {
     tokenizer: {
-      root: [[/\{\{[ ]*\.[ ]*[^}]*[ ]*\}\}/, "keyword"]],
-    },
+      root: [[/\{\{[ ]*\.[ ]*[^}]*[ ]*\}\}/, 'keyword']]
+    }
   })
 
   monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
     validate: false,
     schemas: [
       {
-        uri: "./json/ding.json", // id of the first schema
+        uri: './json/ding.json', // id of the first schema
         fileMatch: [modelUri.toString()], // associate with our model
         schema: {
-          type: "object",
+          type: 'object',
           properties: {
             msgtype: {
-              type: "string",
-              enum: ["text", "link", "markdown", "actionCard", "feedCard"],
+              type: 'string',
+              enum: ['text', 'link', 'markdown', 'actionCard', 'feedCard']
             },
             text: {
-              type: "object",
+              type: 'object',
               properties: {
                 content: {
-                  type: "string",
-                },
-              },
+                  type: 'string'
+                }
+              }
             },
             at: {
-              type: "object",
+              type: 'object',
               properties: {
                 atMobiles: {
-                  type: "array",
+                  type: 'array',
                   items: {
-                    type: "string",
-                  },
+                    type: 'string'
+                  }
                 },
                 atUserIds: {
-                  type: "array",
+                  type: 'array',
                   items: {
-                    type: "string",
-                  },
+                    type: 'string'
+                  }
                 },
                 isAtAll: {
-                  type: "boolean",
-                  enum: [true, false],
-                },
-              },
+                  type: 'boolean',
+                  enum: [true, false]
+                }
+              }
             },
             link: {
-              type: "object",
+              type: 'object',
               properties: {
                 title: {
-                  type: "string",
+                  type: 'string'
                 },
                 text: {
-                  type: "string",
+                  type: 'string'
                 },
                 picUrl: {
-                  type: "string",
+                  type: 'string'
                 },
                 messageUrl: {
-                  type: "string",
-                },
-              },
+                  type: 'string'
+                }
+              }
             },
             markdown: {
-              type: "object",
+              type: 'object',
               properties: {
                 title: {
-                  type: "string",
+                  type: 'string'
                 },
                 text: {
-                  type: "string",
-                },
-              },
+                  type: 'string'
+                }
+              }
             },
             actionCard: {
-              type: "object",
+              type: 'object',
               properties: {
                 title: {
-                  type: "string",
+                  type: 'string'
                 },
                 text: {
-                  type: "string",
+                  type: 'string'
                 },
                 btnOrientation: {
-                  type: "string",
+                  type: 'string'
                 },
                 singleTitle: {
-                  type: "string",
+                  type: 'string'
                 },
                 singleURL: {
-                  type: "string",
+                  type: 'string'
                 },
                 btns: {
-                  type: "array",
+                  type: 'array',
                   items: {
-                    type: "object",
+                    type: 'object',
                     properties: {
                       title: {
-                        type: "string",
+                        type: 'string'
                       },
                       actionURL: {
-                        type: "string",
-                      },
-                    },
-                  },
-                },
-              },
+                        type: 'string'
+                      }
+                    }
+                  }
+                }
+              }
             },
             feedCard: {
-              type: "object",
+              type: 'object',
               properties: {
                 links: {
-                  type: "array",
+                  type: 'array',
                   items: {
-                    type: "object",
+                    type: 'object',
                     properties: {
                       title: {
-                        type: "string",
+                        type: 'string'
                       },
                       messageURL: {
-                        type: "string",
+                        type: 'string'
                       },
                       picURL: {
-                        type: "string",
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    ],
+                        type: 'string'
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
   })
 
   // Define a new theme that contains only rules that match this language
   monaco.editor.defineTheme(DingTemplateTheme, defaultTheme(token, theme))
 
   monaco.languages.registerCompletionItemProvider(DingTemplate, {
-    provideCompletionItems: provideCompletionItems,
+    provideCompletionItems: provideCompletionItems
   })
 }
 
-export const DingTemplateEditor: React.FC<DingTemplateEditorProps> = (
-  props
-) => {
-  const {
-    value,
-    defaultValue,
-    onChange,
-    width = "100%",
-    height = "100%",
-  } = props
+export const DingTemplateEditor: React.FC<DingTemplateEditorProps> = (props) => {
+  const { value, defaultValue, onChange, width = '100%', height = '100%' } = props
 
   const { token } = useToken()
   const { theme } = useContext(GlobalContext)
 
-  const [editor, setEditor] =
-    useState<monaco.editor.IStandaloneCodeEditor | null>(null)
+  const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   const monacoEl = useRef(null)
 
   useEffect(() => {
@@ -446,8 +426,8 @@ export const DingTemplateEditor: React.FC<DingTemplateEditorProps> = (
         lineNumbersMinChars: 4,
         minimap: {
           // enabled: false
-          size: "fit",
-        },
+          size: 'fit'
+        }
       })
       e.onDidChangeModelContent(() => {
         onChange?.(e.getValue())
@@ -466,7 +446,7 @@ export const DingTemplateEditor: React.FC<DingTemplateEditorProps> = (
       style={{
         width: width,
         height: height,
-        borderColor: token.colorBorder,
+        borderColor: token.colorBorder
       }}
       className='editorInput'
       ref={monacoEl}

@@ -24,7 +24,7 @@ const JsonInputTheme = 'JsonInputTheme'
 
 const provideCompletionItems = () => {
   return {
-    suggestions: [],
+    suggestions: []
   }
 }
 
@@ -33,9 +33,9 @@ const model = monaco.editor.createModel('', JsonInput)
 const init = (token: GlobalToken, theme?: ThemeType) => {
   monaco.languages.setMonarchTokensProvider(JsonInput, {
     tokenizer: {
-      root: [[/\{\{[ ]*\.[ ]*[^}]*[ ]*\}\}/, 'keyword']],
+      root: [[/\{\{[ ]*\.[ ]*[^}]*[ ]*\}\}/, 'keyword']]
     },
-    validate: true,
+    validate: true
   })
 
   monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
@@ -43,30 +43,24 @@ const init = (token: GlobalToken, theme?: ThemeType) => {
     // 语法错误提示
     enableSchemaRequest: true,
     schemas: [],
-    allowComments: true,
+    allowComments: true
   })
 
   // Define a new theme that contains only rules that match this language
   monaco.editor.defineTheme(JsonInputTheme, defaultTheme(token, theme))
 
   monaco.languages.registerCompletionItemProvider(JsonInput, {
-    provideCompletionItems: provideCompletionItems,
+    provideCompletionItems: provideCompletionItems
   })
 }
 
 export const JsonInputEditor: React.FC<JsonInputEditorProps> = (props) => {
-  const {
-    value = props.defaultValue,
-    onChange,
-    width = '100%',
-    height = '100%',
-  } = props
+  const { value = props.defaultValue, onChange, width = '100%', height = '100%' } = props
 
   const { token } = useToken()
   const { theme } = useContext(GlobalContext)
 
-  const [editor, setEditor] =
-    useState<monaco.editor.IStandaloneCodeEditor | null>(null)
+  const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   const monacoEl = useRef(null)
 
   useEffect(() => {
@@ -85,14 +79,14 @@ export const JsonInputEditor: React.FC<JsonInputEditorProps> = (props) => {
         lineNumbersMinChars: 4,
         minimap: {
           // enabled: false
-          size: 'fit',
+          size: 'fit'
         },
         // 错误语法校验
         quickSuggestions: {
           other: true,
           comments: true,
-          strings: true,
-        },
+          strings: true
+        }
       })
       e.onDidChangeModelContent(() => {
         onChange?.(e.getValue())
@@ -117,7 +111,7 @@ export const JsonInputEditor: React.FC<JsonInputEditorProps> = (props) => {
       style={{
         width: width,
         height: height,
-        borderColor: token.colorBorder,
+        borderColor: token.colorBorder
       }}
       className='editorInput'
       ref={monacoEl}

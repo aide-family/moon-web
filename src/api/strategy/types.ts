@@ -1,11 +1,4 @@
-import {
-  Condition,
-  Pagination,
-  PaginationResponse,
-  SelectType,
-  Status,
-  SustainType,
-} from '../global'
+import { Condition, Pagination, PaginationResponse, SelectType, Status, SustainType } from '../global'
 
 /**策略组空响应参数 */
 export interface StrategyGroupNullResponse {}

@@ -1,17 +1,8 @@
 import React, { useEffect, useState } from 'react'
 
 import { useForm } from 'antd/es/form/Form'
-import {
-  StatusBadge,
-  UserAvatar,
-  userListSearchItems,
-  Username,
-} from './option'
-import {
-  SearchUsersParams,
-  UserItem,
-  searchUsers,
-} from '@/api/authorization/user'
+import { StatusBadge, UserAvatar, userListSearchItems, Username } from './option'
+import { SearchUsersParams, UserItem, searchUsers } from '@/api/authorization/user'
 import { Gender, PaginationReply, Status, SystemRole } from '@/api/global'
 import { AutoTable, AutoTableColumnType } from '@/components/table'
 import { Button, Space, theme } from 'antd'
@@ -26,12 +17,12 @@ const { useToken } = theme
 const defaultSearchParams: SearchUsersParams = {
   pagination: {
     pageNum: 1,
-    pageSize: 10,
+    pageSize: 10
   },
   keyword: '',
   status: Status.ALL,
   gender: Gender.ALL,
-  role: SystemRole.ROLE_ALL,
+  role: SystemRole.ROLE_ALL
 }
 
 let searchTimeout: NodeJS.Timeout | null = null
@@ -41,8 +32,7 @@ const Users: React.FC<UsersProps> = () => {
   const [users, setUsers] = useState<UserItem[]>([])
   const [page, setPage] = useState<PaginationReply>()
   const [loading, setLoading] = useState(false)
-  const [searchParams, setSearchParams] =
-    useState<SearchUsersParams>(defaultSearchParams)
+  const [searchParams, setSearchParams] = useState<SearchUsersParams>(defaultSearchParams)
 
   const usersColumns: AutoTableColumnType<UserItem>[] = [
     {
@@ -53,7 +43,7 @@ const Users: React.FC<UsersProps> = () => {
       width: 100,
       render: (_: string, item: UserItem) => {
         return <UserAvatar {...item} />
-      },
+      }
     },
     {
       title: '姓名',
@@ -62,7 +52,7 @@ const Users: React.FC<UsersProps> = () => {
       width: 200,
       render: (_: string, record: UserItem) => {
         return <Username {...record} />
-      },
+      }
     },
     {
       title: '昵称',
@@ -72,7 +62,7 @@ const Users: React.FC<UsersProps> = () => {
       ellipsis: true,
       render: (text: string) => {
         return <>{text || '-'}</>
-      },
+      }
     },
     {
       title: '状态',
@@ -82,25 +72,25 @@ const Users: React.FC<UsersProps> = () => {
       width: 120,
       render: (_: string, record: UserItem) => {
         return <StatusBadge {...record} />
-      },
+      }
     },
     {
       title: '手机号',
       dataIndex: 'phone',
       key: 'phone',
-      width: 200,
+      width: 200
     },
     {
       title: '邮箱',
       dataIndex: 'email',
       key: 'email',
-      width: 300,
+      width: 300
     },
     {
       title: '个人说明',
       dataIndex: 'remark',
       key: 'remark',
-      ellipsis: true,
+      ellipsis: true
     },
     {
       title: '操作',
@@ -111,11 +101,7 @@ const Users: React.FC<UsersProps> = () => {
       render: (_: string, record: UserItem) => {
         return (
           <Space size={8}>
-            <Button
-              size='small'
-              type='link'
-              onClick={() => showUserDetail(record)}
-            >
+            <Button size='small' type='link' onClick={() => showUserDetail(record)}>
               详情
             </Button>
             <Button size='small' type='link' onClick={openEditModal}>
@@ -123,8 +109,8 @@ const Users: React.FC<UsersProps> = () => {
             </Button>
           </Space>
         )
-      },
-    },
+      }
+    }
   ]
 
   function showUserDetail(record: UserItem) {
@@ -171,7 +157,7 @@ const Users: React.FC<UsersProps> = () => {
           onValuesChange={() =>
             setSearchParams({
               ...searchParams,
-              ...searchForm.getFieldsValue(),
+              ...searchForm.getFieldsValue()
             })
           }
         />
@@ -195,10 +181,10 @@ const Users: React.FC<UsersProps> = () => {
                 ...searchParams,
                 pagination: {
                   pageNum: p,
-                  pageSize: size,
-                },
+                  pageSize: size
+                }
               })
-            },
+            }
           }}
         />
       </div>

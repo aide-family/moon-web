@@ -53,32 +53,18 @@ const RenderForm: FC<{
   }
 }
 
-const renderFormItems = (
-  items: DataFromItem[],
-  span: number = 24,
-  validates?: Record<string, ValidateType>
-) => {
+const renderFormItems = (items: DataFromItem[], span: number = 24, validates?: Record<string, ValidateType>) => {
   return items.map((item) => {
     return renderFormItem(item, span, validates)
   })
 }
 
-const renderFormItem = (
-  item: DataFromItem,
-  span: number = 24,
-  validates?: Record<string, ValidateType>
-) => {
+const renderFormItem = (item: DataFromItem, span: number = 24, validates?: Record<string, ValidateType>) => {
   const { name, label, id, formProps } = item
 
   return (
     <Col span={span} key={name} id={id}>
-      <Form.Item
-        {...formProps}
-        name={name}
-        label={label}
-        key={name}
-        {...validates?.[name]}
-      >
+      <Form.Item {...formProps} name={name} label={label} key={name} {...validates?.[name]}>
         <DataInput {...item} />
       </Form.Item>
     </Col>

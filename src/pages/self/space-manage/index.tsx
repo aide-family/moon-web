@@ -14,7 +14,7 @@ import {
   MenuProps,
   Spin,
   Typography,
-  Empty,
+  Empty
 } from 'antd'
 import React, { useContext, useEffect } from 'react'
 import './index.scss'
@@ -32,8 +32,8 @@ const defaultSearchParams: TeamListRequest = {
   status: 0,
   pagination: {
     pageNum: 1,
-    pageSize: 10,
-  },
+    pageSize: 10
+  }
 }
 
 let timeout: NodeJS.Timeout | null = null
@@ -42,8 +42,7 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
   const { setRefreshMyTeamList } = useContext(GlobalContext)
   const [openEditModal, setOpenEditModal] = React.useState(false)
   const [operatorTeam, setOperatorTeam] = React.useState<TeamItemType>()
-  const [searchParams, setSearchParams] =
-    React.useState<TeamListRequest>(defaultSearchParams)
+  const [searchParams, setSearchParams] = React.useState<TeamListRequest>(defaultSearchParams)
   const [loading, setLoading] = React.useState(false)
   const [teamList, setTeamList] = React.useState<TeamItemType[]>([])
   const [refresh, setRefresh] = React.useState(false)
@@ -57,23 +56,23 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
       label: '编辑信息',
       key: '1',
       icon: <EditOutlined />,
-      onClick: () => handleEditTeam(teamInfo),
+      onClick: () => handleEditTeam(teamInfo)
     },
     {
       label: '转移团队',
       key: '2',
-      icon: <EditOutlined />,
+      icon: <EditOutlined />
     },
     {
       label: '成员管理',
       key: '3',
-      icon: <EditOutlined />,
+      icon: <EditOutlined />
     },
     {
       label: '角色管理',
       key: '4',
-      icon: <EditOutlined />,
-    },
+      icon: <EditOutlined />
+    }
   ]
 
   const handleRefresh = () => {
@@ -97,9 +96,7 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
   }
 
   const handleChangeStatus = (teamId: number, checked: boolean) => {
-    team
-      .setTeamStatusApi(teamId, checked ? Status.ENABLE : Status.DISABLE)
-      .then(handleRefresh)
+    team.setTeamStatusApi(teamId, checked ? Status.ENABLE : Status.DISABLE).then(handleRefresh)
   }
 
   useEffect(() => {
@@ -150,7 +147,7 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
                 searchTimeout = setTimeout(() => {
                   setSearchParams({
                     ...searchParams,
-                    keyword: keyword.target.value + '%',
+                    keyword: keyword.target.value + '%'
                   })
                 }, 500)
               }}
@@ -170,12 +167,8 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
                 {
                   key: 'leader',
                   label: '负责人',
-                  children: (
-                    <Avatar src={leader?.avatar}>
-                      {leader?.nickname || leader?.name}
-                    </Avatar>
-                  ),
-                  span: 1,
+                  children: <Avatar src={leader?.avatar}>{leader?.nickname || leader?.name}</Avatar>,
+                  span: 1
                 },
                 {
                   key: '2',
@@ -184,14 +177,12 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
                     <Avatar.Group size='small'>
                       {admin
                         ? admin?.map((item) => (
-                            <Avatar src={item?.user?.avatar}>
-                              {item?.user?.nickname || item?.user?.name}
-                            </Avatar>
+                            <Avatar src={item?.user?.avatar}>{item?.user?.nickname || item?.user?.name}</Avatar>
                           ))
                         : '-'}
                     </Avatar.Group>
                   ),
-                  span: 2,
+                  span: 2
                 },
                 {
                   key: '3',
@@ -200,13 +191,13 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
                     <Typography.Paragraph
                       ellipsis={{
                         rows: 2,
-                        expandable: 'collapsible',
+                        expandable: 'collapsible'
                       }}
                     >
                       {remark || '-'}
                     </Typography.Paragraph>
-                  ),
-                },
+                  )
+                }
               ]
               return (
                 <Col xs={24} sm={12} md={12} lg={12} xl={8} xxl={6}>
@@ -231,10 +222,7 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
                       </Space>
                     }
                   >
-                    <Dropdown
-                      menu={{ items: menuItems(item) }}
-                      trigger={['contextMenu']}
-                    >
+                    <Dropdown menu={{ items: menuItems(item) }} trigger={['contextMenu']}>
                       <Descriptions items={items} layout='vertical' />
                     </Dropdown>
                   </Card>

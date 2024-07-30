@@ -1,11 +1,5 @@
 import { ConfigProvider, theme } from 'antd'
-import {
-  GlobalContext,
-  GlobalContextType,
-  LangType,
-  ThemeType,
-  getUseTheme,
-} from '@/utils/context'
+import { GlobalContext, GlobalContextType, LangType, ThemeType, getUseTheme } from '@/utils/context'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { routers } from '@/config/router'
 import { breadcrumbNameMap, defaultMenuItems } from '@/config/menu'
@@ -34,7 +28,7 @@ function getUserInfo() {
 
 const defaultTeamInfo: TeamItemType = {
   id: 0,
-  name: '请选择团队信息',
+  name: '请选择团队信息'
 }
 
 function getTeamInfo() {
@@ -56,14 +50,8 @@ function App() {
   const [lang, setLang] = useStorage<LangType>('lang', 'zh-CN')
   const [size, setSize] = useStorage<SpaceSize>('size', 'middle')
   const [collapsed, setCollapsed] = useStorage<boolean>('collapsed', false)
-  const [userInfo, setUserInfo] = useStorage<UserItem>(
-    'userInfo',
-    getUserInfo()
-  )
-  const [teamInfo, setTeamInfo] = useStorage<TeamItemType>(
-    'teamInfo',
-    getTeamInfo()
-  )
+  const [userInfo, setUserInfo] = useStorage<UserItem>('userInfo', getUserInfo())
+  const [teamInfo, setTeamInfo] = useStorage<TeamItemType>('teamInfo', getTeamInfo())
   const [refreshMyTeamList, setRefreshMyTeamList] = useState<boolean>(false)
 
   const contextValue: GlobalContextType = {
@@ -83,7 +71,7 @@ function App() {
     teamInfo: teamInfo,
     setTeamInfo: setTeamInfo,
     refreshMyTeamList: refreshMyTeamList,
-    setRefreshMyTeamList: () => setRefreshMyTeamList(!refreshMyTeamList),
+    setRefreshMyTeamList: () => setRefreshMyTeamList(!refreshMyTeamList)
   }
   return (
     <>
@@ -93,17 +81,17 @@ function App() {
           components: {
             Layout: {
               colorTextBase: token.colorTextBase,
-              headerColor: '#FFF',
+              headerColor: '#FFF'
             },
             Badge: {
-              colorBorderBg: 'none',
-            },
+              colorBorderBg: 'none'
+            }
           },
           algorithm: getUseTheme(theme),
           cssVar: true,
           token: {
             // colorBgContainer: "red",
-          },
+          }
         }}
       >
         <GlobalContext.Provider value={contextValue}>

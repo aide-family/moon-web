@@ -36,8 +36,8 @@ export const searchItems: DataFromItem[] = [
     type: 'input',
     props: {
       placeholder: '请输入模板名称',
-      allowClear: true,
-    },
+      allowClear: true
+    }
   },
   {
     name: 'status',
@@ -47,10 +47,10 @@ export const searchItems: DataFromItem[] = [
       options: Object.entries(StatusData).map(([key, value]) => {
         return {
           label: value.text,
-          value: Number(key),
+          value: Number(key)
         }
       }),
-      optionType: 'button',
-    },
-  },
+      optionType: 'button'
+    }
+  }
 ]

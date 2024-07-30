@@ -15,5 +15,5 @@ export type {
   EmailTemplateEditorProps,
   FeishuTemplateEditorProps,
   JsonTemplateEditorProps,
-  WechatTemplateEditorProps,
+  WechatTemplateEditorProps
 }

@@ -8,7 +8,7 @@ import {
   StrategyTemplateNullResponse,
   UpdateStrategyTemplateRequest,
   ValidateAnnotationTemplateRequest,
-  ValidateAnnotationTemplateResponse,
+  ValidateAnnotationTemplateResponse
 } from './types'
 import { Status } from '../global'
 
@@ -19,13 +19,8 @@ const { POST, PUT, DELTED, GET } = request
  * @param {CreateStrategyTemplateRequest} params
  * @returns {StrategyTemplateNullResponse}
  */
-async function createStrategyTemplate(
-  params: CreateStrategyTemplateRequest
-): Promise<StrategyTemplateNullResponse> {
-  return await POST<StrategyTemplateNullResponse>(
-    '/v1/template/strategy/create',
-    params
-  )
+async function createStrategyTemplate(params: CreateStrategyTemplateRequest): Promise<StrategyTemplateNullResponse> {
+  return await POST<StrategyTemplateNullResponse>('/v1/template/strategy/create', params)
 }
 
 /**
@@ -34,9 +29,7 @@ async function createStrategyTemplate(
  * @param {number} id
  * @returns {StrategyTemplateNullResponse}
  */
-async function deleteStrategyTemplate(
-  id: number
-): Promise<StrategyTemplateNullResponse> {
+async function deleteStrategyTemplate(id: number): Promise<StrategyTemplateNullResponse> {
   return await DELTED(`/v1/template/strategy/delete/${id}`)
 }
 
@@ -46,12 +39,8 @@ async function deleteStrategyTemplate(
  * @param {number} id
  * @returns {StrategyTemplateItemType}
  */
-async function getStrategyTemplate(
-  id: number
-): Promise<StrategyTemplateItemType> {
-  const { detail } = await GET<GetStrategyTemplateResponse>(
-    `/v1/template/strategy/get/${id}`
-  )
+async function getStrategyTemplate(id: number): Promise<StrategyTemplateItemType> {
+  const { detail } = await GET<GetStrategyTemplateResponse>(`/v1/template/strategy/get/${id}`)
   return detail
 }
 
@@ -63,10 +52,7 @@ async function getStrategyTemplate(
 async function getStrategyTemplateList(
   params: GetStrategyTemplateListRequest
 ): Promise<GetStrategyTemplateListResponse> {
-  return await POST<GetStrategyTemplateListResponse>(
-    '/v1/template/strategy/list',
-    params
-  )
+  return await POST<GetStrategyTemplateListResponse>('/v1/template/strategy/list', params)
 }
 
 /**
@@ -76,17 +62,11 @@ async function getStrategyTemplateList(
  * @param {Status} status
  * @returns {StrategyTemplateNullResponse}
  */
-async function changeStrategyTemplateStatus(
-  ids: number[],
-  status: Status
-): Promise<StrategyTemplateNullResponse> {
-  return await PUT<StrategyTemplateNullResponse>(
-    '/v1/template/strategy/status',
-    {
-      ids,
-      status,
-    }
-  )
+async function changeStrategyTemplateStatus(ids: number[], status: Status): Promise<StrategyTemplateNullResponse> {
+  return await PUT<StrategyTemplateNullResponse>('/v1/template/strategy/status', {
+    ids,
+    status
+  })
 }
 
 /**
@@ -100,10 +80,7 @@ async function updateStrategyTemplate(
   id: number,
   params: UpdateStrategyTemplateRequest
 ): Promise<StrategyTemplateNullResponse> {
-  return await PUT<StrategyTemplateNullResponse>(
-    `/v1/template/strategy/update/${id}`,
-    params
-  )
+  return await PUT<StrategyTemplateNullResponse>(`/v1/template/strategy/update/${id}`, params)
 }
 
 /**
@@ -113,10 +90,7 @@ async function updateStrategyTemplate(
 async function validateAnnotationTemplate(
   params: ValidateAnnotationTemplateRequest
 ): Promise<ValidateAnnotationTemplateResponse> {
-  return await POST<ValidateAnnotationTemplateResponse>(
-    '/v1/template/annotations/validate',
-    params
-  )
+  return await POST<ValidateAnnotationTemplateResponse>('/v1/template/annotations/validate', params)
 }
 
 export {
@@ -126,5 +100,5 @@ export {
   getStrategyTemplateList,
   changeStrategyTemplateStatus,
   updateStrategyTemplate,
-  validateAnnotationTemplate,
+  validateAnnotationTemplate
 }

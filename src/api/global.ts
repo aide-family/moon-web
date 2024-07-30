@@ -32,34 +32,34 @@ export interface SelectType {
 export enum Status {
   ALL = 0,
   ENABLE = 1,
-  DISABLE = 2,
+  DISABLE = 2
 }
 
 export const StatusData: Record<Status, BadgeProps> = {
   [Status.ALL]: {
     color: 'blue',
-    text: '全部',
+    text: '全部'
   },
   [Status.ENABLE]: {
     color: 'green',
-    text: '启用',
+    text: '启用'
   },
   [Status.DISABLE]: {
     color: 'red',
-    text: '禁用',
-  },
+    text: '禁用'
+  }
 }
 
 export enum Gender {
   ALL = 0,
   MALE = 1,
-  FEMALE = 2,
+  FEMALE = 2
 }
 
 export const GenderData: Record<Gender, string> = {
   [Gender.ALL]: '全部',
   [Gender.MALE]: '男',
-  [Gender.FEMALE]: '女',
+  [Gender.FEMALE]: '女'
 }
 
 export enum SystemRole {
@@ -70,14 +70,14 @@ export enum SystemRole {
   // 普通管理员
   ROLE_ADMIN = 2,
   // 普通用户
-  ROLE_USER = 3,
+  ROLE_USER = 3
 }
 
 export const SystemRoleData: Record<SystemRole, string> = {
   [SystemRole.ROLE_ALL]: '全部',
   [SystemRole.ROLE_SUPPER_ADMIN]: '超级管理员',
   [SystemRole.ROLE_ADMIN]: '管理员',
-  [SystemRole.ROLE_USER]: '普通用户',
+  [SystemRole.ROLE_USER]: '普通用户'
 }
 
 // MetricType 指标类型
@@ -91,7 +91,7 @@ export enum MetricType {
   // Histogram
   MetricTypeHistogram = 3,
   // Summary
-  MetricTypeSummary = 4,
+  MetricTypeSummary = 4
 }
 
 export type TagItemType = {
@@ -102,24 +102,24 @@ export type TagItemType = {
 export const MetricTypeData: Record<MetricType, TagItemType> = {
   [MetricType.MetricTypeUnknown]: {
     text: '全部',
-    color: '',
+    color: ''
   },
   [MetricType.MetricTypeCounter]: {
     text: 'Counter',
-    color: 'green',
+    color: 'green'
   },
   [MetricType.MetricTypeGauge]: {
     text: 'Gauge',
-    color: 'blue',
+    color: 'blue'
   },
   [MetricType.MetricTypeHistogram]: {
     text: 'Histogram',
-    color: 'purple',
+    color: 'purple'
   },
   [MetricType.MetricTypeSummary]: {
     text: 'Summary',
-    color: 'orange',
-  },
+    color: 'orange'
+  }
 }
 
 // 数据源类型
@@ -131,14 +131,14 @@ export enum DataSourceType {
 
   DataSourceTypeLog = 2,
 
-  DataSourceTypeTrace = 3,
+  DataSourceTypeTrace = 3
 }
 
 export const DataSourceTypeData: Record<DataSourceType, string> = {
   [DataSourceType.DataSourceTypeUnknown]: '全部',
   [DataSourceType.DataSourceTypeMetric]: 'Metric',
   [DataSourceType.DataSourceTypeLog]: 'Log',
-  [DataSourceType.DataSourceTypeTrace]: 'Trace',
+  [DataSourceType.DataSourceTypeTrace]: 'Trace'
 }
 
 // 存储器类型
@@ -146,13 +146,13 @@ export enum StorageType {
   // 未知存储器类型
   StorageTypeUnknown = 0,
   // Prometheus
-  StorageTypePrometheus = 1,
+  StorageTypePrometheus = 1
   // TODO 待开发
 }
 
 export const StorageTypeData: Record<StorageType, string> = {
   [StorageType.StorageTypeUnknown]: '全部',
-  [StorageType.StorageTypePrometheus]: 'Prometheus',
+  [StorageType.StorageTypePrometheus]: 'Prometheus'
 }
 
 // 判断条件
@@ -173,7 +173,7 @@ export enum Condition {
   ConditionLT = 5,
 
   // 小于等于
-  ConditionLTE = 6,
+  ConditionLTE = 6
 }
 
 export const ConditionData: Record<Condition, string> = {
@@ -182,7 +182,7 @@ export const ConditionData: Record<Condition, string> = {
   [Condition.ConditionGT]: '大于(>)',
   [Condition.ConditionGTE]: '大于等于(>=)',
   [Condition.ConditionLT]: '小于(<)',
-  [Condition.ConditionLTE]: '小于等于(<=)',
+  [Condition.ConditionLTE]: '小于等于(<=)'
 }
 
 // 持续类型
@@ -194,13 +194,13 @@ export enum SustainType {
   SustainTypeMax = 2,
 
   // m时间内最少出现n次
-  SustainTypeMin = 3,
+  SustainTypeMin = 3
 }
 
 export const SustainTypeData: Record<SustainType, string> = {
   [SustainType.SustainTypeFor]: 'm时间内出现n次',
   [SustainType.SustainTypeMax]: 'm时间内最多出现n次',
-  [SustainType.SustainTypeMin]: 'm时间内最少出现n次',
+  [SustainType.SustainTypeMin]: 'm时间内最少出现n次'
 }
 
 // 操作

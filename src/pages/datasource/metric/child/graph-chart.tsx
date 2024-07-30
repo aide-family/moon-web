@@ -18,7 +18,7 @@ function toData(data?: RangeValue[]) {
         return {
           date: value?.[0],
           value: value?.[1],
-          metric: JsonStringify(item?.metric),
+          metric: JsonStringify(item?.metric)
         }
       })
     }) || []
@@ -31,7 +31,7 @@ export const GraphChart: React.FC<GraphChartProps> = (props) => {
   const config = {
     data: {
       // 解构成一维数组
-      value: toData(data)?.flat() || [],
+      value: toData(data)?.flat() || []
     },
     xField: (d: { date: string | number | Date }) => {
       if (!d || !d?.date) return ''
@@ -39,23 +39,17 @@ export const GraphChart: React.FC<GraphChartProps> = (props) => {
     },
     yField: 'value',
     axis: {
-      y: { title: '↑ Change in value' },
+      y: { title: '↑ Change in value' }
     },
     label: {
       text: 'metric',
       selector: 'last',
       style: {
-        fontSize: 10,
-      },
+        fontSize: 10
+      }
     },
-    colorField: 'metric',
+    colorField: 'metric'
     // normalize: { basis: 'first', groupBy: 'color' },
   }
-  return (
-    <Line
-      {...config}
-      scrollbar={{ type: 'horizontal' }}
-      style={{ width: '100%' }}
-    />
-  )
+  return <Line {...config} scrollbar={{ type: 'horizontal' }} style={{ width: '100%' }} />
 }

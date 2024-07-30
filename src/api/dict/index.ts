@@ -1,9 +1,6 @@
 import request from '@/api/request'
-import { 
-  CreateDictRequest,
-  CreateDictNullResponse
- } from './types'
- 
+import { CreateDictRequest, CreateDictNullResponse } from './types'
+
 const { POST } = request
 
 /**
@@ -13,15 +10,8 @@ const { POST } = request
  * @returns {CreateDictNullResponse}
  */
 
-async function createDict(
-  params: CreateDictRequest
-): Promise<CreateDictNullResponse> {
-  return await POST<CreateDictNullResponse>(
-    '/v1/dict/create',
-    params
-  )
+async function createDict(params: CreateDictRequest): Promise<CreateDictNullResponse> {
+  return await POST<CreateDictNullResponse>('/v1/dict/create', params)
 }
 
-export {
-  createDict
-}
+export { createDict }

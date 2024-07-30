@@ -1,11 +1,4 @@
-import {
-  CreateTeamRequest,
-  MyTeam,
-  TeamItemResponse,
-  TeamItemType,
-  TeamListRequest,
-  UpdateTeamRequest,
-} from './types'
+import { CreateTeamRequest, MyTeam, TeamItemResponse, TeamItemType, TeamListRequest, UpdateTeamRequest } from './types'
 import request, { NullObject } from '../request'
 import { Status } from '../global'
 
@@ -65,5 +58,5 @@ export default {
   getTeamApi,
   getTeamListApi,
   setTeamStatusApi,
-  getMyTeamApi,
+  getMyTeamApi
 }

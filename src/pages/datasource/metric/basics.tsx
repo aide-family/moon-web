@@ -2,13 +2,7 @@ import { DatasourceItemType } from '@/api/datasource'
 import { Status } from '@/api/global'
 import { GlobalContext } from '@/utils/context'
 import { RedoOutlined } from '@ant-design/icons'
-import {
-  Badge,
-  Button,
-  Descriptions,
-  DescriptionsProps,
-  Typography,
-} from 'antd'
+import { Badge, Button, Descriptions, DescriptionsProps, Typography } from 'antd'
 import React, { useContext } from 'react'
 import ReactJson from 'react-json-view'
 
@@ -25,7 +19,7 @@ export const Basics: React.FC<BasicsProps> = (props) => {
     {
       label: '数据源名称',
       // span: 2,
-      children: datasource?.name,
+      children: datasource?.name
     },
     {
       label: '状态',
@@ -35,29 +29,27 @@ export const Basics: React.FC<BasicsProps> = (props) => {
           status={datasource?.status === Status.ENABLE ? 'success' : 'error'}
           text={datasource?.status === Status.ENABLE ? '启用' : '禁用'}
         />
-      ),
+      )
     },
     {
       label: '创建者',
       // span: 2,
-      children: `${datasource?.creator?.name || '-'}(${
-        datasource?.creator?.nickname || '-'
-      })`,
+      children: `${datasource?.creator?.name || '-'}(${datasource?.creator?.nickname || '-'})`
     },
     {
       label: '创建时间',
       // span: 2,
-      children: datasource?.createdAt,
+      children: datasource?.createdAt
     },
     {
       label: '地址',
       // span: 2,
-      children: datasource?.endpoint,
+      children: datasource?.endpoint
     },
     {
       label: '更新时间',
       // span: 2,
-      children: datasource?.updatedAt,
+      children: datasource?.updatedAt
     },
     {
       label: '配置明细',
@@ -72,31 +64,24 @@ export const Basics: React.FC<BasicsProps> = (props) => {
             iconStyle='square'
           />
         </>
-      ),
+      )
     },
     {
       label: '说明信息',
       span: { xs: 1, sm: 2, md: 2, lg: 2, xl: 2, xxl: 2 },
       children: (
         <>
-          <Typography.Text type='secondary'>
-            {datasource?.remark}
-          </Typography.Text>
+          <Typography.Text type='secondary'>{datasource?.remark}</Typography.Text>
         </>
-      ),
-    },
+      )
+    }
   ]
   return (
     <div>
       <Descriptions
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Button
-              type='primary'
-              onClick={refresh}
-              icon={<RedoOutlined />}
-              size='small'
-            />
+            <Button type='primary' onClick={refresh} icon={<RedoOutlined />} size='small' />
             <span>名称：{datasource?.name}</span>
           </div>
         }

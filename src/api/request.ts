@@ -9,12 +9,12 @@ const local127 = 'http://127.0.0.1:5173'
 
 export const hostMap: { [key: string]: string } = {
   [localhost]: 'http://localhost:8000',
-  [local127]: 'http://dev-palace.aide-cloud.cn',
+  [local127]: 'http://dev-palace.aide-cloud.cn'
 }
 
 const request = axios.create({
   baseURL: hostMap[host] || host,
-  timeout: 10000,
+  timeout: 10000
 })
 
 export type ErrorResponse = {
@@ -34,18 +34,18 @@ request.interceptors.response.use(
     switch (respData.code) {
       case 500:
         notification.error({
-          message: respData?.message || '请求失败',
+          message: respData?.message || '请求失败'
         })
         break
       case 401:
         notification.error({
-          message: respData?.message || '登录失效',
+          message: respData?.message || '登录失效'
         })
         removeToken()
         break
       default:
         notification.warning({
-          message: respData?.message || '请求失败',
+          message: respData?.message || '请求失败'
         })
     }
 
@@ -103,5 +103,5 @@ export default {
   GET,
   POST,
   PUT,
-  DELTED,
+  DELTED
 }

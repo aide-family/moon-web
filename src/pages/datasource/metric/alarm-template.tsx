@@ -17,37 +17,37 @@ export const AlarmTemplate: React.FC<AlarmTemplateProps> = (props) => {
       category: '告警模板',
       status: '启用',
       description: '模板描述',
-      creator: 'admin',
-    },
+      creator: 'admin'
+    }
   ])
   const columns: ColumnsType<any> = [
     {
       title: '模板名称',
       dataIndex: 'name',
       key: 'name',
-      render: (text) => <a>{text}</a>,
+      render: (text) => <a>{text}</a>
     },
     {
       title: '类型',
       dataIndex: 'category',
       key: 'category',
-      render: (text) => <a>{text}</a>,
+      render: (text) => <a>{text}</a>
     },
     {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      render: (text) => <a>{text}</a>,
+      render: (text) => <a>{text}</a>
     },
     {
       title: '模板描述',
       dataIndex: 'description',
-      key: 'description',
+      key: 'description'
     },
     {
       title: '创建人',
       dataIndex: 'creator',
-      key: 'creator',
+      key: 'creator'
     },
     {
       title: '操作',
@@ -58,8 +58,8 @@ export const AlarmTemplate: React.FC<AlarmTemplateProps> = (props) => {
           <a>详情</a>
           <a>删除</a>
         </Space>
-      ),
-    },
+      )
+    }
   ]
   return (
     <div className='alarm-template'>

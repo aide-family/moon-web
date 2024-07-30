@@ -4,10 +4,7 @@ import './index.scss'
 import { Metadata } from './metadata'
 import { TimelyQuery } from './timely-query'
 import { AlarmTemplate } from './alarm-template'
-import datasourceapi, {
-  DatasourceItemType,
-  DatasourceListRequest,
-} from '@/api/datasource'
+import datasourceapi, { DatasourceItemType, DatasourceListRequest } from '@/api/datasource'
 import { EditModal } from './edit-modal'
 import { Basics } from './basics'
 
@@ -18,8 +15,8 @@ const { useToken } = theme
 const defaultSearchDatasourceParams: DatasourceListRequest = {
   pagination: {
     pageNum: 1,
-    pageSize: 100,
-  },
+    pageSize: 100
+  }
 }
 
 let searchTimer: NodeJS.Timeout | null = null
@@ -27,8 +24,7 @@ const Metric: React.FC<MetricProps> = () => {
   const { token } = useToken()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [datasource, setDatasource] = React.useState<DatasourceItemType[]>([])
-  const [datasourceDetail, setDatasourceDetail] =
-    React.useState<DatasourceItemType>()
+  const [datasourceDetail, setDatasourceDetail] = React.useState<DatasourceItemType>()
 
   const [searchDatasourceParams, setSearchDatasourceParams] =
     React.useState<DatasourceListRequest>(defaultSearchDatasourceParams)
@@ -47,7 +43,7 @@ const Metric: React.FC<MetricProps> = () => {
         <div className='box' style={{ overflow: 'auto' }}>
           <Basics datasource={datasourceDetail} refresh={handleRefresh} />
         </div>
-      ),
+      )
     },
     {
       key: 'metadata',
@@ -56,7 +52,7 @@ const Metric: React.FC<MetricProps> = () => {
         <div className='box'>
           <Metadata datasource={datasourceDetail} />
         </div>
-      ),
+      )
     },
     {
       key: 'realtime-query',
@@ -65,7 +61,7 @@ const Metric: React.FC<MetricProps> = () => {
         <div className='box'>
           <TimelyQuery datasource={datasourceDetail} />
         </div>
-      ),
+      )
     },
     {
       key: 'alarm-template',
@@ -74,8 +70,8 @@ const Metric: React.FC<MetricProps> = () => {
         <div className='box'>
           <AlarmTemplate datasource={datasourceDetail} />
         </div>
-      ),
-    },
+      )
+    }
   ]
 
   const handleDatasourceChange = (key: number) => {
@@ -108,7 +104,7 @@ const Metric: React.FC<MetricProps> = () => {
   const handleOnSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchDatasourceParams({
       ...searchDatasourceParams,
-      keyword: e.target.value + '%',
+      keyword: e.target.value + '%'
     })
   }
 
@@ -123,26 +119,17 @@ const Metric: React.FC<MetricProps> = () => {
   }, [refresh, searchDatasourceParams])
   return (
     <div className='metricDatasourceBox'>
-      <EditModal
-        width='50%'
-        open={openAddModal}
-        onOk={handleEditModalOnOK}
-        onCancel={handleEditModalOnCancel}
-      />
+      <EditModal width='50%' open={openAddModal} onOk={handleEditModalOnOK} onCancel={handleEditModalOnCancel} />
       <div className='sider' style={{ background: token.colorBgContainer }}>
         <Button type='primary' style={{ width: '100%' }} onClick={handleOnAdd}>
           新建数据源
         </Button>
-        <Input.Search
-          placeholder='数据源'
-          onChange={handleOnSearch}
-          onSearch={handleDatasourceSearch}
-        />
+        <Input.Search placeholder='数据源' onChange={handleOnSearch} onSearch={handleDatasourceSearch} />
         <Menu
           items={datasource?.map((item) => {
             return {
               key: item.id,
-              label: item.name,
+              label: item.name
             }
           })}
           selectedKeys={[datasourceDetail?.id + '']}

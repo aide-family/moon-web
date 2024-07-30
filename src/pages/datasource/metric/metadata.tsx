@@ -1,8 +1,5 @@
 import { DatasourceItemType } from '@/api/datasource'
-import metricapi, {
-  MetricItemType,
-  MetricListRequest,
-} from '@/api/datasource/metric'
+import metricapi, { MetricItemType, MetricListRequest } from '@/api/datasource/metric'
 import { MetricTypeData } from '@/api/global'
 import { DataInput } from '@/components/data/child/data-input'
 import { Button, Flex, Form, Input, Space, Table, Tag } from 'antd'
@@ -19,14 +16,13 @@ let searchTimer: NodeJS.Timeout | null = null
 export const Metadata: React.FC<MetadataProps> = (props) => {
   const { datasource } = props
   const [form] = Form.useForm()
-  const [searchMetricParams, setSearchMetricParams] =
-    React.useState<MetricListRequest>({
-      pagination: {
-        pageNum: 1,
-        pageSize: 20,
-      },
-      datasourceId: datasource?.id,
-    })
+  const [searchMetricParams, setSearchMetricParams] = React.useState<MetricListRequest>({
+    pagination: {
+      pageNum: 1,
+      pageSize: 20
+    },
+    datasourceId: datasource?.id
+  })
   const [metricListTotal, setMetricListTotal] = React.useState(0)
   const [refresh, setRefresh] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
@@ -73,7 +69,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
             </Tag>
           </>
         )
-      },
+      }
     },
     {
       title: '指标名称',
@@ -82,15 +78,15 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
       // width: 200,
       render(value) {
         return <a>{value}</a>
-      },
+      }
     },
     {
       title: '指标描述',
       dataIndex: 'help',
       key: 'help',
       ellipsis: {
-        showTitle: true,
-      },
+        showTitle: true
+      }
     },
     {
       title: '标签数量',
@@ -100,7 +96,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
       align: 'center',
       render: (_, record) => {
         return <>{record?.labelCount || '-'}</>
-      },
+      }
     },
     {
       title: '操作',
@@ -113,16 +109,12 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
           <Button type='link' size='small' onClick={() => handleLabel(record)}>
             标签
           </Button>
-          <Button
-            type='link'
-            size='small'
-            onClick={() => hendleEditMetric(record)}
-          >
+          <Button type='link' size='small' onClick={() => hendleEditMetric(record)}>
             编辑
           </Button>
         </Space>
-      ),
-    },
+      )
+    }
   ]
 
   const getMetricList = () => {
@@ -153,7 +145,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
     setSearchMetricParams((prev) => {
       return {
         ...prev,
-        datasourceId: datasource?.id,
+        datasourceId: datasource?.id
       }
     })
   }, [datasource])
@@ -189,7 +181,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
               setSearchMetricParams((prev) => {
                 return {
                   ...prev,
-                  ...values,
+                  ...values
                 }
               })
             })
@@ -201,15 +193,11 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
               props={{
                 options: Object.entries(MetricTypeData).map((item) => {
                   return {
-                    label: (
-                      <div style={{ color: item[1].color, width: '100%' }}>
-                        {item[1].text}
-                      </div>
-                    ),
-                    value: +item[0],
+                    label: <div style={{ color: item[1].color, width: '100%' }}>{item[1].text}</div>,
+                    value: +item[0]
                   }
                 }),
-                optionType: 'button',
+                optionType: 'button'
               }}
             />
           </Form.Item>
@@ -222,7 +210,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
                 setSearchMetricParams((prev) => {
                   return {
                     ...prev,
-                    keyword: value,
+                    keyword: value
                   }
                 })
               }}
@@ -239,7 +227,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
         columns={columns}
         scroll={{
           y: 500,
-          x: 1500,
+          x: 1500
         }}
         pagination={{
           total: metricListTotal,
@@ -254,11 +242,11 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
                 ...prev,
                 pagination: {
                   pageNum: page,
-                  pageSize: pageSize,
-                },
+                  pageSize: pageSize
+                }
               }
             })
-          },
+          }
         }}
       />
     </div>

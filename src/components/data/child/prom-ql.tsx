@@ -1,49 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, {
-  MutableRefObject,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import React, { MutableRefObject, useContext, useEffect, useRef, useState } from 'react'
 
 import {
   EditorView,
   highlightSpecialChars,
   keymap,
   placeholder as placeholderPlugin,
-  ViewUpdate,
+  ViewUpdate
 } from '@codemirror/view'
 import { Compartment, EditorState, Prec } from '@codemirror/state'
-import {
-  bracketMatching,
-  indentOnInput,
-  syntaxHighlighting,
-} from '@codemirror/language'
-import {
-  defaultKeymap,
-  history,
-  historyKeymap,
-  insertNewlineAndIndent,
-} from '@codemirror/commands'
+import { bracketMatching, indentOnInput, syntaxHighlighting } from '@codemirror/language'
+import { defaultKeymap, history, historyKeymap, insertNewlineAndIndent } from '@codemirror/commands'
 
 import { highlightSelectionMatches } from '@codemirror/search'
 import { lintKeymap } from '@codemirror/lint'
-import {
-  autocompletion,
-  closeBrackets,
-  closeBracketsKeymap,
-  completionKeymap,
-} from '@codemirror/autocomplete'
+import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete'
 import { PromQLExtension } from '@prometheus-io/codemirror-promql'
 import { newCompleteStrategy } from '@prometheus-io/codemirror-promql/dist/esm/complete'
-import {
-  baseTheme,
-  darkPromqlHighlighter,
-  darkTheme,
-  lightTheme,
-  promqlHighlighter,
-} from './prom/CMTheme'
+import { baseTheme, darkPromqlHighlighter, darkTheme, lightTheme, promqlHighlighter } from './prom/CMTheme'
 import { HistoryCompleteStrategy } from './prom/HistoryCompleteStrategy'
 import { Button, Form, Input, InputProps, theme } from 'antd'
 
@@ -93,11 +67,11 @@ export const formatExpressionFunc = (pathPrefix: string, doc?: string) => {
   }
   return fetch(
     `${prefix}/api/v1/query?${new URLSearchParams({
-      query: doc || '',
+      query: doc || ''
     })}`,
     {
       cache: 'no-store',
-      credentials: 'same-origin',
+      credentials: 'same-origin'
     }
   )
     .then((resp) => {
@@ -107,19 +81,12 @@ export const formatExpressionFunc = (pathPrefix: string, doc?: string) => {
 
       return resp.json()
     })
-    .then(
-      (json: {
-        data: string
-        status: 'success' | 'error'
-        error: string
-        errorType: string
-      }) => {
-        if (json.status !== 'success') {
-          return Promise.reject(json.error || 'invalid response JSON')
-        }
-        return json
+    .then((json: { data: string; status: 'success' | 'error'; error: string; errorType: string }) => {
+      if (json.status !== 'success') {
+        return Promise.reject(json.error || 'invalid response JSON')
       }
-    )
+      return json
+    })
     .catch((err) => {
       return Promise.reject(err.toString())
     })
@@ -139,7 +106,7 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
     ref,
     buttonRef,
     disabled,
-    showBorder = true,
+    showBorder = true
   } = props
 
   const prefix = buildPathPrefix(pathPrefix)
@@ -162,25 +129,19 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
       completeStrategy: new HistoryCompleteStrategy(
         newCompleteStrategy({
           remote: {
-            url: prefix,
-          },
+            url: prefix
+          }
         }),
         []
-      ),
+      )
     })
 
-    let highlighter = syntaxHighlighting(
-      theme === 'dark' ? darkPromqlHighlighter : promqlHighlighter
-    )
+    let highlighter = syntaxHighlighting(theme === 'dark' ? darkPromqlHighlighter : promqlHighlighter)
     if (theme === 'dark') {
       highlighter = syntaxHighlighting(darkPromqlHighlighter)
     }
 
-    const dynamicConfig = [
-      highlighter,
-      promqlExtension.asExtension(),
-      theme === 'dark' ? darkTheme : lightTheme,
-    ]
+    const dynamicConfig = [highlighter, promqlExtension.asExtension(), theme === 'dark' ? darkTheme : lightTheme]
     const startState = EditorState.create({
       doc: (value || defaultValue) as string,
       extensions: [
@@ -194,13 +155,7 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
         autocompletion(),
         highlightSelectionMatches(),
         EditorView.lineWrapping,
-        keymap.of([
-          ...closeBracketsKeymap,
-          ...defaultKeymap,
-          ...historyKeymap,
-          ...completionKeymap,
-          ...lintKeymap,
-        ]),
+        keymap.of([...closeBracketsKeymap, ...defaultKeymap, ...historyKeymap, ...completionKeymap, ...lintKeymap]),
         placeholderPlugin(placeholder),
         dynamicConfigCompartment.of(dynamicConfig),
         keymap.of([
@@ -209,8 +164,8 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
             run: (v: EditorView): boolean => {
               v.contentDOM.blur()
               return false
-            },
-          },
+            }
+          }
         ]),
         Prec.highest(
           keymap.of([
@@ -218,20 +173,20 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
               key: 'Shift-Enter',
               run: (): boolean => {
                 return true
-              },
+              }
             },
             {
               key: 'Enter',
-              run: insertNewlineAndIndent,
-            },
+              run: insertNewlineAndIndent
+            }
           ])
         ),
         EditorView.updateListener.of((update: ViewUpdate): void => {
           if (update.docChanged) {
             onExpressionChange(update.state.doc.toString())
           }
-        }),
-      ],
+        })
+      ]
     })
     const view = viewRef.current
     if (view === null) {
@@ -241,7 +196,7 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
 
       const view = new EditorView({
         state: startState,
-        parent: containerRef.current,
+        parent: containerRef.current
       })
 
       viewRef.current = view
@@ -253,13 +208,13 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
           changes: {
             from: 0,
             to: view.state.doc.length,
-            insert: doc,
-          },
+            insert: doc
+          }
         })
       )
 
       const view2 = new EditorView({
-        state: startState,
+        state: startState
         // parent: containerRef.current as any,
       })
 
@@ -287,8 +242,8 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
               value: undefined,
               touched: true,
               validating: false,
-              validated: false,
-            },
+              validated: false
+            }
           ])
         })
     }, 500)
@@ -317,12 +272,8 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
               padding: '4px 11px',
               fontSize: '14px',
               lineHeight: 1.5714285714285714,
-              background: showBorder
-                ? disabled
-                  ? token.colorBgContainerDisabled
-                  : token.colorBgContainer
-                : '',
-              color: token.colorTextBase,
+              background: showBorder ? (disabled ? token.colorBgContainerDisabled : token.colorBgContainer) : '',
+              color: token.colorTextBase
             }}
             ref={containerRef}
           />
@@ -335,7 +286,7 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
             type='primary'
             size='large'
             style={{
-              borderRadius: '0 6px 6px 0',
+              borderRadius: '0 6px 6px 0'
             }}
             disabled={!doc || !prefix || status !== 'success'}
             icon={<ThunderboltOutlined />}
