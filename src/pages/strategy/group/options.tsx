@@ -2,6 +2,7 @@ import { Status, StatusData, ActionKey } from '@/api/global'
 import type { SearchFormItem } from '@/components/data/search-box'
 import { StrategyGroupItemType } from '@/api/strategy/types'
 import { Button, Tooltip, Badge, Space } from 'antd'
+import { ColumnsType } from 'antd/es/table'
 import MoreMenu from '@/components/moreMenu'
 import type { MoreMenuProps } from '@/components/moreMenu'
 
@@ -62,7 +63,7 @@ interface GroupColumnProps {
   pageSize: number
 }
 
-export const getColumnList = (props: GroupColumnProps) => {
+export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGroupItemType> => {
   const { onHandleMenuOnClick, current, pageSize } = props
   const tableOperationItems = (record: StrategyGroupItemType): MoreMenuProps['items'] => [
     record.status === Status.DISABLE
@@ -116,7 +117,7 @@ export const getColumnList = (props: GroupColumnProps) => {
       align: 'center',
       width: 60,
       fixed: 'left',
-      render: (_text: StrategyGroupItemType, _record: StrategyGroupItemType, index: number) => {
+      render: (text: StrategyGroupItemType, record: StrategyGroupItemType, index: number) => {
         return <span>{(current - 1) * pageSize + index + 1}</span>
       }
     },
