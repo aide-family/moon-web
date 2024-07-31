@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
 import { GetCaptchaResponse, getCaptcha } from '@/api/authorization/captcha'
 import { LoginRequest, login } from '@/api/authorization/user'
-import { AesEncrypt } from '@/utils/aes'
 import { GlobalContext } from '@/utils/context'
 import { isLogin, setToken } from '@/api/request'
+import { hashMd5 } from '@/utils/hash'
 
 export type LoginParams = {
   username: string
@@ -48,7 +48,7 @@ const LoginForm: FC = () => {
     }
     handleLogin({
       username: values.username,
-      password: AesEncrypt(values.password),
+      password: hashMd5(values.password),
       captcha: {
         code: values.code,
         id: captcha?.id

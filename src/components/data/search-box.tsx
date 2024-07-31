@@ -49,6 +49,7 @@ export interface SearchProps {
   onSearch: (values: any) => void
   onReset: () => void
   labelCol?: number
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ref: any
 }
 
