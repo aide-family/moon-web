@@ -1,0 +1,12 @@
+{
+  "editor.formatOnType": true,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.fixAll.stylelint": true
+  },
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+  "javascript.validate.enable": true,
+  "typescript.validate.enable": true
+}

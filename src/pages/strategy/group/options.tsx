@@ -1,15 +1,16 @@
-import { Status, StatusData, ActionKey, SelectType } from '@/api/global'
+import { Status, StatusData, ActionKey } from '@/api/global'
 import type { SearchFormItem } from '@/components/data/search-box'
 import { StrategyGroupItemType } from '@/api/strategy/types'
 import { Button, Tooltip, Badge, Space } from 'antd'
 import MoreMenu from '@/components/moreMenu'
+import type { MoreMenuProps } from '@/components/moreMenu'
 
 export type GroupEditModalFormData = {
   name: string
   remark: string
-  status: number
+  status?: number
   categoriesIds: number[]
-  teamId: number
+  teamId?: number
 }
 
 export const formList: SearchFormItem[] = [
@@ -18,8 +19,10 @@ export const formList: SearchFormItem[] = [
     label: '名称',
     dataProps: {
       type: 'input',
-      placeholder: '规则组名称',
-      allowClear: true
+      props: {
+        placeholder: '规则组名称',
+        allowClear: true
+      }
     }
   },
   {
@@ -27,9 +30,11 @@ export const formList: SearchFormItem[] = [
     label: '分类',
     dataProps: {
       type: 'select',
-      placeholder: '规则分类',
-      allowClear: true,
-      options: []
+      props: {
+        placeholder: '规则分类',
+        allowClear: true,
+        options: []
+      }
     }
   },
   {
@@ -37,28 +42,32 @@ export const formList: SearchFormItem[] = [
     label: '状态',
     dataProps: {
       type: 'select',
-      placeholder: '规则组状态',
-      allowClear: true,
-      options: Object.entries(StatusData).map(([key, value]) => {
-        return {
-          label: value.text,
-          value: Number(key)
-        }
-      })
+      props: {
+        placeholder: '规则组状态',
+        allowClear: true,
+        options: Object.entries(StatusData).map(([key, value]) => {
+          return {
+            label: value.text,
+            value: Number(key)
+          }
+        })
+      }
     }
   }
 ]
 
 interface GroupColumnProps {
-  onHandleMenuOnClick: Function
+  onHandleMenuOnClick: (item: StrategyGroupItemType, key: ActionKey) => void
+  current: number
+  pageSize: number
 }
 
 export const getColumnList = (props: GroupColumnProps) => {
-  let { onHandleMenuOnClick } = props
-  const tableOperationItems = (record: StrategyGroupItemType): MenuProps['items'] => [
-    record.status === Status.STATUS_DISABLED
+  const { onHandleMenuOnClick, current, pageSize } = props
+  const tableOperationItems = (record: StrategyGroupItemType): MoreMenuProps['items'] => [
+    record.status === Status.DISABLE
       ? {
-          key: ActionKey.ENABLE,
+          key: ActionKey.DISABLE,
           label: (
             <Button type='link' size='small'>
               启用
@@ -66,7 +75,7 @@ export const getColumnList = (props: GroupColumnProps) => {
           )
         }
       : {
-          key: ActionKey.DISABLE,
+          key: ActionKey.ENABLE,
           label: (
             <Button type='link' size='small' danger>
               禁用
@@ -107,8 +116,8 @@ export const getColumnList = (props: GroupColumnProps) => {
       align: 'center',
       width: 60,
       fixed: 'left',
-      render: (text: StrategyGroupItemType, record: StrategyGroupItemType, index: number) => {
-        return <div>{index + 1}</div>
+      render: (_text: StrategyGroupItemType, _record: StrategyGroupItemType, index: number) => {
+        return <span>{(current - 1) * pageSize + index + 1}</span>
       }
     },
     {
@@ -163,16 +172,16 @@ export const getColumnList = (props: GroupColumnProps) => {
     {
       // 策略数量
       title: '策略数量',
-      dataIndex: 'strategyCount',
+      // dataIndex: 'strategyCount',
       key: 'strategyCount',
       width: 120,
       align: 'center',
-      render: (strategyCount: number | string, record: StrategyGroupItemType) => {
+      render: () => {
         return (
           <b>
-            <span style={{ color: '' }}>{strategyCount}</span>
+            <span style={{ color: '' }}>-</span>
             {' / '}
-            <span style={{ color: 'green' }}>{record.enableStrategyCount}</span>
+            <span style={{ color: 'green' }}>-</span>
           </b>
         )
       }
@@ -241,7 +250,7 @@ export const getColumnList = (props: GroupColumnProps) => {
       ellipsis: true,
       fixed: 'right',
       width: 120,
-      render: (_, record) => (
+      render: (record: StrategyGroupItemType) => (
         <Space size={20}>
           <Button size='small' type='link' onClick={() => onHandleMenuOnClick(record, ActionKey.DETAIL)}>
             详情

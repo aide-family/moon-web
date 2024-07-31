@@ -3,16 +3,20 @@ import { Table, TableProps, Pagination } from 'antd'
 import { ColumnGroupType, ColumnType } from 'antd/es/table'
 import styles from './index.module.scss'
 export type AutoTableColumnType<T> = ColumnType<T> | ColumnGroupType<T>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface AutoTableProps<T = any> extends TableProps {
   columns: AutoTableColumnType<T>[]
   dataSource: T[]
   total: number
-  handleTurnPage: () => Promise<T[]>
+  handleTurnPage: (e: number, size: number) => void
   showQuickJumper?: boolean
   onShowSizeChange?: () => Promise<T[]>
+  showSizeChanger?: boolean
   selectedRowKey?: string
+  pageSize: number
+  pageNum: number
   style?: React.CSSProperties
-  size?: string | number
+  size?: 'large' | 'middle' | 'small'
 }
 
 export const AutoTable: React.FC<AutoTableProps> = (props) => {
@@ -26,7 +30,6 @@ export const AutoTable: React.FC<AutoTableProps> = (props) => {
     showQuickJumper,
     showSizeChanger,
     onShowSizeChange,
-    selectedRowKey,
     style
   } = props
 

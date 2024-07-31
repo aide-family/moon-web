@@ -1,56 +1,58 @@
-import React, { forwardRef, memo, useImperativeHandle, useState } from 'react'
-import { Button, Col, Form, Input, Row, Space, Select, DatePicker, Radio } from 'antd'
-import type { InputProps, SelectProps, InputNumberProps, TreeSelectProps, DatePickerProps, RadioGroupProps } from 'antd/lib'
+import { FC, forwardRef, memo, useImperativeHandle, useState } from 'react'
+import { Button, Col, Form, Input, Row, Space, Select, DatePicker, Radio, TreeSelect, InputNumber } from 'antd'
+import type { InputProps, SelectProps, RadioGroupProps, DatePickerProps, InputNumberProps, TreeSelectProps } from 'antd'
 import { UpOutlined } from '@ant-design/icons'
+import type { Rule } from 'antd/es/form'
 import styles from './index.module.scss'
 
-const { RangePicker } = DatePicker
-export interface MoonInputProps extends InputProps {
-  type: 'input'
-}
-
-export interface MoonSelectProps extends SelectProps {
-  type: 'select'
-}
-
-export interface MoonInputNumberProps extends InputNumberProps {
-  type: 'input-number'
-}
-
-export interface MoonTreeSelectProps extends TreeSelectProps {
-  type: 'tree-select'
-}
-
-export interface MoonDatePickerProps extends DatePickerProps {
-  type: 'date-picker'
-}
-
-export interface MoonRadioGroupProps extends RadioGroupProps {
-  type: 'radio-group'
-}
-
-export type DataInputProps =
-  | MoonInputProps
-  | MoonSelectProps
-  | MoonInputNumberProps
-  | MoonTreeSelectProps
-  | MoonDatePickerProps
-  | MoonRadioGroupProps
+export type itemProps = {
+  value?: string | number
+  // eslint-disable-next-line
+  onChange?: (value: any) => void
+  defaultValue?: string | number
+} & (
+  | {
+      type: 'input'
+      props?: InputProps
+    }
+  | {
+      type: 'select'
+      props?: SelectProps
+    }
+  | {
+      type: 'input-number'
+      props?: InputNumberProps
+    }
+  | {
+      type: 'tree-select'
+      props?: TreeSelectProps
+    }
+  | {
+      type: 'date-picker'
+      props?: DatePickerProps
+    }
+  | {
+      type: 'radio-group'
+      props?: RadioGroupProps
+    }
+)
 
 export type SearchFormItem = {
   name: string
   label: string
-  dataProps?: DataInputProps
+  rules?: Rule[]
+  dataProps?: itemProps
 }
-
 export interface SearchProps {
   formList: SearchFormItem[]
+  // eslint-disable-next-line
   onSearch: (values: any) => void
   onReset: () => void
   labelCol?: number
+  ref: any
 }
 
-const SearchBox: React.FC = forwardRef(function fnRef(props: SearchProps, ref) {
+const SearchBox: FC<SearchProps> = forwardRef((props: SearchProps, ref) => {
   const { formList, onSearch, onReset } = props
   const [isOpen, setIsOpen] = useState(false)
   const [count, setCount] = useState(3)
@@ -69,6 +71,7 @@ const SearchBox: React.FC = forwardRef(function fnRef(props: SearchProps, ref) {
 
   useImperativeHandle(ref, () => ({
     // 设置部分表单值
+    // eslint-disable-next-line
     onSearchSome: (val: any) => {
       form.setFieldsValue({
         ...val
@@ -85,30 +88,21 @@ const SearchBox: React.FC = forwardRef(function fnRef(props: SearchProps, ref) {
     setIsOpen(!isOpen)
   }
 
-  const formItem = (props: DataInputProps) => {
-    const { type, ...rest } = props
+  const formItem = (item: itemProps) => {
+    const { type, props } = item
     switch (type) {
       case 'input':
-        return <Input {...rest} />
+        return <Input {...props} />
       case 'date-picker':
-        return <DatePicker {...rest} />
-      case 'range-picker':
-        return <RangePicker {...rest} />
+        return <DatePicker {...props} />
       case 'select':
-        return (
-          <Select
-            showSearch
-            optionFilterProp='label'
-            getPopupContainer={(triggerNode) => triggerNode.parentNode}
-            {...rest}
-          />
-        )
+        return <Select {...props} />
       case 'tree-select':
-        return <TreeSelect showSearch getPopupContainer={(triggerNode) => triggerNode.parentNode} {...rest} />
+        return <TreeSelect {...props} />
+      case 'input-number':
+        return <InputNumber {...props} />
       case 'radio-group':
-        return <Radio.Group {...rest} />
-      default:
-        return <Input {...rest} />
+        return <Radio.Group {...props} />
     }
   }
 
@@ -116,12 +110,23 @@ const SearchBox: React.FC = forwardRef(function fnRef(props: SearchProps, ref) {
     <div className={styles.search_box}>
       <Form form={form} onFinish={onFinish}>
         <Row gutter={[16, 0]} style={{ position: 'relative' }}>
-          {formList?.map((item: DataInputProps, index: number) => {
+          {formList?.map((item: SearchFormItem, index: number) => {
+            const {
+              label,
+              name,
+              rules,
+              dataProps = {
+                type: 'input',
+                props: {
+                  placeholder: `请输入${label}`
+                }
+              }
+            } = item
             if (index < count) {
               return (
                 <Col key={index} xs={24} sm={12} lg={6} xl={6}>
-                  <Form.Item label={item.label} key={item.name} name={item.name} rules={item?.rules}>
-                    {formItem(item.dataProps)}
+                  <Form.Item label={label} key={name} name={name} rules={rules}>
+                    {formItem(dataProps)}
                   </Form.Item>
                 </Col>
               )

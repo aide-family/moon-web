@@ -116,7 +116,7 @@ export const DataInput: FC<DataInputProps> = (props) => {
   const renderInput = () => {
     switch (type) {
       case 'select':
-        return <Select {...props.props} value={value} defaultValue={defaultValue} onChange={onChange} />
+        return <Select {...props} value={value} defaultValue={defaultValue} onChange={onChange} />
       case 'select-fetch':
         return <FetchSelect {...props.props} value={value} defaultValue={defaultValue} onChange={onChange} />
       case 'radio':

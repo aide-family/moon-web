@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Form, Input, InputNumber, Modal, ModalProps, Row, Select, Space, theme } from 'antd'
+import { Form, Input, Modal, Select, ModalProps } from 'antd'
 import { GroupEditModalFormData } from './options'
 import { getStrategyGroup } from '@/api/strategy'
-import { StrategyGroupItemType } from '@/api/strategy/types'
 import styles from './index.module.scss'
 
-const { useToken } = theme
 export type GroupEditModalData = {
   id?: number
   // 规则组名称
@@ -13,7 +11,7 @@ export type GroupEditModalData = {
   // 规则组描述
   remark: string
   // 规则分类类型
-  creatorId: number[]
+  categoriesIds: number[]
 }
 
 export interface GroupEditModalProps extends ModalProps {
@@ -22,13 +20,9 @@ export interface GroupEditModalProps extends ModalProps {
   submit?: (data: GroupEditModalData) => Promise<void>
 }
 
-let summaryTimeout: NodeJS.Timeout | null = null
-let descriptionTimeout: NodeJS.Timeout | null = null
 export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
   const { onCancel, submit, open, title, GroupId, disabled } = props
-  const { token } = useToken()
   const [form] = Form.useForm<GroupEditModalFormData>()
-  const datasource = Form.useWatch('datasource', form)
   const [loading, setLoading] = useState(false)
   const [grounpDetail, setGroupDetail] = useState<GroupEditModalFormData>()
 
@@ -36,11 +30,11 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
     if (GroupId) {
       setLoading(true)
       const res = await getStrategyGroup(GroupId)
-      const { name, remark, creatorId } = res
+      const { name, remark, categoriesIds } = res
       setGroupDetail({
         name,
         remark,
-        creatorId
+        categoriesIds
       })
       setLoading(false)
     }
