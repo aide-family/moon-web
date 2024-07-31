@@ -139,13 +139,13 @@ const Group: React.FC = () => {
       case ActionKey.ENABLE:
         changeStrategyGroup([item.id], 2).then(() => {
           message.success('更改状态成功')
-          fetchData(searchParams)
+          onRefresh()
         })
         break
       case ActionKey.DISABLE:
         changeStrategyGroup([item.id], 1).then(() => {
           message.success('更改状态成功')
-          fetchData(searchParams)
+          onRefresh()
         })
         break
       case ActionKey.OPERATION_LOG:
@@ -164,7 +164,7 @@ const Group: React.FC = () => {
           onOk() {
             deleteStrategyGroup(item.id).then(() => {
               message.success('删除成功')
-              fetchData(searchParams)
+              onRefresh()
             })
           },
           onCancel() {
