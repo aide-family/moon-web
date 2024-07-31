@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useRef, Key } from 'react'
+import React, { useEffect, useState, useRef, Key, useCallback } from 'react'
 import { Status, ActionKey } from '@/api/global'
 import { Space, message, Modal, theme, Button } from 'antd'
+import { debounce } from 'lodash'
 import AutoTable from '@/components/table/index'
 import SearchBox from '@/components/data/search-box'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
@@ -30,7 +31,6 @@ const defaultSearchParams: GetStrategyGroupListRequest = {
   // teamId: ''
 }
 
-let searchTimeout: NodeJS.Timeout | null = null
 const Group: React.FC = () => {
   const { token } = useToken()
   const [datasource, setDatasource] = useState<StrategyGroupItemType[]>([])
@@ -59,20 +59,19 @@ const Group: React.FC = () => {
     setRefresh(!refresh)
   }
 
-  const fetchData = () => {
-    if (searchTimeout) {
-      clearTimeout(searchTimeout)
-    }
-    searchTimeout = setTimeout(() => {
+  const fetchData = useCallback(
+    debounce(async (params) => {
       setLoading(true)
-      getStrategyGroupList(searchParams)
-        .then(({ list, pagination }) => {
-          setDatasource(list || [])
-          setTotal(pagination?.total || 0)
-        })
-        .finally(() => setLoading(false))
-    }, 500)
-  }
+      try {
+        const { list, pagination } = await getStrategyGroupList(params)
+        setDatasource(list || [])
+        setTotal(pagination?.total || 0)
+      } finally {
+        setLoading(false)
+      }
+    }, 500),
+    []
+  )
 
   const handleGroupEditModalSubmit = (data: GroupEditModalFormData) => {
     const { name, remark, categoriesIds } = data
@@ -99,9 +98,9 @@ const Group: React.FC = () => {
   }
 
   useEffect(() => {
-    fetchData()
+    fetchData(searchParams)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, searchParams])
+  }, [refresh, searchParams, fetchData])
 
   const onSearch = (formData: GetStrategyGroupListRequest) => {
     setSearchParams({
@@ -140,13 +139,13 @@ const Group: React.FC = () => {
       case ActionKey.ENABLE:
         changeStrategyGroup([item.id], 2).then(() => {
           message.success('更改状态成功')
-          fetchData()
+          fetchData(searchParams)
         })
         break
       case ActionKey.DISABLE:
         changeStrategyGroup([item.id], 1).then(() => {
           message.success('更改状态成功')
-          fetchData()
+          fetchData(searchParams)
         })
         break
       case ActionKey.OPERATION_LOG:
@@ -165,7 +164,7 @@ const Group: React.FC = () => {
           onOk() {
             deleteStrategyGroup(item.id).then(() => {
               message.success('删除成功')
-              fetchData()
+              fetchData(searchParams)
             })
           },
           onCancel() {
