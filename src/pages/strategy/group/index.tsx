@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react'
+import React, { useEffect, useState, useRef, Key } from 'react'
 import { Status, ActionKey } from '@/api/global'
-import { Flex, Button, Space, Badge, theme, message, Modal } from 'antd'
+import { Space, message, Modal, theme, Button } from 'antd'
 import AutoTable from '@/components/table/index'
 import SearchBox from '@/components/data/search-box'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
-import { formList, getColumnList } from './options'
+import { formList, getColumnList, GroupEditModalFormData } from './options'
 import {
   getStrategyGroupList,
   createStrategyGroup,
@@ -12,14 +12,15 @@ import {
   updateStrategyGroup,
   changeStrategyGroup
 } from '@/api/strategy'
-import { ListStrategyGroupRequest, StrategyGroupItemType } from '@/api/strategy/types'
-import { GroupEditModal, GroupEditModalData } from './group-edit-modal'
+import { GetStrategyGroupListRequest, StrategyGroupItemType } from '@/api/strategy/types'
 import { ExclamationCircleFilled } from '@ant-design/icons'
+import { GroupEditModal } from './group-edit-modal'
 import styles from './index.module.scss'
 
 const { confirm } = Modal
 const { useToken } = theme
-const defaultSearchParams: ListStrategyGroupRequest = {
+
+const defaultSearchParams: GetStrategyGroupListRequest = {
   pagination: {
     pageNum: 1,
     pageSize: 10
@@ -33,7 +34,7 @@ let searchTimeout: NodeJS.Timeout | null = null
 const Group: React.FC = () => {
   const { token } = useToken()
   const [datasource, setDatasource] = useState<StrategyGroupItemType[]>([])
-  const [searchParams, setSearchParams] = useState<ListStrategyGroupRequest>(defaultSearchParams)
+  const [searchParams, setSearchParams] = useState<GetStrategyGroupListRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
@@ -44,8 +45,8 @@ const Group: React.FC = () => {
     setEditGroupId(editId)
     setOpenGroupEditModal(true)
   }
-  const searchRef: React.RefObject<HTMLDivElement> = useRef(null)
-  const ADivRef: React.RefObject<HTMLDivElement> = useRef(null)
+  const searchRef = useRef<HTMLDivElement>(null)
+  const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource)
 
   const handleCloseGroupEditModal = () => {
@@ -66,14 +67,14 @@ const Group: React.FC = () => {
       setLoading(true)
       getStrategyGroupList(searchParams)
         .then(({ list, pagination }) => {
-          setDatasource(list)
-          setTotal(pagination.total)
+          setDatasource(list || [])
+          setTotal(pagination?.total || 0)
         })
         .finally(() => setLoading(false))
     }, 500)
   }
 
-  const handleGroupEditModalSubmit = (data: GroupEditModalData) => {
+  const handleGroupEditModalSubmit = (data: GroupEditModalFormData) => {
     const { name, remark, categoriesIds } = data
     const params = {
       remark,
@@ -102,7 +103,7 @@ const Group: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh, searchParams])
 
-  const onSearch = (formData: ListStrategyGroupRequest) => {
+  const onSearch = (formData: GetStrategyGroupListRequest) => {
     setSearchParams({
       ...searchParams,
       ...formData,
@@ -137,13 +138,13 @@ const Group: React.FC = () => {
   const onHandleMenuOnClick = (item: StrategyGroupItemType, key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
-        changeStrategyGroup([item.id], 2).then((res) => {
+        changeStrategyGroup([item.id], 2).then(() => {
           message.success('更改状态成功')
           fetchData()
         })
         break
       case ActionKey.DISABLE:
-        changeStrategyGroup([item.id], 1).then((res) => {
+        changeStrategyGroup([item.id], 1).then(() => {
           message.success('更改状态成功')
           fetchData()
         })
@@ -162,7 +163,7 @@ const Group: React.FC = () => {
           icon: <ExclamationCircleFilled />,
           content: '此操作不可逆',
           onOk() {
-            deleteStrategyGroup(item.id).then((res) => {
+            deleteStrategyGroup(item.id).then(() => {
               message.success('删除成功')
               fetchData()
             })
@@ -175,7 +176,11 @@ const Group: React.FC = () => {
     }
   }
 
-  const columns = getColumnList({ onHandleMenuOnClick })
+  const columns = getColumnList({
+    onHandleMenuOnClick,
+    current: searchParams.pagination.pageNum,
+    pageSize: searchParams.pagination.pageSize
+  })
 
   return (
     <div className={styles.box}>

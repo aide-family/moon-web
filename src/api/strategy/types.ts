@@ -1,4 +1,4 @@
-import { Condition, Pagination, PaginationResponse, SelectType, Status, SustainType } from '../global'
+import { Pagination, PaginationResponse, Status } from '../global'
 
 /**策略组空响应参数 */
 export interface StrategyGroupNullResponse {}
@@ -47,6 +47,7 @@ export interface StrategyGroupItemType {
   creator: StrategyGroupCreatorType
   // 创建人的id
   creatorId: string
+  categoriesIds: number[]
 }
 
 /**策略组列表响应参数 */
@@ -71,15 +72,20 @@ export interface CreateStrategyGroupRequest {
   // 策略组说明信息
   remark: string
   // 策略组状态
-  status: number
+  status?: number
   // 策略分组类型
   categoriesIds: number[]
   // 策略分组类型
-  teamId: number
+  teamId?: number
+}
+
+/** 更新策略组请求参数 */
+export interface UpdateStrategyGroupRequest {
+  update: CreateStrategyGroupRequest
 }
 
 /** 获取策略组详情相应参数 */
 export interface GetStrategyGroupResponse {
   // 策略模板详情
-  detail?: StrategyGroupItemType
+  detail: StrategyGroupItemType
 }

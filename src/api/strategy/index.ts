@@ -5,7 +5,8 @@ import {
   CreateStrategyGroupRequest,
   GetStrategyGroupListResponse,
   StrategyGroupItemType,
-  GetStrategyGroupResponse
+  GetStrategyGroupResponse,
+  UpdateStrategyGroupRequest
 } from './types'
 import { Status } from '../global'
 
@@ -58,7 +59,7 @@ async function deleteStrategyGroup(id: number): Promise<StrategyGroupNullRespons
  * @param {number} id
  * @returns {StrategyGroupNullResponse}
  */
-async function updateStrategyGroup(id: number, params: CreateStrategyGroupRequest): Promise<StrategyGroupNullResponse> {
+async function updateStrategyGroup(id: number, params: UpdateStrategyGroupRequest): Promise<StrategyGroupNullResponse> {
   return await PUT<StrategyGroupNullResponse>(`/v1/group/strategy/${id}`, params)
 }
 
