@@ -20,7 +20,7 @@ export const formList: SearchFormItem[] = [
     label: '名称',
     dataProps: {
       type: 'input',
-      props: {
+      itemProps: {
         placeholder: '规则组名称',
         allowClear: true
       }
@@ -31,7 +31,7 @@ export const formList: SearchFormItem[] = [
     label: '分类',
     dataProps: {
       type: 'select',
-      props: {
+      itemProps: {
         placeholder: '规则分类',
         allowClear: true,
         options: []
@@ -43,7 +43,7 @@ export const formList: SearchFormItem[] = [
     label: '状态',
     dataProps: {
       type: 'select',
-      props: {
+      itemProps: {
         placeholder: '规则组状态',
         allowClear: true,
         options: Object.entries(StatusData).map(([key, value]) => {

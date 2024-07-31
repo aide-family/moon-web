@@ -5,7 +5,7 @@ import { UpOutlined } from '@ant-design/icons'
 import type { Rule } from 'antd/es/form'
 import styles from './index.module.scss'
 
-export type itemProps = {
+export type DataProps = {
   value?: string | number
   // eslint-disable-next-line
   onChange?: (value: any) => void
@@ -13,27 +13,27 @@ export type itemProps = {
 } & (
   | {
       type: 'input'
-      props?: InputProps
+      itemProps?: InputProps
     }
   | {
       type: 'select'
-      props?: SelectProps
+      itemProps?: SelectProps
     }
   | {
       type: 'input-number'
-      props?: InputNumberProps
+      itemProps?: InputNumberProps
     }
   | {
       type: 'tree-select'
-      props?: TreeSelectProps
+      itemProps?: TreeSelectProps
     }
   | {
       type: 'date-picker'
-      props?: DatePickerProps
+      itemProps?: DatePickerProps
     }
   | {
       type: 'radio-group'
-      props?: RadioGroupProps
+      itemProps?: RadioGroupProps
     }
 )
 
@@ -41,7 +41,7 @@ export type SearchFormItem = {
   name: string
   label: string
   rules?: Rule[]
-  dataProps?: itemProps
+  dataProps?: DataProps
 }
 export interface SearchProps {
   formList: SearchFormItem[]
@@ -88,21 +88,21 @@ const SearchBox: FC<SearchProps> = forwardRef((props: SearchProps, ref) => {
     setIsOpen(!isOpen)
   }
 
-  const formItem = (item: itemProps) => {
-    const { type, props } = item
+  const formItem = (item: DataProps) => {
+    const { type, itemProps } = item
     switch (type) {
       case 'input':
-        return <Input {...props} />
+        return <Input {...itemProps} />
       case 'date-picker':
-        return <DatePicker {...props} />
+        return <DatePicker {...itemProps} />
       case 'select':
-        return <Select {...props} />
+        return <Select {...itemProps} />
       case 'tree-select':
-        return <TreeSelect {...props} />
+        return <TreeSelect {...itemProps} />
       case 'input-number':
-        return <InputNumber {...props} />
+        return <InputNumber {...itemProps} />
       case 'radio-group':
-        return <Radio.Group {...props} />
+        return <Radio.Group {...itemProps} />
     }
   }
 
@@ -117,7 +117,7 @@ const SearchBox: FC<SearchProps> = forwardRef((props: SearchProps, ref) => {
               rules,
               dataProps = {
                 type: 'input',
-                props: {
+                itemProps: {
                   placeholder: `请输入${label}`
                 }
               }
