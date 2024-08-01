@@ -1,4 +1,4 @@
-import { Status, StatusData, ActionKey } from '@/api/global'
+import { Status, StatusData, ActionKey, Condition, SustainType } from '@/api/global'
 import type { SearchFormItem } from '@/components/data/search-box'
 import { StrategyGroupItemType } from '@/api/strategy/types'
 import { Button, Tooltip, Badge, Space, Tag } from 'antd'
@@ -6,6 +6,34 @@ import { getStrategyGroupList } from '@/api/strategy'
 import { ColumnsType } from 'antd/es/table'
 import MoreMenu from '@/components/moreMenu'
 import type { MoreMenuProps } from '@/components/moreMenu'
+
+export type LevelItemType = {
+  condition: Condition
+  count: number
+  duration: number
+  levelId: number
+  sustainType: SustainType
+  threshold: number
+  status: Status
+  id?: number
+}
+
+export type TemplateEditModalFormData = {
+  alert: string
+  datasource?: string
+  expr: string
+  labelsItems: {
+    key: string
+    value: string
+  }[]
+  annotations: {
+    summary: string
+    description: string
+  }
+  levelItems: LevelItemType[]
+  remark: string
+  categoriesIds: number[]
+}
 
 export type GroupEditModalFormData = {
   name: string

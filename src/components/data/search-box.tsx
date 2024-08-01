@@ -1,5 +1,6 @@
 import { FC, forwardRef, memo, useImperativeHandle, useState } from 'react'
 import { Button, Col, Form, Input, Row, Space, Select, DatePicker, Radio, TreeSelect, InputNumber } from 'antd'
+import FetchSelect, { FetchSelectProps } from './child/fetch-select'
 import type { InputProps, SelectProps, RadioGroupProps, DatePickerProps, InputNumberProps, TreeSelectProps } from 'antd'
 import { UpOutlined } from '@ant-design/icons'
 import type { Rule } from 'antd/es/form'
@@ -28,12 +29,16 @@ export type DataProps = {
       itemProps?: TreeSelectProps
     }
   | {
+      type: 'radio-group'
+      itemProps?: RadioGroupProps
+    }
+  | {
       type: 'date-picker'
       itemProps?: DatePickerProps
     }
   | {
-      type: 'radio-group'
-      itemProps?: RadioGroupProps
+      type: 'select-fetch'
+      itemProps?: FetchSelectProps
     }
 )
 
@@ -49,7 +54,6 @@ export interface SearchProps {
   onSearch: (values: any) => void
   onReset: () => void
   labelCol?: number
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ref: any
 }
 
@@ -104,6 +108,8 @@ const SearchBox: FC<SearchProps> = forwardRef((props: SearchProps, ref) => {
         return <InputNumber {...itemProps} />
       case 'radio-group':
         return <Radio.Group {...itemProps} />
+      case 'select-fetch':
+        return <FetchSelect {...itemProps} />
     }
   }
 
