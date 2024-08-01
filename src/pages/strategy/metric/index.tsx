@@ -113,11 +113,6 @@ const StrategyMetric: React.FC = () => {
     })
   }
 
-  // 批量操作
-  const handlerBatchData = (selectedRowKeys: Key[], selectedRows: StrategyGroupItemType[]) => {
-    console.log(selectedRowKeys, selectedRows)
-  }
-
   // 切换分页
   const handleTurnPage = (page: number, pageSize: number) => {
     setSearchParams({
@@ -184,7 +179,7 @@ const StrategyMetric: React.FC = () => {
   return (
     <div className={styles.box}>
       <TemplateEditModal
-        title={editGroupId ? (disabledEditGroupModal ? '分组详情' : '编辑分组') : '新建分组'}
+        title={editGroupId ? (disabledEditGroupModal ? '策略详情' : '编辑策略') : '新建策略'}
         width='60%'
         style={{ minWidth: 504 }}
         open={openGroupEditModal}
@@ -235,9 +230,6 @@ const StrategyMetric: React.FC = () => {
             style={{
               background: token.colorBgContainer,
               borderRadius: token.borderRadius
-            }}
-            rowSelection={{
-              onChange: handlerBatchData
             }}
             scroll={{
               y: `calc(100vh - 170px  - ${AutoTableHeight}px)`,

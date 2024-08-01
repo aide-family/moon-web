@@ -50,9 +50,9 @@ export const getStrategyGroups = () => {
       pageSize: 10
     }
   }).then(() => {
-    let selectFetch = []
+    const selectFetch = []
     for (let i = 0; i < 100000; i++) {
-      let value = `${i.toString(36)}${i}`
+      const value = `${i.toString(36)}${i}`
       selectFetch.push({
         label: <Tag color='blue'>{value}</Tag>,
         value: i
@@ -65,23 +65,23 @@ export const getStrategyGroups = () => {
 export const formList: SearchFormItem[] = [
   {
     name: 'keyword',
-    label: '名称',
+    label: '策略名称',
     dataProps: {
       type: 'input',
       itemProps: {
-        placeholder: '规则组名称',
+        placeholder: '请输入策略名称',
         allowClear: true
       }
     }
   },
   {
     name: 'teamId',
-    label: '分类',
+    label: '策略组',
     dataProps: {
       type: 'select-fetch',
       itemProps: {
         selectProps: {
-          placeholder: '请选择规则组分类',
+          placeholder: '请选择策略组',
           mode: 'multiple',
           maxTagCount: 'responsive'
         },
@@ -92,11 +92,11 @@ export const formList: SearchFormItem[] = [
   },
   {
     name: 'status',
-    label: '状态',
+    label: '策略状态',
     dataProps: {
       type: 'select',
       itemProps: {
-        placeholder: '规则组状态',
+        placeholder: '策略状态',
         allowClear: true,
         options: Object.entries(StatusData).map(([key, value]) => {
           return {
@@ -163,14 +163,23 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
 
   return [
     {
-      title: '序号',
-      dataIndex: 'index',
-      key: 'index',
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
       align: 'center',
       width: 60,
       fixed: 'left',
-      render: (text: StrategyGroupItemType, record: StrategyGroupItemType, index: number) => {
-        return <span>{(current - 1) * pageSize + index + 1}</span>
+      render: (text: string) => {
+        return (
+          <Tooltip
+            placement='top'
+            title={() => {
+              return <div>{text}</div>
+            }}
+          >
+            <div>{text ? text : '-'}</div>
+          </Tooltip>
+        )
       }
     },
     {
@@ -193,7 +202,45 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       }
     },
     {
-      title: '类型',
+      title: '数据源',
+      dataIndex: 'categories',
+      key: 'categories',
+      align: 'center',
+      width: 160,
+      render: (text: string) => {
+        return (
+          <Tooltip
+            placement='top'
+            title={() => {
+              return <div>{text}</div>
+            }}
+          >
+            <div>{text ? text : '-'}</div>
+          </Tooltip>
+        )
+      }
+    },
+    {
+      title: '策略组',
+      dataIndex: 'categories',
+      key: 'categories',
+      align: 'center',
+      width: 160,
+      render: (text: string) => {
+        return (
+          <Tooltip
+            placement='top'
+            title={() => {
+              return <div>{text}</div>
+            }}
+          >
+            <div>{text ? text : '-'}</div>
+          </Tooltip>
+        )
+      }
+    },
+    {
+      title: '持续时间',
       dataIndex: 'categories',
       key: 'categories',
       align: 'center',
@@ -213,38 +260,10 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
     },
     {
       title: '状态',
-      dataIndex: 'status',
-      key: 'status',
+      dataIndex: 'categories',
+      key: 'categories',
       align: 'center',
       width: 160,
-      render: (status: Status) => {
-        const { text, color } = StatusData[status]
-        return <Badge color={color} text={text} />
-      }
-    },
-    {
-      // 策略数量
-      title: '策略数量',
-      // dataIndex: 'strategyCount',
-      key: 'strategyCount',
-      width: 120,
-      align: 'center',
-      render: () => {
-        return (
-          <b>
-            <span style={{ color: '' }}>-</span>
-            {' / '}
-            <span style={{ color: 'green' }}>-</span>
-          </b>
-        )
-      }
-    },
-    {
-      title: '描述',
-      dataIndex: 'remark',
-      key: 'remark',
-      align: 'center',
-      width: 300,
       render: (text: string) => {
         return (
           <Tooltip
@@ -256,6 +275,39 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
             <div>{text ? text : '-'}</div>
           </Tooltip>
         )
+      }
+    },
+    {
+      title: '策略等级',
+      dataIndex: 'status',
+      key: 'status',
+      align: 'center',
+      width: 160,
+      render: (status: Status) => {
+        const { text, color } = StatusData[status]
+        return <Badge color={color} text={text} />
+      }
+    },
+    {
+      title: '策略类型',
+      dataIndex: 'status',
+      key: 'status',
+      align: 'center',
+      width: 160,
+      render: (status: Status) => {
+        const { text, color } = StatusData[status]
+        return <Badge color={color} text={text} />
+      }
+    },
+    {
+      title: '告警页面',
+      dataIndex: 'status',
+      key: 'status',
+      align: 'center',
+      width: 160,
+      render: (status: Status) => {
+        const { text, color } = StatusData[status]
+        return <Badge color={color} text={text} />
       }
     },
     {

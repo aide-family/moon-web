@@ -15,7 +15,8 @@ import {
   Select,
   Space,
   theme,
-  Typography
+  Typography,
+  Radio
 } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { LevelItemType, TemplateEditModalFormData } from './options'
@@ -255,8 +256,16 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
           <Form form={form} layout='vertical' autoComplete='off' disabled={disabled || loading}>
             <Row gutter={12}>
               <Col span={12}>
-                <Form.Item label='策略名称' name='alert' rules={[{ required: true, message: '请输入策略名称' }]}>
-                  <Input placeholder='请输入策略名称' allowClear />
+                <Form.Item label='数据源类型' name='alert1' rules={[{ required: true, message: '请选择数据源类型' }]}>
+                  <Radio.Group value={1}>
+                    <Radio value={1}>Metric</Radio>
+                    <Radio value={2} disabled>
+                      Log
+                    </Radio>
+                    <Radio value={3} disabled>
+                      Trace
+                    </Radio>
+                  </Radio.Group>
                 </Form.Item>
               </Col>
               <Col span={12}>
@@ -276,21 +285,52 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                 </Form.Item>
               </Col>
             </Row>
-            <Form.Item label='策略组' name='categoriesIds' rules={[{ required: true, message: '请选择策略组' }]}>
-              <Select mode='multiple' allowClear placeholder='请选择策略组'>
+            <Row gutter={12}>
+              <Col span={12}>
+                <Form.Item label='策略名称' name='alert' rules={[{ required: true, message: '请输入策略名称' }]}>
+                  <Input placeholder='请输入策略名称' allowClear />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label='策略组' name='categoriesIds' rules={[{ required: true, message: '请选择策略组' }]}>
+                  <Select mode='multiple' allowClear placeholder='请选择策略组'>
+                    <Select.Option value={1}>类目一</Select.Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={12}>
+              <Col span={12}>
+                <Form.Item
+                  label='策略类型'
+                  name='categoriesIds'
+                  rules={[{ required: true, message: '请选择策略类型' }]}
+                >
+                  <Select mode='multiple' allowClear placeholder='请选择策略类型'>
+                    <Select.Option value={1}>类目一</Select.Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label='采样率' name='remark1' rules={[{ required: true, message: '请输入采样率' }]}>
+                  <Input placeholder='请输入采样率' allowClear />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item
+              label='通知对象'
+              name='datasource'
+              rules={[
+                {
+                  required: false,
+                  message: '请选择通知对象'
+                }
+              ]}
+            >
+              <Select mode='multiple' allowClear placeholder='请选择通知对象'>
                 <Select.Option value={1}>类目一</Select.Option>
               </Select>
-            </Form.Item>
-            <Form.Item label='策略类型' name='categoriesIds' rules={[{ required: true, message: '请选择策略类型' }]}>
-              <Select mode='multiple' allowClear placeholder='请选择策略类型'>
-                <Select.Option value={1}>类目一</Select.Option>
-              </Select>
-            </Form.Item>
-            <Form.Item label='模板说明' name='remark'>
-              <Input.TextArea placeholder='请输入模板说明' allowClear maxLength={200} showCount />
-            </Form.Item>
-            <Form.Item label='采样率' name='remark1' rules={[{ required: true, message: '请输入采样率' }]}>
-              <Input placeholder='请输入采样率' allowClear />
             </Form.Item>
             <Form.Item label='查询语句' name='expr' rules={[{ required: true, message: '请检查查询语句' }]}>
               <PromQLInput pathPrefix={datasource || ''} formatExpression disabled={disabled} />
@@ -550,6 +590,24 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                             </Form.Item>
                           </Col>
                         </Row>
+                        <Row>
+                          <Col span={24}>
+                            <Form.Item
+                              label='通知对象'
+                              name='datasource'
+                              rules={[
+                                {
+                                  required: false,
+                                  message: '请选择通知对象'
+                                }
+                              ]}
+                            >
+                              <Select mode='multiple' allowClear placeholder='请选择通知对象'>
+                                <Select.Option value={1}>类目一</Select.Option>
+                              </Select>
+                            </Form.Item>
+                          </Col>
+                        </Row>
                       </Card>
                     ))}
 
@@ -559,6 +617,9 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                   </div>
                 )}
               </Form.List>
+            </Form.Item>
+            <Form.Item label='模板说明' name='remark'>
+              <Input.TextArea placeholder='请输入模板说明' allowClear maxLength={200} showCount />
             </Form.Item>
           </Form>
         </div>
