@@ -241,7 +241,7 @@ const Group: React.FC = () => {
               onChange: handlerBatchData
             }}
             scroll={{
-              y: `calc(100vh - 170px  - ${AutoTableHeight}px)`,
+              y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,
               x: 1000
             }}
             size='middle'

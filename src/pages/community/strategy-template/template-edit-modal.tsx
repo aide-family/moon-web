@@ -261,6 +261,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
       })
     })
   }
+  console.log('summaryOkInfo.labels', summaryOkInfo.labels)
 
   return (
     <>
@@ -285,7 +286,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                 <Form.Item
                   label='数据源'
                   name='datasource'
-                  initialValue='http://localhost:9090/'
+                  initialValue='https://prometheus.aide-cloud.cn/'
                   rules={[
                     {
                       required: true,

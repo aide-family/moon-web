@@ -1,11 +1,14 @@
 import { Status, StatusData, ActionKey } from '@/api/global'
 import type { SearchFormItem } from '@/components/data/search-box'
 import { StrategyGroupItemType } from '@/api/strategy/types'
-import { Button, Tooltip, Badge, Space, Tag } from 'antd'
+import { Button, Tooltip, Badge, Space, Tag, Typography } from 'antd'
 import { getStrategyGroupList } from '@/api/strategy'
 import { ColumnsType } from 'antd/es/table'
 import MoreMenu from '@/components/moreMenu'
 import type { MoreMenuProps } from '@/components/moreMenu'
+import OverflowTooltip from '@/components/overflowTooltip'
+
+const { Text } = Typography
 
 export type GroupEditModalFormData = {
   name: string
@@ -218,16 +221,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       align: 'center',
       width: 300,
       render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
+        return <OverflowTooltip content={text} maxWidth='300px'></OverflowTooltip>
       }
     },
     {

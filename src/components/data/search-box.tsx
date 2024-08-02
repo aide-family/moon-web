@@ -146,7 +146,16 @@ const SearchBox: FC<SearchProps> = forwardRef((props: SearchProps, ref) => {
             sm={12}
             lg={6}
             xl={6}
-            style={{ textAlign: 'right', height: '56px', position: 'absolute', bottom: 0, right: 0 }}
+            style={{
+              textAlign: 'right',
+              height: '56px',
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              textOverflow: 'ellipsis'
+            }}
           >
             <Space>
               <Button type='primary' htmlType='submit'>
