@@ -120,21 +120,21 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
   const tableOperationItems = (record: StrategyGroupItemType): MoreMenuProps['items'] => [
     record.status === Status.DISABLE
       ? {
-          key: ActionKey.DISABLE,
-          label: (
-            <Button type='link' size='small'>
-              启用
-            </Button>
-          )
-        }
+        key: ActionKey.DISABLE,
+        label: (
+          <Button type='link' size='small'>
+            启用
+          </Button>
+        )
+      }
       : {
-          key: ActionKey.ENABLE,
-          label: (
-            <Button type='link' size='small' danger>
-              禁用
-            </Button>
-          )
-        },
+        key: ActionKey.ENABLE,
+        label: (
+          <Button type='link' size='small' danger>
+            禁用
+          </Button>
+        )
+      },
     {
       key: ActionKey.OPERATION_LOG,
       label: (
@@ -222,8 +222,8 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
     },
     {
       title: '策略组',
-      dataIndex: 'categories',
-      key: 'categories',
+      dataIndex: 'group',
+      key: 'group',
       align: 'center',
       width: 160,
       render: (text: string) => {
@@ -241,8 +241,8 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
     },
     {
       title: '持续时间',
-      dataIndex: 'categories',
-      key: 'categories',
+      dataIndex: 'duration',
+      key: 'duration',
       align: 'center',
       width: 160,
       render: (text: string) => {

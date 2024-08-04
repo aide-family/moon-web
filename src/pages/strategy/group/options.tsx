@@ -1,14 +1,12 @@
 import { Status, StatusData, ActionKey } from '@/api/global'
 import type { SearchFormItem } from '@/components/data/search-box'
 import { StrategyGroupItemType } from '@/api/strategy/types'
-import { Button, Tooltip, Badge, Space, Tag, Typography } from 'antd'
+import { Button, Tooltip, Badge, Space, Tag } from 'antd'
 import { getStrategyGroupList } from '@/api/strategy'
 import { ColumnsType } from 'antd/es/table'
 import MoreMenu from '@/components/moreMenu'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import OverflowTooltip from '@/components/overflowTooltip'
-
-const { Text } = Typography
 
 export type GroupEditModalFormData = {
   name: string
@@ -25,9 +23,9 @@ export const getStrategyGroups = () => {
       pageSize: 10
     }
   }).then(() => {
-    let selectFetch = []
+    const selectFetch = []
     for (let i = 0; i < 100000; i++) {
-      let value = `${i.toString(36)}${i}`
+      const value = `${i.toString(36)}${i}`
       selectFetch.push({
         label: <Tag color='blue'>{value}</Tag>,
         value: i
@@ -204,12 +202,12 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       key: 'strategyCount',
       width: 120,
       align: 'center',
-      render: () => {
+      render: (text: StrategyGroupItemType) => {
         return (
           <b>
-            <span style={{ color: '' }}>-</span>
+            <span style={{ color: '' }}>{text.enableStrategyCount}</span>
             {' / '}
-            <span style={{ color: 'green' }}>-</span>
+            <span style={{ color: 'green' }}>{text.strategyCount}</span>
           </b>
         )
       }

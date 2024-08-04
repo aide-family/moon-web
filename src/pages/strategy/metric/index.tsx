@@ -7,13 +7,18 @@ import SearchBox from '@/components/data/search-box'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { formList, getColumnList, GroupEditModalFormData } from './options'
 import {
-  getStrategyGroupList,
   createStrategyGroup,
   deleteStrategyGroup,
   updateStrategyGroup,
-  changeStrategyGroup
+  changeStrategyGroup,
+  getStrategyList
 } from '@/api/strategy'
-import { GetStrategyGroupListRequest, StrategyGroupItemType } from '@/api/strategy/types'
+import {
+  GetStrategyGroupListRequest,
+  StrategyGroupItemType,
+  StrategyItemType,
+  GetStrategyListRequest
+} from '@/api/strategy/types'
 import { ExclamationCircleFilled } from '@ant-design/icons'
 import { TemplateEditModal, TemplateEditModalData } from './group-edit-modal'
 import styles from './index.module.scss'
@@ -21,20 +26,20 @@ import styles from './index.module.scss'
 const { confirm } = Modal
 const { useToken } = theme
 
-const defaultSearchParams: GetStrategyGroupListRequest = {
+const defaultSearchParams: GetStrategyListRequest = {
   pagination: {
     pageNum: 1,
     pageSize: 10
-  },
-  keyword: '',
-  status: Status.ALL
+  }
+  // keyword: '',
+  // status: Status.ALL
   // teamId: ''
 }
 
 const StrategyMetric: React.FC = () => {
   const { token } = useToken()
-  const [datasource, setDatasource] = useState<StrategyGroupItemType[]>([])
-  const [searchParams, setSearchParams] = useState<GetStrategyGroupListRequest>(defaultSearchParams)
+  const [datasource, setDatasource] = useState<StrategyItemType[]>([])
+  const [searchParams, setSearchParams] = useState<GetStrategyListRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
@@ -63,7 +68,7 @@ const StrategyMetric: React.FC = () => {
     debounce(async (params) => {
       setLoading(true)
       try {
-        const { list, pagination } = await getStrategyGroupList(params)
+        const { list, pagination } = await getStrategyList(params)
         setDatasource(list || [])
         setTotal(pagination?.total || 0)
       } finally {
