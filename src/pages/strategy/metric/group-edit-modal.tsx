@@ -593,6 +593,24 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                         <Row>
                           <Col span={24}>
                             <Form.Item
+                              label='告警页面'
+                              name='datasource'
+                              rules={[
+                                {
+                                  required: true,
+                                  message: '请选择告警页面'
+                                }
+                              ]}
+                            >
+                              <Select mode='multiple' allowClear placeholder='请选择通知对象'>
+                                <Select.Option value={1}>类目一</Select.Option>
+                              </Select>
+                            </Form.Item>
+                          </Col>
+                        </Row>
+                        <Row>
+                          <Col span={24}>
+                            <Form.Item
                               label='通知对象'
                               name='datasource'
                               rules={[
@@ -617,9 +635,6 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                   </div>
                 )}
               </Form.List>
-            </Form.Item>
-            <Form.Item label='模板说明' name='remark'>
-              <Input.TextArea placeholder='请输入模板说明' allowClear maxLength={200} showCount />
             </Form.Item>
           </Form>
         </div>

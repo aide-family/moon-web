@@ -3,14 +3,23 @@
   gap: 20px;
   display: flex;
   flex-direction: column;
+
   .main {
     padding: 20px;
+
     .main_toolbar {
       display: flex;
       justify-content: space-between;
+
       .main_toolbar_left {
         font-weight: bold;
       }
     }
   }
+}
+
+.edit_content {
+  max-height: 76vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }

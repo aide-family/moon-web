@@ -1,7 +1,7 @@
 import { Status, StatusData, ActionKey, Condition, SustainType } from '@/api/global'
 import type { SearchFormItem } from '@/components/data/search-box'
-import { StrategyGroupItemType } from '@/api/strategy/types'
-import { Button, Tooltip, Badge, Space, Tag } from 'antd'
+import { StrategyGroupItemType, StrategyItemType } from '@/api/strategy/types'
+import { Button, Tooltip, Badge, Space, Tag, Avatar } from 'antd'
 import { getStrategyGroupList } from '@/api/strategy'
 import { ColumnsType } from 'antd/es/table'
 import MoreMenu from '@/components/moreMenu'
@@ -203,20 +203,36 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
     },
     {
       title: '数据源',
-      dataIndex: 'categories',
-      key: 'categories',
+      // dataIndex: 'datasource',
+      key: 'datasource',
       align: 'center',
       width: 160,
-      render: (text: string) => {
+      render: (record: StrategyItemType) => {
+        if (!record.datasource || !record.datasource.length)
+          return '-'
+        const datasourceList = record.datasource
+        if (datasourceList.length === 1) {
+          const { name } = datasourceList[0]
+          return (
+            <div>
+              {name}
+            </div>
+          )
+        }
         return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
+          <Avatar.Group maxCount={2} shape="square" size="small">
+            {datasourceList.map((item, index) => {
+              return (
+                <Tooltip title={item.name} key={index}>
+                  <Avatar
+                    key={item.type}
+                  >
+                    {item.name}
+                  </Avatar>
+                </Tooltip>
+              )
+            })}
+          </Avatar.Group>
         )
       }
     },
