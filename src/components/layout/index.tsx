@@ -1,6 +1,6 @@
 import React, { Suspense, useContext, useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { Layout, Menu, message, theme } from 'antd'
+import { Layout, Menu, message, Spin, theme } from 'antd'
 
 import './layout.scss'
 import HeaderTitle from './header-title'
@@ -112,7 +112,7 @@ const MoonLayout: React.FC = () => {
           </Header>
 
           <Content className='content' style={{ flex: 1 }}>
-            <Suspense fallback={<div>loading...</div>}>
+            <Suspense fallback={<Spin />}>
               <Outlet />
             </Suspense>
           </Content>

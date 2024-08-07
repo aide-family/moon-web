@@ -72,8 +72,8 @@ export const logout = () => {
  * 刷新token
  * POST /v1/authorization/refresh
  */
-export const refreshToken = (teamId: number) => {
-  return request.POST<LoginResponse>('/v1/authorization/refresh', { teamId })
+export const refreshToken = (teamID: number) => {
+  return request.POST<LoginResponse>('/v1/authorization/refresh', { teamID })
 }
 
 /**
