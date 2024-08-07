@@ -4,6 +4,9 @@ import { UserItem } from '../authorization/user'
 /**策略组空响应参数 */
 export interface StrategyGroupNullResponse { }
 
+/**策略空响应参数 */
+export interface StrategyNullResponse { }
+
 /** 策略组 */
 export interface StrategyGroupItemType {
   // 策略组ID
@@ -196,7 +199,7 @@ export interface StrategyItemType {
   strategyTemplateId: number
   // 持续时间
   duration: string
-  // step
+  // 采样率
   step: number
   //模板来源
   sourceType: number
@@ -211,11 +214,35 @@ export interface StrategyItemType {
   // 创建人的id
   creatorId: number
 }
+/** 策略等级ID类型 */
+export type StrategyLevelIDType = number
+
+/** 策略等级类型 */
+export interface StrategyLevelTemplateType {
+  // 策略持续时间
+  duration: string
+  // 持续次数
+  count: number
+  // 持续的类型
+  sustainType: SustainType
+  // 条件
+  condition: Condition
+  // 阈值
+  threshold: number
+  // ID
+  id?: number
+  // LevelID
+  levelId: number
+  // 状态
+  status: Status
+
+}
+
 
 /** 创建策略请求体 */
 export interface CreateStrategyRequest {
   // 策略名称
-  alert: string
+  name: string
   // 策略表达式
   expr: string
   // 策略说明信息
@@ -225,7 +252,14 @@ export interface CreateStrategyRequest {
   // 注解
   annotations: Record<string, string>
   // 策略等级明细
-  level: any
+  level: Record<StrategyLevelIDType, StrategyLevelTemplateType>
   // 策略模板类型
   categoriesIds: number[]
+  // 策略组ID
+  groupId: number
+  // 采样率
+  step: number
+  // 数据源id
+  datasourceIds: number[]
+  strategyLevel: StrategyLevelTemplateType[]
 }

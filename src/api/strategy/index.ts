@@ -8,7 +8,9 @@ import {
   GetStrategyGroupResponse,
   UpdateStrategyGroupRequest,
   GetStrategyListRequest,
-  GetStrategyListResponse
+  GetStrategyListResponse,
+  CreateStrategyRequest,
+  StrategyNullResponse
 } from './types'
 import { Status } from '../global'
 
@@ -89,6 +91,18 @@ async function getStrategyList(params: GetStrategyListRequest): Promise<GetStrat
   return await POST<GetStrategyListResponse>('/v1/strategy/list', params)
 }
 
+
+/**
+ * 创建策略
+ * @method POST /v1/strategy/create
+ * @param {CreateStrategyRequest} params
+ * @returns {StrategyNullResponse}
+ */
+async function createStrategy(params: CreateStrategyRequest): Promise<StrategyNullResponse> {
+  return await POST<StrategyNullResponse>('/v1/strategy/create', params)
+}
+
+
 export {
   getStrategyGroupList,
   createStrategyGroup,
@@ -96,5 +110,6 @@ export {
   deleteStrategyGroup,
   updateStrategyGroup,
   changeStrategyGroup,
-  getStrategyList
+  getStrategyList,
+  createStrategy
 }

@@ -1,6 +1,6 @@
 import { Status, StatusData, ActionKey, Condition, SustainType } from '@/api/global'
 import type { SearchFormItem } from '@/components/data/search-box'
-import { StrategyGroupItemType, StrategyItemType } from '@/api/strategy/types'
+import { StrategyGroupItemType, StrategyItemType, StrategyLevelTemplateType } from '@/api/strategy/types'
 import { Button, Tooltip, Badge, Space, Tag, Avatar } from 'antd'
 import { getStrategyGroupList } from '@/api/strategy'
 import { ColumnsType } from 'antd/es/table'
@@ -18,10 +18,11 @@ export type LevelItemType = {
   id?: number
 }
 
-export type TemplateEditModalFormData = {
-  alert: string
-  datasource?: string
+export type MetricEditModalFormData = {
+  name: string
   expr: string
+  remark: string
+  datasource?: string
   labelsItems: {
     key: string
     value: string
@@ -31,8 +32,11 @@ export type TemplateEditModalFormData = {
     description: string
   }
   levelItems: LevelItemType[]
-  remark: string
   categoriesIds: number[]
+  groupId: number
+  step: number
+  datasourceIds: number[]
+  strategyLevel: StrategyLevelTemplateType[]
 }
 
 export type GroupEditModalFormData = {

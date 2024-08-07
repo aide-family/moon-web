@@ -11,7 +11,8 @@ import {
   deleteStrategyGroup,
   updateStrategyGroup,
   changeStrategyGroup,
-  getStrategyList
+  getStrategyList,
+  createStrategy
 } from '@/api/strategy'
 import {
   GetStrategyGroupListRequest,
@@ -20,7 +21,7 @@ import {
   GetStrategyListRequest
 } from '@/api/strategy/types'
 import { ExclamationCircleFilled } from '@ant-design/icons'
-import { TemplateEditModal, TemplateEditModalData } from './group-edit-modal'
+import { MetricEditModal, MetricEditModalData } from './metric-edit-modal'
 import styles from './index.module.scss'
 
 const { confirm } = Modal
@@ -78,21 +79,29 @@ const StrategyMetric: React.FC = () => {
     []
   )
 
-  const handleGroupEditModalSubmit = (data: any) => {
-    const { name, remark, categoriesIds } = data
+  const handleMetricEditModalSubmit = (data: any) => {
+    const { name, expr, remark, labels, annotations, level, categoriesIds, groupId, step, datasourceIds, strategyLevel } = data
     const params = {
-      remark,
       name,
-      categoriesIds
+      expr,
+      remark,
+      labels,
+      annotations,
+      level,
+      categoriesIds,
+      groupId,
+      step,
+      datasourceIds,
+      strategyLevel
     }
-    const upParams = {
-      update: params
-    }
+
     const call = () => {
       if (!editGroupId) {
-        return createStrategyGroup(params)
+        return createStrategy(params)
       } else {
-        return updateStrategyGroup(editGroupId, upParams)
+        // return updateStrategy(editGroupId, params)
+        return createStrategy(params)
+        // return updateStrategyGroup(editGroupId, upParams)
       }
     }
     return call().then(() => {
@@ -183,13 +192,13 @@ const StrategyMetric: React.FC = () => {
 
   return (
     <div className={styles.box}>
-      <TemplateEditModal
+      <MetricEditModal
         title={editGroupId ? (disabledEditGroupModal ? '策略详情' : '编辑策略') : '新建策略'}
         width='60%'
         style={{ minWidth: 504 }}
         open={openGroupEditModal}
         onCancel={handleCloseGroupEditModal}
-        submit={handleGroupEditModalSubmit}
+        submit={handleMetricEditModalSubmit}
         disabled={disabledEditGroupModal}
       />
       <div
