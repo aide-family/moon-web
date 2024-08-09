@@ -655,6 +655,106 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                             </Form.Item>
                           </Col>
                         </Row>
+                        <Form.Item label={<b>label通知对象</b>} required>
+                          <Form.List
+                            name='labelsItems'
+                            rules={[
+                              {
+                                message: '请输入至少一个标签',
+                                validator(_, value, callback) {
+                                  if (value.length === 0) {
+                                    callback('请输入至少一个标签')
+                                  } else {
+                                    callback()
+                                  }
+                                }
+                              }
+                            ]}
+                          >
+                            {(fields, { add, remove }) => (
+                              <div key={`${fields.length}_1`}>
+                                <Row gutter={24} wrap>
+                                  {fields.map(({ key, name, ...restField }) => (
+                                    <Col span={24} key={key}>
+                                      <Row gutter={24} style={{ width: '100%' }}>
+                                        <Col span={4}>
+                                          <Form.Item
+                                            {...restField}
+                                            name={[name, 'key']}
+                                            label={[name, 'key'].join('.')}
+                                            rules={[
+                                              {
+                                                required: true,
+                                                message: '标签Key不允许为空'
+                                              }
+                                            ]}
+                                          >
+                                            <Input placeholder='key' />
+                                          </Form.Item>
+                                        </Col>
+                                        <Col span={4}>
+                                          <span
+                                            style={{
+                                              display: 'flex',
+                                              alignItems: 'center',
+                                              gap: 8
+                                            }}
+                                          >
+                                            <Form.Item
+                                              {...restField}
+                                              name={[name, 'value']}
+                                              label={[name, 'value'].join('.')}
+                                              rules={[
+                                                {
+                                                  required: true,
+                                                  message: '标签值不允许为空'
+                                                }
+                                              ]}
+                                              style={{ flex: 1 }}
+                                            >
+                                              <Input placeholder='value' />
+                                            </Form.Item>
+
+                                          </span>
+                                        </Col>
+                                        <Col span={16}>
+                                          <span
+                                            style={{
+                                              display: 'flex',
+                                              alignItems: 'center',
+                                              gap: 8
+                                            }}
+                                          >
+                                            <Form.Item
+                                              {...restField}
+                                              name={[name, 'value']}
+                                              label={[name, '通知对象'].join('.')}
+                                              rules={[
+                                                {
+                                                  required: true,
+                                                  message: '标签值不允许为空'
+                                                }
+                                              ]}
+                                              style={{ flex: 1 }}
+                                            >
+                                              <Input placeholder='通知对象' />
+                                            </Form.Item>
+                                            <MinusCircleOutlined onClick={() => remove(name)} style={{ color: token.colorError }} />
+                                          </span>
+                                        </Col>
+                                      </Row>
+                                    </Col>
+                                  ))}
+                                </Row>
+                                <Form.Item>
+                                  <Button type='dashed' onClick={() => add()} block icon={<PlusOutlined />}>
+                                    添加新label通知对象
+                                  </Button>
+                                </Form.Item>
+                              </div>
+                            )}
+                          </Form.List>
+                        </Form.Item>
                       </Card>
                     ))}
                     <Button type='dashed' onClick={() => add()} block icon={<PlusOutlined />}>
