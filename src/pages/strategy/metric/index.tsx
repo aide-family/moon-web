@@ -7,34 +7,40 @@ import SearchBox from '@/components/data/search-box'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { formList, getColumnList, GroupEditModalFormData } from './options'
 import {
-  getStrategyGroupList,
   createStrategyGroup,
   deleteStrategyGroup,
   updateStrategyGroup,
-  changeStrategyGroup
+  changeStrategyGroup,
+  getStrategyList,
+  createStrategy
 } from '@/api/strategy'
-import { GetStrategyGroupListRequest, StrategyGroupItemType } from '@/api/strategy/types'
+import {
+  GetStrategyGroupListRequest,
+  StrategyGroupItemType,
+  StrategyItemType,
+  GetStrategyListRequest
+} from '@/api/strategy/types'
 import { ExclamationCircleFilled } from '@ant-design/icons'
-import { GroupEditModal } from './group-edit-modal'
+import { MetricEditModal, MetricEditModalData } from './metric-edit-modal'
 import styles from './index.module.scss'
 
 const { confirm } = Modal
 const { useToken } = theme
 
-const defaultSearchParams: GetStrategyGroupListRequest = {
+const defaultSearchParams: GetStrategyListRequest = {
   pagination: {
     pageNum: 1,
     pageSize: 10
-  },
-  keyword: '',
-  status: Status.ALL
+  }
+  // keyword: '',
+  // status: Status.ALL
   // teamId: ''
 }
 
-const Group: React.FC = () => {
+const StrategyMetric: React.FC = () => {
   const { token } = useToken()
-  const [datasource, setDatasource] = useState<StrategyGroupItemType[]>([])
-  const [searchParams, setSearchParams] = useState<GetStrategyGroupListRequest>(defaultSearchParams)
+  const [datasource, setDatasource] = useState<StrategyItemType[]>([])
+  const [searchParams, setSearchParams] = useState<GetStrategyListRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
@@ -63,7 +69,7 @@ const Group: React.FC = () => {
     debounce(async (params) => {
       setLoading(true)
       try {
-        const { list, pagination } = await getStrategyGroupList(params)
+        const { list, pagination } = await getStrategyList(params)
         setDatasource(list || [])
         setTotal(pagination?.total || 0)
       } finally {
@@ -73,21 +79,29 @@ const Group: React.FC = () => {
     []
   )
 
-  const handleGroupEditModalSubmit = (data: GroupEditModalFormData) => {
-    const { name, remark, categoriesIds } = data
+  const handleMetricEditModalSubmit = (data: any) => {
+    const { name, expr, remark, labels, annotations, level, categoriesIds, groupId, step, datasourceIds, strategyLevel } = data
     const params = {
-      remark,
       name,
-      categoriesIds
+      expr,
+      remark,
+      labels,
+      annotations,
+      level,
+      categoriesIds,
+      groupId,
+      step,
+      datasourceIds,
+      strategyLevel
     }
-    const upParams = {
-      update: params
-    }
+
     const call = () => {
       if (!editGroupId) {
-        return createStrategyGroup(params)
+        return createStrategy(params)
       } else {
-        return updateStrategyGroup(editGroupId, upParams)
+        // return updateStrategy(editGroupId, params)
+        return createStrategy(params)
+        // return updateStrategyGroup(editGroupId, upParams)
       }
     }
     return call().then(() => {
@@ -111,11 +125,6 @@ const Group: React.FC = () => {
         pageSize: searchParams.pagination.pageSize
       }
     })
-  }
-
-  // 批量操作
-  const handlerBatchData = (selectedRowKeys: Key[], selectedRows: StrategyGroupItemType[]) => {
-    console.log(selectedRowKeys, selectedRows)
   }
 
   // 切换分页
@@ -183,14 +192,13 @@ const Group: React.FC = () => {
 
   return (
     <div className={styles.box}>
-      <GroupEditModal
-        title={editGroupId ? (disabledEditGroupModal ? '分组详情' : '编辑分组') : '新建分组'}
+      <MetricEditModal
+        title={editGroupId ? (disabledEditGroupModal ? '策略详情' : '编辑策略') : '新建策略'}
         width='60%'
         style={{ minWidth: 504 }}
         open={openGroupEditModal}
         onCancel={handleCloseGroupEditModal}
-        submit={handleGroupEditModalSubmit}
-        GroupId={editGroupId}
+        submit={handleMetricEditModalSubmit}
         disabled={disabledEditGroupModal}
       />
       <div
@@ -237,11 +245,8 @@ const Group: React.FC = () => {
               background: token.colorBgContainer,
               borderRadius: token.borderRadius
             }}
-            rowSelection={{
-              onChange: handlerBatchData
-            }}
             scroll={{
-              y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,
+              y: `calc(100vh - 170px  - ${AutoTableHeight}px)`,
               x: 1000
             }}
             size='middle'
@@ -252,4 +257,4 @@ const Group: React.FC = () => {
   )
 }
 
-export default Group
+export default StrategyMetric

@@ -139,6 +139,8 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
     monaco.languages.register({ id: language })
 
     monaco.languages.setMonarchTokensProvider(language, {
+      // 设置语法规则
+      // 通过rules关键字来设置自定义颜色名词： struct, keyword 、、、
       tokenizer: {
         root: [
           [new RegExp(`(${structList.join('|')})`), 'struct'],
@@ -273,6 +275,9 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
   useEffect(() => {
     setCode(value as string)
   }, [value])
+
+  console.log('language', language);
+
   return (
     <>
       {disabled ? (

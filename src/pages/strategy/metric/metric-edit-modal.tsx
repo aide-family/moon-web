@@ -15,51 +15,58 @@ import {
   Select,
   Space,
   theme,
-  Typography
+  Typography,
+  Radio
 } from 'antd'
 import React, { useEffect, useState } from 'react'
-import { LevelItemType, TemplateEditModalFormData } from './options'
-import { MutationStrategyLevelTemplateType, StrategyLevelIDType } from '@/api/template/types'
+import { LevelItemType, MetricEditModalFormData } from './options'
+import { StrategyLevelTemplateType, StrategyLevelIDType } from '@/api/strategy/types'
 import { getStrategyTemplate, validateAnnotationTemplate } from '@/api/template'
 import { AnnotationsEditor } from '@/components/data/child/annotation-editor'
-
+import styles from './index.module.scss'
 const { useToken } = theme
 
-export type TemplateEditModalData = {
+export type MetricEditModalData = {
   id?: number
   // 策略名称
-  alert: string
+  name: string
   // 策略表达式
   expr: string
   // 策略说明信息
   remark: string
-  // 标签
+  // 标签字典
   labels: Record<string, string>
   // 注解
   annotations: Record<string, string>
-  // 策略等级
-  level: Record<StrategyLevelIDType, MutationStrategyLevelTemplateType>
+  // 策略等级明细
+  level: Record<StrategyLevelIDType, StrategyLevelTemplateType>
   // 策略模板类型
   categoriesIds: number[]
+  // 策略组ID
+  groupId: number
+  // 采样率
+  step: number
+  // 数据源id
+  datasourceIds: number[]
+  strategyLevel: StrategyLevelTemplateType[]
 }
 
 export interface TemplateEditModalProps extends ModalProps {
   templateId?: number
   disabled?: boolean
-  submit?: (data: TemplateEditModalData) => Promise<void>
+  submit?: any
 }
 
 let summaryTimeout: NodeJS.Timeout | null = null
 let descriptionTimeout: NodeJS.Timeout | null = null
-export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
+export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
   const { onCancel, submit, open, title, templateId, disabled } = props
 
   const { token } = useToken()
 
-  const [form] = Form.useForm<TemplateEditModalFormData>()
+  const [form] = Form.useForm<MetricEditModalFormData>()
   const datasource = Form.useWatch('datasource', form)
 
-  const expr = Form.useWatch('expr', form)
   const summary = Form.useWatch(['annotations', 'summary'], form)
   const description = Form.useWatch(['annotations', 'description'], form)
   const [summaryOkInfo, setSummaryOkInfo] = useState<{
@@ -77,41 +84,40 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
 
   const [loading, setLoading] = useState(false)
 
-  const [templdateDetail, setTemplateDetail] = useState<TemplateEditModalFormData>()
+  const [templdateDetail, setTemplateDetail] = useState<MetricEditModalFormData>()
 
   const getTemplateDetail = async () => {
     if (templateId) {
       setLoading(true)
       const res = await getStrategyTemplate(templateId)
-      const { alert, expr, labels, levels, annotations, remark, categories } = res
-      setTemplateDetail({
-        alert,
-        expr,
-        labelsItems: Object.entries(labels).map(([key, value]) => ({
-          key,
-          value
-        })),
-        annotations,
-        remark,
-        levelItems: levels.map((item): LevelItemType => {
-          const { condition, count, duration, levelId, sustainType, threshold, status, id } = item
-          const levelItem: LevelItemType = {
-            condition: condition,
-            count: count,
-            duration: +duration?.split('s')?.[0] || 0,
-            levelId: levelId,
-            sustainType: sustainType,
-            threshold: threshold,
-            status: status,
-            id: id
-          }
-          return levelItem
-        }),
-        categoriesIds:
-          categories?.map((item) => {
-            return item.value
-          }) || []
-      })
+      // const { expr, labels, levels, annotations, remark, categories } = res
+      // setTemplateDetail({
+      //   expr,
+      //   labelsItems: Object.entries(labels).map(([key, value]) => ({
+      //     key,
+      //     value
+      //   })),
+      //   annotations,
+      //   remark,
+      //   levelItems: levels.map((item): LevelItemType => {
+      //     const { condition, count, duration, levelId, sustainType, threshold, status, id } = item
+      //     const levelItem: LevelItemType = {
+      //       condition: condition,
+      //       count: count,
+      //       duration: +duration?.split('s')?.[0] || 0,
+      //       levelId: levelId,
+      //       sustainType: sustainType,
+      //       threshold: threshold,
+      //       status: status,
+      //       id: id
+      //     }
+      //     return levelItem
+      //   }),
+      //   categoriesIds:
+      //     categories?.map((item) => {
+      //       return item.value
+      //     }) || []
+      // })
       setLoading(false)
     }
   }
@@ -139,8 +145,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
   }
 
   const checkExpression = (tmpValue: string) => {
-    if (!expr) return
-    const { labelsItems, levelItems, alert, datasource } = form.getFieldsValue()
+    const { labelsItems, expr, levelItems, datasource } = form.getFieldsValue()
     if (!tmpValue || !datasource) return
     const level = levelItems?.[0]
     return validateAnnotationTemplate({
@@ -152,7 +157,6 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
         return acc
       }),
       level: 'levelItems?.[0]?.levelId',
-      alert: alert,
       datasource: datasource,
       datasourceId: 0,
       duration: `${level?.duration}s`,
@@ -187,7 +191,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
       })
     }, 500)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [description, expr])
+  }, [description])
 
   useEffect(() => {
     if (!summary) return
@@ -216,11 +220,11 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
     }, 500)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [summary, expr])
+  }, [summary])
 
   const handleOnOk = () => {
     form.validateFields().then((formValues) => {
-      const { alert, expr, remark, annotations, labelsItems, levelItems, categoriesIds } = formValues
+      const { name, expr, remark, annotations, labelsItems, levelItems, categoriesIds, groupId, step, datasourceIds, strategyLevel } = formValues
       // 使用 reduce 方法将数组转换为 Map
       const labels = labelsItems.reduce((acc: Record<string, string>, { key, value }) => {
         acc[key] = value
@@ -228,7 +232,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
       }, {})
       const levelMap = levelItems.reduce(
         (
-          acc: Record<StrategyLevelIDType, MutationStrategyLevelTemplateType>,
+          acc: Record<StrategyLevelIDType, StrategyLevelTemplateType>,
           { condition, count, duration, sustainType, threshold, levelId, status, id }
         ) => {
           acc[levelId] = {
@@ -248,25 +252,28 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
       setLoading(true)
       submit?.({
         id: templateId,
-        alert: alert,
-        expr: expr,
-        remark: remark,
-        labels: labels,
-        annotations: annotations,
+        name,
+        expr,
+        remark,
+        labels,
+        annotations,
         level: levelMap,
-        categoriesIds: categoriesIds
+        categoriesIds,
+        groupId,
+        step,
+        datasourceIds,
+        strategyLevel
       }).then(() => {
         setLoading(false)
         form?.resetFields()
       })
     })
   }
-  console.log('summaryOkInfo.labels', summaryOkInfo.labels)
 
   return (
     <>
       <Modal
-        className='modal'
+        className={styles.modal}
         {...props}
         title={title}
         open={open}
@@ -274,42 +281,90 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
         onOk={handleOnOk}
         confirmLoading={loading}
       >
-        <div className='edit-content'>
+        <div className={styles.edit_content}>
           <Form form={form} layout='vertical' autoComplete='off' disabled={disabled || loading}>
             <Row gutter={12}>
               <Col span={12}>
-                <Form.Item label='模板名称' name='alert' rules={[{ required: true, message: '请输入模板名称' }]}>
-                  <Input placeholder='请输入模板名称' allowClear />
+                <Form.Item label='数据源类型' name='alert1' rules={[{ required: true, message: '请选择数据源类型' }]}>
+                  <Radio.Group value={1}>
+                    <Radio value={1}>Metric</Radio>
+                    <Radio value={2} disabled>
+                      Log
+                    </Radio>
+                    <Radio value={3} disabled>
+                      Trace
+                    </Radio>
+                  </Radio.Group>
                 </Form.Item>
               </Col>
               <Col span={12}>
                 <Form.Item
                   label='数据源'
-                  name='datasource'
-                  initialValue='https://prometheus.aide-cloud.cn/'
+                  name='datasourceIds'
                   rules={[
                     {
                       required: true,
-                      message: '请输入模板测试数据源（用于辅助模板编辑）'
+                      message: '请选择数据源'
                     }
                   ]}
                 >
-                  <Input placeholder='请输入数据源' allowClear />
+                  <Select mode='multiple' allowClear placeholder='请选择数据源'>
+                    <Select.Option value={1}>类目一</Select.Option>
+                  </Select>
                 </Form.Item>
               </Col>
             </Row>
-            <Form.Item label='模板类型' name='categoriesIds' rules={[{ required: true, message: '请选择模板类型' }]}>
-              <Select mode='multiple' allowClear placeholder='请选择模板类型'>
+            <Row gutter={12}>
+              <Col span={12}>
+                <Form.Item label='策略名称' name='name' rules={[{ required: true, message: '请输入策略名称' }]}>
+                  <Input placeholder='请输入策略名称' allowClear />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label='策略组' name='groupId' rules={[{ required: true, message: '请选择策略组' }]}>
+                  <Select mode='multiple' allowClear placeholder='请选择策略组'>
+                    <Select.Option value={1}>类目一</Select.Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={12}>
+              <Col span={12}>
+                <Form.Item
+                  label='策略类型'
+                  name='categoriesIds'
+                  rules={[{ required: true, message: '请选择策略类型' }]}
+                >
+                  <Select mode='multiple' allowClear placeholder='请选择策略类型'>
+                    <Select.Option value={1}>类目一</Select.Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label='采样率' name='step' rules={[{ required: true, message: '请输入采样率' }]}>
+                  <Input placeholder='请输入采样率' allowClear />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item
+              label='通知对象'
+              name='datasource'
+              rules={[
+                {
+                  required: false,
+                  message: '请选择通知对象'
+                }
+              ]}
+            >
+              <Select mode='multiple' allowClear placeholder='请选择通知对象'>
                 <Select.Option value={1}>类目一</Select.Option>
               </Select>
-            </Form.Item>
-            <Form.Item label='模板说明' name='remark'>
-              <Input.TextArea placeholder='请输入模板说明' allowClear maxLength={200} showCount />
             </Form.Item>
             <Form.Item label='查询语句' name='expr' rules={[{ required: true, message: '请检查查询语句' }]}>
               <PromQLInput pathPrefix={datasource || ''} formatExpression disabled={disabled} />
             </Form.Item>
-            <Form.Item label={<b>标签</b>} required>
+            <Form.Item label={<b>标签kv集合</b>} required>
               <Form.List
                 name='labelsItems'
                 rules={[
@@ -564,9 +619,144 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
                             </Form.Item>
                           </Col>
                         </Row>
+                        <Row>
+                          <Col span={24}>
+                            <Form.Item
+                              label='告警页面'
+                              name='datasource'
+                              rules={[
+                                {
+                                  required: true,
+                                  message: '请选择告警页面'
+                                }
+                              ]}
+                            >
+                              <Select mode='multiple' allowClear placeholder='请选择通知对象'>
+                                <Select.Option value={1}>类目一</Select.Option>
+                              </Select>
+                            </Form.Item>
+                          </Col>
+                        </Row>
+                        <Row>
+                          <Col span={24}>
+                            <Form.Item
+                              label='通知对象'
+                              name='datasource'
+                              rules={[
+                                {
+                                  required: false,
+                                  message: '请选择通知对象'
+                                }
+                              ]}
+                            >
+                              <Select mode='multiple' allowClear placeholder='请选择通知对象'>
+                                <Select.Option value={1}>类目一</Select.Option>
+                              </Select>
+                            </Form.Item>
+                          </Col>
+                        </Row>
+                        <Form.Item label={<b>label通知对象</b>} required>
+                          <Form.List
+                            name='labelsItems'
+                            rules={[
+                              {
+                                message: '请输入至少一个标签',
+                                validator(_, value, callback) {
+                                  if (value.length === 0) {
+                                    callback('请输入至少一个标签')
+                                  } else {
+                                    callback()
+                                  }
+                                }
+                              }
+                            ]}
+                          >
+                            {(fields, { add, remove }) => (
+                              <div key={`${fields.length}_1`}>
+                                <Row gutter={24} wrap>
+                                  {fields.map(({ key, name, ...restField }) => (
+                                    <Col span={24} key={key}>
+                                      <Row gutter={24} style={{ width: '100%' }}>
+                                        <Col span={4}>
+                                          <Form.Item
+                                            {...restField}
+                                            name={[name, 'key']}
+                                            label={[name, 'key'].join('.')}
+                                            rules={[
+                                              {
+                                                required: true,
+                                                message: '标签Key不允许为空'
+                                              }
+                                            ]}
+                                          >
+                                            <Input placeholder='key' />
+                                          </Form.Item>
+                                        </Col>
+                                        <Col span={4}>
+                                          <span
+                                            style={{
+                                              display: 'flex',
+                                              alignItems: 'center',
+                                              gap: 8
+                                            }}
+                                          >
+                                            <Form.Item
+                                              {...restField}
+                                              name={[name, 'value']}
+                                              label={[name, 'value'].join('.')}
+                                              rules={[
+                                                {
+                                                  required: true,
+                                                  message: '标签值不允许为空'
+                                                }
+                                              ]}
+                                              style={{ flex: 1 }}
+                                            >
+                                              <Input placeholder='value' />
+                                            </Form.Item>
+
+                                          </span>
+                                        </Col>
+                                        <Col span={16}>
+                                          <span
+                                            style={{
+                                              display: 'flex',
+                                              alignItems: 'center',
+                                              gap: 8
+                                            }}
+                                          >
+                                            <Form.Item
+                                              {...restField}
+                                              name={[name, 'value']}
+                                              label={[name, '通知对象'].join('.')}
+                                              rules={[
+                                                {
+                                                  required: true,
+                                                  message: '标签值不允许为空'
+                                                }
+                                              ]}
+                                              style={{ flex: 1 }}
+                                            >
+                                              <Input placeholder='通知对象' />
+                                            </Form.Item>
+                                            <MinusCircleOutlined onClick={() => remove(name)} style={{ color: token.colorError }} />
+                                          </span>
+                                        </Col>
+                                      </Row>
+                                    </Col>
+                                  ))}
+                                </Row>
+                                <Form.Item>
+                                  <Button type='dashed' onClick={() => add()} block icon={<PlusOutlined />}>
+                                    添加新label通知对象
+                                  </Button>
+                                </Form.Item>
+                              </div>
+                            )}
+                          </Form.List>
+                        </Form.Item>
                       </Card>
                     ))}
-
                     <Button type='dashed' onClick={() => add()} block icon={<PlusOutlined />}>
                       添加策略等级
                     </Button>

@@ -1,12 +1,43 @@
-import { Status, StatusData, ActionKey } from '@/api/global'
+import { Status, StatusData, ActionKey, Condition, SustainType } from '@/api/global'
 import type { SearchFormItem } from '@/components/data/search-box'
-import { StrategyGroupItemType } from '@/api/strategy/types'
-import { Button, Tooltip, Badge, Space, Tag } from 'antd'
+import { StrategyGroupItemType, StrategyItemType, StrategyLevelTemplateType } from '@/api/strategy/types'
+import { Button, Tooltip, Badge, Space, Tag, Avatar } from 'antd'
 import { getStrategyGroupList } from '@/api/strategy'
 import { ColumnsType } from 'antd/es/table'
 import MoreMenu from '@/components/moreMenu'
 import type { MoreMenuProps } from '@/components/moreMenu'
-import OverflowTooltip from '@/components/overflowTooltip'
+
+export type LevelItemType = {
+  condition: Condition
+  count: number
+  duration: number
+  levelId: number
+  sustainType: SustainType
+  threshold: number
+  status: Status
+  id?: number
+}
+
+export type MetricEditModalFormData = {
+  name: string
+  expr: string
+  remark: string
+  datasource?: string
+  labelsItems: {
+    key: string
+    value: string
+  }[]
+  annotations: {
+    summary: string
+    description: string
+  }
+  levelItems: LevelItemType[]
+  categoriesIds: number[]
+  groupId: number
+  step: number
+  datasourceIds: number[]
+  strategyLevel: StrategyLevelTemplateType[]
+}
 
 export type GroupEditModalFormData = {
   name: string
@@ -38,23 +69,23 @@ export const getStrategyGroups = () => {
 export const formList: SearchFormItem[] = [
   {
     name: 'keyword',
-    label: '名称',
+    label: '策略名称',
     dataProps: {
       type: 'input',
       itemProps: {
-        placeholder: '规则组名称',
+        placeholder: '请输入策略名称',
         allowClear: true
       }
     }
   },
   {
     name: 'teamId',
-    label: '分类',
+    label: '策略组',
     dataProps: {
       type: 'select-fetch',
       itemProps: {
         selectProps: {
-          placeholder: '请选择规则组分类',
+          placeholder: '请选择策略组',
           mode: 'multiple',
           maxTagCount: 'responsive'
         },
@@ -65,11 +96,11 @@ export const formList: SearchFormItem[] = [
   },
   {
     name: 'status',
-    label: '状态',
+    label: '策略状态',
     dataProps: {
       type: 'select',
       itemProps: {
-        placeholder: '规则组状态',
+        placeholder: '策略状态',
         allowClear: true,
         options: Object.entries(StatusData).map(([key, value]) => {
           return {
@@ -93,21 +124,21 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
   const tableOperationItems = (record: StrategyGroupItemType): MoreMenuProps['items'] => [
     record.status === Status.DISABLE
       ? {
-          key: ActionKey.DISABLE,
-          label: (
-            <Button type='link' size='small'>
-              启用
-            </Button>
-          )
-        }
+        key: ActionKey.DISABLE,
+        label: (
+          <Button type='link' size='small'>
+            启用
+          </Button>
+        )
+      }
       : {
-          key: ActionKey.ENABLE,
-          label: (
-            <Button type='link' size='small' danger>
-              禁用
-            </Button>
-          )
-        },
+        key: ActionKey.ENABLE,
+        label: (
+          <Button type='link' size='small' danger>
+            禁用
+          </Button>
+        )
+      },
     {
       key: ActionKey.OPERATION_LOG,
       label: (
@@ -136,14 +167,23 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
 
   return [
     {
-      title: '序号',
-      dataIndex: 'index',
-      key: 'index',
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
       align: 'center',
       width: 60,
       fixed: 'left',
-      render: (text: StrategyGroupItemType, record: StrategyGroupItemType, index: number) => {
-        return <span>{(current - 1) * pageSize + index + 1}</span>
+      render: (text: string) => {
+        return (
+          <Tooltip
+            placement='top'
+            title={() => {
+              return <div>{text}</div>
+            }}
+          >
+            <div>{text ? text : '-'}</div>
+          </Tooltip>
+        )
       }
     },
     {
@@ -166,7 +206,80 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       }
     },
     {
-      title: '类型',
+      title: '数据源',
+      // dataIndex: 'datasource',
+      key: 'datasource',
+      align: 'center',
+      width: 160,
+      render: (record: StrategyItemType) => {
+        if (!record.datasource || !record.datasource.length)
+          return '-'
+        const datasourceList = record.datasource
+        if (datasourceList.length === 1) {
+          const { name } = datasourceList[0]
+          return (
+            <div>
+              {name}
+            </div>
+          )
+        }
+        return (
+          <Avatar.Group maxCount={2} shape="square" size="small">
+            {datasourceList.map((item, index) => {
+              return (
+                <Tooltip title={item.name} key={index}>
+                  <Avatar
+                    key={item.type}
+                  >
+                    {item.name}
+                  </Avatar>
+                </Tooltip>
+              )
+            })}
+          </Avatar.Group>
+        )
+      }
+    },
+    {
+      title: '策略组',
+      dataIndex: 'group',
+      key: 'group',
+      align: 'center',
+      width: 160,
+      render: (text: string) => {
+        return (
+          <Tooltip
+            placement='top'
+            title={() => {
+              return <div>{text}</div>
+            }}
+          >
+            <div>{text ? text : '-'}</div>
+          </Tooltip>
+        )
+      }
+    },
+    {
+      title: '持续时间',
+      dataIndex: 'duration',
+      key: 'duration',
+      align: 'center',
+      width: 160,
+      render: (text: string) => {
+        return (
+          <Tooltip
+            placement='top'
+            title={() => {
+              return <div>{text}</div>
+            }}
+          >
+            <div>{text ? text : '-'}</div>
+          </Tooltip>
+        )
+      }
+    },
+    {
+      title: '状态',
       dataIndex: 'categories',
       key: 'categories',
       align: 'center',
@@ -185,7 +298,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       }
     },
     {
-      title: '状态',
+      title: '策略等级',
       dataIndex: 'status',
       key: 'status',
       align: 'center',
@@ -196,30 +309,25 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       }
     },
     {
-      // 策略数量
-      title: '策略数量',
-      // dataIndex: 'strategyCount',
-      key: 'strategyCount',
-      width: 120,
+      title: '策略类型',
+      dataIndex: 'status',
+      key: 'status',
       align: 'center',
-      render: (text: StrategyGroupItemType) => {
-        return (
-          <b>
-            <span style={{ color: '' }}>{text.enableStrategyCount}</span>
-            {' / '}
-            <span style={{ color: 'green' }}>{text.strategyCount}</span>
-          </b>
-        )
+      width: 160,
+      render: (status: Status) => {
+        const { text, color } = StatusData[status]
+        return <Badge color={color} text={text} />
       }
     },
     {
-      title: '描述',
-      dataIndex: 'remark',
-      key: 'remark',
+      title: '告警页面',
+      dataIndex: 'status',
+      key: 'status',
       align: 'center',
-      width: 300,
-      render: (text: string) => {
-        return <OverflowTooltip content={text} maxWidth='300px'></OverflowTooltip>
+      width: 160,
+      render: (status: Status) => {
+        const { text, color } = StatusData[status]
+        return <Badge color={color} text={text} />
       }
     },
     {

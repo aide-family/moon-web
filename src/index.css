@@ -18,6 +18,10 @@ body {
   padding: 0;
 }
 
+.ant-table-wrapper .ant-table {
+  scrollbar-color: auto !important;
+}
+
 .input-border {
   border-color: var(--ant-color-border);
   &:hover {
@@ -38,7 +42,7 @@ body {
 
 ::-webkit-scrollbar {
   width: 12px;
-  height: 4px;
+  height: 12px;
 }
 
 ::-webkit-scrollbar-thumb {

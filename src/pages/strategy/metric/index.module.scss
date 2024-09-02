@@ -18,15 +18,8 @@
   }
 }
 
-.tooltip {
-  max-width: 300px;
-  max-height: 200px;
+.edit_content {
+  max-height: 76vh;
   overflow-y: auto;
-}
-
-.text_overflow {
-  text-align: left;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+  overflow-x: hidden;
 }

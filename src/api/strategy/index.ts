@@ -6,7 +6,11 @@ import {
   GetStrategyGroupListResponse,
   StrategyGroupItemType,
   GetStrategyGroupResponse,
-  UpdateStrategyGroupRequest
+  UpdateStrategyGroupRequest,
+  GetStrategyListRequest,
+  GetStrategyListResponse,
+  CreateStrategyRequest,
+  StrategyNullResponse
 } from './types'
 import { Status } from '../global'
 
@@ -77,11 +81,35 @@ async function changeStrategyGroup(ids: number[], status: Status): Promise<Strat
   })
 }
 
+/**
+ * 获取策略列表
+ * @method POST /v1/strategy/list
+ * @param {GetStrategyListRequest} params
+ * @returns {GetStrategyListResponse}
+ */
+async function getStrategyList(params: GetStrategyListRequest): Promise<GetStrategyListResponse> {
+  return await POST<GetStrategyListResponse>('/v1/strategy/list', params)
+}
+
+
+/**
+ * 创建策略
+ * @method POST /v1/strategy/create
+ * @param {CreateStrategyRequest} params
+ * @returns {StrategyNullResponse}
+ */
+async function createStrategy(params: CreateStrategyRequest): Promise<StrategyNullResponse> {
+  return await POST<StrategyNullResponse>('/v1/strategy/create', params)
+}
+
+
 export {
   getStrategyGroupList,
   createStrategyGroup,
   getStrategyGroup,
   deleteStrategyGroup,
   updateStrategyGroup,
-  changeStrategyGroup
+  changeStrategyGroup,
+  getStrategyList,
+  createStrategy
 }
