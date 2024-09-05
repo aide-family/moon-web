@@ -710,22 +710,8 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                             </Form.Item>
                           </Col>
                         </Row>
-                        <Form.Item label={<b>label通知对象</b>} required>
-                          <Form.List
-                            name={[field.name, 'strategyLabels']}
-                            rules={[
-                              {
-                                message: '请输入至少一个标签',
-                                validator(_, value, callback) {
-                                  if (value.length === 0) {
-                                    callback('请输入至少一个标签')
-                                  } else {
-                                    callback()
-                                  }
-                                }
-                              }
-                            ]}
-                          >
+                        <Form.Item label={<b>label通知对象</b>}>
+                          <Form.List name={[field.name, 'strategyLabels']}>
                             {(fields, { add, remove }) => (
                               <div key={`${fields.length}_1`}>
                                 <Row gutter={24} wrap>
