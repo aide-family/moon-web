@@ -1,4 +1,19 @@
-import { ConditionData, SustainTypeData } from '@/api/global'
+import { getDatasourceList } from '@/api/datasource'
+import { DatasourceItemType } from '@/api/datasource/types'
+import { featchDictListByCrategory } from '@/api/dict'
+import { DictType } from '@/api/dict/types'
+import {
+  Condition,
+  ConditionData,
+  Status,
+  StorageType,
+  StorageTypeData,
+  SustainType,
+  SustainTypeData
+} from '@/api/global'
+import { getStrategyTemplate, validateAnnotationTemplate } from '@/api/template'
+import { AnnotationsEditor } from '@/components/data/child/annotation-editor'
+import FetchSelect from '@/components/data/child/fetch-select'
 import PromQLInput from '@/components/data/child/prom-ql'
 import { MinusCircleOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import {
@@ -11,20 +26,37 @@ import {
   Modal,
   ModalProps,
   Popover,
+  Radio,
   Row,
   Select,
   Space,
   theme,
-  Typography,
-  Radio
+  Typography
 } from 'antd'
 import React, { useEffect, useState } from 'react'
-import { LevelItemType, MetricEditModalFormData } from './options'
-import { StrategyLevelTemplateType, StrategyLevelIDType } from '@/api/strategy/types'
-import { getStrategyTemplate, validateAnnotationTemplate } from '@/api/template'
-import { AnnotationsEditor } from '@/components/data/child/annotation-editor'
 import styles from './index.module.scss'
+import { MetricEditModalFormData } from './options'
 const { useToken } = theme
+
+/** 策略等级类型 */
+export interface StrategyLevelTemplateType {
+  // 策略持续时间
+  duration: number
+  // 持续次数
+  count: number
+  // 持续的类型
+  sustainType: SustainType
+  // 条件
+  condition: Condition
+  // 阈值
+  threshold: number
+  // ID
+  id?: number
+  // LevelID
+  levelId: number
+  // 状态
+  status: Status
+}
 
 export type MetricEditModalData = {
   id?: number
@@ -38,8 +70,6 @@ export type MetricEditModalData = {
   labels: Record<string, string>
   // 注解
   annotations: Record<string, string>
-  // 策略等级明细
-  level: Record<StrategyLevelIDType, StrategyLevelTemplateType>
   // 策略模板类型
   categoriesIds: number[]
   // 策略组ID
@@ -49,12 +79,13 @@ export type MetricEditModalData = {
   // 数据源id
   datasourceIds: number[]
   strategyLevel: StrategyLevelTemplateType[]
+  alarmGroupIds: number[]
 }
 
 export interface TemplateEditModalProps extends ModalProps {
   templateId?: number
   disabled?: boolean
-  submit?: any
+  submit?: (data: MetricEditModalData) => Promise<void>
 }
 
 let summaryTimeout: NodeJS.Timeout | null = null
@@ -65,8 +96,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
   const { token } = useToken()
 
   const [form] = Form.useForm<MetricEditModalFormData>()
-  const datasource = Form.useWatch('datasource', form)
-
+  const datasourceType = Form.useWatch<StorageType>('sourceType', form)
   const summary = Form.useWatch(['annotations', 'summary'], form)
   const description = Form.useWatch(['annotations', 'description'], form)
   const [summaryOkInfo, setSummaryOkInfo] = useState<{
@@ -83,7 +113,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
   })
 
   const [loading, setLoading] = useState(false)
-
+  const [datasourceList, setDatasourceList] = useState<DatasourceItemType[]>([])
   const [templdateDetail, setTemplateDetail] = useState<MetricEditModalFormData>()
 
   const getTemplateDetail = async () => {
@@ -123,6 +153,19 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
   }
 
   useEffect(() => {
+    if (!datasourceType) return
+    getDatasourceList({
+      storageType: datasourceType,
+      pagination: {
+        pageNum: 1,
+        pageSize: 999
+      }
+    }).then((res) => {
+      setDatasourceList(res?.list || [])
+    })
+  }, [datasourceType, open])
+
+  useEffect(() => {
     if (!templateId) {
       setTemplateDetail(undefined)
     }
@@ -145,14 +188,14 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
   }
 
   const checkExpression = (tmpValue: string) => {
-    const { labelsItems, expr, levelItems, datasource } = form.getFieldsValue()
+    const { labels, expr, datasource, strategyLevel } = form.getFieldsValue()
     if (!tmpValue || !datasource) return
-    const level = levelItems?.[0]
+    const level = strategyLevel?.[0]
     return validateAnnotationTemplate({
       annotations: tmpValue,
       expr: expr,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      labels: labelsItems?.reduce((acc: any, { key, value }) => {
+      labels: labels?.reduce((acc: any, { key, value }) => {
         acc[key] = value
         return acc
       }),
@@ -224,49 +267,47 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
 
   const handleOnOk = () => {
     form.validateFields().then((formValues) => {
-      const { name, expr, remark, annotations, labelsItems, levelItems, categoriesIds, groupId, step, datasourceIds, strategyLevel } = formValues
+      console.log(formValues)
+      const {
+        name,
+        expr,
+        remark,
+        annotations,
+        alarmGroupIds,
+        labels,
+        categoriesIds,
+        groupId,
+        step,
+        datasourceIds,
+        strategyLevel
+      } = formValues
       // 使用 reduce 方法将数组转换为 Map
-      const labels = labelsItems.reduce((acc: Record<string, string>, { key, value }) => {
+      const labelsItems = labels.reduce((acc: Record<string, string>, { key, value }) => {
         acc[key] = value
         return acc
       }, {})
-      const levelMap = levelItems.reduce(
-        (
-          acc: Record<StrategyLevelIDType, StrategyLevelTemplateType>,
-          { condition, count, duration, sustainType, threshold, levelId, status, id }
-        ) => {
-          acc[levelId] = {
-            condition: condition,
-            count: count,
-            duration: `${duration}s`,
-            sustainType: sustainType,
-            threshold: threshold,
-            id: id,
-            levelId: levelId,
-            status: status
-          }
-          return acc
-        },
-        {}
-      )
+
       setLoading(true)
       submit?.({
         id: templateId,
         name,
         expr,
         remark,
-        labels,
+        labels: labelsItems,
         annotations,
-        level: levelMap,
         categoriesIds,
         groupId,
         step,
         datasourceIds,
-        strategyLevel
-      }).then(() => {
-        setLoading(false)
-        form?.resetFields()
+        strategyLevel,
+        alarmGroupIds
       })
+        .then(() => {
+          form?.resetFields()
+        })
+        .finally(() => {
+          setLoading(false)
+        })
     })
   }
 
@@ -283,37 +324,44 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
       >
         <div className={styles.edit_content}>
           <Form form={form} layout='vertical' autoComplete='off' disabled={disabled || loading}>
-            <Row gutter={12}>
-              <Col span={12}>
-                <Form.Item label='数据源类型' name='alert1' rules={[{ required: true, message: '请选择数据源类型' }]}>
-                  <Radio.Group value={1}>
-                    <Radio value={1}>Metric</Radio>
-                    <Radio value={2} disabled>
-                      Log
-                    </Radio>
-                    <Radio value={3} disabled>
-                      Trace
-                    </Radio>
-                  </Radio.Group>
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  label='数据源'
-                  name='datasourceIds'
-                  rules={[
-                    {
-                      required: true,
-                      message: '请选择数据源'
-                    }
-                  ]}
-                >
-                  <Select mode='multiple' allowClear placeholder='请选择数据源'>
-                    <Select.Option value={1}>类目一</Select.Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-            </Row>
+            <Form.Item
+              initialValue={StorageType.StorageTypePrometheus}
+              label='数据源类型'
+              name='sourceType'
+              rules={[{ required: true, message: '请选择数据源类型' }]}
+            >
+              <Radio.Group
+                value={1}
+                optionType='button'
+                options={Object.entries(StorageTypeData)
+                  .filter(([key]) => Number(key) !== StorageType.StorageTypeUnknown)
+                  .map(([key, value]) => ({
+                    label: value,
+                    value: Number(key)
+                  }))}
+              />
+            </Form.Item>
+            <Form.Item
+              label='数据源'
+              name='datasourceIds'
+              rules={[
+                {
+                  required: true,
+                  message: '请选择数据源'
+                }
+              ]}
+            >
+              <Select
+                mode='multiple'
+                allowClear
+                placeholder='请选择数据源'
+                options={datasourceList.map((item) => ({
+                  label: item.name,
+                  value: item.id,
+                  disabled: item.status !== Status.ENABLE
+                }))}
+              />
+            </Form.Item>
             <Row gutter={12}>
               <Col span={12}>
                 <Form.Item label='策略名称' name='name' rules={[{ required: true, message: '请输入策略名称' }]}>
@@ -322,7 +370,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
               </Col>
               <Col span={12}>
                 <Form.Item label='策略组' name='groupId' rules={[{ required: true, message: '请选择策略组' }]}>
-                  <Select mode='multiple' allowClear placeholder='请选择策略组'>
+                  <Select allowClear placeholder='请选择策略组'>
                     <Select.Option value={1}>类目一</Select.Option>
                   </Select>
                 </Form.Item>
@@ -335,21 +383,25 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                   name='categoriesIds'
                   rules={[{ required: true, message: '请选择策略类型' }]}
                 >
-                  <Select mode='multiple' allowClear placeholder='请选择策略类型'>
-                    <Select.Option value={1}>类目一</Select.Option>
-                  </Select>
+                  <FetchSelect
+                    selectProps={{
+                      placeholder: '请选择策略类型',
+                      mode: 'multiple'
+                    }}
+                    handleFetch={featchDictListByCrategory(DictType.DictTypePromStrategy)}
+                  />
                 </Form.Item>
               </Col>
               <Col span={12}>
                 <Form.Item label='采样率' name='step' rules={[{ required: true, message: '请输入采样率' }]}>
-                  <Input placeholder='请输入采样率' allowClear />
+                  <InputNumber style={{ width: '100%' }} placeholder='请输入采样率' step={1} min={1} />
                 </Form.Item>
               </Col>
             </Row>
 
             <Form.Item
               label='通知对象'
-              name='datasource'
+              name='alarmGroupIds'
               rules={[
                 {
                   required: false,
@@ -362,11 +414,11 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
               </Select>
             </Form.Item>
             <Form.Item label='查询语句' name='expr' rules={[{ required: true, message: '请检查查询语句' }]}>
-              <PromQLInput pathPrefix={datasource || ''} formatExpression disabled={disabled} />
+              <PromQLInput pathPrefix={datasourceList.at(0)?.endpoint || ''} formatExpression disabled={disabled} />
             </Form.Item>
             <Form.Item label={<b>标签kv集合</b>} required>
               <Form.List
-                name='labelsItems'
+                name='labels'
                 rules={[
                   {
                     message: '请输入至少一个标签',
@@ -430,11 +482,9 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                         </Col>
                       ))}
                     </Row>
-                    <Form.Item>
-                      <Button type='dashed' onClick={() => add()} block icon={<PlusOutlined />}>
-                        添加新标签
-                      </Button>
-                    </Form.Item>
+                    <Button type='dashed' onClick={() => add()} block icon={<PlusOutlined />}>
+                      添加新标签
+                    </Button>
                   </div>
                 )}
               </Form.List>
@@ -491,7 +541,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
             </Form.Item>
 
             <Form.Item label={<b>告警等级</b>} required>
-              <Form.List name='levelItems'>
+              <Form.List name='strategyLevel'>
                 {(fields, { add, remove }) => (
                   <div
                     style={{
@@ -526,11 +576,12 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                 }
                               ]}
                             >
-                              <Select placeholder='请选择策略等级'>
-                                <Select.Option value={1}>一级告警</Select.Option>
-                                <Select.Option value={2}>二级告警</Select.Option>
-                                <Select.Option value={3}>三级告警</Select.Option>
-                              </Select>
+                              <FetchSelect
+                                selectProps={{
+                                  placeholder: '请选择告警等级'
+                                }}
+                                handleFetch={featchDictListByCrategory(DictType.DictTypeAlarmLevel)}
+                              />
                             </Form.Item>
                           </Col>
                           <Col span={6}>
@@ -550,7 +601,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                   value: +key,
                                   label: value
                                 }))}
-                              ></Select>
+                              />
                             </Form.Item>
                           </Col>
                           <Col span={6}>
@@ -623,7 +674,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                           <Col span={24}>
                             <Form.Item
                               label='告警页面'
-                              name='datasource'
+                              name={[field.name, 'alarmPageIds']}
                               rules={[
                                 {
                                   required: true,
@@ -631,9 +682,13 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                 }
                               ]}
                             >
-                              <Select mode='multiple' allowClear placeholder='请选择通知对象'>
-                                <Select.Option value={1}>类目一</Select.Option>
-                              </Select>
+                              <FetchSelect
+                                selectProps={{
+                                  placeholder: '请选择告警页面',
+                                  mode: 'multiple'
+                                }}
+                                handleFetch={featchDictListByCrategory(DictType.DictTypeAlarmPage)}
+                              />
                             </Form.Item>
                           </Col>
                         </Row>
@@ -641,7 +696,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                           <Col span={24}>
                             <Form.Item
                               label='通知对象'
-                              name='datasource'
+                              name={[field.name, 'alarmGroupIds']}
                               rules={[
                                 {
                                   required: false,
@@ -657,7 +712,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                         </Row>
                         <Form.Item label={<b>label通知对象</b>} required>
                           <Form.List
-                            name='labelsItems'
+                            name={[field.name, 'strategyLabels']}
                             rules={[
                               {
                                 message: '请输入至少一个标签',
@@ -676,30 +731,29 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                 <Row gutter={24} wrap>
                                   {fields.map(({ key, name, ...restField }) => (
                                     <Col span={24} key={key}>
-                                      <Row gutter={24} style={{ width: '100%' }}>
-                                        <Col span={4}>
-                                          <Form.Item
-                                            {...restField}
-                                            name={[name, 'key']}
-                                            label={[name, 'key'].join('.')}
-                                            rules={[
-                                              {
-                                                required: true,
-                                                message: '标签Key不允许为空'
-                                              }
-                                            ]}
-                                          >
-                                            <Input placeholder='key' />
-                                          </Form.Item>
-                                        </Col>
-                                        <Col span={4}>
-                                          <span
-                                            style={{
-                                              display: 'flex',
-                                              alignItems: 'center',
-                                              gap: 8
-                                            }}
-                                          >
+                                      <span
+                                        style={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: 8
+                                        }}
+                                      >
+                                        <Row gutter={24} style={{ width: '100%' }}>
+                                          <Col span={10}>
+                                            <Form.Item
+                                              name={[name, 'name']}
+                                              label={[name, 'name'].join('.')}
+                                              rules={[
+                                                {
+                                                  required: true,
+                                                  message: '标签Key不允许为空'
+                                                }
+                                              ]}
+                                            >
+                                              <Input placeholder='key' />
+                                            </Form.Item>
+                                          </Col>
+                                          <Col span={14}>
                                             <Form.Item
                                               {...restField}
                                               name={[name, 'value']}
@@ -714,20 +768,11 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                             >
                                               <Input placeholder='value' />
                                             </Form.Item>
-
-                                          </span>
-                                        </Col>
-                                        <Col span={16}>
-                                          <span
-                                            style={{
-                                              display: 'flex',
-                                              alignItems: 'center',
-                                              gap: 8
-                                            }}
-                                          >
+                                          </Col>
+                                          <Col span={24}>
                                             <Form.Item
                                               {...restField}
-                                              name={[name, 'value']}
+                                              name={[name, 'alarmGroupIds']}
                                               label={[name, '通知对象'].join('.')}
                                               rules={[
                                                 {
@@ -739,18 +784,19 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                             >
                                               <Input placeholder='通知对象' />
                                             </Form.Item>
-                                            <MinusCircleOutlined onClick={() => remove(name)} style={{ color: token.colorError }} />
-                                          </span>
-                                        </Col>
-                                      </Row>
+                                          </Col>
+                                        </Row>
+                                        <MinusCircleOutlined
+                                          onClick={() => remove(name)}
+                                          style={{ color: token.colorError }}
+                                        />
+                                      </span>
                                     </Col>
                                   ))}
                                 </Row>
-                                <Form.Item>
-                                  <Button type='dashed' onClick={() => add()} block icon={<PlusOutlined />}>
-                                    添加新label通知对象
-                                  </Button>
-                                </Form.Item>
+                                <Button type='dashed' onClick={() => add()} block icon={<PlusOutlined />}>
+                                  添加新 label 通知对象
+                                </Button>
                               </div>
                             )}
                           </Form.List>

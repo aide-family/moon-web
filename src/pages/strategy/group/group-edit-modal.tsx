@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react'
-import { Form, Input, Modal, Select, ModalProps } from 'antd'
-import { GroupEditModalFormData } from './options'
+import { featchDictListByCrategory } from '@/api/dict'
+import { DictType } from '@/api/dict/types'
 import { getStrategyGroup } from '@/api/strategy'
+import FetchSelect from '@/components/data/child/fetch-select'
+import { Form, Input, Modal, ModalProps } from 'antd'
+import React, { useEffect, useState } from 'react'
 import styles from './index.module.scss'
+import { GroupEditModalFormData } from './options'
 
 export type GroupEditModalData = {
   id?: number
@@ -30,11 +33,11 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
     if (GroupId) {
       setLoading(true)
       const res = await getStrategyGroup(GroupId)
-      const { name, remark, categoriesIds } = res
+      const { name, remark, categories } = res
       setGroupDetail({
         name,
         remark,
-        categoriesIds
+        categoriesIds: categories?.map((item) => item.id) ?? []
       })
       setLoading(false)
     }
@@ -98,9 +101,13 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
               <Input placeholder='请输入规则组名称' allowClear />
             </Form.Item>
             <Form.Item label='规则分类' name='categoriesIds' rules={[{ required: true, message: '请选择规则分类' }]}>
-              <Select mode='multiple' allowClear placeholder='请选择规则分类'>
-                <Select.Option value={1}>类目一</Select.Option>
-              </Select>
+              <FetchSelect
+                selectProps={{
+                  placeholder: '请选择规则分类',
+                  mode: 'multiple'
+                }}
+                handleFetch={featchDictListByCrategory(DictType.DictTypePromStrategyGroup)}
+              />
             </Form.Item>
             <Form.Item label='规则组描述' name='remark'>
               <Input.TextArea placeholder='请输入200字以内的规则组描述' allowClear maxLength={200} showCount />

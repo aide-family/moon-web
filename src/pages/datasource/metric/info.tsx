@@ -1,4 +1,4 @@
-import { DatasourceItemType } from '@/api/datasource'
+import { DatasourceItemType } from '@/api/datasource/types'
 import { Alert } from 'antd'
 import React from 'react'
 

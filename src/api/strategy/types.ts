@@ -1,11 +1,12 @@
-import { Pagination, PaginationResponse, Status, SustainType, SelectType, Condition, SelectExtendType } from '../global'
 import { UserItem } from '../authorization/user'
+import { DictItem } from '../dict/types'
+import { Condition, Pagination, PaginationResponse, SelectExtendType, SelectType, Status, SustainType } from '../global'
 
 /**策略组空响应参数 */
-export interface StrategyGroupNullResponse { }
+export interface StrategyGroupNullResponse {}
 
 /**策略空响应参数 */
-export interface StrategyNullResponse { }
+export interface StrategyNullResponse {}
 
 /** 策略组 */
 export interface StrategyGroupItemType {
@@ -29,11 +30,11 @@ export interface StrategyGroupItemType {
   strategyCount: string
   // 策略开启总数
   enableStrategyCount: string
-  categoriesIds: number[]
+  categories?: DictItem[]
 }
 
 /**策略组列表响应参数 */
-export interface GetStrategyGroupListResponse extends PaginationResponse<StrategyGroupItemType> { }
+export interface GetStrategyGroupListResponse extends PaginationResponse<StrategyGroupItemType> {}
 
 /** 策略组列表请求参数 */
 export interface GetStrategyGroupListRequest {
@@ -44,7 +45,6 @@ export interface GetStrategyGroupListRequest {
   // 规则组状态
   status?: Status
   // 规则分类
-  teamId?: number
   categoriesIds?: number[]
 }
 
@@ -85,7 +85,7 @@ export interface GetStrategyListRequest {
 }
 
 /**策略列表响应参数 */
-export interface GetStrategyListResponse extends PaginationResponse<StrategyItemType> { }
+export interface GetStrategyListResponse extends PaginationResponse<StrategyItemType> {}
 
 /** 告警页面 */
 export interface AlarmPageType {
@@ -235,9 +235,7 @@ export interface StrategyLevelTemplateType {
   levelId: number
   // 状态
   status: Status
-
 }
-
 
 /** 创建策略请求体 */
 export interface CreateStrategyRequest {
@@ -251,8 +249,6 @@ export interface CreateStrategyRequest {
   labels: Record<string, string>
   // 注解
   annotations: Record<string, string>
-  // 策略等级明细
-  level: Record<StrategyLevelIDType, StrategyLevelTemplateType>
   // 策略模板类型
   categoriesIds: number[]
   // 策略组ID
@@ -261,5 +257,16 @@ export interface CreateStrategyRequest {
   step: number
   // 数据源id
   datasourceIds: number[]
+  // 策略等级明细
   strategyLevel: StrategyLevelTemplateType[]
+  // 公共告警组
+  alarmGroupIds: number[]
+  status: Status
+  sourceType: number
+}
+
+/** 更新策略请求体 */
+export interface UpdateStrategyRequest {
+  id: number
+  data: CreateStrategyRequest
 }

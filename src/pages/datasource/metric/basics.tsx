@@ -1,4 +1,4 @@
-import { DatasourceItemType } from '@/api/datasource'
+import { DatasourceItemType } from '@/api/datasource/types'
 import { Status } from '@/api/global'
 import { GlobalContext } from '@/utils/context'
 import { RedoOutlined } from '@ant-design/icons'

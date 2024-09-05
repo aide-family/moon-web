@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { DatasourceItemType } from '@/api/datasource'
+import { DatasourceItemType } from '@/api/datasource/types'
 import { Button, Flex, Form, Input, Select, Space, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import React from 'react'

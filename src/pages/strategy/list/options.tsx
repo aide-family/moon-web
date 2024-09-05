@@ -1,11 +1,18 @@
-import { Status, StatusData, ActionKey, Condition, SustainType } from '@/api/global'
-import type { SearchFormItem } from '@/components/data/search-box'
-import { StrategyGroupItemType, StrategyItemType, StrategyLevelTemplateType } from '@/api/strategy/types'
-import { Button, Tooltip, Badge, Space, Tag, Avatar } from 'antd'
+import { ActionKey, Condition, Status, StatusData, SustainType } from '@/api/global'
 import { getStrategyGroupList } from '@/api/strategy'
-import { ColumnsType } from 'antd/es/table'
-import MoreMenu from '@/components/moreMenu'
+import { StrategyGroupItemType, StrategyItemType } from '@/api/strategy/types'
+import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
+import MoreMenu from '@/components/moreMenu'
+import { Avatar, Badge, Button, Space, Tag, Tooltip } from 'antd'
+import { ColumnsType } from 'antd/es/table'
+import { StrategyLevelTemplateType } from './metric-edit-modal'
+
+export type StrategyLabelType = {
+  alarmGroupIds: number[]
+  name: string
+  value: string
+}
 
 export type LevelItemType = {
   condition: Condition
@@ -15,6 +22,7 @@ export type LevelItemType = {
   sustainType: SustainType
   threshold: number
   status: Status
+  strategyLabels: StrategyLabelType[]
   id?: number
 }
 
@@ -23,7 +31,7 @@ export type MetricEditModalFormData = {
   expr: string
   remark: string
   datasource?: string
-  labelsItems: {
+  labels: {
     key: string
     value: string
   }[]
@@ -31,20 +39,12 @@ export type MetricEditModalFormData = {
     summary: string
     description: string
   }
-  levelItems: LevelItemType[]
   categoriesIds: number[]
   groupId: number
   step: number
   datasourceIds: number[]
   strategyLevel: StrategyLevelTemplateType[]
-}
-
-export type GroupEditModalFormData = {
-  name: string
-  remark: string
-  status?: number
-  categoriesIds: number[]
-  teamId?: number
+  alarmGroupIds: number[]
 }
 
 export const getStrategyGroups = () => {
@@ -124,21 +124,21 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
   const tableOperationItems = (record: StrategyGroupItemType): MoreMenuProps['items'] => [
     record.status === Status.DISABLE
       ? {
-        key: ActionKey.DISABLE,
-        label: (
-          <Button type='link' size='small'>
-            启用
-          </Button>
-        )
-      }
+          key: ActionKey.DISABLE,
+          label: (
+            <Button type='link' size='small'>
+              启用
+            </Button>
+          )
+        }
       : {
-        key: ActionKey.ENABLE,
-        label: (
-          <Button type='link' size='small' danger>
-            禁用
-          </Button>
-        )
-      },
+          key: ActionKey.ENABLE,
+          label: (
+            <Button type='link' size='small' danger>
+              禁用
+            </Button>
+          )
+        },
     {
       key: ActionKey.OPERATION_LOG,
       label: (
@@ -212,27 +212,18 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       align: 'center',
       width: 160,
       render: (record: StrategyItemType) => {
-        if (!record.datasource || !record.datasource.length)
-          return '-'
+        if (!record.datasource || !record.datasource.length) return '-'
         const datasourceList = record.datasource
         if (datasourceList.length === 1) {
           const { name } = datasourceList[0]
-          return (
-            <div>
-              {name}
-            </div>
-          )
+          return <div>{name}</div>
         }
         return (
-          <Avatar.Group maxCount={2} shape="square" size="small">
+          <Avatar.Group maxCount={2} shape='square' size='small'>
             {datasourceList.map((item, index) => {
               return (
                 <Tooltip title={item.name} key={index}>
-                  <Avatar
-                    key={item.type}
-                  >
-                    {item.name}
-                  </Avatar>
+                  <Avatar key={item.type}>{item.name}</Avatar>
                 </Tooltip>
               )
             })}

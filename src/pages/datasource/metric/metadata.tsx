@@ -1,5 +1,5 @@
-import { DatasourceItemType } from '@/api/datasource'
-import metricapi, { MetricItemType, MetricListRequest } from '@/api/datasource/metric'
+import { getMetricList, syncMetric } from '@/api/datasource/metric'
+import { DatasourceItemType, MetricItemType, MetricListRequest } from '@/api/datasource/types'
 import { MetricTypeData } from '@/api/global'
 import { DataInput } from '@/components/data/child/data-input'
 import { Button, Flex, Form, Input, Space, Table, Tag } from 'antd'
@@ -117,15 +117,20 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
     }
   ]
 
-  const getMetricList = () => {
+  const fectMetricList = () => {
     if (searchTimer) {
       clearTimeout(searchTimer)
     }
     searchTimer = setTimeout(() => {
       setLoading(true)
-      metricapi
-        .getMetricList(searchMetricParams)
-        .then(({ list, pagination: { total } }) => {
+      getMetricList(searchMetricParams)
+        .then((reply) => {
+          const {
+            list,
+            pagination: { total }
+          } = reply
+
+          if (!list || !total) return
           setMetricList(list)
           setMetricListTotal(total || 0)
         })
@@ -135,9 +140,9 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
     }, 500)
   }
 
-  const syncMetric = () => {
+  const fetchSyncMetric = () => {
     if (!datasource?.id) return
-    metricapi.syncMetric(datasource?.id).then(handleRefresh)
+    syncMetric(datasource?.id).then(handleRefresh)
   }
 
   useEffect(() => {
@@ -151,7 +156,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
   }, [datasource])
 
   useEffect(() => {
-    getMetricList()
+    fectMetricList()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchMetricParams, refresh])
 
@@ -166,7 +171,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
       <Info datasource={datasource} />
       <Flex justify='space-between' align='center' gap={12} className='op'>
         <Space size='middle'>
-          <Button type='primary' onClick={syncMetric}>
+          <Button type='primary' onClick={fetchSyncMetric}>
             同步数据
           </Button>
           <Button type='primary' onClick={handleRefresh} loading={loading}>

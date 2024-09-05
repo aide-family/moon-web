@@ -33,6 +33,19 @@
   height: 60px;
   color: #fff;
 }
+
+.menu-sider {
+  position: relative;
+  .menu-version {
+    // 固定到最底部
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 8px;
+    color: #ff0;
+  }
+}
+
 .header-title {
   width: 100%;
   height: 100%;

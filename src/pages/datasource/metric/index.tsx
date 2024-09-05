@@ -1,12 +1,14 @@
+import { getDatasourceList } from '@/api/datasource'
 import { Button, Empty, Input, Menu, Tabs, TabsProps, theme } from 'antd'
 import React, { useEffect } from 'react'
-import './index.scss'
+import { AlarmTemplate } from './alarm-template'
+import { Basics } from './basics'
+import { EditModal } from './edit-modal'
 import { Metadata } from './metadata'
 import { TimelyQuery } from './timely-query'
-import { AlarmTemplate } from './alarm-template'
-import datasourceapi, { DatasourceItemType, DatasourceListRequest } from '@/api/datasource'
-import { EditModal } from './edit-modal'
-import { Basics } from './basics'
+
+import { DatasourceItemType, DatasourceListRequest } from '@/api/datasource/types'
+import './index.scss'
 
 export interface MetricProps {}
 
@@ -83,7 +85,7 @@ const Metric: React.FC<MetricProps> = () => {
       clearTimeout(searchTimer)
     }
     searchTimer = setTimeout(() => {
-      datasourceapi.getDatasourceList(searchDatasourceParams).then((res) => {
+      getDatasourceList(searchDatasourceParams).then((res) => {
         setDatasource(res?.list || [])
       })
     }, 500)

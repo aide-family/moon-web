@@ -34,8 +34,8 @@ export const routers: RouteObject[] = [
             Component: lazy(() => import('@/pages/strategy/group'))
           },
           {
-            path: '/home/strategy/metric',
-            Component: lazy(() => import('@/pages/strategy/metric'))
+            path: '/home/strategy/list',
+            Component: lazy(() => import('@/pages/strategy/list'))
           }
         ]
       },
@@ -58,6 +58,19 @@ export const routers: RouteObject[] = [
           {
             path: '/home/community/strategy-template',
             Component: lazy(() => import('@/pages/community/strategy-template'))
+          }
+        ]
+      },
+      {
+        path: '/home/notify',
+        children: [
+          {
+            path: '/home/notify/hook',
+            Component: lazy(() => import('@/pages/notify/hook'))
+          },
+          {
+            path: '/home/notify/group',
+            Component: lazy(() => import('@/pages/notify/group'))
           }
         ]
       },

@@ -1,4 +1,4 @@
-import { MetricLabelType } from '@/api/datasource/metric'
+import { MetricLabelType } from '@/api/datasource/types'
 import { Modal, ModalProps } from 'antd'
 import React from 'react'
 

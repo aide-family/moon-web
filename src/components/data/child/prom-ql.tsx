@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { MutableRefObject, useContext, useEffect, useRef, useState } from 'react'
 
+import { defaultKeymap, history, historyKeymap, insertNewlineAndIndent } from '@codemirror/commands'
+import { bracketMatching, indentOnInput, syntaxHighlighting } from '@codemirror/language'
+import { Compartment, EditorState, Prec } from '@codemirror/state'
 import {
   EditorView,
   highlightSpecialChars,
@@ -8,18 +11,15 @@ import {
   placeholder as placeholderPlugin,
   ViewUpdate
 } from '@codemirror/view'
-import { Compartment, EditorState, Prec } from '@codemirror/state'
-import { bracketMatching, indentOnInput, syntaxHighlighting } from '@codemirror/language'
-import { defaultKeymap, history, historyKeymap, insertNewlineAndIndent } from '@codemirror/commands'
 
-import { highlightSelectionMatches } from '@codemirror/search'
-import { lintKeymap } from '@codemirror/lint'
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete'
+import { lintKeymap } from '@codemirror/lint'
+import { highlightSelectionMatches } from '@codemirror/search'
 import { PromQLExtension } from '@prometheus-io/codemirror-promql'
 import { newCompleteStrategy } from '@prometheus-io/codemirror-promql/dist/esm/complete'
+import { Button, Form, Input, InputProps, theme } from 'antd'
 import { baseTheme, darkPromqlHighlighter, darkTheme, lightTheme, promqlHighlighter } from './prom/CMTheme'
 import { HistoryCompleteStrategy } from './prom/HistoryCompleteStrategy'
-import { Button, Form, Input, InputProps, theme } from 'antd'
 
 import { ThunderboltOutlined } from '@ant-design/icons'
 

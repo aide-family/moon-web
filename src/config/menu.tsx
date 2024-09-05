@@ -1,6 +1,6 @@
-import type { ItemType } from 'antd/es/menu/hooks/useItems'
 import { IconFont } from '@/components/icon'
 import { SettingOutlined, UserOutlined } from '@ant-design/icons'
+import { ItemType } from 'antd/lib/menu/interface'
 
 export const defaultMenuItems: ItemType[] = [
   {
@@ -47,8 +47,8 @@ export const defaultMenuItems: ItemType[] = [
         key: '/home/strategy/group'
       },
       {
-        label: '策略',
-        key: '/home/strategy/metric'
+        label: '策略列表',
+        key: '/home/strategy/list'
       }
     ]
   },
@@ -203,7 +203,7 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
     name: '策略组'
   },
   '/home/strategy/metric': {
-    name: '策略'
+    name: '策略列表'
   },
   '/home/notify': {
     name: '告警通知'

@@ -1,22 +1,22 @@
-import React, { useEffect, useState, useRef, Key, useCallback } from 'react'
-import { Status, ActionKey } from '@/api/global'
-import { Space, message, Modal, theme, Button } from 'antd'
-import { debounce } from 'lodash'
-import AutoTable from '@/components/table/index'
-import SearchBox from '@/components/data/search-box'
-import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
-import { formList, getColumnList, GroupEditModalFormData } from './options'
+import { ActionKey, Status } from '@/api/global'
 import {
-  getStrategyGroupList,
+  changeStrategyGroup,
   createStrategyGroup,
   deleteStrategyGroup,
-  updateStrategyGroup,
-  changeStrategyGroup
+  getStrategyGroupList,
+  updateStrategyGroup
 } from '@/api/strategy'
 import { GetStrategyGroupListRequest, StrategyGroupItemType } from '@/api/strategy/types'
+import SearchBox from '@/components/data/search-box'
+import AutoTable from '@/components/table/index'
+import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { ExclamationCircleFilled } from '@ant-design/icons'
+import { Button, message, Modal, Space, theme } from 'antd'
+import { debounce } from 'lodash'
+import React, { Key, useCallback, useEffect, useRef, useState } from 'react'
 import { GroupEditModal } from './group-edit-modal'
 import styles from './index.module.scss'
+import { formList, getColumnList, GroupEditModalFormData } from './options'
 
 const { confirm } = Modal
 const { useToken } = theme
@@ -41,10 +41,7 @@ const Group: React.FC = () => {
   const [openGroupEditModal, setOpenGroupEditModal] = useState(false)
   const [editGroupId, setEditGroupId] = useState<number>()
   const [disabledEditGroupModal, setDisabledEditGroupModal] = useState(false)
-  const handleEditModal = (editId?: number) => {
-    setEditGroupId(editId)
-    setOpenGroupEditModal(true)
-  }
+
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource)
@@ -53,6 +50,17 @@ const Group: React.FC = () => {
     setOpenGroupEditModal(false)
     setEditGroupId(0)
     setDisabledEditGroupModal(false)
+  }
+
+  const handleEditModal = (editId?: number) => {
+    setEditGroupId(editId)
+    setOpenGroupEditModal(true)
+  }
+
+  const handleOpenDetailModal = (groupId: number) => {
+    setEditGroupId(groupId)
+    setOpenGroupEditModal(true)
+    setDisabledEditGroupModal(true)
   }
 
   const onRefresh = () => {
@@ -151,7 +159,7 @@ const Group: React.FC = () => {
       case ActionKey.OPERATION_LOG:
         break
       case ActionKey.DETAIL:
-        console.log('详情。')
+        handleOpenDetailModal(item.id)
         break
       case ActionKey.EDIT:
         handleEditModal(item.id)
@@ -245,7 +253,7 @@ const Group: React.FC = () => {
               x: 1000
             }}
             size='middle'
-          ></AutoTable>
+          />
         </div>
       </div>
     </div>

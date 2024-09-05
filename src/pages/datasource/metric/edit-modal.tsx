@@ -1,4 +1,5 @@
-import datasourceapi, { DatasourceCreateRequest } from '@/api/datasource'
+import { createDatasource } from '@/api/datasource'
+import { DatasourceCreateRequest } from '@/api/datasource/types'
 import { DataSourceType, DataSourceTypeData, Status, StatusData, StorageType, StorageTypeData } from '@/api/global'
 import { DataFrom, DataFromItem } from '@/components/data/form'
 import { Form, Modal, ModalProps } from 'antd'
@@ -19,11 +20,10 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
       } catch (error) {
         console.log('error', error)
       }
-      datasourceapi
-        .createDatasource({
-          ...values,
-          config: config
-        })
+      createDatasource({
+        ...values,
+        config: config
+      })
         .then(() => {
           form.resetFields()
           onOk?.(e)

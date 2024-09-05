@@ -1,4 +1,5 @@
-import metricapi, { MetricItemType, MetricLabelType } from '@/api/datasource/metric'
+import { getMetricDetail } from '@/api/datasource/metric'
+import { MetricItemType, MetricLabelType } from '@/api/datasource/types'
 import { MetricType, MetricTypeData } from '@/api/global'
 import { Button, Modal, ModalProps, Space, Table, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
@@ -71,7 +72,7 @@ export const Label: React.FC<LabelProps> = (props) => {
         clearTimeout(searchTimer)
       }
       searchTimer = setTimeout(async () => {
-        const res = await metricapi.getMetricDetail(metricDetail.id, true)
+        const res = await getMetricDetail(metricDetail.id, true)
         setMetricLabels(res?.data?.labels || [])
       }, 500)
     }

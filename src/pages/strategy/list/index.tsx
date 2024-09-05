@@ -1,28 +1,28 @@
-import React, { useEffect, useState, useRef, Key, useCallback } from 'react'
-import { Status, ActionKey } from '@/api/global'
-import { Space, message, Modal, theme, Button } from 'antd'
-import { debounce } from 'lodash'
-import AutoTable from '@/components/table/index'
-import SearchBox from '@/components/data/search-box'
-import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
-import { formList, getColumnList, GroupEditModalFormData } from './options'
+import { ActionKey, Status } from '@/api/global'
 import {
-  createStrategyGroup,
-  deleteStrategyGroup,
-  updateStrategyGroup,
   changeStrategyGroup,
+  createStrategy,
+  deleteStrategyGroup,
   getStrategyList,
-  createStrategy
+  updateStrategy
 } from '@/api/strategy'
 import {
+  CreateStrategyRequest,
   GetStrategyGroupListRequest,
+  GetStrategyListRequest,
   StrategyGroupItemType,
-  StrategyItemType,
-  GetStrategyListRequest
+  StrategyItemType
 } from '@/api/strategy/types'
+import SearchBox from '@/components/data/search-box'
+import AutoTable from '@/components/table/index'
+import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { ExclamationCircleFilled } from '@ant-design/icons'
-import { MetricEditModal, MetricEditModalData } from './metric-edit-modal'
+import { Button, message, Modal, Space, theme } from 'antd'
+import { debounce } from 'lodash'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styles from './index.module.scss'
+import { MetricEditModal, MetricEditModalData } from './metric-edit-modal'
+import { formList, getColumnList } from './options'
 
 const { confirm } = Modal
 const { useToken } = theme
@@ -79,29 +79,46 @@ const StrategyMetric: React.FC = () => {
     []
   )
 
-  const handleMetricEditModalSubmit = (data: any) => {
-    const { name, expr, remark, labels, annotations, level, categoriesIds, groupId, step, datasourceIds, strategyLevel } = data
-    const params = {
+  const handleMetricEditModalSubmit = (data: MetricEditModalData) => {
+    const {
       name,
       expr,
       remark,
       labels,
       annotations,
-      level,
+      alarmGroupIds,
       categoriesIds,
       groupId,
       step,
       datasourceIds,
       strategyLevel
+    } = data
+    const params: CreateStrategyRequest = {
+      name,
+      expr,
+      remark,
+      labels,
+      annotations,
+      categoriesIds,
+      groupId,
+      step,
+      datasourceIds,
+      strategyLevel: strategyLevel.map((item) => {
+        return {
+          ...item,
+          duration: item.duration ? `${item.duration}s` : '10s'
+        }
+      }),
+      alarmGroupIds,
+      status: Status.ENABLE,
+      sourceType: 1
     }
 
     const call = () => {
       if (!editGroupId) {
         return createStrategy(params)
       } else {
-        // return updateStrategy(editGroupId, params)
-        return createStrategy(params)
-        // return updateStrategyGroup(editGroupId, upParams)
+        return updateStrategy({ data: params, id: editGroupId })
       }
     }
     return call().then(() => {
@@ -250,7 +267,7 @@ const StrategyMetric: React.FC = () => {
               x: 1000
             }}
             size='middle'
-          ></AutoTable>
+          />
         </div>
       </div>
     </div>

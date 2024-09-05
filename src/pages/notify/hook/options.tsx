@@ -1,21 +1,9 @@
-import { featchDictListByCrategory } from '@/api/dict'
-import { DictItem, DictType } from '@/api/dict/types'
 import { ActionKey, Status, StatusData } from '@/api/global'
-import { StrategyGroupItemType } from '@/api/strategy/types'
-import type { SearchFormItem } from '@/components/data/search-box'
-import type { MoreMenuProps } from '@/components/moreMenu'
-import MoreMenu from '@/components/moreMenu'
-import OverflowTooltip from '@/components/overflowTooltip'
+import { NotifyHookItemType } from '@/api/notify/types'
+import { SearchFormItem } from '@/components/data/search-box'
+import MoreMenu, { MoreMenuProps } from '@/components/moreMenu'
 import { Badge, Button, Space, Tooltip } from 'antd'
 import { ColumnsType } from 'antd/es/table'
-
-export type GroupEditModalFormData = {
-  name: string
-  remark: string
-  status?: number
-  categoriesIds: number[]
-  teamId?: number
-}
 
 export const formList: SearchFormItem[] = [
   {
@@ -28,51 +16,18 @@ export const formList: SearchFormItem[] = [
         allowClear: true
       }
     }
-  },
-  {
-    name: 'categoriesIds',
-    label: '分类',
-    dataProps: {
-      type: 'select-fetch',
-      itemProps: {
-        selectProps: {
-          placeholder: '请选择规则组分类',
-          mode: 'multiple',
-          maxTagCount: 'responsive'
-        },
-        handleFetch: featchDictListByCrategory(DictType.DictTypePromStrategyGroup),
-        defaultOptions: []
-      }
-    }
-  },
-  {
-    name: 'status',
-    label: '状态',
-    dataProps: {
-      type: 'select',
-      itemProps: {
-        placeholder: '规则组状态',
-        allowClear: true,
-        options: Object.entries(StatusData).map(([key, value]) => {
-          return {
-            label: value.text,
-            value: Number(key)
-          }
-        })
-      }
-    }
   }
 ]
 
-interface GroupColumnProps {
-  onHandleMenuOnClick: (item: StrategyGroupItemType, key: ActionKey) => void
+interface NotifyHookColumnProps {
+  onHandleMenuOnClick: (item: NotifyHookItemType, key: ActionKey) => void
   current: number
   pageSize: number
 }
 
-export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGroupItemType> => {
+export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<NotifyHookItemType> => {
   const { onHandleMenuOnClick, current, pageSize } = props
-  const tableOperationItems = (record: StrategyGroupItemType): MoreMenuProps['items'] => [
+  const tableOperationItems = (record: NotifyHookItemType): MoreMenuProps['items'] => [
     record.status === Status.DISABLE
       ? {
           key: ActionKey.DISABLE,
@@ -153,10 +108,15 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       key: 'categories',
       align: 'center',
       width: 160,
-      render: (categories: DictItem[]) => {
+      render: (text: string) => {
         return (
-          <Tooltip placement='top' title={<div>{categories.map((item) => item.name).join('，')}</div>}>
-            <div>{categories.map((item) => item.name).join('，')}</div>
+          <Tooltip
+            placement='top'
+            title={() => {
+              return <div>{text}</div>
+            }}
+          >
+            <div>{text ? text : '-'}</div>
           </Tooltip>
         )
       }
@@ -179,12 +139,12 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       key: 'strategyCount',
       width: 120,
       align: 'center',
-      render: (text: StrategyGroupItemType) => {
+      render: () => {
         return (
           <b>
-            <span style={{ color: '' }}>{text.enableStrategyCount}</span>
+            <span style={{ color: '' }}>-</span>
             {' / '}
-            <span style={{ color: 'green' }}>{text.strategyCount}</span>
+            <span style={{ color: 'green' }}>-</span>
           </b>
         )
       }
@@ -196,7 +156,16 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       align: 'center',
       width: 300,
       render: (text: string) => {
-        return <OverflowTooltip content={text} maxWidth='300px'></OverflowTooltip>
+        return (
+          <Tooltip
+            placement='top'
+            title={() => {
+              return <div>{text}</div>
+            }}
+          >
+            <div>{text ? text : '-'}</div>
+          </Tooltip>
+        )
       }
     },
     {
@@ -244,7 +213,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       ellipsis: true,
       fixed: 'right',
       width: 120,
-      render: (record: StrategyGroupItemType) => (
+      render: (record: NotifyHookItemType) => (
         <Space size={20}>
           <Button size='small' type='link' onClick={() => onHandleMenuOnClick(record, ActionKey.DETAIL)}>
             详情

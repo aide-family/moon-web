@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from 'axios'
 import { notification } from 'antd'
+import axios from 'axios'
 
 const host = window.location.origin
 

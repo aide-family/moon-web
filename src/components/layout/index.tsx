@@ -1,14 +1,14 @@
+import { Layout, Menu, message, Spin, theme } from 'antd'
 import React, { Suspense, useContext, useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { Layout, Menu, message, Spin, theme } from 'antd'
 
-import './layout.scss'
-import HeaderTitle from './header-title'
-import { HeaderOp } from './header-op'
-import { GlobalContext } from '@/utils/context'
-import RouteBreadcrumb from './route-breadcrumb'
-import { CopyrightOutlined } from '@ant-design/icons'
 import { isLogin } from '@/api/request'
+import { GlobalContext } from '@/utils/context'
+import { CopyrightOutlined } from '@ant-design/icons'
+import { HeaderOp } from './header-op'
+import HeaderTitle from './header-title'
+import './layout.scss'
+import RouteBreadcrumb from './route-breadcrumb'
 
 const { Header, Content, Footer, Sider } = Layout
 const { useToken } = theme
@@ -71,8 +71,14 @@ const MoonLayout: React.FC = () => {
   return (
     <>
       <Layout style={{ overflow: 'hidden', height: '100vh', width: '100vw' }}>
-        <Sider collapsed={collapsed}>
-          <div className='menu-header'>
+        <Sider collapsed={collapsed} className='menu-sider'>
+          <div
+            className='menu-header'
+            style={{
+              height: 60,
+              padding: '0 22px'
+            }}
+          >
             <HeaderTitle />
           </div>
           <Menu
