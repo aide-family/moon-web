@@ -1,7 +1,7 @@
-import { refreshToken } from '@/api/authorization/user'
+import { refreshToken } from '@/api/authorization'
+import { TeamItem } from '@/api/model-types'
 import { setToken } from '@/api/request'
-import team from '@/api/team'
-import { TeamItemType } from '@/api/team/types'
+import { myTeam } from '@/api/team'
 import { GlobalContext } from '@/utils/context'
 import { DownOutlined } from '@ant-design/icons'
 import { Avatar, Col, Dropdown, Row, Space } from 'antd'
@@ -11,10 +11,10 @@ export interface TeamMenuProps {}
 
 export const TeamMenu: React.FC<TeamMenuProps> = () => {
   const { teamInfo, setTeamInfo, setUserInfo, refreshMyTeamList } = useContext(GlobalContext)
-  const [teamList, setTeamList] = React.useState<TeamItemType[]>([])
+  const [teamList, setTeamList] = React.useState<TeamItem[]>([])
 
   const handleGetMyTeamList = () => {
-    team.getMyTeamApi().then(({ list }) => {
+    myTeam().then(({ list }) => {
       setTeamList(list || [])
     })
   }
@@ -39,7 +39,7 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
               </Row>
             ),
             onClick: () => {
-              refreshToken(item.id).then((res) => {
+              refreshToken({ teamID: item.id }).then((res) => {
                 const { token, user } = res
                 setToken(token)
                 setUserInfo?.(user)

@@ -1,7 +1,7 @@
-import { featchDictListByCrategory } from '@/api/dict'
-import { DictItem, DictType } from '@/api/dict/types'
-import { ActionKey, Status, StatusData } from '@/api/global'
-import { StrategyGroupItemType } from '@/api/strategy/types'
+import { dictSelectList } from '@/api/dict'
+import { DictType, Status } from '@/api/enum'
+import { ActionKey, StatusData } from '@/api/global'
+import { SelectItem, StrategyGroupItem } from '@/api/model-types'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
@@ -40,7 +40,13 @@ export const formList: SearchFormItem[] = [
           mode: 'multiple',
           maxTagCount: 'responsive'
         },
-        handleFetch: featchDictListByCrategory(DictType.DictTypePromStrategyGroup),
+        handleFetch: (keyword: string) =>
+          dictSelectList({
+            keyword,
+            pagination: { pageNum: 1, pageSize: 999 },
+            status: Status.StatusEnable,
+            dictType: DictType.DictTypeStrategyGroupCategory
+          }).then(({ list }) => list),
         defaultOptions: []
       }
     }
@@ -65,15 +71,15 @@ export const formList: SearchFormItem[] = [
 ]
 
 interface GroupColumnProps {
-  onHandleMenuOnClick: (item: StrategyGroupItemType, key: ActionKey) => void
+  onHandleMenuOnClick: (item: StrategyGroupItem, key: ActionKey) => void
   current: number
   pageSize: number
 }
 
-export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGroupItemType> => {
+export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGroupItem> => {
   const { onHandleMenuOnClick, current, pageSize } = props
-  const tableOperationItems = (record: StrategyGroupItemType): MoreMenuProps['items'] => [
-    record.status === Status.DISABLE
+  const tableOperationItems = (record: StrategyGroupItem): MoreMenuProps['items'] => [
+    record.status === Status.StatusDisable
       ? {
           key: ActionKey.DISABLE,
           label: (
@@ -153,10 +159,10 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       key: 'categories',
       align: 'center',
       width: 160,
-      render: (categories: DictItem[]) => {
+      render: (categories: SelectItem[]) => {
         return (
-          <Tooltip placement='top' title={<div>{categories.map((item) => item.name).join('，')}</div>}>
-            <div>{categories.map((item) => item.name).join('，')}</div>
+          <Tooltip placement='top' title={<div>{categories.map((item) => item.label).join('，')}</div>}>
+            <div>{categories.map((item) => item.label).join('，')}</div>
           </Tooltip>
         )
       }
@@ -179,12 +185,12 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       key: 'strategyCount',
       width: 120,
       align: 'center',
-      render: (text: StrategyGroupItemType) => {
+      render: (_, record: StrategyGroupItem) => {
         return (
           <b>
-            <span style={{ color: '' }}>{text.enableStrategyCount}</span>
+            <span style={{ color: '' }}>{record.enableStrategyCount}</span>
             {' / '}
-            <span style={{ color: 'green' }}>{text.strategyCount}</span>
+            <span style={{ color: 'green' }}>{record.strategyCount}</span>
           </b>
         )
       }
@@ -244,7 +250,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       ellipsis: true,
       fixed: 'right',
       width: 120,
-      render: (record: StrategyGroupItemType) => (
+      render: (_, record: StrategyGroupItem) => (
         <Space size={20}>
           <Button size='small' type='link' onClick={() => onHandleMenuOnClick(record, ActionKey.DETAIL)}>
             详情

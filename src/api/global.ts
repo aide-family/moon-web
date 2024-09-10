@@ -1,11 +1,12 @@
 import { BadgeProps } from 'antd'
+import { Condition, DatasourceType, Gender, MetricType, Role, Status, StorageType, SustainType } from './enum'
 
-export interface Pagination {
+export interface PaginationReq {
   pageNum: number
   pageSize: number
 }
 
-export interface PaginationReply extends Pagination {
+export interface PaginationReply extends PaginationReq {
   total: number
 }
 
@@ -29,69 +30,40 @@ export interface SelectType {
   extend?: SelectExtendType
 }
 
-export enum Status {
-  ALL = 0,
-  ENABLE = 1,
-  DISABLE = 2
+// 枚举类型
+export interface EnumItem {
+  // 枚举值
+  value: number
+  // 枚举描述
+  label: string
 }
 
 export const StatusData: Record<Status, BadgeProps> = {
-  [Status.ALL]: {
+  [Status.StatusAll]: {
     color: 'blue',
     text: '全部'
   },
-  [Status.ENABLE]: {
+  [Status.StatusEnable]: {
     color: 'green',
     text: '启用'
   },
-  [Status.DISABLE]: {
+  [Status.StatusDisable]: {
     color: 'red',
     text: '禁用'
   }
 }
 
-export enum Gender {
-  ALL = 0,
-  MALE = 1,
-  FEMALE = 2
-}
-
 export const GenderData: Record<Gender, string> = {
-  [Gender.ALL]: '全部',
-  [Gender.MALE]: '男',
-  [Gender.FEMALE]: '女'
+  [Gender.GenderAll]: '全部',
+  [Gender.GenderMale]: '男',
+  [Gender.GenderFemale]: '女'
 }
 
-export enum SystemRole {
-  // 全部 / 未知
-  ROLE_ALL = 0,
-  // 管理员
-  ROLE_SUPPER_ADMIN = 1,
-  // 普通管理员
-  ROLE_ADMIN = 2,
-  // 普通用户
-  ROLE_USER = 3
-}
-
-export const SystemRoleData: Record<SystemRole, string> = {
-  [SystemRole.ROLE_ALL]: '全部',
-  [SystemRole.ROLE_SUPPER_ADMIN]: '超级管理员',
-  [SystemRole.ROLE_ADMIN]: '管理员',
-  [SystemRole.ROLE_USER]: '普通用户'
-}
-
-// MetricType 指标类型
-export enum MetricType {
-  // 未知指标类型
-  MetricTypeUnknown = 0,
-  // Counter
-  MetricTypeCounter = 1,
-  // Gauge
-  MetricTypeGauge = 2,
-  // Histogram
-  MetricTypeHistogram = 3,
-  // Summary
-  MetricTypeSummary = 4
+export const RoleData: Record<Role, string> = {
+  [Role.RoleAll]: '全部',
+  [Role.RoleSupperAdmin]: '超级管理员',
+  [Role.RoleAdmin]: '管理员',
+  [Role.RoleUser]: '普通用户'
 }
 
 export type TagItemType = {
@@ -122,61 +94,21 @@ export const MetricTypeData: Record<MetricType, TagItemType> = {
   }
 }
 
-// 数据源类型
-export enum DataSourceType {
-  // 未知数据源类型
-  DataSourceTypeUnknown = 0,
-
-  DataSourceTypeMetric = 1,
-
-  DataSourceTypeLog = 2,
-
-  DataSourceTypeTrace = 3
-}
-
-export const DataSourceTypeData: Record<DataSourceType, string> = {
-  [DataSourceType.DataSourceTypeUnknown]: '全部',
-  [DataSourceType.DataSourceTypeMetric]: 'Metric',
-  [DataSourceType.DataSourceTypeLog]: 'Log',
-  [DataSourceType.DataSourceTypeTrace]: 'Trace'
-}
-
-// 存储器类型
-export enum StorageType {
-  // 未知存储器类型
-  StorageTypeUnknown = 0,
-  // Prometheus
-  StorageTypePrometheus = 1
-  // TODO 待开发
+export const DataSourceTypeData: Record<DatasourceType, string> = {
+  [DatasourceType.DatasourceTypeUnknown]: '全部',
+  [DatasourceType.DatasourceTypeMetric]: 'Metric',
+  [DatasourceType.DatasourceTypeLog]: 'Log',
+  [DatasourceType.DatasourceTypeTrace]: 'Trace'
 }
 
 export const StorageTypeData: Record<StorageType, string> = {
   [StorageType.StorageTypeUnknown]: '全部',
-  [StorageType.StorageTypePrometheus]: 'Prometheus'
-}
-
-// 判断条件
-export enum Condition {
-  // 等于
-  ConditionEQ = 1,
-
-  // 不等于
-  ConditionNE = 2,
-
-  // 大于
-  ConditionGT = 3,
-
-  // 大于等于
-  ConditionGTE = 4,
-
-  // 小于
-  ConditionLT = 5,
-
-  // 小于等于
-  ConditionLTE = 6
+  [StorageType.StorageTypePrometheus]: 'Prometheus',
+  [StorageType.StorageTypeVictoriaMetrics]: 'VictoriaMetrics'
 }
 
 export const ConditionData: Record<Condition, string> = {
+  [Condition.ConditionUnknown]: '全部',
   [Condition.ConditionEQ]: '等于(==)',
   [Condition.ConditionNE]: '不等于(!=)',
   [Condition.ConditionGT]: '大于(>)',
@@ -185,19 +117,8 @@ export const ConditionData: Record<Condition, string> = {
   [Condition.ConditionLTE]: '小于等于(<=)'
 }
 
-// 持续类型
-export enum SustainType {
-  // m时间内出现n次
-  SustainTypeFor = 1,
-
-  // m时间内最多出现n次
-  SustainTypeMax = 2,
-
-  // m时间内最少出现n次
-  SustainTypeMin = 3
-}
-
 export const SustainTypeData: Record<SustainType, string> = {
+  [SustainType.SustainTypeUnknown]: 'm时间内出现n次',
   [SustainType.SustainTypeFor]: 'm时间内出现n次',
   [SustainType.SustainTypeMax]: 'm时间内最多出现n次',
   [SustainType.SustainTypeMin]: 'm时间内最少出现n次'

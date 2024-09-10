@@ -1,9 +1,9 @@
-import { MetricLabelType } from '@/api/datasource/types'
+import { MetricLabelItem } from '@/api/model-types'
 import { Modal, ModalProps } from 'antd'
 import React from 'react'
 
 export interface LabelEditModalProps extends ModalProps {
-  labelDetail?: MetricLabelType
+  labelDetail?: MetricLabelItem
 }
 
 export const LabelEditModal: React.FC<LabelEditModalProps> = (props) => {

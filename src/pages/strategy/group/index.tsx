@@ -1,12 +1,14 @@
-import { ActionKey, Status } from '@/api/global'
+import { Status } from '@/api/enum'
+import { ActionKey } from '@/api/global'
+import { StrategyGroupItem } from '@/api/model-types'
 import {
-  changeStrategyGroup,
   createStrategyGroup,
   deleteStrategyGroup,
-  getStrategyGroupList,
-  updateStrategyGroup
+  listStrategyGroup,
+  ListStrategyGroupRequest,
+  updateStrategyGroup,
+  updateStrategyGroupStatus
 } from '@/api/strategy'
-import { GetStrategyGroupListRequest, StrategyGroupItemType } from '@/api/strategy/types'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
@@ -21,20 +23,20 @@ import { formList, getColumnList, GroupEditModalFormData } from './options'
 const { confirm } = Modal
 const { useToken } = theme
 
-const defaultSearchParams: GetStrategyGroupListRequest = {
+const defaultSearchParams: ListStrategyGroupRequest = {
   pagination: {
     pageNum: 1,
     pageSize: 10
   },
   keyword: '',
-  status: Status.ALL
+  status: Status.StatusAll
   // teamId: ''
 }
 
 const Group: React.FC = () => {
   const { token } = useToken()
-  const [datasource, setDatasource] = useState<StrategyGroupItemType[]>([])
-  const [searchParams, setSearchParams] = useState<GetStrategyGroupListRequest>(defaultSearchParams)
+  const [datasource, setDatasource] = useState<StrategyGroupItem[]>([])
+  const [searchParams, setSearchParams] = useState<ListStrategyGroupRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
@@ -70,13 +72,12 @@ const Group: React.FC = () => {
   const fetchData = useCallback(
     debounce(async (params) => {
       setLoading(true)
-      try {
-        const { list, pagination } = await getStrategyGroupList(params)
-        setDatasource(list || [])
-        setTotal(pagination?.total || 0)
-      } finally {
-        setLoading(false)
-      }
+      listStrategyGroup(params)
+        .then(({ list, pagination }) => {
+          setDatasource(list || [])
+          setTotal(pagination?.total || 0)
+        })
+        .finally(() => setLoading(false))
     }, 500),
     []
   )
@@ -95,7 +96,7 @@ const Group: React.FC = () => {
       if (!editGroupId) {
         return createStrategyGroup(params)
       } else {
-        return updateStrategyGroup(editGroupId, upParams)
+        return updateStrategyGroup({ id: editGroupId, ...upParams })
       }
     }
     return call().then(() => {
@@ -110,7 +111,7 @@ const Group: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh, searchParams, fetchData])
 
-  const onSearch = (formData: GetStrategyGroupListRequest) => {
+  const onSearch = (formData: ListStrategyGroupRequest) => {
     setSearchParams({
       ...searchParams,
       ...formData,
@@ -122,7 +123,7 @@ const Group: React.FC = () => {
   }
 
   // 批量操作
-  const handlerBatchData = (selectedRowKeys: Key[], selectedRows: StrategyGroupItemType[]) => {
+  const handlerBatchData = (selectedRowKeys: Key[], selectedRows: StrategyGroupItem[]) => {
     console.log(selectedRowKeys, selectedRows)
   }
 
@@ -142,16 +143,16 @@ const Group: React.FC = () => {
     setSearchParams(defaultSearchParams)
   }
 
-  const onHandleMenuOnClick = (item: StrategyGroupItemType, key: ActionKey) => {
+  const onHandleMenuOnClick = (item: StrategyGroupItem, key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
-        changeStrategyGroup([item.id], 2).then(() => {
+        updateStrategyGroupStatus({ ids: [item.id], status: Status.StatusEnable }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
         break
       case ActionKey.DISABLE:
-        changeStrategyGroup([item.id], 1).then(() => {
+        updateStrategyGroupStatus({ ids: [item.id], status: Status.StatusDisable }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
@@ -170,7 +171,7 @@ const Group: React.FC = () => {
           icon: <ExclamationCircleFilled />,
           content: '此操作不可逆',
           onOk() {
-            deleteStrategyGroup(item.id).then(() => {
+            deleteStrategyGroup({ id: item.id }).then(() => {
               message.success('删除成功')
               onRefresh()
             })
@@ -198,7 +199,7 @@ const Group: React.FC = () => {
         open={openGroupEditModal}
         onCancel={handleCloseGroupEditModal}
         submit={handleGroupEditModalSubmit}
-        GroupId={editGroupId}
+        groupId={editGroupId}
         disabled={disabledEditGroupModal}
       />
       <div

@@ -1,10 +1,10 @@
-import React, { useContext } from 'react'
-import Banner from './banner'
-import './index.scss'
-import LoginForm from './form'
+import { GlobalContext } from '@/utils/context'
 import { CopyrightOutlined, GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { Button, theme } from 'antd'
-import { GlobalContext } from '@/utils/context'
+import React, { useContext } from 'react'
+import Banner from './banner'
+import LoginForm from './form'
+import './index.scss'
 
 export interface LoginProps {}
 const { useToken } = theme

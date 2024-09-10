@@ -1,4 +1,5 @@
-import { Condition, Status, StatusData, SustainType } from '@/api/global'
+import { Condition, Status, SustainType } from '@/api/enum'
+import { StatusData } from '@/api/global'
 import { DataFromItem } from '@/components/data/form'
 
 export type LevelItemType = {

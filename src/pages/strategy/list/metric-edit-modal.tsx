@@ -1,17 +1,10 @@
-import { getDatasourceList } from '@/api/datasource'
-import { DatasourceItemType } from '@/api/datasource/types'
-import { featchDictListByCrategory } from '@/api/dict'
-import { DictType } from '@/api/dict/types'
-import {
-  Condition,
-  ConditionData,
-  Status,
-  StorageType,
-  StorageTypeData,
-  SustainType,
-  SustainTypeData
-} from '@/api/global'
-import { getStrategyTemplate, validateAnnotationTemplate } from '@/api/template'
+import { listDatasource } from '@/api/datasource'
+import { dictSelectList } from '@/api/dict'
+import { Condition, DictType, Status, StorageType, SustainType } from '@/api/enum'
+import { ConditionData, StorageTypeData, SustainTypeData } from '@/api/global'
+import { DatasourceItem, StrategyItem } from '@/api/model-types'
+import { CreateStrategyLabelNoticeRequest, getStrategy } from '@/api/strategy'
+import { validateAnnotationsTemplate } from '@/api/strategy/template'
 import { AnnotationsEditor } from '@/components/data/child/annotation-editor'
 import FetchSelect from '@/components/data/child/fetch-select'
 import PromQLInput from '@/components/data/child/prom-ql'
@@ -42,6 +35,8 @@ const { useToken } = theme
 export interface StrategyLevelTemplateType {
   // 策略持续时间
   duration: number
+  // 执行频率
+  interval: number
   // 持续次数
   count: number
   // 持续的类型
@@ -56,6 +51,12 @@ export interface StrategyLevelTemplateType {
   levelId: number
   // 状态
   status: Status
+  // 告警页面列表
+  alarmPageIds: number[]
+  // 告警组列表
+  alarmGroupIds: number[]
+  // 告警组列表
+  labelNotices: CreateStrategyLabelNoticeRequest[]
 }
 
 export type MetricEditModalData = {
@@ -83,7 +84,7 @@ export type MetricEditModalData = {
 }
 
 export interface TemplateEditModalProps extends ModalProps {
-  templateId?: number
+  strategyId?: number
   disabled?: boolean
   submit?: (data: MetricEditModalData) => Promise<void>
 }
@@ -91,7 +92,7 @@ export interface TemplateEditModalProps extends ModalProps {
 let summaryTimeout: NodeJS.Timeout | null = null
 let descriptionTimeout: NodeJS.Timeout | null = null
 export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
-  const { onCancel, submit, open, title, templateId, disabled } = props
+  const { onCancel, submit, open, title, strategyId, disabled } = props
 
   const { token } = useToken()
 
@@ -113,48 +114,24 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
   })
 
   const [loading, setLoading] = useState(false)
-  const [datasourceList, setDatasourceList] = useState<DatasourceItemType[]>([])
-  const [templdateDetail, setTemplateDetail] = useState<MetricEditModalFormData>()
+  const [datasourceList, setDatasourceList] = useState<DatasourceItem[]>([])
+  const [strategyDetail, setStrategyDetail] = useState<StrategyItem>()
 
-  const getTemplateDetail = async () => {
-    if (templateId) {
-      setLoading(true)
-      const res = await getStrategyTemplate(templateId)
-      // const { expr, labels, levels, annotations, remark, categories } = res
-      // setTemplateDetail({
-      //   expr,
-      //   labelsItems: Object.entries(labels).map(([key, value]) => ({
-      //     key,
-      //     value
-      //   })),
-      //   annotations,
-      //   remark,
-      //   levelItems: levels.map((item): LevelItemType => {
-      //     const { condition, count, duration, levelId, sustainType, threshold, status, id } = item
-      //     const levelItem: LevelItemType = {
-      //       condition: condition,
-      //       count: count,
-      //       duration: +duration?.split('s')?.[0] || 0,
-      //       levelId: levelId,
-      //       sustainType: sustainType,
-      //       threshold: threshold,
-      //       status: status,
-      //       id: id
-      //     }
-      //     return levelItem
-      //   }),
-      //   categoriesIds:
-      //     categories?.map((item) => {
-      //       return item.value
-      //     }) || []
-      // })
-      setLoading(false)
+  const getStrategyDetail = async () => {
+    if (!strategyId) {
+      return
     }
+    setLoading(true)
+    getStrategy({ id: strategyId })
+      .then(({ detail }) => {
+        setStrategyDetail(detail)
+      })
+      .finally(() => setLoading(false))
   }
 
   useEffect(() => {
     if (!datasourceType) return
-    getDatasourceList({
+    listDatasource({
       storageType: datasourceType,
       pagination: {
         pageNum: 1,
@@ -166,32 +143,72 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
   }, [datasourceType, open])
 
   useEffect(() => {
-    if (!templateId) {
-      setTemplateDetail(undefined)
+    if (!strategyId) {
+      setStrategyDetail(undefined)
     }
-    getTemplateDetail()
+    getStrategyDetail()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [templateId])
+  }, [strategyId])
 
   useEffect(() => {
-    if (open && form && templdateDetail) {
-      form.setFieldsValue(templdateDetail)
+    if (open && form && strategyDetail) {
+      form.setFieldsValue({
+        name: strategyDetail?.name,
+        expr: strategyDetail?.expr,
+        remark: strategyDetail?.remark,
+        labels: Object.keys(strategyDetail?.labels)?.map((key) => ({
+          key,
+          value: strategyDetail?.labels?.[key]
+        })),
+        annotations: {
+          summary: strategyDetail?.annotations?.summary,
+          description: strategyDetail?.annotations?.description
+        },
+        categoriesIds: strategyDetail?.categories?.map((item) => item.id),
+        groupId: strategyDetail?.groupId,
+        step: strategyDetail?.step,
+        datasourceIds: strategyDetail?.datasource?.map((item) => item.id),
+        alarmGroupIds: strategyDetail?.alarmNoticeGroups?.map((item) => item.id),
+        strategyLevel: strategyDetail?.levels?.map((item) => {
+          return {
+            duration: +item.duration.trimEnd(),
+            interval: +item.interval.trimEnd(),
+            count: item.count,
+            sustainType: item.sustainType,
+            condition: item.condition,
+            threshold: item.threshold,
+            id: item.id,
+            levelId: item.levelId,
+            status: item.status,
+            alarmPageIds: item?.alarmPages?.map((item) => item.value),
+            labelNotices: item?.labelNotices?.map((item) => {
+              return {
+                name: item.name,
+                value: item.value,
+                alarmGroupIds: item.alarmGroups?.map((item) => item.id)
+              } satisfies CreateStrategyLabelNoticeRequest
+            }),
+            alarmGroupIds: item?.alarmGroups?.map((item) => item.id)
+          } satisfies StrategyLevelTemplateType
+        })
+      } satisfies MetricEditModalFormData)
       return
     }
     form.resetFields()
-  }, [templdateDetail, open, form])
+    setStrategyDetail(undefined)
+  }, [form, open, strategyDetail])
 
   const handleOnCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     onCancel?.(e)
     form.resetFields()
-    setTemplateDetail(undefined)
+    setStrategyDetail(undefined)
   }
 
   const checkExpression = (tmpValue: string) => {
-    const { labels, expr, datasource, strategyLevel } = form.getFieldsValue()
+    const { labels, expr, datasource, strategyLevel, name } = form.getFieldsValue()
     if (!tmpValue || !datasource) return
     const level = strategyLevel?.[0]
-    return validateAnnotationTemplate({
+    return validateAnnotationsTemplate({
       annotations: tmpValue,
       expr: expr,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -204,7 +221,10 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
       datasourceId: 0,
       duration: `${level?.duration}s`,
       count: level?.count,
-      sustainType: level?.sustainType
+      sustainType: level?.sustainType,
+      alert: name,
+      condition: level.condition,
+      threshold: level.threshold
     })
   }
 
@@ -289,7 +309,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
 
       setLoading(true)
       submit?.({
-        id: templateId,
+        id: strategyId,
         name,
         expr,
         remark,
@@ -358,7 +378,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                 options={datasourceList.map((item) => ({
                   label: item.name,
                   value: item.id,
-                  disabled: item.status !== Status.ENABLE
+                  disabled: item.status !== Status.StatusEnable
                 }))}
               />
             </Form.Item>
@@ -388,7 +408,13 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                       placeholder: '请选择策略类型',
                       mode: 'multiple'
                     }}
-                    handleFetch={featchDictListByCrategory(DictType.DictTypePromStrategy)}
+                    handleFetch={(keyword: string) =>
+                      dictSelectList({
+                        dictType: DictType.DictTypeStrategyCategory,
+                        pagination: { pageNum: 1, pageSize: 999 },
+                        keyword: keyword
+                      }).then(({ list }) => list)
+                    }
                   />
                 </Form.Item>
               </Col>
@@ -580,7 +606,14 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                 selectProps={{
                                   placeholder: '请选择告警等级'
                                 }}
-                                handleFetch={featchDictListByCrategory(DictType.DictTypeAlarmLevel)}
+                                handleFetch={(keyword: string) =>
+                                  dictSelectList({
+                                    pagination: { pageNum: 1, pageSize: 999 },
+                                    dictType: DictType.DictTypeAlarmLevel,
+                                    keyword,
+                                    status: Status.StatusEnable
+                                  }).then(({ list }) => list)
+                                }
                               />
                             </Form.Item>
                           </Col>
@@ -687,7 +720,17 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                   placeholder: '请选择告警页面',
                                   mode: 'multiple'
                                 }}
-                                handleFetch={featchDictListByCrategory(DictType.DictTypeAlarmPage)}
+                                handleFetch={(keyword: string) =>
+                                  dictSelectList({
+                                    keyword,
+                                    pagination: {
+                                      pageNum: 1,
+                                      pageSize: 10
+                                    },
+                                    status: Status.StatusEnable,
+                                    dictType: DictType.DictTypeAlarmPage
+                                  }).then(({ list }) => list)
+                                }
                               />
                             </Form.Item>
                           </Col>

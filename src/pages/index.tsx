@@ -1,16 +1,16 @@
-import { ConfigProvider, theme } from 'antd'
-import { GlobalContext, GlobalContextType, LangType, ThemeType, getUseTheme } from '@/utils/context'
-import { createHashRouter, RouterProvider } from 'react-router-dom'
-import { routers } from '@/config/router'
-import { breadcrumbNameMap, defaultMenuItems } from '@/config/menu'
-import { SpaceSize } from 'antd/es/space'
-import useStorage from '@/utils/storage'
+import { Status } from '@/api/enum'
+import { TeamItem, UserItem } from '@/api/model-types'
 import '@/assets/styles/index.scss'
-import { UserItem } from '@/api/authorization/user'
-import { TeamItemType } from '@/api/team/types'
-import zhCN from 'antd/locale/zh_CN'
+import { breadcrumbNameMap, defaultMenuItems } from '@/config/menu'
+import { routers } from '@/config/router'
+import { getUseTheme, GlobalContext, GlobalContextType, LangType, ThemeType } from '@/utils/context'
+import useStorage from '@/utils/storage'
+import { ConfigProvider, theme } from 'antd'
+import { SpaceSize } from 'antd/es/space'
 import enUS from 'antd/locale/en_US'
+import zhCN from 'antd/locale/zh_CN'
 import { useState } from 'react'
+import { createHashRouter, RouterProvider } from 'react-router-dom'
 
 const { useToken } = theme
 
@@ -26,9 +26,15 @@ function getUserInfo() {
   return {}
 }
 
-const defaultTeamInfo: TeamItemType = {
+const defaultTeamInfo: TeamItem = {
   id: 0,
-  name: '请选择团队信息'
+  name: '请选择团队信息',
+  status: Status.StatusEnable,
+  remark: '',
+  createdAt: '',
+  updatedAt: '',
+  logo: '',
+  admin: []
 }
 
 function getTeamInfo() {
@@ -51,7 +57,7 @@ function App() {
   const [size, setSize] = useStorage<SpaceSize>('size', 'middle')
   const [collapsed, setCollapsed] = useStorage<boolean>('collapsed', false)
   const [userInfo, setUserInfo] = useStorage<UserItem>('userInfo', getUserInfo())
-  const [teamInfo, setTeamInfo] = useStorage<TeamItemType>('teamInfo', getTeamInfo())
+  const [teamInfo, setTeamInfo] = useStorage<TeamItem>('teamInfo', getTeamInfo())
   const [refreshMyTeamList, setRefreshMyTeamList] = useState<boolean>(false)
 
   const contextValue: GlobalContextType = {

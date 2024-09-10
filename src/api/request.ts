@@ -9,7 +9,7 @@ const local127 = 'http://127.0.0.1:5173'
 
 export const hostMap: { [key: string]: string } = {
   [localhost]: 'http://dev-palace.aide-cloud.cn',
-  [local127]: 'http://dev-palace.aide-cloud.cn'
+  [local127]: 'http://localhost:8000'
 }
 
 const request = axios.create({
@@ -95,7 +95,7 @@ const PUT = async <T>(url: string, data?: any) => {
   return request.put<NullObject, T>(url, data)
 }
 
-const DELTED = async <T>(url: string, data?: any) => {
+const DELETE = async <T>(url: string, data?: any) => {
   return request.delete<NullObject, T>(url, { data })
 }
 
@@ -103,5 +103,5 @@ export default {
   GET,
   POST,
   PUT,
-  DELTED
+  DELETE
 }

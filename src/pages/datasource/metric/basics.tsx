@@ -1,5 +1,5 @@
-import { DatasourceItemType } from '@/api/datasource/types'
-import { Status } from '@/api/global'
+import { Status } from '@/api/enum'
+import { DatasourceItem } from '@/api/model-types'
 import { GlobalContext } from '@/utils/context'
 import { RedoOutlined } from '@ant-design/icons'
 import { Badge, Button, Descriptions, DescriptionsProps, Typography } from 'antd'
@@ -7,7 +7,7 @@ import React, { useContext } from 'react'
 import ReactJson from 'react-json-view'
 
 export interface BasicsProps {
-  datasource?: DatasourceItemType
+  datasource?: DatasourceItem
   refresh?: () => void
 }
 
@@ -26,8 +26,8 @@ export const Basics: React.FC<BasicsProps> = (props) => {
       // span: 2,
       children: (
         <Badge
-          status={datasource?.status === Status.ENABLE ? 'success' : 'error'}
-          text={datasource?.status === Status.ENABLE ? '启用' : '禁用'}
+          status={datasource?.status === Status.StatusEnable ? 'success' : 'error'}
+          text={datasource?.status === Status.StatusEnable ? '启用' : '禁用'}
         />
       )
     },

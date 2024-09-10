@@ -1,12 +1,12 @@
-import { FC, useContext, useEffect, useState } from 'react'
-import { Button, Form, Input } from 'antd'
-import { useNavigate } from 'react-router-dom'
-import { LockOutlined, UserOutlined } from '@ant-design/icons'
-import { GetCaptchaResponse, getCaptcha } from '@/api/authorization/captcha'
-import { LoginRequest, login } from '@/api/authorization/user'
-import { GlobalContext } from '@/utils/context'
+import { CaptchaReply, getCaptcha, login, LoginRequest } from '@/api/authorization'
+import { CaptchaType } from '@/api/enum'
 import { isLogin, setToken } from '@/api/request'
+import { GlobalContext } from '@/utils/context'
 import { hashMd5 } from '@/utils/hash'
+import { LockOutlined, UserOutlined } from '@ant-design/icons'
+import { Button, Form, Input } from 'antd'
+import { FC, useContext, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export type LoginParams = {
   username: string
@@ -28,7 +28,7 @@ const LoginForm: FC = () => {
 
   const [form] = Form.useForm<formData>()
   const { setUserInfo } = useContext(GlobalContext)
-  const [captcha, setCaptcha] = useState<GetCaptchaResponse>()
+  const [captcha, setCaptcha] = useState<CaptchaReply>()
 
   const handleLogin = (loginParams: LoginRequest) => {
     login(loginParams)
@@ -58,16 +58,16 @@ const LoginForm: FC = () => {
   }
 
   const handleCaptcha = () => {
-    getCaptcha().then((res) => {
+    getCaptcha({
+      captchaType: CaptchaType.CaptchaTypeImage
+    }).then((res) => {
       setCaptcha(res)
     })
   }
 
   useEffect(() => {
     // 获取验证码
-    getCaptcha().then((res) => {
-      setCaptcha(res)
-    })
+    handleCaptcha()
   }, [])
 
   return (

@@ -1,18 +1,17 @@
-import { ActionKey, Status } from '@/api/global'
+import { ActionKey } from '@/api/global'
+
+import { Status, TemplateSourceType } from '@/api/enum'
+import { StrategyGroupItem, StrategyItem } from '@/api/model-types'
 import {
-  changeStrategyGroup,
   createStrategy,
-  deleteStrategyGroup,
-  getStrategyList,
-  updateStrategy
-} from '@/api/strategy'
-import {
+  CreateStrategyLevelRequest,
   CreateStrategyRequest,
-  GetStrategyGroupListRequest,
-  GetStrategyListRequest,
-  StrategyGroupItemType,
-  StrategyItemType
-} from '@/api/strategy/types'
+  deleteStrategyGroup,
+  listStrategy,
+  ListStrategyRequest,
+  updateStrategy,
+  updateStrategyGroupStatus
+} from '@/api/strategy'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
@@ -27,7 +26,7 @@ import { formList, getColumnList } from './options'
 const { confirm } = Modal
 const { useToken } = theme
 
-const defaultSearchParams: GetStrategyListRequest = {
+const defaultSearchParams: ListStrategyRequest = {
   pagination: {
     pageNum: 1,
     pageSize: 10
@@ -39,8 +38,8 @@ const defaultSearchParams: GetStrategyListRequest = {
 
 const StrategyMetric: React.FC = () => {
   const { token } = useToken()
-  const [datasource, setDatasource] = useState<StrategyItemType[]>([])
-  const [searchParams, setSearchParams] = useState<GetStrategyListRequest>(defaultSearchParams)
+  const [datasource, setDatasource] = useState<StrategyItem[]>([])
+  const [searchParams, setSearchParams] = useState<ListStrategyRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
@@ -69,7 +68,7 @@ const StrategyMetric: React.FC = () => {
     debounce(async (params) => {
       setLoading(true)
       try {
-        const { list, pagination } = await getStrategyList(params)
+        const { list, pagination } = await listStrategy(params)
         setDatasource(list || [])
         setTotal(pagination?.total || 0)
       } finally {
@@ -104,14 +103,19 @@ const StrategyMetric: React.FC = () => {
       step,
       datasourceIds,
       strategyLevel: strategyLevel.map((item) => {
+        const { interval, alarmPageIds, alarmGroupIds, labelNotices } = item
         return {
           ...item,
-          duration: item.duration ? `${item.duration}s` : '10s'
-        }
+          duration: item.duration ? `${item.duration}s` : '10s',
+          interval: interval ? `${interval}s` : '10s',
+          alarmPageIds,
+          alarmGroupIds,
+          labelNotices
+        } satisfies CreateStrategyLevelRequest
       }),
       alarmGroupIds,
-      status: Status.ENABLE,
-      sourceType: 1
+      status: Status.StatusEnable,
+      sourceType: TemplateSourceType.TemplateSourceTypeTeam
     }
 
     const call = () => {
@@ -133,7 +137,7 @@ const StrategyMetric: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh, searchParams, fetchData])
 
-  const onSearch = (formData: GetStrategyGroupListRequest) => {
+  const onSearch = (formData: ListStrategyRequest) => {
     setSearchParams({
       ...searchParams,
       ...formData,
@@ -160,16 +164,16 @@ const StrategyMetric: React.FC = () => {
     setSearchParams(defaultSearchParams)
   }
 
-  const onHandleMenuOnClick = (item: StrategyGroupItemType, key: ActionKey) => {
+  const onHandleMenuOnClick = (item: StrategyGroupItem, key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
-        changeStrategyGroup([item.id], 2).then(() => {
+        updateStrategyGroupStatus({ ids: [item.id], status: Status.StatusDisable }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
         break
       case ActionKey.DISABLE:
-        changeStrategyGroup([item.id], 1).then(() => {
+        updateStrategyGroupStatus({ ids: [item.id], status: Status.StatusEnable }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
@@ -188,7 +192,7 @@ const StrategyMetric: React.FC = () => {
           icon: <ExclamationCircleFilled />,
           content: '此操作不可逆',
           onOk() {
-            deleteStrategyGroup(item.id).then(() => {
+            deleteStrategyGroup({ id: item.id }).then(() => {
               message.success('删除成功')
               onRefresh()
             })

@@ -1,13 +1,19 @@
-import { SelectType, Status, StatusData } from '@/api/global'
-import { createStrategyTemplate, getStrategyTemplateList, updateStrategyTemplate } from '@/api/template'
-import { GetStrategyTemplateListRequest, StrategyTemplateItemType } from '@/api/template/types'
-import { Flex, Button, Form, Table, Space, Badge, theme, Tag } from 'antd'
+import { SelectType, StatusData } from '@/api/global'
+
+import SearchForm from '@/components/data/search-form'
+import { Badge, Button, Flex, Form, Space, Table, Tag, theme } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import React, { useEffect, useState } from 'react'
-import SearchForm from '@/components/data/search-form'
 import { searchItems } from './options'
-import { UserItem } from '@/api/authorization/user'
 
+import { Status } from '@/api/enum'
+import { StrategyTemplateItem, UserItem } from '@/api/model-types'
+import {
+  createTemplateStrategy,
+  listTemplateStrategy,
+  ListTemplateStrategyRequest,
+  updateTemplateStrategy
+} from '@/api/strategy/template'
 import './index.scss'
 import { TemplateEditModal, TemplateEditModalData } from './template-edit-modal'
 
@@ -15,21 +21,19 @@ export interface StrategyTemplateProps {}
 
 const { useToken } = theme
 
-const defaultSearchParams: GetStrategyTemplateListRequest = {
+const defaultSearchParams: ListTemplateStrategyRequest = {
   pagination: {
     pageNum: 1,
     pageSize: 10
-  },
-  keyword: '',
-  status: Status.ALL
+  }
 }
 
 let searchTimeout: NodeJS.Timeout | null = null
 const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
   const [form] = Form.useForm()
   const { token } = useToken()
-  const [datasource, setDatasource] = useState<StrategyTemplateItemType[]>([])
-  const [searchParams, setSearchParams] = useState<GetStrategyTemplateListRequest>(defaultSearchParams)
+  const [datasource, setDatasource] = useState<StrategyTemplateItem[]>([])
+  const [searchParams, setSearchParams] = useState<ListTemplateStrategyRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
@@ -57,7 +61,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
     }
     searchTimeout = setTimeout(() => {
       setLoading(true)
-      getStrategyTemplateList(searchParams)
+      listTemplateStrategy(searchParams)
         .then(({ list, pagination }) => {
           setDatasource(list || [])
           setTotal(pagination?.total || 0)
@@ -66,7 +70,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
     }, 500)
   }
 
-  const columns: ColumnsType<StrategyTemplateItemType> = [
+  const columns: ColumnsType<StrategyTemplateItem> = [
     {
       title: '模板名称',
       dataIndex: 'alert',
@@ -174,9 +178,9 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
     }
     const call = () => {
       if (!editTemplateId) {
-        return createStrategyTemplate(params)
+        return createTemplateStrategy(params)
       } else {
-        return updateStrategyTemplate(editTemplateId, params)
+        return updateTemplateStrategy(editTemplateId, params)
       }
     }
     return call().then(() => {

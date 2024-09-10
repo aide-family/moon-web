@@ -1,10 +1,11 @@
-import { ActionKey, Condition, Status, StatusData, SustainType } from '@/api/global'
-import { getStrategyGroupList } from '@/api/strategy'
-import { StrategyGroupItemType, StrategyItemType } from '@/api/strategy/types'
+import { Condition, Status, SustainType } from '@/api/enum'
+import { ActionKey, StatusData } from '@/api/global'
+import { DatasourceItem, StrategyGroupItem } from '@/api/model-types'
+import { listStrategyGroup } from '@/api/strategy'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
-import { Avatar, Badge, Button, Space, Tag, Tooltip } from 'antd'
+import { Avatar, Badge, Button, Space, Tooltip } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import { StrategyLevelTemplateType } from './metric-edit-modal'
 
@@ -47,22 +48,20 @@ export type MetricEditModalFormData = {
   alarmGroupIds: number[]
 }
 
-export const getStrategyGroups = () => {
-  return getStrategyGroupList({
+export const getStrategyGroups = (keyword: string) => {
+  return listStrategyGroup({
     pagination: {
       pageNum: 1,
       pageSize: 10
-    }
-  }).then(() => {
-    const selectFetch = []
-    for (let i = 0; i < 100000; i++) {
-      const value = `${i.toString(36)}${i}`
-      selectFetch.push({
-        label: <Tag color='blue'>{value}</Tag>,
-        value: i
-      })
-    }
-    return selectFetch
+    },
+    keyword
+  }).then(({ list }) => {
+    return list.map((item) => {
+      return {
+        label: item.name,
+        value: item.id
+      }
+    })
   })
 }
 
@@ -114,15 +113,15 @@ export const formList: SearchFormItem[] = [
 ]
 
 interface GroupColumnProps {
-  onHandleMenuOnClick: (item: StrategyGroupItemType, key: ActionKey) => void
+  onHandleMenuOnClick: (item: StrategyGroupItem, key: ActionKey) => void
   current: number
   pageSize: number
 }
 
-export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGroupItemType> => {
-  const { onHandleMenuOnClick, current, pageSize } = props
-  const tableOperationItems = (record: StrategyGroupItemType): MoreMenuProps['items'] => [
-    record.status === Status.DISABLE
+export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGroupItem> => {
+  const { onHandleMenuOnClick } = props
+  const tableOperationItems = (record: StrategyGroupItem): MoreMenuProps['items'] => [
+    record.status === Status.StatusDisable
       ? {
           key: ActionKey.DISABLE,
           label: (
@@ -211,19 +210,18 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       key: 'datasource',
       align: 'center',
       width: 160,
-      render: (record: StrategyItemType) => {
-        if (!record.datasource || !record.datasource.length) return '-'
-        const datasourceList = record.datasource
-        if (datasourceList.length === 1) {
-          const { name } = datasourceList[0]
+      render: (record: DatasourceItem[]) => {
+        if (!record || !record.length) return '-'
+        if (record.length === 1) {
+          const { name } = record[0]
           return <div>{name}</div>
         }
         return (
           <Avatar.Group maxCount={2} shape='square' size='small'>
-            {datasourceList.map((item, index) => {
+            {record.map((item, index) => {
               return (
                 <Tooltip title={item.name} key={index}>
-                  <Avatar key={item.type}>{item.name}</Avatar>
+                  <Avatar key={item.id}>{item.name}</Avatar>
                 </Tooltip>
               )
             })}
@@ -366,7 +364,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       ellipsis: true,
       fixed: 'right',
       width: 120,
-      render: (record: StrategyGroupItemType) => (
+      render: (record: StrategyGroupItem) => (
         <Space size={20}>
           <Button size='small' type='link' onClick={() => onHandleMenuOnClick(record, ActionKey.DETAIL)}>
             详情

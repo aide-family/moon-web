@@ -1,5 +1,5 @@
-import { featchDictListByCrategory } from '@/api/dict'
-import { DictType } from '@/api/dict/types'
+import { dictSelectList } from '@/api/dict'
+import { DictType } from '@/api/enum'
 import { getStrategyGroup } from '@/api/strategy'
 import FetchSelect from '@/components/data/child/fetch-select'
 import { Form, Input, Modal, ModalProps } from 'antd'
@@ -18,38 +18,40 @@ export type GroupEditModalData = {
 }
 
 export interface GroupEditModalProps extends ModalProps {
-  GroupId?: number
+  groupId?: number
   disabled?: boolean
   submit?: (data: GroupEditModalData) => Promise<void>
 }
 
 export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
-  const { onCancel, submit, open, title, GroupId, disabled } = props
+  const { onCancel, submit, open, title, groupId, disabled } = props
   const [form] = Form.useForm<GroupEditModalFormData>()
   const [loading, setLoading] = useState(false)
   const [grounpDetail, setGroupDetail] = useState<GroupEditModalFormData>()
 
   const getGroupDetail = async () => {
-    if (GroupId) {
+    if (groupId) {
       setLoading(true)
-      const res = await getStrategyGroup(GroupId)
-      const { name, remark, categories } = res
-      setGroupDetail({
-        name,
-        remark,
-        categoriesIds: categories?.map((item) => item.id) ?? []
-      })
-      setLoading(false)
+      getStrategyGroup({ id: groupId })
+        .then(({ detail }) => {
+          const { name, remark, categories } = detail
+          setGroupDetail({
+            name,
+            remark,
+            categoriesIds: categories?.map((item) => item.id) ?? []
+          })
+        })
+        .finally(() => setLoading(false))
     }
   }
 
   useEffect(() => {
-    if (!GroupId) {
+    if (!groupId) {
       setGroupDetail(undefined)
     }
     getGroupDetail()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [GroupId])
+  }, [groupId])
 
   useEffect(() => {
     if (open && form && grounpDetail) {
@@ -70,7 +72,7 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
       const { name, remark, categoriesIds } = formValues
       setLoading(true)
       submit?.({
-        id: GroupId,
+        id: groupId,
         name,
         remark,
         categoriesIds
@@ -100,13 +102,26 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
             <Form.Item label='规则组名称' name='name' rules={[{ required: true, message: '请输入规则组名称' }]}>
               <Input placeholder='请输入规则组名称' allowClear />
             </Form.Item>
-            <Form.Item label='规则分类' name='categoriesIds' rules={[{ required: true, message: '请选择规则分类' }]}>
+            <Form.Item
+              label='规则组分类'
+              name='categoriesIds'
+              rules={[{ required: true, message: '请选择规则组分类' }]}
+            >
               <FetchSelect
                 selectProps={{
-                  placeholder: '请选择规则分类',
+                  placeholder: '请选择规则组分类',
                   mode: 'multiple'
                 }}
-                handleFetch={featchDictListByCrategory(DictType.DictTypePromStrategyGroup)}
+                handleFetch={(keyword: string) =>
+                  dictSelectList({
+                    keyword,
+                    dictType: DictType.DictTypeStrategyGroupCategory,
+                    pagination: {
+                      pageSize: 999,
+                      pageNum: 1
+                    }
+                  }).then(({ list }) => list)
+                }
               />
             </Form.Item>
             <Form.Item label='规则组描述' name='remark'>

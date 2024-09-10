@@ -1,13 +1,10 @@
-import React, { useContext } from 'react'
-import { useRef, useState, useEffect } from 'react'
-
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import { GlobalToken, theme } from 'antd'
-import './userWorker'
-
-import './style.css'
-import { defaultTheme } from './color'
 import { GlobalContext, ThemeType } from '@/utils/context'
+import { GlobalToken, theme } from 'antd'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import React, { useContext, useEffect, useRef, useState } from 'react'
+import { defaultTheme } from './color'
+import './style.css'
+import './userWorker'
 
 export interface JsonInputEditorProps {
   value?: string

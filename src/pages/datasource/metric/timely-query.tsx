@@ -1,4 +1,4 @@
-import { DatasourceItemType } from '@/api/datasource/types'
+import { DatasourceItem } from '@/api/model-types'
 import PromQLInput from '@/components/data/child/prom-ql'
 import { Alert, Empty, List, Space, Tabs, TabsProps, Typography } from 'antd'
 import dayjs from 'dayjs'
@@ -7,7 +7,7 @@ import ReactJson from 'react-json-view'
 import { GraphChart } from './child/graph-chart'
 
 export interface TimelyQueryProps {
-  datasource?: DatasourceItemType
+  datasource?: DatasourceItem
   apiPath?: string
 }
 
@@ -219,7 +219,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
   return (
     <div className='timely-query'>
       <div>
-        <PromQLInput pathPrefix={datasource?.endpoint || ''} onChange={(exp) => onChange(exp.target.value || '')} />
+        <PromQLInput pathPrefix={datasource?.endpoint || ''} onChange={(exp) => onChange(`${exp}`)} />
       </div>
       <Tabs defaultActiveKey='table' items={tabsItems} onChange={(tab) => tabsOnChange(tab as TableKey)} />
     </div>

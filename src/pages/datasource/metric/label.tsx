@@ -1,23 +1,24 @@
-import { getMetricDetail } from '@/api/datasource/metric'
-import { MetricItemType, MetricLabelType } from '@/api/datasource/types'
-import { MetricType, MetricTypeData } from '@/api/global'
+import { getMetric } from '@/api/datasource/metric'
+import { MetricType } from '@/api/enum'
+import { MetricTypeData } from '@/api/global'
+import { MetricItem, MetricLabelItem } from '@/api/model-types'
 import { Button, Modal, ModalProps, Space, Table, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import React, { useEffect } from 'react'
 import { LabelEditModal } from './label-edit-modal'
 
 export interface LabelProps extends ModalProps {
-  metricDetail?: MetricItemType
+  metricDetail?: MetricItem
 }
 
 let searchTimer: NodeJS.Timeout | null = null
 export const Label: React.FC<LabelProps> = (props) => {
   const { metricDetail, open, onCancel, onOk } = props
-  const [metricLabels, setMetricLabels] = React.useState<MetricLabelType[]>([])
-  const [metricLabelDetail, setMetricLabelDetail] = React.useState<MetricLabelType>()
+  const [metricLabels, setMetricLabels] = React.useState<MetricLabelItem[]>([])
+  const [metricLabelDetail, setMetricLabelDetail] = React.useState<MetricLabelItem>()
   const [openEditModal, setOpenEditModal] = React.useState(false)
 
-  const handleEdit = (detail: MetricLabelType) => {
+  const handleEdit = (detail: MetricLabelItem) => {
     setMetricLabelDetail(detail)
     setOpenEditModal(true)
   }
@@ -31,7 +32,7 @@ export const Label: React.FC<LabelProps> = (props) => {
     setMetricLabelDetail(undefined)
   }
 
-  const columns: ColumnsType<MetricLabelType> = [
+  const columns: ColumnsType<MetricLabelItem> = [
     {
       title: '标签名',
       dataIndex: 'name',
@@ -72,7 +73,9 @@ export const Label: React.FC<LabelProps> = (props) => {
         clearTimeout(searchTimer)
       }
       searchTimer = setTimeout(async () => {
-        const res = await getMetricDetail(metricDetail.id, true)
+        const res = await getMetric({
+          id: metricDetail.id
+        })
         setMetricLabels(res?.data?.labels || [])
       }, 500)
     }

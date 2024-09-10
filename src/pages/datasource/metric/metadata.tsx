@@ -1,6 +1,7 @@
-import { getMetricList, syncMetric } from '@/api/datasource/metric'
-import { DatasourceItemType, MetricItemType, MetricListRequest } from '@/api/datasource/types'
+import { syncDatasourceMeta } from '@/api/datasource'
+import { listMetric, ListMetricRequest } from '@/api/datasource/metric'
 import { MetricTypeData } from '@/api/global'
+import { DatasourceItem, MetricItem } from '@/api/model-types'
 import { DataInput } from '@/components/data/child/data-input'
 import { Button, Flex, Form, Input, Space, Table, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
@@ -9,14 +10,14 @@ import { Info } from './info'
 import { Label } from './label'
 
 export interface MetadataProps {
-  datasource?: DatasourceItemType
+  datasource?: DatasourceItem
 }
 
 let searchTimer: NodeJS.Timeout | null = null
 export const Metadata: React.FC<MetadataProps> = (props) => {
   const { datasource } = props
   const [form] = Form.useForm()
-  const [searchMetricParams, setSearchMetricParams] = React.useState<MetricListRequest>({
+  const [searchMetricParams, setSearchMetricParams] = React.useState<ListMetricRequest>({
     pagination: {
       pageNum: 1,
       pageSize: 20
@@ -26,19 +27,19 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
   const [metricListTotal, setMetricListTotal] = React.useState(0)
   const [refresh, setRefresh] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
-  const [metricDetail, setMetricDetail] = React.useState<MetricItemType>()
+  const [metricDetail, setMetricDetail] = React.useState<MetricItem>()
   const [openMetricLabelModal, setOpenMetricLabelModal] = React.useState(false)
 
   const handleRefresh = () => {
     setRefresh(!refresh)
   }
 
-  const handleLabel = (record: MetricItemType) => {
+  const handleLabel = (record: MetricItem) => {
     setMetricDetail(record)
     setOpenMetricLabelModal(true)
   }
 
-  const hendleEditMetric = (record: MetricItemType) => {
+  const hendleEditMetric = (record: MetricItem) => {
     setMetricDetail(record)
   }
 
@@ -52,8 +53,8 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
     setMetricDetail(undefined)
   }
 
-  const [metricList, setMetricList] = React.useState<MetricItemType[]>([])
-  const columns: ColumnsType<MetricItemType> = [
+  const [metricList, setMetricList] = React.useState<MetricItem[]>([])
+  const columns: ColumnsType<MetricItem> = [
     {
       title: '指标类型',
       dataIndex: 'type',
@@ -95,7 +96,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
       width: 120,
       align: 'center',
       render: (_, record) => {
-        return <>{record?.labelCount || '-'}</>
+        return <>{record?.labels?.length || '-'}</>
       }
     },
     {
@@ -123,7 +124,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
     }
     searchTimer = setTimeout(() => {
       setLoading(true)
-      getMetricList(searchMetricParams)
+      listMetric(searchMetricParams)
         .then((reply) => {
           const {
             list,
@@ -142,7 +143,9 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
 
   const fetchSyncMetric = () => {
     if (!datasource?.id) return
-    syncMetric(datasource?.id).then(handleRefresh)
+    syncDatasourceMeta({
+      id: datasource?.id
+    }).then(handleRefresh)
   }
 
   useEffect(() => {

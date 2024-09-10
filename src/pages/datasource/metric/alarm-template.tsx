@@ -1,23 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { DatasourceItemType } from '@/api/datasource/types'
+
+import { DatasourceType, Status, StorageType } from '@/api/enum'
+import { DatasourceItem } from '@/api/model-types'
 import { Button, Flex, Form, Input, Select, Space, Table } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import React from 'react'
 
 export interface AlarmTemplateProps {
-  datasource?: DatasourceItemType
+  datasource?: DatasourceItem
 }
 
 export const AlarmTemplate: React.FC<AlarmTemplateProps> = (props) => {
   const { datasource } = props
-  const [data, setData] = React.useState<any[]>([
+  const [data, setData] = React.useState<DatasourceItem[]>([
     {
       id: 1,
       name: '模板1',
-      category: '告警模板',
-      status: '启用',
-      description: '模板描述',
-      creator: 'admin'
+      status: Status.StatusEnable,
+      remark: '模板描述',
+      datasourceType: DatasourceType.DatasourceTypeUnknown,
+      endpoint: '',
+      createdAt: '',
+      updatedAt: '',
+      config: {},
+      storageType: StorageType.StorageTypeUnknown
     }
   ])
   const columns: ColumnsType<any> = [
@@ -41,7 +47,7 @@ export const AlarmTemplate: React.FC<AlarmTemplateProps> = (props) => {
     },
     {
       title: '模板描述',
-      dataIndex: 'description',
+      dataIndex: 'remark',
       key: 'description'
     },
     {
@@ -53,7 +59,7 @@ export const AlarmTemplate: React.FC<AlarmTemplateProps> = (props) => {
       title: '操作',
       key: 'action',
       width: 120,
-      render: (_, record) => (
+      render: (_, record: DatasourceItem) => (
         <Space size='middle'>
           <a>详情</a>
           <a>删除</a>

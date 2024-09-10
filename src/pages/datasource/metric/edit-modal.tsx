@@ -1,6 +1,6 @@
-import { createDatasource } from '@/api/datasource'
-import { DatasourceCreateRequest } from '@/api/datasource/types'
-import { DataSourceType, DataSourceTypeData, Status, StatusData, StorageType, StorageTypeData } from '@/api/global'
+import { createDatasource, CreateDatasourceRequest } from '@/api/datasource'
+import { DatasourceType, Status, StorageType } from '@/api/enum'
+import { DataSourceTypeData, StatusData, StorageTypeData } from '@/api/global'
 import { DataFrom, DataFromItem } from '@/components/data/form'
 import { Form, Modal, ModalProps } from 'antd'
 import React from 'react'
@@ -9,21 +9,12 @@ export interface EditModalProps extends ModalProps {}
 
 export const EditModal: React.FC<EditModalProps> = (props) => {
   const { onCancel, onOk, open } = props
-  const [form] = Form.useForm<DatasourceCreateRequest>()
+  const [form] = Form.useForm<CreateDatasourceRequest>()
   const [loading, setLoading] = React.useState(false)
   const handleOnOk = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     form.validateFields().then((values) => {
       setLoading(true)
-      let config = {}
-      try {
-        config = JSON.parse(values.configStr || '{}')
-      } catch (error) {
-        console.log('error', error)
-      }
-      createDatasource({
-        ...values,
-        config: config
-      })
+      createDatasource(values)
         .then(() => {
           form.resetFields()
           onOk?.(e)
@@ -53,24 +44,24 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
       },
       {
         label: '数据源类型',
-        name: 'type',
+        name: 'datasourceType',
         type: 'radio-group',
         props: {
           options: Object.entries(DataSourceTypeData)
             .filter((item) => {
-              return +item[0] !== DataSourceType.DataSourceTypeUnknown
+              return +item[0] !== DatasourceType.DatasourceTypeUnknown
             })
             .map((item) => {
               return {
                 label: item[1],
                 value: +item[0],
-                disabled: +item[0] !== DataSourceType.DataSourceTypeMetric
+                disabled: +item[0] !== DatasourceType.DatasourceTypeMetric
               }
             }),
           optionType: 'button'
         },
         formProps: {
-          initialValue: DataSourceType.DataSourceTypeMetric,
+          initialValue: DatasourceType.DatasourceTypeMetric,
           rules: [{ required: true, message: '请选择数据源类型' }]
         }
       }
@@ -104,7 +95,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
         props: {
           options: Object.entries(StatusData)
             .filter((item) => {
-              return +item[0] !== Status.ALL
+              return +item[0] !== Status.StatusAll
             })
             .map((item) => {
               return {
@@ -132,9 +123,11 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
     {
       label: '数据源配置',
       name: 'configStr',
-      type: 'json-input',
+      type: 'textarea',
       props: {
-        height: 200
+        placeholder: '请输入数据源认证json',
+        maxLength: 200,
+        showCount: true
       }
     },
     {
@@ -142,7 +135,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
       name: 'remark',
       type: 'textarea',
       props: {
-        placeholder: '请输入数据源认证',
+        placeholder: '请输入数据源说明信息',
         maxLength: 200,
         showCount: true
       }

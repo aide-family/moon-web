@@ -1,11 +1,11 @@
+import { logout } from '@/api/authorization'
+import { removeToken } from '@/api/request'
 import { GlobalContext } from '@/utils/context'
+import { GithubOutlined, MoonOutlined, SunOutlined, TranslationOutlined } from '@ant-design/icons'
 import { Avatar, Button, Dropdown, MenuProps } from 'antd'
 import React, { useContext } from 'react'
-import { GithubOutlined, MoonOutlined, SunOutlined, TranslationOutlined } from '@ant-design/icons'
-import { TeamMenu } from './team-menu'
-import { removeToken } from '@/api/request'
-import { logout } from '@/api/authorization/user'
 import { useNavigate } from 'react-router-dom'
+import { TeamMenu } from './team-menu'
 
 const github = `https://github.com/aide-family/moon`
 

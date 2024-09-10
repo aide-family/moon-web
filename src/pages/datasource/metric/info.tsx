@@ -1,9 +1,9 @@
-import { DatasourceItemType } from '@/api/datasource/types'
+import { DatasourceItem } from '@/api/model-types'
 import { Alert } from 'antd'
 import React from 'react'
 
 export interface InfoProps {
-  datasource?: DatasourceItemType
+  datasource?: DatasourceItem
 }
 
 export const Info: React.FC<InfoProps> = (props) => {

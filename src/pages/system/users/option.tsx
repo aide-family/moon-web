@@ -1,8 +1,9 @@
-import { UserItem } from '@/api/authorization/user'
-import { Gender, GenderData, Status, StatusData, SystemRoleData } from '@/api/global'
+import { Gender, Status } from '@/api/enum'
+import { GenderData, RoleData, StatusData } from '@/api/global'
+import { UserItem } from '@/api/model-types'
 import { DataFromItem } from '@/components/data/form'
 import { ManOutlined, WomanOutlined } from '@ant-design/icons'
-import { Avatar, Tooltip, Image, Button, Badge } from 'antd'
+import { Avatar, Badge, Button, Image, Tooltip } from 'antd'
 
 export const UserAvatar: React.FC<UserItem> = (props: UserItem) => {
   const { name, nickname, avatar } = props
@@ -30,9 +31,9 @@ export const Username: React.FC<UserItem> = (props: UserItem) => {
     <Button
       type='text'
       icon={
-        gender === Gender.MALE ? (
+        gender === Gender.GenderMale ? (
           <ManOutlined style={{ color: '#1890ff' }} />
-        ) : gender === Gender.FEMALE ? (
+        ) : gender === Gender.GenderFemale ? (
           <WomanOutlined style={{ color: '#f759ab' }} />
         ) : null
       }
@@ -85,7 +86,7 @@ export const userListSearchItems: DataFromItem[] = [
     label: '角色',
     type: 'select',
     props: {
-      options: Object.entries(SystemRoleData).map(([key, value]) => {
+      options: Object.entries(RoleData).map(([key, value]) => {
         return {
           label: value,
           value: Number(key)

@@ -1,4 +1,10 @@
 import { ConditionData, SustainTypeData } from '@/api/global'
+import {
+  getTemplateStrategy,
+  MutationStrategyLevelTemplateItem,
+  validateAnnotationsTemplate
+} from '@/api/strategy/template'
+import { AnnotationsEditor } from '@/components/data/child/annotation-editor'
 import PromQLInput from '@/components/data/child/prom-ql'
 import { MinusCircleOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import {
@@ -19,9 +25,6 @@ import {
 } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { LevelItemType, TemplateEditModalFormData } from './options'
-import { MutationStrategyLevelTemplateType, StrategyLevelIDType } from '@/api/template/types'
-import { getStrategyTemplate, validateAnnotationTemplate } from '@/api/template'
-import { AnnotationsEditor } from '@/components/data/child/annotation-editor'
 
 const { useToken } = theme
 
@@ -38,7 +41,7 @@ export type TemplateEditModalData = {
   // 注解
   annotations: Record<string, string>
   // 策略等级
-  level: Record<StrategyLevelIDType, MutationStrategyLevelTemplateType>
+  level: MutationStrategyLevelTemplateItem[]
   // 策略模板类型
   categoriesIds: number[]
 }
@@ -82,8 +85,8 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
   const getTemplateDetail = async () => {
     if (templateId) {
       setLoading(true)
-      const res = await getStrategyTemplate(templateId)
-      const { alert, expr, labels, levels, annotations, remark, categories } = res
+      const { detail } = await getTemplateStrategy({ id: templateId })
+      const { alert, expr, labels, levels, annotations, remark, categories } = detail
       setTemplateDetail({
         alert,
         expr,
@@ -91,7 +94,10 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
           key,
           value
         })),
-        annotations,
+        annotations: {
+          summary: annotations?.summary || '',
+          description: annotations?.description || ''
+        },
         remark,
         levelItems: levels.map((item): LevelItemType => {
           const { condition, count, duration, levelId, sustainType, threshold, status, id } = item
@@ -143,7 +149,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
     const { labelsItems, levelItems, alert, datasource } = form.getFieldsValue()
     if (!tmpValue || !datasource) return
     const level = levelItems?.[0]
-    return validateAnnotationTemplate({
+    return validateAnnotationsTemplate({
       annotations: tmpValue,
       expr: expr,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -157,7 +163,9 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
       datasourceId: 0,
       duration: `${level?.duration}s`,
       count: level?.count,
-      sustainType: level?.sustainType
+      sustainType: level?.sustainType,
+      condition: level.condition,
+      threshold: level.threshold
     })
   }
 
@@ -226,25 +234,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
         acc[key] = value
         return acc
       }, {})
-      const levelMap = levelItems.reduce(
-        (
-          acc: Record<StrategyLevelIDType, MutationStrategyLevelTemplateType>,
-          { condition, count, duration, sustainType, threshold, levelId, status, id }
-        ) => {
-          acc[levelId] = {
-            condition: condition,
-            count: count,
-            duration: `${duration}s`,
-            sustainType: sustainType,
-            threshold: threshold,
-            id: id,
-            levelId: levelId,
-            status: status
-          }
-          return acc
-        },
-        {}
-      )
+
       setLoading(true)
       submit?.({
         id: templateId,
@@ -253,7 +243,16 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
         remark: remark,
         labels: labels,
         annotations: annotations,
-        level: levelMap,
+        level: levelItems?.map((item) => {
+          return {
+            condition: item.condition,
+            count: item.count,
+            duration: `${item.duration}s`,
+            levelId: item.levelId,
+            sustainType: item.sustainType,
+            threshold: item.threshold
+          } satisfies MutationStrategyLevelTemplateItem
+        }),
         categoriesIds: categoriesIds
       }).then(() => {
         setLoading(false)

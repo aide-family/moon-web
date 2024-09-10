@@ -1,4 +1,3 @@
-import { getDatasourceList } from '@/api/datasource'
 import { Button, Empty, Input, Menu, Tabs, TabsProps, theme } from 'antd'
 import React, { useEffect } from 'react'
 import { AlarmTemplate } from './alarm-template'
@@ -7,14 +6,15 @@ import { EditModal } from './edit-modal'
 import { Metadata } from './metadata'
 import { TimelyQuery } from './timely-query'
 
-import { DatasourceItemType, DatasourceListRequest } from '@/api/datasource/types'
+import { listDatasource, ListDatasourceRequest } from '@/api/datasource'
+import { DatasourceItem } from '@/api/model-types'
 import './index.scss'
 
 export interface MetricProps {}
 
 const { useToken } = theme
 
-const defaultSearchDatasourceParams: DatasourceListRequest = {
+const defaultSearchDatasourceParams: ListDatasourceRequest = {
   pagination: {
     pageNum: 1,
     pageSize: 100
@@ -25,11 +25,11 @@ let searchTimer: NodeJS.Timeout | null = null
 const Metric: React.FC<MetricProps> = () => {
   const { token } = useToken()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [datasource, setDatasource] = React.useState<DatasourceItemType[]>([])
-  const [datasourceDetail, setDatasourceDetail] = React.useState<DatasourceItemType>()
+  const [datasource, setDatasource] = React.useState<DatasourceItem[]>([])
+  const [datasourceDetail, setDatasourceDetail] = React.useState<DatasourceItem>()
 
   const [searchDatasourceParams, setSearchDatasourceParams] =
-    React.useState<DatasourceListRequest>(defaultSearchDatasourceParams)
+    React.useState<ListDatasourceRequest>(defaultSearchDatasourceParams)
   const [openAddModal, setOpenAddModal] = React.useState(false)
   const [refresh, setRefresh] = React.useState(false)
 
@@ -85,7 +85,7 @@ const Metric: React.FC<MetricProps> = () => {
       clearTimeout(searchTimer)
     }
     searchTimer = setTimeout(() => {
-      getDatasourceList(searchDatasourceParams).then((res) => {
+      listDatasource(searchDatasourceParams).then((res) => {
         setDatasource(res?.list || [])
       })
     }, 500)

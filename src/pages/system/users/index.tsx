@@ -1,38 +1,40 @@
 import React, { useEffect, useState } from 'react'
 
-import { useForm } from 'antd/es/form/Form'
-import { StatusBadge, UserAvatar, userListSearchItems, Username } from './option'
-import { SearchUsersParams, UserItem, searchUsers } from '@/api/authorization/user'
-import { Gender, PaginationReply, Status, SystemRole } from '@/api/global'
 import { AutoTable, AutoTableColumnType } from '@/components/table'
 import { Button, Space, theme } from 'antd'
+import { useForm } from 'antd/es/form/Form'
+import { StatusBadge, UserAvatar, userListSearchItems, Username } from './option'
 
-import './index.scss'
+import { Gender, Role, Status } from '@/api/enum'
+import { PaginationReply } from '@/api/global'
+import { UserItem } from '@/api/model-types'
+import { listUser, ListUserRequest } from '@/api/user'
 import SearchForm from '@/components/data/search-form'
+import './index.scss'
 
 export interface UsersProps {}
 
 const { useToken } = theme
 
-const defaultSearchParams: SearchUsersParams = {
+const defaultSearchParams: ListUserRequest = {
   pagination: {
     pageNum: 1,
     pageSize: 10
   },
   keyword: '',
-  status: Status.ALL,
-  gender: Gender.ALL,
-  role: SystemRole.ROLE_ALL
+  status: Status.StatusAll,
+  gender: Gender.GenderAll,
+  role: Role.RoleAll
 }
 
 let searchTimeout: NodeJS.Timeout | null = null
 const Users: React.FC<UsersProps> = () => {
   const { token } = useToken()
-  const [searchForm] = useForm<SearchUsersParams>()
+  const [searchForm] = useForm<ListUserRequest>()
   const [users, setUsers] = useState<UserItem[]>([])
   const [page, setPage] = useState<PaginationReply>()
   const [loading, setLoading] = useState(false)
-  const [searchParams, setSearchParams] = useState<SearchUsersParams>(defaultSearchParams)
+  const [searchParams, setSearchParams] = useState<ListUserRequest>(defaultSearchParams)
 
   const usersColumns: AutoTableColumnType<UserItem>[] = [
     {
@@ -123,7 +125,7 @@ const Users: React.FC<UsersProps> = () => {
 
   function getUsers() {
     setLoading(true)
-    searchUsers(searchParams)
+    listUser(searchParams)
       .then((res) => {
         setUsers(res.list || [])
         setPage(res.pagination)
@@ -171,6 +173,7 @@ const Users: React.FC<UsersProps> = () => {
           columns={usersColumns}
           rowKey={(record) => record.id}
           scroll={{ y: 'calc(100vh - 200px)', x: true }}
+          total={page?.total || 0}
           pagination={{
             total: page?.total,
             showSizeChanger: true,
