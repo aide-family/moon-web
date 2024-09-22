@@ -1,8 +1,7 @@
-import { UserItem } from '@/api/authorization/user'
-import { TeamItemType } from '@/api/team/types'
+import { TeamItem, UserItem } from '@/api/model-types'
 import { BreadcrumbNameType } from '@/config/menu'
 import { theme } from 'antd'
-import { ItemType } from 'antd/es/menu/hooks/useItems'
+import { ItemType } from 'antd/es/menu/interface'
 import { SpaceSize } from 'antd/es/space'
 import { createContext } from 'react'
 
@@ -23,8 +22,8 @@ export type GlobalContextType = {
   setCollapsed?: (collapsed: boolean) => void
   userInfo?: UserItem
   setUserInfo?: (userInfo: UserItem) => void
-  teamInfo?: TeamItemType
-  setTeamInfo?: (teamInfo: TeamItemType) => void
+  teamInfo?: TeamItem
+  setTeamInfo?: (teamInfo: TeamItem) => void
   refreshMyTeamList?: boolean
   setRefreshMyTeamList?: () => void
 }

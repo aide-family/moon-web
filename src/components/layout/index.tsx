@@ -2,7 +2,7 @@ import { Layout, Menu, message, Spin, theme } from 'antd'
 import React, { Suspense, useContext, useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 
-import { isLogin } from '@/api/request'
+import { healthApi, isLogin } from '@/api/request'
 import { GlobalContext } from '@/utils/context'
 import { CopyrightOutlined } from '@ant-design/icons'
 import { HeaderOp } from './header-op'
@@ -35,6 +35,13 @@ const MoonLayout: React.FC = () => {
   const [openKeys, setOpenKeys] = useState<string[]>([])
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
   const [locationPath, setLocationPath] = useState<string>(location.pathname)
+  const [version, setVersion] = useState('version')
+
+  const getVersion = () => {
+    healthApi().then((res) => {
+      setVersion(res.version)
+    })
+  }
 
   const handleMenuOpenChange = (keys: string[]) => {
     let openKeyList: string[] = keys
@@ -53,6 +60,7 @@ const MoonLayout: React.FC = () => {
   }
 
   useEffect(() => {
+    getVersion()
     setSelectedKeys([location.pathname])
 
     const openKey = location.pathname.split('/').slice(1)
@@ -124,7 +132,14 @@ const MoonLayout: React.FC = () => {
           </Content>
           <Footer className='footer center' style={{ background: token.colorBgContainer }}>
             <CopyrightOutlined />
-            {window.location.host}
+            {window.location.host}{' '}
+            <div
+              style={{
+                marginLeft: 10
+              }}
+            >
+              version: {version}
+            </div>
           </Footer>
         </Layout>
       </Layout>

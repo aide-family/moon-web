@@ -108,7 +108,7 @@ export interface ListHookRequest {
 }
 
 export interface ListHookReply {
-  hooks: AlarmHookItem[]
+  list: AlarmHookItem[]
   pagination: PaginationReply
 }
 

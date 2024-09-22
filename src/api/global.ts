@@ -1,5 +1,5 @@
 import { BadgeProps } from 'antd'
-import { Condition, DatasourceType, Gender, MetricType, Role, Status, StorageType, SustainType } from './enum'
+import { Condition, DatasourceType, Gender, HookApp, MetricType, Role, Status, StorageType, SustainType } from './enum'
 
 export interface PaginationReq {
   pageNum: number
@@ -122,6 +122,14 @@ export const SustainTypeData: Record<SustainType, string> = {
   [SustainType.SustainTypeFor]: 'm时间内出现n次',
   [SustainType.SustainTypeMax]: 'm时间内最多出现n次',
   [SustainType.SustainTypeMin]: 'm时间内最少出现n次'
+}
+
+export const HookAppData: Record<HookApp, string> = {
+  [HookApp.HOOK_APP_UNKNOWN]: '全部',
+  [HookApp.HOOK_APP_DING_TALK]: '钉钉',
+  [HookApp.HOOK_APP_FEI_SHU]: '飞书',
+  [HookApp.HOOK_APP_WEB_HOOK]: 'Webhook',
+  [HookApp.HOOK_APP_WE_CHAT]: '企业微信'
 }
 
 // 操作

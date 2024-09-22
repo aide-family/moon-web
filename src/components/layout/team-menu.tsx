@@ -6,22 +6,38 @@ import { GlobalContext } from '@/utils/context'
 import { DownOutlined } from '@ant-design/icons'
 import { Avatar, Col, Dropdown, Row, Space } from 'antd'
 import React, { useContext, useEffect } from 'react'
+import { useCreateTeamModal } from './create-team-provider'
 
 export interface TeamMenuProps {}
 
 export const TeamMenu: React.FC<TeamMenuProps> = () => {
+  const createTeamContext = useCreateTeamModal()
   const { teamInfo, setTeamInfo, setUserInfo, refreshMyTeamList } = useContext(GlobalContext)
   const [teamList, setTeamList] = React.useState<TeamItem[]>([])
 
   const handleGetMyTeamList = () => {
     myTeam().then(({ list }) => {
       setTeamList(list || [])
+      if (!list?.length) {
+        createTeamContext?.setOpen?.(true)
+        return
+      }
+      if (!teamInfo || !teamInfo.id) {
+        setTeamInfo?.(list?.[0])
+      }
     })
   }
 
   useEffect(() => {
     handleGetMyTeamList()
   }, [refreshMyTeamList])
+
+  useEffect(() => {
+    if (!teamInfo) {
+      createTeamContext?.setOpen?.(true)
+    }
+  }, [teamInfo])
+
   return (
     <Dropdown
       menu={{

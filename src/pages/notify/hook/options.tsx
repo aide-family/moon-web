@@ -1,8 +1,9 @@
-import { ActionKey, Status, StatusData } from '@/api/global'
-import { NotifyHookItemType } from '@/api/notify/types'
+import { HookApp, Status } from '@/api/enum'
+import { ActionKey, StatusData } from '@/api/global'
+import { AlarmHookItem } from '@/api/model-types'
 import { SearchFormItem } from '@/components/data/search-box'
 import MoreMenu, { MoreMenuProps } from '@/components/moreMenu'
-import { Badge, Button, Space, Tooltip } from 'antd'
+import { Badge, Button, Space, Tag, Tooltip } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
 export const formList: SearchFormItem[] = [
@@ -12,7 +13,7 @@ export const formList: SearchFormItem[] = [
     dataProps: {
       type: 'input',
       itemProps: {
-        placeholder: '规则组名称',
+        placeholder: '名称模糊查询',
         allowClear: true
       }
     }
@@ -20,15 +21,15 @@ export const formList: SearchFormItem[] = [
 ]
 
 interface NotifyHookColumnProps {
-  onHandleMenuOnClick: (item: NotifyHookItemType, key: ActionKey) => void
+  onHandleMenuOnClick: (item: AlarmHookItem, key: ActionKey) => void
   current: number
   pageSize: number
 }
 
-export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<NotifyHookItemType> => {
+export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<AlarmHookItem> => {
   const { onHandleMenuOnClick, current, pageSize } = props
-  const tableOperationItems = (record: NotifyHookItemType): MoreMenuProps['items'] => [
-    record.status === Status.DISABLE
+  const tableOperationItems = (record: AlarmHookItem): MoreMenuProps['items'] => [
+    record.status === Status.StatusDisable
       ? {
           key: ActionKey.DISABLE,
           label: (
@@ -104,20 +105,18 @@ export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<NotifyH
     },
     {
       title: '类型',
-      dataIndex: 'categories',
-      key: 'categories',
+      dataIndex: 'hookApp',
+      key: 'hookApp',
       align: 'center',
       width: 160,
-      render: (text: string) => {
+      render: (hookApp: HookApp) => {
         return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
+          <Tag>
+            {hookApp === HookApp.HOOK_APP_DING_TALK && '钉钉'}
+            {hookApp === HookApp.HOOK_APP_FEI_SHU && '飞书'}
+            {hookApp === HookApp.HOOK_APP_WEB_HOOK && 'WebHook'}
+            {hookApp === HookApp.HOOK_APP_WE_CHAT && '企业微信'}
+          </Tag>
         )
       }
     },
@@ -130,23 +129,6 @@ export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<NotifyH
       render: (status: Status) => {
         const { text, color } = StatusData[status]
         return <Badge color={color} text={text} />
-      }
-    },
-    {
-      // 策略数量
-      title: '策略数量',
-      // dataIndex: 'strategyCount',
-      key: 'strategyCount',
-      width: 120,
-      align: 'center',
-      render: () => {
-        return (
-          <b>
-            <span style={{ color: '' }}>-</span>
-            {' / '}
-            <span style={{ color: 'green' }}>-</span>
-          </b>
-        )
       }
     },
     {
@@ -168,25 +150,7 @@ export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<NotifyH
         )
       }
     },
-    {
-      title: '创建时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      align: 'center',
-      width: 180,
-      render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
-      }
-    },
+
     {
       title: '更新时间',
       dataIndex: 'updatedAt',
@@ -213,7 +177,7 @@ export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<NotifyH
       ellipsis: true,
       fixed: 'right',
       width: 120,
-      render: (record: NotifyHookItemType) => (
+      render: (record: AlarmHookItem) => (
         <Space size={20}>
           <Button size='small' type='link' onClick={() => onHandleMenuOnClick(record, ActionKey.DETAIL)}>
             详情

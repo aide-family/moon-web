@@ -1,9 +1,11 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
+import { listHook } from '@/api/notify/hook'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { Button, Space, theme } from 'antd'
+import { EditHookModal } from './edit-hook-modal'
 import styles from './index.module.scss'
 import { formList, getColumnList } from './options'
 
@@ -11,6 +13,7 @@ export interface HookProps {}
 
 const { useToken } = theme
 
+let timer: NodeJS.Timeout | null = null
 const Hook: React.FC<HookProps> = (props) => {
   const {} = props
 
@@ -25,18 +28,46 @@ const Hook: React.FC<HookProps> = (props) => {
       pageSize: 10
     }
   })
+  const [refresh, setRefresh] = useState(true)
+  const [showModal, setShowModal] = useState(false)
 
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource)
 
-  const onSearch = (data: any) => {}
+  const onSearch = (values: any) => {
+    setSearchParams({
+      ...searchParams,
+      ...values
+    })
+  }
+
+  const handleGetHookList = () => {
+    if (timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(() => {
+      setLoading(true)
+      listHook(searchParams)
+        .then((res) => {
+          setDatasource(res?.list || [])
+          setTotal(res?.pagination?.total)
+        })
+        .finally(() => {
+          setLoading(false)
+        })
+    }, 200)
+  }
 
   const onReset = () => {}
 
-  const handleEditModal = () => {}
+  const handleEditModal = () => {
+    setShowModal(true)
+  }
 
-  const onRefresh = () => {}
+  const onRefresh = () => {
+    setRefresh(!refresh)
+  }
 
   const onHandleMenuOnClick = () => {}
 
@@ -54,70 +85,86 @@ const Hook: React.FC<HookProps> = (props) => {
     console.log(selectedRowKeys, selectedRows)
   }
 
+  const closeEditHookModal = () => {
+    setShowModal(false)
+  }
+
+  const handleEditHookModalOnOk = () => {
+    setShowModal(false)
+    onRefresh()
+  }
+
   const columns = getColumnList({
     onHandleMenuOnClick,
     current: searchParams.pagination.pageNum,
     pageSize: searchParams.pagination.pageSize
   })
 
+  useEffect(() => {
+    handleGetHookList()
+  }, [searchParams, refresh])
+
   return (
-    <div className={styles.box}>
-      <div
-        style={{
-          background: token.colorBgContainer,
-          borderRadius: token.borderRadius
-        }}
-      >
-        <SearchBox ref={searchRef} formList={formList} onSearch={onSearch} onReset={onReset} />
-      </div>
-      <div
-        className={styles.main}
-        style={{
-          background: token.colorBgContainer,
-          borderRadius: token.borderRadius
-        }}
-      >
-        <div className={styles.main_toolbar}>
-          <div className={styles.main_toolbar_left} style={{ fontSize: '16px' }}>
-            告警Hook
+    <>
+      <EditHookModal open={showModal} onCancel={closeEditHookModal} onOk={handleEditHookModalOnOk} />
+      <div className={styles.box}>
+        <div
+          style={{
+            background: token.colorBgContainer,
+            borderRadius: token.borderRadius
+          }}
+        >
+          <SearchBox ref={searchRef} formList={formList} onSearch={onSearch} onReset={onReset} />
+        </div>
+        <div
+          className={styles.main}
+          style={{
+            background: token.colorBgContainer,
+            borderRadius: token.borderRadius
+          }}
+        >
+          <div className={styles.main_toolbar}>
+            <div className={styles.main_toolbar_left} style={{ fontSize: '16px' }}>
+              告警Hook
+            </div>
+            <Space size={8}>
+              <Button type='primary' onClick={() => handleEditModal()}>
+                添加
+              </Button>
+              <Button onClick={() => handleEditModal()}>批量导入</Button>
+              <Button type='primary' onClick={onRefresh}>
+                刷新
+              </Button>
+            </Space>
           </div>
-          <Space size={8}>
-            <Button type='primary' onClick={() => handleEditModal()}>
-              添加
-            </Button>
-            <Button onClick={() => handleEditModal()}>批量导入</Button>
-            <Button type='primary' onClick={onRefresh}>
-              刷新
-            </Button>
-          </Space>
-        </div>
-        <div style={{ marginTop: '20px' }} ref={ADivRef}>
-          <AutoTable
-            rowKey={(record) => record.id}
-            dataSource={datasource}
-            total={total}
-            loading={loading}
-            columns={columns}
-            handleTurnPage={handleTurnPage}
-            pageSize={searchParams.pagination.pageSize}
-            pageNum={searchParams.pagination.pageNum}
-            showSizeChanger={true}
-            style={{
-              background: token.colorBgContainer,
-              borderRadius: token.borderRadius
-            }}
-            rowSelection={{
-              onChange: handlerBatchData
-            }}
-            scroll={{
-              y: `calc(100vh - 170px  - ${AutoTableHeight}px)`,
-              x: 1000
-            }}
-            size='middle'
-          />
+          <div style={{ marginTop: '20px' }} ref={ADivRef}>
+            <AutoTable
+              rowKey={(record) => record.id}
+              dataSource={datasource}
+              total={total}
+              loading={loading}
+              columns={columns}
+              handleTurnPage={handleTurnPage}
+              pageSize={searchParams.pagination.pageSize}
+              pageNum={searchParams.pagination.pageNum}
+              showSizeChanger={true}
+              style={{
+                background: token.colorBgContainer,
+                borderRadius: token.borderRadius
+              }}
+              rowSelection={{
+                onChange: handlerBatchData
+              }}
+              scroll={{
+                y: `calc(100vh - 170px  - ${AutoTableHeight}px)`,
+                x: 1000
+              }}
+              size='middle'
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

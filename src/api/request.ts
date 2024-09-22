@@ -106,3 +106,12 @@ export default {
   PUT,
   DELETE
 }
+
+export interface HealthReply {
+  healthy: boolean
+  version: string
+}
+
+export const healthApi = (): Promise<HealthReply> => {
+  return GET('/health')
+}
