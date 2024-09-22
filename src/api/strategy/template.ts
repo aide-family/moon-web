@@ -146,7 +146,7 @@ export interface ValidateAnnotationsTemplateRequest {
   // 策略数据源ID
   datasourceId: number
   // 策略持续时间
-  duration: string
+  duration: number
   // 持续次数
   count: number
   // 持续的类型

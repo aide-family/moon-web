@@ -285,13 +285,13 @@ export interface DictItem {
 /** 策略等级项 */
 export interface StrategyLevelItem {
   /** 策略持续时间 */
-  duration: string
+  duration: number
   /** 持续次数 */
   count: number
   /** 持续的类型 */
   sustainType: SustainType
   /** 执行频率 */
-  interval: string
+  interval: number
   /** 状态 */
   status: Status
   /** 数据主键 */

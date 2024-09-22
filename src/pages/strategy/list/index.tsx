@@ -10,7 +10,7 @@ import {
   listStrategy,
   ListStrategyRequest,
   updateStrategy,
-  updateStrategyGroupStatus
+  updateStrategyStatus
 } from '@/api/strategy'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
@@ -106,8 +106,8 @@ const StrategyMetric: React.FC = () => {
         const { interval, alarmPageIds, alarmGroupIds, labelNotices } = item
         return {
           ...item,
-          duration: item.duration ? `${item.duration}s` : '10s',
-          interval: interval ? `${interval}s` : '10s',
+          duration: item.duration,
+          interval: interval,
           alarmPageIds,
           alarmGroupIds,
           labelNotices
@@ -167,13 +167,13 @@ const StrategyMetric: React.FC = () => {
   const onHandleMenuOnClick = (item: StrategyGroupItem, key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
-        updateStrategyGroupStatus({ ids: [item.id], status: Status.StatusDisable }).then(() => {
+        updateStrategyStatus({ ids: [item.id], status: Status.StatusEnable }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
         break
       case ActionKey.DISABLE:
-        updateStrategyGroupStatus({ ids: [item.id], status: Status.StatusEnable }).then(() => {
+        updateStrategyStatus({ ids: [item.id], status: Status.StatusDisable }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
@@ -216,6 +216,7 @@ const StrategyMetric: React.FC = () => {
       <MetricEditModal
         title={editGroupId ? (disabledEditGroupModal ? '策略详情' : '编辑策略') : '新建策略'}
         width='60%'
+        strategyId={editGroupId}
         style={{ minWidth: 504 }}
         open={openGroupEditModal}
         onCancel={handleCloseGroupEditModal}

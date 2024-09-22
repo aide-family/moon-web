@@ -1,11 +1,11 @@
 import { Condition, Status, SustainType } from '@/api/enum'
 import { ActionKey, StatusData } from '@/api/global'
-import { DatasourceItem, StrategyGroupItem } from '@/api/model-types'
+import { DatasourceItem, DictItem, StrategyGroupItem } from '@/api/model-types'
 import { listStrategyGroup } from '@/api/strategy'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
-import { Avatar, Badge, Button, Space, Tooltip } from 'antd'
+import { Avatar, Button, Space, Tag, Tooltip } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import { StrategyLevelTemplateType } from './metric-edit-modal'
 
@@ -123,7 +123,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
   const tableOperationItems = (record: StrategyGroupItem): MoreMenuProps['items'] => [
     record.status === Status.StatusDisable
       ? {
-          key: ActionKey.DISABLE,
+          key: ActionKey.ENABLE,
           label: (
             <Button type='link' size='small'>
               启用
@@ -131,7 +131,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
           )
         }
       : {
-          key: ActionKey.ENABLE,
+          key: ActionKey.DISABLE,
           label: (
             <Button type='link' size='small' danger>
               禁用
@@ -169,7 +169,6 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      align: 'center',
       width: 60,
       fixed: 'left',
       render: (text: string) => {
@@ -189,7 +188,6 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       title: '名称',
       dataIndex: 'name',
       key: 'name',
-      align: 'center',
       width: 200,
       render: (text: string) => {
         return (
@@ -206,9 +204,8 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
     },
     {
       title: '数据源',
-      // dataIndex: 'datasource',
+      dataIndex: 'datasource',
       key: 'datasource',
-      align: 'center',
       width: 160,
       render: (record: DatasourceItem[]) => {
         if (!record || !record.length) return '-'
@@ -230,110 +227,38 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       }
     },
     {
+      title: '状态',
+      dataIndex: 'status',
+      key: 'status',
+      width: 80,
+      render: (status: Status) => {
+        return <Tag color={StatusData[status].color}>{StatusData[status].text}</Tag>
+      }
+    },
+    {
       title: '策略组',
       dataIndex: 'group',
       key: 'group',
-      align: 'center',
       width: 160,
-      render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
-      }
-    },
-    {
-      title: '持续时间',
-      dataIndex: 'duration',
-      key: 'duration',
-      align: 'center',
-      width: 160,
-      render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
-      }
-    },
-    {
-      title: '状态',
-      dataIndex: 'categories',
-      key: 'categories',
-      align: 'center',
-      width: 160,
-      render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
-      }
-    },
-    {
-      title: '策略等级',
-      dataIndex: 'status',
-      key: 'status',
-      align: 'center',
-      width: 160,
-      render: (status: Status) => {
-        const { text, color } = StatusData[status]
-        return <Badge color={color} text={text} />
+      render: (groupInfo: StrategyGroupItem) => {
+        return groupInfo?.name || '-'
       }
     },
     {
       title: '策略类型',
-      dataIndex: 'status',
-      key: 'status',
-      align: 'center',
+      dataIndex: 'categories',
+      key: 'categories',
       width: 160,
-      render: (status: Status) => {
-        const { text, color } = StatusData[status]
-        return <Badge color={color} text={text} />
-      }
-    },
-    {
-      title: '告警页面',
-      dataIndex: 'status',
-      key: 'status',
-      align: 'center',
-      width: 160,
-      render: (status: Status) => {
-        const { text, color } = StatusData[status]
-        return <Badge color={color} text={text} />
-      }
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      align: 'center',
-      width: 180,
-      render: (text: string) => {
+      render: (categories: DictItem[]) => {
         return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
+          <Tooltip placement='top'>
+            {categories.map((item, index) => {
+              return (
+                <Tag key={index} color={item.colorType}>
+                  {item.name}
+                </Tag>
+              )
+            })}
           </Tooltip>
         )
       }
@@ -342,20 +267,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       title: '更新时间',
       dataIndex: 'updatedAt',
       key: 'updatedAt',
-      align: 'center',
-      width: 180,
-      render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
-      }
+      width: 180
     },
     {
       title: '操作',

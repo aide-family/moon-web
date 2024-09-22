@@ -121,10 +121,10 @@ export interface UpdateStrategyStatusRequest {
 export interface UpdateStrategyStatusReply {}
 
 export interface CreateStrategyLevelRequest {
-  duration: string
+  duration: number
   count: number
   sustainType: SustainType
-  interval: string
+  interval: number
   status?: Status
   levelId: number
   threshold: number
@@ -218,7 +218,7 @@ export function createStrategy(params: CreateStrategyRequest) {
  * @returns UpdateStrategyReply
  */
 export function updateStrategy(params: UpdateStrategyRequest) {
-  return request.PUT<UpdateStrategyReply>(`/v1/strategy/update/${params.id}`, params.data)
+  return request.PUT<UpdateStrategyReply>(`/v1/strategy/update/${params.id}`, params)
 }
 
 /**

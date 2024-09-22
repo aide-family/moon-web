@@ -1,7 +1,7 @@
 import { dictSelectList } from '@/api/dict'
 import { DictType, Status } from '@/api/enum'
 import { ActionKey, StatusData } from '@/api/global'
-import { SelectItem, StrategyGroupItem } from '@/api/model-types'
+import { DictItem, StrategyGroupItem } from '@/api/model-types'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
@@ -81,7 +81,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
   const tableOperationItems = (record: StrategyGroupItem): MoreMenuProps['items'] => [
     record.status === Status.StatusDisable
       ? {
-          key: ActionKey.DISABLE,
+          key: ActionKey.ENABLE,
           label: (
             <Button type='link' size='small'>
               启用
@@ -89,7 +89,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
           )
         }
       : {
-          key: ActionKey.ENABLE,
+          key: ActionKey.DISABLE,
           label: (
             <Button type='link' size='small' danger>
               禁用
@@ -159,10 +159,10 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       key: 'categories',
       align: 'center',
       width: 160,
-      render: (categories: SelectItem[]) => {
+      render: (categories: DictItem[]) => {
         return (
-          <Tooltip placement='top' title={<div>{categories.map((item) => item.label).join('，')}</div>}>
-            <div>{categories.map((item) => item.label).join('，')}</div>
+          <Tooltip placement='top' title={<div>{categories.map((item) => item.name).join('，')}</div>}>
+            <div>{categories.map((item) => item.name).join('，')}</div>
           </Tooltip>
         )
       }
@@ -202,26 +202,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       align: 'center',
       width: 300,
       render: (text: string) => {
-        return <OverflowTooltip content={text} maxWidth='300px'></OverflowTooltip>
-      }
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      align: 'center',
-      width: 180,
-      render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
+        return <OverflowTooltip content={text || '-'} maxWidth='300px' />
       }
     },
     {

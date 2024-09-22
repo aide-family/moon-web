@@ -8,7 +8,8 @@ const localhost = 'http://localhost:5173'
 const local127 = 'http://127.0.0.1:5173'
 
 export const hostMap: { [key: string]: string } = {
-  [localhost]: 'http://dev-palace.aide-cloud.cn',
+  // [localhost]: 'http://dev-palace.aide-cloud.cn',
+  [localhost]: 'http://192.168.10.2:8000',
   [local127]: 'http://localhost:8000'
 }
 

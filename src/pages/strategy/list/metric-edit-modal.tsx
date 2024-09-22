@@ -3,7 +3,8 @@ import { dictSelectList } from '@/api/dict'
 import { Condition, DictType, Status, StorageType, SustainType } from '@/api/enum'
 import { ConditionData, StorageTypeData, SustainTypeData } from '@/api/global'
 import { DatasourceItem, StrategyItem } from '@/api/model-types'
-import { CreateStrategyLabelNoticeRequest, getStrategy } from '@/api/strategy'
+import { listAlarmGroup } from '@/api/notify/alarm-group'
+import { CreateStrategyLabelNoticeRequest, getStrategy, listStrategyGroup } from '@/api/strategy'
 import { validateAnnotationsTemplate } from '@/api/strategy/template'
 import { AnnotationsEditor } from '@/components/data/child/annotation-editor'
 import FetchSelect from '@/components/data/child/fetch-select'
@@ -91,6 +92,7 @@ export interface TemplateEditModalProps extends ModalProps {
 
 let summaryTimeout: NodeJS.Timeout | null = null
 let descriptionTimeout: NodeJS.Timeout | null = null
+let timer: NodeJS.Timeout | null = null
 export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
   const { onCancel, submit, open, title, strategyId, disabled } = props
 
@@ -117,6 +119,15 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
   const [datasourceList, setDatasourceList] = useState<DatasourceItem[]>([])
   const [strategyDetail, setStrategyDetail] = useState<StrategyItem>()
 
+  const getStrategyGroupList = (keyword: string) => {
+    return listStrategyGroup({
+      pagination: {
+        pageNum: 1,
+        pageSize: 999
+      },
+      keyword
+    })
+  }
   const getStrategyDetail = async () => {
     if (!strategyId) {
       return
@@ -145,8 +156,9 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
   useEffect(() => {
     if (!strategyId) {
       setStrategyDetail(undefined)
+    } else {
+      getStrategyDetail()
     }
-    getStrategyDetail()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [strategyId])
 
@@ -171,8 +183,8 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
         alarmGroupIds: strategyDetail?.alarmNoticeGroups?.map((item) => item.id),
         strategyLevel: strategyDetail?.levels?.map((item) => {
           return {
-            duration: +item.duration.trimEnd(),
-            interval: +item.interval.trimEnd(),
+            duration: +item.duration,
+            interval: +item.interval,
             count: item.count,
             sustainType: item.sustainType,
             condition: item.condition,
@@ -219,7 +231,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
       level: 'levelItems?.[0]?.levelId',
       datasource: datasource,
       datasourceId: 0,
-      duration: `${level?.duration}s`,
+      duration: level?.duration,
       count: level?.count,
       sustainType: level?.sustainType,
       alert: name,
@@ -284,6 +296,24 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [summary])
+
+  const getAlarmNoticeGroupList = (keyword: string) => {
+    return listAlarmGroup({
+      keyword,
+      pagination: {
+        pageNum: 1,
+        pageSize: 999
+      },
+      status: Status.StatusEnable
+    }).then(({ list }) => {
+      return list.map((item) => {
+        return {
+          label: item.name,
+          value: item.id
+        }
+      })
+    })
+  }
 
   const handleOnOk = () => {
     form.validateFields().then((formValues) => {
@@ -390,9 +420,20 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
               </Col>
               <Col span={12}>
                 <Form.Item label='策略组' name='groupId' rules={[{ required: true, message: '请选择策略组' }]}>
-                  <Select allowClear placeholder='请选择策略组'>
-                    <Select.Option value={1}>类目一</Select.Option>
-                  </Select>
+                  <FetchSelect
+                    selectProps={{
+                      placeholder: '请选择策略组',
+                      allowClear: true
+                    }}
+                    handleFetch={(keyword) =>
+                      getStrategyGroupList(keyword).then(({ list }) => {
+                        return list.map((item) => ({
+                          label: item.name,
+                          value: item.id
+                        }))
+                      })
+                    }
+                  />
                 </Form.Item>
               </Col>
             </Row>
@@ -435,9 +476,14 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                 }
               ]}
             >
-              <Select mode='multiple' allowClear placeholder='请选择通知对象'>
-                <Select.Option value={1}>类目一</Select.Option>
-              </Select>
+              <FetchSelect
+                handleFetch={getAlarmNoticeGroupList}
+                selectProps={{
+                  placeholder: '请选择通知对象',
+                  allowClear: true,
+                  mode: 'multiple'
+                }}
+              />
             </Form.Item>
             <Form.Item label='查询语句' name='expr' rules={[{ required: true, message: '请检查查询语句' }]}>
               <PromQLInput pathPrefix={datasourceList.at(0)?.endpoint || ''} formatExpression disabled={disabled} />
