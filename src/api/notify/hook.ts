@@ -18,7 +18,7 @@ export function createHook(params: CreateHookRequest): Promise<CreateHookReply> 
  * @returns 更新hook响应
  */
 export function updateHook(params: UpdateHookRequest): Promise<UpdateHookReply> {
-  return request.PUT<UpdateHookReply>(`/v1/hook/${params.id}`, params.update)
+  return request.PUT<UpdateHookReply>(`/v1/hook/${params.id}`, params)
 }
 
 /**

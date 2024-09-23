@@ -1,5 +1,5 @@
 import { HookApp, Status } from '@/api/enum'
-import { ActionKey, StatusData } from '@/api/global'
+import { ActionKey, HookAppData, StatusData } from '@/api/global'
 import { AlarmHookItem } from '@/api/model-types'
 import { SearchFormItem } from '@/components/data/search-box'
 import MoreMenu, { MoreMenuProps } from '@/components/moreMenu'
@@ -14,7 +14,43 @@ export const formList: SearchFormItem[] = [
       type: 'input',
       itemProps: {
         placeholder: '名称模糊查询',
-        allowClear: true
+        allowClear: true,
+        autoComplete: 'off'
+      }
+    }
+  },
+  {
+    name: 'status',
+    label: '状态',
+    dataProps: {
+      type: 'select',
+      itemProps: {
+        placeholder: '状态',
+        allowClear: true,
+        options: Object.entries(StatusData).map(([key, value]) => {
+          return {
+            label: value.text,
+            value: +key
+          }
+        })
+      }
+    }
+  },
+  {
+    name: 'hookApp',
+    label: '类型',
+    dataProps: {
+      type: 'select',
+      itemProps: {
+        placeholder: '类型',
+        allowClear: true,
+        mode: 'multiple',
+        options: Object.entries(HookAppData).map(([key, value]) => {
+          return {
+            label: value,
+            value: +key
+          }
+        })
       }
     }
   }
@@ -31,7 +67,7 @@ export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<AlarmHo
   const tableOperationItems = (record: AlarmHookItem): MoreMenuProps['items'] => [
     record.status === Status.StatusDisable
       ? {
-          key: ActionKey.DISABLE,
+          key: ActionKey.ENABLE,
           label: (
             <Button type='link' size='small'>
               启用
@@ -39,7 +75,7 @@ export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<AlarmHo
           )
         }
       : {
-          key: ActionKey.ENABLE,
+          key: ActionKey.DISABLE,
           label: (
             <Button type='link' size='small' danger>
               禁用

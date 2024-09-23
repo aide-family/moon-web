@@ -1,9 +1,9 @@
 import { HookApp } from '@/api/enum'
 import { HookAppData } from '@/api/global'
 import { AlarmHookItem } from '@/api/model-types'
-import { createHook } from '@/api/notify/hook'
+import { createHook, getHook, updateHook } from '@/api/notify/hook'
 import { Form, Input, Modal, Select } from 'antd'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export interface EditHookModalProps {
   open?: boolean
@@ -12,17 +12,26 @@ export interface EditHookModalProps {
   onCancel?: () => void
 }
 
+let timer: NodeJS.Timeout | null = null
 export function EditHookModal(props: EditHookModalProps) {
   const { open, hookId, onOk, onCancel } = props
 
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
+  const [detail, setDetail] = useState<AlarmHookItem>()
+
   const handleOnOk = () => {
     form.validateFields().then((values) => {
       setLoading(true)
       if (hookId) {
-        // TODO: update hook
-        setLoading(false)
+        updateHook({ id: hookId, update: values })
+          .then(() => {
+            form.resetFields()
+            onOk?.(values)
+          })
+          .finally(() => {
+            setLoading(false)
+          })
       } else {
         createHook(values)
           .then(() => {
@@ -39,6 +48,41 @@ export function EditHookModal(props: EditHookModalProps) {
   const handleOnCancel = () => {
     onCancel?.()
   }
+
+  const handleGetHookDetail = () => {
+    if (!hookId) {
+      return
+    }
+    if (timer) {
+      clearTimeout(timer)
+    }
+
+    timer = setTimeout(() => {
+      getHook({ id: hookId }).then((res) => {
+        setDetail(res.detail)
+      })
+    }, 200)
+  }
+
+  useEffect(() => {
+    if (detail) {
+      form.setFieldsValue({
+        name: detail.name,
+        hookApp: detail.hookApp,
+        url: detail.url,
+        secret: detail.secret,
+        remark: detail.remark
+      })
+    } else {
+      form.resetFields()
+    }
+  }, [detail])
+
+  useEffect(() => {
+    if (hookId) {
+      handleGetHookDetail()
+    }
+  }, [hookId])
 
   return (
     <>

@@ -1,11 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-import { listHook } from '@/api/notify/hook'
+import { Status } from '@/api/enum'
+import { ActionKey } from '@/api/global'
+import { AlarmHookItem } from '@/api/model-types'
+import { deleteHook, listHook, updateHookStatus } from '@/api/notify/hook'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { Button, Space, theme } from 'antd'
 import { EditHookModal } from './edit-hook-modal'
+import { HookDetailModal } from './hook-detail'
 import styles from './index.module.scss'
 import { formList, getColumnList } from './options'
 
@@ -30,10 +34,22 @@ const Hook: React.FC<HookProps> = (props) => {
   })
   const [refresh, setRefresh] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const [hookDetail, setHookDetail] = useState<AlarmHookItem>()
+  const [openDetailModal, setOpenDetailModal] = useState(false)
 
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource)
+
+  const onOpenDetailModal = (item: AlarmHookItem) => {
+    setHookDetail(item)
+    setOpenDetailModal(true)
+  }
+
+  const onCloseDetailModal = () => {
+    setOpenDetailModal(false)
+    setHookDetail(undefined)
+  }
 
   const onSearch = (values: any) => {
     setSearchParams({
@@ -61,15 +77,44 @@ const Hook: React.FC<HookProps> = (props) => {
 
   const onReset = () => {}
 
-  const handleEditModal = () => {
+  const handleEditModal = (detail?: AlarmHookItem) => {
     setShowModal(true)
+    setHookDetail(detail)
   }
 
   const onRefresh = () => {
     setRefresh(!refresh)
   }
 
-  const onHandleMenuOnClick = () => {}
+  const handleDelete = (id: number) => {
+    deleteHook({ id }).then(onRefresh)
+  }
+
+  const onChangeStatus = (hookId: number, status: Status) => {
+    updateHookStatus({ ids: [hookId], status }).then(onRefresh)
+  }
+
+  const onHandleMenuOnClick = (item: AlarmHookItem, key: ActionKey) => {
+    switch (key) {
+      case ActionKey.EDIT:
+        handleEditModal(item)
+        break
+      case ActionKey.DELETE:
+        handleDelete(item.id)
+        break
+      case ActionKey.DETAIL:
+        onOpenDetailModal(item)
+        break
+      case ActionKey.DISABLE:
+        onChangeStatus(item.id, Status.StatusDisable)
+        break
+      case ActionKey.ENABLE:
+        onChangeStatus(item.id, Status.StatusEnable)
+        break
+      default:
+        break
+    }
+  }
 
   const handleTurnPage = (pageNum: number, pageSize: number) => {
     setSearchParams({
@@ -106,7 +151,18 @@ const Hook: React.FC<HookProps> = (props) => {
 
   return (
     <>
-      <EditHookModal open={showModal} onCancel={closeEditHookModal} onOk={handleEditHookModalOnOk} />
+      <EditHookModal
+        open={showModal}
+        hookId={hookDetail?.id}
+        onCancel={closeEditHookModal}
+        onOk={handleEditHookModalOnOk}
+      />
+      <HookDetailModal
+        hookId={hookDetail?.id!}
+        open={openDetailModal}
+        onCancel={onCloseDetailModal}
+        onOk={onCloseDetailModal}
+      />
       <div className={styles.box}>
         <div
           style={{
@@ -131,7 +187,7 @@ const Hook: React.FC<HookProps> = (props) => {
               <Button type='primary' onClick={() => handleEditModal()}>
                 添加
               </Button>
-              <Button onClick={() => handleEditModal()}>批量导入</Button>
+              <Button disabled>批量导入</Button>
               <Button type='primary' onClick={onRefresh}>
                 刷新
               </Button>
