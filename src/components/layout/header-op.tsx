@@ -1,4 +1,5 @@
 import { logout } from '@/api/authorization'
+import { removeToken } from '@/api/request'
 import { GlobalContext } from '@/utils/context'
 import { GithubOutlined, MoonOutlined, SunOutlined, TranslationOutlined } from '@ant-design/icons'
 import { Avatar, Button, Dropdown, MenuProps } from 'antd'
@@ -13,7 +14,10 @@ export const HeaderOp: React.FC = () => {
     {
       key: 'logout',
       label: '退出登录',
-      onClick: logout
+      onClick: () => {
+        logout()
+        removeToken()
+      }
     }
   ]
   return (

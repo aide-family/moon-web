@@ -1,6 +1,7 @@
 import { CaptchaReply, getCaptcha, login, LoginRequest } from '@/api/authorization'
 import { CaptchaType } from '@/api/enum'
 import { baseURL, isLogin, setToken } from '@/api/request'
+import { Github } from '@/components/icon'
 import { GlobalContext } from '@/utils/context'
 import { hashMd5 } from '@/utils/hash'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
@@ -82,19 +83,43 @@ const LoginForm: FC = () => {
         size='large'
       >
         <Form.Item name='username' rules={[{ required: true, message: '请输入用户名' }]}>
-          <Input prefix={<UserOutlined className='site-form-item-icon' />} placeholder='Username' />
+          <Input
+            style={{ lineHeight: '38px' }}
+            prefix={<UserOutlined className='site-form-item-icon' />}
+            placeholder='Username'
+          />
         </Form.Item>
         <Form.Item name='password' rules={[{ required: true, message: '请输入密码' }]}>
           <Input.Password
             prefix={<LockOutlined className='site-form-item-icon' />}
             type='password'
             placeholder='Password'
+            size='large'
+            style={{ lineHeight: '38px' }}
           />
         </Form.Item>
         <Form.Item name='code' rules={[{ required: true, message: '请输入验证码' }]}>
           <div className='login-form-captcha'>
-            <Input placeholder='验证码' />
-            <img src={captcha?.captcha} alt='点击获取' className='login-form-captcha-img' onClick={handleCaptcha} />
+            <Input
+              placeholder='验证码'
+              suffix={
+                <img
+                  src={captcha?.captcha}
+                  alt='点击获取'
+                  className='login-form-captcha-img'
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    aspectRatio: '80/28',
+                    objectFit: 'cover',
+                    cursor: 'pointer',
+                    borderColor: 'transparent',
+                    backgroundColor: 'transparent'
+                  }}
+                  onClick={handleCaptcha}
+                />
+              }
+            />
           </div>
         </Form.Item>
         <Form.Item>
@@ -104,7 +129,7 @@ const LoginForm: FC = () => {
         </Form.Item>
         <Form.Item>
           <Button type='dashed' href={`${baseURL}/auth/github`} className='login-form-button'>
-            Github登录
+            <Github /> Github登录
           </Button>
         </Form.Item>
       </Form>

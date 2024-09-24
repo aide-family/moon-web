@@ -28,7 +28,7 @@ const Login: React.FC<LoginProps> = () => {
         <LoginForm />
       </div>
       <div className='login-option-btns'>
-        <Button type='primary' icon={<GithubOutlined />} />
+        <Button type='primary' href='https://github.com/aide-cloud' target='_blank' icon={<GithubOutlined />} />
         <Button
           type='primary'
           icon={theme === 'dark' ? <SunOutlined /> : <MoonOutlined />}

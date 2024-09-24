@@ -98,7 +98,7 @@ function App() {
           algorithm: getUseTheme(theme),
           cssVar: true,
           token: {
-            // colorBgContainer: "red",
+            colorPrimary: '#6c34e6'
           }
         }}
       >

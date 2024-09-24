@@ -61,6 +61,7 @@ export const setToken = (token: string) => {
 
 export const removeToken = () => {
   sessionStorage.removeItem('token')
+  window.location.href = '/#/login'
 }
 
 export const getToken = () => {
@@ -120,7 +121,6 @@ const errorHandle = (err: ErrorResponse) => {
       }
       timer = setTimeout(() => {
         removeToken()
-        window.location.href = '/#/login'
       }, 1000)
       break
     case 403:
