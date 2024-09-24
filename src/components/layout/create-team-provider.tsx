@@ -1,4 +1,5 @@
 import { Status } from '@/api/enum'
+import { ErrorResponse } from '@/api/request'
 import { createTeam, CreateTeamRequest } from '@/api/team'
 import { Form, Input, message, Modal } from 'antd'
 import { createContext, useContext, useState } from 'react'
@@ -35,10 +36,14 @@ export function CreateTeamModalProvider({ children }: CreateTeamModalProps) {
 
   const handleCreateTean = () => {
     form.validateFields().then((value: CreateTeamRequest) => {
-      createTeam({ ...value, adminIds: [], status: Status.StatusEnable }).then(() => {
-        message.success(value.name + '创建成功')
-        setOpen(false)
-      })
+      createTeam({ ...value, adminIds: [], status: Status.StatusEnable })
+        .then(() => {
+          message.success(value.name + '创建成功')
+          setOpen(false)
+        })
+        .catch((err: ErrorResponse) => {
+          message.error(err?.message)
+        })
     })
   }
 

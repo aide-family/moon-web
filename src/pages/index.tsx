@@ -8,7 +8,6 @@ import { getUseTheme, GlobalContext, GlobalContextType, LangType, ThemeType } fr
 import useStorage from '@/utils/storage'
 import { ConfigProvider, theme } from 'antd'
 import { SpaceSize } from 'antd/es/space'
-import enUS from 'antd/locale/en_US'
 import zhCN from 'antd/locale/zh_CN'
 import { useState } from 'react'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
@@ -84,7 +83,7 @@ function App() {
   return (
     <>
       <ConfigProvider
-        locale={lang === 'zh-CN' ? zhCN : enUS}
+        locale={zhCN}
         theme={{
           components: {
             Layout: {

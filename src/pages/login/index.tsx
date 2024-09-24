@@ -1,3 +1,4 @@
+import { githubURL } from '@/components/layout/header-op'
 import { GlobalContext } from '@/utils/context'
 import { CopyrightOutlined, GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { Button, theme } from 'antd'
@@ -28,7 +29,7 @@ const Login: React.FC<LoginProps> = () => {
         <LoginForm />
       </div>
       <div className='login-option-btns'>
-        <Button type='primary' href='https://github.com/aide-cloud' target='_blank' icon={<GithubOutlined />} />
+        <Button type='primary' href={githubURL} target='_blank' icon={<GithubOutlined />} />
         <Button
           type='primary'
           icon={theme === 'dark' ? <SunOutlined /> : <MoonOutlined />}

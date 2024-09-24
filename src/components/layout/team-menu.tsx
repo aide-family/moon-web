@@ -62,7 +62,7 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
           return {
             key: item.id,
             label: (
-              <Row gutter={12} style={{ textAlign: 'center' }}>
+              <Row gutter={12} style={{ textAlign: 'center', display: 'flex', alignItems: 'center', minWidth: 200 }}>
                 <Col>
                   <Avatar src={item.logo} shape='square'>
                     {item?.name?.at(0)?.toUpperCase()}
@@ -87,7 +87,7 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
     >
       <Space>
         {teamInfo ? (
-          <Row gutter={12} style={{ textAlign: 'center' }}>
+          <Row gutter={12} style={{ textAlign: 'center', display: 'flex', alignItems: 'center' }}>
             <Col>
               <Avatar src={teamInfo?.logo} shape='square'>
                 {teamInfo?.name?.at(0)?.toUpperCase()}

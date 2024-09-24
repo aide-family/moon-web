@@ -41,6 +41,7 @@ request.interceptors.response.use(
     }
     const respData = resp.data
     errorHandle(respData)
+    return Promise.reject(respData)
   }
 )
 
