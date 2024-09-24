@@ -1,6 +1,6 @@
 import { CaptchaReply, getCaptcha, login, LoginRequest } from '@/api/authorization'
 import { CaptchaType } from '@/api/enum'
-import { isLogin, setToken } from '@/api/request'
+import { baseURL, isLogin, setToken } from '@/api/request'
 import { GlobalContext } from '@/utils/context'
 import { hashMd5 } from '@/utils/hash'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
@@ -100,6 +100,11 @@ const LoginForm: FC = () => {
         <Form.Item>
           <Button type='primary' htmlType='submit' className='login-form-button'>
             登录
+          </Button>
+        </Form.Item>
+        <Form.Item>
+          <Button type='dashed' href={`${baseURL}/auth/github`} className='login-form-button'>
+            Github登录
           </Button>
         </Form.Item>
       </Form>

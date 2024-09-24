@@ -1,27 +1,19 @@
 import { logout } from '@/api/authorization'
-import { removeToken } from '@/api/request'
 import { GlobalContext } from '@/utils/context'
 import { GithubOutlined, MoonOutlined, SunOutlined, TranslationOutlined } from '@ant-design/icons'
 import { Avatar, Button, Dropdown, MenuProps } from 'antd'
 import React, { useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { TeamMenu } from './team-menu'
 
 const github = `https://github.com/aide-family/moon`
 
 export const HeaderOp: React.FC = () => {
-  const navigate = useNavigate()
   const { lang, setLang, theme, setTheme, userInfo } = useContext(GlobalContext)
   const dropdownItems: MenuProps['items'] = [
     {
       key: 'logout',
       label: '退出登录',
-      onClick: () => {
-        logout().then(({ redirect }) => {
-          removeToken()
-          navigate(redirect)
-        })
-      }
+      onClick: logout
     }
   ]
   return (

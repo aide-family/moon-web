@@ -1,5 +1,6 @@
-import { ActionKey, Status, StatusData } from '@/api/global'
-import { NotifyGroupItemType } from '@/api/notify/types'
+import { Status } from '@/api/enum'
+import { ActionKey, StatusData } from '@/api/global'
+import { AlarmNoticeGroupItem } from '@/api/model-types'
 import { SearchFormItem } from '@/components/data/search-box'
 import MoreMenu, { MoreMenuProps } from '@/components/moreMenu'
 import { Badge, Button, Space, Tooltip } from 'antd'
@@ -20,17 +21,17 @@ export const formList: SearchFormItem[] = [
 ]
 
 interface NotifyGroupItemTypeColumnProps {
-  onHandleMenuOnClick: (item: NotifyGroupItemType, key: ActionKey) => void
+  onHandleMenuOnClick: (item: AlarmNoticeGroupItem, key: ActionKey) => void
   current: number
   pageSize: number
 }
 
-export const getColumnList = (props: NotifyGroupItemTypeColumnProps): ColumnsType<NotifyGroupItemType> => {
+export const getColumnList = (props: NotifyGroupItemTypeColumnProps): ColumnsType<AlarmNoticeGroupItem> => {
   const { onHandleMenuOnClick, current, pageSize } = props
-  const tableOperationItems = (record: NotifyGroupItemType): MoreMenuProps['items'] => [
-    record.status === Status.DISABLE
+  const tableOperationItems = (record: AlarmNoticeGroupItem): MoreMenuProps['items'] => [
+    record.status === Status.StatusDisable
       ? {
-          key: ActionKey.DISABLE,
+          key: ActionKey.ENABLE,
           label: (
             <Button type='link' size='small'>
               启用
@@ -38,7 +39,7 @@ export const getColumnList = (props: NotifyGroupItemTypeColumnProps): ColumnsTyp
           )
         }
       : {
-          key: ActionKey.ENABLE,
+          key: ActionKey.DISABLE,
           label: (
             <Button type='link' size='small' danger>
               禁用
@@ -133,23 +134,6 @@ export const getColumnList = (props: NotifyGroupItemTypeColumnProps): ColumnsTyp
       }
     },
     {
-      // 策略数量
-      title: '策略数量',
-      // dataIndex: 'strategyCount',
-      key: 'strategyCount',
-      width: 120,
-      align: 'center',
-      render: () => {
-        return (
-          <b>
-            <span style={{ color: '' }}>-</span>
-            {' / '}
-            <span style={{ color: 'green' }}>-</span>
-          </b>
-        )
-      }
-    },
-    {
       title: '描述',
       dataIndex: 'remark',
       key: 'remark',
@@ -169,42 +153,11 @@ export const getColumnList = (props: NotifyGroupItemTypeColumnProps): ColumnsTyp
       }
     },
     {
-      title: '创建时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      align: 'center',
-      width: 180,
-      render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
-      }
-    },
-    {
       title: '更新时间',
       dataIndex: 'updatedAt',
       key: 'updatedAt',
       align: 'center',
-      width: 180,
-      render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
-      }
+      width: 180
     },
     {
       title: '操作',
@@ -213,7 +166,7 @@ export const getColumnList = (props: NotifyGroupItemTypeColumnProps): ColumnsTyp
       ellipsis: true,
       fixed: 'right',
       width: 120,
-      render: (record: NotifyGroupItemType) => (
+      render: (record: AlarmNoticeGroupItem) => (
         <Space size={20}>
           <Button size='small' type='link' onClick={() => onHandleMenuOnClick(record, ActionKey.DETAIL)}>
             详情

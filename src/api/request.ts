@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { notification } from 'antd'
-import axios from 'axios'
+import { message, notification } from 'antd'
+import axios, { AxiosError } from 'axios'
 
 const host = window.location.origin
 
@@ -13,8 +13,10 @@ export const hostMap: { [key: string]: string } = {
   [local127]: 'http://localhost:8000'
 }
 
+export const baseURL = hostMap[host] || host
+
 const request = axios.create({
-  baseURL: hostMap[host] || host,
+  baseURL: baseURL,
   timeout: 10000
 })
 
@@ -29,28 +31,16 @@ request.interceptors.response.use(
   (response) => {
     return response.data
   },
-  (error) => {
+  (error: AxiosError<ErrorResponse>) => {
     const resp = error.response
-    const respData = resp.data as ErrorResponse
-    switch (respData.code) {
-      case 500:
-        notification.error({
-          message: respData?.message || '请求失败'
-        })
-        break
-      case 401:
-        notification.error({
-          message: respData?.message || '登录失效'
-        })
-        removeToken()
-        break
-      default:
-        notification.warning({
-          message: respData?.message || '请求失败'
-        })
+    if (!resp?.data) {
+      notification.error({
+        message: '网络错误'
+      })
+      return Promise.reject({ message: 'NET_ERROR' })
     }
-
-    return Promise.reject(respData)
+    const respData = resp.data
+    errorHandle(respData)
   }
 )
 
@@ -114,4 +104,37 @@ export interface HealthReply {
 
 export const healthApi = (): Promise<HealthReply> => {
   return GET('/health')
+}
+
+let timer: NodeJS.Timeout | null = null
+const errorHandle = (err: ErrorResponse) => {
+  switch (err.code) {
+    case 400:
+      // 表单告警
+      break
+    case 401:
+      message.error(err.message || '登录失效')
+
+      if (timer) {
+        clearTimeout(timer)
+      }
+      timer = setTimeout(() => {
+        removeToken()
+        window.location.href = '/#/login'
+      }, 1000)
+      break
+    case 403:
+      break
+    case 429:
+      break
+    case 405:
+      // 需要有确定或者取消的弹窗， 不操作则一直存在顶层， 底层内容不允许操作
+
+      break
+    default:
+      notification.warning({
+        message: err?.message || '请求失败'
+      })
+      break
+  }
 }

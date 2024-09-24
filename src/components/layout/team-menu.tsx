@@ -22,7 +22,12 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
         createTeamContext?.setOpen?.(true)
         return
       }
-      if (!teamInfo || !teamInfo.id) {
+      const exist = list.some((item) => {
+        if (item.id === teamInfo?.id) {
+          return true
+        }
+      })
+      if (!exist) {
         setTeamInfo?.(list?.[0])
       }
     })
@@ -33,10 +38,22 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
   }, [refreshMyTeamList])
 
   useEffect(() => {
-    if (!teamInfo) {
+    if (!teamInfo || !teamInfo.id) {
       createTeamContext?.setOpen?.(true)
+    } else {
+      refreshToken({ teamID: teamInfo?.id }).then((res) => {
+        const { token, user } = res
+        setToken(token)
+        setUserInfo?.(user)
+      })
     }
   }, [teamInfo])
+
+  useEffect(() => {
+    if (!createTeamContext.open) {
+      handleGetMyTeamList()
+    }
+  }, [createTeamContext.open])
 
   return (
     <Dropdown

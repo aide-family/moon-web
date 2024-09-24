@@ -1,24 +1,28 @@
 import { Button, Space, theme } from 'antd'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
+import { AlarmNoticeGroupItem } from '@/api/model-types'
+import { listAlarmGroup, ListAlarmGroupRequest } from '@/api/notify/alarm-group'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
-import { formList, getColumnList } from '../hook/options'
 import styles from './index.module.scss'
+import { formList, getColumnList } from './options'
 
 export interface GroupProps {}
 
 const { useToken } = theme
 
+let timer: NodeJS.Timeout | null = null
 const Group: React.FC<GroupProps> = (props) => {
   const {} = props
 
   const { token } = useToken()
-  const [datasource, setDatasource] = useState<any[]>([])
+  const [datasource, setDatasource] = useState<AlarmNoticeGroupItem[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
-  const [searchParams, setSearchParams] = useState({
+  const [refresh, setRefresh] = useState(true)
+  const [searchParams, setSearchParams] = useState<ListAlarmGroupRequest>({
     keyword: '',
     pagination: {
       pageNum: 1,
@@ -30,13 +34,20 @@ const Group: React.FC<GroupProps> = (props) => {
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource)
 
-  const onSearch = (data: any) => {}
+  const onSearch = (data: any) => {
+    setSearchParams({
+      ...searchParams,
+      ...data
+    })
+  }
 
   const onReset = () => {}
 
   const handleEditModal = () => {}
 
-  const onRefresh = () => {}
+  const onRefresh = () => {
+    setRefresh(!refresh)
+  }
 
   const onHandleMenuOnClick = () => {}
 
@@ -59,6 +70,27 @@ const Group: React.FC<GroupProps> = (props) => {
     current: searchParams.pagination.pageNum,
     pageSize: searchParams.pagination.pageSize
   })
+
+  const handleGetHookList = () => {
+    if (timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(() => {
+      setLoading(true)
+      listAlarmGroup(searchParams)
+        .then((res) => {
+          setDatasource(res?.list || [])
+          setTotal(res?.pagination?.total)
+        })
+        .finally(() => {
+          setLoading(false)
+        })
+    }, 200)
+  }
+
+  useEffect(() => {
+    handleGetHookList()
+  }, [searchParams, refresh])
 
   return (
     <div className={styles.box}>
@@ -85,7 +117,7 @@ const Group: React.FC<GroupProps> = (props) => {
             <Button type='primary' onClick={() => handleEditModal()}>
               添加
             </Button>
-            <Button onClick={() => handleEditModal()}>批量导入</Button>
+            <Button disabled>批量导入</Button>
             <Button type='primary' onClick={onRefresh}>
               刷新
             </Button>

@@ -2,7 +2,7 @@ import { Layout, Menu, message, Spin, theme } from 'antd'
 import React, { Suspense, useContext, useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 
-import { healthApi, isLogin } from '@/api/request'
+import { healthApi, isLogin, setToken } from '@/api/request'
 import { GlobalContext } from '@/utils/context'
 import { CopyrightOutlined } from '@ant-design/icons'
 import { HeaderOp } from './header-op'
@@ -15,8 +15,20 @@ const { useToken } = theme
 
 let timer: NodeJS.Timeout | null = null
 const MoonLayout: React.FC = () => {
+  const location = useLocation()
   const navigate = useNavigate()
-  if (!isLogin()) {
+  const search = window.location.search
+  const authToken = new URLSearchParams(search).get('token')
+
+  useEffect(() => {
+    if (authToken) {
+      setToken(authToken)
+      // 清除search
+      window.location.search = ''
+    }
+  }, [authToken])
+
+  if (!isLogin() && !authToken) {
     if (timer) {
       clearTimeout(timer)
     }
@@ -28,7 +40,7 @@ const MoonLayout: React.FC = () => {
       }, 1000)
     }, 1000)
   }
-  const location = useLocation()
+
   const { token } = useToken()
   const { menuItems, collapsed } = useContext(GlobalContext)
 
