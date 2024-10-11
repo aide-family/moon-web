@@ -1,4 +1,5 @@
-import { PaginationReply, PaginationReq, Status } from '../global'
+import { Status } from '../enum'
+import { PaginationReply, PaginationReq } from '../global'
 import { ResourceItem, SelectItem } from '../model-types'
 import request from '../request'
 

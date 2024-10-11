@@ -1,5 +1,5 @@
-import { DictType } from '../enum'
-import { EnumItem, PaginationReply, PaginationReq, Status } from '../global'
+import { DictType, Status } from '../enum'
+import { EnumItem, PaginationReply, PaginationReq } from '../global'
 import { DictItem, SelectItem } from '../model-types'
 import request from '../request'
 
@@ -18,7 +18,7 @@ export function createDict(params: CreateDictRequest): Promise<CreateDictReply> 
  * @returns 更新字典响应
  */
 export function updateDict(params: UpdateDictRequest): Promise<UpdateDictReply> {
-  return request.PUT<UpdateDictReply>(`/v1/dict/update/${params.id}`, params.data)
+  return request.PUT<UpdateDictReply>(`/v1/dict/update/${params.id}`, params)
 }
 
 /**

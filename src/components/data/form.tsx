@@ -1,7 +1,7 @@
-import { type FormItemProps, Form, FormProps, Row, Col } from 'antd'
+import { type FormItemProps, Col, Form, FormProps, Row } from 'antd'
+import { ValidateStatus } from 'antd/es/form/FormItem'
 import React, { FC } from 'react'
 import { DataInput, DataInputProps } from './child/data-input'
-import { ValidateStatus } from 'antd/es/form/FormItem'
 
 export type DataFromItem = {
   name: string

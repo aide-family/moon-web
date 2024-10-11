@@ -39,6 +39,7 @@ export function CreateTeamModalProvider({ children }: CreateTeamModalProps) {
       createTeam({ ...value, adminIds: [], status: Status.StatusEnable })
         .then(() => {
           message.success(value.name + '创建成功')
+          form.resetFields()
           setOpen(false)
         })
         .catch((err: ErrorResponse) => {

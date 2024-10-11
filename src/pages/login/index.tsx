@@ -1,8 +1,9 @@
+import { healthApi } from '@/api/request'
 import { githubURL } from '@/components/layout/header-op'
 import { GlobalContext } from '@/utils/context'
 import { CopyrightOutlined, GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { Button, theme } from 'antd'
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Banner from './banner'
 import LoginForm from './form'
 import './index.scss'
@@ -10,10 +11,25 @@ import './index.scss'
 export interface LoginProps {}
 const { useToken } = theme
 
+let timer: NodeJS.Timeout | null = null
 const Login: React.FC<LoginProps> = () => {
   const { theme, setTheme } = useContext(GlobalContext)
   const { token } = useToken()
+  const [version, setVersion] = useState('version')
 
+  const getVersion = () => {
+    if (timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(() => {
+      healthApi().then((res) => {
+        setVersion(res.version)
+      })
+    }, 300)
+  }
+  useEffect(() => {
+    getVersion()
+  }, [])
   return (
     <div
       className='login'
@@ -42,6 +58,13 @@ const Login: React.FC<LoginProps> = () => {
       <div className='login-footer'>
         <CopyrightOutlined />
         {window.location.host}
+        <div
+          style={{
+            marginLeft: 10
+          }}
+        >
+          version: {version}
+        </div>
       </div>
     </div>
   )

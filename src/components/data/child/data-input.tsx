@@ -1,27 +1,27 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { FC } from 'react'
 import type {
-  InputProps,
-  SelectProps,
-  RadioProps,
-  RadioGroupProps,
-  SegmentedProps,
   CheckboxProps,
+  ColorPickerProps,
   DatePickerProps,
-  ColorPickerProps
+  InputProps,
+  RadioGroupProps,
+  RadioProps,
+  SegmentedProps,
+  SelectProps
 } from 'antd'
-import { Select, Radio, Checkbox, DatePicker, Input, ColorPicker, Segmented } from 'antd'
+import { Checkbox, ColorPicker, DatePicker, Input, Radio, Segmented, Select } from 'antd'
 import { RangePickerProps } from 'antd/es/date-picker'
 import { PasswordProps, TextAreaProps } from 'antd/es/input'
-import { AnnotationsEditorProps, AnnotationsEditor } from './annotation-editor'
-import { DingTemplateEditorProps, DingTemplateEditor } from './ding-template-editor'
-import { EmailTemplateEditorProps, EmailTemplateEditor } from './eamil-template-editor'
-import { FeishuTemplateEditorProps, FeishuTemplateEditor } from './feishu-template-editor'
+import { FC } from 'react'
+import { AnnotationsEditor, AnnotationsEditorProps } from './annotation-editor'
+import { DingTemplateEditor, DingTemplateEditorProps } from './ding-template-editor'
+import { EmailTemplateEditor, EmailTemplateEditorProps } from './eamil-template-editor'
+import { FeishuTemplateEditor, FeishuTemplateEditorProps } from './feishu-template-editor'
 import FetchSelect, { FetchSelectProps } from './fetch-select'
-import { JsonTemplateEditorProps, JsonTemplateEditor } from './json-template-editor'
-import { TimeUintInputProps, TimeUintInput } from './time-value'
-import { WechatTemplateEditorProps, WechatTemplateEditor } from './wechat-template-editor'
 import { JsonInputEditor, JsonInputEditorProps } from './json-input'
+import { JsonTemplateEditor, JsonTemplateEditorProps } from './json-template-editor'
+import { TimeUintInput, TimeUintInputProps } from './time-value'
+import { WechatTemplateEditor, WechatTemplateEditorProps } from './wechat-template-editor'
 
 export type DataInputProps = {
   value?: any
@@ -116,7 +116,7 @@ export const DataInput: FC<DataInputProps> = (props) => {
   const renderInput = () => {
     switch (type) {
       case 'select':
-        return <Select {...props} value={value} defaultValue={defaultValue} onChange={onChange} />
+        return <Select {...props.props} value={value} defaultValue={defaultValue} onChange={onChange} />
       case 'select-fetch':
         return <FetchSelect {...props.props} value={value} defaultValue={defaultValue} onChange={onChange} />
       case 'radio':

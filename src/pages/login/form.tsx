@@ -1,11 +1,11 @@
 import { CaptchaReply, getCaptcha, login, LoginRequest } from '@/api/authorization'
 import { CaptchaType } from '@/api/enum'
 import { baseURL, isLogin, setToken } from '@/api/request'
-import { Github } from '@/components/icon'
+import { Gitee, Github } from '@/components/icon'
 import { GlobalContext } from '@/utils/context'
 import { hashMd5 } from '@/utils/hash'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
-import { Button, Form, Input } from 'antd'
+import { Button, Divider, Form, Input, Space } from 'antd'
 import { FC, useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -127,11 +127,21 @@ const LoginForm: FC = () => {
             登录
           </Button>
         </Form.Item>
-        <Form.Item>
-          <Button type='dashed' href={`${baseURL}/auth/github`} className='login-form-button'>
-            <Github /> Github登录
-          </Button>
-        </Form.Item>
+        <Divider dashed>
+          <span style={{ fontSize: '14px' }}>其他登陆方式</span>
+        </Divider>
+        <Space style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Form.Item>
+            <Button type='dashed' href={`${baseURL}/auth/github`} className='login-form-button'>
+              <Github /> Github登录
+            </Button>
+          </Form.Item>
+          <Form.Item>
+            <Button type='dashed' href={`${baseURL}/auth/gitee`} className='login-form-button'>
+              <Gitee /> Gitee登录
+            </Button>
+          </Form.Item>
+        </Space>
       </Form>
     </div>
   )

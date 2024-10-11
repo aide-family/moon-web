@@ -1,34 +1,34 @@
+import { Status } from '@/api/enum'
+import { TeamItem } from '@/api/model-types'
+import { listTeam, ListTeamRequest, updateTeamStatus } from '@/api/team'
+import { GlobalContext } from '@/utils/context'
 import { EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import {
-  Card,
   Avatar,
-  Space,
   Button,
-  Row,
+  Card,
   Col,
-  Input,
-  Switch,
-  DescriptionsProps,
   Descriptions,
+  DescriptionsProps,
   Dropdown,
+  Empty,
+  Input,
   MenuProps,
+  Row,
+  Space,
   Spin,
-  Typography,
-  Empty
+  Switch,
+  Typography
 } from 'antd'
 import React, { useContext, useEffect } from 'react'
-import './index.scss'
 import { EditSpaceModal } from './edit-space-modal'
-import { TeamItemType, TeamListRequest } from '@/api/team/types'
-import team from '@/api/team'
-import { Status } from '@/api/global'
-import { GlobalContext } from '@/utils/context'
+import './index.scss'
 
 export interface SpaceManageProps {
   children?: React.ReactNode
 }
 
-const defaultSearchParams: TeamListRequest = {
+const defaultSearchParams: ListTeamRequest = {
   status: 0,
   pagination: {
     pageNum: 1,
@@ -41,17 +41,17 @@ let searchTimeout: NodeJS.Timeout | null = null
 const SpaceManage: React.FC<SpaceManageProps> = () => {
   const { setRefreshMyTeamList } = useContext(GlobalContext)
   const [openEditModal, setOpenEditModal] = React.useState(false)
-  const [operatorTeam, setOperatorTeam] = React.useState<TeamItemType>()
-  const [searchParams, setSearchParams] = React.useState<TeamListRequest>(defaultSearchParams)
+  const [operatorTeam, setOperatorTeam] = React.useState<TeamItem>()
+  const [searchParams, setSearchParams] = React.useState<ListTeamRequest>(defaultSearchParams)
   const [loading, setLoading] = React.useState(false)
-  const [teamList, setTeamList] = React.useState<TeamItemType[]>([])
+  const [teamList, setTeamList] = React.useState<TeamItem[]>([])
   const [refresh, setRefresh] = React.useState(false)
 
-  const handleEditTeam = (teamInfo: TeamItemType) => {
+  const handleEditTeam = (teamInfo: TeamItem) => {
     setOperatorTeam(teamInfo)
     setOpenEditModal(true)
   }
-  const menuItems = (teamInfo: TeamItemType): MenuProps['items'] => [
+  const menuItems = (teamInfo: TeamItem): MenuProps['items'] => [
     {
       label: '编辑信息',
       key: '1',
@@ -85,8 +85,7 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
     }
     setLoading(true)
     timeout = setTimeout(() => {
-      team
-        .getTeamListApi(searchParams)
+      listTeam(searchParams)
         .then((res) => {
           const { list } = res
           setTeamList(list)
@@ -96,7 +95,10 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
   }
 
   const handleChangeStatus = (teamId: number, checked: boolean) => {
-    team.setTeamStatusApi(teamId, checked ? Status.ENABLE : Status.DISABLE).then(handleRefresh)
+    updateTeamStatus({
+      id: teamId,
+      status: checked ? Status.StatusEnable : Status.StatusDisable
+    }).then(handleRefresh)
   }
 
   useEffect(() => {
@@ -209,7 +211,7 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
                       <Switch
                         checkedChildren='正常'
                         unCheckedChildren='禁用'
-                        value={status === Status.ENABLE}
+                        value={status === Status.StatusEnable}
                         onChange={(checked) => handleChangeStatus(id, checked)}
                       />
                     }

@@ -189,6 +189,8 @@ const Users: React.FC<UsersProps> = () => {
               })
             }
           }}
+          pageSize={0}
+          pageNum={0}
         />
       </div>
     </div>

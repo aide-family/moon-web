@@ -1,7 +1,7 @@
 import { StatusData } from '@/api/global'
+import { TeamItem } from '@/api/model-types'
 import { ErrorResponse, NullObject } from '@/api/request'
-import team from '@/api/team'
-import { CreateTeamRequest, TeamItemType } from '@/api/team/types'
+import { createTeam, CreateTeamRequest, getTeam, updateTeam } from '@/api/team'
 import { DataFrom, DataFromItem, ValidateType } from '@/components/data/form'
 import { Modal, ModalProps } from 'antd'
 import { useForm } from 'antd/es/form/Form'
@@ -81,13 +81,13 @@ const items: (DataFromItem | DataFromItem[])[] = [
 export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
   const { spaceId, open, onOk, onCancel } = props
   const [form] = useForm<CreateTeamRequest>()
-  const [detail, setDetail] = React.useState<TeamItemType>()
+  const [detail, setDetail] = React.useState<TeamItem>()
   const [validates, setValidates] = React.useState<Record<string, ValidateType>>()
 
   const handleGetTeamDetail = (id?: number) => {
     if (id) {
-      team.getTeamApi(id).then((res) => {
-        setDetail(res?.team)
+      getTeam({ id }).then((res) => {
+        setDetail(res?.detail)
       })
     }
   }
@@ -99,13 +99,13 @@ export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
   const save = (params: CreateTeamRequest): Promise<NullObject> => {
     if (spaceId) {
       // TODO: 更新团队
-      return team.updateTeamApi({
+      return updateTeam({
         ...params,
         id: spaceId
-      })
+      }).then(() => ({}))
     } else {
       // TODO: 创建团队
-      return team.createTeamApi(params)
+      return createTeam(params).then(() => ({}))
     }
   }
 

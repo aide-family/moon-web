@@ -123,6 +123,10 @@ export const defaultMenuItems: ItemType[] = [
         key: '/home/system/dict'
       },
       {
+        label: '角色管理',
+        key: '/home/system/role'
+      },
+      {
         label: '系统菜单',
         key: '/home/system/menu'
       }

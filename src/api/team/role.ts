@@ -1,3 +1,5 @@
+import { Status } from '../enum'
+import { PaginationReply, PaginationReq } from '../global'
 import { SelectItem, TeamRole } from '../model-types'
 import request from '../request'
 
@@ -18,7 +20,7 @@ export function createRole(params: CreateRoleRequest): Promise<CreateRoleReply> 
  * @returns {UpdateRoleReply}
  */
 export function updateRole(params: UpdateRoleRequest): Promise<UpdateRoleReply> {
-  return request.PUT<UpdateRoleReply>(`/v1/team/role/${params.id}`, params.data)
+  return request.PUT<UpdateRoleReply>(`/v1/team/role/${params.id}`, params)
 }
 
 /**
@@ -76,7 +78,6 @@ export interface CreateRoleRequest {
   name: string
   remark: string
   permissions: number[]
-  team_id: number
 }
 
 export interface CreateRoleReply {}
@@ -104,10 +105,13 @@ export interface GetRoleReply {
 
 export interface ListRoleRequest {
   keyword?: string
+  pagination: PaginationReq
+  status?: Status
 }
 
 export interface ListRoleReply {
   list: TeamRole[]
+  pagination: PaginationReply
 }
 
 export interface UpdateRoleStatusRequest {

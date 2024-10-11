@@ -8,7 +8,7 @@ export interface AutoTableProps<T = any> extends TableProps {
   columns: AutoTableColumnType<T>[]
   dataSource: T[]
   total: number
-  handleTurnPage: (e: number, size: number) => void
+  handleTurnPage?: (e: number, size: number) => void
   showQuickJumper?: boolean
   onShowSizeChange?: () => Promise<T[]>
   showSizeChanger?: boolean
@@ -44,7 +44,7 @@ export const AutoTable: React.FC<AutoTableProps> = (props) => {
         <Pagination
           className={styles.pagination}
           total={total}
-          onChange={(e, size) => handleTurnPage(e, size)}
+          onChange={(e, size) => handleTurnPage?.(e, size)}
           pageSize={pageSize}
           defaultCurrent={1}
           current={pageNum}

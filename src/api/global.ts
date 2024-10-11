@@ -1,5 +1,16 @@
 import { BadgeProps } from 'antd'
-import { Condition, DatasourceType, Gender, HookApp, MetricType, Role, Status, StorageType, SustainType } from './enum'
+import {
+  Condition,
+  DatasourceType,
+  DictType,
+  Gender,
+  HookApp,
+  MetricType,
+  Role,
+  Status,
+  StorageType,
+  SustainType
+} from './enum'
 
 export interface PaginationReq {
   pageNum: number
@@ -130,6 +141,14 @@ export const HookAppData: Record<HookApp, string> = {
   [HookApp.HOOK_APP_FEI_SHU]: '飞书',
   [HookApp.HOOK_APP_WEB_HOOK]: 'Webhook',
   [HookApp.HOOK_APP_WE_CHAT]: '企业微信'
+}
+
+export const DictTypeData: Record<DictType, string> = {
+  [DictType.DictTypeUnknown]: '全部',
+  [DictType.DictTypeAlarmLevel]: '告警级别',
+  [DictType.DictTypeAlarmPage]: '告警页面',
+  [DictType.DictTypeStrategyCategory]: '策略分类',
+  [DictType.DictTypeStrategyGroupCategory]: '策略组分类'
 }
 
 // 操作
