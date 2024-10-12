@@ -110,29 +110,25 @@ export const defaultMenuItems: ItemType[] = [
     ]
   },
   {
-    label: '系统管理',
-    key: '/home/system',
+    label: '团队管理',
+    key: '/home/team',
     icon: <SettingOutlined />,
     children: [
       {
-        label: '系统用户',
-        key: '/home/system/users'
+        label: '团队成员',
+        key: '/home/team/users'
       },
       {
-        label: '系统字典',
-        key: '/home/system/dict'
+        label: '字典管理',
+        key: '/home/team/dict'
       },
       {
         label: '角色管理',
-        key: '/home/system/role'
+        key: '/home/team/role'
       },
       {
         label: '资源管理',
-        key: '/home/system/resource'
-      },
-      {
-        label: '系统菜单',
-        key: '/home/system/menu'
+        key: '/home/team/resource'
       }
     ]
   },
@@ -162,22 +158,19 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   '/home': {
     name: '首页'
   },
-  '/home/system': {
-    name: '系统管理'
+  '/home/team': {
+    name: '团队管理'
   },
-  '/home/system/users': {
-    name: '系统用户'
+  '/home/team/users': {
+    name: '团队成员'
   },
-  '/home/system/dict': {
-    name: '系统字典'
+  '/home/team/dict': {
+    name: '字典管理'
   },
-  '/home/system/menu': {
-    name: '系统菜单'
-  },
-  '/home/system/role': {
+  '/home/team/role': {
     name: '角色管理'
   },
-  '/home/system/resource': {
+  '/home/team/resource': {
     name: '资源管理'
   },
   '/home/self': {

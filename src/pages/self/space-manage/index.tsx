@@ -18,6 +18,7 @@ import {
   Space,
   Spin,
   Switch,
+  Tooltip,
   Typography
 } from 'antd'
 import React, { useContext, useEffect } from 'react'
@@ -164,12 +165,26 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
         ) : (
           <Row gutter={[12, 12]} style={{ flex: 1, overflow: 'auto' }}>
             {teamList?.map((item, index) => {
-              const { name, logo, status, id, remark, leader, admin } = item
+              const { name, logo, status, id, remark, leader, admin, creator } = item
               const items: DescriptionsProps['items'] = [
                 {
                   key: 'leader',
                   label: '负责人',
-                  children: <Avatar src={leader?.avatar}>{leader?.nickname || leader?.name}</Avatar>,
+                  children: (
+                    <Tooltip title={leader?.nickname || leader?.name}>
+                      <Avatar src={leader?.avatar}>{leader?.nickname || leader?.name}</Avatar>
+                    </Tooltip>
+                  ),
+                  span: 1
+                },
+                {
+                  key: 'creator',
+                  label: '创建者',
+                  children: (
+                    <Tooltip title={creator?.nickname || creator?.name}>
+                      <Avatar src={creator?.avatar}>{creator?.nickname || creator?.name}</Avatar>
+                    </Tooltip>
+                  ),
                   span: 1
                 },
                 {
@@ -184,7 +199,7 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
                         : '-'}
                     </Avatar.Group>
                   ),
-                  span: 2
+                  span: 3
                 },
                 {
                   key: '3',

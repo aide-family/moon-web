@@ -40,23 +40,23 @@ export const routers: RouteObject[] = [
         ]
       },
       {
-        path: '/home/system',
+        path: '/home/team',
         children: [
           {
-            path: '/home/system/users',
-            Component: lazy(() => import('@/pages/system/users'))
+            path: '/home/team/users',
+            Component: lazy(() => import('@/pages/team/members'))
           },
           {
-            path: '/home/system/dict',
-            Component: lazy(() => import('@/pages/system/dict'))
+            path: '/home/team/dict',
+            Component: lazy(() => import('@/pages/team/dict'))
           },
           {
-            path: '/home/system/role',
-            Component: lazy(() => import('@/pages/system/role'))
+            path: '/home/team/role',
+            Component: lazy(() => import('@/pages/team/role'))
           },
           {
-            path: '/home/system/resource',
-            Component: lazy(() => import('@/pages/system/resource'))
+            path: '/home/team/resource',
+            Component: lazy(() => import('@/pages/team/resource'))
           }
         ]
       },
