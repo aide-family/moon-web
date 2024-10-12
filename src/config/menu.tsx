@@ -127,6 +127,10 @@ export const defaultMenuItems: ItemType[] = [
         key: '/home/system/role'
       },
       {
+        label: '资源管理',
+        key: '/home/system/resource'
+      },
+      {
         label: '系统菜单',
         key: '/home/system/menu'
       }
@@ -169,6 +173,12 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   },
   '/home/system/menu': {
     name: '系统菜单'
+  },
+  '/home/system/role': {
+    name: '角色管理'
+  },
+  '/home/system/resource': {
+    name: '资源管理'
   },
   '/home/self': {
     name: '个人中心'

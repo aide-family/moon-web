@@ -53,6 +53,10 @@ export const routers: RouteObject[] = [
           {
             path: '/home/system/role',
             Component: lazy(() => import('@/pages/system/role'))
+          },
+          {
+            path: '/home/system/resource',
+            Component: lazy(() => import('@/pages/system/resource'))
           }
         ]
       },

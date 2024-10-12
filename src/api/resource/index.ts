@@ -53,6 +53,8 @@ export interface GetResourceReply {
 export interface ListResourceRequest {
   pagination: PaginationReq
   keyword?: string
+  status?: Status
+  isAll?: boolean
 }
 
 export interface ListResourceReply {
