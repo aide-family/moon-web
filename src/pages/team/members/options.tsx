@@ -1,13 +1,14 @@
-import { Status } from '@/api/enum'
-import { ActionKey, StatusData } from '@/api/global'
-import { AlarmNoticeGroupItem } from '@/api/model-types'
-import { listHookSelectList } from '@/api/notify/hook'
+import { DictType, Role, Status } from '@/api/enum'
+import { ActionKey, RoleData, StatusData } from '@/api/global'
+import { TeamMemberItem } from '@/api/model-types'
+import { getRoleSelectList } from '@/api/team/role'
 import { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
 import OverflowTooltip from '@/components/overflowTooltip'
-import { Badge, Button, Space, Tooltip } from 'antd'
+import { Avatar, Badge, Button, Space, Tooltip } from 'antd'
+import { Color } from 'antd/es/color-picker'
 import { ColumnsType } from 'antd/es/table'
 
 export const formList: SearchFormItem[] = [
@@ -28,7 +29,7 @@ export const formList: SearchFormItem[] = [
     dataProps: {
       type: 'select',
       itemProps: {
-        placeholder: '规则组状态',
+        placeholder: '状态',
         allowClear: true,
         options: Object.entries(StatusData).map(([key, value]) => {
           return {
@@ -42,14 +43,14 @@ export const formList: SearchFormItem[] = [
 ]
 
 interface GroupColumnProps {
-  onHandleMenuOnClick: (item: AlarmNoticeGroupItem, key: ActionKey) => void
+  onHandleMenuOnClick: (item: TeamMemberItem, key: ActionKey) => void
   current: number
   pageSize: number
 }
 
-export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmNoticeGroupItem> => {
+export const getColumnList = (props: GroupColumnProps): ColumnsType<TeamMemberItem> => {
   const { onHandleMenuOnClick, current, pageSize } = props
-  const tableOperationItems = (record: AlarmNoticeGroupItem): MoreMenuProps['items'] => [
+  const tableOperationItems = (record: TeamMemberItem): MoreMenuProps['items'] => [
     record.status === Status.StatusDisable
       ? {
           key: ActionKey.ENABLE,
@@ -72,14 +73,6 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmNoticeG
       label: (
         <Button size='small' type='link'>
           操作日志
-        </Button>
-      )
-    },
-    {
-      key: ActionKey.EDIT,
-      label: (
-        <Button size='small' type='link'>
-          编辑
         </Button>
       )
     },
@@ -110,7 +103,29 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmNoticeG
       dataIndex: 'name',
       key: 'name',
       align: 'center',
-      width: 200
+      width: 200,
+      render: (_: string, record: TeamMemberItem) => {
+        const {
+          user: { avatar, name, nickname }
+        } = record
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Avatar src={avatar}>{nickname || name}</Avatar>
+            {nickname || name}
+          </div>
+        )
+      }
+    },
+
+    {
+      title: '角色类型',
+      dataIndex: 'role',
+      key: 'role',
+      align: 'center',
+      width: 160,
+      render: (role: Role) => {
+        return <>{RoleData[role]}</>
+      }
     },
     {
       title: '状态',
@@ -129,8 +144,8 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmNoticeG
       key: 'remark',
       align: 'center',
       width: 300,
-      render: (text: string) => {
-        return <OverflowTooltip content={text || '-'} maxWidth='300px' />
+      render: (_: string, { user: { remark } }) => {
+        return <OverflowTooltip content={remark || '-'} maxWidth='300px' />
       }
     },
     {
@@ -159,7 +174,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmNoticeG
       ellipsis: true,
       fixed: 'right',
       width: 120,
-      render: (_, record: AlarmNoticeGroupItem) => (
+      render: (_, record: TeamMemberItem) => (
         <Space size={20}>
           <Button size='small' type='link' onClick={() => onHandleMenuOnClick(record, ActionKey.DETAIL)}>
             详情
@@ -178,39 +193,59 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmNoticeG
   ]
 }
 
-export const editModalFormItems: (DataFromItem | DataFromItem[])[] = [
+export type ColorType = 'hex' | 'rgb' | 'hsb'
+
+export interface CreateDictFormType {
+  name: string
+  value: string
+  dictType: DictType
+  colorType: string
+  cssClass: Color | string
+  icon: string
+  imageUrl: string
+  status: Status
+  languageCode: string
+  remark: string
+}
+export const inviteModalFormItems: (DataFromItem | DataFromItem[])[] = [
   {
-    name: 'name',
-    label: '名称',
+    name: 'inviteCode',
+    label: '邮箱或电话号码',
     type: 'input',
     formProps: {
-      rules: [{ required: true, message: '请输入字典名称' }]
+      rules: [{ required: true, message: '请输入邮箱或电话号码' }]
     },
     props: {
-      placeholder: '请输入字典名称'
+      placeholder: '请输入邮箱或电话号码'
     }
   },
   {
-    name: 'remark',
-    label: '描述',
-    type: 'textarea',
+    name: 'role',
+    label: '团队角色',
+    type: 'select',
     props: {
-      placeholder: '请输入描述',
-      maxLength: 200,
-      showCount: true
+      placeholder: '请选择角色',
+      options: Object.entries(RoleData).map(([key, value]) => {
+        return {
+          label: value,
+          value: Number(key)
+        }
+      })
     }
   },
   {
-    name: 'hookIds',
-    label: 'hook列表',
+    name: 'roleIds',
+    label: '角色权限',
     type: 'select-fetch',
     props: {
-      handleFetch: (value: string) => {
-        return listHookSelectList({ keyword: value, pagination: { pageNum: 1, pageSize: 999 } }).then((res) => res.list)
+      handleFetch: (keyword: string) => {
+        return getRoleSelectList({ keyword, pagination: { pageNum: 1, pageSize: 999 } }).then((res) => {
+          return res.list
+        })
       },
       selectProps: {
-        placeholder: '请选择hook列表',
-        mode: 'multiple'
+        mode: 'multiple',
+        placeholder: '请选择角色权限'
       }
     }
   }

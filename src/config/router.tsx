@@ -43,7 +43,7 @@ export const routers: RouteObject[] = [
         path: '/home/team',
         children: [
           {
-            path: '/home/team/users',
+            path: '/home/team/members',
             Component: lazy(() => import('@/pages/team/members'))
           },
           {

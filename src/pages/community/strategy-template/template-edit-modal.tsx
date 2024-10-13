@@ -161,7 +161,7 @@ export const TemplateEditModal: React.FC<TemplateEditModalProps> = (props) => {
       alert: alert,
       datasource: datasource,
       datasourceId: 0,
-      duration: `${level?.duration}s`,
+      duration: level?.duration,
       count: level?.count,
       sustainType: level?.sustainType,
       condition: level.condition,

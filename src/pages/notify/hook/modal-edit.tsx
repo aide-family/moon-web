@@ -79,10 +79,10 @@ export function EditHookModal(props: EditHookModalProps) {
   }, [detail])
 
   useEffect(() => {
-    if (hookId) {
+    if (hookId && open) {
       handleGetHookDetail()
     }
-  }, [hookId])
+  }, [hookId, open])
 
   return (
     <>

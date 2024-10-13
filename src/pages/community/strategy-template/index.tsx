@@ -10,6 +10,7 @@ import { Status } from '@/api/enum'
 import { StrategyTemplateItem, UserItem } from '@/api/model-types'
 import {
   createTemplateStrategy,
+  CreateTemplateStrategyRequest,
   listTemplateStrategy,
   ListTemplateStrategyRequest,
   updateTemplateStrategy
@@ -167,20 +168,20 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
 
   function handleTemplateEditModalSubmit(data: TemplateEditModalData) {
     const { alert, expr, remark, labels, annotations, level, categoriesIds } = data
-    const params = {
+    const params: CreateTemplateStrategyRequest = {
       alert: alert,
       expr: expr,
       remark: remark,
       labels: labels,
       annotations: annotations,
-      level: level,
-      categoriesIds: categoriesIds
+      categoriesIds: categoriesIds,
+      levels: level
     }
     const call = () => {
       if (!editTemplateId) {
         return createTemplateStrategy(params)
       } else {
-        return updateTemplateStrategy(editTemplateId, params)
+        return updateTemplateStrategy({ ...params, id: editTemplateId })
       }
     }
     return call().then(() => {

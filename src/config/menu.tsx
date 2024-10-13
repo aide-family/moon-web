@@ -116,7 +116,7 @@ export const defaultMenuItems: ItemType[] = [
     children: [
       {
         label: '团队成员',
-        key: '/home/team/users'
+        key: '/home/team/members'
       },
       {
         label: '字典管理',
@@ -161,7 +161,7 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   '/home/team': {
     name: '团队管理'
   },
-  '/home/team/users': {
+  '/home/team/members': {
     name: '团队成员'
   },
   '/home/team/dict': {

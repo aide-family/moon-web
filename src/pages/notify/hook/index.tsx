@@ -8,9 +8,9 @@ import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { Button, Space, theme } from 'antd'
-import { EditHookModal } from './edit-hook-modal'
-import { HookDetailModal } from './hook-detail'
 import styles from './index.module.scss'
+import { HookDetailModal } from './modal-detail'
+import { EditHookModal } from './modal-edit'
 import { formList, getColumnList } from './options'
 
 export interface HookProps {}

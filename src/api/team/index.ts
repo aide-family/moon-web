@@ -1,3 +1,4 @@
+import { Status } from '../enum'
 import { PaginationReply, PaginationReq } from '../global'
 import { TeamItem, TeamMemberItem } from '../model-types'
 import request from '../request'
@@ -69,7 +70,7 @@ export function myTeam(): Promise<MyTeamReply> {
  * @returns {AddTeamMemberReply}
  */
 export function addTeamMember(params: AddTeamMemberRequest): Promise<AddTeamMemberReply> {
-  return request.POST<AddTeamMemberReply>(`/v1/team/${params.id}/member/add`, params)
+  return request.POST<AddTeamMemberReply>(`/v1/team/member/add`, params)
 }
 
 /**
@@ -79,7 +80,7 @@ export function addTeamMember(params: AddTeamMemberRequest): Promise<AddTeamMemb
  * @returns {RemoveTeamMemberReply}
  */
 export function removeTeamMember(params: RemoveTeamMemberRequest): Promise<RemoveTeamMemberReply> {
-  return request.DELETE<RemoveTeamMemberReply>(`/v1/team/${params.id}/member/${params.userId}`)
+  return request.DELETE<RemoveTeamMemberReply>(`/v1/team/member`, params)
 }
 
 /**
@@ -89,7 +90,7 @@ export function removeTeamMember(params: RemoveTeamMemberRequest): Promise<Remov
  * @returns {SetTeamAdminReply}
  */
 export function setTeamAdmin(params: SetTeamAdminRequest): Promise<SetTeamAdminReply> {
-  return request.PUT<SetTeamAdminReply>(`/v1/team/${params.id}/member/set/admin`, params)
+  return request.PUT<SetTeamAdminReply>(`/v1/team/member/set/admin`, params)
 }
 
 /**
@@ -99,7 +100,7 @@ export function setTeamAdmin(params: SetTeamAdminRequest): Promise<SetTeamAdminR
  * @returns {RemoveTeamAdminReply}
  */
 export function removeTeamAdmin(params: RemoveTeamAdminRequest): Promise<RemoveTeamAdminReply> {
-  return request.DELETE<RemoveTeamAdminReply>(`/v1/team/${params.id}/member/remove/admin`, params)
+  return request.DELETE<RemoveTeamAdminReply>(`/v1/team/member/remove/admin`, params)
 }
 
 /**
@@ -109,7 +110,7 @@ export function removeTeamAdmin(params: RemoveTeamAdminRequest): Promise<RemoveT
  * @returns {SetMemberRoleReply}
  */
 export function setMemberRole(params: SetMemberRoleRequest): Promise<SetMemberRoleReply> {
-  return request.PUT<SetMemberRoleReply>(`/v1/team/${params.id}/member/${params.userId}/role`, params)
+  return request.PUT<SetMemberRoleReply>(`/v1/team/member/role`, params)
 }
 
 /**
@@ -119,7 +120,7 @@ export function setMemberRole(params: SetMemberRoleRequest): Promise<SetMemberRo
  * @returns {ListTeamMemberReply}
  */
 export function listTeamMember(params: ListTeamMemberRequest): Promise<ListTeamMemberReply> {
-  return request.POST<ListTeamMemberReply>(`/v1/team/${params.id}/member/list`, params)
+  return request.POST<ListTeamMemberReply>(`/v1/team/member/list`, params)
 }
 
 /**
@@ -129,11 +130,27 @@ export function listTeamMember(params: ListTeamMemberRequest): Promise<ListTeamM
  * @returns {TransferTeamLeaderReply}
  */
 export function transferTeamLeader(params: TransferTeamLeaderRequest): Promise<TransferTeamLeaderReply> {
-  return request.PUT<TransferTeamLeaderReply>(`/v1/team/${params.id}/leader/transfer`, params)
+  return request.PUT<TransferTeamLeaderReply>(`/v1/team/leader/transfer`, params)
+}
+
+/**
+ * 更改团队成员状态
+ * @method: put /v1/team/member/status
+ */
+export function batchUpdateTeamMembersStatus(params: BatchUpdateTeamMemberStatusRequest): Promise<{}> {
+  return request.PUT(`/v1/team/member/status`, params)
+}
+
+/**
+ * 团队成员详情
+ * @method: get /v1/team/member/detail/{id}
+ */
+export function getTeamMemberDetail(params: GetTeamMemberDetailRequest): Promise<GetTeamMemberDetailReply> {
+  return request.GET<GetTeamMemberDetailReply>(`/v1/team/member/detail/${params.id}`)
 }
 
 // 示例类型定义
-export interface CreateTeamRequest {
+interface CreateTeamRequest {
   name: string
   remark: string
   logo: string
@@ -188,49 +205,43 @@ export interface MyTeamReply {
 }
 
 export interface AddTeamMemberRequest {
-  id: number
   members: MemberItem[]
 }
 
 export interface AddTeamMemberReply {}
 
 export interface MemberItem {
-  user_id: number
+  memberID: number
   role?: number
   roles?: number[]
 }
 
 export interface RemoveTeamMemberRequest {
-  id: number
-  userId: number
+  memberID: number
 }
 
 export interface RemoveTeamMemberReply {}
 
 export interface SetTeamAdminRequest {
-  id: number
-  userIds: number[]
+  memberIds: number[]
 }
 
 export interface SetTeamAdminReply {}
 
 export interface RemoveTeamAdminRequest {
-  id: number
-  userIds: number[]
+  memberIds: number[]
 }
 
 export interface RemoveTeamAdminReply {}
 
 export interface SetMemberRoleRequest {
-  id: number
-  userId: number
+  memberID: number
   roles: number[]
 }
 
 export interface SetMemberRoleReply {}
 
 export interface ListTeamMemberRequest {
-  id: number
   keyword?: string
   pagination: PaginationReq
   gender?: number
@@ -245,8 +256,20 @@ export interface ListTeamMemberReply {
 }
 
 export interface TransferTeamLeaderRequest {
-  id: number
-  userId: number
+  memberID: number
 }
 
 export interface TransferTeamLeaderReply {}
+
+export interface BatchUpdateTeamMemberStatusRequest {
+  status: Status
+  memberIds: number[]
+}
+
+export interface GetTeamMemberDetailRequest {
+  id: number
+}
+
+export interface GetTeamMemberDetailReply {
+  detail: TeamMemberItem
+}

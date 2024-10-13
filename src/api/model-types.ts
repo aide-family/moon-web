@@ -615,7 +615,7 @@ export interface AlarmHookItem {
   /** hook说明信息 */
   remark: string
   /** hook创建人 */
-  creator: string
+  creator: UserItem
   /** hook应用类型 */
   hookApp: HookApp
   /** secret */

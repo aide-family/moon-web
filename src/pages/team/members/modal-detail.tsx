@@ -1,41 +1,49 @@
-import { HookAppData, StatusData } from '@/api/global'
-import { AlarmHookItem } from '@/api/model-types'
-import { getHook } from '@/api/notify/hook'
-import { Badge, Descriptions, DescriptionsProps, Modal } from 'antd'
+import { RoleData, StatusData } from '@/api/global'
+import { TeamMemberItem } from '@/api/model-types'
+import { getTeamMemberDetail } from '@/api/team'
+import { Avatar, Badge, Descriptions, DescriptionsProps, Modal } from 'antd'
 import { useEffect, useState } from 'react'
 
 export interface HookDetailModalProps {
-  hookId: number
+  id: number
   open?: boolean
   onCancel?: () => void
   onOk?: () => void
 }
 
 let timer: NodeJS.Timeout | null = null
-export function HookDetailModal(props: HookDetailModalProps) {
-  const { hookId, open, onCancel, onOk } = props
+export function DetailModal(props: HookDetailModalProps) {
+  const { id, open, onCancel, onOk } = props
 
-  const [detail, setDetail] = useState<AlarmHookItem>()
+  const [detail, setDetail] = useState<TeamMemberItem>()
   const getHookDetail = () => {
+    if (!id) {
+      return
+    }
     if (timer) {
       clearTimeout(timer)
     }
     timer = setTimeout(() => {
-      getHook({ id: hookId }).then((res) => {
+      getTeamMemberDetail({ id }).then((res) => {
         setDetail(res.detail)
       })
-    }, 200)
+    }, 400)
   }
 
   const items: DescriptionsProps['items'] = [
     {
       label: '名称',
-      children: detail?.name,
+      children: (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Avatar src={detail?.user?.avatar}>{detail?.user?.nickname || detail?.user?.name}</Avatar>
+          {detail?.user?.nickname || detail?.user?.name}
+        </div>
+      ),
       span: { xs: 1, sm: 2, md: 3, lg: 3, xl: 2, xxl: 2 }
     },
     {
-      label: '类型',
-      children: HookAppData[detail?.hookApp!],
+      label: '角色类型',
+      children: RoleData[detail?.role!],
       span: { xs: 1, sm: 2, md: 3, lg: 3, xl: 2, xxl: 2 }
     },
     {
@@ -48,24 +56,9 @@ export function HookDetailModal(props: HookDetailModalProps) {
       span: { xs: 1, sm: 2, md: 3, lg: 3, xl: 2, xxl: 2 }
     },
     {
-      label: '创建人',
-      children: detail?.creator || '-',
+      label: '角色列表',
+      children: '-',
       span: { xs: 1, sm: 2, md: 3, lg: 3, xl: 2, xxl: 2 }
-    },
-    {
-      label: 'URL',
-      children: detail?.url,
-      span: 3
-    },
-    {
-      label: '密钥',
-      children: detail?.secret || '-',
-      span: 3
-    },
-    {
-      label: '备注',
-      children: detail?.remark || '-',
-      span: 3
     },
 
     {
@@ -77,19 +70,23 @@ export function HookDetailModal(props: HookDetailModalProps) {
       label: '更新时间',
       children: detail?.updatedAt,
       span: { xs: 1, sm: 2, md: 3, lg: 3, xl: 2, xxl: 2 }
+    },
+    {
+      label: '备注',
+      children: detail?.user?.remark || '-'
     }
   ]
 
   useEffect(() => {
-    if (hookId) {
+    if (id && open) {
       getHookDetail()
     }
-  }, [hookId])
+  }, [id, open])
 
   return (
     <>
       <Modal width='50%' centered open={open} onOk={onOk} onCancel={onCancel} footer={null}>
-        <Descriptions title='Hook信息' bordered items={items} />
+        <Descriptions title='成员信息' bordered items={items} />
       </Modal>
     </>
   )

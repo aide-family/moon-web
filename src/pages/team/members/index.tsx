@@ -1,200 +1,218 @@
-import React, { useEffect, useState } from 'react'
+import { Status } from '@/api/enum'
+import { ActionKey } from '@/api/global'
+import { StrategyGroupItem, TeamMemberItem } from '@/api/model-types'
+import { ListStrategyGroupRequest } from '@/api/strategy'
+import { batchUpdateTeamMembersStatus, listTeamMember, ListTeamMemberRequest, removeTeamMember } from '@/api/team'
+import SearchBox from '@/components/data/search-box'
+import AutoTable from '@/components/table/index'
+import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
+import { ExclamationCircleFilled } from '@ant-design/icons'
+import { Button, message, Modal, Space, theme } from 'antd'
+import { debounce } from 'lodash'
+import React, { Key, useCallback, useEffect, useRef, useState } from 'react'
+import styles from './index.module.scss'
+import { DetailModal } from './modal-detail'
+import { Invite } from './modal-invite'
+import { formList, getColumnList } from './options'
 
-import { AutoTable, AutoTableColumnType } from '@/components/table'
-import { Button, Space, theme } from 'antd'
-import { useForm } from 'antd/es/form/Form'
-import { StatusBadge, UserAvatar, userListSearchItems, Username } from './option'
-
-import { Gender, Role, Status } from '@/api/enum'
-import { PaginationReply } from '@/api/global'
-import { UserItem } from '@/api/model-types'
-import { listUser, ListUserRequest } from '@/api/user'
-import SearchForm from '@/components/data/search-form'
-import './index.scss'
-
-export interface UsersProps {}
-
+const { confirm } = Modal
 const { useToken } = theme
 
-const defaultSearchParams: ListUserRequest = {
+const defaultSearchParams: ListTeamMemberRequest = {
   pagination: {
     pageNum: 1,
     pageSize: 10
   },
   keyword: '',
-  status: Status.StatusAll,
-  gender: Gender.GenderAll,
-  role: Role.RoleAll
+  status: Status.StatusAll
 }
 
-let searchTimeout: NodeJS.Timeout | null = null
-const Users: React.FC<UsersProps> = () => {
+const Group: React.FC = () => {
   const { token } = useToken()
-  const [searchForm] = useForm<ListUserRequest>()
-  const [users, setUsers] = useState<UserItem[]>([])
-  const [page, setPage] = useState<PaginationReply>()
+  const [datasource, setDatasource] = useState<TeamMemberItem[]>([])
+  const [searchParams, setSearchParams] = useState<ListTeamMemberRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
-  const [searchParams, setSearchParams] = useState<ListUserRequest>(defaultSearchParams)
+  const [refresh, setRefresh] = useState(false)
+  const [total, setTotal] = useState(0)
+  const [detail, setDetail] = useState<TeamMemberItem>()
+  const [openDetailModal, setOpenDetailModal] = useState(false)
+  const [openInviteModal, setOpenInviteModal] = useState(false)
 
-  const usersColumns: AutoTableColumnType<UserItem>[] = [
-    {
-      title: '头像',
-      dataIndex: 'avatar',
-      key: 'avatar',
-      align: 'center',
-      width: 100,
-      render: (_: string, item: UserItem) => {
-        return <UserAvatar {...item} />
-      }
-    },
-    {
-      title: '姓名',
-      dataIndex: 'username',
-      key: 'username',
-      width: 200,
-      render: (_: string, record: UserItem) => {
-        return <Username {...record} />
-      }
-    },
-    {
-      title: '昵称',
-      dataIndex: 'nickname',
-      key: 'nickname',
-      width: 200,
-      ellipsis: true,
-      render: (text: string) => {
-        return <>{text || '-'}</>
-      }
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
-      align: 'center',
-      width: 120,
-      render: (_: string, record: UserItem) => {
-        return <StatusBadge {...record} />
-      }
-    },
-    {
-      title: '手机号',
-      dataIndex: 'phone',
-      key: 'phone',
-      width: 200
-    },
-    {
-      title: '邮箱',
-      dataIndex: 'email',
-      key: 'email',
-      width: 300
-    },
-    {
-      title: '个人说明',
-      dataIndex: 'remark',
-      key: 'remark',
-      ellipsis: true
-    },
-    {
-      title: '操作',
-      key: 'action',
-      align: 'center',
-      width: 100,
-      fixed: 'right',
-      render: (_: string, record: UserItem) => {
-        return (
-          <Space size={8}>
-            <Button size='small' type='link' onClick={() => showUserDetail(record)}>
-              详情
-            </Button>
-            <Button size='small' type='link' onClick={openEditModal}>
-              编辑
-            </Button>
-          </Space>
-        )
-      }
-    }
-  ]
+  const searchRef = useRef<HTMLDivElement>(null)
+  const ADivRef = useRef<HTMLDivElement>(null)
+  const AutoTableHeight = useContainerHeightTop(ADivRef, datasource)
 
-  function showUserDetail(record: UserItem) {
-    console.log(record)
+  const handleOpenDetailModal = (detail: TeamMemberItem) => {
+    setDetail(detail)
+    setOpenDetailModal(true)
   }
 
-  function openEditModal() {
-    console.log('openEditModal')
+  const onRefresh = () => {
+    setRefresh(!refresh)
   }
 
-  function getUsers() {
-    setLoading(true)
-    listUser(searchParams)
-      .then((res) => {
-        setUsers(res.list || [])
-        setPage(res.pagination)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }
-
-  function handleSearch() {
-    if (searchTimeout) {
-      clearTimeout(searchTimeout)
-    }
-    searchTimeout = setTimeout(() => {
-      getUsers()
-    }, 500)
-  }
+  const fetchData = useCallback(
+    debounce(async (params) => {
+      setLoading(true)
+      listTeamMember(params)
+        .then(({ list, pagination }) => {
+          setDatasource(list || [])
+          setTotal(pagination?.total || 0)
+        })
+        .finally(() => setLoading(false))
+    }, 500),
+    []
+  )
 
   useEffect(() => {
-    handleSearch()
+    fetchData(searchParams)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams])
+  }, [refresh, searchParams, fetchData])
+
+  const onSearch = (formData: ListStrategyGroupRequest) => {
+    setSearchParams({
+      ...searchParams,
+      ...formData,
+      pagination: {
+        pageNum: 1,
+        pageSize: searchParams.pagination.pageSize
+      }
+    })
+  }
+
+  // 批量操作
+  const handlerBatchData = (selectedRowKeys: Key[], selectedRows: StrategyGroupItem[]) => {
+    console.log(selectedRowKeys, selectedRows)
+  }
+
+  // 切换分页
+  const handleTurnPage = (page: number, pageSize: number) => {
+    setSearchParams({
+      ...searchParams,
+      pagination: {
+        pageNum: page,
+        pageSize: pageSize
+      }
+    })
+  }
+
+  // 重置
+  const onReset = () => {
+    setSearchParams(defaultSearchParams)
+  }
+
+  const onHandleMenuOnClick = (item: TeamMemberItem, key: ActionKey) => {
+    switch (key) {
+      case ActionKey.ENABLE:
+        batchUpdateTeamMembersStatus({ memberIds: [item.id], status: Status.StatusEnable }).then(() => {
+          message.success('更改状态成功')
+          onRefresh()
+        })
+        break
+      case ActionKey.DISABLE:
+        batchUpdateTeamMembersStatus({ memberIds: [item.id], status: Status.StatusDisable }).then(() => {
+          message.success('更改状态成功')
+          onRefresh()
+        })
+        break
+      case ActionKey.OPERATION_LOG:
+        break
+      case ActionKey.DETAIL:
+        handleOpenDetailModal(item)
+        break
+      case ActionKey.DELETE:
+        confirm({
+          title: `请确认是否删除该团队成员?`,
+          icon: <ExclamationCircleFilled />,
+          content: '此操作不可逆',
+          onOk() {
+            removeTeamMember({ memberID: item.id }).then(() => {
+              message.success('删除成功')
+              onRefresh()
+            })
+          },
+          onCancel() {
+            message.info('取消操作')
+          }
+        })
+        break
+    }
+  }
+
+  const columns = getColumnList({
+    onHandleMenuOnClick,
+    current: searchParams.pagination.pageNum,
+    pageSize: searchParams.pagination.pageSize
+  })
+
+  const onCloseDetailModal = () => {
+    setOpenDetailModal(false)
+  }
+
+  const handleOpenInviteModal = () => {
+    setOpenInviteModal(true)
+  }
 
   return (
-    <div className='userBox' style={{ height: '100%' }}>
-      <div style={{ background: token.colorBgContainer }} className='padding'>
-        <SearchForm
-          items={userListSearchItems}
-          form={searchForm}
-          initialValues={searchParams}
-          onValuesChange={() =>
-            setSearchParams({
-              ...searchParams,
-              ...searchForm.getFieldsValue()
-            })
-          }
-        />
+    <div className={styles.box}>
+      <DetailModal id={detail?.id!} open={openDetailModal} onCancel={onCloseDetailModal} onOk={onCloseDetailModal} />
+      <Invite open={openInviteModal} setOpen={setOpenInviteModal} />
+      <div
+        style={{
+          background: token.colorBgContainer,
+          borderRadius: token.borderRadius
+        }}
+      >
+        <SearchBox ref={searchRef} formList={formList} onSearch={onSearch} onReset={onReset} />
       </div>
-
-      <div style={{ background: token.colorBgContainer }}>
-        <AutoTable
-          size='middle'
-          loading={loading}
-          dataSource={users}
-          columns={usersColumns}
-          rowKey={(record) => record.id}
-          scroll={{ y: 'calc(100vh - 200px)', x: true }}
-          total={page?.total || 0}
-          pagination={{
-            total: page?.total,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total) => `共 ${total} 条`,
-            onChange: (p, size) => {
-              setSearchParams({
-                ...searchParams,
-                pagination: {
-                  pageNum: p,
-                  pageSize: size
-                }
-              })
-            }
-          }}
-          pageSize={0}
-          pageNum={0}
-        />
+      <div
+        className={styles.main}
+        style={{
+          background: token.colorBgContainer,
+          borderRadius: token.borderRadius
+        }}
+      >
+        <div className={styles.main_toolbar}>
+          <div className={styles.main_toolbar_left} style={{ fontSize: '16px' }}>
+            团队成员列表
+          </div>
+          <Space size={8}>
+            <Button type='primary' onClick={handleOpenInviteModal}>
+              邀请
+            </Button>
+            <Button type='primary' onClick={onRefresh}>
+              刷新
+            </Button>
+          </Space>
+        </div>
+        <div style={{ marginTop: '20px' }} ref={ADivRef}>
+          <AutoTable
+            rowKey={(record) => record.id}
+            dataSource={datasource}
+            total={total}
+            loading={loading}
+            columns={columns}
+            handleTurnPage={handleTurnPage}
+            pageSize={searchParams.pagination.pageSize}
+            pageNum={searchParams.pagination.pageNum}
+            showSizeChanger={true}
+            style={{
+              background: token.colorBgContainer,
+              borderRadius: token.borderRadius
+            }}
+            rowSelection={{
+              onChange: handlerBatchData
+            }}
+            scroll={{
+              y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,
+              x: 1000
+            }}
+            size='middle'
+          />
+        </div>
       </div>
     </div>
   )
 }
 
-export default Users
+export default Group
