@@ -1,7 +1,6 @@
 import { Status } from '@/api/enum'
 import { TeamItem, UserItem } from '@/api/model-types'
 import '@/assets/styles/index.scss'
-import { CreateTeamModalProvider } from '@/components/layout/create-team-provider'
 import { breadcrumbNameMap, defaultMenuItems } from '@/config/menu'
 import { routers } from '@/config/router'
 import { getUseTheme, GlobalContext, GlobalContextType, LangType, ThemeType } from '@/utils/context'
@@ -102,9 +101,7 @@ function App() {
         }}
       >
         <GlobalContext.Provider value={contextValue}>
-          <CreateTeamModalProvider>
-            <RouterProvider router={createHashRouter(routers)} />
-          </CreateTeamModalProvider>
+          <RouterProvider router={createHashRouter(routers)} />
         </GlobalContext.Provider>
       </ConfigProvider>
     </>

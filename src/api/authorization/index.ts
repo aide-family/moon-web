@@ -56,6 +56,26 @@ export function checkToken(params: CheckTokenRequest): Promise<CheckTokenReply> 
   return request.POST<CheckTokenReply>('/v1/authorization/check_token', params)
 }
 
+/**
+ * 验证邮箱
+ * post /v1/authorization/verify_email
+ * @param {VerifyEmailRepquest} params
+ * @returns {Promise<VerifyEmailReply>}
+ */
+export function verifyEmail(params: VerifyEmailRepquest): Promise<void> {
+  return request.POST('/v1/authorization/verify_email', params)
+}
+
+/**
+ * 设置账号邮箱
+ * post /v1/authorization/set_email
+ * @param {SetEmailRequest} params
+ * @returns {Promise<SetEmailReply>}
+ */
+export function setEmailWithLogin(params: SetEmailRequest): Promise<RefreshTokenReply> {
+  return request.POST('/v1/authorization/set_email', params)
+}
+
 // Types
 
 /**
@@ -233,4 +253,36 @@ export interface CheckTokenReply {
    * 用户信息
    */
   user: UserItem
+}
+
+/**
+ * 验证邮箱请求
+ */
+export interface VerifyEmailRepquest {
+  /**
+   * 邮箱
+   */
+  email: string
+  /**
+   * 验证码
+   */
+  captcha: AuthCaptcha
+}
+
+/**
+ * 设置邮箱请求
+ */
+export interface SetEmailRequest {
+  /**
+   * 邮箱
+   */
+  email: string
+  /**
+   * 验证码
+   */
+  code: string
+  /**
+   * OAuthID
+   */
+  oauthID: number
 }

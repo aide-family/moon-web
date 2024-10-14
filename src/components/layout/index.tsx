@@ -5,6 +5,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { healthApi, isLogin, setToken } from '@/api/request'
 import { GlobalContext } from '@/utils/context'
 import { CopyrightOutlined } from '@ant-design/icons'
+import { CreateTeamModalProvider } from './create-team-provider'
 import { HeaderOp } from './header-op'
 import HeaderTitle from './header-title'
 import './layout.scss'
@@ -90,71 +91,73 @@ const MoonLayout: React.FC = () => {
 
   return (
     <>
-      <Layout style={{ overflow: 'hidden', height: '100vh', width: '100vw' }}>
-        <Sider collapsed={collapsed} className='menu-sider'>
-          <div
-            className='menu-header'
-            style={{
-              height: 60,
-              padding: '0 22px'
-            }}
-          >
-            <HeaderTitle />
-          </div>
-          <Menu
-            // theme={theme}
-            theme='dark'
-            mode='inline'
-            items={menuItems}
-            style={{
-              height: '100%',
-              borderInlineEnd: 'none',
-              overflow: 'auto'
-            }}
-            openKeys={collapsed ? [] : openKeys}
-            defaultOpenKeys={collapsed ? [] : openKeys}
-            onSelect={({ key }) => handleOnSelect(key)}
-            selectedKeys={selectedKeys}
-            defaultSelectedKeys={selectedKeys}
-            onOpenChange={handleMenuOpenChange}
-          />
-        </Sider>
-        <Layout
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-        >
-          <Header
-            className='header'
-            style={{
-              background: token.colorBgContainer,
-              color: token.colorText
-            }}
-          >
-            <RouteBreadcrumb />
-            <HeaderOp />
-          </Header>
-
-          <Content className='content' style={{ flex: 1 }}>
-            <Suspense fallback={<Spin />}>
-              <Outlet />
-            </Suspense>
-          </Content>
-          <Footer className='footer center' style={{ background: token.colorBgContainer }}>
-            <CopyrightOutlined />
-            {window.location.host}{' '}
+      <CreateTeamModalProvider>
+        <Layout style={{ overflow: 'hidden', height: '100vh', width: '100vw' }}>
+          <Sider collapsed={collapsed} className='menu-sider'>
             <div
+              className='menu-header'
               style={{
-                marginLeft: 10
+                height: 60,
+                padding: '0 22px'
               }}
             >
-              version: {version}
+              <HeaderTitle />
             </div>
-          </Footer>
+            <Menu
+              // theme={theme}
+              theme='dark'
+              mode='inline'
+              items={menuItems}
+              style={{
+                height: '100%',
+                borderInlineEnd: 'none',
+                overflow: 'auto'
+              }}
+              openKeys={collapsed ? [] : openKeys}
+              defaultOpenKeys={collapsed ? [] : openKeys}
+              onSelect={({ key }) => handleOnSelect(key)}
+              selectedKeys={selectedKeys}
+              defaultSelectedKeys={selectedKeys}
+              onOpenChange={handleMenuOpenChange}
+            />
+          </Sider>
+          <Layout
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            <Header
+              className='header'
+              style={{
+                background: token.colorBgContainer,
+                color: token.colorText
+              }}
+            >
+              <RouteBreadcrumb />
+              <HeaderOp />
+            </Header>
+
+            <Content className='content' style={{ flex: 1 }}>
+              <Suspense fallback={<Spin />}>
+                <Outlet />
+              </Suspense>
+            </Content>
+            <Footer className='footer center' style={{ background: token.colorBgContainer }}>
+              <CopyrightOutlined />
+              {window.location.host}{' '}
+              <div
+                style={{
+                  marginLeft: 10
+                }}
+              >
+                version: {version}
+              </div>
+            </Footer>
+          </Layout>
         </Layout>
-      </Layout>
+      </CreateTeamModalProvider>
     </>
   )
 }

@@ -8,6 +8,10 @@ export const routers: RouteObject[] = [
     Component: lazy(() => import('@/pages/login'))
   },
   {
+    path: '/oauth/register/email',
+    Component: lazy(() => import('@/pages/login/oauth/email'))
+  },
+  {
     path: '/home',
     Component: lazy(() => import('@/components/layout')),
     children: [

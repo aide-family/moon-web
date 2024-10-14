@@ -1,5 +1,5 @@
-import team from '@/api/team'
-import { TeamItemType } from '@/api/team/types'
+import { TeamItem } from '@/api/model-types'
+import { myTeam } from '@/api/team'
 import { Avatar, Card, Skeleton, Space } from 'antd'
 import Meta from 'antd/es/card/Meta'
 import React, { useEffect } from 'react'
@@ -11,11 +11,11 @@ export interface MyTeamProps {
 export const MyTeam: React.FC<MyTeamProps> = (props) => {
   const { children } = props
 
-  const [teamItems, setTeamItems] = React.useState<TeamItemType[]>([])
+  const [teamItems, setTeamItems] = React.useState<TeamItem[]>([])
   const [loading, setLoading] = React.useState(true)
 
   const handleGetMyTeamList = () => {
-    team.getMyTeamApi().then(({ list }) => {
+    myTeam().then(({ list }) => {
       setTeamItems(list || [])
     })
   }

@@ -5,7 +5,7 @@ import { Gitee, Github } from '@/components/icon'
 import { GlobalContext } from '@/utils/context'
 import { hashMd5 } from '@/utils/hash'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
-import { Button, Divider, Form, Input, Space } from 'antd'
+import { Button, Divider, Form, Input } from 'antd'
 import { FC, useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -130,18 +130,26 @@ const LoginForm: FC = () => {
         <Divider dashed>
           <span style={{ fontSize: '14px' }}>其他登陆方式</span>
         </Divider>
-        <Space style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
           <Form.Item>
-            <Button type='dashed' href={`${baseURL}/auth/github`} className='login-form-button'>
+            <Button
+              type='dashed'
+              href={`${baseURL}/auth/github`}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
               <Github /> Github登录
             </Button>
           </Form.Item>
           <Form.Item>
-            <Button type='dashed' href={`${baseURL}/auth/gitee`} className='login-form-button'>
+            <Button
+              type='dashed'
+              href={`${baseURL}/auth/gitee`}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
               <Gitee /> Gitee登录
             </Button>
           </Form.Item>
-        </Space>
+        </div>
       </Form>
     </div>
   )
