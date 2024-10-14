@@ -12,13 +12,14 @@ export interface TeamMenuProps {}
 
 export const TeamMenu: React.FC<TeamMenuProps> = () => {
   const createTeamContext = useCreateTeamModal()
-  const { teamInfo, setTeamInfo, setUserInfo, refreshMyTeamList } = useContext(GlobalContext)
+  const { teamInfo, setTeamInfo, removeTeamInfo, setUserInfo, refreshMyTeamList } = useContext(GlobalContext)
   const [teamList, setTeamList] = React.useState<TeamItem[]>([])
 
   const handleGetMyTeamList = () => {
     myTeam().then(({ list }) => {
       setTeamList(list || [])
       if (!list?.length) {
+        removeTeamInfo?.()
         createTeamContext?.setOpen?.(true)
         return
       }

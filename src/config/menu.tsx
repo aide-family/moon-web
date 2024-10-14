@@ -1,6 +1,6 @@
 import { IconFont } from '@/components/icon'
 import { SettingOutlined, UserOutlined } from '@ant-design/icons'
-import { ItemType } from 'antd/es/menu/hooks/useItems'
+import { ItemType } from 'antd/es/menu/interface'
 
 export const defaultMenuItems: ItemType[] = [
   {

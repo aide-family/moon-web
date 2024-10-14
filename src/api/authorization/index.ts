@@ -285,4 +285,8 @@ export interface SetEmailRequest {
    * OAuthID
    */
   oauthID: number
+  /**
+   * Token
+   */
+  token: string
 }

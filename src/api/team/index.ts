@@ -150,7 +150,7 @@ export function getTeamMemberDetail(params: GetTeamMemberDetailRequest): Promise
 }
 
 // 示例类型定义
-interface CreateTeamRequest {
+export interface CreateTeamRequest {
   name: string
   remark: string
   logo: string
@@ -159,7 +159,9 @@ interface CreateTeamRequest {
   adminIds: number[]
 }
 
-export interface CreateTeamReply {}
+export interface CreateTeamReply {
+  detail?: TeamItem
+}
 
 export interface UpdateTeamRequest {
   id: number

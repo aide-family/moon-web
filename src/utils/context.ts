@@ -24,6 +24,7 @@ export type GlobalContextType = {
   setUserInfo?: (userInfo: UserItem) => void
   teamInfo?: TeamItem
   setTeamInfo?: (teamInfo: TeamItem) => void
+  removeTeamInfo?: () => void
   refreshMyTeamList?: boolean
   setRefreshMyTeamList?: () => void
 }

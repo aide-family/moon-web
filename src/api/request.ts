@@ -127,12 +127,14 @@ const errorHandle = (err: ErrorResponse) => {
       }, 1000)
       break
     case 403:
+      message.error(err?.message || '没有权限')
       break
     case 429:
+      message.error(err?.message || '请求太频繁')
       break
     case 405:
       // 需要有确定或者取消的弹窗， 不操作则一直存在顶层， 底层内容不允许操作
-
+      message.error(err?.message || '请求方式错误')
       break
     default:
       notification.warning({

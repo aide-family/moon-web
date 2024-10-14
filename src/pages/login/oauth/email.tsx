@@ -38,6 +38,7 @@ export default function EmailVerification() {
 
   const search = window.location.search
   const searchOAuthID = new URLSearchParams(search).get('oauth_id')
+  const searchOAuthToken = new URLSearchParams(search).get('token')
 
   const generateCaptcha = useCallback(
     debounce(async () => {
@@ -81,7 +82,8 @@ export default function EmailVerification() {
     setEmailWithLogin({
       email: email,
       code: value.emailCode,
-      oauthID: oauthID
+      oauthID: oauthID,
+      token: searchOAuthToken || ''
     })
       .then((res) => {
         setSuccess('邮箱验证成功！')
@@ -107,7 +109,7 @@ export default function EmailVerification() {
   return (
     <div
       style={{
-        background: token.colorBgBase,
+        background: token.colorBgContainer,
         height: '100vh',
         width: '100vw',
         overflow: 'hidden',
@@ -131,9 +133,18 @@ export default function EmailVerification() {
       <Space
         direction='vertical'
         size={16}
-        style={{ display: 'flex', width: '400px', margin: 'auto', background: token.colorBgBase }}
+        style={{
+          display: 'flex',
+          width: '400px',
+          margin: 'auto',
+          // background: token.colorBgBase,
+          padding: '1.5rem',
+          borderColor: 'white',
+          boxShadow: token.boxShadow,
+          borderRadius: token.borderRadiusLG
+        }}
       >
-        <h1 style={{ fontSize: '24px' }}>绑定邮箱</h1>
+        <h1 style={{ fontSize: 32 }}>绑定邮箱</h1>
         {error && step == 1 && <Alert message={error} type='error' showIcon />}
         {success && <Alert message={success} type='success' showIcon />}
         {step === 1 && (
@@ -158,7 +169,8 @@ export default function EmailVerification() {
                   ]
                 },
                 props: {
-                  placeholder: '请输入邮箱'
+                  placeholder: '请输入邮箱',
+                  style: { lineHeight: 2.5 }
                 }
               }
             ]}
@@ -167,6 +179,7 @@ export default function EmailVerification() {
               <div className='login-form-captcha'>
                 <Input
                   placeholder='验证码'
+                  style={{ lineHeight: 2.5 }}
                   suffix={
                     <img
                       src={captcha?.captcha}
@@ -187,7 +200,7 @@ export default function EmailVerification() {
                 />
               </div>
             </Form.Item>
-            <Button htmlType='submit' type='primary' disabled={isLoading} style={{ float: 'right' }}>
+            <Button htmlType='submit' type='primary' disabled={isLoading} style={{ float: 'right', width: '100%' }}>
               {isLoading ? '发送中...' : '发送验证码'}
             </Button>
           </DataFrom>
@@ -196,7 +209,8 @@ export default function EmailVerification() {
           <DataFrom
             props={{
               onFinish: handleVerifyCode,
-              layout: 'vertical'
+              layout: 'vertical',
+              size: 'large'
             }}
             items={[
               {
@@ -207,12 +221,13 @@ export default function EmailVerification() {
                   rules: [{ required: true, message: '请输入验证码' }]
                 },
                 props: {
-                  placeholder: '请输入验证码'
+                  placeholder: '请输入验证码',
+                  style: { lineHeight: 2.5 }
                 }
               }
             ]}
           >
-            <Button htmlType='submit' type='primary' disabled={isLoading} style={{ float: 'right' }}>
+            <Button htmlType='submit' type='primary' disabled={isLoading} style={{ float: 'right', width: '100%' }}>
               {isLoading ? '验证中...' : '验证'}
             </Button>
           </DataFrom>

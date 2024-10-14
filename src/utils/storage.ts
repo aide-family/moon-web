@@ -51,10 +51,7 @@ function toString<T = string>(val: T): string {
   const t = typeof val
   let res = ''
   switch (t) {
-    case 'undefined' || 'null' || 'function':
-      res = ''
-      break
-    case 'object' || 'array':
+    case 'object':
       try {
         res = JSON.stringify(val)
       } catch (e) {

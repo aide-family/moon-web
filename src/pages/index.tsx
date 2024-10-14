@@ -8,7 +8,7 @@ import useStorage from '@/utils/storage'
 import { ConfigProvider, theme } from 'antd'
 import { SpaceSize } from 'antd/es/space'
 import zhCN from 'antd/locale/zh_CN'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 
 const { useToken } = theme
@@ -56,7 +56,7 @@ function App() {
   const [size, setSize] = useStorage<SpaceSize>('size', 'middle')
   const [collapsed, setCollapsed] = useStorage<boolean>('collapsed', false)
   const [userInfo, setUserInfo] = useStorage<UserItem>('userInfo', getUserInfo())
-  const [teamInfo, setTeamInfo] = useStorage<TeamItem>('teamInfo', getTeamInfo())
+  const [teamInfo, setTeamInfo, removeTeamInfo] = useStorage<TeamItem>('teamInfo', getTeamInfo())
   const [refreshMyTeamList, setRefreshMyTeamList] = useState<boolean>(false)
 
   const contextValue: GlobalContextType = {
@@ -75,6 +75,7 @@ function App() {
     setUserInfo: setUserInfo,
     teamInfo: teamInfo,
     setTeamInfo: setTeamInfo,
+    removeTeamInfo: removeTeamInfo,
     refreshMyTeamList: refreshMyTeamList,
     setRefreshMyTeamList: () => setRefreshMyTeamList(!refreshMyTeamList)
   }
@@ -101,7 +102,9 @@ function App() {
         }}
       >
         <GlobalContext.Provider value={contextValue}>
-          <RouterProvider router={createHashRouter(routers)} />
+          <Suspense fallback={null}>
+            <RouterProvider router={createHashRouter(routers)} />
+          </Suspense>
         </GlobalContext.Provider>
       </ConfigProvider>
     </>
