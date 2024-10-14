@@ -2,11 +2,15 @@ import { CaptchaReply, getCaptcha, setEmailWithLogin, verifyEmail } from '@/api/
 import { CaptchaType } from '@/api/enum'
 import { ErrorResponse, setToken } from '@/api/request'
 import { DataFrom } from '@/components/data/form'
+import { githubURL } from '@/components/layout/header-op'
 import { GlobalContext } from '@/utils/context'
+import { GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { Alert, Button, Form, Input, Space, theme } from 'antd'
 import { debounce } from 'lodash'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+
+import '../index.scss'
 
 type VerificationFormData = {
   email: string
@@ -20,7 +24,7 @@ type SetEmailFormData = {
 const { useToken } = theme
 
 export default function EmailVerification() {
-  const { theme } = useContext(GlobalContext)
+  const { theme, setTheme } = useContext(GlobalContext)
   const navigator = useNavigate()
   const { token } = useToken()
 
@@ -41,7 +45,7 @@ export default function EmailVerification() {
         captchaType: CaptchaType.CaptchaTypeImage,
         width: 100,
         height: 40,
-        theme: theme === 'dark' ? 'light' : 'dark'
+        theme: 'dark'
       }).then((res) => {
         setCaptcha(res)
       })
@@ -101,20 +105,43 @@ export default function EmailVerification() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   return (
-    <>
+    <div
+      style={{
+        background: token.colorBgBase,
+        height: '100vh',
+        width: '100vw',
+        overflow: 'hidden',
+        color: token.colorTextBase,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+    >
+      <div className='login-option-btns'>
+        <Button type='primary' href={githubURL} target='_blank' icon={<GithubOutlined />} />
+        <Button
+          type='primary'
+          icon={theme === 'dark' ? <SunOutlined /> : <MoonOutlined />}
+          style={{ color: '#FFF' }}
+          onClick={() => {
+            setTheme?.(theme === 'dark' ? 'light' : 'dark')
+          }}
+        />
+      </div>
       <Space
         direction='vertical'
         size={16}
         style={{ display: 'flex', width: '400px', margin: 'auto', background: token.colorBgBase }}
       >
-        <h1>绑定邮箱</h1>
+        <h1 style={{ fontSize: '24px' }}>绑定邮箱</h1>
         {error && step == 1 && <Alert message={error} type='error' showIcon />}
         {success && <Alert message={success} type='success' showIcon />}
         {step === 1 && (
           <DataFrom
             props={{
               onFinish: handleSendCode,
-              layout: 'vertical'
+              layout: 'vertical',
+              size: 'large'
             }}
             items={[
               {
@@ -136,7 +163,7 @@ export default function EmailVerification() {
               }
             ]}
           >
-            <Form.Item name='code' rules={[{ required: true, message: '请输入验证码' }]}>
+            <Form.Item name='code' label='验证码' rules={[{ required: true, message: '请输入验证码' }]}>
               <div className='login-form-captcha'>
                 <Input
                   placeholder='验证码'
@@ -146,13 +173,13 @@ export default function EmailVerification() {
                       alt='点击获取'
                       className='login-form-captcha-img'
                       style={{
-                        width: '100%',
-                        height: '100%',
                         aspectRatio: '80/28',
                         objectFit: 'cover',
+                        flexShrink: 0,
+                        backgroundColor: theme === 'dark' ? 'white' : 'black',
+                        borderRadius: token.borderRadius,
                         cursor: 'pointer',
-                        borderColor: 'transparent',
-                        backgroundColor: 'transparent'
+                        height: 40
                       }}
                       onClick={generateCaptcha}
                     />
@@ -160,7 +187,7 @@ export default function EmailVerification() {
                 />
               </div>
             </Form.Item>
-            <Button htmlType='submit' disabled={isLoading}>
+            <Button htmlType='submit' type='primary' disabled={isLoading} style={{ float: 'right' }}>
               {isLoading ? '发送中...' : '发送验证码'}
             </Button>
           </DataFrom>
@@ -185,12 +212,12 @@ export default function EmailVerification() {
               }
             ]}
           >
-            <Button htmlType='submit' disabled={isLoading}>
+            <Button htmlType='submit' type='primary' disabled={isLoading} style={{ float: 'right' }}>
               {isLoading ? '验证中...' : '验证'}
             </Button>
           </DataFrom>
         )}
       </Space>
-    </>
+    </div>
   )
 }
