@@ -8,7 +8,6 @@ import { GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { Alert, Button, Form, Input, Space, theme } from 'antd'
 import { debounce } from 'lodash'
 import { useCallback, useContext, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import '../index.scss'
 
@@ -25,7 +24,6 @@ const { useToken } = theme
 
 export default function EmailVerification() {
   const { theme, setTheme } = useContext(GlobalContext)
-  const navigator = useNavigate()
   const { token } = useToken()
 
   const [captcha, setCaptcha] = useState<CaptchaReply>()
@@ -88,7 +86,10 @@ export default function EmailVerification() {
       .then((res) => {
         setSuccess('邮箱验证成功！')
         setToken(res.token)
-        navigator('/')
+        return res.token
+      })
+      .then((token) => {
+        window.location.href = `${window.location.origin}?token=${token}`
       })
       .catch((err: ErrorResponse) => {
         setError(err?.metadata?.['code'] || err?.message || '验证码不正确，请重新输入')
