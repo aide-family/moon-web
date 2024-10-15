@@ -45,15 +45,19 @@ const Login: React.FC<LoginProps> = () => {
         <LoginForm />
       </div>
       <div className='login-option-btns'>
-        <Button type='primary' href={githubURL} target='_blank' icon={<GithubOutlined />} />
+        <Button color='primary' variant='filled' href={githubURL} target='_blank' icon={<GithubOutlined />}>
+          Github
+        </Button>
         <Button
-          type='primary'
+          color='primary'
+          variant='filled'
           icon={theme === 'dark' ? <SunOutlined /> : <MoonOutlined />}
-          style={{ color: '#FFF' }}
           onClick={() => {
             setTheme?.(theme === 'dark' ? 'light' : 'dark')
           }}
-        />
+        >
+          {theme === 'dark' ? 'Light' : 'Dark'}
+        </Button>
       </div>
       <div className='login-footer'>
         <CopyrightOutlined />

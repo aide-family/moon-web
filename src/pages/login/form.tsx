@@ -5,7 +5,7 @@ import { Gitee, Github } from '@/components/icon'
 import { GlobalContext } from '@/utils/context'
 import { hashMd5 } from '@/utils/hash'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
-import { Button, Divider, Form, Input } from 'antd'
+import { Button, Checkbox, Divider, Flex, Form, Input, theme } from 'antd'
 import { FC, useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -21,14 +21,17 @@ type formData = {
   code: string
 }
 
+const { useToken } = theme
+
 const LoginForm: FC = () => {
   const navigate = useNavigate()
   if (isLogin()) {
     navigate('/')
   }
 
+  const { token } = useToken()
   const [form] = Form.useForm<formData>()
-  const { setUserInfo } = useContext(GlobalContext)
+  const { setUserInfo, theme } = useContext(GlobalContext)
   const [captcha, setCaptcha] = useState<CaptchaReply>()
 
   const handleLogin = (loginParams: LoginRequest) => {
@@ -60,7 +63,10 @@ const LoginForm: FC = () => {
 
   const handleCaptcha = () => {
     getCaptcha({
-      captchaType: CaptchaType.CaptchaTypeImage
+      captchaType: CaptchaType.CaptchaTypeImage,
+      width: 100,
+      height: 40,
+      theme: 'dark'
     }).then((res) => {
       setCaptcha(res)
     })
@@ -72,7 +78,7 @@ const LoginForm: FC = () => {
   }, [])
 
   return (
-    <div className='form-box '>
+    <div className='form-box'>
       <div className='form-box-title'>登录</div>
       <Form
         form={form}
@@ -109,12 +115,13 @@ const LoginForm: FC = () => {
                   className='login-form-captcha-img'
                   style={{
                     width: '100%',
-                    height: '100%',
                     aspectRatio: '80/28',
                     objectFit: 'cover',
+                    flexShrink: 0,
+                    backgroundColor: theme === 'dark' ? 'white' : 'black',
+                    borderRadius: token.borderRadius,
                     cursor: 'pointer',
-                    borderColor: 'transparent',
-                    backgroundColor: 'transparent'
+                    height: 40
                   }}
                   onClick={handleCaptcha}
                 />
@@ -122,19 +129,31 @@ const LoginForm: FC = () => {
             />
           </div>
         </Form.Item>
+        <Flex justify='space-between' align='center' style={{ paddingBottom: '8px', width: '100%' }}>
+          <Checkbox>记住密码</Checkbox>
+          <Button type='link' href='/forget' disabled>
+            忘记密码？
+          </Button>
+        </Flex>
         <Form.Item>
           <Button type='primary' htmlType='submit' className='login-form-button'>
             登录
           </Button>
         </Form.Item>
-        <Divider dashed>
-          <span style={{ fontSize: '14px' }}>其他登陆方式</span>
+        <Divider dashed style={{ fontSize: '14px' }}>
+          没有账户？
+          <Button href='/register' disabled type='link'>
+            去注册
+          </Button>
+          <span>，或使用以下方式登陆</span>
         </Divider>
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
           <Form.Item>
             <Button
               type='dashed'
               href={`${baseURL}/auth/github`}
+              color='default'
+              variant='filled'
               style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
             >
               <Github /> Github登录
@@ -144,6 +163,8 @@ const LoginForm: FC = () => {
             <Button
               type='dashed'
               href={`${baseURL}/auth/gitee`}
+              color='default'
+              variant='filled'
               style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
             >
               <Gitee /> Gitee登录

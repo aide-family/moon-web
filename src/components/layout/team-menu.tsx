@@ -5,7 +5,8 @@ import { myTeam } from '@/api/team'
 import { GlobalContext } from '@/utils/context'
 import { DownOutlined } from '@ant-design/icons'
 import { Avatar, Col, Dropdown, Row, Space } from 'antd'
-import React, { useContext, useEffect } from 'react'
+import { debounce } from 'lodash'
+import React, { useCallback, useContext, useEffect } from 'react'
 import { useCreateTeamModal } from './create-team-provider'
 
 export interface TeamMenuProps {}
@@ -15,28 +16,27 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
   const { teamInfo, setTeamInfo, removeTeamInfo, setUserInfo, refreshMyTeamList } = useContext(GlobalContext)
   const [teamList, setTeamList] = React.useState<TeamItem[]>([])
 
-  const handleGetMyTeamList = () => {
-    myTeam().then(({ list }) => {
-      setTeamList(list || [])
-      if (!list?.length) {
-        removeTeamInfo?.()
-        createTeamContext?.setOpen?.(true)
-        return
-      }
-      const exist = list.some((item) => {
-        if (item.id === teamInfo?.id) {
-          return true
+  const handleGetMyTeamList = useCallback(
+    debounce(async () => {
+      myTeam().then(({ list }) => {
+        setTeamList(list || [])
+        if (!list?.length) {
+          removeTeamInfo?.()
+          createTeamContext?.setOpen?.(true)
+          return
+        }
+        const exist = list.some((item) => {
+          if (item.id === teamInfo?.id) {
+            return true
+          }
+        })
+        if (!exist) {
+          setTeamInfo?.(list?.[0])
         }
       })
-      if (!exist) {
-        setTeamInfo?.(list?.[0])
-      }
-    })
-  }
-
-  useEffect(() => {
-    handleGetMyTeamList()
-  }, [refreshMyTeamList])
+    }, 500),
+    []
+  )
 
   useEffect(() => {
     if (!teamInfo || !teamInfo.id) {
@@ -48,13 +48,14 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
         setUserInfo?.(user)
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teamInfo])
 
   useEffect(() => {
     if (!createTeamContext.open) {
       handleGetMyTeamList()
     }
-  }, [createTeamContext.open])
+  }, [createTeamContext.open, handleGetMyTeamList, refreshMyTeamList])
 
   return (
     <Dropdown

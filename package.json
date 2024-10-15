@@ -22,7 +22,7 @@
     "@prometheus-io/codemirror-promql": "^0.47.2",
     "@types/lodash": "^4.17.7",
     "@types/postcss-pxtorem": "^6.0.3",
-    "antd": "^5.17.0",
+    "antd": "5.21.0",
     "axios": "^1.7.2",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.11",
