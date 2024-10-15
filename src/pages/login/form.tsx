@@ -208,7 +208,7 @@ const LoginForm: FC = () => {
             <Button
               type='dashed'
               href={`${baseURL}/auth/github`}
-              color='default'
+              color='primary'
               variant='filled'
               style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
             >
@@ -219,7 +219,7 @@ const LoginForm: FC = () => {
             <Button
               type='dashed'
               href={`${baseURL}/auth/gitee`}
-              color='default'
+              color='primary'
               variant='filled'
               style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
             >
