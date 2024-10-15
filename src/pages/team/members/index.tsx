@@ -1,6 +1,6 @@
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { StrategyGroupItem, TeamMemberItem } from '@/api/model-types'
+import { TeamMemberItem } from '@/api/model-types'
 import { ListStrategyGroupRequest } from '@/api/strategy'
 import { batchUpdateTeamMembersStatus, listTeamMember, ListTeamMemberRequest, removeTeamMember } from '@/api/team'
 import SearchBox from '@/components/data/search-box'
@@ -81,7 +81,7 @@ const Group: React.FC = () => {
   }
 
   // 批量操作
-  const handlerBatchData = (selectedRowKeys: Key[], selectedRows: StrategyGroupItem[]) => {
+  const handlerBatchData = (selectedRowKeys: Key[], selectedRows: any[]) => {
     console.log(selectedRowKeys, selectedRows)
   }
 
