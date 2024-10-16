@@ -5,16 +5,16 @@ import { ItemType } from 'antd/es/menu/interface'
 export const defaultMenuItems: ItemType[] = [
   {
     label: '实时监控',
-    key: '/home/monitor',
+    key: '/home/realtime',
     icon: <IconFont type='icon-monitor3' />,
     children: [
       {
-        label: '数据大盘',
-        key: '/home/monitor/dashboar'
+        label: '实时告警',
+        key: '/home/realtime/alarm'
       },
       {
-        label: '实时告警',
-        key: '/home/monitor/realtime'
+        label: '数据大盘',
+        key: '/home/realtime/dashboard'
       }
     ]
   },
@@ -182,13 +182,13 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   '/home/self/manage': {
     name: '个人设置'
   },
-  '/home/monitor': {
+  '/home/realtime': {
     name: '实时监控'
   },
-  '/home/monitor/dashboar': {
+  '/home/realtime/dashboard': {
     name: '数据大盘'
   },
-  '/home/monitor/realtime': {
+  '/home/realtime/realtime': {
     name: '实时告警'
   },
   '/home/datasource': {

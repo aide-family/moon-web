@@ -4,9 +4,11 @@
   height: 100vh;
   display: flex;
   &-left {
+    @media screen and (max-width: 600px) {
+      display: none;
+    }
     width: 576px;
     height: 100vh;
-    // background: linear-gradient(163.85deg, #6c34e6 0%, #610377 100%);
     background: #6c34e6;
   }
   &-right {
@@ -27,21 +29,26 @@
     right: 20px;
     top: 20px;
   }
-}
-
-/* 登录轮播图 */
-.login-banner {
   &-logo {
-    width: 100%;
+    // width: 100%;
     @include flex-base($justify: '');
     padding: 24px;
     font-size: 24px;
     color: #fff;
+    position: fixed;
+    z-index: 9999;
     &-img {
       width: 40px;
       height: 40px;
     }
   }
+}
+
+/* 登录轮播图 */
+.login-banner {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
   &-carousel {
     height: 100%;
     padding: 30px;
@@ -69,6 +76,7 @@
 .form-box {
   width: 50%;
   min-width: 420px;
+  max-width: 600px;
   &-title {
     font-size: 24px;
     font-weight: 600;

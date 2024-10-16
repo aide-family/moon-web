@@ -6,10 +6,11 @@ import { batchUpdateTeamMembersStatus, listTeamMember, ListTeamMemberRequest, re
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
+import { GlobalContext } from '@/utils/context'
 import { ExclamationCircleFilled } from '@ant-design/icons'
 import { Button, message, Modal, Space, theme } from 'antd'
 import { debounce } from 'lodash'
-import React, { Key, useCallback, useEffect, useRef, useState } from 'react'
+import React, { Key, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import styles from './index.module.scss'
 import { DetailModal } from './modal-detail'
 import { Invite } from './modal-invite'
@@ -29,6 +30,7 @@ const defaultSearchParams: ListTeamMemberRequest = {
 
 const Group: React.FC = () => {
   const { token } = useToken()
+  const { userInfo } = useContext(GlobalContext)
   const [datasource, setDatasource] = useState<TeamMemberItem[]>([])
   const [searchParams, setSearchParams] = useState<ListTeamMemberRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
@@ -142,7 +144,8 @@ const Group: React.FC = () => {
   const columns = getColumnList({
     onHandleMenuOnClick,
     current: searchParams.pagination.pageNum,
-    pageSize: searchParams.pagination.pageSize
+    pageSize: searchParams.pagination.pageSize,
+    userId: userInfo?.id || 0
   })
 
   const onCloseDetailModal = () => {

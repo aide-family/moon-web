@@ -1,4 +1,5 @@
 import { healthApi } from '@/api/request'
+import logoIcon from '@/assets/images/logo.svg'
 import { githubURL } from '@/components/layout/header-op'
 import { GlobalContext } from '@/utils/context'
 import { CopyrightOutlined, GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
@@ -13,7 +14,7 @@ const { useToken } = theme
 
 let timer: NodeJS.Timeout | null = null
 const Login: React.FC<LoginProps> = () => {
-  const { theme, setTheme } = useContext(GlobalContext)
+  const { theme, setTheme, title = 'Moon' } = useContext(GlobalContext)
   const { token } = useToken()
   const [version, setVersion] = useState('version')
 
@@ -38,6 +39,10 @@ const Login: React.FC<LoginProps> = () => {
         color: token.colorTextBase
       }}
     >
+      <div className='login-logo' style={{ fontSize: 24 }}>
+        <img src={logoIcon} style={{ width: 40, height: 40 }} />
+        {title}
+      </div>
       <div className='login-left'>
         <Banner />
       </div>

@@ -16,6 +16,19 @@ export const routers: RouteObject[] = [
     Component: lazy(() => import('@/components/layout')),
     children: [
       {
+        path: '/home/realtime',
+        children: [
+          {
+            path: '/home/realtime/alarm',
+            Component: lazy(() => import('@/pages/realtime/alarm'))
+          },
+          {
+            path: '/home/realtime/dashboard',
+            Component: lazy(() => import('@/pages/realtime/dashboard'))
+          }
+        ]
+      },
+      {
         path: '/home/self',
         Component: lazy(() => import('@/pages/self')),
         children: [
@@ -95,6 +108,11 @@ export const routers: RouteObject[] = [
             Component: lazy(() => import('@/pages/notify/group'))
           }
         ]
+      },
+      {
+        path: '/home',
+        // 重定向/home
+        element: <Navigate to='/home/realtime/alarm' replace={true} />
       },
       {
         // 403

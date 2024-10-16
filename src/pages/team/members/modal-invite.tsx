@@ -1,6 +1,6 @@
 import { inviteUser, InviteUserRequest } from '@/api/team/invite'
 import { DataFrom } from '@/components/data/form'
-import { Form, Modal } from 'antd'
+import { Form, message, Modal } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { inviteModalFormItems } from './options'
 
@@ -20,6 +20,7 @@ export const Invite: React.FC<InviteProps> = (props) => {
       setLoading(true)
       inviteUser(values)
         .then(() => {
+          message.info('邀请成功')
           setOpen?.(false)
         })
         .finally(() => setLoading(false))

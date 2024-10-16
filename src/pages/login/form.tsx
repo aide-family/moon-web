@@ -109,8 +109,10 @@ const LoginForm: FC = () => {
   }, [])
 
   return (
-    <div className='form-box'>
-      <div className='form-box-title'>登录</div>
+    <div className='form-box' style={{ width: '50%', minWidth: 420, maxWidth: 540 }}>
+      <div className='form-box-title' style={{ fontSize: 24 }}>
+        登录
+      </div>
       <Form
         form={form}
         name='normal_login'
@@ -128,7 +130,6 @@ const LoginForm: FC = () => {
           ]}
           validateStatus={!!err?.metadata?.['username'] ? 'error' : 'success'}
           help={err?.metadata?.['username']}
-          hasFeedback={!err?.metadata?.['username'] || !!form.getFieldError('username').length}
         >
           <Input
             autoComplete='off'
@@ -142,7 +143,6 @@ const LoginForm: FC = () => {
           rules={[{ required: true, message: '请输入密码' }]}
           validateStatus={!!err?.metadata?.['password'] ? 'error' : 'success'}
           help={err?.metadata?.['password']}
-          hasFeedback={!err?.metadata?.['password'] || !form.getFieldError('password').length}
         >
           <Input.Password
             autoComplete='off'

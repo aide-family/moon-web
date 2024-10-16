@@ -25,7 +25,7 @@ export interface DataFromProps {
 export const DataFrom: React.FC<DataFromProps> = (props) => {
   const { items, children, validates } = props
   return (
-    <Form {...props.props}>
+    <Form {...props.props} autoComplete='off'>
       <Row gutter={12}>
         <RenderForm items={items} validates={validates} />
       </Row>

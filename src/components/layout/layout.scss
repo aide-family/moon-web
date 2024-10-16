@@ -58,3 +58,67 @@
     flex: 1;
   }
 }
+
+// 气泡卡片样式调整内边距
+.ant-popover .ant-popover-inner {
+  padding: 0;
+}
+
+.header-message-popover {
+  // 分割线距离
+  .ant-divider-horizontal {
+    margin: 0;
+  }
+  width: 320px;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  &-header {
+    padding: 12px;
+    padding-bottom: 8px;
+    &-title {
+      font-size: 16px;
+      font-weight: bold;
+    }
+    &-content {
+      color: #888;
+      font-size: 12px;
+    }
+  }
+  &-content {
+    flex: 1;
+    overflow: auto;
+    overflow-x: hidden;
+    padding: 8px;
+  }
+  &-footer {
+  }
+}
+
+.h-4 {
+  height: 32px;
+}
+
+.w-4 {
+  width: 32px;
+}
+
+.text-blue-500 {
+  --tw-text-opacity: 1;
+  color: rgb(59 130 246 / var(--tw-text-opacity)) /* #3b82f6 */;
+}
+
+.text-green-500 {
+  --tw-text-opacity: 1;
+  color: rgb(34 197 94 / var(--tw-text-opacity)) /* #22c55e */;
+}
+
+.text-yellow-500 {
+  --tw-text-opacity: 1;
+  color: rgb(234 179 8 / var(--tw-text-opacity)) /* #eab308 */;
+}
+
+.text-red-500 {
+  --tw-text-opacity: 1;
+  color: rgb(239 68 68 / var(--tw-text-opacity)) /* #ef4444 */;
+}

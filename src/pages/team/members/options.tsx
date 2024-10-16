@@ -46,10 +46,11 @@ interface GroupColumnProps {
   onHandleMenuOnClick: (item: TeamMemberItem, key: ActionKey) => void
   current: number
   pageSize: number
+  userId: number
 }
 
 export const getColumnList = (props: GroupColumnProps): ColumnsType<TeamMemberItem> => {
-  const { onHandleMenuOnClick, current, pageSize } = props
+  const { onHandleMenuOnClick, current, pageSize, userId } = props
   const tableOperationItems = (record: TeamMemberItem): MoreMenuProps['items'] => [
     record.status === Status.StatusDisable
       ? {
@@ -179,7 +180,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<TeamMemberIt
           <Button size='small' type='link' onClick={() => onHandleMenuOnClick(record, ActionKey.DETAIL)}>
             详情
           </Button>
-          {tableOperationItems && tableOperationItems?.length > 0 && (
+          {userId !== record.userId && tableOperationItems && tableOperationItems?.length > 0 && (
             <MoreMenu
               items={tableOperationItems(record)}
               onClick={(key: ActionKey) => {
