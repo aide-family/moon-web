@@ -89,18 +89,10 @@
     flex: 1;
     overflow: auto;
     overflow-x: hidden;
-    padding: 8px;
+    padding: 8px 0;
   }
   &-footer {
   }
-}
-
-.h-4 {
-  height: 32px;
-}
-
-.w-4 {
-  width: 32px;
 }
 
 .text-blue-500 {

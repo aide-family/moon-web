@@ -1,28 +1,25 @@
 import { getBizName, listMessage, MessageCategory, NoticeUserMessageItem } from '@/api/user/message'
 import { BellOutlined, CheckOutlined, XOutlined } from '@ant-design/icons'
-import { Badge, Button, Divider, Popover, Space, Tag } from 'antd'
+import { Badge, Button, Divider, message, Popover, Space, Tag } from 'antd'
 import dayjs from 'dayjs'
 import { debounce } from 'lodash'
 import React, { useCallback, useEffect, useState } from 'react'
 
 export interface HeaderMessageProps {}
 
-export const HeaderMessage: React.FC<HeaderMessageProps> = (props) => {
-  const {} = props
-
+export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
   const [msgCnt, setMsgCnt] = useState(0)
-  const [loading, setLoading] = useState(false)
   const [data, setData] = useState<NoticeUserMessageItem[]>([])
 
   const fetchData = useCallback(
     debounce(async (params) => {
-      setLoading(true)
-      listMessage(params)
-        .then(({ list, pagination }) => {
-          setData(list || [])
-          setMsgCnt(pagination?.total || 0)
-        })
-        .finally(() => setLoading(false))
+      listMessage(params).then(({ list, pagination }) => {
+        setData(list || [])
+        if (pagination?.total && pagination?.total > msgCnt) {
+          message.info('您有新消息')
+        }
+        setMsgCnt(pagination?.total || 0)
+      })
     }, 500),
     []
   )
@@ -49,13 +46,24 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = (props) => {
   const getMessageIcon = (category: MessageCategory) => {
     switch (category) {
       case 'info':
-        return <BellOutlined className='h-4 w-4 text-blue-500' />
+        return <BellOutlined className='text-blue-500' />
       case 'success':
-        return <CheckOutlined className='h-4 w-4 text-green-500' />
+        return <CheckOutlined className='text-green-500' />
       case 'warning':
-        return <BellOutlined className='h-4 w-4 text-yellow-500' />
+        return <BellOutlined className='text-yellow-500' />
       case 'error':
-        return <XOutlined className='h-4 w-4 text-red-500' />
+        return <XOutlined className='text-red-500' />
+    }
+  }
+
+  const getMessageButtonColor = (category: MessageCategory) => {
+    switch (category) {
+      case 'info':
+        return 'primary'
+      case 'error':
+        return 'danger'
+      default:
+        return 'default'
     }
   }
 
@@ -63,7 +71,7 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = (props) => {
     <Popover
       placement='bottom'
       className='header-message'
-      //   open={true}
+      open={true}
       content={
         <div className='header-message-popover' style={{ width: 400, height: 400 }}>
           <div className='header-message-popover-header'>
@@ -75,13 +83,14 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = (props) => {
             </div>
           </div>
           <Divider />
-          <Space direction='vertical' className='header-message-popover-content'>
+          <Space direction='vertical' size={4} className='header-message-popover-content'>
             {data.map((item, index) => {
               const { color, label } = getBizName(item.biz)
               return (
                 <Button
                   key={index}
-                  type='text'
+                  color={getMessageButtonColor(item.category)}
+                  variant='filled'
                   style={{
                     width: '100%',
                     height: 60,
@@ -89,25 +98,19 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = (props) => {
                     cursor: 'pointer'
                   }}
                 >
-                  <Space size={20} style={{ padding: 8 }}>
-                    <div style={{ width: 80, textAlign: 'left' }}>
-                      {getMessageIcon(item.category)}
-                      <Tag color={color} style={{ width: '100%', textAlign: 'center' }}>
-                        {label}
-                      </Tag>
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 12,
-                        padding: 8,
-                        textAlign: 'left'
-                      }}
-                    >
+                  <Space size={12} style={{ width: '100%' }}>
+                    <div style={{ textAlign: 'left' }}>{getMessageIcon(item.category)}</div>
+                    <div style={{ fontSize: 12, textAlign: 'left' }}>
+                      <Space size={8}>
+                        <Tag color={color} bordered={false} style={{ width: '100%', textAlign: 'center' }}>
+                          {label}
+                        </Tag>
+                        <div>
+                          <TimeDifference timestamp={+item.timestamp * 1000} />
+                        </div>
+                      </Space>
                       <div>
                         <p>{item.content}</p>
-                      </div>
-                      <div>
-                        <TimeDifference timestamp={+item.timestamp * 1000} />前
                       </div>
                     </div>
                   </Space>
@@ -115,12 +118,16 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = (props) => {
               )
             })}
           </Space>
-          <Divider />
-          <div className='header-message-popover-footer'>
-            <Button style={{ width: '100%' }} color='primary' variant='filled'>
-              清空所有
-            </Button>
-          </div>
+          {msgCnt > 0 && (
+            <>
+              <Divider />
+              <div className='header-message-popover-footer'>
+                <Button style={{ width: '100%' }} color='primary' variant='filled'>
+                  清空所有
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       }
     >
@@ -147,7 +154,7 @@ const TimeDifference: React.FC<TimeDifferenceProps> = ({ timestamp }) => {
     return () => clearInterval(interval)
   }, [timestamp])
 
-  return <>{timeDiff}</>
+  return <>{timeDiff ? timeDiff + '前' : ''}</>
 }
 
 export default TimeDifference

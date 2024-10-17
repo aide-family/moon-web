@@ -128,7 +128,7 @@ const LoginForm: FC = () => {
             { required: true, message: '请输入用户名' },
             { type: 'email', message: '请输入正确的邮箱' }
           ]}
-          validateStatus={!!err?.metadata?.['username'] ? 'error' : 'success'}
+          validateStatus={err?.metadata?.['username'] ? 'error' : 'success'}
           help={err?.metadata?.['username']}
         >
           <Input
@@ -141,7 +141,7 @@ const LoginForm: FC = () => {
         <Form.Item
           name='password'
           rules={[{ required: true, message: '请输入密码' }]}
-          validateStatus={!!err?.metadata?.['password'] ? 'error' : 'success'}
+          validateStatus={err?.metadata?.['password'] ? 'error' : 'success'}
           help={err?.metadata?.['password']}
         >
           <Input.Password
@@ -156,7 +156,7 @@ const LoginForm: FC = () => {
         <Form.Item
           name='code'
           rules={[{ required: true, message: '请输入验证码' }]}
-          validateStatus={!!err?.metadata?.['code'] ? 'error' : 'success'}
+          validateStatus={err?.metadata?.['code'] ? 'error' : 'success'}
           help={err?.metadata?.['code']}
         >
           <div className='login-form-captcha'>
