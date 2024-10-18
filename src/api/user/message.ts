@@ -81,7 +81,7 @@ export interface DeleteMessageRepquest {
  * @description 接口地址：https://app.apifox.com/link/project/5266863/apis/api-221535243
  */
 export function deleteMessage(params: DeleteMessageRepquest): Promise<{}> {
-  return request.DELETE(`/v1/user/messages`, params)
+  return request.POST(`/v1/user/messages/read`, params)
 }
 
 /**
@@ -93,4 +93,12 @@ export function deleteMessage(params: DeleteMessageRepquest): Promise<{}> {
  */
 export function listMessage(params: ListMessageRequest): Promise<ListMessageReply> {
   return request.POST<ListMessageReply>('/v1/user/messages', params)
+}
+
+export function confirmMessage(id: number): Promise<{}> {
+  return request.POST(`/v1/user/messages/confirm`, { id })
+}
+
+export function cancelMessage(id: number): Promise<{}> {
+  return request.POST(`/v1/user/messages/cancel`, { id })
 }

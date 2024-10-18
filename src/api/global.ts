@@ -129,7 +129,7 @@ export const ConditionData: Record<Condition, string> = {
 }
 
 export const SustainTypeData: Record<SustainType, string> = {
-  [SustainType.SustainTypeUnknown]: 'm时间内出现n次',
+  [SustainType.SustainTypeUnknown]: '未知',
   [SustainType.SustainTypeFor]: 'm时间内出现n次',
   [SustainType.SustainTypeMax]: 'm时间内最多出现n次',
   [SustainType.SustainTypeMin]: 'm时间内最少出现n次'

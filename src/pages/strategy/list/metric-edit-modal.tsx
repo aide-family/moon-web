@@ -1,7 +1,7 @@
 import { listDatasource } from '@/api/datasource'
 import { dictSelectList } from '@/api/dict'
-import { Condition, DictType, Status, StorageType, SustainType } from '@/api/enum'
-import { ConditionData, StorageTypeData, SustainTypeData } from '@/api/global'
+import { Condition, DatasourceType, DictType, Status, SustainType } from '@/api/enum'
+import { ConditionData, SustainTypeData } from '@/api/global'
 import { DatasourceItem, StrategyItem } from '@/api/model-types'
 import { listAlarmGroup } from '@/api/notify/alarm-group'
 import { CreateStrategyLabelNoticeRequest, getStrategy, listStrategyGroup } from '@/api/strategy'
@@ -20,7 +20,6 @@ import {
   Modal,
   ModalProps,
   Popover,
-  Radio,
   Row,
   Select,
   Space,
@@ -92,16 +91,15 @@ export interface TemplateEditModalProps extends ModalProps {
 
 let summaryTimeout: NodeJS.Timeout | null = null
 let descriptionTimeout: NodeJS.Timeout | null = null
-let timer: NodeJS.Timeout | null = null
 export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
   const { onCancel, submit, open, title, strategyId, disabled } = props
 
   const { token } = useToken()
 
   const [form] = Form.useForm<MetricEditModalFormData>()
-  const datasourceType = Form.useWatch<StorageType>('sourceType', form)
   const summary = Form.useWatch(['annotations', 'summary'], form)
   const description = Form.useWatch(['annotations', 'description'], form)
+  const selectDatasource = Form.useWatch('datasourceIds', form)
   const [summaryOkInfo, setSummaryOkInfo] = useState<{
     info: string
     labels?: string[]
@@ -141,9 +139,8 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
   }
 
   useEffect(() => {
-    if (!datasourceType) return
     listDatasource({
-      storageType: datasourceType,
+      datasourceType: DatasourceType.DatasourceTypeMetric,
       pagination: {
         pageNum: 1,
         pageSize: 999
@@ -151,7 +148,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
     }).then((res) => {
       setDatasourceList(res?.list || [])
     })
-  }, [datasourceType, open])
+  }, [open])
 
   useEffect(() => {
     if (!strategyId) {
@@ -375,23 +372,6 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
         <div className={styles.edit_content}>
           <Form form={form} layout='vertical' autoComplete='off' disabled={disabled || loading}>
             <Form.Item
-              initialValue={StorageType.StorageTypePrometheus}
-              label='数据源类型'
-              name='sourceType'
-              rules={[{ required: true, message: '请选择数据源类型' }]}
-            >
-              <Radio.Group
-                value={1}
-                optionType='button'
-                options={Object.entries(StorageTypeData)
-                  .filter(([key]) => Number(key) !== StorageType.StorageTypeUnknown)
-                  .map(([key, value]) => ({
-                    label: value,
-                    value: Number(key)
-                  }))}
-              />
-            </Form.Item>
-            <Form.Item
               label='数据源'
               name='datasourceIds'
               rules={[
@@ -486,7 +466,11 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
               />
             </Form.Item>
             <Form.Item label='查询语句' name='expr' rules={[{ required: true, message: '请检查查询语句' }]}>
-              <PromQLInput pathPrefix={datasourceList.at(0)?.endpoint || ''} formatExpression disabled={disabled} />
+              <PromQLInput
+                pathPrefix={datasourceList.filter((item) => selectDatasource?.at(0) === item.id).at(0)?.endpoint || ''}
+                formatExpression
+                disabled={disabled}
+              />
             </Form.Item>
             <Form.Item label={<b>标签kv集合</b>} required>
               <Form.List
@@ -710,10 +694,12 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                             >
                               <Select
                                 placeholder='请选择触发类型'
-                                options={Object.entries(SustainTypeData).map(([key, value]) => ({
-                                  value: +key,
-                                  label: value
-                                }))}
+                                options={Object.entries(SustainTypeData)
+                                  .filter(([key]) => +key !== SustainType.SustainTypeUnknown)
+                                  .map(([key, value]) => ({
+                                    value: +key,
+                                    label: value
+                                  }))}
                               ></Select>
                             </Form.Item>
                           </Col>
