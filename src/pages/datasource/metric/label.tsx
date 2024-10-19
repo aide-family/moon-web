@@ -43,12 +43,24 @@ export const Label: React.FC<LabelProps> = (props) => {
       title: '标签值',
       dataIndex: 'value',
       key: 'value',
-      width: 200
+      // width: 200,
+      render(_, record) {
+        return (
+          <>
+            {record.values.map((item) => (
+              <Tag key={item.id}>{item.value}</Tag>
+            ))}
+          </>
+        )
+      }
     },
     {
       title: '备注',
       dataIndex: 'remark',
-      key: 'remark'
+      key: 'remark',
+      render(value) {
+        return <div>{value || '-'}</div>
+      }
     },
     {
       title: '操作',

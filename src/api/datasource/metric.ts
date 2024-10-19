@@ -9,7 +9,7 @@ import request from '../request'
  * @returns {Promise<UpdateMetricReply>}
  */
 export function updateMetric(params: UpdateMetricRequest): Promise<UpdateMetricReply> {
-  return request.PUT<UpdateMetricReply>('/v1/datasource/metric/{id}', params)
+  return request.PUT<UpdateMetricReply>(`/v1/datasource/metric/${params.id}`, params)
 }
 
 /**
@@ -18,7 +18,7 @@ export function updateMetric(params: UpdateMetricRequest): Promise<UpdateMetricR
  * @returns {Promise<GetMetricReply>}
  */
 export function getMetric(params: GetMetricRequest): Promise<GetMetricReply> {
-  return request.GET<GetMetricReply>('/v1/datasource/metric/{id}', params)
+  return request.GET<GetMetricReply>(`/v1/datasource/metric/${params.id}`, params)
 }
 
 /**
@@ -45,7 +45,7 @@ export function selectMetric(params: ListMetricRequest): Promise<SelectMetricRep
  * @returns {Promise<DeleteMetricReply>}
  */
 export function deleteMetric(params: DeleteMetricRequest): Promise<DeleteMetricReply> {
-  return request.DELETE<DeleteMetricReply>('/v1/datasource/metric/{id}', params)
+  return request.DELETE<DeleteMetricReply>(`/v1/datasource/metric/${params.id}`, params)
 }
 
 /**

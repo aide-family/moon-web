@@ -3,9 +3,11 @@ import {
   Condition,
   DatasourceType,
   DictType,
+  DomainType,
   Gender,
   HookApp,
   MetricType,
+  ModuleType,
   Role,
   Status,
   StorageType,
@@ -149,6 +151,27 @@ export const DictTypeData: Record<DictType, string> = {
   [DictType.DictTypeAlarmPage]: '告警页面',
   [DictType.DictTypeStrategyCategory]: '策略分类',
   [DictType.DictTypeStrategyGroupCategory]: '策略组分类'
+}
+
+export const ModuleTypeData: Record<ModuleType, string> = {
+  [ModuleType.ModuleTypeUnknown]: '全局模块',
+  [ModuleType.ModelTypeApi]: '资源管理模块',
+  [ModuleType.ModelTypeMenu]: '菜单管理模块',
+  [ModuleType.ModelTypeRole]: '角色管理模块',
+  [ModuleType.ModelTypeUser]: '用户管理模块',
+  [ModuleType.ModelTypeDict]: '字典管理模块',
+  [ModuleType.ModelTypeConfig]: '配置管理模块',
+  [ModuleType.ModelTypeLog]: '日子管理模块',
+  [ModuleType.ModelTypeJob]: '任务管理模块',
+  [ModuleType.ModelTypeNotify]: '通知管理模块',
+  [ModuleType.ModelTypeSystem]: '系统管理模块',
+  [ModuleType.ModelTypeMonitor]: '告警管理模块'
+}
+
+export const DomainTypeData: Record<DomainType, string> = {
+  [DomainType.DomainTypeUnknown]: '全局领域',
+  [DomainType.DomainTypeSystem]: '系统领域',
+  [DomainType.DomainTypeMonitor]: '告警领域'
 }
 
 // 操作

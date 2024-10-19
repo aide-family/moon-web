@@ -575,9 +575,9 @@ export interface AlarmNoticeGroupItem {
 /** 通知人 */
 export interface NoticeItem {
   /** 用户明细 */
-  user: UserItem
+  member: TeamMemberItem
   /** 通知类型 */
-  notifyType: NotifyType
+  notifyType: number
 }
 
 /** 策略标签 */

@@ -2,14 +2,13 @@ import { ResourceItem, TeamRole } from '@/api/model-types'
 import { listResource, ListResourceRequest } from '@/api/resource'
 import { CreateRoleRequest, getRole } from '@/api/team/role'
 import { DataFrom } from '@/components/data/form'
-import { Form, Modal, ModalProps, TransferProps } from 'antd'
+import { Form, Modal, ModalProps } from 'antd'
 import FormItem from 'antd/es/form/FormItem'
-import { TransferKey } from 'antd/es/transfer/interface'
 import { debounce } from 'lodash'
 import React, { useCallback, useEffect, useState } from 'react'
 import styles from './index.module.scss'
 import { editModalFormItems } from './options'
-import { filterOption, TableTransfer, TableTransferProps } from './table-transfer'
+import PermissionTree from './permission-tree'
 
 export interface GroupEditModalProps extends ModalProps {
   groupId?: number
@@ -22,7 +21,6 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
   const [form] = Form.useForm<CreateRoleRequest>()
   const [loading, setLoading] = useState(false)
   const [grounpDetail, setGroupDetail] = useState<TeamRole>()
-  const [targetKeys, setTargetKeys] = useState<TransferProps['targetKeys']>([])
   const [resourceList, setResourceList] = useState<ResourceItem[]>([])
 
   const getGroupDetail = async () => {
@@ -46,7 +44,7 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
 
   useEffect(() => {
     if (open && form && grounpDetail) {
-      form?.setFieldsValue(grounpDetail)
+      form?.setFieldsValue({ ...grounpDetail, permissions: grounpDetail?.resources?.map((item) => item.id) || [] })
       return
     }
   }, [grounpDetail, open, form])
@@ -55,7 +53,6 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
     onCancel?.(e)
     form?.resetFields()
     setGroupDetail(undefined)
-    setTargetKeys([])
     setResourceList([])
   }
 
@@ -69,7 +66,6 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
         .then(() => {
           form?.resetFields()
           setGroupDetail(undefined)
-          setTargetKeys([])
           setResourceList([])
         })
         .finally(() => {
@@ -88,18 +84,9 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
   )
 
   useEffect(() => {
-    const permissions = grounpDetail?.resources || []
-    setTargetKeys(resourceList?.map((item) => item.id).filter((id) => permissions.some((p) => p.id === id)) || [])
-  }, [grounpDetail, resourceList])
-
-  useEffect(() => {
     if (!open) return
     fetchData({ pagination: { pageNum: 1, pageSize: 999 } })
   }, [fetchData, open])
-
-  const onChange: TableTransferProps['onChange'] = (targetKeys: TransferKey[]) => {
-    setTargetKeys(targetKeys)
-  }
 
   return (
     <>
@@ -118,14 +105,10 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
             props={{ form, layout: 'vertical', autoComplete: 'off', disabled: disabled || loading }}
           >
             <FormItem label='权限列表' name='permissions'>
-              <TableTransfer
-                targetKeys={targetKeys}
-                onChange={onChange}
-                filterOption={filterOption}
+              <PermissionTree
+                items={resourceList}
                 disabled={disabled}
-                showSearch
-                showSelectAll={false}
-                dataSource={resourceList.map((item) => ({ ...item, key: item.id }))}
+                // defalutValue={grounpDetail?.resources?.map((item) => item.id) || []}
               />
             </FormItem>
           </DataFrom>

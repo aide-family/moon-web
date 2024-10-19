@@ -1,10 +1,11 @@
 import { Status } from '@/api/enum'
-import { AlarmNoticeGroupItem } from '@/api/model-types'
+import { AlarmNoticeGroupItem, NoticeItem } from '@/api/model-types'
 import { CreateAlarmGroupRequest, getAlarmGroup } from '@/api/notify/alarm-group'
 import { DataFrom } from '@/components/data/form'
 import { Form, Modal, ModalProps } from 'antd'
 import React, { useEffect, useState } from 'react'
 import styles from './index.module.scss'
+import { MemberSelect } from './member-select'
 import { editModalFormItems } from './options'
 
 export interface GroupEditModalProps extends ModalProps {
@@ -15,7 +16,7 @@ export interface GroupEditModalProps extends ModalProps {
 
 export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
   const { onCancel, submit, open, title, groupId, disabled } = props
-  const [form] = Form.useForm<CreateAlarmGroupRequest>()
+  const [form] = Form.useForm<CreateAlarmGroupRequest & { noticeMember: NoticeItem[] }>()
   const [loading, setLoading] = useState(false)
   const [grounpDetail, setGroupDetail] = useState<AlarmNoticeGroupItem>()
 
@@ -42,7 +43,8 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
     if (open && form && grounpDetail) {
       form?.setFieldsValue({
         ...grounpDetail,
-        hookIds: grounpDetail?.hooks?.map((item) => item.id)
+        hookIds: grounpDetail?.hooks?.map((item) => item.id),
+        noticeMember: grounpDetail?.noticeUsers
       })
       return
     }
@@ -62,7 +64,10 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
         ...formValues,
         status: Status.StatusEnable,
         id: groupId,
-        noticeMember: []
+        noticeMember: formValues.noticeMember?.map((item: NoticeItem) => ({
+          memberId: item.member.id,
+          notifyType: item.notifyType
+        }))
       })
         .then(() => {
           form?.resetFields()
@@ -88,7 +93,11 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
           <DataFrom
             items={editModalFormItems}
             props={{ form, layout: 'vertical', autoComplete: 'off', disabled: disabled || loading }}
-          />
+          >
+            <Form.Item label='成员列表' name='noticeMember'>
+              <MemberSelect />
+            </Form.Item>
+          </DataFrom>
         </div>
       </Modal>
     </>

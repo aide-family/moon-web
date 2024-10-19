@@ -184,6 +184,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
         <Form
           form={form}
           layout='inline'
+          autoComplete='off'
           onChange={() => {
             form.validateFields().then((values) => {
               setSearchMetricParams((prev) => {
@@ -218,7 +219,11 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
                 setSearchMetricParams((prev) => {
                   return {
                     ...prev,
-                    keyword: value
+                    keyword: value,
+                    pagination: {
+                      pageNum: 1,
+                      pageSize: 20
+                    }
                   }
                 })
               }}

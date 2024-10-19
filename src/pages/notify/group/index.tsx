@@ -221,7 +221,6 @@ const Group: React.FC = () => {
             <Button type='primary' onClick={() => handleEditModal()}>
               添加
             </Button>
-            <Button onClick={() => handleEditModal()}>批量导入</Button>
             <Button type='primary' onClick={onRefresh}>
               刷新
             </Button>
