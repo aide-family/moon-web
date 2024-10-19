@@ -2,7 +2,7 @@ import { HookApp } from '@/api/enum'
 import { HookAppData } from '@/api/global'
 import { AlarmHookItem } from '@/api/model-types'
 import { createHook, getHook, updateHook } from '@/api/notify/hook'
-import { Form, Input, Modal, Select } from 'antd'
+import { Avatar, Form, Input, Modal, Select, Space } from 'antd'
 import { useEffect, useState } from 'react'
 
 export interface EditHookModalProps {
@@ -102,7 +102,18 @@ export function EditHookModal(props: EditHookModalProps) {
               placeholder='请选择类型'
               options={Object.entries(HookAppData)
                 .filter(([key]) => +key !== HookApp.HOOK_APP_UNKNOWN)
-                .map(([key, value]) => ({ value: +key, label: value }))}
+                .map(([key, value]) => {
+                  const { icon, label } = value
+                  return {
+                    value: +key,
+                    label: (
+                      <Space direction='horizontal'>
+                        <Avatar size='small' shape='square' icon={icon} />
+                        {label}
+                      </Space>
+                    )
+                  }
+                })}
             />
           </Form.Item>
           <Form.Item label='URL' name='url' rules={[{ required: true, message: '请输入URL' }]}>

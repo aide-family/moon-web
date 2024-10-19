@@ -1,13 +1,13 @@
 import { Status } from '@/api/enum'
-import { ActionKey, StatusData } from '@/api/global'
-import { AlarmNoticeGroupItem } from '@/api/model-types'
-import { listHookSelectList } from '@/api/notify/hook'
+import { ActionKey, HookAppData, StatusData } from '@/api/global'
+import { AlarmHookItem, AlarmNoticeGroupItem } from '@/api/model-types'
+import { listHook } from '@/api/notify/hook'
 import { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
 import OverflowTooltip from '@/components/overflowTooltip'
-import { Badge, Button, Space, Tooltip } from 'antd'
+import { Avatar, Badge, Button, Space, Tooltip } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
 export const formList: SearchFormItem[] = [
@@ -178,6 +178,19 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmNoticeG
   ]
 }
 
+export interface HookAvatarProps extends AlarmHookItem {}
+
+export const HookAvatar: React.FC<HookAvatarProps> = (props) => {
+  const { name, hookApp } = props
+
+  return (
+    <Space direction='horizontal'>
+      <Avatar size='small' shape='square' icon={HookAppData[hookApp].icon} />
+      {name}
+    </Space>
+  )
+}
+
 export const editModalFormItems: (DataFromItem | DataFromItem[])[] = [
   {
     name: 'name',
@@ -206,7 +219,13 @@ export const editModalFormItems: (DataFromItem | DataFromItem[])[] = [
     type: 'select-fetch',
     props: {
       handleFetch: (value: string) => {
-        return listHookSelectList({ keyword: value, pagination: { pageNum: 1, pageSize: 999 } }).then((res) => res.list)
+        return listHook({ keyword: value, pagination: { pageNum: 1, pageSize: 999 } }).then((res) =>
+          res.list.map((item) => ({
+            label: <HookAvatar {...item} />,
+            value: item.id,
+            disabled: item.status !== Status.StatusEnable
+          }))
+        )
       },
       selectProps: {
         placeholder: '请选择hook列表',

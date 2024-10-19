@@ -109,7 +109,7 @@ export const MemberSelect: React.FC<MemberSelectProps> = (props) => {
           value: item.id
         }))}
         value={value?.map((item) => item?.member.id)}
-        size='large'
+        // size='large'
         onChange={(list) => {
           const items = memberList.filter((item) => list.includes(item.id))
           if (items.length === 0) {

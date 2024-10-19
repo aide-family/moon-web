@@ -1,7 +1,8 @@
+import { HookApp } from '@/api/enum'
 import { HookAppData, StatusData } from '@/api/global'
 import { AlarmHookItem } from '@/api/model-types'
 import { getHook } from '@/api/notify/hook'
-import { Avatar, Badge, Descriptions, DescriptionsProps, Modal, Tooltip } from 'antd'
+import { Avatar, Badge, Descriptions, DescriptionsProps, Modal, Space, Tooltip } from 'antd'
 import { useEffect, useState } from 'react'
 
 export interface HookDetailModalProps {
@@ -38,7 +39,12 @@ export function HookDetailModal(props: HookDetailModalProps) {
     },
     {
       label: '类型',
-      children: HookAppData[detail?.hookApp!],
+      children: (
+        <Space direction='horizontal'>
+          <Avatar size='small' shape='square' icon={HookAppData[detail?.hookApp || HookApp.HOOK_APP_UNKNOWN]?.icon} />
+          {HookAppData[detail?.hookApp || HookApp.HOOK_APP_UNKNOWN].label}
+        </Space>
+      ),
       span: { xs: 1, sm: 2, md: 3, lg: 3, xl: 2, xxl: 2 }
     },
     {

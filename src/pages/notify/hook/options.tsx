@@ -3,7 +3,7 @@ import { ActionKey, HookAppData, StatusData } from '@/api/global'
 import { AlarmHookItem } from '@/api/model-types'
 import { SearchFormItem } from '@/components/data/search-box'
 import MoreMenu, { MoreMenuProps } from '@/components/moreMenu'
-import { Badge, Button, Space, Tag, Tooltip } from 'antd'
+import { Avatar, Badge, Button, Space, Tooltip } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
 export const formList: SearchFormItem[] = [
@@ -46,8 +46,14 @@ export const formList: SearchFormItem[] = [
         allowClear: true,
         mode: 'multiple',
         options: Object.entries(HookAppData).map(([key, value]) => {
+          const { label, icon } = value
           return {
-            label: value,
+            label: (
+              <Space direction='horizontal'>
+                <Avatar size='small' shape='square' icon={icon} />
+                {label}
+              </Space>
+            ),
             value: +key
           }
         })
@@ -143,16 +149,15 @@ export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<AlarmHo
       title: '类型',
       dataIndex: 'hookApp',
       key: 'hookApp',
-      align: 'center',
+      // align: 'center',
       width: 160,
       render: (hookApp: HookApp) => {
+        const { label, icon } = HookAppData[hookApp]
         return (
-          <Tag>
-            {hookApp === HookApp.HOOK_APP_DING_TALK && '钉钉'}
-            {hookApp === HookApp.HOOK_APP_FEI_SHU && '飞书'}
-            {hookApp === HookApp.HOOK_APP_WEB_HOOK && 'WebHook'}
-            {hookApp === HookApp.HOOK_APP_WE_CHAT && '企业微信'}
-          </Tag>
+          <Space direction='horizontal'>
+            <Avatar size='small' shape='square' icon={icon} />
+            {label}
+          </Space>
         )
       }
     },

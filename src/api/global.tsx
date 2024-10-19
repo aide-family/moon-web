@@ -1,4 +1,6 @@
+import { IconFont } from '@/components/icon'
 import { BadgeProps } from 'antd'
+import React from 'react'
 import {
   Condition,
   DatasourceType,
@@ -137,12 +139,27 @@ export const SustainTypeData: Record<SustainType, string> = {
   [SustainType.SustainTypeMin]: 'm时间内最少出现n次'
 }
 
-export const HookAppData: Record<HookApp, string> = {
-  [HookApp.HOOK_APP_UNKNOWN]: '全部',
-  [HookApp.HOOK_APP_DING_TALK]: '钉钉',
-  [HookApp.HOOK_APP_FEI_SHU]: '飞书',
-  [HookApp.HOOK_APP_WEB_HOOK]: 'Webhook',
-  [HookApp.HOOK_APP_WE_CHAT]: '企业微信'
+export const HookAppData: Record<HookApp, { icon: React.ReactNode; label: React.ReactNode }> = {
+  [HookApp.HOOK_APP_UNKNOWN]: {
+    label: '全部',
+    icon: <IconFont type='icon-disable3' />
+  },
+  [HookApp.HOOK_APP_DING_TALK]: {
+    label: '钉钉',
+    icon: <IconFont type='icon-dingding' />
+  },
+  [HookApp.HOOK_APP_FEI_SHU]: {
+    icon: <IconFont type='icon-feishu' />,
+    label: '飞书'
+  },
+  [HookApp.HOOK_APP_WEB_HOOK]: {
+    label: 'WebHook',
+    icon: <IconFont type='icon-zidingyi' />
+  },
+  [HookApp.HOOK_APP_WE_CHAT]: {
+    icon: <IconFont type='icon-qiyeweixin' />,
+    label: '企业微信'
+  }
 }
 
 export const DictTypeData: Record<DictType, string> = {
