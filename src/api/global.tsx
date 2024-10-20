@@ -193,10 +193,22 @@ export const DomainTypeData: Record<DomainType, string> = {
 }
 
 export const AlertStatusData: Record<AlertStatus, React.ReactNode> = {
-  [AlertStatus.ALERT_STATUS_UNKNOWN]: <Tag>Unknown</Tag>,
-  [AlertStatus.ALERT_STATUS_FIRING]: <Tag color='red'>Firang</Tag>,
-  [AlertStatus.ALERT_STATUS_RESOLVED]: <Tag color='green'>Resolved</Tag>,
-  [AlertStatus.ALERT_STATUS_Silenced]: <Tag color='orange'>Silenced</Tag>
+  [AlertStatus.ALERT_STATUS_UNKNOWN]: <Tag bordered={false}>Unknown</Tag>,
+  [AlertStatus.ALERT_STATUS_FIRING]: (
+    <Tag bordered={false} color='red'>
+      Firang
+    </Tag>
+  ),
+  [AlertStatus.ALERT_STATUS_RESOLVED]: (
+    <Tag bordered={false} color='green'>
+      Resolved
+    </Tag>
+  ),
+  [AlertStatus.ALERT_STATUS_Silenced]: (
+    <Tag bordered={false} color='orange'>
+      Silenced
+    </Tag>
+  )
 }
 
 // 操作

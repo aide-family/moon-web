@@ -494,38 +494,19 @@ export interface ChartItem {
   height: string
 }
 
-/** 实时告警项 */
 export interface RealtimeAlarmItem {
-  /** ID */
   id: number
-  /** 告警开始时间 */
   startsAt: string
-  /** 告警结束时间 */
   endsAt: string
-  /** 告警状态 */
   status: AlertStatus
-  /** 告警级别 */
-  level: SelectItem
-  /** 告警级别ID */
-  levelID: number
-  /** 告警策略ID */
-  strategyID: number
-  /** 告警策略 */
+  level: StrategyLevelItem
   strategy: StrategyItem
-  /** 告警摘要 */
   summary: string
-  /** 告警详情 */
   description: string
-  /** 触发告警表达式 */
   expr: string
-  /** 数据源ID */
-  datasourceID: number
-  /** 数据源 */
   datasource: DatasourceItem
-  /** 指纹 */
   fingerprint: string
 }
-
 /** 我的告警页面明细 */
 export interface SelfAlarmPageItem {
   /** ID */

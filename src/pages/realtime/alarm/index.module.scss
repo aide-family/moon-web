@@ -1,0 +1,32 @@
+.box {
+  padding: 12px;
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+
+  .main {
+    padding: 12px;
+
+    .main_toolbar {
+      display: flex;
+      justify-content: space-between;
+
+      .main_toolbar_left {
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+.tooltip {
+  max-width: 300px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.text_overflow {
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}

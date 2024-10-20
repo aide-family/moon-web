@@ -5,8 +5,8 @@ import request from '../request'
 
 /**
  * 获取告警详情
- * @param {GetAlarmRequest} params
- * @returns {Promise<GetAlarmReply>}
+ * @param params 获取告警详情请求参数
+ * @returns 获取告警详情响应
  */
 export function getAlarm(params: GetAlarmRequest): Promise<GetAlarmReply> {
   return request.GET<GetAlarmReply>(`/v1/admin/realtime/alarm/${params.id}`)
@@ -14,14 +14,14 @@ export function getAlarm(params: GetAlarmRequest): Promise<GetAlarmReply> {
 
 /**
  * 获取告警列表
- * @param {ListAlarmRequest} params
- * @returns {Promise<ListAlarmReply>}
+ * @param params 获取告警列表请求参数
+ * @returns 获取告警列表响应
  */
 export function listAlarm(params: ListAlarmRequest): Promise<ListAlarmReply> {
   return request.POST<ListAlarmReply>('/v1/admin/realtime/alarm/list', params)
 }
 
-// export interface s for the requests and responses
+// 以下类型定义基于 proto 文件
 export interface GetAlarmRequest {
   id: number
 }
@@ -32,10 +32,10 @@ export interface GetAlarmReply {
 
 export interface ListAlarmRequest {
   pagination: PaginationReq
-  eventAtStart?: number
-  eventAtEnd?: number
-  recoverAtStart?: number
-  recoverAtEnd?: number
+  eventAtStart?: string
+  eventAtEnd?: string
+  recoverAtStart?: string
+  recoverAtEnd?: string
   alarmLevels?: number[]
   alarmStatuses?: AlertStatus[]
   keyword?: string

@@ -175,7 +175,7 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
                           {label}
                         </Tag>
                         <div>
-                          <TimeDifference timestamp={+item.timestamp * 1000} />
+                          <TimeDifference timestamp={+item.timestamp * 1000} subfix='前' />
                         </div>
                       </Space>
                       <div>
@@ -209,21 +209,23 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
 
 export interface TimeDifferenceProps {
   timestamp: number
+  subfix?: string
+  startAt?: dayjs.Dayjs
 }
-const TimeDifference: React.FC<TimeDifferenceProps> = ({ timestamp }) => {
+const TimeDifference: React.FC<TimeDifferenceProps> = ({ timestamp, subfix = '', startAt = dayjs() }) => {
   const [timeDiff, setTimeDiff] = useState('')
 
   useEffect(() => {
     // 每秒钟更新一次时间差
     const interval = setInterval(() => {
-      setTimeDiff(formatTimeDiff(timestamp))
+      setTimeDiff(formatTimeDiff(startAt, timestamp))
     }, 1000)
 
     // 清除 interval
     return () => clearInterval(interval)
   }, [timestamp])
 
-  return <>{timeDiff ? timeDiff + '前' : ''}</>
+  return <>{timeDiff ? timeDiff + subfix : ''}</>
 }
 
 export default TimeDifference
@@ -235,24 +237,23 @@ import duration from 'dayjs/plugin/duration'
 // 扩展 dayjs 以使用 duration 插件
 dayjs.extend(duration)
 
-const formatTimeDiff = (timestamp: number) => {
-  const now = dayjs()
+const formatTimeDiff = (startAt: dayjs.Dayjs, timestamp: number) => {
   const targetTime = dayjs(timestamp)
 
   // 计算时间差
-  const diff = now.diff(targetTime)
+  const diff = startAt.diff(targetTime)
 
   // 转换成 duration 对象
   const diffDuration = dayjs.duration(diff)
 
   // 根据时间差的长度选择显示格式
   if (diffDuration.asSeconds() < 60) {
-    return `${diffDuration.seconds()} 秒`
+    return `${diffDuration.seconds()}s`
   } else if (diffDuration.asMinutes() < 60) {
-    return `${diffDuration.minutes()} 分 ${diffDuration.seconds()} 秒`
+    return `${diffDuration.minutes()}m${diffDuration.seconds()}s`
   } else if (diffDuration.asHours() < 24) {
-    return `${Math.floor(diffDuration.asHours())} 小时 ${diffDuration.minutes()} 分 ${diffDuration.seconds()} 秒`
+    return `${Math.floor(diffDuration.asHours())}h${diffDuration.minutes()}m${diffDuration.seconds()}s`
   } else {
-    return `${Math.floor(diffDuration.asDays())} 天 ${Math.floor(diffDuration.asHours() % 24)} 小时 ${diffDuration.minutes()} 分 ${diffDuration.seconds()} 秒`
+    return `${Math.floor(diffDuration.asDays())}d${Math.floor(diffDuration.asHours() % 24)}h${diffDuration.minutes()}m${diffDuration.seconds()}s`
   }
 }

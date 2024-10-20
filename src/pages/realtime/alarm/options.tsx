@@ -1,6 +1,8 @@
-import { AlertStatus } from '@/api/enum'
+import { dictSelectList } from '@/api/dict'
+import { AlertStatus, DictType } from '@/api/enum'
 import { ActionKey, AlertStatusData } from '@/api/global'
-import { AlarmHistoryItem } from '@/api/realtime/history'
+import { RealtimeAlarmItem } from '@/api/model-types'
+import { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import TimeDifference from '@/components/layout/header-message'
 import type { MoreMenuProps } from '@/components/moreMenu'
@@ -13,11 +15,11 @@ import dayjs from 'dayjs'
 export const formList: SearchFormItem[] = [
   {
     name: 'keyword',
-    label: '名称',
+    label: '模糊查询',
     dataProps: {
       type: 'input',
       itemProps: {
-        placeholder: '规则组名称',
+        placeholder: '根据告警内容模糊查询',
         allowClear: true
       }
     }
@@ -28,13 +30,13 @@ export const formList: SearchFormItem[] = [
     dataProps: {
       type: 'select',
       itemProps: {
-        placeholder: '规则组状态',
+        placeholder: '告警状态',
         allowClear: true,
         mode: 'multiple',
-        options: Object.entries(AlertStatusData).map(([key, val]) => {
+        options: Object.entries(AlertStatusData).map(([key, value]) => {
           return {
-            label: val,
-            value: +key
+            label: value,
+            value: Number(key)
           }
         })
       }
@@ -43,19 +45,35 @@ export const formList: SearchFormItem[] = [
 ]
 
 interface GroupColumnProps {
-  onHandleMenuOnClick: (item: AlarmHistoryItem, key: ActionKey) => void
+  onHandleMenuOnClick: (item: RealtimeAlarmItem, key: ActionKey) => void
   current: number
   pageSize: number
 }
 
-export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmHistoryItem> => {
-  const { onHandleMenuOnClick, current, pageSize } = props
-  const tableOperationItems = (_: AlarmHistoryItem): MoreMenuProps['items'] => [
+export const getColumnList = (props: GroupColumnProps): ColumnsType<RealtimeAlarmItem> => {
+  const { onHandleMenuOnClick } = props
+  const tableOperationItems = (record: RealtimeAlarmItem): MoreMenuProps['items'] => [
     {
       key: ActionKey.OPERATION_LOG,
       label: (
         <Button size='small' type='link'>
-          事件日志
+          操作日志
+        </Button>
+      )
+    },
+    {
+      key: ActionKey.EDIT,
+      label: (
+        <Button size='small' type='link'>
+          编辑
+        </Button>
+      )
+    },
+    {
+      key: ActionKey.DELETE,
+      label: (
+        <Button type='link' size='small' danger>
+          删除
         </Button>
       )
     }
@@ -63,20 +81,9 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmHistory
 
   return [
     {
-      title: '序号',
-      dataIndex: 'index',
-      key: 'index',
-      align: 'center',
-      width: 60,
-      fixed: 'left',
-      render: (_, __, index: number) => {
-        return <span>{(current - 1) * pageSize + index + 1}</span>
-      }
-    },
-    {
       title: '状态',
-      dataIndex: 'alertStatus',
-      key: 'alertStatus',
+      dataIndex: 'status',
+      key: 'status',
       width: 80,
       render: (status: AlertStatus) => {
         return AlertStatusData[status]
@@ -89,33 +96,23 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmHistory
       render(_, record) {
         return (
           <div style={{ fontSize: 12 }}>
-            <TimeDifference
-              timestamp={dayjs(record.startsAt).unix() * 1000}
-              startAt={record.alertStatus === AlertStatus.ALERT_STATUS_RESOLVED ? dayjs(record.endsAt) : dayjs()}
-            />
+            <TimeDifference timestamp={dayjs(record.startsAt).unix() * 1000} />
           </div>
         )
       }
     },
     {
-      title: '告警时间',
-      dataIndex: 'startsAt',
-      key: 'startsAt',
-      align: 'center',
-      width: 160
-    },
-    {
-      title: '名称',
+      title: '总览',
       dataIndex: 'summary',
       key: 'summary',
       width: 400
     },
     {
-      title: '描述',
-      dataIndex: 'annotations',
-      key: 'annotations',
-      render: (annotations: Record<string, string>) => {
-        return <OverflowTooltip content={annotations?.['description'] || '-'} maxWidth='300px' />
+      title: '明细',
+      dataIndex: 'description',
+      key: 'description',
+      render: (text: string) => {
+        return <OverflowTooltip content={text || '-'} maxWidth='300px' />
       }
     },
     {
@@ -125,7 +122,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmHistory
       ellipsis: true,
       fixed: 'right',
       width: 120,
-      render: (_, record: AlarmHistoryItem) => (
+      render: (_, record: RealtimeAlarmItem) => (
         <Space size={20}>
           <Button size='small' type='link' onClick={() => onHandleMenuOnClick(record, ActionKey.DETAIL)}>
             详情
@@ -143,3 +140,24 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmHistory
     }
   ]
 }
+
+export const addPagesFormItems: (DataFromItem | DataFromItem[])[] = [
+  {
+    name: 'alarmPageIds',
+    label: '告警页面',
+    type: 'select-fetch',
+    props: {
+      selectProps: {
+        mode: 'multiple',
+        placeholder: '请选择告警页面'
+      },
+      async handleFetch(value) {
+        return dictSelectList({
+          dictType: DictType.DictTypeAlarmPage,
+          pagination: { pageNum: 1, pageSize: 999 },
+          keyword: value
+        }).then(({ list }) => list)
+      }
+    }
+  }
+]
