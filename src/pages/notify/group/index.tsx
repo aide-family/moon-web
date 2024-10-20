@@ -221,7 +221,7 @@ const Group: React.FC = () => {
             <Button type='primary' onClick={() => handleEditModal()}>
               添加
             </Button>
-            <Button type='primary' onClick={onRefresh}>
+            <Button color='default' variant='filled' onClick={onRefresh}>
               刷新
             </Button>
           </Space>

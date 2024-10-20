@@ -50,7 +50,7 @@ export function listTeam(params: ListTeamRequest): Promise<ListTeamReply> {
  * @returns {UpdateTeamStatusReply}
  */
 export function updateTeamStatus(params: UpdateTeamStatusRequest): Promise<UpdateTeamStatusReply> {
-  return request.PUT<UpdateTeamStatusReply>(`/v1/team/${params.id}/status`, params)
+  return request.PUT<UpdateTeamStatusReply>(`/v1/team/status`, params)
 }
 
 /**
@@ -197,7 +197,7 @@ export interface ListTeamReply {
 
 export interface UpdateTeamStatusRequest {
   id: number
-  status: number
+  status: Status
 }
 
 export interface UpdateTeamStatusReply {}

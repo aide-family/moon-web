@@ -139,7 +139,7 @@ const MoonLayout: React.FC = () => {
               <HeaderOp />
             </Header>
 
-            <Content className='content' style={{ flex: 1 }}>
+            <Content className='content' style={{ flex: 1 }} id='content-body'>
               <Suspense fallback={<Spin />}>
                 <Outlet />
               </Suspense>

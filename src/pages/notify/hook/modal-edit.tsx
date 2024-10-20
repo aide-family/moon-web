@@ -116,7 +116,14 @@ export function EditHookModal(props: EditHookModalProps) {
                 })}
             />
           </Form.Item>
-          <Form.Item label='URL' name='url' rules={[{ required: true, message: '请输入URL' }]}>
+          <Form.Item
+            label='URL'
+            name='url'
+            rules={[
+              { required: true, message: '请输入URL' },
+              { type: 'url', message: '请输入正确的URL' }
+            ]}
+          >
             <Input placeholder='请输入URL' />
           </Form.Item>
           <Form.Item label='密钥' name='secret'>

@@ -177,7 +177,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
           <Button type='primary' onClick={fetchSyncMetric}>
             同步数据
           </Button>
-          <Button type='primary' onClick={handleRefresh} loading={loading}>
+          <Button color='default' variant='filled' onClick={handleRefresh} loading={loading}>
             刷新
           </Button>
         </Space>

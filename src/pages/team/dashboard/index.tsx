@@ -1,9 +1,16 @@
-import { deleteDict } from '@/api/dict'
+import { ListDictRequest } from '@/api/dict'
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { StrategyGroupItem, TeamRole } from '@/api/model-types'
+import { DashboardItem, StrategyGroupItem } from '@/api/model-types'
+import {
+  batchUpdateDashboardStatus,
+  createDashboard,
+  CreateDashboardRequest,
+  deleteDashboard,
+  listDashboard,
+  updateDashboard
+} from '@/api/realtime/dashboard'
 import { ListStrategyGroupRequest } from '@/api/strategy'
-import { createRole, CreateRoleRequest, listRole, ListRoleRequest, updateRole, updateRoleStatus } from '@/api/team/role'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
@@ -18,7 +25,7 @@ import { formList, getColumnList } from './options'
 const { confirm } = Modal
 const { useToken } = theme
 
-const defaultSearchParams: ListRoleRequest = {
+const defaultSearchParams: ListDictRequest = {
   pagination: {
     pageNum: 1,
     pageSize: 10
@@ -29,8 +36,8 @@ const defaultSearchParams: ListRoleRequest = {
 
 const Group: React.FC = () => {
   const { token } = useToken()
-  const [datasource, setDatasource] = useState<TeamRole[]>([])
-  const [searchParams, setSearchParams] = useState<ListRoleRequest>(defaultSearchParams)
+  const [datasource, setDatasource] = useState<DashboardItem[]>([])
+  const [searchParams, setSearchParams] = useState<ListDictRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
@@ -66,7 +73,7 @@ const Group: React.FC = () => {
   const fetchData = useCallback(
     debounce(async (params) => {
       setLoading(true)
-      listRole(params)
+      listDashboard(params)
         .then(({ list, pagination }) => {
           setDatasource(list || [])
           setTotal(pagination?.total || 0)
@@ -76,13 +83,13 @@ const Group: React.FC = () => {
     []
   )
 
-  const handleGroupEditModalSubmit = (data: CreateRoleRequest) => {
+  const handleGroupEditModalSubmit = (data: CreateDashboardRequest) => {
     const call = () => {
       if (!editGroupId) {
-        return createRole(data)
+        return createDashboard(data)
       } else {
-        return updateRole({
-          data: data,
+        return updateDashboard({
+          ...data,
           id: editGroupId
         })
       }
@@ -131,16 +138,16 @@ const Group: React.FC = () => {
     setSearchParams(defaultSearchParams)
   }
 
-  const onHandleMenuOnClick = (item: TeamRole, key: ActionKey) => {
+  const onHandleMenuOnClick = (item: DashboardItem, key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
-        updateRoleStatus({ id: item.id, status: Status.StatusEnable }).then(() => {
+        batchUpdateDashboardStatus({ ids: [item.id], status: Status.StatusEnable }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
         break
       case ActionKey.DISABLE:
-        updateRoleStatus({ id: item.id, status: Status.StatusDisable }).then(() => {
+        batchUpdateDashboardStatus({ ids: [item.id], status: Status.StatusDisable }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
@@ -155,11 +162,11 @@ const Group: React.FC = () => {
         break
       case ActionKey.DELETE:
         confirm({
-          title: `请确认是否删除该角色?`,
+          title: `请确认是否删除该仪表盘?`,
           icon: <ExclamationCircleFilled />,
           content: '此操作不可逆',
           onOk() {
-            deleteDict({ id: item.id }).then(() => {
+            deleteDashboard({ id: item.id }).then(() => {
               message.success('删除成功')
               onRefresh()
             })
@@ -181,8 +188,8 @@ const Group: React.FC = () => {
   return (
     <div className={styles.box}>
       <GroupEditModal
-        title={editGroupId ? (disabledEditGroupModal ? '角色详情' : '编辑角色') : '新建角色'}
-        width='60%'
+        title={editGroupId ? (disabledEditGroupModal ? '仪表盘详情' : '编辑仪表盘') : '新建仪表盘'}
+        // width='60%'
         style={{ minWidth: 504 }}
         open={openGroupEditModal}
         onCancel={handleCloseGroupEditModal}
@@ -207,12 +214,13 @@ const Group: React.FC = () => {
       >
         <div className={styles.main_toolbar}>
           <div className={styles.main_toolbar_left} style={{ fontSize: '16px' }}>
-            角色列表
+            仪表盘列表
           </div>
           <Space size={8}>
             <Button type='primary' onClick={() => handleEditModal()}>
               添加
             </Button>
+            <Button onClick={() => handleEditModal()}>批量导入</Button>
             <Button color='default' variant='filled' onClick={onRefresh}>
               刷新
             </Button>
@@ -234,8 +242,8 @@ const Group: React.FC = () => {
               borderRadius: token.borderRadius
             }}
             rowSelection={{
-              onChange(selectedRowKeys, selectedRows) {
-                handlerBatchData(selectedRowKeys, selectedRows as any)
+              onChange(selectedRowKeys, selectedRows: any) {
+                handlerBatchData(selectedRowKeys, selectedRows)
               }
             }}
             scroll={{

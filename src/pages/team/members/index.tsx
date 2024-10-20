@@ -183,7 +183,7 @@ const Group: React.FC = () => {
             <Button type='primary' onClick={handleOpenInviteModal}>
               邀请
             </Button>
-            <Button type='primary' onClick={onRefresh}>
+            <Button color='default' variant='filled' onClick={onRefresh}>
               刷新
             </Button>
           </Space>

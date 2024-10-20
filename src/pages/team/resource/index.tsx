@@ -163,7 +163,7 @@ const Group: React.FC = () => {
             资源列表
           </div>
           <Space size={8}>
-            <Button type='primary' onClick={onRefresh}>
+            <Button color='default' variant='filled' onClick={onRefresh}>
               刷新
             </Button>
           </Space>
@@ -184,7 +184,9 @@ const Group: React.FC = () => {
               borderRadius: token.borderRadius
             }}
             rowSelection={{
-              onChange: handlerBatchData
+              onChange(selectedRowKeys, selectedRows: any) {
+                handlerBatchData(selectedRowKeys, selectedRows)
+              }
             }}
             scroll={{
               y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,

@@ -1,7 +1,8 @@
 import { IconFont } from '@/components/icon'
-import { BadgeProps } from 'antd'
+import { BadgeProps, Tag } from 'antd'
 import React from 'react'
 import {
+  AlertStatus,
   Condition,
   DatasourceType,
   DictType,
@@ -189,6 +190,13 @@ export const DomainTypeData: Record<DomainType, string> = {
   [DomainType.DomainTypeUnknown]: '全局领域',
   [DomainType.DomainTypeSystem]: '系统领域',
   [DomainType.DomainTypeMonitor]: '告警领域'
+}
+
+export const AlertStatusData: Record<AlertStatus, React.ReactNode> = {
+  [AlertStatus.ALERT_STATUS_UNKNOWN]: <Tag>Unknown</Tag>,
+  [AlertStatus.ALERT_STATUS_FIRING]: <Tag color='red'>Firang</Tag>,
+  [AlertStatus.ALERT_STATUS_RESOLVED]: <Tag color='green'>Resolved</Tag>,
+  [AlertStatus.ALERT_STATUS_Silenced]: <Tag color='orange'>Silenced</Tag>
 }
 
 // 操作

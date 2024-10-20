@@ -4,6 +4,7 @@ import { GlobalContext } from '@/utils/context'
 import { GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { Avatar, Button, Dropdown, MenuProps } from 'antd'
 import React, { useContext } from 'react'
+import { ButtonFullScreen } from './button-full-screen'
 import { useCreateTeamModal } from './create-team-provider'
 import { HeaderMessage } from './header-message'
 import { TeamMenu } from './team-menu'
@@ -62,12 +63,12 @@ export const HeaderOp: React.FC = () => {
   return (
     <div className='center gap8'>
       <TeamMenu />
+      <ButtonFullScreen bodyId='content-body' type='text' />
       <HeaderMessage />
       <Button type='text' href={githubURL} target='_blank' icon={<GithubOutlined />} />
       <Button
         type='text'
         icon={theme === 'dark' ? <SunOutlined /> : <MoonOutlined />}
-        // style={{ color: '#FFF' }}
         onClick={() => {
           setTheme?.(theme === 'dark' ? 'light' : 'dark')
         }}

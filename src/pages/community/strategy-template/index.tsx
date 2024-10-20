@@ -242,7 +242,7 @@ const StrategyTemplate: React.FC<StrategyTemplateProps> = () => {
             新建模板
           </Button>
           <Space size={8}>
-            <Button type='primary' onClick={onRefresh}>
+            <Button color='default' variant='filled' onClick={onRefresh}>
               刷新
             </Button>
             <Button>导出</Button>

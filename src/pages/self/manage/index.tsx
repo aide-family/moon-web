@@ -1,23 +1,24 @@
+import type { DescriptionsProps } from 'antd'
 import { Avatar, Button, Card, Descriptions, Form, message, Modal, Space, theme } from 'antd'
 import React, { useContext, useEffect, useState } from 'react'
-import type { DescriptionsProps } from 'antd'
+import { BaseInfo } from './base-info'
 import './index.scss'
 import { MyTeam } from './my-team'
-import { BaseInfo } from './base-info'
+
+import { UserItem } from '@/api/model-types'
 import {
-  getUser,
+  getUserBasic,
+  resetUserPasswordBySelf,
+  ResetUserPasswordBySelfRequest,
   updateUserAvatar,
   updateUserEmail,
-  updateUserPassword,
-  UpDateUserPasswordParams,
-  updateUserPhone,
-  UserItem
-} from '@/api/authorization/user'
+  updateUserPhone
+} from '@/api/user'
 import { DataFrom } from '@/components/data/form'
-import { avatarOptions, emailOptions, passwordOptions, phoneOptions } from './options'
 import { AesEncrypt } from '@/utils/aes'
-import { EditOutlined } from '@ant-design/icons'
 import { GlobalContext } from '@/utils/context'
+import { EditOutlined } from '@ant-design/icons'
+import { avatarOptions, emailOptions, passwordOptions, phoneOptions } from './options'
 
 export interface SelfManageProps {
   children?: React.ReactNode
@@ -98,9 +99,9 @@ const SelfManage: React.FC<SelfManageProps> = (props) => {
       children: (
         <Space size={4}>
           <div>{userDetail.email}</div>
-          <Button type='link' size='small' onClick={() => showUpdateModal('email')}>
+          {/* <Button type='link' size='small' onClick={() => showUpdateModal('email')}>
             修改
-          </Button>
+          </Button> */}
         </Space>
       )
     },
@@ -115,21 +116,20 @@ const SelfManage: React.FC<SelfManageProps> = (props) => {
     if (!userInfo) {
       return
     }
-    const { id } = userInfo
-    getUser(id).then((res) => {
-      const { user } = res
-      localStorage.setItem('user', JSON.stringify(user))
-      setUserDetail(user)
-      setUserInfo?.(user)
+    getUserBasic().then((res) => {
+      const { detail } = res
+      localStorage.setItem('user', JSON.stringify(detail))
+      setUserDetail(detail)
+      setUserInfo?.(detail)
     })
   }
 
-  const updatePassword = (val: UpDateUserPasswordParams) => {
-    const params: UpDateUserPasswordParams = {
+  const updatePassword = (val: ResetUserPasswordBySelfRequest) => {
+    const params: ResetUserPasswordBySelfRequest = {
       oldPassword: AesEncrypt(val.oldPassword),
       newPassword: AesEncrypt(val.newPassword)
     }
-    updateUserPassword(params).then(() => {
+    resetUserPasswordBySelf(params).then(() => {
       message.success('修改密码成功')
       form.resetFields()
     })
@@ -147,13 +147,18 @@ const SelfManage: React.FC<SelfManageProps> = (props) => {
         return <div>通知历史</div>
       case 'password':
         return (
-          <DataFrom items={passwordOptions} props={{ layout: 'vertical', form, onFinish: updatePassword }}>
-            <Form.Item>
-              <Button type='primary' htmlType='submit'>
-                保存
-              </Button>
-            </Form.Item>
-          </DataFrom>
+          <Space>
+            <DataFrom
+              items={passwordOptions}
+              props={{ layout: 'vertical', form, onFinish: updatePassword, autoComplete: 'off' }}
+            >
+              <Form.Item>
+                <Button type='primary' htmlType='submit'>
+                  保存
+                </Button>
+              </Form.Item>
+            </DataFrom>
+          </Space>
         )
       default:
         return <BaseInfo userInfo={userDetail} onOK={getUserInfo} />

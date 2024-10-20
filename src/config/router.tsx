@@ -1,4 +1,4 @@
-import { Error403 } from '@/components/error'
+import { Error403, Error404 } from '@/components/error'
 import { lazy } from 'react'
 import { Navigate, RouteObject } from 'react-router-dom'
 
@@ -25,6 +25,15 @@ export const routers: RouteObject[] = [
           {
             path: '/home/realtime/dashboard',
             Component: lazy(() => import('@/pages/realtime/dashboard'))
+          }
+        ]
+      },
+      {
+        path: '/home/archive',
+        children: [
+          {
+            path: '/home/archive/history',
+            Component: lazy(() => import('@/pages/archive/history'))
           }
         ]
       },
@@ -74,6 +83,10 @@ export const routers: RouteObject[] = [
           {
             path: '/home/team/resource',
             Component: lazy(() => import('@/pages/team/resource'))
+          },
+          {
+            path: '/home/team/dashboard',
+            Component: lazy(() => import('@/pages/team/dashboard'))
           }
         ]
       },
@@ -117,7 +130,7 @@ export const routers: RouteObject[] = [
       {
         // 403
         path: '/home/*',
-        element: <Error403 />
+        element: <Error404 />
       }
     ]
   },

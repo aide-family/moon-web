@@ -129,24 +129,28 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: '资源管理',
         key: '/home/team/resource'
-      }
-    ]
-  },
-  {
-    label: 'Moon社区',
-    key: '/home/community',
-    icon: <IconFont type='icon-tongzhimoban' />,
-    children: [
-      {
-        label: '策略仓库',
-        key: '/home/community/strategy-template'
       },
       {
-        label: '讨论',
-        key: '/home/community/discussion'
+        label: '大盘管理',
+        key: '/home/team/dashboard'
       }
     ]
   }
+  // {
+  //   label: 'Moon社区',
+  //   key: '/home/community',
+  //   icon: <IconFont type='icon-tongzhimoban' />,
+  //   children: [
+  //     {
+  //       label: '策略仓库',
+  //       key: '/home/community/strategy-template'
+  //     },
+  //     {
+  //       label: '讨论',
+  //       key: '/home/community/discussion'
+  //     }
+  //   ]
+  // }
 ]
 
 export type BreadcrumbNameType = {
@@ -173,6 +177,9 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   '/home/team/resource': {
     name: '资源管理'
   },
+  '/home/team/dashboard': {
+    name: '大盘管理'
+  },
   '/home/self': {
     name: '个人中心'
   },
@@ -188,7 +195,7 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   '/home/realtime/dashboard': {
     name: '数据大盘'
   },
-  '/home/realtime/realtime': {
+  '/home/realtime/alarm': {
     name: '实时告警'
   },
   '/home/datasource': {

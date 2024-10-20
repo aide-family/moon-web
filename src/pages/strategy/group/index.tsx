@@ -226,7 +226,7 @@ const Group: React.FC = () => {
               添加
             </Button>
             <Button onClick={() => handleEditModal()}>批量导入</Button>
-            <Button type='primary' onClick={onRefresh}>
+            <Button color='default' variant='filled' onClick={onRefresh}>
               刷新
             </Button>
           </Space>
@@ -247,7 +247,9 @@ const Group: React.FC = () => {
               borderRadius: token.borderRadius
             }}
             rowSelection={{
-              onChange: handlerBatchData
+              onChange(selectedRowKeys, selectedRows: any) {
+                handlerBatchData(selectedRowKeys, selectedRows)
+              }
             }}
             scroll={{
               y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,

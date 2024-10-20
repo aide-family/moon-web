@@ -188,7 +188,7 @@ const Hook: React.FC<HookProps> = (props) => {
                 添加
               </Button>
               <Button disabled>批量导入</Button>
-              <Button type='primary' onClick={onRefresh}>
+              <Button color='default' variant='filled' onClick={onRefresh}>
                 刷新
               </Button>
             </Space>

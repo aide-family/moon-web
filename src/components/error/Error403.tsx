@@ -1,24 +1,31 @@
+import Error403SVG from '@/assets/images/err_403.svg'
+import { Button, Image, Result, theme } from 'antd'
 import { FC } from 'react'
-import { Button, Result } from 'antd'
 import { useNavigate } from 'react-router-dom'
+
+const { useToken } = theme
 
 const Error403: FC = () => {
   const navigate = useNavigate()
+  const { token } = useToken()
 
   const navigateToHome = () => {
-    navigate('/home')
+    navigate('/')
   }
   return (
-    <Result
-      status='403'
-      title='403'
-      subTitle='Sorry, you are not authorized to access this page.'
-      extra={
-        <Button type='primary' onClick={navigateToHome}>
-          Back Home
-        </Button>
-      }
-    />
+    <div style={{ color: token.colorTextBase }}>
+      <Result
+        status='error'
+        title='无权限'
+        icon={<Image src={Error403SVG} preview={false} onDragStart={() => false} />}
+        subTitle='对不起，您没有权限访问此页面。'
+        extra={
+          <Button type='primary' onClick={navigateToHome}>
+            返回主页
+          </Button>
+        }
+      />
+    </div>
   )
 }
 

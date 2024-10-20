@@ -43,6 +43,16 @@ export function getUser(params: GetUserRequest): Promise<GetUserReply> {
 }
 
 /**
+ * 获取用户
+ * @method: get /v1/user/{id}
+ * @param {GetUserRequest} params
+ * @returns {GetUserReply}
+ */
+export function getUserBasic(): Promise<GetUserReply> {
+  return request.GET<GetUserReply>(`/v1/user/self/basic`)
+}
+
+/**
  * 列表用户
  * @method: post /v1/user/list
  * @param {ListUserRequest} params
@@ -196,8 +206,8 @@ export interface ResetUserPasswordRequest {
 export interface ResetUserPasswordReply {}
 
 export interface ResetUserPasswordBySelfRequest {
-  old_password: string
-  new_password: string
+  oldPassword: string
+  newPassword: string
 }
 
 export interface ResetUserPasswordBySelfReply {}

@@ -1,8 +1,9 @@
+import { UserItem } from '@/api/model-types'
+import { updateUserBaseInfo, UpdateUserBaseInfoRequest } from '@/api/user'
 import { DataFrom } from '@/components/data/form'
+import { Button, Form, message, Space } from 'antd'
 import React, { useEffect } from 'react'
 import { baseInfoOptions } from './options'
-import { Button, Form, message, Space } from 'antd'
-import { updateUserSelfBase, UpDateUserSelfBaseParams, UserItem } from '@/api/authorization/user'
 
 export interface BaseInfoProps {
   userInfo: UserItem
@@ -12,8 +13,8 @@ export interface BaseInfoProps {
 export const BaseInfo: React.FC<BaseInfoProps> = (props) => {
   const { userInfo, onOK } = props
   const [form] = Form.useForm()
-  const updateSelfInfo = (values: UpDateUserSelfBaseParams) => {
-    updateUserSelfBase(values).then(() => {
+  const updateSelfInfo = (values: UpdateUserBaseInfoRequest) => {
+    updateUserBaseInfo(values).then(() => {
       message.success('修改成功')
       onOK()
     })

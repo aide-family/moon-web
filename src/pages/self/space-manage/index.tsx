@@ -1,10 +1,12 @@
 import { Status } from '@/api/enum'
 import { TeamItem } from '@/api/model-types'
-import { listTeam, ListTeamRequest, updateTeamStatus } from '@/api/team'
+import { myTeam, updateTeamStatus } from '@/api/team'
+import { useCreateTeamModal } from '@/components/layout/create-team-provider'
 import { GlobalContext } from '@/utils/context'
-import { EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { EditOutlined, PlusOutlined, UserSwitchOutlined } from '@ant-design/icons'
 import {
   Avatar,
+  Badge,
   Button,
   Card,
   Col,
@@ -12,13 +14,11 @@ import {
   DescriptionsProps,
   Dropdown,
   Empty,
-  Input,
   MenuProps,
   Row,
   Space,
   Spin,
   Switch,
-  Tooltip,
   Typography
 } from 'antd'
 import React, { useContext, useEffect } from 'react'
@@ -29,21 +29,12 @@ export interface SpaceManageProps {
   children?: React.ReactNode
 }
 
-const defaultSearchParams: ListTeamRequest = {
-  status: 0,
-  pagination: {
-    pageNum: 1,
-    pageSize: 10
-  }
-}
-
 let timeout: NodeJS.Timeout | null = null
-let searchTimeout: NodeJS.Timeout | null = null
 const SpaceManage: React.FC<SpaceManageProps> = () => {
-  const { setRefreshMyTeamList } = useContext(GlobalContext)
+  const { setRefreshMyTeamList, teamInfo } = useContext(GlobalContext)
+  const { setOpen, open } = useCreateTeamModal()
   const [openEditModal, setOpenEditModal] = React.useState(false)
   const [operatorTeam, setOperatorTeam] = React.useState<TeamItem>()
-  const [searchParams, setSearchParams] = React.useState<ListTeamRequest>(defaultSearchParams)
   const [loading, setLoading] = React.useState(false)
   const [teamList, setTeamList] = React.useState<TeamItem[]>([])
   const [refresh, setRefresh] = React.useState(false)
@@ -62,17 +53,7 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
     {
       label: '转移团队',
       key: '2',
-      icon: <EditOutlined />
-    },
-    {
-      label: '成员管理',
-      key: '3',
-      icon: <EditOutlined />
-    },
-    {
-      label: '角色管理',
-      key: '4',
-      icon: <EditOutlined />
+      icon: <UserSwitchOutlined />
     }
   ]
 
@@ -86,7 +67,7 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
     }
     setLoading(true)
     timeout = setTimeout(() => {
-      listTeam(searchParams)
+      myTeam()
         .then((res) => {
           const { list } = res
           setTeamList(list)
@@ -105,7 +86,7 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
   useEffect(() => {
     handleGetTeamList()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, searchParams])
+  }, [refresh, open])
 
   const handleEditModalOnOK = () => {
     setOpenEditModal(false)
@@ -130,31 +111,13 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
       <div className='spaceBox'>
         <Row className='operator'>
           <Col span={16} className='right'>
-            <Button type='primary' onClick={() => setOpenEditModal(true)}>
+            <Button type='primary' onClick={() => setOpen?.(true)}>
               新建团队
               <PlusOutlined />
             </Button>
-            <Button type='primary' onClick={handleRefresh}>
+            <Button color='default' variant='filled' onClick={handleRefresh}>
               刷新
             </Button>
-          </Col>
-          <Col span={8} style={{ textAlign: 'right' }}>
-            <Input
-              allowClear
-              placeholder='搜索团队'
-              suffix={<SearchOutlined />}
-              onChange={(keyword) => {
-                if (searchTimeout) {
-                  clearTimeout(searchTimeout)
-                }
-                searchTimeout = setTimeout(() => {
-                  setSearchParams({
-                    ...searchParams,
-                    keyword: keyword.target.value + '%'
-                  })
-                }, 500)
-              }}
-            />
           </Col>
         </Row>
         <div className='center'>{!teamList?.length && <Empty />}</div>
@@ -171,21 +134,23 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
                   key: 'leader',
                   label: '负责人',
                   children: (
-                    <Tooltip title={leader?.nickname || leader?.name}>
-                      <Avatar src={leader?.avatar}>{leader?.nickname || leader?.name}</Avatar>
-                    </Tooltip>
+                    <Space direction='horizontal'>
+                      <Avatar src={leader?.avatar} />
+                      {`${leader?.name}(${leader?.nickname})`}
+                    </Space>
                   ),
-                  span: 1
+                  span: 4
                 },
                 {
                   key: 'creator',
                   label: '创建者',
                   children: (
-                    <Tooltip title={creator?.nickname || creator?.name}>
-                      <Avatar src={creator?.avatar}>{creator?.nickname || creator?.name}</Avatar>
-                    </Tooltip>
+                    <Space direction='horizontal'>
+                      <Avatar src={creator?.avatar} />
+                      {`${leader?.name}(${leader?.nickname})`}
+                    </Space>
                   ),
-                  span: 1
+                  span: 4
                 },
                 {
                   key: '2',
@@ -199,7 +164,7 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
                         : '-'}
                     </Avatar.Group>
                   ),
-                  span: 3
+                  span: 4
                 },
                 {
                   key: '3',
@@ -218,31 +183,31 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
               ]
               return (
                 <Col xs={24} sm={12} md={12} lg={12} xl={8} xxl={6}>
-                  <Card
-                    key={index + name}
-                    className='cardItem'
-                    hoverable
-                    extra={
-                      <Switch
-                        checkedChildren='正常'
-                        unCheckedChildren='禁用'
-                        value={status === Status.StatusEnable}
-                        onChange={(checked) => handleChangeStatus(id, checked)}
-                      />
-                    }
-                    title={
-                      <Space>
-                        <Avatar shape='square' src={logo} className='logo'>
-                          {!logo && name?.at(0)?.toUpperCase()}
-                        </Avatar>
-                        {name}
-                      </Space>
-                    }
-                  >
-                    <Dropdown menu={{ items: menuItems(item) }} trigger={['contextMenu']}>
-                      <Descriptions items={items} layout='vertical' />
-                    </Dropdown>
-                  </Card>
+                  <Badge.Ribbon style={{ display: teamInfo?.id === id ? '' : 'none' }} text='current' color='purple'>
+                    <Card
+                      key={index + name}
+                      className='cardItem'
+                      hoverable
+                      title={
+                        <Space>
+                          <Avatar shape='square' src={logo} className='logo'>
+                            {!logo && name?.at(0)?.toUpperCase()}
+                          </Avatar>
+                          {name}
+                          <Switch
+                            checkedChildren='正常'
+                            unCheckedChildren='禁用'
+                            value={status === Status.StatusEnable}
+                            onChange={(checked) => handleChangeStatus(id, checked)}
+                          />
+                        </Space>
+                      }
+                    >
+                      <Dropdown menu={{ items: menuItems(item) }} trigger={['contextMenu']}>
+                        <Descriptions items={items} layout='vertical' />
+                      </Dropdown>
+                    </Card>
+                  </Badge.Ribbon>
                 </Col>
               )
             })}
