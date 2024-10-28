@@ -506,6 +506,8 @@ export interface RealtimeAlarmItem {
   expr: string
   datasource: DatasourceItem
   fingerprint: string
+  duration: string
+  rawInfo: string
 }
 /** 我的告警页面明细 */
 export interface SelfAlarmPageItem {

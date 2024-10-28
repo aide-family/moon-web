@@ -194,7 +194,7 @@ const Group: React.FC = () => {
     <div className={styles.box}>
       <GroupEditModal
         title={editGroupId ? (disabledEditGroupModal ? '分组详情' : '编辑分组') : '新建分组'}
-        width='60%'
+        width='40%'
         style={{ minWidth: 504 }}
         open={openGroupEditModal}
         onCancel={handleCloseGroupEditModal}

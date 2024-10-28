@@ -100,7 +100,7 @@ export const defaultMenuItems: ItemType[] = [
     icon: <UserOutlined />,
     children: [
       {
-        label: '团队管理',
+        label: '我的团队',
         key: '/home/self/space-manage'
       },
       {
@@ -184,7 +184,7 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
     name: '个人中心'
   },
   '/home/self/space-manage': {
-    name: '团队管理'
+    name: '我的团队'
   },
   '/home/self/manage': {
     name: '个人设置'

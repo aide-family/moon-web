@@ -4,13 +4,11 @@ import { ActionKey, AlertStatusData } from '@/api/global'
 import { RealtimeAlarmItem } from '@/api/model-types'
 import { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
-import TimeDifference from '@/components/layout/header-message'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
 import OverflowTooltip from '@/components/overflowTooltip'
 import { Button, Space } from 'antd'
 import { ColumnsType } from 'antd/es/table'
-import dayjs from 'dayjs'
 
 export const formList: SearchFormItem[] = [
   {
@@ -90,19 +88,19 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<RealtimeAlar
       }
     },
     {
-      title: '持续时间',
-      key: 'duration',
-      width: 100,
-      render(_, record) {
-        return (
-          <div style={{ fontSize: 12 }}>
-            <TimeDifference timestamp={dayjs(record.startsAt).unix() * 1000} />
-          </div>
-        )
-      }
+      title: '告警时间',
+      dataIndex: 'startsAt',
+      key: 'startsAt',
+      width: 200
     },
     {
-      title: '总览',
+      title: '持续时间',
+      key: 'duration',
+      dataIndex: 'duration',
+      width: 100
+    },
+    {
+      title: '摘要',
       dataIndex: 'summary',
       key: 'summary',
       width: 400

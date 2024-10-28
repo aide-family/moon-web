@@ -32,4 +32,5 @@ export interface ListAlarmPageRequest {}
 
 export interface ListAlarmPageReply {
   list: SelfAlarmPageItem[]
+  alertCounts: { [key: number]: number }
 }

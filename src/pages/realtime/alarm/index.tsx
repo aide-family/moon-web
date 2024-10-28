@@ -12,6 +12,7 @@ import { debounce } from 'lodash'
 import React, { Key, useCallback, useEffect, useRef, useState } from 'react'
 import styles from './index.module.scss'
 import { ModalAddPages } from './modal-add-pages'
+import { ModalDetail } from './modal-detail'
 import { formList, getColumnList } from './options'
 
 const { useToken } = theme
@@ -34,6 +35,9 @@ const Group: React.FC = () => {
   const [myPages, setMyPages] = useState<SelfAlarmPageItem[]>([])
   const [refreshPages, setRefreshPages] = useState(false)
   const [openAddPages, setOpenAddPages] = useState(false)
+  const [alertCounts, setAlertCounts] = useState<{ [key: number]: number }>({})
+  const [realtimeId, setRealtimeId] = useState<number | undefined>()
+  const [openDetail, setOpenDetail] = useState(false)
 
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
@@ -52,11 +56,22 @@ const Group: React.FC = () => {
     onRefreshPages()
   }
 
+  const handleOpenDetail = (id: number) => {
+    setRealtimeId(id)
+    setOpenDetail(true)
+  }
+
+  const handleCloseDetail = () => {
+    setOpenDetail(false)
+    setRealtimeId(undefined)
+  }
+
   const fetchMypageData = useCallback(
     debounce(async () => {
       listAlarmPage({})
-        .then(({ list }) => {
+        .then(({ list, alertCounts }) => {
           setMyPages(list || [])
+          setAlertCounts(alertCounts || {})
         })
         .finally(() => setLoading(false))
     }, 500),
@@ -85,6 +100,14 @@ const Group: React.FC = () => {
     fetchData(searchParams)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh, searchParams, fetchData])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchMypageData()
+      fetchData(searchParams)
+      return () => clearInterval(interval)
+    }, 10000)
+  }, [])
 
   const onSearch = (formData: ListStrategyGroupRequest) => {
     setSearchParams({
@@ -127,6 +150,7 @@ const Group: React.FC = () => {
       case ActionKey.OPERATION_LOG:
         break
       case ActionKey.DETAIL:
+        handleOpenDetail(item.id)
         break
       case ActionKey.EDIT:
         break
@@ -144,6 +168,7 @@ const Group: React.FC = () => {
   return (
     <div className={styles.box}>
       <ModalAddPages open={openAddPages} onClose={() => setOpenAddPages(false)} onSubmit={onSubmitPages} />
+      <ModalDetail open={openDetail} onCancel={handleCloseDetail} realtimeId={realtimeId} width='50%' />
       <div
         style={{
           background: token.colorBgContainer,
@@ -167,12 +192,12 @@ const Group: React.FC = () => {
             <Radio.Group defaultValue={-1} buttonStyle='solid'>
               <Radio.Button value={-1}>
                 我的告警
-                <Badge count={5000} style={{ display: '' }} />
+                <Badge count={alertCounts[-1]} style={{ display: '' }} />
               </Radio.Button>
               {myPages.map((item) => (
                 <Radio.Button key={item.id} value={item.id} onClick={onRefreshPages}>
                   {item.name}
-                  <Badge count={5000} style={{ display: '' }} />
+                  <Badge count={alertCounts[item.id] || 0} style={{ display: '' }} />
                 </Radio.Button>
               ))}
             </Radio.Group>

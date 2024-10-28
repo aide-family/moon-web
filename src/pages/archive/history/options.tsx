@@ -2,13 +2,11 @@ import { AlertStatus } from '@/api/enum'
 import { ActionKey, AlertStatusData } from '@/api/global'
 import { AlarmHistoryItem } from '@/api/realtime/history'
 import type { SearchFormItem } from '@/components/data/search-box'
-import TimeDifference from '@/components/layout/header-message'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
 import OverflowTooltip from '@/components/overflowTooltip'
 import { Button, Space } from 'antd'
 import { ColumnsType } from 'antd/es/table'
-import dayjs from 'dayjs'
 
 export const formList: SearchFormItem[] = [
   {
@@ -28,7 +26,7 @@ export const formList: SearchFormItem[] = [
     dataProps: {
       type: 'select',
       itemProps: {
-        placeholder: '规则组状态',
+        placeholder: '告警状态',
         allowClear: true,
         mode: 'multiple',
         options: Object.entries(AlertStatusData).map(([key, val]) => {
@@ -85,17 +83,8 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmHistory
     {
       title: '持续时间',
       key: 'duration',
-      width: 100,
-      render(_, record) {
-        return (
-          <div style={{ fontSize: 12 }}>
-            <TimeDifference
-              timestamp={dayjs(record.startsAt).unix() * 1000}
-              startAt={record.alertStatus === AlertStatus.ALERT_STATUS_RESOLVED ? dayjs(record.endsAt) : dayjs()}
-            />
-          </div>
-        )
-      }
+      dataIndex: 'duration',
+      width: 100
     },
     {
       title: '告警时间',
@@ -105,13 +94,13 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmHistory
       width: 160
     },
     {
-      title: '名称',
+      title: '摘要',
       dataIndex: 'summary',
       key: 'summary',
       width: 400
     },
     {
-      title: '描述',
+      title: '明细',
       dataIndex: 'annotations',
       key: 'annotations',
       render: (annotations: Record<string, string>) => {
