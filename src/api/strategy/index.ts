@@ -265,3 +265,7 @@ export function listStrategy(params: ListStrategyRequest) {
 export function copyStrategy(params: CopyStrategyRequest) {
   return request.POST<CopyStrategyReply>('/v1/strategy/copy', params)
 }
+
+export function pushStrategy(id: number) {
+  return request.GET<any>(`/v1/strategy/push/${id}`)
+}

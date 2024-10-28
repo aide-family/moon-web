@@ -9,6 +9,7 @@ import {
   deleteStrategyGroup,
   listStrategy,
   ListStrategyRequest,
+  pushStrategy,
   updateStrategy,
   updateStrategyStatus
 } from '@/api/strategy'
@@ -185,6 +186,11 @@ const StrategyMetric: React.FC = () => {
         break
       case ActionKey.EDIT:
         handleEditModal(item.id)
+        break
+      case ActionKey.IMMEDIATELY_PUSH:
+        pushStrategy(item.id)
+          .then(() => message.success('推送成功'))
+          .catch(() => message.error('推送失败'))
         break
       case ActionKey.DELETE:
         confirm({

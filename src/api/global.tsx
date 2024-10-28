@@ -224,5 +224,7 @@ export enum ActionKey {
   /** 禁用 */
   DISABLE = '__disable__',
   /** 操作日志 */
-  OPERATION_LOG = '__operation_log__'
+  OPERATION_LOG = '__operation_log__',
+  /** 立即推送 */
+  IMMEDIATELY_PUSH = '__immediately_push__'
 }

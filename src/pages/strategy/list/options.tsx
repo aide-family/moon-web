@@ -138,19 +138,28 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
             </Button>
           )
         },
-    {
-      key: ActionKey.OPERATION_LOG,
-      label: (
-        <Button size='small' type='link'>
-          操作日志
-        </Button>
-      )
-    },
+
     {
       key: ActionKey.EDIT,
       label: (
         <Button size='small' type='link'>
           编辑
+        </Button>
+      )
+    },
+    {
+      key: ActionKey.IMMEDIATELY_PUSH,
+      label: (
+        <Button size='small' type='link'>
+          立即推送
+        </Button>
+      )
+    },
+    {
+      key: ActionKey.OPERATION_LOG,
+      label: (
+        <Button size='small' type='link'>
+          操作日志
         </Button>
       )
     },
