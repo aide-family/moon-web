@@ -20,6 +20,7 @@ import { ExclamationCircleFilled } from '@ant-design/icons'
 import { Button, message, Modal, Space, theme } from 'antd'
 import { debounce } from 'lodash'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { Detail } from './detail'
 import styles from './index.module.scss'
 import { MetricEditModal, MetricEditModalData } from './metric-edit-modal'
 import { formList, getColumnList } from './options'
@@ -54,6 +55,18 @@ const StrategyMetric: React.FC = () => {
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource)
+  const [detailId, setDetailId] = useState<number>()
+  const [openDetailModal, setOpenDetailModal] = useState(false)
+
+  const handleDetailModal = (id: number) => {
+    setDetailId(id)
+    setOpenDetailModal(true)
+  }
+
+  const handleCloseDetailModal = () => {
+    setOpenDetailModal(false)
+    setDetailId(0)
+  }
 
   const handleCloseGroupEditModal = () => {
     setOpenGroupEditModal(false)
@@ -182,7 +195,7 @@ const StrategyMetric: React.FC = () => {
       case ActionKey.OPERATION_LOG:
         break
       case ActionKey.DETAIL:
-        console.log('详情。')
+        handleDetailModal(item.id)
         break
       case ActionKey.EDIT:
         handleEditModal(item.id)
@@ -229,6 +242,7 @@ const StrategyMetric: React.FC = () => {
         submit={handleMetricEditModalSubmit}
         disabled={disabledEditGroupModal}
       />
+      <Detail width='60%' strategyId={detailId} open={openDetailModal} onCancel={handleCloseDetailModal} />
       <div
         style={{
           background: token.colorBgContainer,

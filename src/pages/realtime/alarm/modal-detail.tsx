@@ -11,12 +11,12 @@ export interface ModalDetailProps extends ModalProps {
 }
 
 export const ModalDetail: React.FC<ModalDetailProps> = (props) => {
-  const { realtimeId, ...reset } = props
+  const { realtimeId, open, ...reset } = props
 
   const [detail, setDetail] = useState<RealtimeAlarmItem>()
   const [loading, setLoading] = useState(false)
 
-  const fetchMypageData = useCallback(
+  const fetchData = useCallback(
     debounce(async (id: number) => {
       //   if (!realtimeId) return
       setLoading(true)
@@ -31,7 +31,7 @@ export const ModalDetail: React.FC<ModalDetailProps> = (props) => {
 
   useEffect(() => {
     if (!realtimeId || !open) return
-    fetchMypageData(realtimeId)
+    fetchData(realtimeId)
   }, [realtimeId, open])
 
   const items = (): DescriptionsProps['items'] => {
@@ -97,7 +97,7 @@ export const ModalDetail: React.FC<ModalDetailProps> = (props) => {
   }
   return (
     <>
-      <Modal {...reset} footer={null} loading={loading}>
+      <Modal {...reset} open={open} footer={null} loading={loading}>
         <Descriptions title='告警详情' items={items()} layout='vertical' />
       </Modal>
     </>
