@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { MutableRefObject, useContext, useEffect, useRef, useState } from 'react'
+import React, { MutableRefObject, useContext, useEffect, useRef } from 'react'
 
 import { defaultKeymap, history, historyKeymap, insertNewlineAndIndent } from '@codemirror/commands'
 import { bracketMatching, indentOnInput, syntaxHighlighting } from '@codemirror/language'
@@ -17,7 +17,7 @@ import { lintKeymap } from '@codemirror/lint'
 import { highlightSelectionMatches } from '@codemirror/search'
 import { PromQLExtension } from '@prometheus-io/codemirror-promql'
 import { newCompleteStrategy } from '@prometheus-io/codemirror-promql/dist/esm/complete'
-import { Button, Form, Input, InputProps, theme } from 'antd'
+import { Button, Form, Input, theme } from 'antd'
 import { baseTheme, darkPromqlHighlighter, darkTheme, lightTheme, promqlHighlighter } from './prom/CMTheme'
 import { HistoryCompleteStrategy } from './prom/HistoryCompleteStrategy'
 
@@ -34,13 +34,18 @@ export type PromValidate = {
   validateStatus?: ValidateStatus
 }
 
-export interface PromQLInputProps extends InputProps {
+export interface PromQLInputProps {
   pathPrefix: string
   formatExpression?: boolean
   ref?: MutableRefObject<any>
   buttonRef?: MutableRefObject<any>
   showBorder?: boolean
   name?: string
+  value?: string
+  defaultValue?: string
+  placeholder?: string
+  onChange?: (expression?: string) => void
+  disabled?: boolean
 }
 
 const promqlExtension = new PromQLExtension()
@@ -114,12 +119,12 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
   const { theme } = useContext(GlobalContext)
   const containerRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
-  const [doc, setDoc] = useState<any>(value || defaultValue)
+  // const [doc, setDoc] = useState<string>()
   const { status } = Form.Item.useStatus()
   const form = Form.useFormInstance()
 
   const onExpressionChange = (expression: string) => {
-    setDoc(expression)
+    onChange?.(expression)
   }
 
   useEffect(() => {
@@ -208,7 +213,7 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
           changes: {
             from: 0,
             to: view.state.doc.length,
-            insert: doc
+            insert: value
           }
         })
       )
@@ -222,7 +227,7 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [disabled, containerRef, pathPrefix, placeholder, prefix, theme, doc])
+  }, [disabled, containerRef, pathPrefix, placeholder, prefix, theme, value])
 
   useEffect(() => {
     if (disabled) return
@@ -230,9 +235,9 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
       clearTimeout(timeoutInterval)
     }
     timeoutInterval = setTimeout(() => {
-      formatExpressionFunc(prefix, doc)
+      formatExpressionFunc(prefix, value)
         .then(() => {
-          onChange?.(doc)
+          onChange?.(value)
         })
         .catch((err) => {
           form?.setFields([
@@ -249,13 +254,13 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
     }, 500)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [doc])
+  }, [value])
 
   useEffect(() => {
     if (!defaultValue && !value) {
       return
     }
-    setDoc(defaultValue || value)
+    onChange?.(defaultValue || value)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value])
 
@@ -263,7 +268,7 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
     <div ref={ref}>
       <div className='promInputContent'>
         {disabled ? (
-          <Input.TextArea value={doc} disabled minLength={1} />
+          <Input.TextArea value={value} disabled minLength={1} />
         ) : (
           <div
             className={`cm-expression-input promInput input-border ${status}`}
@@ -288,7 +293,7 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
             style={{
               borderRadius: '0 6px 6px 0'
             }}
-            disabled={!doc || !prefix || status !== 'success'}
+            disabled={!value || !prefix || status !== 'success'}
             icon={<ThunderboltOutlined />}
           />
         )}

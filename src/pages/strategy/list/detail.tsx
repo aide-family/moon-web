@@ -86,6 +86,7 @@ export const Detail: React.FC<DetailProps> = (props) => {
         children: (
           <Table
             style={{ width: '100%' }}
+            size='small'
             columns={[
               {
                 title: '告警等级',
