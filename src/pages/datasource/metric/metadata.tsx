@@ -94,10 +94,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
       dataIndex: 'labelCount',
       key: 'labelCount',
       width: 120,
-      align: 'center',
-      render: (_, record) => {
-        return <>{record?.labels?.length || '-'}</>
-      }
+      align: 'center'
     },
     {
       title: '操作',

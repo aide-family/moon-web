@@ -117,7 +117,7 @@ const Group: React.FC = () => {
       ...formData,
       pagination: {
         pageNum: 1,
-        pageSize: searchParams.pagination.pageSize
+        pageSize: searchParams?.pagination?.pageSize || 10
       }
     })
   }
@@ -225,7 +225,7 @@ const Group: React.FC = () => {
             <Button type='primary' onClick={() => handleEditModal()}>
               添加
             </Button>
-            <Button onClick={() => handleEditModal()}>批量导入</Button>
+            {/* <Button onClick={() => handleEditModal()}>批量导入</Button> */}
             <Button color='default' variant='filled' onClick={onRefresh}>
               刷新
             </Button>

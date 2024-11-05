@@ -68,6 +68,7 @@ const Metric: React.FC<MetricProps> = () => {
     {
       key: 'alarm-template',
       label: '告警模板',
+      disabled: true,
       children: (
         <div className='box'>
           <AlarmTemplate datasource={datasourceDetail} />

@@ -216,7 +216,7 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   '/home/strategy/group': {
     name: '策略组'
   },
-  '/home/strategy/metric': {
+  '/home/strategy/list': {
     name: '策略列表'
   },
   '/home/notify': {

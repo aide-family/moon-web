@@ -50,7 +50,14 @@ const Login: React.FC<LoginProps> = () => {
         <LoginForm />
       </div>
       <div className='login-option-btns'>
-        <Button color='primary' variant='filled' href={githubURL} target='_blank' icon={<GithubOutlined />}>
+        <Button
+          color='primary'
+          variant='filled'
+          href={githubURL}
+          target='_blank'
+          icon={<GithubOutlined />}
+          style={{ textDecoration: 'none' }}
+        >
           Github
         </Button>
         <Button

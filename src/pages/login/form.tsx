@@ -198,10 +198,10 @@ const LoginForm: FC = () => {
         </Form.Item>
         <Divider dashed style={{ fontSize: '14px' }}>
           没有账户？
-          <Button href='/register' disabled type='link'>
+          {/* <Button href='/register' disabled type='link'>
             去注册
-          </Button>
-          <span>，或使用以下方式登陆</span>
+          </Button> */}
+          <span>使用以下方式直接登陆｜注册</span>
         </Divider>
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
           <Form.Item>
