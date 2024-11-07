@@ -8,7 +8,7 @@ import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { Button, message, Space, theme } from 'antd'
 import { debounce } from 'lodash'
-import React, { Key, useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styles from './index.module.scss'
 import { formList, getColumnList } from './options'
 
@@ -31,7 +31,6 @@ const Group: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
-  const [editGroupId, setEditGroupId] = useState<number>()
 
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
@@ -68,11 +67,6 @@ const Group: React.FC = () => {
         pageSize: searchParams.pagination.pageSize
       }
     })
-  }
-
-  // 批量操作
-  const handlerBatchData = (selectedRowKeys: Key[], selectedRows: AlarmHistoryItem[]) => {
-    console.log(selectedRowKeys, selectedRows)
   }
 
   // 切换分页
@@ -159,11 +153,6 @@ const Group: React.FC = () => {
             style={{
               background: token.colorBgContainer,
               borderRadius: token.borderRadius
-            }}
-            rowSelection={{
-              onChange(selectedRowKeys, selectedRows: any) {
-                handlerBatchData(selectedRowKeys, selectedRows)
-              }
             }}
             scroll={{
               y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,

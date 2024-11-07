@@ -11,11 +11,11 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: '实时告警',
         key: '/home/realtime/alarm'
-      },
-      {
-        label: '数据大盘',
-        key: '/home/realtime/dashboard'
       }
+      // {
+      //   label: '数据大盘',
+      //   key: '/home/realtime/dashboard'
+      // }
     ]
   },
   {
@@ -26,15 +26,15 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: 'Metric',
         key: '/home/datasource/metric'
-      },
-      {
-        label: 'Log',
-        key: '/home/datasource/log'
-      },
-      {
-        label: 'Trace',
-        key: '/home/datasource/trace'
       }
+      // {
+      //   label: 'Log',
+      //   key: '/home/datasource/log'
+      // },
+      // {
+      //   label: 'Trace',
+      //   key: '/home/datasource/trace'
+      // }
     ]
   },
   {
@@ -64,15 +64,15 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: 'Hook',
         key: '/home/notify/hook'
-      },
-      {
-        label: '通知规则',
-        key: '/home/notify/rule'
-      },
-      {
-        label: '告警记录',
-        key: '/home/notify/record'
       }
+      // {
+      //   label: '通知规则',
+      //   key: '/home/notify/rule'
+      // },
+      // {
+      //   label: '告警记录',
+      //   key: '/home/notify/record'
+      // }
     ]
   },
   {
@@ -83,30 +83,15 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: '历史告警',
         key: '/home/archive/history'
-      },
-      {
-        label: '告警统计',
-        key: '/home/archive/statistics'
-      },
-      {
-        label: '历史通知',
-        key: '/home/archive/notice'
       }
-    ]
-  },
-  {
-    label: '个人中心',
-    key: '/home/self',
-    icon: <UserOutlined />,
-    children: [
-      {
-        label: '我的团队',
-        key: '/home/self/space-manage'
-      },
-      {
-        label: '个人设置',
-        key: '/home/self/manage'
-      }
+      // {
+      //   label: '告警统计',
+      //   key: '/home/archive/statistics'
+      // },
+      // {
+      //   label: '历史通知',
+      //   key: '/home/archive/notice'
+      // }
     ]
   },
   {
@@ -129,10 +114,25 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: '资源管理',
         key: '/home/team/resource'
+      }
+      // {
+      //   label: '大盘管理',
+      //   key: '/home/team/dashboard'
+      // }
+    ]
+  },
+  {
+    label: '个人中心',
+    key: '/home/self',
+    icon: <UserOutlined />,
+    children: [
+      {
+        label: '我的团队',
+        key: '/home/self/space-manage'
       },
       {
-        label: '大盘管理',
-        key: '/home/team/dashboard'
+        label: '个人设置',
+        key: '/home/self/manage'
       }
     ]
   }

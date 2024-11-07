@@ -6,7 +6,6 @@ import { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
-import OverflowTooltip from '@/components/overflowTooltip'
 import { Button, Space } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
@@ -109,8 +108,9 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<RealtimeAlar
       title: '明细',
       dataIndex: 'description',
       key: 'description',
+      ellipsis: true,
       render: (text: string) => {
-        return <OverflowTooltip content={text || '-'} maxWidth='300px' />
+        return text || '-'
       }
     },
     {

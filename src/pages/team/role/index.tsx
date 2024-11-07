@@ -1,7 +1,7 @@
 import { deleteDict } from '@/api/dict'
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { StrategyGroupItem, TeamRole } from '@/api/model-types'
+import { TeamRole } from '@/api/model-types'
 import { ListStrategyGroupRequest } from '@/api/strategy'
 import { createRole, CreateRoleRequest, listRole, ListRoleRequest, updateRole, updateRoleStatus } from '@/api/team/role'
 import SearchBox from '@/components/data/search-box'
@@ -10,7 +10,7 @@ import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { ExclamationCircleFilled } from '@ant-design/icons'
 import { Button, message, Modal, Space, theme } from 'antd'
 import { debounce } from 'lodash'
-import React, { Key, useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { GroupEditModal } from './group-edit-modal'
 import styles from './index.module.scss'
 import { formList, getColumnList } from './options'
@@ -108,11 +108,6 @@ const Group: React.FC = () => {
         pageSize: searchParams.pagination.pageSize
       }
     })
-  }
-
-  // 批量操作
-  const handlerBatchData = (selectedRowKeys: Key[], selectedRows: StrategyGroupItem[]) => {
-    console.log(selectedRowKeys, selectedRows)
   }
 
   // 切换分页
@@ -232,11 +227,6 @@ const Group: React.FC = () => {
             style={{
               background: token.colorBgContainer,
               borderRadius: token.borderRadius
-            }}
-            rowSelection={{
-              onChange(selectedRowKeys, selectedRows) {
-                handlerBatchData(selectedRowKeys, selectedRows as any)
-              }
             }}
             scroll={{
               y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,

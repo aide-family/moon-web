@@ -1,6 +1,6 @@
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { AlarmNoticeGroupItem, StrategyGroupItem } from '@/api/model-types'
+import { AlarmNoticeGroupItem } from '@/api/model-types'
 import {
   createAlarmGroup,
   CreateAlarmGroupRequest,
@@ -17,7 +17,7 @@ import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { ExclamationCircleFilled } from '@ant-design/icons'
 import { Button, message, Modal, Space, theme } from 'antd'
 import { debounce } from 'lodash'
-import React, { Key, useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styles from './index.module.scss'
 import { GroupEditModal } from './modal-edit'
 import { formList, getColumnList } from './options'
@@ -84,7 +84,7 @@ const Group: React.FC = () => {
     []
   )
 
-  const handleGroupEditModalSubmit = (data: CreateAlarmGroupRequest) => {
+  const handleGroupEditModalSubmit = async (data: CreateAlarmGroupRequest) => {
     const call = () => {
       if (!editGroupId) {
         return createAlarmGroup(data)
@@ -119,9 +119,9 @@ const Group: React.FC = () => {
   }
 
   // 批量操作
-  const handlerBatchData = (selectedRowKeys: Key[], selectedRows: StrategyGroupItem[]) => {
-    console.log(selectedRowKeys, selectedRows)
-  }
+  // const handlerBatchData = (selectedRowKeys: Key[], selectedRows: StrategyGroupItem[]) => {
+  //   console.log(selectedRowKeys, selectedRows)
+  // }
 
   // 切换分页
   const handleTurnPage = (page: number, pageSize: number) => {
@@ -240,11 +240,6 @@ const Group: React.FC = () => {
             style={{
               background: token.colorBgContainer,
               borderRadius: token.borderRadius
-            }}
-            rowSelection={{
-              onChange(selectedRowKeys, selectedRows: any) {
-                handlerBatchData(selectedRowKeys, selectedRows)
-              }
             }}
             scroll={{
               y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,

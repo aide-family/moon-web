@@ -10,7 +10,7 @@ import { GlobalContext } from '@/utils/context'
 import { ExclamationCircleFilled } from '@ant-design/icons'
 import { Button, message, Modal, Space, theme } from 'antd'
 import { debounce } from 'lodash'
-import React, { Key, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import styles from './index.module.scss'
 import { DetailModal } from './modal-detail'
 import { Invite } from './modal-invite'
@@ -80,11 +80,6 @@ const Group: React.FC = () => {
         pageSize: searchParams.pagination.pageSize
       }
     })
-  }
-
-  // 批量操作
-  const handlerBatchData = (selectedRowKeys: Key[], selectedRows: any[]) => {
-    console.log(selectedRowKeys, selectedRows)
   }
 
   // 切换分页
@@ -158,7 +153,12 @@ const Group: React.FC = () => {
 
   return (
     <div className={styles.box}>
-      <DetailModal id={detail?.id!} open={openDetailModal} onCancel={onCloseDetailModal} onOk={onCloseDetailModal} />
+      <DetailModal
+        id={detail?.id || 0}
+        open={openDetailModal}
+        onCancel={onCloseDetailModal}
+        onOk={onCloseDetailModal}
+      />
       <Invite open={openInviteModal} setOpen={setOpenInviteModal} />
       <div
         style={{
@@ -202,9 +202,6 @@ const Group: React.FC = () => {
             style={{
               background: token.colorBgContainer,
               borderRadius: token.borderRadius
-            }}
-            rowSelection={{
-              onChange: handlerBatchData
             }}
             scroll={{
               y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,

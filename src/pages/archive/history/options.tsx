@@ -4,7 +4,6 @@ import { AlarmHistoryItem } from '@/api/realtime/history'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
-import OverflowTooltip from '@/components/overflowTooltip'
 import { Button, Space } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
@@ -104,7 +103,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmHistory
       dataIndex: 'annotations',
       key: 'annotations',
       render: (annotations: Record<string, string>) => {
-        return <OverflowTooltip content={annotations?.['description'] || '-'} maxWidth='300px' />
+        return annotations?.['description'] || '-'
       }
     },
     {

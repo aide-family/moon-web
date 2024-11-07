@@ -5,8 +5,7 @@ import { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
-import OverflowTooltip from '@/components/overflowTooltip'
-import { Badge, Button, Space, Tag, Tooltip } from 'antd'
+import { Badge, Button, Space, Tag } from 'antd'
 import { Color } from 'antd/es/color-picker'
 import { ColumnsType } from 'antd/es/table'
 
@@ -98,9 +97,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<DashboardIte
       title: '序号',
       dataIndex: 'index',
       key: 'index',
-      align: 'center',
       width: 60,
-      fixed: 'left',
       render: (_, __, index: number) => {
         return <span>{(current - 1) * pageSize + index + 1}</span>
       }
@@ -109,7 +106,6 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<DashboardIte
       title: '名称',
       dataIndex: 'title',
       key: 'title',
-      // align: 'center',
       width: 200,
       render: (text: string, record: DashboardItem) => {
         return <Tag color={record.color}>{text ? text : '-'}</Tag>
@@ -130,30 +126,17 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<DashboardIte
       title: '描述',
       dataIndex: 'remark',
       key: 'remark',
-      align: 'center',
       width: 300,
+      ellipsis: true,
       render: (text: string) => {
-        return <OverflowTooltip content={text || '-'} maxWidth='300px' />
+        return text || '-'
       }
     },
     {
       title: '更新时间',
       dataIndex: 'updatedAt',
       key: 'updatedAt',
-      align: 'center',
-      width: 180,
-      render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
-      }
+      width: 180
     },
     {
       title: '操作',

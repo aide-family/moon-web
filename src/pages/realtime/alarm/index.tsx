@@ -9,7 +9,7 @@ import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { PlusOutlined } from '@ant-design/icons'
 import { Badge, Button, Radio, Space, theme } from 'antd'
 import { debounce } from 'lodash'
-import React, { Key, useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import styles from './index.module.scss'
 import { ModalAddPages } from './modal-add-pages'
 import { ModalDetail } from './modal-detail'
@@ -120,11 +120,6 @@ const Group: React.FC = () => {
     })
   }
 
-  // 批量操作
-  const handlerBatchData = (selectedRowKeys: Key[], selectedRows: RealtimeAlarmItem[]) => {
-    console.log(selectedRowKeys, selectedRows)
-  }
-
   // 切换分页
   const handleTurnPage = (page: number, pageSize: number) => {
     setSearchParams({
@@ -223,11 +218,6 @@ const Group: React.FC = () => {
             style={{
               background: token.colorBgContainer,
               borderRadius: token.borderRadius
-            }}
-            rowSelection={{
-              onChange(selectedRowKeys, selectedRows: any) {
-                handlerBatchData(selectedRowKeys, selectedRows)
-              }
             }}
             scroll={{
               y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,

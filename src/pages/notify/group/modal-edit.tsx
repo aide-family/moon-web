@@ -18,7 +18,7 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
   const { onCancel, submit, open, title, groupId, disabled } = props
   const [form] = Form.useForm<CreateAlarmGroupRequest & { noticeMember: NoticeItem[] }>()
   const [loading, setLoading] = useState(false)
-  const [grounpDetail, setGroupDetail] = useState<AlarmNoticeGroupItem>()
+  const [groupDetail, setGroupDetail] = useState<AlarmNoticeGroupItem>()
 
   const getGroupDetail = async () => {
     if (groupId) {
@@ -40,16 +40,16 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
   }, [groupId])
 
   useEffect(() => {
-    if (open && form && grounpDetail) {
+    if (open && form && groupDetail) {
       form?.setFieldsValue({
-        ...grounpDetail,
-        hookIds: grounpDetail?.hooks?.map((item) => item.id),
-        noticeMember: grounpDetail?.noticeUsers
+        ...groupDetail,
+        hookIds: groupDetail?.hooks?.map((item) => item.id),
+        noticeMember: groupDetail?.noticeUsers
       })
       return
     }
     form?.resetFields()
-  }, [grounpDetail, open, form])
+  }, [groupDetail, open, form])
 
   const handleOnCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     onCancel?.(e)

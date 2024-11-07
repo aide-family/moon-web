@@ -15,7 +15,7 @@ import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { ExclamationCircleFilled } from '@ant-design/icons'
 import { Button, message, Modal, Space, theme } from 'antd'
 import { debounce } from 'lodash'
-import React, { Key, useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { GroupEditModal } from './group-edit-modal'
 import styles from './index.module.scss'
 import { formList, getColumnList, GroupEditModalFormData } from './options'
@@ -120,11 +120,6 @@ const Group: React.FC = () => {
         pageSize: searchParams?.pagination?.pageSize || 10
       }
     })
-  }
-
-  // 批量操作
-  const handlerBatchData = (selectedRowKeys: Key[], selectedRows: StrategyGroupItem[]) => {
-    console.log(selectedRowKeys, selectedRows)
   }
 
   // 切换分页
@@ -245,11 +240,6 @@ const Group: React.FC = () => {
             style={{
               background: token.colorBgContainer,
               borderRadius: token.borderRadius
-            }}
-            rowSelection={{
-              onChange(selectedRowKeys, selectedRows: any) {
-                handlerBatchData(selectedRowKeys, selectedRows)
-              }
             }}
             scroll={{
               y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,

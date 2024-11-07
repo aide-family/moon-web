@@ -5,7 +5,7 @@ import { listStrategyGroup } from '@/api/strategy'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
-import { Avatar, Button, Space, Tag, Tooltip } from 'antd'
+import { Avatar, Badge, Button, Space, Tooltip } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import { StrategyLevelTemplateType } from './metric-edit-modal'
 
@@ -178,38 +178,13 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      width: 60,
-      fixed: 'left',
-      render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
-      }
+      width: 60
     },
     {
       title: '名称',
       dataIndex: 'name',
       key: 'name',
-      width: 200,
-      render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
-      }
+      width: 200
     },
     {
       title: '数据源',
@@ -239,9 +214,11 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      width: 80,
+      align: 'center',
+      width: 160,
       render: (status: Status) => {
-        return <Tag color={StatusData[status].color}>{StatusData[status].text}</Tag>
+        const { text, color } = StatusData[status]
+        return <Badge color={color} text={text} />
       }
     },
     {
@@ -258,16 +235,11 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       dataIndex: 'categories',
       key: 'categories',
       width: 160,
+      ellipsis: true,
       render: (categories: DictItem[]) => {
         return (
-          <Tooltip placement='top'>
-            {categories.map((item, index) => {
-              return (
-                <Tag key={index} color={item.colorType}>
-                  {item.name}
-                </Tag>
-              )
-            })}
+          <Tooltip placement='top' title={<div>{categories.map((item) => item.name).join('，')}</div>}>
+            <div>{categories.map((item) => item.name).join('，')}</div>
           </Tooltip>
         )
       }

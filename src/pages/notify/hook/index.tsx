@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
 import { AlarmHookItem } from '@/api/model-types'
-import { deleteHook, listHook, updateHookStatus } from '@/api/notify/hook'
+import { deleteHook, listHook, ListHookRequest, updateHookStatus } from '@/api/notify/hook'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
@@ -18,11 +18,9 @@ export interface HookProps {}
 const { useToken } = theme
 
 let timer: NodeJS.Timeout | null = null
-const Hook: React.FC<HookProps> = (props) => {
-  const {} = props
-
+const Hook: React.FC<HookProps> = () => {
   const { token } = useToken()
-  const [datasource, setDatasource] = useState<any[]>([])
+  const [datasource, setDatasource] = useState<AlarmHookItem[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
   const [searchParams, setSearchParams] = useState({
@@ -51,7 +49,7 @@ const Hook: React.FC<HookProps> = (props) => {
     setHookDetail(undefined)
   }
 
-  const onSearch = (values: any) => {
+  const onSearch = (values: ListHookRequest) => {
     setSearchParams({
       ...searchParams,
       ...values
@@ -126,10 +124,6 @@ const Hook: React.FC<HookProps> = (props) => {
     })
   }
 
-  const handlerBatchData = (selectedRowKeys: React.Key[], selectedRows: any[]) => {
-    console.log(selectedRowKeys, selectedRows)
-  }
-
   const closeEditHookModal = () => {
     setShowModal(false)
   }
@@ -158,7 +152,7 @@ const Hook: React.FC<HookProps> = (props) => {
         onOk={handleEditHookModalOnOk}
       />
       <HookDetailModal
-        hookId={hookDetail?.id!}
+        hookId={hookDetail?.id || 0}
         open={openDetailModal}
         onCancel={onCloseDetailModal}
         onOk={onCloseDetailModal}
@@ -207,9 +201,6 @@ const Hook: React.FC<HookProps> = (props) => {
               style={{
                 background: token.colorBgContainer,
                 borderRadius: token.borderRadius
-              }}
-              rowSelection={{
-                onChange: handlerBatchData
               }}
               scroll={{
                 y: `calc(100vh - 170px  - ${AutoTableHeight}px)`,

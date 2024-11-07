@@ -5,8 +5,7 @@ import { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
-import OverflowTooltip from '@/components/overflowTooltip'
-import { Badge, Button, Space, Tooltip } from 'antd'
+import { Badge, Button, Space } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
 export const formList: SearchFormItem[] = [
@@ -27,7 +26,7 @@ export const formList: SearchFormItem[] = [
     dataProps: {
       type: 'select',
       itemProps: {
-        placeholder: '角色状态',
+        placeholder: '状态',
         allowClear: true,
         options: Object.entries(StatusData).map(([key, value]) => {
           return {
@@ -97,9 +96,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<TeamRole> =>
       title: '序号',
       dataIndex: 'index',
       key: 'index',
-      align: 'center',
       width: 60,
-      fixed: 'left',
       render: (_, __, index: number) => {
         return <span>{(current - 1) * pageSize + index + 1}</span>
       }
@@ -108,7 +105,6 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<TeamRole> =>
       title: '名称',
       dataIndex: 'name',
       key: 'name',
-      align: 'center',
       width: 200
     },
     {
@@ -127,30 +123,17 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<TeamRole> =>
       title: '描述',
       dataIndex: 'remark',
       key: 'remark',
-      align: 'center',
       width: 300,
+      ellipsis: true,
       render: (text: string) => {
-        return <OverflowTooltip content={text || '-'} maxWidth='300px' />
+        return text || '-'
       }
     },
     {
       title: '更新时间',
       dataIndex: 'updatedAt',
       key: 'updatedAt',
-      align: 'center',
-      width: 180,
-      render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
-      }
+      width: 180
     },
     {
       title: '操作',

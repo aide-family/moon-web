@@ -5,8 +5,7 @@ import { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
-import OverflowTooltip from '@/components/overflowTooltip'
-import { Badge, Button, Space, Tag, Tooltip } from 'antd'
+import { Badge, Button, Space } from 'antd'
 import { Color } from 'antd/es/color-picker'
 import { ColumnsType } from 'antd/es/table'
 
@@ -45,7 +44,7 @@ export const formList: SearchFormItem[] = [
     dataProps: {
       type: 'select',
       itemProps: {
-        placeholder: '规则组状态',
+        placeholder: '状态',
         allowClear: true,
         options: Object.entries(StatusData).map(([key, value]) => {
           return {
@@ -115,7 +114,6 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<DictItem> =>
       title: '序号',
       dataIndex: 'index',
       key: 'index',
-      align: 'center',
       width: 60,
       fixed: 'left',
       render: (_, __, index: number) => {
@@ -126,42 +124,24 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<DictItem> =>
       title: '名称',
       dataIndex: 'name',
       key: 'name',
-      align: 'center',
-      width: 200,
-      render: (text: string, record: DictItem) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <Tag icon={record.icon} color={record.cssClass}>
-              {text ? text : '-'}
-            </Tag>
-          </Tooltip>
-        )
-      }
+      width: 200
     },
     {
       title: '编码',
       dataIndex: 'value',
       key: 'value',
-      align: 'center',
       width: 160
     },
     {
       title: '语言',
       dataIndex: 'languageCode',
       key: 'languageCode',
-      align: 'center',
       width: 160
     },
     {
       title: '类型',
       dataIndex: 'dictType',
       key: 'dictType',
-      align: 'center',
       width: 160,
       render: (dictType: DictType) => {
         return <>{DictTypeData[dictType]}</>
@@ -183,30 +163,17 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<DictItem> =>
       title: '描述',
       dataIndex: 'remark',
       key: 'remark',
-      align: 'center',
       width: 300,
-      render: (text: string) => {
-        return <OverflowTooltip content={text || '-'} maxWidth='300px' />
+      ellipsis: true,
+      render: (remark: string) => {
+        return remark || '-'
       }
     },
     {
       title: '更新时间',
       dataIndex: 'updatedAt',
       key: 'updatedAt',
-      align: 'center',
-      width: 180,
-      render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
-      }
+      width: 180
     },
     {
       title: '操作',

@@ -3,7 +3,7 @@ import { ActionKey, HookAppData, StatusData } from '@/api/global'
 import { AlarmHookItem } from '@/api/model-types'
 import { SearchFormItem } from '@/components/data/search-box'
 import MoreMenu, { MoreMenuProps } from '@/components/moreMenu'
-import { Avatar, Badge, Button, Space, Tooltip } from 'antd'
+import { Avatar, Badge, Button, Space } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
 export const formList: SearchFormItem[] = [
@@ -119,9 +119,7 @@ export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<AlarmHo
       title: '序号',
       dataIndex: 'index',
       key: 'index',
-      align: 'center',
       width: 60,
-      fixed: 'left',
       render: (_, __, index: number) => {
         return <span>{(current - 1) * pageSize + index + 1}</span>
       }
@@ -130,26 +128,12 @@ export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<AlarmHo
       title: '名称',
       dataIndex: 'name',
       key: 'name',
-      align: 'center',
-      width: 200,
-      render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
-      }
+      width: 200
     },
     {
       title: '类型',
       dataIndex: 'hookApp',
       key: 'hookApp',
-      // align: 'center',
       width: 160,
       render: (hookApp: HookApp) => {
         const { label, icon } = HookAppData[hookApp]
@@ -176,19 +160,10 @@ export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<AlarmHo
       title: '描述',
       dataIndex: 'remark',
       key: 'remark',
-      align: 'center',
       width: 300,
+      ellipsis: true,
       render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
+        return text || '-'
       }
     },
 
@@ -196,20 +171,7 @@ export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<AlarmHo
       title: '更新时间',
       dataIndex: 'updatedAt',
       key: 'updatedAt',
-      align: 'center',
-      width: 180,
-      render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
-      }
+      width: 180
     },
     {
       title: '操作',

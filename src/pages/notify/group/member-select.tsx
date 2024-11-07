@@ -77,9 +77,9 @@ export const MemberSelect: React.FC<MemberSelectProps> = (props) => {
         return (
           <Checkbox.Group
             options={[
-              { label: '手机', value: NotifyType.NOTIFY_PHONE },
+              { label: '手机', value: NotifyType.NOTIFY_PHONE, disabled: true },
               { label: '邮件', value: NotifyType.NOTIFY_EMAIL },
-              { label: '短信', value: NotifyType.NOTIFY_SMS }
+              { label: '短信', value: NotifyType.NOTIFY_SMS, disabled: true }
             ]}
             defaultValue={checkedList}
             onChange={(checkedList) => {

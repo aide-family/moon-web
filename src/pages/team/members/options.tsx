@@ -6,8 +6,7 @@ import { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
-import OverflowTooltip from '@/components/overflowTooltip'
-import { Avatar, Badge, Button, Space, Tooltip } from 'antd'
+import { Avatar, Badge, Button, Space } from 'antd'
 import { Color } from 'antd/es/color-picker'
 import { ColumnsType } from 'antd/es/table'
 
@@ -92,7 +91,6 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<TeamMemberIt
       title: '序号',
       dataIndex: 'index',
       key: 'index',
-      align: 'center',
       width: 60,
       fixed: 'left',
       render: (_, __, index: number) => {
@@ -103,7 +101,6 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<TeamMemberIt
       title: '名称',
       dataIndex: 'name',
       key: 'name',
-      align: 'center',
       width: 200,
       render: (_: string, record: TeamMemberItem) => {
         const {
@@ -143,29 +140,19 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<TeamMemberIt
       title: '描述',
       dataIndex: 'remark',
       key: 'remark',
-      align: 'center',
       width: 300,
+      ellipsis: true,
       render: (_: string, { user: { remark } }) => {
-        return <OverflowTooltip content={remark || '-'} maxWidth='300px' />
+        return remark || '-'
       }
     },
     {
       title: '更新时间',
       dataIndex: 'updatedAt',
       key: 'updatedAt',
-      align: 'center',
       width: 180,
       render: (text: string) => {
-        return (
-          <Tooltip
-            placement='top'
-            title={() => {
-              return <div>{text}</div>
-            }}
-          >
-            <div>{text ? text : '-'}</div>
-          </Tooltip>
-        )
+        return text || '-'
       }
     },
     {
