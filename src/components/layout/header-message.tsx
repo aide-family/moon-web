@@ -142,7 +142,7 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
 
   return (
     <Popover
-      placement='bottom'
+      placement='bottomLeft'
       className='header-message'
       //   open={true}
       content={
