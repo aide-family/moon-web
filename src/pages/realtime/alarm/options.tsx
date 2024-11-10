@@ -49,7 +49,7 @@ interface GroupColumnProps {
 
 export const getColumnList = (props: GroupColumnProps): ColumnsType<RealtimeAlarmItem> => {
   const { onHandleMenuOnClick } = props
-  const tableOperationItems = (record: RealtimeAlarmItem): MoreMenuProps['items'] => [
+  const tableOperationItems = (_: RealtimeAlarmItem): MoreMenuProps['items'] => [
     {
       key: ActionKey.OPERATION_LOG,
       label: (

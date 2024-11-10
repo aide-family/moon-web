@@ -4,7 +4,6 @@ import { createTeam, CreateTeamRequest } from '@/api/team'
 import { GlobalContext } from '@/utils/context'
 import { Form, Input, message, Modal } from 'antd'
 import { createContext, useContext, useState } from 'react'
-import { useI18nConfig } from '../locale'
 
 export type CreateTeamModalProps = {
   children: React.ReactNode
@@ -24,9 +23,9 @@ export const CreateTeamModalProviderContext = createContext<CreateTeamModalProvi
 
 export function CreateTeamModalProvider({ children }: CreateTeamModalProps) {
   const [open, setOpen] = useState(false)
-  const {
-    Layout: { team }
-  } = useI18nConfig()
+  // const {
+  //   Layout: { team }
+  // } = useI18nConfig()
   const { setTeamInfo } = useContext(GlobalContext)
 
   const value = {

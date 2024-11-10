@@ -1,5 +1,5 @@
-import { MenuType } from '../enum'
-import { PaginationReply, PaginationReq, Status } from '../global'
+import { MenuType, Status } from '../enum'
+import { PaginationReply, PaginationReq } from '../global'
 import { MenuItem } from '../model-types'
 import request from '../request'
 

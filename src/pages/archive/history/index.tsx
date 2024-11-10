@@ -131,7 +131,7 @@ const Group: React.FC = () => {
       >
         <div className={styles.main_toolbar}>
           <div className={styles.main_toolbar_left} style={{ fontSize: '16px' }}>
-            字典列表
+            历史告警
           </div>
           <Space size={8}>
             <Button color='default' variant='filled' onClick={onRefresh}>

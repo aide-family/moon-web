@@ -10,9 +10,8 @@ export interface AlarmTemplateProps {
   datasource?: DatasourceItem
 }
 
-export const AlarmTemplate: React.FC<AlarmTemplateProps> = (props) => {
-  const { datasource } = props
-  const [data, setData] = React.useState<DatasourceItem[]>([
+export const AlarmTemplate: React.FC<AlarmTemplateProps> = () => {
+  const [data] = React.useState<DatasourceItem[]>([
     {
       id: 1,
       name: '模板1',
@@ -59,7 +58,7 @@ export const AlarmTemplate: React.FC<AlarmTemplateProps> = (props) => {
       title: '操作',
       key: 'action',
       width: 120,
-      render: (_, record: DatasourceItem) => (
+      render: (_, __: DatasourceItem) => (
         <Space size='middle'>
           <a>详情</a>
           <a>删除</a>

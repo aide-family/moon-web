@@ -4,7 +4,7 @@ import React from 'react'
 import styles from './index.module.scss'
 export type AutoTableColumnType<T> = ColumnType<T> | ColumnGroupType<T>
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface AutoTableProps<T = any> extends TableProps {
+export interface AutoTableProps<T = any> extends TableProps<T> {
   columns: AutoTableColumnType<T>[]
   dataSource: T[]
   total: number
