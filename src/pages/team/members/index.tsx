@@ -30,7 +30,8 @@ const defaultSearchParams: ListTeamMemberRequest = {
 
 const Group: React.FC = () => {
   const { token } = useToken()
-  const { userInfo } = useContext(GlobalContext)
+
+  const { userInfo, isFullscreen } = useContext(GlobalContext)
   const [datasource, setDatasource] = useState<TeamMemberItem[]>([])
   const [searchParams, setSearchParams] = useState<ListTeamMemberRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
@@ -42,7 +43,7 @@ const Group: React.FC = () => {
 
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
-  const AutoTableHeight = useContainerHeightTop(ADivRef, datasource)
+  const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
 
   const handleOpenDetailModal = (detail: TeamMemberItem) => {
     setDetail(detail)

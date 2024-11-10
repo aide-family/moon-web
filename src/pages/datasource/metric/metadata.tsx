@@ -3,9 +3,11 @@ import { listMetric, ListMetricRequest } from '@/api/datasource/metric'
 import { MetricTypeData } from '@/api/global'
 import { DatasourceItem, MetricItem } from '@/api/model-types'
 import { DataInput } from '@/components/data/child/data-input'
+import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
+import { GlobalContext } from '@/utils/context'
 import { Button, Flex, Form, Input, Space, Table, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
-import React, { useEffect } from 'react'
+import React, { useContext, useEffect, useRef } from 'react'
 import { Info } from './info'
 import { Label } from './label'
 
@@ -17,6 +19,8 @@ let searchTimer: NodeJS.Timeout | null = null
 export const Metadata: React.FC<MetadataProps> = (props) => {
   const { datasource } = props
   const [form] = Form.useForm()
+  const { isFullscreen } = useContext(GlobalContext)
+
   const [searchMetricParams, setSearchMetricParams] = React.useState<ListMetricRequest>({
     pagination: {
       pageNum: 1,
@@ -25,10 +29,13 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
     datasourceId: datasource?.id
   })
   const [metricListTotal, setMetricListTotal] = React.useState(0)
+  const [metricList, setMetricList] = React.useState<MetricItem[]>([])
   const [refresh, setRefresh] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
   const [metricDetail, setMetricDetail] = React.useState<MetricItem>()
   const [openMetricLabelModal, setOpenMetricLabelModal] = React.useState(false)
+  const ADivRef = useRef<HTMLDivElement>(null)
+  const AutoTableHeight = useContainerHeightTop(ADivRef, metricList, isFullscreen)
 
   const handleRefresh = () => {
     setRefresh(!refresh)
@@ -53,7 +60,6 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
     setMetricDetail(undefined)
   }
 
-  const [metricList, setMetricList] = React.useState<MetricItem[]>([])
   const columns: ColumnsType<MetricItem> = [
     {
       title: '指标类型',
@@ -229,36 +235,38 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
           </Form.Item>
         </Form>
       </Flex>
-      <Table
-        rowKey={(record) => record.id}
-        loading={loading}
-        size='small'
-        dataSource={metricList}
-        columns={columns}
-        scroll={{
-          y: 500,
-          x: 1500
-        }}
-        pagination={{
-          total: metricListTotal,
-          showSizeChanger: true,
-          showQuickJumper: true,
-          showTotal: (total) => `共 ${total} 条`,
-          pageSizeOptions: [20, 50, 100],
-          defaultPageSize: 20,
-          onChange: (page, pageSize) => {
-            setSearchMetricParams((prev) => {
-              return {
-                ...prev,
-                pagination: {
-                  pageNum: page,
-                  pageSize: pageSize
+      <div ref={ADivRef}>
+        <Table
+          rowKey={(record) => record.id}
+          loading={loading}
+          size='small'
+          dataSource={metricList}
+          columns={columns}
+          scroll={{
+            y: `calc(100vh - 170px  - ${AutoTableHeight}px)`,
+            x: 1000
+          }}
+          pagination={{
+            total: metricListTotal,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total) => `共 ${total} 条`,
+            pageSizeOptions: [20, 50, 100],
+            defaultPageSize: 20,
+            onChange: (page, pageSize) => {
+              setSearchMetricParams((prev) => {
+                return {
+                  ...prev,
+                  pagination: {
+                    pageNum: page,
+                    pageSize: pageSize
+                  }
                 }
-              }
-            })
-          }
-        }}
-      />
+              })
+            }
+          }}
+        />
+      </div>
     </div>
   )
 }

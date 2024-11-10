@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
@@ -7,6 +7,7 @@ import { deleteHook, listHook, ListHookRequest, updateHookStatus } from '@/api/n
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
+import { GlobalContext } from '@/utils/context'
 import { Button, Space, theme } from 'antd'
 import styles from './index.module.scss'
 import { HookDetailModal } from './modal-detail'
@@ -20,6 +21,8 @@ const { useToken } = theme
 let timer: NodeJS.Timeout | null = null
 const Hook: React.FC<HookProps> = () => {
   const { token } = useToken()
+  const { isFullscreen } = useContext(GlobalContext)
+
   const [datasource, setDatasource] = useState<AlarmHookItem[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -37,7 +40,7 @@ const Hook: React.FC<HookProps> = () => {
 
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
-  const AutoTableHeight = useContainerHeightTop(ADivRef, datasource)
+  const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
 
   const onOpenDetailModal = (item: AlarmHookItem) => {
     setHookDetail(item)

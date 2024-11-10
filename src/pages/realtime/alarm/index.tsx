@@ -6,10 +6,11 @@ import { ListStrategyGroupRequest } from '@/api/strategy'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
+import { GlobalContext } from '@/utils/context'
 import { PlusOutlined } from '@ant-design/icons'
 import { Badge, Button, Radio, Space, theme } from 'antd'
 import { debounce } from 'lodash'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import styles from './index.module.scss'
 import { ModalAddPages } from './modal-add-pages'
 import { ModalDetail } from './modal-detail'
@@ -27,6 +28,8 @@ const defaultSearchParams: ListAlarmRequest = {
 
 const Group: React.FC = () => {
   const { token } = useToken()
+  const { isFullscreen } = useContext(GlobalContext)
+
   const [datasource, setDatasource] = useState<RealtimeAlarmItem[]>([])
   const [searchParams, setSearchParams] = useState<ListAlarmRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
@@ -41,7 +44,7 @@ const Group: React.FC = () => {
 
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
-  const AutoTableHeight = useContainerHeightTop(ADivRef, datasource)
+  const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
 
   const onRefresh = () => {
     setRefresh(!refresh)

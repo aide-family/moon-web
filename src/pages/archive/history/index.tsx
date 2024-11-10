@@ -6,9 +6,10 @@ import { ListStrategyGroupRequest } from '@/api/strategy'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
+import { GlobalContext } from '@/utils/context'
 import { Button, message, Space, theme } from 'antd'
 import { debounce } from 'lodash'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import styles from './index.module.scss'
 import { formList, getColumnList } from './options'
 
@@ -26,6 +27,8 @@ const defaultSearchParams: ListDictRequest = {
 
 const Group: React.FC = () => {
   const { token } = useToken()
+  const { isFullscreen } = useContext(GlobalContext)
+
   const [datasource, setDatasource] = useState<AlarmHistoryItem[]>([])
   const [searchParams, setSearchParams] = useState<ListDictRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
@@ -34,7 +37,7 @@ const Group: React.FC = () => {
 
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
-  const AutoTableHeight = useContainerHeightTop(ADivRef, datasource)
+  const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
 
   const onRefresh = () => {
     setRefresh(!refresh)

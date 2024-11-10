@@ -27,6 +27,8 @@ export type GlobalContextType = {
   removeTeamInfo?: () => void
   refreshMyTeamList?: boolean
   setRefreshMyTeamList?: () => void
+  isFullscreen?: boolean
+  setIsFullscreen?: (isFullscreen: boolean) => void
 }
 
 export const GlobalContext = createContext<GlobalContextType>({

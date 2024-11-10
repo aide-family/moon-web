@@ -58,6 +58,7 @@ function App() {
   const [userInfo, setUserInfo] = useStorage<UserItem>('userInfo', getUserInfo())
   const [teamInfo, setTeamInfo, removeTeamInfo] = useStorage<TeamItem>('teamInfo', getTeamInfo())
   const [refreshMyTeamList, setRefreshMyTeamList] = useState<boolean>(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
   const contextValue: GlobalContextType = {
     theme: theme,
@@ -77,7 +78,9 @@ function App() {
     setTeamInfo: setTeamInfo,
     removeTeamInfo: removeTeamInfo,
     refreshMyTeamList: refreshMyTeamList,
-    setRefreshMyTeamList: () => setRefreshMyTeamList(!refreshMyTeamList)
+    setRefreshMyTeamList: () => setRefreshMyTeamList(!refreshMyTeamList),
+    isFullscreen: isFullscreen,
+    setIsFullscreen: setIsFullscreen
   }
 
   return (

@@ -16,10 +16,11 @@ import {
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
+import { GlobalContext } from '@/utils/context'
 import { ExclamationCircleFilled } from '@ant-design/icons'
 import { Button, message, Modal, Space, theme } from 'antd'
 import { debounce } from 'lodash'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { Detail } from './detail'
 import styles from './index.module.scss'
 import { MetricEditModal, MetricEditModalData } from './metric-edit-modal'
@@ -40,6 +41,8 @@ const defaultSearchParams: ListStrategyRequest = {
 
 const StrategyMetric: React.FC = () => {
   const { token } = useToken()
+  const { isFullscreen } = useContext(GlobalContext)
+
   const [datasource, setDatasource] = useState<StrategyItem[]>([])
   const [searchParams, setSearchParams] = useState<ListStrategyRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
@@ -54,7 +57,7 @@ const StrategyMetric: React.FC = () => {
   }
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
-  const AutoTableHeight = useContainerHeightTop(ADivRef, datasource)
+  const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
   const [detailId, setDetailId] = useState<number>()
   const [openDetailModal, setOpenDetailModal] = useState(false)
 

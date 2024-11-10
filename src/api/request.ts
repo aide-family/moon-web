@@ -17,7 +17,7 @@ export const hostMap: { [key: string]: string } = {
   [local127]: 'http://localhost:8000'
 }
 
-export const baseURL = hostMap[host] || host
+export const baseURL = hostMap[host] || host + '/api'
 
 const request = axios.create({
   baseURL: baseURL,

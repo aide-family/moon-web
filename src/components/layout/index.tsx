@@ -92,7 +92,7 @@ const MoonLayout: React.FC = () => {
   return (
     <>
       <CreateTeamModalProvider>
-        <Layout style={{ overflow: 'hidden', height: '100vh', width: '100vw' }}>
+        <Layout style={{ overflow: 'hidden', height: '100vh', width: '100vw' }} id='content-body'>
           <Sider collapsed={collapsed} className='menu-sider'>
             <div
               className='menu-header'
@@ -139,7 +139,7 @@ const MoonLayout: React.FC = () => {
               <HeaderOp />
             </Header>
 
-            <Content className='content' style={{ flex: 1 }} id='content-body'>
+            <Content className='content' style={{ flex: 1 }}>
               <Suspense fallback={<Spin />}>
                 <Outlet />
               </Suspense>

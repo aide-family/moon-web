@@ -7,10 +7,11 @@ import { createRole, CreateRoleRequest, listRole, ListRoleRequest, updateRole, u
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
+import { GlobalContext } from '@/utils/context'
 import { ExclamationCircleFilled } from '@ant-design/icons'
 import { Button, message, Modal, Space, theme } from 'antd'
 import { debounce } from 'lodash'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { GroupEditModal } from './group-edit-modal'
 import styles from './index.module.scss'
 import { formList, getColumnList } from './options'
@@ -29,6 +30,8 @@ const defaultSearchParams: ListRoleRequest = {
 
 const Group: React.FC = () => {
   const { token } = useToken()
+  const { isFullscreen } = useContext(GlobalContext)
+
   const [datasource, setDatasource] = useState<TeamRole[]>([])
   const [searchParams, setSearchParams] = useState<ListRoleRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
@@ -40,7 +43,7 @@ const Group: React.FC = () => {
 
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
-  const AutoTableHeight = useContainerHeightTop(ADivRef, datasource)
+  const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
 
   const handleCloseGroupEditModal = () => {
     setOpenGroupEditModal(false)

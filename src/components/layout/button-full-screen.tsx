@@ -1,6 +1,7 @@
+import { GlobalContext } from '@/utils/context'
 import { FullscreenOutlined } from '@ant-design/icons'
 import { Button, ButtonProps } from 'antd'
-import React from 'react'
+import React, { useContext } from 'react'
 
 export interface ButtonFullScreenProps extends ButtonProps {
   bodyId: string
@@ -8,15 +9,32 @@ export interface ButtonFullScreenProps extends ButtonProps {
 
 export const ButtonFullScreen: React.FC<ButtonFullScreenProps> = (props) => {
   const { bodyId, ...resetProps } = props
+  const { isFullscreen, setIsFullscreen } = useContext(GlobalContext)
 
   const elem = document.getElementById(bodyId)!
+
   // 进入全屏模式的函数
   function openFullscreen() {
     if (!elem) return
     if (elem.requestFullscreen) {
       elem.requestFullscreen()
+      setIsFullscreen?.(true)
     }
   }
 
-  return <Button {...resetProps} onClick={openFullscreen} icon={<FullscreenOutlined />} />
+  // 退出全屏模式的函数
+  function exitFullscreen() {
+    if (document.exitFullscreen) {
+      document.exitFullscreen()
+      setIsFullscreen?.(false)
+    }
+  }
+
+  return (
+    <Button
+      {...resetProps}
+      onClick={() => (isFullscreen ? exitFullscreen() : openFullscreen())}
+      icon={<FullscreenOutlined />}
+    />
+  )
 }
