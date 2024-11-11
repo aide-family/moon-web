@@ -93,19 +93,20 @@ const MoonLayout: React.FC = () => {
     <>
       <CreateTeamModalProvider>
         <Layout style={{ overflow: 'hidden', height: '100vh', width: '100vw' }} id='content-body'>
-          <Sider collapsed={collapsed} className='menu-sider'>
+          <Sider collapsed={collapsed} className='menu-sider' style={{ background: token.colorBgContainer }}>
             <div
               className='menu-header'
               style={{
                 height: 60,
-                padding: '0 22px'
+                padding: '0 22px',
+                color: token.colorText
               }}
             >
               <HeaderTitle />
             </div>
             <Menu
               // theme={theme}
-              theme='dark'
+              // theme='dark'
               mode='inline'
               items={menuItems}
               style={{
