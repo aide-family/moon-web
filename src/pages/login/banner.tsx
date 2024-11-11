@@ -7,27 +7,27 @@ const Banner: React.FC<BannerProps> = () => {
     {
       title: '支持多种类型数据监控',
       content: 'Metric、 Log、 Event、 Trace 等',
-      src: '/src/assets/images/banner1.svg'
+      src: '/banner/banner1.svg'
     },
     {
       title: '内置了常见问题的解决方案',
       content: '告警规则、告警模板、 告警通知等',
-      src: '/src/assets/images/banner2.svg'
+      src: '/banner/banner2.svg'
     },
     {
       title: '接入可视化增强工具Grafana',
       content: '实现灵活的区块式组合',
-      src: '/src/assets/images/banner3.svg'
+      src: '/banner/banner3.svg'
     },
     {
       title: '适配多种类型数据源',
       content: 'Prometheus、Victoriametrics、InfluxDB、Loki、Elasticsearch、Jaeger',
-      src: '/src/assets/images/banner4.svg'
+      src: '/banner/banner4.svg'
     },
     {
       title: '种类繁多的通知方式',
       content: '电话、短信、邮件、微信、飞书、钉钉、Slack、Webhook 等',
-      src: '/src/assets/images/banner5.svg'
+      src: '/banner/banner5.svg'
     }
   ]
   return (
