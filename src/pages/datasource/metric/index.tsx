@@ -32,9 +32,15 @@ const Metric: React.FC<MetricProps> = () => {
     React.useState<ListDatasourceRequest>(defaultSearchDatasourceParams)
   const [openAddModal, setOpenAddModal] = React.useState(false)
   const [refresh, setRefresh] = React.useState(false)
+  const [editId, setEditId] = React.useState<number>()
 
   const handleRefresh = () => {
     setRefresh((prev) => !prev)
+  }
+
+  const editDataSource = () => {
+    setOpenAddModal(true)
+    setEditId(datasourceDetail?.id)
   }
 
   const tabsItems: TabsProps['items'] = [
@@ -43,7 +49,7 @@ const Metric: React.FC<MetricProps> = () => {
       label: '基本信息',
       children: (
         <div className='box' style={{ overflow: 'auto' }}>
-          <Basics datasource={datasourceDetail} refresh={handleRefresh} />
+          <Basics datasource={datasourceDetail} refresh={handleRefresh} editDataSource={editDataSource} />
         </div>
       )
     },
@@ -122,7 +128,13 @@ const Metric: React.FC<MetricProps> = () => {
   }, [refresh, searchDatasourceParams])
   return (
     <div className='metricDatasourceBox'>
-      <EditModal width='50%' open={openAddModal} onOk={handleEditModalOnOK} onCancel={handleEditModalOnCancel} />
+      <EditModal
+        width='50%'
+        datasourceId={editId}
+        open={openAddModal}
+        onOk={handleEditModalOnOK}
+        onCancel={handleEditModalOnCancel}
+      />
       <div className='sider' style={{ background: token.colorBgContainer }}>
         <Button type='primary' style={{ width: '100%' }} onClick={handleOnAdd}>
           新建数据源

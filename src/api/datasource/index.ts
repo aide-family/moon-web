@@ -117,7 +117,7 @@ export interface GetDatasourceRequest {
 }
 
 export interface GetDatasourceReply {
-  data: DatasourceItem
+  detail: DatasourceItem
 }
 
 export interface ListDatasourceRequest {

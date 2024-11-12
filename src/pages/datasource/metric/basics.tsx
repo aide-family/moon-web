@@ -9,10 +9,11 @@ import ReactJson from 'react-json-view'
 export interface BasicsProps {
   datasource?: DatasourceItem
   refresh?: () => void
+  editDataSource?: () => void
 }
 
 export const Basics: React.FC<BasicsProps> = (props) => {
-  const { datasource, refresh } = props
+  const { datasource, refresh, editDataSource } = props
   const { theme } = useContext(GlobalContext)
 
   const items: DescriptionsProps['items'] = [
@@ -76,6 +77,7 @@ export const Basics: React.FC<BasicsProps> = (props) => {
       )
     }
   ]
+
   return (
     <div>
       <Descriptions
@@ -86,7 +88,7 @@ export const Basics: React.FC<BasicsProps> = (props) => {
           </div>
         }
         extra={
-          <Button type='dashed' onClick={refresh}>
+          <Button type='dashed' onClick={editDataSource}>
             编辑
           </Button>
         }

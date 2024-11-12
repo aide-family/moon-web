@@ -1,14 +1,17 @@
-import { createDatasource, CreateDatasourceRequest } from '@/api/datasource'
+import { createDatasource, CreateDatasourceRequest, getDatasource } from '@/api/datasource'
 import { DatasourceType, Status, StorageType } from '@/api/enum'
 import { DataSourceTypeData, StatusData, StorageTypeData } from '@/api/global'
 import { DataFrom, DataFromItem } from '@/components/data/form'
 import { Form, Modal, ModalProps } from 'antd'
-import React from 'react'
+import React, { useEffect } from 'react'
 
-export interface EditModalProps extends ModalProps {}
+export interface EditModalProps extends ModalProps {
+  datasourceId?: number
+}
 
+let timer: NodeJS.Timeout | null = null
 export const EditModal: React.FC<EditModalProps> = (props) => {
-  const { onCancel, onOk, open } = props
+  const { onCancel, onOk, open, datasourceId } = props
   const [form] = Form.useForm<CreateDatasourceRequest>()
   const [loading, setLoading] = React.useState(false)
   const handleOnOk = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -23,6 +26,26 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
       return values
     })
   }
+
+  const handleGetDatasource = () => {
+    if (!datasourceId) return
+    if (timer) clearTimeout(timer)
+    timer = setTimeout(() => {
+      getDatasource({ id: datasourceId })
+        .then(({ detail }) => {
+          form.setFieldsValue(detail)
+        })
+        .finally(() => {
+          setLoading(false)
+        })
+    }, 500)
+  }
+
+  useEffect(() => {
+    if (open) {
+      handleGetDatasource()
+    }
+  }, [open, datasourceId])
 
   const handleOnCancel = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     form.resetFields()
