@@ -1,6 +1,6 @@
-import { DatasourceItem } from '@/api/model-types'
-import PromQLInput from '@/components/data/child/prom-ql'
-import { Alert, Empty, List, Space, Tabs, TabsProps, Typography } from 'antd'
+import type { DatasourceItem } from '@/api/model-types'
+import PromQLInput, { buildPathPrefix } from '@/components/data/child/prom-ql'
+import { Alert, Empty, List, Space, Tabs, type TabsProps, Typography } from 'antd'
 import dayjs from 'dayjs'
 import React, { useEffect, useState } from 'react'
 import ReactJson from 'react-json-view'
@@ -144,7 +144,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
     if (!expr) {
       return
     }
-    let path: string = ''
+    let path = ''
     const params: URLSearchParams = new URLSearchParams({
       query: expr
     })
@@ -163,7 +163,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
         params.append('time', dayjs().unix().toString())
     }
 
-    fetch(`${datasource?.endpoint}${apiPath}/${path}?${params}`, {
+    fetch(`${buildPathPrefix(datasource?.endpoint)}/${apiPath}/${path}?${params}`, {
       cache: 'no-store',
       credentials: 'same-origin',
       signal: abortController.signal
@@ -194,7 +194,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
     setExpr(exp)
   }
 
-  const onSearch = (t: number = 200) => {
+  const onSearch = (t = 200) => {
     if (searchTimeout) {
       clearTimeout(searchTimeout)
     }

@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { MutableRefObject, useContext, useEffect, useRef } from 'react'
+import type React from 'react'
+import { type MutableRefObject, useContext, useEffect, useRef } from 'react'
 
 import { defaultKeymap, history, historyKeymap, insertNewlineAndIndent } from '@codemirror/commands'
 import { bracketMatching, indentOnInput, syntaxHighlighting } from '@codemirror/language'
 import { Compartment, EditorState, Prec } from '@codemirror/state'
 import {
   EditorView,
+  type ViewUpdate,
   highlightSpecialChars,
   keymap,
-  placeholder as placeholderPlugin,
-  ViewUpdate
+  placeholder as placeholderPlugin
 } from '@codemirror/view'
 
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete'
@@ -52,7 +53,7 @@ const promqlExtension = new PromQLExtension()
 const dynamicConfigCompartment = new Compartment()
 const { useToken } = theme
 
-const buildPathPrefix = (s?: string) => {
+export const buildPathPrefix = (s?: string) => {
   if (!s) {
     return ''
   }
