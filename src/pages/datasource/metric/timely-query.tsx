@@ -1,8 +1,10 @@
 import { DatasourceItem } from '@/api/model-types'
+import { baseURL } from '@/api/request'
 import PromQLInput from '@/components/data/child/prom-ql'
+import { GlobalContext } from '@/utils/context'
 import { Alert, Empty, List, Space, Tabs, TabsProps, Typography } from 'antd'
 import dayjs from 'dayjs'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import ReactJson from 'react-json-view'
 import { GraphChart } from './child/graph-chart'
 
@@ -29,12 +31,14 @@ const { Paragraph } = Typography
 
 let searchTimeout: NodeJS.Timeout | null = null
 export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
+  const { teamInfo } = useContext(GlobalContext)
   const { datasource, apiPath = 'api/v1' } = props
   const [loading, setLoading] = useState(false)
   const [promDetailData, setPromDetailData] = React.useState<DetailValue[]>([])
   const [promRangeData, setPromRangeData] = React.useState<RangeValue[]>([])
   const [expr, setExpr] = useState<string>('')
   const [tabKey, setTabKey] = useState<TableKey>('table')
+  const pathPrefix = `${baseURL}/metric/${teamInfo?.id || 0}/${datasource?.id}`
 
   const tabsItems: TabsProps['items'] = [
     {
@@ -163,10 +167,13 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
         params.append('time', dayjs().unix().toString())
     }
 
-    fetch(`${datasource?.endpoint}${apiPath}/${path}?${params}`, {
+    fetch(`${pathPrefix}/${apiPath}/${path}?${params}`, {
       cache: 'no-store',
       credentials: 'same-origin',
-      signal: abortController.signal
+      signal: abortController.signal,
+      headers: {
+        'Content-Type': 'application/json'
+      }
     })
       .then((resp) => resp?.json() || {})
       .catch((err) => {
@@ -219,7 +226,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
   return (
     <div className='timely-query'>
       <div>
-        <PromQLInput pathPrefix={datasource?.endpoint || ''} onChange={(exp) => onChange(`${exp}`)} />
+        <PromQLInput pathPrefix={pathPrefix} onChange={(exp) => onChange(`${exp}`)} />
       </div>
       <Tabs defaultActiveKey='table' items={tabsItems} onChange={(tab) => tabsOnChange(tab as TableKey)} />
     </div>

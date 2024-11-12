@@ -4,11 +4,13 @@ import { Condition, DatasourceType, DictType, Status, SustainType } from '@/api/
 import { ConditionData, SustainTypeData } from '@/api/global'
 import { DatasourceItem, StrategyItem } from '@/api/model-types'
 import { listAlarmGroup } from '@/api/notify/alarm-group'
+import { baseURL } from '@/api/request'
 import { CreateStrategyLabelNoticeRequest, getStrategy, listStrategyGroup } from '@/api/strategy'
 import { validateAnnotationsTemplate } from '@/api/strategy/template'
 import { AnnotationsEditor } from '@/components/data/child/annotation-editor'
 import FetchSelect from '@/components/data/child/fetch-select'
 import PromQLInput from '@/components/data/child/prom-ql'
+import { GlobalContext } from '@/utils/context'
 import { MinusCircleOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import {
   Button,
@@ -26,7 +28,7 @@ import {
   theme,
   Typography
 } from 'antd'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import styles from './index.module.scss'
 import { MetricEditModalFormData } from './options'
 const { useToken } = theme
@@ -95,6 +97,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
   const { onCancel, submit, open, title, strategyId, disabled } = props
 
   const { token } = useToken()
+  const { teamInfo } = useContext(GlobalContext)
 
   const [form] = Form.useForm<MetricEditModalFormData>()
   const summary = Form.useWatch(['annotations', 'summary'], form)
@@ -358,6 +361,8 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
     })
   }
 
+  const pathPrefix = `${baseURL}/metric/${teamInfo?.id || 0}/${selectDatasource?.at(0) || 0}`
+
   return (
     <>
       <Modal
@@ -466,11 +471,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
               />
             </Form.Item>
             <Form.Item label='查询语句' name='expr' rules={[{ required: true, message: '请检查查询语句' }]}>
-              <PromQLInput
-                pathPrefix={datasourceList.filter((item) => selectDatasource?.at(0) === item.id).at(0)?.endpoint || ''}
-                formatExpression
-                disabled={disabled}
-              />
+              <PromQLInput pathPrefix={pathPrefix} formatExpression disabled={disabled} />
             </Form.Item>
             <Form.Item label={<b>标签kv集合</b>} required>
               <Form.List
