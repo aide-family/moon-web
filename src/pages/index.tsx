@@ -1,6 +1,6 @@
-import { Status } from '@/api/enum'
 import { TeamItem, UserItem } from '@/api/model-types'
 import '@/assets/styles/index.scss'
+import { defaultTeamInfo } from '@/components/layout/team-menu'
 import { breadcrumbNameMap, defaultMenuItems } from '@/config/menu'
 import { routers } from '@/config/router'
 import { getUseTheme, GlobalContext, GlobalContextType, LangType, ThemeType } from '@/utils/context'
@@ -25,29 +25,6 @@ function getUserInfo() {
   return {}
 }
 
-const defaultTeamInfo: TeamItem = {
-  id: 0,
-  name: '请选择团队信息',
-  status: Status.StatusEnable,
-  remark: '',
-  createdAt: '',
-  updatedAt: '',
-  logo: '',
-  admin: []
-}
-
-function getTeamInfo() {
-  const teamInfo = localStorage.getItem('teamInfo')
-  if (teamInfo) {
-    try {
-      return JSON.parse(teamInfo)
-    } catch (e) {
-      return defaultTeamInfo
-    }
-  }
-  return defaultTeamInfo
-}
-
 function App() {
   const { token } = useToken()
 
@@ -56,7 +33,7 @@ function App() {
   const [size, setSize] = useStorage<SpaceSize>('size', 'middle')
   const [collapsed, setCollapsed] = useStorage<boolean>('collapsed', false)
   const [userInfo, setUserInfo] = useStorage<UserItem>('userInfo', getUserInfo())
-  const [teamInfo, setTeamInfo, removeTeamInfo] = useStorage<TeamItem>('teamInfo', getTeamInfo())
+  const [teamInfo, setTeamInfo, removeTeamInfo] = useStorage<TeamItem>('teamInfo', defaultTeamInfo)
   const [refreshMyTeamList, setRefreshMyTeamList] = useState<boolean>(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
 

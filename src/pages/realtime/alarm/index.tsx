@@ -28,7 +28,7 @@ const defaultSearchParams: ListAlarmRequest = {
 
 const Group: React.FC = () => {
   const { token } = useToken()
-  const { isFullscreen } = useContext(GlobalContext)
+  const { isFullscreen, teamInfo } = useContext(GlobalContext)
 
   const [datasource, setDatasource] = useState<RealtimeAlarmItem[]>([])
   const [searchParams, setSearchParams] = useState<ListAlarmRequest>(defaultSearchParams)
@@ -71,6 +71,7 @@ const Group: React.FC = () => {
 
   const fetchMypageData = useCallback(
     debounce(async () => {
+      if (!teamInfo || !teamInfo.id) return
       listAlarmPage({})
         .then(({ list, alertCounts }) => {
           setMyPages(list || [])
@@ -88,6 +89,7 @@ const Group: React.FC = () => {
 
   const fetchData = useCallback(
     debounce(async (params) => {
+      if (!teamInfo || !teamInfo.id) return
       setLoading(true)
       listAlarm(params)
         .then(({ list, pagination }) => {

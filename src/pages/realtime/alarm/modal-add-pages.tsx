@@ -1,8 +1,9 @@
 import { listAlarmPage, updateAlarmPage } from '@/api/realtime/alarm_page_self'
 import { DataFrom } from '@/components/data/form'
+import { GlobalContext } from '@/utils/context'
 import { Form, Modal } from 'antd'
 import { debounce } from 'lodash'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { addPagesFormItems } from './options'
 
 export interface ModalAddPagesProps {
@@ -15,6 +16,7 @@ export const ModalAddPages: React.FC<ModalAddPagesProps> = (props) => {
   const { open, onClose, onSubmit } = props
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
+  const { teamInfo } = useContext(GlobalContext)
 
   const handleSubmit = () => {
     form.validateFields().then((val) => {
@@ -27,6 +29,7 @@ export const ModalAddPages: React.FC<ModalAddPagesProps> = (props) => {
 
   const fetchMypageData = useCallback(
     debounce(async () => {
+      if (!teamInfo || !teamInfo.id) return
       listAlarmPage({})
         .then(({ list }) => {
           form.setFieldsValue({ alarmPageIds: list?.map((item) => item.id) })

@@ -1,4 +1,5 @@
 import { refreshToken } from '@/api/authorization'
+import { Status } from '@/api/enum'
 import { TeamItem } from '@/api/model-types'
 import { setToken } from '@/api/request'
 import { myTeam } from '@/api/team'
@@ -11,22 +12,45 @@ import { useCreateTeamModal } from './create-team-provider'
 
 export interface TeamMenuProps {}
 
+export const defaultTeamInfo: TeamItem = {
+  id: 0,
+  name: '请选择团队信息',
+  status: Status.StatusEnable,
+  remark: '',
+  createdAt: '',
+  updatedAt: '',
+  logo: '',
+  admin: []
+}
+function getTeamInfo() {
+  const teamInfo = localStorage.getItem('teamInfo')
+  if (teamInfo) {
+    try {
+      return JSON.parse(teamInfo)
+    } catch (e) {
+      return defaultTeamInfo
+    }
+  }
+  return defaultTeamInfo
+}
+
 export const TeamMenu: React.FC<TeamMenuProps> = () => {
   const createTeamContext = useCreateTeamModal()
-  const { teamInfo, setTeamInfo, removeTeamInfo, setUserInfo, refreshMyTeamList } = useContext(GlobalContext)
+  const { setTeamInfo, setUserInfo, refreshMyTeamList } = useContext(GlobalContext)
   const [teamList, setTeamList] = React.useState<TeamItem[]>([])
-
+  const teamInfo = getTeamInfo()
   const handleGetMyTeamList = useCallback(
     debounce(async () => {
       myTeam().then(({ list }) => {
         setTeamList(list || [])
         if (!list?.length) {
-          removeTeamInfo?.()
+          setTeamInfo?.(getTeamInfo())
           createTeamContext?.setOpen?.(true)
           return
         }
         const exist = list.some((item) => {
           if (item.id === teamInfo?.id) {
+            setTeamInfo?.(item)
             return true
           }
         })
