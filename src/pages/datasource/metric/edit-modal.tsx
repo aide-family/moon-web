@@ -1,4 +1,4 @@
-import { createDatasource, CreateDatasourceRequest, getDatasource } from '@/api/datasource'
+import { createDatasource, CreateDatasourceRequest, getDatasource, updateDatasource } from '@/api/datasource'
 import { DatasourceType, Status, StorageType } from '@/api/enum'
 import { DataSourceTypeData, StatusData, StorageTypeData } from '@/api/global'
 import { DataFrom, DataFromItem } from '@/components/data/form'
@@ -17,6 +17,15 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
   const handleOnOk = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     form.validateFields().then((values) => {
       setLoading(true)
+      if (datasourceId) {
+        updateDatasource({ ...values, id: datasourceId })
+          .then(() => {
+            form.resetFields()
+            onOk?.(e)
+          })
+          .finally(() => setLoading(false))
+        return
+      }
       createDatasource(values)
         .then(() => {
           form.resetFields()
