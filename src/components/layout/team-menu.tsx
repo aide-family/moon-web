@@ -63,7 +63,6 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
         const exist = list.some((item) => {
           if (item.id === teamInfo?.id) {
             setTeamInfo?.(item)
-            handleRefreshToken(item)
             return true
           }
         })
