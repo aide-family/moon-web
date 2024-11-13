@@ -6,7 +6,7 @@ import {
   createStrategy,
   CreateStrategyLevelRequest,
   CreateStrategyRequest,
-  deleteStrategyGroup,
+  deleteStrategy,
   listStrategy,
   ListStrategyRequest,
   pushStrategy,
@@ -214,7 +214,7 @@ const StrategyMetric: React.FC = () => {
           icon: <ExclamationCircleFilled />,
           content: '此操作不可逆',
           onOk() {
-            deleteStrategyGroup({ id: item.id }).then(() => {
+            deleteStrategy({ id: item.id }).then(() => {
               message.success('删除成功')
               onRefresh()
             })

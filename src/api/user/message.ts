@@ -15,7 +15,7 @@ export interface ListMessageRequest {
 export interface ListMessageReply {
   list?: NoticeUserMessageItem[]
   pagination?: PaginationReply
-  [property: string]: any
+  [property: string]: unknown
 }
 
 export type MessageCategory = 'info' | 'success' | 'warning' | 'error'
@@ -80,7 +80,7 @@ export interface DeleteMessageRepquest {
  * @description 接口ID：221535243
  * @description 接口地址：https://app.apifox.com/link/project/5266863/apis/api-221535243
  */
-export function deleteMessage(params: DeleteMessageRepquest): Promise<{}> {
+export function deleteMessage(params: DeleteMessageRepquest): Promise<unknown> {
   return request.POST(`/v1/user/messages/read`, params)
 }
 
@@ -95,10 +95,10 @@ export function listMessage(params: ListMessageRequest): Promise<ListMessageRepl
   return request.POST<ListMessageReply>('/v1/user/messages', params)
 }
 
-export function confirmMessage(id: number): Promise<{}> {
+export function confirmMessage(id: number): Promise<unknown> {
   return request.POST(`/v1/user/messages/confirm`, { id })
 }
 
-export function cancelMessage(id: number): Promise<{}> {
+export function cancelMessage(id: number): Promise<unknown> {
   return request.POST(`/v1/user/messages/cancel`, { id })
 }

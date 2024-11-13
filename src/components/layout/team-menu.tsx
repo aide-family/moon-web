@@ -39,6 +39,18 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
   const { setTeamInfo, setUserInfo, refreshMyTeamList } = useContext(GlobalContext)
   const [teamList, setTeamList] = React.useState<TeamItem[]>([])
   const teamInfo = getTeamInfo()
+
+  const handleRefreshToken = (team: TeamItem) => {
+    if (!team || !team.id) return
+    refreshToken({ teamID: team.id }).then((res) => {
+      const { token, user } = res
+      setToken(token)
+      setUserInfo?.(user)
+      setTeamInfo?.(team)
+      window.location.reload()
+    })
+  }
+
   const handleGetMyTeamList = useCallback(
     debounce(async () => {
       myTeam().then(({ list }) => {
@@ -63,14 +75,18 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
   )
 
   useEffect(() => {
+    const interval = setInterval(
+      () => {
+        handleRefreshToken(teamInfo)
+      },
+      1000 * 60 * 10
+    )
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
     if (!teamInfo || !teamInfo.id) {
       createTeamContext?.setOpen?.(true)
-    } else {
-      refreshToken({ teamID: teamInfo?.id }).then((res) => {
-        const { token, user } = res
-        setToken(token)
-        setUserInfo?.(user)
-      })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teamInfo])
@@ -98,13 +114,7 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
               </Row>
             ),
             onClick: () => {
-              refreshToken({ teamID: item.id }).then((res) => {
-                const { token, user } = res
-                setToken(token)
-                setUserInfo?.(user)
-                setTeamInfo?.(item)
-                window.location.reload()
-              })
+              handleRefreshToken(item)
             }
           }
         })

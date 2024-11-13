@@ -159,6 +159,10 @@ export interface RefreshTokenReply {
    * 用户信息
    */
   user: UserItem
+  /**
+   * 团队ID
+   */
+  teamID?: number
 }
 
 /**

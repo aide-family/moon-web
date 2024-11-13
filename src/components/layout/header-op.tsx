@@ -53,8 +53,7 @@ export const HeaderOp: React.FC = () => {
           label: '退出登录',
           danger: true,
           onClick: () => {
-            logout()
-            removeToken()
+            logout().then(() => removeToken())
           }
         }
       ]

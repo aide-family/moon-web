@@ -110,8 +110,8 @@ const Group: React.FC = () => {
     const interval = setInterval(() => {
       fetchMypageData()
       fetchData(searchParams)
-      return () => clearInterval(interval)
     }, 10000)
+    return () => clearInterval(interval)
   }, [])
 
   const onSearch = (formData: ListStrategyGroupRequest) => {

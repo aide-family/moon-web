@@ -91,7 +91,7 @@ export interface CreateDatasourceRequest {
   endpoint: string
   status: Status
   remark?: string
-  config?: { [key: string]: string }
+  configValue?: string
   storageType?: StorageType
 }
 

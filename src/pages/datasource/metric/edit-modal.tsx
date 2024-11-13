@@ -42,7 +42,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
     timer = setTimeout(() => {
       getDatasource({ id: datasourceId })
         .then(({ detail }) => {
-          form.setFieldsValue(detail)
+          form.setFieldsValue({ ...detail, configValue: JSON.stringify(detail.config) })
         })
         .finally(() => {
           setLoading(false)
@@ -154,7 +154,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
     },
     {
       label: '数据源配置',
-      name: 'configStr',
+      name: 'configValue',
       type: 'textarea',
       props: {
         placeholder: '请输入数据源认证json',

@@ -51,8 +51,8 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
           pageSize: 999
         }
       })
-      return () => clearInterval(interval)
     }, 60000)
+    return () => clearInterval(interval)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
