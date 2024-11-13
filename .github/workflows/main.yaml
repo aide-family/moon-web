@@ -41,7 +41,7 @@ jobs:
         uses: sidhusmart/kubectl@master
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG }}
-          KUBECTL_VERSION: 'latest'
+          KUBECTL_VERSION: '1.15'
         with:
           args: set image deployment/moon-frontend moon-frontend=docker.cloudimages.asia/${{ secrets.REPO }}/moon-frontend:${{ steps.get_latest_tag.outputs.latest_tag }} -n ${{ secrets.K8S_NAMESPACE }}
 
@@ -49,6 +49,6 @@ jobs:
         uses: sidhusmart/kubectl@master
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG }}
-          KUBECTL_VERSION: 'latest'
+          KUBECTL_VERSION: '1.15'
         with:
           args: '"rollout status deployment/moon-frontend -n ${{ secrets.K8S_NAMESPACE }}"'
