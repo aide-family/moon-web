@@ -45,7 +45,7 @@ jobs:
       - name: Deploy to Kubernetes
         env:
           IMAGE: ${{ secrets.REPO }}/moon-frontend:${{ steps.get_latest_tag.outputs.latest_tag }}
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+          KUBE_CONFIG: ${{ secrets.KUBECONFIG }}
         run: |
           kubectl set image deployment/moon-frontend moon-frontend=$IMAGE -n ${{ secrets.K8S_NAMESPACE }}
           kubectl rollout status deployment/moon-frontend -n ${{ secrets.K8S_NAMESPACE }}
