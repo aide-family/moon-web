@@ -39,6 +39,8 @@ jobs:
 
       - name: Deploy to Kubernetes
         uses: actions/kubectl-alpine@v2
+
+      - name: kubectl
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
         run: |
