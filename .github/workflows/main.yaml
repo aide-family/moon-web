@@ -38,17 +38,9 @@ jobs:
           curl -X POST -H "Content-Type: application/json"  -d '{"msg_type":"post","content":{"post":{"zh_cn":{"title":"moon项目更新通知","content":[[{"tag":"text","text":"moon-frontend项目有更新, 当前版本为: "},{"tag":"a","text":"${{ steps.get_latest_tag.outputs.latest_tag }}","href":"https://hub.docker.com/r/aidemoonio/moon-frontend/tags?name=${{ steps.get_latest_tag.outputs.latest_tag }}"}],[],[{"tag":"at","user_id":"all"}]]}}}}' ${{ secrets.HOOK }}
 
       - name: Deploy to Kubernetes
-        uses: sidhusmart/kubectl@master
+        uses: actions/kubectl-alpine@v2
         env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG }}
-          KUBECTL_VERSION: '1.15'
-        with:
-          args: set image deployment/moon-frontend moon-frontend=docker.cloudimages.asia/${{ secrets.REPO }}/moon-frontend:${{ steps.get_latest_tag.outputs.latest_tag }} -n ${{ secrets.K8S_NAMESPACE }}
-
-      - name: verify deployment
-        uses: sidhusmart/kubectl@master
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG }}
-          KUBECTL_VERSION: '1.15'
-        with:
-          args: '"rollout status deployment/moon-frontend -n ${{ secrets.K8S_NAMESPACE }}"'
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: |
+          kubectl set image deployment/moon-frontend moon-frontend=docker.cloudimages.asia/${{ secrets.REPO }}/moon-frontend:${{ steps.get_latest_tag.outputs.latest_tag }} -n ${{ secrets.K8S_NAMESPACE }}
+          kubectl rollout status deployment/moon-frontend -n ${{ secrets.K8S_NAMESPACE }}
