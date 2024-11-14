@@ -11,6 +11,10 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: '实时告警',
         key: '/home/realtime/alarm'
+      },
+      {
+        label: '服务监控',
+        key: '/home/realtime/server'
       }
       // {
       //   label: '数据大盘',
@@ -197,6 +201,9 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   },
   '/home/realtime/alarm': {
     name: '实时告警'
+  },
+  '/home/realtime/server': {
+    name: '服务监控'
   },
   '/home/datasource': {
     name: '数据源'

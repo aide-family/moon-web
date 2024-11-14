@@ -494,6 +494,18 @@ export interface ChartItem {
   height: string
 }
 
+export interface ServerItem {
+  version: string
+  server: {
+    name: string
+    httpEndpoint: string
+    grpcEndpoint: string
+    network: string
+    startTime: string
+    upTime: string
+  }
+}
+
 export interface RealtimeAlarmItem {
   id: number
   startsAt: string
