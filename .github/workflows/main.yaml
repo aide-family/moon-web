@@ -56,3 +56,4 @@ jobs:
       - name: verify deployment
         run: |
           kubectl --insecure-skip-tls-verify rollout status deployment/moon-frontend -n ${{ secrets.K8S_NAMESPACE }}
+          curl -X POST -H "Content-Type: application/json"  -d '{"msg_type":"post","content":{"post":{"zh_cn":{"title":"moon项目部署通知","content":[[{"tag":"text","text":"moon-frontend项目自动部署完成, 当前版本为: "},{"tag":"a","text":"${{ steps.get_latest_tag.outputs.latest_tag }}","href":"https://moon.aide-cloud.cn"}],[],[{"tag":"at","user_id":"all"}]]}}}}' ${{ secrets.HOOK }}
