@@ -37,17 +37,21 @@ jobs:
         run: |
           curl -X POST -H "Content-Type: application/json"  -d '{"msg_type":"post","content":{"post":{"zh_cn":{"title":"moon项目更新通知","content":[[{"tag":"text","text":"moon-frontend项目有更新, 当前版本为: "},{"tag":"a","text":"${{ steps.get_latest_tag.outputs.latest_tag }}","href":"https://hub.docker.com/r/aidemoonio/moon-frontend/tags?name=${{ steps.get_latest_tag.outputs.latest_tag }}"}],[],[{"tag":"at","user_id":"all"}]]}}}}' ${{ secrets.HOOK }}
 
-      - name: deploy to cluster
-        uses: ghostzero/kubectl@v1
+      - name: Set up kubeconfig
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
         env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG }}
+          KUBECONFIG: $HOME/.kube/config
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
         with:
-          args: set image --record image deployment/moon-frontend moon-frontend=docker.cloudimages.asia/${{ secrets.REPO }}/moon-frontend:${{ steps.get_latest_tag.outputs.latest_tag }} -n ${{ secrets.K8S_NAMESPACE }}
+          version: 'latest'
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl set image --record image deployment/moon-frontend moon-frontend=docker.cloudimages.asia/${{ secrets.REPO }}/moon-frontend:${{ steps.get_latest_tag.outputs.latest_tag }} -n ${{ secrets.K8S_NAMESPACE }}
 
       - name: verify deployment
-        uses: ghostzero/kubectl@v1
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG }}
-          KUBECTL_VERSION: '1.15'
-        with:
-          args: '"rollout status deployment/moon-frontend -n ${{ secrets.K8S_NAMESPACE }}"'
+        run: |
+          kubectl rollout status deployment/moon-frontend -n ${{ secrets.K8S_NAMESPACE }}
