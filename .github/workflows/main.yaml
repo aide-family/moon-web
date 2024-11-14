@@ -51,7 +51,7 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl set image --record image deployment/moon-frontend moon-frontend=docker.cloudimages.asia/${{ secrets.REPO }}/moon-frontend:${{ steps.get_latest_tag.outputs.latest_tag }} -n ${{ secrets.K8S_NAMESPACE }}
+          kubectl set image deployment/moon-frontend moon-frontend=docker.cloudimages.asia/${{ secrets.REPO }}/moon-frontend:${{ steps.get_latest_tag.outputs.latest_tag }} -n ${{ secrets.K8S_NAMESPACE }}
 
       - name: verify deployment
         run: |
