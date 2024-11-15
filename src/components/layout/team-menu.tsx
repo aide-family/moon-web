@@ -36,18 +36,16 @@ function getTeamInfo() {
 
 export const TeamMenu: React.FC<TeamMenuProps> = () => {
   const createTeamContext = useCreateTeamModal()
-  const { setTeamInfo, setUserInfo, refreshMyTeamList } = useContext(GlobalContext)
+  const { teamInfo, setTeamInfo, setUserInfo, refreshMyTeamList } = useContext(GlobalContext)
   const [teamList, setTeamList] = React.useState<TeamItem[]>([])
-  const teamInfo = getTeamInfo()
 
-  const handleRefreshToken = (team: TeamItem) => {
+  const handleRefreshToken = (team?: TeamItem) => {
     if (!team || !team.id) return
+    setTeamInfo?.(team)
     refreshToken({ teamID: team.id }).then((res) => {
       const { token, user } = res
       setToken(token)
       setUserInfo?.(user)
-      setTeamInfo?.(team)
-      window.location.reload()
     })
   }
 
@@ -76,6 +74,7 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
   )
 
   useEffect(() => {
+    handleRefreshToken(teamInfo)
     const interval = setInterval(
       () => {
         handleRefreshToken(teamInfo)
@@ -116,6 +115,7 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
             ),
             onClick: () => {
               handleRefreshToken(item)
+              window.location.reload()
             }
           }
         })

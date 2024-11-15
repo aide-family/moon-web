@@ -36,3 +36,24 @@ jobs:
         if: success()
         run: |
           curl -X POST -H "Content-Type: application/json"  -d '{"msg_type":"post","content":{"post":{"zh_cn":{"title":"moon项目更新通知","content":[[{"tag":"text","text":"moon-frontend项目有更新, 当前版本为: "},{"tag":"a","text":"${{ steps.get_latest_tag.outputs.latest_tag }}","href":"https://hub.docker.com/r/aidemoonio/moon-frontend/tags?name=${{ steps.get_latest_tag.outputs.latest_tag }}"}],[],[{"tag":"at","user_id":"all"}]]}}}}' ${{ secrets.HOOK }}
+
+      - name: Set up kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+        env:
+          KUBECONFIG: $HOME/.kube/config
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl --insecure-skip-tls-verify set image deployment/moon-frontend moon-frontend=docker.cloudimages.asia/${{ secrets.REPO }}/moon-frontend:${{ steps.get_latest_tag.outputs.latest_tag }} -n ${{ secrets.K8S_NAMESPACE }}
+
+      - name: verify deployment
+        run: |
+          kubectl --insecure-skip-tls-verify rollout status deployment/moon-frontend -n ${{ secrets.K8S_NAMESPACE }}
+          curl -X POST -H "Content-Type: application/json"  -d '{"msg_type":"post","content":{"post":{"zh_cn":{"title":"moon项目部署通知","content":[[{"tag":"text","text":"moon-frontend项目自动部署完成, 当前版本为: "},{"tag":"a","text":"${{ steps.get_latest_tag.outputs.latest_tag }}","href":"https://moon.aide-cloud.cn"}],[],[{"tag":"at","user_id":"all"}]]}}}}' ${{ secrets.HOOK }}
