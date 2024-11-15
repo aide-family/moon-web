@@ -20,24 +20,6 @@ export const formList: SearchFormItem[] = [
         allowClear: true
       }
     }
-  },
-  {
-    name: 'alarmStatuses',
-    label: '状态',
-    dataProps: {
-      type: 'select',
-      itemProps: {
-        placeholder: '告警状态',
-        allowClear: true,
-        mode: 'multiple',
-        options: Object.entries(AlertStatusData).map(([key, value]) => {
-          return {
-            label: value,
-            value: Number(key)
-          }
-        })
-      }
-    }
   }
 ]
 
@@ -49,7 +31,7 @@ interface GroupColumnProps {
 
 export const getColumnList = (props: GroupColumnProps): ColumnsType<RealtimeAlarmItem> => {
   const { onHandleMenuOnClick } = props
-  const tableOperationItems = (_: RealtimeAlarmItem): MoreMenuProps['items'] => [
+  const tableOperationItems = (): MoreMenuProps['items'] => [
     {
       key: ActionKey.OPERATION_LOG,
       label: (
@@ -127,7 +109,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<RealtimeAlar
           </Button>
           {tableOperationItems && tableOperationItems?.length > 0 && (
             <MoreMenu
-              items={tableOperationItems(record)}
+              items={tableOperationItems()}
               onClick={(key: ActionKey) => {
                 onHandleMenuOnClick(record, key)
               }}
