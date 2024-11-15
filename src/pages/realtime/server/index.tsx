@@ -2,6 +2,7 @@ import { healthApi } from '@/api/request';
 import { theme } from 'antd';
 import React, { useEffect, useState } from 'react';
 import HouyiServer from './houyi_server';
+import styles from './index.module.scss';
 import './index.scss';
 import RabbimtServer from './rabbit_server';
 
@@ -27,10 +28,10 @@ const Login: React.FC<LoginProps> = () => {
         getVersion()
     }, [])
     return (
-        <div className='' style={{ padding: '20px' }}>
+        <div className={styles.box}>
             <HouyiServer></HouyiServer>
             <RabbimtServer></RabbimtServer>
-        </div>
+        </div >
     )
 }
 

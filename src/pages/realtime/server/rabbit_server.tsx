@@ -10,6 +10,9 @@ const RabbitServer: React.FC = () => {
 
     useEffect(() => {
         getRabbitServerList();
+        setTimeout(() => {
+            getRabbitServerList();
+        }, 10000);
     }, []);
     const getRabbitServerList = () => {
         setLoading(true);
@@ -32,8 +35,7 @@ const RabbitServer: React.FC = () => {
                         <Col span={8}>
                             <Card title={"版本：" + item.version} bordered={true} style={{ marginBottom: 20 }}>
                                 <p>名称：{item.server.name}</p>
-                                <p>http地址：{item.server.httpEndpoint}</p>
-                                <p>grpc地址：{item.server.grpcEndpoint}</p>
+                                {item.server.network == "http" || item.server.network == "https" ? <p>http地址：{item.server.httpEndpoint}</p> : <p>grpc地址：{item.server.grpcEndpoint}</p>}
                                 <p>服务类型：{item.server.network}</p>
                                 <p>工作时长：{item.server.upTime}</p>
                                 <p>上线时间：{item.server.startTime}</p>
