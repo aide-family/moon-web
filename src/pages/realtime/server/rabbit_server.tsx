@@ -1,10 +1,9 @@
 import { ServerItem } from '@/api/model-types';
 import { getRabbitServer } from '@/api/realtime/server';
-import { Button, Card, Col, Row } from 'antd';
+import { Button, Card, Col, Row, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 const RabbitServer: React.FC = () => {
-    const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [serverList, setServerList] = React.useState<ServerItem[]>([])
 
@@ -31,19 +30,25 @@ const RabbitServer: React.FC = () => {
                         刷新
                     </Button></Col>
                 </Row>
-                < Row gutter={16}>
-                    {serverList.map(item => (
-                        <Col span={8}>
-                            <Card title={"版本：" + item.version} bordered={true} style={{ marginBottom: 20 }}>
-                                <p>名称：{item.server.name}</p>
-                                {item.server.network == "http" || item.server.network == "https" ? <p>http地址：{item.server.httpEndpoint}</p> : <p>grpc地址：{item.server.grpcEndpoint}</p>}
-                                <p>服务类型：{item.server.network}</p>
-                                <p>工作时长：{item.server.upTime}</p>
-                                <p>上线时间：{item.server.startTime}</p>
-                            </Card>
-                        </Col>
-                    ))}
-                </Row>
+                {loading ? (
+                    <Spin spinning={loading} style={{ height: '600px' }}>
+                        <div></div>
+                    </Spin>
+                ) : (
+                    < Row gutter={16}>
+                        {serverList.map(item => (
+                            <Col span={8}>
+                                <Card title={"版本：" + item.version} bordered={true} style={{ marginBottom: 20 }}>
+                                    <p>名称：{item.server.name}</p>
+                                    {item.server.network == "http" || item.server.network == "https" ? <p>http地址：{item.server.httpEndpoint}</p> : <p>grpc地址：{item.server.grpcEndpoint}</p>}
+                                    <p>服务类型：{item.server.network}</p>
+                                    <p>工作时长：{item.server.upTime}</p>
+                                    <p>上线时间：{item.server.startTime}</p>
+                                </Card>
+                            </Col>
+                        ))}
+                    </Row>
+                )}
             </div >
         </>
     )
