@@ -9,10 +9,10 @@ const HouyiServer: React.FC = () => {
     const [serverList, setServerList] = React.useState<ServerItem[]>([])
 
     useEffect(() => {
-        getHouyiServerList();
-        setTimeout(() => {
-            getHouyiServerList();
-        }, 10000);
+        const interval = setInterval(() => {
+            getHouyiServerList()
+        }, 10000)
+        return () => clearInterval(interval)
     }, []);
     const getHouyiServerList = () => {
         setLoading(true);
