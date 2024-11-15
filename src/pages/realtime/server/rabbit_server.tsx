@@ -9,6 +9,7 @@ const RabbitServer: React.FC = () => {
     const [serverList, setServerList] = React.useState<ServerItem[]>([])
 
     useEffect(() => {
+        getRabbitServerList()
         const interval = setInterval(() => {
             getRabbitServerList()
         }, 10000)
