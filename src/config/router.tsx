@@ -23,6 +23,10 @@ export const routers: RouteObject[] = [
             Component: lazy(() => import('@/pages/realtime/alarm'))
           },
           {
+            path: '/home/realtime/server',
+            Component: lazy(() => import('@/pages/realtime/server'))
+          },
+          {
             path: '/home/realtime/dashboard',
             Component: lazy(() => import('@/pages/realtime/dashboard'))
           }
