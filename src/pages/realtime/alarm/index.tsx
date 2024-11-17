@@ -41,7 +41,7 @@ const Group: React.FC = () => {
   const [alertCounts, setAlertCounts] = useState<{ [key: number]: number }>({})
   const [realtimeId, setRealtimeId] = useState<number | undefined>()
   const [openDetail, setOpenDetail] = useState(false)
-
+  const [alarmPageID, setAlarmPageID] = useState(-1)
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
@@ -165,6 +165,19 @@ const Group: React.FC = () => {
     pageSize: searchParams.pagination.pageSize
   })
 
+  const alarmPageChange = (value: number) => {
+    setAlarmPageID(value)
+    setSearchParams({
+      ...searchParams,
+      alarmPage: value > 0 ? value : 0,
+      myAlarm: value === -1,
+      pagination: {
+        pageNum: 1,
+        pageSize: searchParams.pagination.pageSize
+      }
+    })
+  }
+
   return (
     <div className={styles.box}>
       <ModalAddPages open={openAddPages} onClose={() => setOpenAddPages(false)} onSubmit={onSubmitPages} />
@@ -189,13 +202,17 @@ const Group: React.FC = () => {
             实时告警列表
           </div>
           <Space size={8}>
-            <Radio.Group defaultValue={-1} buttonStyle='solid'>
+            <Radio.Group
+              defaultValue={alarmPageID}
+              buttonStyle='solid'
+              onChange={(e) => alarmPageChange(e.target.value)}
+            >
               <Radio.Button value={-1}>
                 我的告警
                 <Badge count={alertCounts[-1]} style={{ display: '' }} />
               </Radio.Button>
               {myPages.map((item) => (
-                <Radio.Button key={item.id} value={item.id} onClick={onRefreshPages}>
+                <Radio.Button key={item.id} value={item.id}>
                   {item.name}
                   <Badge count={alertCounts[item.id] || 0} style={{ display: '' }} />
                 </Radio.Button>
