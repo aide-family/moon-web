@@ -29,6 +29,8 @@ export type GlobalContextType = {
   setRefreshMyTeamList?: () => void
   isFullscreen?: boolean
   setIsFullscreen?: (isFullscreen: boolean) => void
+  showLevelColor?: boolean
+  setShowLevelColor?: (showLevelColor: boolean) => void
 }
 
 export const GlobalContext = createContext<GlobalContextType>({

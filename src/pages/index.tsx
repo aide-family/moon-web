@@ -36,6 +36,7 @@ function App() {
   const [teamInfo, setTeamInfo, removeTeamInfo] = useStorage<TeamItem>('teamInfo', defaultTeamInfo)
   const [refreshMyTeamList, setRefreshMyTeamList] = useState<boolean>(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [showLevelColor, setShowLevelColor] = useStorage<boolean>('showLevelColor', false)
 
   const contextValue: GlobalContextType = {
     theme: theme,
@@ -57,7 +58,9 @@ function App() {
     refreshMyTeamList: refreshMyTeamList,
     setRefreshMyTeamList: () => setRefreshMyTeamList(!refreshMyTeamList),
     isFullscreen: isFullscreen,
-    setIsFullscreen: setIsFullscreen
+    setIsFullscreen: setIsFullscreen,
+    showLevelColor: showLevelColor,
+    setShowLevelColor: setShowLevelColor
   }
 
   return (

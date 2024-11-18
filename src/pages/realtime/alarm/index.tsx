@@ -8,7 +8,7 @@ import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
 import { PlusOutlined } from '@ant-design/icons'
-import { Badge, Button, Radio, Space, theme } from 'antd'
+import { Badge, Button, Radio, Space, Switch, theme } from 'antd'
 import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import styles from './index.module.scss'
@@ -23,12 +23,13 @@ const defaultSearchParams: ListAlarmRequest = {
     pageNum: 1,
     pageSize: 10
   },
-  keyword: ''
+  keyword: '',
+  myAlarm: true
 }
 
 const Group: React.FC = () => {
   const { token } = useToken()
-  const { isFullscreen, teamInfo } = useContext(GlobalContext)
+  const { isFullscreen, teamInfo, showLevelColor, setShowLevelColor } = useContext(GlobalContext)
 
   const [datasource, setDatasource] = useState<RealtimeAlarmItem[]>([])
   const [searchParams, setSearchParams] = useState<ListAlarmRequest>(defaultSearchParams)
@@ -41,7 +42,7 @@ const Group: React.FC = () => {
   const [alertCounts, setAlertCounts] = useState<{ [key: number]: number }>({})
   const [realtimeId, setRealtimeId] = useState<number | undefined>()
   const [openDetail, setOpenDetail] = useState(false)
-
+  const [alarmPageID, setAlarmPageID] = useState(-1)
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
@@ -138,7 +139,11 @@ const Group: React.FC = () => {
 
   // 重置
   const onReset = () => {
-    setSearchParams(defaultSearchParams)
+    setSearchParams({
+      ...defaultSearchParams,
+      alarmPage: alarmPageID > 0 ? alarmPageID : 0,
+      myAlarm: alarmPageID === -1
+    })
   }
 
   const onHandleMenuOnClick = (item: RealtimeAlarmItem, key: ActionKey) => {
@@ -165,6 +170,19 @@ const Group: React.FC = () => {
     pageSize: searchParams.pagination.pageSize
   })
 
+  const alarmPageChange = (value: number) => {
+    setAlarmPageID(value)
+    setSearchParams({
+      ...searchParams,
+      alarmPage: value > 0 ? value : 0,
+      myAlarm: value === -1,
+      pagination: {
+        pageNum: 1,
+        pageSize: 10
+      }
+    })
+  }
+
   return (
     <div className={styles.box}>
       <ModalAddPages open={openAddPages} onClose={() => setOpenAddPages(false)} onSubmit={onSubmitPages} />
@@ -189,13 +207,13 @@ const Group: React.FC = () => {
             实时告警列表
           </div>
           <Space size={8}>
-            <Radio.Group defaultValue={-1} buttonStyle='solid'>
+            <Radio.Group buttonStyle='solid' onChange={(e) => alarmPageChange(e.target.value)} value={alarmPageID}>
               <Radio.Button value={-1}>
                 我的告警
                 <Badge count={alertCounts[-1]} style={{ display: '' }} />
               </Radio.Button>
               {myPages.map((item) => (
-                <Radio.Button key={item.id} value={item.id} onClick={onRefreshPages}>
+                <Radio.Button key={item.id} value={item.id}>
                   {item.name}
                   <Badge count={alertCounts[item.id] || 0} style={{ display: '' }} />
                 </Radio.Button>
@@ -204,6 +222,12 @@ const Group: React.FC = () => {
             <Button color='default' variant='filled' onClick={() => setOpenAddPages(true)}>
               <PlusOutlined />
             </Button>
+            <Switch
+              checkedChildren='开启'
+              unCheckedChildren='关闭'
+              checked={showLevelColor}
+              onChange={setShowLevelColor}
+            />
             <Button color='default' variant='filled' onClick={onRefresh}>
               刷新
             </Button>
@@ -229,6 +253,14 @@ const Group: React.FC = () => {
               x: 1000
             }}
             size='middle'
+            onRow={(record) => {
+              const { level } = record as RealtimeAlarmItem
+              return {
+                style: {
+                  background: showLevelColor ? level.level.extend?.color : ''
+                }
+              }
+            }}
           />
         </div>
       </div>

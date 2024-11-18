@@ -1,9 +1,10 @@
 import { AlertStatusData } from '@/api/global'
 import { RealtimeAlarmItem } from '@/api/model-types'
 import { getAlarm } from '@/api/realtime/alarm'
+import { GlobalContext } from '@/utils/context'
 import { Descriptions, DescriptionsProps, Modal, ModalProps } from 'antd'
 import { debounce } from 'lodash'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import ReactJson from 'react-json-view'
 
 export interface ModalDetailProps extends ModalProps {
@@ -11,6 +12,7 @@ export interface ModalDetailProps extends ModalProps {
 }
 
 export const ModalDetail: React.FC<ModalDetailProps> = (props) => {
+  const { theme } = useContext(GlobalContext)
   const { realtimeId, open, ...reset } = props
 
   const [detail, setDetail] = useState<RealtimeAlarmItem>()
@@ -86,10 +88,11 @@ export const ModalDetail: React.FC<ModalDetailProps> = (props) => {
             src={JSON.parse(rawInfo)}
             displayDataTypes={false}
             displayObjectSize={false}
-            shouldCollapse={() => true}
+            // shouldCollapse={() => true}
             enableClipboard={false}
             quotesOnKeys
             name={false}
+            theme={theme === 'dark' ? 'railscasts' : 'bright:inverted'}
           />
         )
       }

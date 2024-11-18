@@ -1,7 +1,7 @@
 import { dictSelectList } from '@/api/dict'
-import { AlertStatus, DictType } from '@/api/enum'
-import { ActionKey, AlertStatusData } from '@/api/global'
-import { RealtimeAlarmItem } from '@/api/model-types'
+import { DictType } from '@/api/enum'
+import { ActionKey } from '@/api/global'
+import { RealtimeAlarmItem, StrategyLevelItem } from '@/api/model-types'
 import { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
@@ -60,12 +60,12 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<RealtimeAlar
 
   return [
     {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
+      title: '告警等级',
+      dataIndex: 'level',
+      key: 'level',
       width: 80,
-      render: (status: AlertStatus) => {
-        return AlertStatusData[status]
+      render: (level: StrategyLevelItem) => {
+        return level?.level?.label || '-'
       }
     },
     {
