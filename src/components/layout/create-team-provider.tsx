@@ -27,6 +27,7 @@ export function CreateTeamModalProvider({ children }: CreateTeamModalProps) {
   //   Layout: { team }
   // } = useI18nConfig()
   const { setTeamInfo } = useContext(GlobalContext)
+  const [loading, setLoading] = useState(false)
 
   const value = {
     open,
@@ -37,6 +38,7 @@ export function CreateTeamModalProvider({ children }: CreateTeamModalProps) {
 
   const handleCreateTean = () => {
     form.validateFields().then((value: CreateTeamRequest) => {
+      setLoading(true)
       createTeam({ ...value, adminIds: [], status: Status.StatusEnable })
         .then(({ detail }) => {
           message.success(value.name + '创建成功')
@@ -46,6 +48,9 @@ export function CreateTeamModalProvider({ children }: CreateTeamModalProps) {
         })
         .catch((err: ErrorResponse) => {
           message.error(err?.message)
+        })
+        .finally(() => {
+          setLoading(false)
         })
     })
   }
@@ -57,7 +62,7 @@ export function CreateTeamModalProvider({ children }: CreateTeamModalProps) {
 
   return (
     <CreateTeamModalProviderContext.Provider value={value}>
-      <Modal title='创建团队' open={open} onOk={handleCreateTean} onCancel={handleCancel}>
+      <Modal title='创建团队' open={open} onOk={handleCreateTean} onCancel={handleCancel} confirmLoading={loading}>
         <Form form={form} layout='vertical'>
           <Form.Item label='团队名称' name='name' rules={[{ required: true, message: '团队名称不能为空' }]}>
             <Input placeholder='请输入团队名称' autoComplete='off' />
