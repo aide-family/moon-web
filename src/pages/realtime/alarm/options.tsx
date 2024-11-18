@@ -17,7 +17,8 @@ export const formList: SearchFormItem[] = [
       type: 'input',
       itemProps: {
         placeholder: '根据告警内容模糊查询',
-        allowClear: true
+        allowClear: true,
+        autoComplete: 'off'
       }
     }
   }
