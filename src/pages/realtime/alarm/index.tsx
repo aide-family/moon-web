@@ -83,11 +83,6 @@ const Group: React.FC = () => {
     []
   )
 
-  useEffect(() => {
-    fetchMypageData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshPages])
-
   const fetchData = useCallback(
     debounce(async (params) => {
       if (!teamInfo || !teamInfo.id) return
@@ -101,19 +96,6 @@ const Group: React.FC = () => {
     }, 500),
     []
   )
-
-  useEffect(() => {
-    fetchData(searchParams)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, searchParams, fetchData])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchMypageData()
-      fetchData(searchParams)
-    }, 10000)
-    return () => clearInterval(interval)
-  }, [])
 
   const onSearch = (formData: ListStrategyGroupRequest) => {
     setSearchParams({
@@ -182,6 +164,24 @@ const Group: React.FC = () => {
       }
     })
   }
+
+  useEffect(() => {
+    fetchMypageData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshPages])
+
+  useEffect(() => {
+    fetchData(searchParams)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refresh, searchParams])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      onRefreshPages()
+      onRefresh()
+    }, 10000)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div className={styles.box}>
