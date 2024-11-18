@@ -1,8 +1,9 @@
-import { AlertStatusData } from '@/api/global'
+import { Condition, SustainType } from '@/api/enum'
+import { AlertStatusData, ConditionData, SustainTypeData } from '@/api/global'
 import { RealtimeAlarmItem } from '@/api/model-types'
 import { getAlarm } from '@/api/realtime/alarm'
 import { GlobalContext } from '@/utils/context'
-import { Descriptions, DescriptionsProps, Modal, ModalProps } from 'antd'
+import { Descriptions, DescriptionsProps, Modal, ModalProps, Table } from 'antd'
 import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import ReactJson from 'react-json-view'
@@ -72,6 +73,48 @@ export const ModalDetail: React.FC<ModalDetailProps> = (props) => {
         key: 'expr',
         label: '查询表达式',
         children: expr,
+        span: 6
+      },
+      {
+        key: 'detail_level',
+        label: '详情级别',
+        children: (
+          <Table
+            style={{ width: '100%' }}
+            size='small'
+            columns={[
+              {
+                title: '告警等级',
+                dataIndex: 'level',
+                key: 'level',
+                render(value) {
+                  return value?.label || '-'
+                }
+              },
+              {
+                title: '判断条件',
+                dataIndex: 'condition',
+                key: 'condition',
+                render(value: Condition) {
+                  return ConditionData[value]
+                }
+              },
+              { title: '阈值', dataIndex: 'threshold' },
+              {
+                title: '触发类型',
+                dataIndex: 'sustainType',
+                key: 'sustainType',
+                render(value: SustainType) {
+                  return SustainTypeData[value]
+                }
+              },
+              { title: '持续时间(s)', dataIndex: 'duration' },
+              { title: '持续次数', dataIndex: 'count' }
+            ]}
+            dataSource={[detail?.level]}
+            pagination={false}
+          />
+        ),
         span: 6
       },
       {
