@@ -1,9 +1,16 @@
-import { createDatasource, CreateDatasourceRequest, getDatasource, updateDatasource } from '@/api/datasource'
+import {
+  createDatasource,
+  CreateDatasourceRequest,
+  getDatasource,
+  updateDatasource,
+  datasourceHealth
+} from '@/api/datasource'
 import { DatasourceType, Status, StorageType } from '@/api/enum'
 import { DataSourceTypeData, StatusData, StorageTypeData } from '@/api/global'
 import { DataFrom, DataFromItem } from '@/components/data/form'
-import { Form, Modal, ModalProps } from 'antd'
-import React, { useEffect } from 'react'
+import { Form, Modal, ModalProps, message } from 'antd'
+import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons'
+import React, { useEffect, useState } from 'react'
 
 export interface EditModalProps extends ModalProps {
   datasourceId?: number
@@ -14,6 +21,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
   const { onCancel, onOk, open, datasourceId } = props
   const [form] = Form.useForm<CreateDatasourceRequest>()
   const [loading, setLoading] = React.useState(false)
+  const [dataSourceHealthStatus, setDataSourceHealth] = useState(false)
   const handleOnOk = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     form.validateFields().then((values) => {
       setLoading(true)
@@ -24,6 +32,11 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
             onOk?.(e)
           })
           .finally(() => setLoading(false))
+        return
+      }
+      if (!dataSourceHealthStatus) {
+        message.error('数据源地址测试失败，请检查配置')
+        setLoading(false)
         return
       }
       createDatasource(values)
@@ -144,9 +157,24 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
     {
       label: '数据源地址',
       name: 'endpoint',
-      type: 'input',
+      type: 'button-input',
+      onChange: () => {
+        setDataSourceHealth(false)
+      },
       props: {
-        placeholder: '请输入数据源地址'
+        placeholder: '请输入数据源地址',
+        enterButton: '连接测试',
+        onSearch: async (value: string) => {
+          setDataSourceHealth(false)
+          datasourceHealth({ url: value, type: form.getFieldValue('storageType') }).then(() => {
+            setDataSourceHealth(true)
+          })
+        },
+        suffix: dataSourceHealthStatus ? (
+          <CheckCircleTwoTone twoToneColor='#52c41a' />
+        ) : (
+          <CloseCircleTwoTone twoToneColor='#f5222d' />
+        )
       },
       formProps: {
         rules: [{ required: true, message: '请输入数据源地址' }]

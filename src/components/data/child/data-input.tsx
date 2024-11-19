@@ -22,6 +22,7 @@ import { JsonInputEditor, JsonInputEditorProps } from './json-input'
 import { JsonTemplateEditor, JsonTemplateEditorProps } from './json-template-editor'
 import { TimeUintInput, TimeUintInputProps } from './time-value'
 import { WechatTemplateEditor, WechatTemplateEditorProps } from './wechat-template-editor'
+const { Search } = Input
 
 export type DataInputProps = {
   value?: any
@@ -97,6 +98,10 @@ export type DataInputProps = {
       props?: JsonInputEditorProps
     }
   | {
+      type: 'button-input'
+      props?: ButtonInputProps
+    }
+  | {
       type: 'feishu-template-editor'
       props?: FeishuTemplateEditorProps
     }
@@ -109,6 +114,18 @@ export type DataInputProps = {
       props?: AnnotationsEditorProps
     }
 )
+
+export interface ButtonInputProps {
+  value?: string
+  defaultValue?: string
+  onChange?: (value: string) => void
+  onSearch?: (value: string) => void
+  width?: number | string
+  height?: number | string
+  enterButton?: string
+  placeholder?: string
+  suffix?: React.ReactNode
+}
 
 export const DataInput: FC<DataInputProps> = (props) => {
   const { type, value, onChange, defaultValue } = props
@@ -171,6 +188,8 @@ export const DataInput: FC<DataInputProps> = (props) => {
         return <AnnotationsEditor {...props.props} value={value} onChange={onChange} />
       case 'json-input':
         return <JsonInputEditor {...props.props} value={value} defaultValue={defaultValue} onChange={onChange} />
+      case 'button-input':
+        return <Search {...props.props} value={value} defaultValue={defaultValue} onChange={onChange} />
       default:
         return (
           <Input
