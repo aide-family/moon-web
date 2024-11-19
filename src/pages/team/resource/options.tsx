@@ -165,10 +165,10 @@ export const editModalFormItems: (DataFromItem | DataFromItem[])[] = [
     label: '名称',
     type: 'input',
     formProps: {
-      rules: [{ required: true, message: '请输入字典名称' }]
+      rules: [{ required: true, message: '请输入资源名称' }]
     },
     props: {
-      placeholder: '请输入字典名称'
+      placeholder: '请输入资源名称'
     }
   },
   {

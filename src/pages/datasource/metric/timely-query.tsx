@@ -31,7 +31,7 @@ const { Paragraph } = Typography
 
 let searchTimeout: NodeJS.Timeout | null = null
 export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
-  const { teamInfo } = useContext(GlobalContext)
+  const { teamInfo, theme } = useContext(GlobalContext)
   const { datasource, apiPath = 'api/v1' } = props
   const [loading, setLoading] = useState(false)
   const [promDetailData, setPromDetailData] = React.useState<DetailValue[]>([])
@@ -131,7 +131,12 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
                 type='info'
                 showIcon
               />
-              <ReactJson src={promDetailData || promRangeData || {}} name={false} displayDataTypes={false} />
+              <ReactJson
+                src={promDetailData || promRangeData || {}}
+                name={false}
+                displayDataTypes={false}
+                theme={theme === 'dark' ? 'railscasts' : 'bright:inverted'}
+              />
             </div>
           ) : (
             <Empty />
