@@ -165,13 +165,10 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
         placeholder: '请输入数据源地址',
         enterButton: '连接测试',
         onSearch: async (value: string) => {
-          datasourceHealth({ url: value, type: form.getFieldValue('storageType') })
-            .then(() => {
-              setDataSourceHealth(true)
-            })
-            .catch(() => {
-              setDataSourceHealth(false)
-            })
+          setDataSourceHealth(false)
+          datasourceHealth({ url: value, type: form.getFieldValue('storageType') }).then(() => {
+            setDataSourceHealth(true)
+          })
         },
         suffix: dataSourceHealthStatus ? (
           <CheckCircleTwoTone twoToneColor='#52c41a' />

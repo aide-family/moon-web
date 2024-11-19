@@ -31,7 +31,6 @@ const HouyiServer: React.FC = () => {
             <h2>houyi服务</h2>
           </Col>
           <Col span={2}>
-            {' '}
             <Button color='default' variant='filled' onClick={getHouyiServerList}>
               刷新
             </Button>

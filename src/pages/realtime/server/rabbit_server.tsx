@@ -31,7 +31,6 @@ const RabbitServer: React.FC = () => {
             <h2>rabbit服务</h2>
           </Col>
           <Col span={2}>
-            {' '}
             <Button color='default' variant='filled' onClick={getRabbitServerList}>
               刷新
             </Button>

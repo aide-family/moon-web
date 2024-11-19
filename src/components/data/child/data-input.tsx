@@ -19,7 +19,6 @@ import { EmailTemplateEditor, EmailTemplateEditorProps } from './eamil-template-
 import { FeishuTemplateEditor, FeishuTemplateEditorProps } from './feishu-template-editor'
 import FetchSelect, { FetchSelectProps } from './fetch-select'
 import { JsonInputEditor, JsonInputEditorProps } from './json-input'
-import { ButtonInputProps } from './button-input'
 import { JsonTemplateEditor, JsonTemplateEditorProps } from './json-template-editor'
 import { TimeUintInput, TimeUintInputProps } from './time-value'
 import { WechatTemplateEditor, WechatTemplateEditorProps } from './wechat-template-editor'
@@ -116,8 +115,19 @@ export type DataInputProps = {
     }
 )
 
+export interface ButtonInputProps {
+  value?: string
+  defaultValue?: string
+  onChange?: (value: string) => void
+  onSearch?: (value: string) => void
+  width?: number | string
+  height?: number | string
+  enterButton?: string
+  placeholder?: string
+  suffix?: React.ReactNode
+}
+
 export const DataInput: FC<DataInputProps> = (props) => {
-  console.log('DataInput', props)
   const { type, value, onChange, defaultValue } = props
 
   const renderInput = () => {
