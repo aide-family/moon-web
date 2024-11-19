@@ -19,9 +19,11 @@ import { EmailTemplateEditor, EmailTemplateEditorProps } from './eamil-template-
 import { FeishuTemplateEditor, FeishuTemplateEditorProps } from './feishu-template-editor'
 import FetchSelect, { FetchSelectProps } from './fetch-select'
 import { JsonInputEditor, JsonInputEditorProps } from './json-input'
+import { ButtonInputProps } from './button-input'
 import { JsonTemplateEditor, JsonTemplateEditorProps } from './json-template-editor'
 import { TimeUintInput, TimeUintInputProps } from './time-value'
 import { WechatTemplateEditor, WechatTemplateEditorProps } from './wechat-template-editor'
+const { Search } = Input
 
 export type DataInputProps = {
   value?: any
@@ -97,6 +99,10 @@ export type DataInputProps = {
       props?: JsonInputEditorProps
     }
   | {
+      type: 'button-input'
+      props?: ButtonInputProps
+    }
+  | {
       type: 'feishu-template-editor'
       props?: FeishuTemplateEditorProps
     }
@@ -111,6 +117,7 @@ export type DataInputProps = {
 )
 
 export const DataInput: FC<DataInputProps> = (props) => {
+  console.log('DataInput', props)
   const { type, value, onChange, defaultValue } = props
 
   const renderInput = () => {
@@ -171,6 +178,8 @@ export const DataInput: FC<DataInputProps> = (props) => {
         return <AnnotationsEditor {...props.props} value={value} onChange={onChange} />
       case 'json-input':
         return <JsonInputEditor {...props.props} value={value} defaultValue={defaultValue} onChange={onChange} />
+      case 'button-input':
+        return <Search {...props.props} value={value} defaultValue={defaultValue} onChange={onChange} />
       default:
         return (
           <Input

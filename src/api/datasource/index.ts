@@ -84,6 +84,15 @@ export function datasourceQuery(params: DatasourceQueryRequest): Promise<Datasou
   return request.POST<DatasourceQueryReply>(`/v1/datasource/${params.id}/query`, params)
 }
 
+export function datasourceHealth(params: DatasourceHealthRequest): Promise<DatasourceHealthReply> {
+  return request.POST<DatasourceHealthReply>(`/v1/datasource/health`, params)
+}
+
+export interface DatasourceHealthRequest {
+  url: string
+  type: string
+}
+
 // 以下类型定义应基于实际的 proto 文件生成，此处仅为示例
 export interface CreateDatasourceRequest {
   name: string
@@ -94,6 +103,8 @@ export interface CreateDatasourceRequest {
   configValue?: string
   storageType?: StorageType
 }
+
+export interface DatasourceHealthReply {}
 
 export interface CreateDatasourceReply {}
 

@@ -38,11 +38,7 @@ const HouyiServer: React.FC = () => {
           </Col>
         </Row>
 
-        {loading ? (
-          <Spin spinning={loading} style={{ height: '600px' }}>
-            <div></div>
-          </Spin>
-        ) : (
+        <Spin spinning={loading}>
           <Row gutter={16}>
             {serverList.map((item) => (
               <Col span={8}>
@@ -60,7 +56,7 @@ const HouyiServer: React.FC = () => {
               </Col>
             ))}
           </Row>
-        )}
+        </Spin>
       </div>
     </>
   )
