@@ -1,15 +1,15 @@
 import {
   createDatasource,
   CreateDatasourceRequest,
+  datasourceHealth,
   getDatasource,
-  updateDatasource,
-  datasourceHealth
+  updateDatasource
 } from '@/api/datasource'
 import { DatasourceType, Status, StorageType } from '@/api/enum'
 import { DataSourceTypeData, StatusData, StorageTypeData } from '@/api/global'
 import { DataFrom, DataFromItem } from '@/components/data/form'
-import { Form, Modal, ModalProps, message } from 'antd'
 import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons'
+import { Form, message, Modal, ModalProps } from 'antd'
 import React, { useEffect, useState } from 'react'
 
 export interface EditModalProps extends ModalProps {
