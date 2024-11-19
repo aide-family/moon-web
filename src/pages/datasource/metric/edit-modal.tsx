@@ -163,7 +163,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
       },
       props: {
         placeholder: '请输入数据源地址',
-        enterButton: '连接测试',
+        enterButton: '连接测试1',
         onSearch: async (value: string) => {
           datasourceHealth({ url: value, type: form.getFieldValue('storageType') })
             .then(() => {
