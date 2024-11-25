@@ -1,4 +1,4 @@
-import { Layout, Menu, message, Spin, theme } from 'antd'
+import { Layout, Menu, Spin, theme } from 'antd'
 import React, { Suspense, useContext, useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 
@@ -35,7 +35,6 @@ const MoonLayout: React.FC = () => {
     }
 
     timer = setTimeout(() => {
-      message.error('登录已过期，请重新登录')
       setTimeout(() => {
         navigate('/login')
       }, 1000)

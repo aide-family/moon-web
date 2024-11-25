@@ -31,17 +31,22 @@ export type ErrorResponse = {
   reason: string
 }
 
+let timer: NodeJS.Timeout | null = null
+
 request.interceptors.response.use(
   (response) => {
     return response.data
   },
   (error: AxiosError<ErrorResponse>) => {
-    const resp = error.response
-    if (!resp?.data) {
-      notification.error({
-        message: '网络错误'
-      })
-      return Promise.reject({ message: 'NET_ERROR' })
+    let resp: any = error.response
+    if (!resp || !resp?.data) {
+      resp = {}
+      resp.data = {
+        code: 500,
+        message: '网络错误',
+        metadata: {},
+        reason: 'NET_ERROR'
+      }
     }
     const respData = resp.data
     errorHandle(respData)
@@ -112,36 +117,40 @@ export const healthApi = (): Promise<HealthReply> => {
   return GET('/health')
 }
 
-let timer: NodeJS.Timeout | null = null
 const errorHandle = (err: ErrorResponse) => {
-  switch (err.code) {
-    case 400:
-      // 表单告警
-      break
-    case 401:
-      message.error(err.message || '登录失效')
+  if (!err) return
 
-      if (timer) {
-        clearTimeout(timer)
-      }
-      timer = setTimeout(() => {
-        removeToken()
-      }, 1000)
-      break
-    case 403:
-      message.error(err?.message || '没有权限')
-      break
-    case 429:
-      message.error(err?.message || '请求太频繁')
-      break
-    case 405:
-      // 需要有确定或者取消的弹窗， 不操作则一直存在顶层， 底层内容不允许操作
-      message.error(err?.message || '请求方式错误')
-      break
-    default:
-      notification.warning({
-        message: err?.message || '请求失败'
-      })
-      break
+  if (timer) {
+    clearTimeout(timer)
   }
+  timer = setTimeout(() => {
+    let msg = err.message
+    switch (err.code) {
+      case 400:
+        // 表单告警
+        break
+      case 401:
+        if (msg === 'JWT token is missing') {
+          msg = '登录已过期，请重新登录'
+        }
+        message.error(msg || '登录失效').then(() => removeToken())
+        removeToken()
+        break
+      case 403:
+        message.error(err?.message || '没有权限')
+        break
+      case 429:
+        message.error(err?.message || '请求太频繁')
+        break
+      case 405:
+        // 需要有确定或者取消的弹窗， 不操作则一直存在顶层， 底层内容不允许操作
+        message.error(err?.message || '请求方式错误')
+        break
+      default:
+        notification.warning({
+          message: err?.message || '请求失败'
+        })
+        break
+    }
+  }, 500)
 }
