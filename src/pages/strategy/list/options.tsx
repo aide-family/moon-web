@@ -5,7 +5,7 @@ import { listStrategyGroup } from '@/api/strategy'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
-import { Avatar, Badge, Button, Space, Tooltip } from 'antd'
+import { Badge, Button, Space, Tooltip } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import { StrategyLevelTemplateType } from './metric-edit-modal'
 
@@ -198,15 +198,9 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
           return <div>{name}</div>
         }
         return (
-          <Avatar.Group maxCount={2} shape='square' size='small'>
-            {record.map((item, index) => {
-              return (
-                <Tooltip title={item.name} key={index}>
-                  <Avatar key={item.id}>{item.name}</Avatar>
-                </Tooltip>
-              )
-            })}
-          </Avatar.Group>
+          <Tooltip placement='top' title={<div>{record.map((item) => item.name).join(', ')}</div>}>
+            <div>{record.map((item) => item.name).join(', ')}</div>
+          </Tooltip>
         )
       }
     },
@@ -238,8 +232,8 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       ellipsis: true,
       render: (categories: DictItem[]) => {
         return (
-          <Tooltip placement='top' title={<div>{categories.map((item) => item.name).join('，')}</div>}>
-            <div>{categories.map((item) => item.name).join('，')}</div>
+          <Tooltip placement='top' title={<div>{categories.map((item) => item.name).join(', ')}</div>}>
+            <div>{categories.map((item) => item.name).join(', ')}</div>
           </Tooltip>
         )
       }

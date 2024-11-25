@@ -148,8 +148,8 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       ellipsis: true,
       render: (categories: DictItem[]) => {
         return (
-          <Tooltip placement='top' title={<div>{categories.map((item) => item.name).join('，')}</div>}>
-            <div>{categories.map((item) => item.name).join('，')}</div>
+          <Tooltip placement='top' title={<div>{categories.map((item) => item.name).join(', ')}</div>}>
+            <div>{categories.map((item) => item.name).join(', ')}</div>
           </Tooltip>
         )
       }
@@ -174,9 +174,9 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       render: (_, record: StrategyGroupItem) => {
         return (
           <b>
-            <span style={{ color: '' }}>{record.enableStrategyCount}</span>
+            <span style={{ color: 'green' }}>{record.enableStrategyCount}</span>
             {' / '}
-            <span style={{ color: 'green' }}>{record.strategyCount}</span>
+            <span style={{ color: '' }}>{record.strategyCount}</span>
           </b>
         )
       }
