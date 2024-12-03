@@ -1,12 +1,14 @@
 import { DatasourceItem } from '@/api/model-types'
 import { baseURL } from '@/api/request'
 import PromQLInput from '@/components/data/child/prom-ql'
+import { MetricsResponse } from '@/types/metrics'
 import { GlobalContext } from '@/utils/context'
+import { transformMetricsData } from '@/utils/metricsTransform'
 import { Alert, Empty, List, Space, Tabs, TabsProps, Typography } from 'antd'
 import dayjs from 'dayjs'
 import React, { useContext, useEffect, useState } from 'react'
 import ReactJson from 'react-json-view'
-import { GraphChart } from './child/graph-chart'
+import { MetricsChart } from './child/metrics-chart'
 
 export interface TimelyQueryProps {
   datasource?: DatasourceItem
@@ -35,10 +37,16 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
   const { datasource, apiPath = 'api/v1' } = props
   const [loading, setLoading] = useState(false)
   const [promDetailData, setPromDetailData] = React.useState<DetailValue[]>([])
+  const [metricsData, setMetricsData] = React.useState<MetricsResponse>()
   const [promRangeData, setPromRangeData] = React.useState<RangeValue[]>([])
   const [expr, setExpr] = useState<string>('')
   const [tabKey, setTabKey] = useState<TableKey>('table')
   const pathPrefix = `${baseURL}/metric/${teamInfo?.id || 0}/${datasource?.id}`
+
+  const transformedData = React.useMemo(
+    () => transformMetricsData(metricsData?.data || { result: [], resultType: '' }),
+    [metricsData]
+  )
 
   const tabsItems: TabsProps['items'] = [
     {
@@ -98,8 +106,8 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
       label: `Graph`,
       children: (
         <div className='tab-content'>
-          {promRangeData && promRangeData?.length && tabKey === 'graph' ? (
-            <GraphChart data={promRangeData} />
+          {transformedData && transformedData?.length && tabKey === 'graph' ? (
+            <MetricsChart data={transformedData} />
           ) : (
             <Empty />
           )}
@@ -189,7 +197,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
         if (query.data) {
           switch (query.data?.resultType) {
             case 'matrix':
-              setPromRangeData(query.data?.result || [])
+              setMetricsData(query)
               break
             case 'vector':
               setPromDetailData(query.data?.result || [])
@@ -222,10 +230,12 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
 
   useEffect(() => {
     onSearch(800)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expr])
 
   useEffect(() => {
     onSearch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabKey])
 
   return (
