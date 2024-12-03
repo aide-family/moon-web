@@ -46,6 +46,7 @@ export interface PromQLInputProps {
   placeholder?: string
   onChange?: (expression?: string) => void
   disabled?: boolean
+  subfix?: React.ReactNode
 }
 
 const promqlExtension = new PromQLExtension()
@@ -111,7 +112,8 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
     ref,
     buttonRef,
     disabled,
-    showBorder = true
+    showBorder = true,
+    subfix
   } = props
 
   const prefix = buildPathPrefix(pathPrefix)
@@ -284,7 +286,7 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
           />
         )}
 
-        {formatExpression && (
+        {!subfix && formatExpression && (
           <Button
             ref={buttonRef}
             // onClick={handleOpenModal}
@@ -297,6 +299,7 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
             icon={<ThunderboltOutlined />}
           />
         )}
+        {subfix}
       </div>
     </div>
   )

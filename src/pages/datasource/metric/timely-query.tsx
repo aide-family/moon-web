@@ -4,7 +4,8 @@ import PromQLInput from '@/components/data/child/prom-ql'
 import { MetricsResponse } from '@/types/metrics'
 import { GlobalContext } from '@/utils/context'
 import { transformMetricsData } from '@/utils/metricsTransform'
-import { Alert, Empty, List, Space, Tabs, TabsProps, Typography } from 'antd'
+import { ReloadOutlined } from '@ant-design/icons'
+import { Alert, Button, Empty, List, Space, Tabs, TabsProps, Typography } from 'antd'
 import dayjs from 'dayjs'
 import React, { useContext, useEffect, useState } from 'react'
 import ReactJson from 'react-json-view'
@@ -241,7 +242,21 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
   return (
     <div className='timely-query'>
       <div>
-        <PromQLInput pathPrefix={pathPrefix} onChange={(exp) => onChange(`${exp}`)} />
+        <PromQLInput
+          pathPrefix={pathPrefix}
+          onChange={(exp) => onChange(`${exp}`)}
+          subfix={
+            <Button
+              size='large'
+              style={{
+                borderRadius: '0 6px 6px 0'
+              }}
+              type='primary'
+              onClick={() => onSearch()}
+              icon={<ReloadOutlined />}
+            />
+          }
+        />
       </div>
       <Tabs defaultActiveKey='table' items={tabsItems} onChange={(tab) => tabsOnChange(tab as TableKey)} />
     </div>
