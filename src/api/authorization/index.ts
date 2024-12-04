@@ -76,6 +76,25 @@ export function setEmailWithLogin(params: SetEmailRequest): Promise<RefreshToken
   return request.POST('/v1/authorization/set_email', params)
 }
 
+/**
+ * 展示oauth列表
+ * get /v1/authorization/oauths
+ * @returns {Promise<OAuthListReply>}
+ */
+export function getOAuthList(): Promise<OAuthListReply> {
+  return request.GET<OAuthListReply>('/v1/authorization/oauths')
+}
+
+/**
+ * 邮箱注册
+ * post /v1/authorization/register_with_email
+ * @param {RegisterWithEmailRequest} params
+ * @returns {Promise<RegisterWithEmailReply>}
+ */
+export function registerWithEmail(params: RegisterWithEmailRequest): Promise<RegisterWithEmailReply> {
+  return request.POST('/v1/authorization/register_with_email', params)
+}
+
 // Types
 
 /**
@@ -291,6 +310,70 @@ export interface SetEmailRequest {
   oauthID: number
   /**
    * Token
+   */
+  token: string
+}
+
+/**
+ * 展示 oauth 列表响应
+ */
+export interface OAuthListReply {
+  /**
+   * oauth 列表
+   */
+  list: OAuthItem[]
+}
+
+/**
+ * oauth 列表
+ */
+export interface OAuthItem {
+  /**
+   * 图标
+   */
+  icon: 'google' | 'github' | 'gitlab' | 'gitee'
+  /**
+   * 名称
+   */
+  label: string
+  /**
+   * 重定向地址
+   */
+  redirect: string
+}
+
+/**
+ * 邮箱注册请求
+ */
+export interface RegisterWithEmailRequest {
+  /**
+   * 邮箱
+   */
+  email: string
+  /**
+   * 密码
+   */
+  password: string
+  /**
+   * 验证码
+   */
+  code: string
+  /**
+   * 用户名
+   */
+  username: string
+}
+
+/**
+ * 邮箱注册响应
+ */
+export interface RegisterWithEmailReply {
+  /**
+   * 用户信息
+   */
+  user: UserItem
+  /**
+   * token
    */
   token: string
 }

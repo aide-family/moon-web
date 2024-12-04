@@ -1,6 +1,6 @@
-import { CaptchaReply, getCaptcha, login, LoginRequest } from '@/api/authorization'
+import { CaptchaReply, getCaptcha, getOAuthList, login, LoginRequest, OAuthItem } from '@/api/authorization'
 import { CaptchaType } from '@/api/enum'
-import { baseURL, ErrorResponse, isLogin, setToken } from '@/api/request'
+import { ErrorResponse, isLogin, setToken } from '@/api/request'
 import { Gitee, Github } from '@/components/icon'
 import { GlobalContext } from '@/utils/context'
 import { hashMd5 } from '@/utils/hash'
@@ -22,6 +22,11 @@ type formData = {
   code: string
 }
 
+const iconMap: Record<string, React.ReactNode> = {
+  github: <Github />,
+  gitee: <Gitee />
+}
+
 const { useToken } = theme
 
 const LoginForm: FC = () => {
@@ -36,6 +41,7 @@ const LoginForm: FC = () => {
   const [captcha, setCaptcha] = useState<CaptchaReply>()
   const [remeber, setRemeber] = useState<boolean>(!!cookie.load('remeber'))
   const [err, setErr] = useState<ErrorResponse>()
+  const [oauthList, setOAuthList] = useState<OAuthItem[]>([])
 
   const handleLogin = (loginParams: LoginRequest) => {
     login(loginParams)
@@ -96,6 +102,12 @@ const LoginForm: FC = () => {
     cookie.remove('remeber')
   }
 
+  const handleOAuthList = () => {
+    getOAuthList().then((res) => {
+      setOAuthList(res.list || [])
+    })
+  }
+
   useEffect(() => {
     if (cookie.load('account')) {
       const account: LoginRequest = cookie.load('account')
@@ -106,6 +118,7 @@ const LoginForm: FC = () => {
     }
     // 获取验证码
     handleCaptcha()
+    handleOAuthList()
   }, [])
 
   return (
@@ -201,31 +214,22 @@ const LoginForm: FC = () => {
           {/* <Button href='/register' disabled type='link'>
             去注册
           </Button> */}
-          <span>使用以下方式直接登陆｜注册</span>
+          <span style={{ display: oauthList.length ? 'block' : 'none' }}>使用以下方式直接登陆｜注册</span>
         </Divider>
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-          <Form.Item>
-            <Button
-              type='dashed'
-              href={`${baseURL}/auth/github`}
-              color='primary'
-              variant='filled'
-              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-            >
-              <Github /> Github登录
-            </Button>
-          </Form.Item>
-          <Form.Item>
-            <Button
-              type='dashed'
-              href={`${baseURL}/auth/gitee`}
-              color='primary'
-              variant='filled'
-              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-            >
-              <Gitee /> Gitee登录
-            </Button>
-          </Form.Item>
+          {oauthList.map((item, index) => (
+            <Form.Item key={index}>
+              <Button
+                type='dashed'
+                href={item.redirect}
+                color='primary'
+                variant='filled'
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
+                {iconMap[item.icon]} {item.label}
+              </Button>
+            </Form.Item>
+          ))}
         </div>
       </Form>
     </div>
