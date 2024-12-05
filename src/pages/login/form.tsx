@@ -217,7 +217,7 @@ const LoginForm: FC = () => {
           <Button onClick={() => navigate('/register')} type='link'>
             去注册
           </Button>
-          {oauthList.length && <span style={{ color: token.colorTextSecondary }}>使用以下方式直接登陆｜注册</span>}
+          {oauthList.length > 0 && <span style={{ color: token.colorTextSecondary }}>使用以下方式直接登陆｜注册</span>}
         </Divider>
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
           {oauthList.map((item, index) => (
