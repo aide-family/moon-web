@@ -1,7 +1,7 @@
 import { dictSelectList } from '@/api/dict'
 import { DictType } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { RealtimeAlarmItem, StrategyLevelItem } from '@/api/model-types'
+import { RealtimeAlarmItem, StrategyMetricLevelItem } from '@/api/model-types'
 import { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
@@ -65,7 +65,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<RealtimeAlar
       dataIndex: 'level',
       key: 'level',
       width: 80,
-      render: (level: StrategyLevelItem) => {
+      render: (level: StrategyMetricLevelItem) => {
         return level?.level?.label || '-'
       }
     },

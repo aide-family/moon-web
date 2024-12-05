@@ -1,6 +1,6 @@
 import { AlertStatus } from '../enum'
 import { PaginationReply, PaginationReq } from '../global'
-import { DatasourceItem, StrategyItem, StrategyLevelItem } from '../model-types'
+import { DatasourceItem, StrategyItem, StrategyMetricLevelItem } from '../model-types'
 import request from '../request'
 
 /**
@@ -46,7 +46,7 @@ export interface AlarmHistoryItem {
   startsAt: string
   endsAt: string
   alertStatus: AlertStatus
-  level: StrategyLevelItem
+  metricLevel: StrategyMetricLevelItem
   strategy: StrategyItem
   description: string
   expr: string

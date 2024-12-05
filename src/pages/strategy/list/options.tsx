@@ -42,7 +42,6 @@ export type MetricEditModalFormData = {
   }
   categoriesIds: number[]
   groupId: number
-  step: number
   datasourceIds: number[]
   strategyLevel: StrategyLevelTemplateType[]
   alarmGroupIds: number[]

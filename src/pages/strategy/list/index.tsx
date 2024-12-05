@@ -1,6 +1,5 @@
+import { Status, StrategyType, TemplateSourceType } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-
-import { Status, TemplateSourceType } from '@/api/enum'
 import { StrategyGroupItem, StrategyItem } from '@/api/model-types'
 import {
   createStrategy,
@@ -105,7 +104,6 @@ const StrategyMetric: React.FC = () => {
       alarmGroupIds,
       categoriesIds,
       groupId,
-      step,
       datasourceIds,
       strategyLevel
     } = data
@@ -117,9 +115,8 @@ const StrategyMetric: React.FC = () => {
       annotations,
       categoriesIds,
       groupId,
-      step,
       datasourceIds,
-      strategyLevel: strategyLevel.map((item) => {
+      strategyMetricLevel: strategyLevel.map((item) => {
         const { interval, alarmPageIds, alarmGroupIds, labelNotices } = item
         return {
           ...item,
@@ -132,7 +129,8 @@ const StrategyMetric: React.FC = () => {
       }),
       alarmGroupIds,
       status: Status.StatusEnable,
-      sourceType: TemplateSourceType.TemplateSourceTypeTeam
+      sourceType: TemplateSourceType.TemplateSourceTypeTeam,
+      strategyType: StrategyType.StrategyTypeMetric
     }
 
     const call = () => {

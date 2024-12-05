@@ -283,7 +283,7 @@ export interface DictItem {
 }
 
 /** 策略等级项 */
-export interface StrategyLevelItem {
+export interface StrategyMetricLevelItem {
   /** 策略持续时间 */
   duration: number
   /** 持续次数 */
@@ -321,7 +321,7 @@ export interface StrategyItem {
   /** 策略语句 */
   expr: string
   /** 根据策略等级配置的详细策略， key为策略等级ID */
-  levels: StrategyLevelItem[]
+  metricLevels: StrategyMetricLevelItem[]
   /** 策略标签 */
   labels: { [key: string]: string }
   /** 策略注解 */
@@ -350,8 +350,6 @@ export interface StrategyItem {
   categories: DictItem[]
   /** 告警分组 */
   alarmNoticeGroups: AlarmNoticeGroupItem[]
-  /** 步长 */
-  step: number
 }
 
 /** 策略组项 */
@@ -511,7 +509,7 @@ export interface RealtimeAlarmItem {
   startsAt: string
   endsAt: string
   status: AlertStatus
-  level: StrategyLevelItem
+  metricLevel: StrategyMetricLevelItem
   strategy: StrategyItem
   summary: string
   description: string

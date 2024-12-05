@@ -111,7 +111,7 @@ export const ModalDetail: React.FC<ModalDetailProps> = (props) => {
               { title: '持续时间(s)', dataIndex: 'duration' },
               { title: '持续次数', dataIndex: 'count' }
             ]}
-            dataSource={[detail?.level]}
+            dataSource={[detail?.metricLevel]}
             pagination={false}
           />
         ),

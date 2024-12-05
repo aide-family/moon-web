@@ -254,7 +254,7 @@ const Group: React.FC = () => {
             }}
             size='middle'
             onRow={(record) => {
-              const { level } = record as RealtimeAlarmItem
+              const { metricLevel: level } = record as RealtimeAlarmItem
               return {
                 style: {
                   background: showLevelColor ? level.level.extend?.color : ''

@@ -1,4 +1,4 @@
-import { Condition, DatasourceType, Status, SustainType, TemplateSourceType } from '../enum'
+import { Condition, DatasourceType, Status, StrategyType, SustainType, TemplateSourceType } from '../enum'
 import { PaginationReply, PaginationReq } from '../global'
 import { StrategyGroupItem, StrategyItem } from '../model-types'
 import request from '../request'
@@ -66,16 +66,16 @@ export interface CreateStrategyRequest {
   templateId?: number
   remark?: string
   status?: Status
-  step: number
   datasourceIds: number[]
   sourceType?: TemplateSourceType
   name: string
-  strategyLevel: CreateStrategyLevelRequest[]
+  strategyMetricLevel: CreateStrategyLevelRequest[]
   labels: { [key: string]: string }
   annotations: { [key: string]: string }
   expr: string
   categoriesIds: number[]
   alarmGroupIds: number[]
+  strategyType: StrategyType
 }
 
 export interface CreateStrategyReply {}
@@ -266,6 +266,11 @@ export function copyStrategy(params: CopyStrategyRequest) {
   return request.POST<CopyStrategyReply>('/v1/strategy/copy', params)
 }
 
+/**
+ * 推送策略
+ * @param id 策略ID
+ * @returns null
+ */
 export function pushStrategy(id: number) {
-  return request.GET<any>(`/v1/strategy/push/${id}`)
+  return request.GET<null>(`/v1/strategy/push/${id}`)
 }

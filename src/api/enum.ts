@@ -315,3 +315,27 @@ export enum HookApp {
   /** 飞书 */
   HOOK_APP_FEI_SHU = 4
 }
+
+/** 策略类型 */
+export enum StrategyType {
+  /** 未知 */
+  StrategyTypeUnknown = 0,
+
+  /** Metric */
+  StrategyTypeMetric = 1,
+
+  /** DomainCertificate */
+  StrategyTypeDomainCertificate = 2,
+
+  /** DomainPort */
+  StrategyTypeDomainPort = 3,
+
+  /** Ping */
+  StrategyTypePing = 4,
+
+  /** HTTP */
+  StrategyTypeHTTP = 5,
+
+  /** MQ */
+  StrategyTypeMQ = 6
+}

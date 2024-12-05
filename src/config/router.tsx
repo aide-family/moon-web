@@ -12,6 +12,10 @@ export const routers: RouteObject[] = [
     Component: lazy(() => import('@/pages/login/oauth/email'))
   },
   {
+    path: '/register',
+    Component: lazy(() => import('@/pages/login/register/register'))
+  },
+  {
     path: '/home',
     Component: lazy(() => import('@/components/layout')),
     children: [

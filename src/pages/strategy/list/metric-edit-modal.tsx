@@ -77,8 +77,6 @@ export type MetricEditModalData = {
   categoriesIds: number[]
   // 策略组ID
   groupId: number
-  // 采样率
-  step: number
   // 数据源id
   datasourceIds: number[]
   strategyLevel: StrategyLevelTemplateType[]
@@ -178,10 +176,9 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
         },
         categoriesIds: strategyDetail?.categories?.map((item) => item.id),
         groupId: strategyDetail?.groupId,
-        step: strategyDetail?.step,
         datasourceIds: strategyDetail?.datasource?.map((item) => item.id),
         alarmGroupIds: strategyDetail?.alarmNoticeGroups?.map((item) => item.id),
-        strategyLevel: strategyDetail?.levels?.map((item) => {
+        strategyLevel: strategyDetail?.metricLevels?.map((item) => {
           return {
             duration: +item.duration,
             interval: +item.interval,
@@ -327,7 +324,6 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
         labels,
         categoriesIds,
         groupId,
-        step,
         datasourceIds,
         strategyLevel
       } = formValues
@@ -347,7 +343,6 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
         annotations,
         categoriesIds,
         groupId,
-        step,
         datasourceIds,
         strategyLevel,
         alarmGroupIds
@@ -422,34 +417,21 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                 </Form.Item>
               </Col>
             </Row>
-            <Row gutter={12}>
-              <Col span={12}>
-                <Form.Item
-                  label='策略类型'
-                  name='categoriesIds'
-                  rules={[{ required: true, message: '请选择策略类型' }]}
-                >
-                  <FetchSelect
-                    selectProps={{
-                      placeholder: '请选择策略类型',
-                      mode: 'multiple'
-                    }}
-                    handleFetch={(keyword: string) =>
-                      dictSelectList({
-                        dictType: DictType.DictTypeStrategyCategory,
-                        pagination: { pageNum: 1, pageSize: 999 },
-                        keyword: keyword
-                      }).then(({ list }) => list)
-                    }
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item label='采样率' name='step' rules={[{ required: true, message: '请输入采样率' }]}>
-                  <InputNumber style={{ width: '100%' }} placeholder='请输入采样率' step={1} min={1} />
-                </Form.Item>
-              </Col>
-            </Row>
+            <Form.Item label='策略类型' name='categoriesIds' rules={[{ required: true, message: '请选择策略类型' }]}>
+              <FetchSelect
+                selectProps={{
+                  placeholder: '请选择策略类型',
+                  mode: 'multiple'
+                }}
+                handleFetch={(keyword: string) =>
+                  dictSelectList({
+                    dictType: DictType.DictTypeStrategyCategory,
+                    pagination: { pageNum: 1, pageSize: 999 },
+                    keyword: keyword
+                  }).then(({ list }) => list)
+                }
+              />
+            </Form.Item>
 
             <Form.Item
               label='通知对象'
