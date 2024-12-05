@@ -209,12 +209,15 @@ const LoginForm: FC = () => {
             登录
           </Button>
         </Form.Item>
-        <Divider dashed style={{ fontSize: '14px' }}>
+        <Divider
+          dashed
+          style={{ fontSize: '14px', borderColor: token.colorBorderSecondary, color: token.colorTextSecondary }}
+        >
           没有账户？
           <Button onClick={() => navigate('/register')} type='link'>
             去注册
           </Button>
-          <span style={{ display: oauthList.length ? 'block' : 'none' }}>使用以下方式直接登陆｜注册</span>
+          {oauthList.length && <span style={{ color: token.colorTextSecondary }}>使用以下方式直接登陆｜注册</span>}
         </Divider>
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
           {oauthList.map((item, index) => (
