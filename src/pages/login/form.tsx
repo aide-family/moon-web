@@ -37,7 +37,7 @@ const LoginForm: FC = () => {
 
   const { token } = useToken()
   const [form] = Form.useForm<formData>()
-  const { setUserInfo, theme } = useContext(GlobalContext)
+  const { setUserInfo } = useContext(GlobalContext)
   const [captcha, setCaptcha] = useState<CaptchaReply>()
   const [remeber, setRemeber] = useState<boolean>(!!cookie.load('remeber'))
   const [err, setErr] = useState<ErrorResponse>()
@@ -185,7 +185,7 @@ const LoginForm: FC = () => {
                     aspectRatio: '80/28',
                     objectFit: 'cover',
                     flexShrink: 0,
-                    backgroundColor: theme === 'dark' ? 'white' : 'black',
+                    backgroundColor: 'white',
                     borderRadius: token.borderRadius,
                     cursor: 'pointer',
                     height: 40

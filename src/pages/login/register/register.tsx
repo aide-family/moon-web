@@ -183,7 +183,7 @@ export default function Register() {
                         aspectRatio: '80/28',
                         objectFit: 'cover',
                         flexShrink: 0,
-                        backgroundColor: theme === 'dark' ? 'white' : 'black',
+                        backgroundColor: 'white',
                         borderRadius: token.borderRadius,
                         cursor: 'pointer',
                         height: 40
