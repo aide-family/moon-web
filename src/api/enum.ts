@@ -121,7 +121,10 @@ export enum DatasourceType {
   DatasourceTypeTrace = 2,
 
   /** Log */
-  DatasourceTypeLog = 3
+  DatasourceTypeLog = 3,
+
+  /** MQ */
+  DatasourceTypeMQ = 4
 }
 
 /** 存储器类型 prometheus、victoriametrics等 */
@@ -133,7 +136,19 @@ export enum StorageType {
   StorageTypePrometheus = 1,
 
   /** VictoriaMetrics */
-  StorageTypeVictoriaMetrics = 2
+  StorageTypeVictoriaMetrics = 2,
+
+  /** Kafka */
+  StorageTypeKafka = 10,
+
+  /** Rocketmq */
+  StorageTypeRocketmq = 11,
+
+  /** Rabbitmq */
+  StorageTypeRabbitmq = 12,
+
+  /** Mqtt */
+  StorageTypeMQTT = 13
 }
 
 /** 指标类型 */

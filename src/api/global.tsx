@@ -114,13 +114,18 @@ export const DataSourceTypeData: Record<DatasourceType, string> = {
   [DatasourceType.DatasourceTypeUnknown]: '全部',
   [DatasourceType.DatasourceTypeMetric]: 'Metric',
   [DatasourceType.DatasourceTypeLog]: 'Log',
-  [DatasourceType.DatasourceTypeTrace]: 'Trace'
+  [DatasourceType.DatasourceTypeTrace]: 'Trace',
+  [DatasourceType.DatasourceTypeMQ]: 'MQ'
 }
 
 export const StorageTypeData: Record<StorageType, string> = {
   [StorageType.StorageTypeUnknown]: '全部',
   [StorageType.StorageTypePrometheus]: 'Prometheus',
-  [StorageType.StorageTypeVictoriaMetrics]: 'VictoriaMetrics'
+  [StorageType.StorageTypeVictoriaMetrics]: 'VictoriaMetrics',
+  [StorageType.StorageTypeKafka]: 'Kafka',
+  [StorageType.StorageTypeRocketmq]: 'Rocketmq',
+  [StorageType.StorageTypeRabbitmq]: 'Rabbitmq',
+  [StorageType.StorageTypeMQTT]: 'MQTT'
 }
 
 export const ConditionData: Record<Condition, string> = {
