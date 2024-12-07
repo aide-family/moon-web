@@ -247,6 +247,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
         <PromQLInput
           pathPrefix={pathPrefix}
           onChange={(exp) => onChange(`${exp}`)}
+          value={expr}
           subfix={
             <Button
               size='large'

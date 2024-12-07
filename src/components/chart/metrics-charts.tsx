@@ -29,7 +29,7 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className, thr
     // Transform data for G2
     const chartData = data.flatMap((series) =>
       series.values.map((point) => ({
-        instance: series.instance,
+        instance: series.instance?.length > 130 ? series.instance.substring(0, 130) + '...' : series.instance,
         timestamp: point.timestamp,
         value: point.value
       }))
