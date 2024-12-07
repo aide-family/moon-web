@@ -2,13 +2,14 @@ import { DatasourceItem } from '@/api/model-types'
 import { baseURL } from '@/api/request'
 import { MetricsChart } from '@/components/chart/metrics-charts'
 import PromQLInput from '@/components/data/child/prom-ql'
+import { DataFrom } from '@/components/data/form'
 import { MetricsResponse } from '@/types/metrics'
 import { GlobalContext } from '@/utils/context'
 import { transformMetricsData } from '@/utils/metricsTransform'
 import useStorage from '@/utils/storage'
-import { ReloadOutlined } from '@ant-design/icons'
-import { Alert, Button, Empty, List, Space, Tabs, TabsProps, Typography } from 'antd'
-import dayjs from 'dayjs'
+import { AreaChartOutlined, LineChartOutlined, ReloadOutlined } from '@ant-design/icons'
+import { Alert, Button, Empty, Form, InputNumber, List, Space, Tabs, TabsProps, Typography } from 'antd'
+import dayjs, { Dayjs } from 'dayjs'
 import React, { useContext, useEffect, useState } from 'react'
 import ReactJson from 'react-json-view'
 // import { MetricsChart } from './child/metrics-chart'
@@ -43,7 +44,13 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
   const [metricsData, setMetricsData] = React.useState<MetricsResponse>()
   const [promRangeData, setPromRangeData] = React.useState<RangeValue[]>([])
   const [expr, setExpr] = useStorage<string>('timelyQueryExpr', localStorage.getItem('timelyQueryExpr') || '')
-  const [tabKey, setTabKey] = useState<TableKey>('table')
+  const [tabKey, setTabKey] = useStorage<TableKey>(
+    'timelyQueryTab',
+    (localStorage.getItem('timelyQueryTab') || 'table') as TableKey
+  )
+  const [timeRange, setTimeRange] = useState<Dayjs[]>([dayjs().subtract(5, 'minute'), dayjs()])
+  const [showArea, setShowArea] = useState(true)
+  const [step, setStep] = useState(14)
   const pathPrefix = `${baseURL}/metric/${teamInfo?.id || 0}/${datasource?.id}`
 
   const transformedData = React.useMemo(
@@ -109,8 +116,55 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
       label: `Graph`,
       children: (
         <div className='tab-content'>
+          <DataFrom
+            items={[
+              {
+                type: 'time-range',
+                name: 'time',
+                label: '时间',
+                formProps: {
+                  initialValue: timeRange
+                },
+                props: {
+                  format: 'YYYY-MM-DD HH:mm:ss',
+                  showTime: true,
+                  // 预置时间选项
+                  presets: [
+                    { label: '最近5分钟', value: [dayjs().subtract(5, 'minute'), dayjs()] },
+                    { label: '最近1小时', value: [dayjs().subtract(1, 'hour'), dayjs()] },
+                    { label: '最近3小时', value: [dayjs().subtract(3, 'hour'), dayjs()] },
+                    { label: '最近6小时', value: [dayjs().subtract(6, 'hour'), dayjs()] },
+                    { label: '最近12小时', value: [dayjs().subtract(12, 'hour'), dayjs()] },
+                    { label: '最近1天', value: [dayjs().subtract(1, 'day'), dayjs()] },
+                    { label: '最近2天', value: [dayjs().subtract(2, 'day'), dayjs()] },
+                    { label: '最近7天', value: [dayjs().subtract(7, 'day'), dayjs()] }
+                  ]
+                }
+              }
+            ]}
+            props={{
+              layout: 'inline',
+              onValuesChange: (_, values) => {
+                setStep(values.step)
+                const ts: Dayjs[] = []
+                values.time.forEach((t: string) => {
+                  ts.push(dayjs(t))
+                })
+                setTimeRange(ts)
+              }
+            }}
+          >
+            <Form.Item name='step' initialValue={step}>
+              <InputNumber min={1} max={60} placeholder='步长' />
+            </Form.Item>
+            <Form.Item name='time'>
+              <Button type='default' onClick={() => setShowArea(!showArea)}>
+                {showArea ? <AreaChartOutlined /> : <LineChartOutlined />}
+              </Button>
+            </Form.Item>
+          </DataFrom>
           {transformedData && transformedData?.length && tabKey === 'graph' ? (
-            <MetricsChart data={transformedData} />
+            <MetricsChart data={transformedData} showArea={showArea} />
           ) : (
             <Empty />
           )}
@@ -171,12 +225,15 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
 
     const abortController = new AbortController()
 
+    const start = timeRange?.[0]?.unix() || dayjs().subtract(5, 'minute').unix()
+    const end = timeRange?.[1]?.unix() || dayjs().unix()
+
     switch (tabKey) {
       case 'graph':
         path = 'query_range'
-        params.append('start', dayjs().subtract(5, 'minute').unix().toString())
-        params.append('end', dayjs().unix().toString())
-        params.append('step', '14')
+        params.append('start', start.toString())
+        params.append('end', end.toString())
+        params.append('step', `${step}`)
         break
       default:
         path = 'query'
@@ -234,7 +291,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
   useEffect(() => {
     onSearch(800)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expr])
+  }, [expr, timeRange])
 
   useEffect(() => {
     onSearch()
@@ -261,7 +318,12 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
           }
         />
       </div>
-      <Tabs defaultActiveKey='table' items={tabsItems} onChange={(tab) => tabsOnChange(tab as TableKey)} />
+      <Tabs
+        defaultActiveKey='table'
+        activeKey={tabKey}
+        items={tabsItems}
+        onChange={(tab) => tabsOnChange(tab as TableKey)}
+      />
     </div>
   )
 }

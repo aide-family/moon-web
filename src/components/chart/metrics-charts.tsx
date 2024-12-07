@@ -16,9 +16,10 @@ export interface MetricsChartProps {
   data: MetricSeries[]
   className?: string
   thresholds?: Threshold[]
+  showArea?: boolean
 }
 
-export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className, thresholds }) => {
+export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className, thresholds, showArea }) => {
   const containerRef = React.useRef<HTMLDivElement>(null)
 
   const { theme } = useContext(GlobalContext)
@@ -129,24 +130,26 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className, thr
     //   })
 
     // Add area with very low opacity for depth
-    chart
-      .area()
-      .encode('x', 'timestamp')
-      .encode('shape', 'smooth')
-      .encode('y', 'value')
-      .encode('color', 'instance')
-      .style({
-        fillOpacity: 0.1,
-        curveType: 'monotone' // Match the line curve type
-      })
-      .scale('y', {
-        nice: true,
-        domain: [min, max],
-        tickCount: 5
-      })
-    //   .scale('color', {
-    //     range: ['#3498db', '#2ecc71']
-    //   })
+    if (showArea) {
+      chart
+        .area()
+        .encode('x', 'timestamp')
+        .encode('shape', 'smooth')
+        .encode('y', 'value')
+        .encode('color', 'instance')
+        .style({
+          fillOpacity: 0.1,
+          curveType: 'monotone' // Match the line curve type
+        })
+        .scale('y', {
+          nice: true,
+          domain: [min, max],
+          tickCount: 5
+        })
+      //   .scale('color', {
+      //     range: ['#3498db', '#2ecc71']
+      //   })
+    }
 
     // Configure axes
     chart.axis('y', {
@@ -205,7 +208,7 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className, thr
       chart.destroy()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, theme])
+  }, [data, theme, showArea])
 
   return <div ref={containerRef} className={className} />
 }

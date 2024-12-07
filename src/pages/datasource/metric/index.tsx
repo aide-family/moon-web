@@ -8,6 +8,7 @@ import { TimelyQuery } from './timely-query'
 
 import { listDatasource, ListDatasourceRequest } from '@/api/datasource'
 import { DatasourceItem } from '@/api/model-types'
+import useStorage from '@/utils/storage'
 import './index.scss'
 
 export interface MetricProps {}
@@ -33,6 +34,10 @@ const Metric: React.FC<MetricProps> = () => {
   const [openAddModal, setOpenAddModal] = React.useState(false)
   const [refresh, setRefresh] = React.useState(false)
   const [editId, setEditId] = React.useState<number>()
+  const [tabKey, setTabKey] = useStorage<string>(
+    'metricDatasourceTab',
+    (localStorage.getItem('metricDatasourceTab') || 'basics') as string
+  )
 
   const handleRefresh = () => {
     setRefresh((prev) => !prev)
@@ -155,7 +160,7 @@ const Metric: React.FC<MetricProps> = () => {
 
       <div className='content' style={{ background: token.colorBgContainer }}>
         {datasourceDetail ? (
-          <Tabs defaultActiveKey='basics' items={tabsItems} />
+          <Tabs defaultActiveKey='basics' activeKey={tabKey} onChange={setTabKey} items={tabsItems} />
         ) : (
           <div style={{ height: '100%', width: '100%' }} className='center'>
             <Empty />
