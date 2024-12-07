@@ -125,6 +125,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
       <Steps
         size='small'
         current={current}
+        className='mb-3'
         items={[
           {
             title: '基础信息'
@@ -141,7 +142,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
       {current === 1 && <DataFrom props={{ form: datasourceForm, layout: 'vertical' }} items={options} />}
       {current === 2 && (
         <Descriptions
-          title='确认信息'
+          // title='确认信息'
           layout='vertical'
           column={2}
           items={[
