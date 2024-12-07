@@ -1,15 +1,27 @@
 import { MetricSeries } from '@/types/metrics'
+import { GlobalContext } from '@/utils/context'
 import { getDataRange } from '@/utils/metricsTransform'
 import { Chart } from '@antv/g2'
-import React from 'react'
+import React, { useContext } from 'react'
 
-interface MetricsChartProps {
-  data: MetricSeries[]
-  className?: string
+export interface Threshold {
+  label: {
+    text: string
+  }
+  value: number
+  color: string
 }
 
-export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className }) => {
+export interface MetricsChartProps {
+  data: MetricSeries[]
+  className?: string
+  thresholds?: Threshold[]
+}
+
+export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className, thresholds }) => {
   const containerRef = React.useRef<HTMLDivElement>(null)
+
+  const { theme } = useContext(GlobalContext)
 
   React.useEffect(() => {
     if (!containerRef.current) return
@@ -34,6 +46,28 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className }) =
         height: '100%'
       }
       // padding: 40,
+    })
+
+    chart.theme({ type: theme === 'dark' ? 'classicDark' : 'classic' })
+
+    // 生成阈值线
+    thresholds?.forEach((threshold) => {
+      chart
+        .line()
+        .encode('x', 'timestamp')
+        .encode('y', threshold.value)
+        .style({
+          stroke: threshold.color,
+          lineWidth: 2
+        })
+        .label({
+          text: threshold.label.text,
+          selector: 'last',
+          position: 'right',
+          textAlign: 'end',
+          dy: 0
+        })
+        .tooltip(false)
     })
 
     chart.options({
@@ -90,9 +124,9 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className }) =
         type: 'time',
         tickCount: 5
       })
-      .scale('color', {
-        range: ['#3498db', '#2ecc71']
-      })
+    //   .scale('color', {
+    //     range: ['#3498db', '#2ecc71']
+    //   })
 
     // Add area with very low opacity for depth
     chart
@@ -110,9 +144,9 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className }) =
         domain: [min, max],
         tickCount: 5
       })
-      .scale('color', {
-        range: ['#3498db', '#2ecc71']
-      })
+    //   .scale('color', {
+    //     range: ['#3498db', '#2ecc71']
+    //   })
 
     // Configure axes
     chart.axis('y', {
@@ -120,7 +154,7 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className }) =
       grid: {
         line: {
           style: {
-            stroke: '#e0e0e0',
+            stroke: 'red',
             lineWidth: 1,
             lineDash: [4, 4]
           }
@@ -170,7 +204,8 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className }) =
     return () => {
       chart.destroy()
     }
-  }, [data])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, theme])
 
   return <div ref={containerRef} className={className} />
 }

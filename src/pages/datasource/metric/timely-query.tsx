@@ -1,15 +1,17 @@
 import { DatasourceItem } from '@/api/model-types'
 import { baseURL } from '@/api/request'
+import { MetricsChart } from '@/components/chart/metrics-charts'
 import PromQLInput from '@/components/data/child/prom-ql'
 import { MetricsResponse } from '@/types/metrics'
 import { GlobalContext } from '@/utils/context'
 import { transformMetricsData } from '@/utils/metricsTransform'
+import useStorage from '@/utils/storage'
 import { ReloadOutlined } from '@ant-design/icons'
 import { Alert, Button, Empty, List, Space, Tabs, TabsProps, Typography } from 'antd'
 import dayjs from 'dayjs'
 import React, { useContext, useEffect, useState } from 'react'
 import ReactJson from 'react-json-view'
-import { MetricsChart } from './child/metrics-chart'
+// import { MetricsChart } from './child/metrics-chart'
 
 export interface TimelyQueryProps {
   datasource?: DatasourceItem
@@ -40,7 +42,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
   const [promDetailData, setPromDetailData] = React.useState<DetailValue[]>([])
   const [metricsData, setMetricsData] = React.useState<MetricsResponse>()
   const [promRangeData, setPromRangeData] = React.useState<RangeValue[]>([])
-  const [expr, setExpr] = useState<string>('')
+  const [expr, setExpr] = useStorage<string>('timelyQueryExpr', localStorage.getItem('timelyQueryExpr') || '')
   const [tabKey, setTabKey] = useState<TableKey>('table')
   const pathPrefix = `${baseURL}/metric/${teamInfo?.id || 0}/${datasource?.id}`
 
@@ -162,11 +164,11 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
     if (!expr) {
       return
     }
-    let path: string = ''
+    let path: string = 'query'
     const params: URLSearchParams = new URLSearchParams({
       query: expr
     })
-    path = 'query'
+
     const abortController = new AbortController()
 
     switch (tabKey) {
@@ -237,7 +239,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
   useEffect(() => {
     onSearch()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tabKey])
+  }, [tabKey, datasource])
 
   return (
     <div className='timely-query'>

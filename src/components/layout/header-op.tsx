@@ -2,7 +2,7 @@ import { logout } from '@/api/authorization'
 import { removeToken } from '@/api/request'
 import { GlobalContext } from '@/utils/context'
 import { GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
-import { Avatar, Button, Dropdown, MenuProps } from 'antd'
+import { Avatar, Button, Dropdown, MenuProps, theme } from 'antd'
 import React, { useContext } from 'react'
 import { ButtonFullScreen } from './button-full-screen'
 import { useCreateTeamModal } from './create-team-provider'
@@ -11,7 +11,10 @@ import { TeamMenu } from './team-menu'
 
 export const githubURL = `https://github.com/aide-family/moon`
 
+const { useToken } = theme
+
 export const HeaderOp: React.FC = () => {
+  const { token } = useToken()
   const { theme, setTheme, userInfo } = useContext(GlobalContext)
   const { setOpen } = useCreateTeamModal()
   const dropdownItems: MenuProps['items'] = [
@@ -60,7 +63,7 @@ export const HeaderOp: React.FC = () => {
     }
   ]
   return (
-    <div className='center gap8'>
+    <div className='center gap8' style={{ color: token.colorText }}>
       <TeamMenu />
       <ButtonFullScreen bodyId='content-body' type='text' />
       <HeaderMessage />
