@@ -31,13 +31,17 @@ const Banner: React.FC<BannerProps> = () => {
     }
   ]
   return (
-    <div className='login-banner'>
-      <Carousel className='login-banner-carousel' autoplay dots={false}>
+    <div className='relative top-1/2 translate-y-[-50%]'>
+      <Carousel
+        className='h-full p-8 flex justify-center items-center text-center text-white text-xl'
+        autoplay
+        dots={false}
+      >
         {data.map((item, index) => (
           <div key={index}>
-            <div className='login-banner-carousel-title'>{item.title}</div>
-            <div>{item.content}</div>
-            <img src={item.src} alt={item.title} className='login-banner-carousel-img' />
+            <div className='text-2xl pb-5 text-white'>{item.title}</div>
+            <div className='text-white'>{item.content}</div>
+            <img src={item.src} alt={item.title} className='h-full w-full' />
           </div>
         ))}
       </Carousel>

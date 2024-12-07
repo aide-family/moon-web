@@ -4,13 +4,11 @@ import { ErrorResponse, setToken } from '@/api/request'
 import { DataFrom } from '@/components/data/form'
 import { githubURL } from '@/components/layout/header-op'
 import { GlobalContext } from '@/utils/context'
+import { hashMd5 } from '@/utils/hash'
 import { GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { Alert, Button, Form, Input, Space, theme } from 'antd'
 import { debounce } from 'lodash'
 import { useCallback, useContext, useEffect, useState } from 'react'
-
-import { hashMd5 } from '@/utils/hash'
-import '../index.scss'
 
 type VerificationFormData = {
   email: string
@@ -36,6 +34,7 @@ export default function Register() {
   const [success, setSuccess] = useState('')
   const [email, setEmail] = useState('')
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const generateCaptcha = useCallback(
     debounce(async () => {
       getCaptcha({
@@ -104,21 +103,16 @@ export default function Register() {
     <div
       style={{
         background: token.colorBgContainer,
-        height: '100vh',
-        width: '100vw',
-        overflow: 'hidden',
-        color: token.colorTextBase,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
+        color: token.colorTextBase
       }}
+      className='h-[100vh] w-full overflow-hidden flex items-center justify-center'
     >
-      <div className='login-option-btns'>
+      <div className='flex gap-2 absolute top-6 right-6'>
         <Button type='primary' href={githubURL} target='_blank' icon={<GithubOutlined />} />
         <Button
           type='primary'
           icon={theme === 'dark' ? <SunOutlined /> : <MoonOutlined />}
-          style={{ color: '#FFF' }}
+          className='text-white'
           onClick={() => {
             setTheme?.(theme === 'dark' ? 'light' : 'dark')
           }}
@@ -127,18 +121,10 @@ export default function Register() {
       <Space
         direction='vertical'
         size={16}
-        style={{
-          display: 'flex',
-          width: '400px',
-          margin: 'auto',
-          // background: token.colorBgBase,
-          padding: '1.5rem',
-          borderColor: 'white',
-          boxShadow: token.boxShadow,
-          borderRadius: token.borderRadiusLG
-        }}
+        className='w-[400px] mx-auto border rounded-lg p-6 flex flex-col gap-4 border-none'
+        style={{ boxShadow: token.boxShadow, borderRadius: token.borderRadiusLG, borderColor: token.colorBorder }}
       >
-        <h1 style={{ fontSize: 32 }}>邮箱注册</h1>
+        <h1 className='text-2xl'>邮箱注册</h1>
         {error && step == 1 && <Alert message={error} type='error' showIcon />}
         {success && <Alert message={success} type='success' showIcon />}
         {step === 1 && (
@@ -170,31 +156,22 @@ export default function Register() {
             ]}
           >
             <Form.Item name='code' label='验证码' rules={[{ required: true, message: '请输入验证码' }]}>
-              <div className='login-form-captcha'>
+              <div className='flex gap-2'>
                 <Input
                   placeholder='验证码'
-                  style={{ lineHeight: 2.5 }}
                   suffix={
                     <img
                       src={captcha?.captcha}
                       alt='点击获取'
-                      className='login-form-captcha-img'
-                      style={{
-                        aspectRatio: '80/28',
-                        objectFit: 'cover',
-                        flexShrink: 0,
-                        backgroundColor: 'white',
-                        borderRadius: token.borderRadius,
-                        cursor: 'pointer',
-                        height: 40
-                      }}
+                      className='w-full h-[40px] text-xl aspect-[80/28] object-cover flex-shrink-0 bg-white rounded-md cursor-pointer'
+                      style={{ borderRadius: token.borderRadius }}
                       onClick={generateCaptcha}
                     />
                   }
                 />
               </div>
             </Form.Item>
-            <Button htmlType='submit' type='primary' disabled={isLoading} style={{ float: 'right', width: '100%' }}>
+            <Button htmlType='submit' type='primary' disabled={isLoading} className='w-full'>
               {isLoading ? '发送中...' : '发送验证码'}
             </Button>
           </DataFrom>
@@ -246,7 +223,7 @@ export default function Register() {
               }
             ]}
           >
-            <Button htmlType='submit' type='primary' disabled={isLoading} style={{ float: 'right', width: '100%' }}>
+            <Button htmlType='submit' type='primary' disabled={isLoading} className='w-full'>
               {isLoading ? '验证中...' : '验证'}
             </Button>
           </DataFrom>

@@ -7,7 +7,6 @@ import { Button, theme } from 'antd'
 import React, { useContext, useEffect, useState } from 'react'
 import Banner from './banner'
 import LoginForm from './form'
-import './index.scss'
 
 export interface LoginProps {}
 const { useToken } = theme
@@ -33,23 +32,23 @@ const Login: React.FC<LoginProps> = () => {
   }, [])
   return (
     <div
-      className='login'
+      className='flex w-full h-full'
       style={{
         background: token.colorBgBase,
         color: token.colorTextBase
       }}
     >
-      <div className='login-logo' style={{ fontSize: 24 }}>
-        <img src={logoIcon} style={{ width: 40, height: 40 }} />
+      <div className='p-6 flex gap-2 text-white text-2xl font-bold fixed w-[576px] z-[9999]'>
+        <img src={logoIcon} className='w-10 h-10' />
         {title}
       </div>
-      <div className='login-left'>
+      <div className='w-[576px] h-[100vh] bg-[#6c34e6]'>
         <Banner />
       </div>
-      <div className='login-right'>
+      <div className='flex flex-col justify-center items-center flex-1'>
         <LoginForm />
       </div>
-      <div className='login-option-btns'>
+      <div className='absolute top-5 right-5 flex gap-2'>
         <Button
           color='primary'
           variant='filled'
@@ -71,16 +70,10 @@ const Login: React.FC<LoginProps> = () => {
           {theme === 'dark' ? 'Light' : 'Dark'}
         </Button>
       </div>
-      <div className='login-footer'>
+      <div className='absolute bottom-3 flex items-center justify-center gap-2 w-full'>
         <CopyrightOutlined />
         {window.location.host}
-        <div
-          style={{
-            marginLeft: 10
-          }}
-        >
-          version: {version}
-        </div>
+        <div className='ml-2'>version: {version}</div>
       </div>
     </div>
   )

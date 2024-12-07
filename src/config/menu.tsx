@@ -30,6 +30,10 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: 'Metric',
         key: '/home/datasource/metric'
+      },
+      {
+        label: 'Event',
+        key: '/home/datasource/event'
       }
       // {
       //   label: 'Log',

@@ -105,6 +105,10 @@ export const routers: RouteObject[] = [
           {
             path: '/home/datasource/metric',
             Component: lazy(() => import('@/pages/datasource/metric'))
+          },
+          {
+            path: '/home/datasource/event',
+            Component: lazy(() => import('@/pages/datasource/event'))
           }
         ]
       },

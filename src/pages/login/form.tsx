@@ -119,17 +119,15 @@ const LoginForm: FC = () => {
     // 获取验证码
     handleCaptcha()
     handleOAuthList()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
-    <div className='form-box' style={{ width: '50%', minWidth: 420, maxWidth: 540 }}>
-      <div className='form-box-title' style={{ fontSize: 24 }}>
-        登录
-      </div>
+    <div className='w-1/2 min-w-[420px] max-w-[540px]'>
+      <div className='text-2xl pb-5 font-bold'>登录</div>
       <Form
         form={form}
         name='normal_login'
-        className='login-form'
         initialValues={{ remember: true }}
         onFinish={onFinish}
         size='large'
@@ -172,31 +170,22 @@ const LoginForm: FC = () => {
           validateStatus={err?.metadata?.['code'] ? 'error' : 'success'}
           help={err?.metadata?.['code']}
         >
-          <div className='login-form-captcha'>
+          <div className='flex gap-2'>
             <Input
               placeholder='验证码'
               suffix={
                 <img
                   src={captcha?.captcha}
                   alt='点击获取'
-                  className='login-form-captcha-img'
-                  style={{
-                    width: '100%',
-                    aspectRatio: '80/28',
-                    objectFit: 'cover',
-                    flexShrink: 0,
-                    backgroundColor: 'white',
-                    borderRadius: token.borderRadius,
-                    cursor: 'pointer',
-                    height: 40
-                  }}
+                  className='w-full h-[40px] text-xl aspect-[80/28] object-cover flex-shrink-0 bg-white rounded-md cursor-pointer'
+                  style={{ borderRadius: token.borderRadius }}
                   onClick={handleCaptcha}
                 />
               }
             />
           </div>
         </Form.Item>
-        <Flex justify='space-between' align='center' style={{ paddingBottom: '8px', width: '100%' }}>
+        <Flex justify='space-between' align='center' className='pb-2 w-full'>
           <Checkbox checked={remeber} onChange={(e) => handlRemember(e.target.checked)}>
             记住密码
           </Checkbox>
@@ -205,13 +194,14 @@ const LoginForm: FC = () => {
           </Button>
         </Flex>
         <Form.Item>
-          <Button type='primary' htmlType='submit' className='login-form-button'>
+          <Button type='primary' htmlType='submit' className='w-full'>
             登录
           </Button>
         </Form.Item>
         <Divider
           dashed
-          style={{ fontSize: '14px', borderColor: token.colorBorderSecondary, color: token.colorTextSecondary }}
+          className='text-sm'
+          style={{ borderColor: token.colorBorderSecondary, color: token.colorTextSecondary }}
         >
           没有账户？
           <Button onClick={() => navigate('/register')} type='link'>
@@ -219,7 +209,7 @@ const LoginForm: FC = () => {
           </Button>
           {oauthList.length > 0 && <span style={{ color: token.colorTextSecondary }}>使用以下方式直接登陆｜注册</span>}
         </Divider>
-        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+        <div className='flex justify-between w-full'>
           {oauthList.map((item, index) => (
             <Form.Item key={index}>
               <Button
@@ -227,7 +217,7 @@ const LoginForm: FC = () => {
                 href={item.redirect}
                 color='primary'
                 variant='filled'
-                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                className='flex items-center gap-2'
               >
                 {iconMap[item.icon]} {item.label}
               </Button>

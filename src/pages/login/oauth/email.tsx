@@ -9,8 +9,6 @@ import { Alert, Button, Form, Input, Space, theme } from 'antd'
 import { debounce } from 'lodash'
 import { useCallback, useContext, useEffect, useState } from 'react'
 
-import '../index.scss'
-
 type VerificationFormData = {
   email: string
   code: string
@@ -38,6 +36,7 @@ export default function EmailVerification() {
   const searchOAuthID = new URLSearchParams(search).get('oauth_id')
   const searchOAuthToken = new URLSearchParams(search).get('token')
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const generateCaptcha = useCallback(
     debounce(async () => {
       getCaptcha({
@@ -109,23 +108,14 @@ export default function EmailVerification() {
   }, [])
   return (
     <div
-      style={{
-        background: token.colorBgContainer,
-        height: '100vh',
-        width: '100vw',
-        overflow: 'hidden',
-        color: token.colorTextBase,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
+      className='h-[100vh] w-full overflow-hidden flex items-center justify-center'
+      style={{ background: token.colorBgContainer, color: token.colorTextBase }}
     >
-      <div className='login-option-btns'>
+      <div className='flex gap-2 absolute top-6 right-6'>
         <Button type='primary' href={githubURL} target='_blank' icon={<GithubOutlined />} />
         <Button
           type='primary'
           icon={theme === 'dark' ? <SunOutlined /> : <MoonOutlined />}
-          style={{ color: '#FFF' }}
           onClick={() => {
             setTheme?.(theme === 'dark' ? 'light' : 'dark')
           }}
@@ -134,16 +124,8 @@ export default function EmailVerification() {
       <Space
         direction='vertical'
         size={16}
-        style={{
-          display: 'flex',
-          width: '400px',
-          margin: 'auto',
-          // background: token.colorBgBase,
-          padding: '1.5rem',
-          borderColor: 'white',
-          boxShadow: token.boxShadow,
-          borderRadius: token.borderRadiusLG
-        }}
+        className='border rounded-lg p-6 flex flex-col gap-4 border-none w-[400px] mx-auto'
+        style={{ boxShadow: token.boxShadow, borderRadius: token.borderRadiusLG }}
       >
         <h1 style={{ fontSize: 32 }}>绑定邮箱</h1>
         {error && step == 1 && <Alert message={error} type='error' showIcon />}
@@ -177,31 +159,22 @@ export default function EmailVerification() {
             ]}
           >
             <Form.Item name='code' label='验证码' rules={[{ required: true, message: '请输入验证码' }]}>
-              <div className='login-form-captcha'>
+              <div className='flex gap-2'>
                 <Input
                   placeholder='验证码'
-                  style={{ lineHeight: 2.5 }}
                   suffix={
                     <img
                       src={captcha?.captcha}
                       alt='点击获取'
-                      className='login-form-captcha-img'
-                      style={{
-                        aspectRatio: '80/28',
-                        objectFit: 'cover',
-                        flexShrink: 0,
-                        backgroundColor: 'white',
-                        borderRadius: token.borderRadius,
-                        cursor: 'pointer',
-                        height: 40
-                      }}
+                      className='w-full h-[40px] text-xl aspect-[80/28] object-cover flex-shrink-0 bg-white rounded-md cursor-pointer'
+                      style={{ borderRadius: token.borderRadius }}
                       onClick={generateCaptcha}
                     />
                   }
                 />
               </div>
             </Form.Item>
-            <Button htmlType='submit' type='primary' disabled={isLoading} style={{ float: 'right', width: '100%' }}>
+            <Button htmlType='submit' type='primary' disabled={isLoading} className='w-full'>
               {isLoading ? '发送中...' : '发送验证码'}
             </Button>
           </DataFrom>
@@ -228,7 +201,7 @@ export default function EmailVerification() {
               }
             ]}
           >
-            <Button htmlType='submit' type='primary' disabled={isLoading} style={{ float: 'right', width: '100%' }}>
+            <Button htmlType='submit' type='primary' disabled={isLoading} className='w-full'>
               {isLoading ? '验证中...' : '验证'}
             </Button>
           </DataFrom>
