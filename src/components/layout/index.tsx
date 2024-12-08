@@ -8,8 +8,9 @@ import { CopyrightOutlined } from '@ant-design/icons'
 import { CreateTeamModalProvider } from './create-team-provider'
 import { HeaderOp } from './header-op'
 import HeaderTitle from './header-title'
-import './layout.scss'
 import RouteBreadcrumb from './route-breadcrumb'
+
+import './layout.scss'
 
 const { Header, Content, Footer, Sider } = Layout
 const { useToken } = theme

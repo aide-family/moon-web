@@ -40,7 +40,7 @@ export const metricQueryRange = async (
   params.append('end', end.unix().toString())
   params.append('step', `${step}`)
 
-  fetch(`${pathPrefix}/${apiPath}/${path}?${params}`, {
+  return fetch(`${pathPrefix}/${apiPath}/${path}?${params}`, {
     cache: 'no-store',
     credentials: 'same-origin',
     signal: abortController.signal,
@@ -49,9 +49,6 @@ export const metricQueryRange = async (
     }
   })
     .then((resp) => resp?.json() || {})
-    .catch((err) => {
-      return err
-    })
     .then((query: MetricsResponse) => {
       return query
     })

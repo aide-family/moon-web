@@ -231,5 +231,7 @@ export enum ActionKey {
   /** 操作日志 */
   OPERATION_LOG = '__operation_log__',
   /** 立即推送 */
-  IMMEDIATELY_PUSH = '__immediately_push__'
+  IMMEDIATELY_PUSH = '__immediately_push__',
+  /** 图表 */
+  CHART = '__chart__'
 }

@@ -7,13 +7,6 @@ const RabbitServer: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [serverList, setServerList] = React.useState<ServerItem[]>([])
 
-  useEffect(() => {
-    getRabbitServerList()
-    const interval = setInterval(() => {
-      getRabbitServerList()
-    }, 10000)
-    return () => clearInterval(interval)
-  }, [])
   const getRabbitServerList = () => {
     setLoading(true)
     getRabbitServer({ type: 'rabbit' })
@@ -23,6 +16,19 @@ const RabbitServer: React.FC = () => {
       })
       .finally(() => setLoading(false))
   }
+
+  useEffect(() => {
+    getRabbitServerList()
+    const interval = setInterval(() => {
+      getRabbitServerList()
+    }, 10000)
+    return () => clearInterval(interval)
+  }, [])
+
+  if (serverList.length === 0) {
+    return null
+  }
+
   return (
     <>
       <div>

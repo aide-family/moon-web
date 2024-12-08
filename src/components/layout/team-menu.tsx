@@ -12,6 +12,7 @@ import { useCreateTeamModal } from './create-team-provider'
 
 export interface TeamMenuProps {}
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const defaultTeamInfo: TeamItem = {
   id: 0,
   name: '请选择团队信息',
@@ -49,6 +50,7 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
     })
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleGetMyTeamList = useCallback(
     debounce(async () => {
       myTeam().then(({ list }) => {
@@ -82,14 +84,15 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
       1000 * 60 * 10
     )
     return () => clearInterval(interval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => {
-    if (!teamInfo || !teamInfo.id) {
-      createTeamContext?.setOpen?.(true)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [teamInfo])
+  // useEffect(() => {
+  //   if (!teamInfo || !teamInfo.id) {
+  //     createTeamContext?.setOpen?.(true)
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [teamInfo])
 
   useEffect(() => {
     if (!createTeamContext.open) {

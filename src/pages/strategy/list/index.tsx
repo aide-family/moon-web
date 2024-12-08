@@ -21,9 +21,11 @@ import { Button, message, Modal, Space, theme } from 'antd'
 import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { Detail } from './detail'
-import styles from './index.module.scss'
 import { MetricEditModal, MetricEditModalData } from './metric-edit-modal'
 import { formList, getColumnList } from './options'
+
+import styles from './index.module.scss'
+import StrategyCharts from './strategy-charts'
 
 const { confirm } = Modal
 const { useToken } = theme
@@ -50,6 +52,7 @@ const StrategyMetric: React.FC = () => {
   const [openGroupEditModal, setOpenGroupEditModal] = useState(false)
   const [editGroupId, setEditGroupId] = useState<number>()
   const [disabledEditGroupModal, setDisabledEditGroupModal] = useState(false)
+  const [openChartModal, setOpenChartModal] = useState(false)
   const handleEditModal = (editId?: number) => {
     setEditGroupId(editId)
     setOpenGroupEditModal(true)
@@ -80,6 +83,17 @@ const StrategyMetric: React.FC = () => {
     setRefresh(!refresh)
   }
 
+  const handleOpenChartModal = (id: number) => {
+    setOpenChartModal(true)
+    setDetailId(id)
+  }
+
+  const handleCloseChartModal = () => {
+    setOpenChartModal(false)
+    setDetailId(0)
+  }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchData = useCallback(
     debounce(async (params) => {
       setLoading(true)
@@ -201,6 +215,9 @@ const StrategyMetric: React.FC = () => {
       case ActionKey.EDIT:
         handleEditModal(item.id)
         break
+      case ActionKey.CHART:
+        handleOpenChartModal(item.id)
+        break
       case ActionKey.IMMEDIATELY_PUSH:
         pushStrategy(item.id)
           .then(() => message.success('推送成功'))
@@ -242,6 +259,13 @@ const StrategyMetric: React.FC = () => {
         onCancel={handleCloseGroupEditModal}
         submit={handleMetricEditModalSubmit}
         disabled={disabledEditGroupModal}
+      />
+      <StrategyCharts
+        title='策略图表'
+        width='60%'
+        strategyID={detailId}
+        open={openChartModal}
+        onCancel={handleCloseChartModal}
       />
       <Detail width='60%' strategyId={detailId} open={openDetailModal} onCancel={handleCloseDetailModal} />
       <div

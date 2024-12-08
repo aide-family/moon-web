@@ -1,7 +1,7 @@
 import { EventDatasource } from '@/api/datasource/mq'
 import useStorage from '@/utils/storage'
 import { Button, Empty, Input, Menu, Tabs, TabsProps, theme } from 'antd'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Basics } from './basics'
 import { EditModal } from './edit-modal'
 
@@ -38,6 +38,10 @@ export default function Event() {
   const handleDatasourceChange = (id: number) => {
     setDatasourceDetail(datasource?.find((item) => item.id === id))
   }
+
+  useEffect(() => {
+    setDatasource([])
+  }, [])
 
   return (
     <div className='p-3 h-full w-full flex flex-row gap-2'>

@@ -15,6 +15,7 @@ export const Detail: React.FC<DetailProps> = (props) => {
   const [detail, setDetail] = useState<StrategyItem>()
   const [loading, setLoading] = useState(false)
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchData = useCallback(
     debounce(async (id: number) => {
       //   if (!realtimeId) return

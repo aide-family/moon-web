@@ -155,6 +155,14 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       )
     },
     {
+      key: ActionKey.CHART,
+      label: (
+        <Button size='small' type='link'>
+          策略图表
+        </Button>
+      )
+    },
+    {
       key: ActionKey.OPERATION_LOG,
       label: (
         <Button size='small' type='link'>
