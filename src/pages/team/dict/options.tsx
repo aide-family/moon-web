@@ -124,7 +124,15 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<DictItem> =>
       title: '名称',
       dataIndex: 'name',
       key: 'name',
-      width: 200
+      width: 200,
+      render: (name: string, record: DictItem) => {
+        return (
+          <Space className='w-full'>
+            <div className='w-4 h-4' style={{ background: record.cssClass }} />
+            {name}
+          </Space>
+        )
+      }
     },
     {
       title: '编码',

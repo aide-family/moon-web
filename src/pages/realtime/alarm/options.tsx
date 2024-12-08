@@ -62,8 +62,8 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<RealtimeAlar
   return [
     {
       title: '告警等级',
-      dataIndex: 'level',
-      key: 'level',
+      dataIndex: 'metricLevel',
+      key: 'metricLevel',
       width: 80,
       render: (level: StrategyMetricLevelItem) => {
         return level?.level?.label || '-'

@@ -47,7 +47,7 @@ interface GroupColumnProps {
 
 export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmHistoryItem> => {
   const { onHandleMenuOnClick, current, pageSize } = props
-  const tableOperationItems = (_: AlarmHistoryItem): MoreMenuProps['items'] => [
+  const tableOperationItems = (): MoreMenuProps['items'] => [
     {
       key: ActionKey.OPERATION_LOG,
       label: (
@@ -120,7 +120,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmHistory
           </Button>
           {tableOperationItems && tableOperationItems?.length > 0 && (
             <MoreMenu
-              items={tableOperationItems(record)}
+              items={tableOperationItems()}
               onClick={(key: ActionKey) => {
                 onHandleMenuOnClick(record, key)
               }}
