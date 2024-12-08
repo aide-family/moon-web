@@ -20,68 +20,6 @@ export function basicFormOptions(): (DataFromItem | DataFromItem[])[] {
         props: { placeholder: '请输入名称' }
       },
       {
-        label: '类型',
-        name: 'storageType',
-        type: 'select',
-        formProps: {
-          rules: [{ required: true, message: '请选择类型' }]
-        },
-        props: {
-          allowClear: false,
-          placeholder: '请选择类型',
-          options: [
-            {
-              label: (
-                <Space>
-                  <Kafka />
-                  Kafka
-                </Space>
-              ),
-              value: StorageType.StorageTypeKafka
-            },
-            {
-              label: (
-                <Space>
-                  <RocketMQ />
-                  RocketMQ
-                </Space>
-              ),
-              value: StorageType.StorageTypeRocketmq
-            },
-            {
-              label: (
-                <Space>
-                  <RabbitMQ />
-                  RabbitMQ
-                </Space>
-              ),
-              value: StorageType.StorageTypeRabbitmq
-            },
-            {
-              label: (
-                <Space>
-                  <MQTT />
-                  MQTT
-                </Space>
-              ),
-              value: StorageType.StorageTypeMQTT
-            }
-          ]
-        }
-      }
-    ],
-    [
-      {
-        label: '端点',
-        name: 'endpoint',
-        type: 'input',
-        formProps: {
-          rules: [{ required: true, message: '请输入端点', type: 'url' }],
-          tooltip: 'endpoint'
-        },
-        props: { placeholder: '请输入端点' }
-      },
-      {
         label: '状态',
         name: 'status',
         type: 'radio-group',
@@ -94,6 +32,67 @@ export function basicFormOptions(): (DataFromItem | DataFromItem[])[] {
             { label: '禁用', value: Status.StatusDisable }
           ]
         }
+      }
+    ],
+    {
+      label: '存储器类型',
+      name: 'storageType',
+      type: 'radio-group',
+      formProps: {
+        rules: [{ required: true, message: '请选择类型' }]
+      },
+      props: {
+        optionType: 'button',
+        options: [
+          {
+            label: (
+              <Space>
+                <Kafka />
+                Kafka
+              </Space>
+            ),
+            value: StorageType.StorageTypeKafka
+          },
+          {
+            label: (
+              <Space>
+                <RocketMQ />
+                RocketMQ
+              </Space>
+            ),
+            value: StorageType.StorageTypeRocketmq
+          },
+          {
+            label: (
+              <Space>
+                <RabbitMQ />
+                RabbitMQ
+              </Space>
+            ),
+            value: StorageType.StorageTypeRabbitmq
+          },
+          {
+            label: (
+              <Space>
+                <MQTT />
+                MQTT
+              </Space>
+            ),
+            value: StorageType.StorageTypeMQTT
+          }
+        ]
+      }
+    },
+    [
+      {
+        label: '端点',
+        name: 'endpoint',
+        type: 'input',
+        formProps: {
+          rules: [{ required: true, message: '请输入端点', type: 'url' }],
+          tooltip: 'endpoint'
+        },
+        props: { placeholder: '请输入端点' }
       }
     ],
     [

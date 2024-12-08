@@ -104,7 +104,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
     <Modal
       {...rest}
       loading={loading}
-      closeIcon={null}
+      closable={false}
       footer={
         <Space>
           <Button type='dashed' onClick={onClose}>

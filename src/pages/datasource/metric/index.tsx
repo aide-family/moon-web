@@ -104,11 +104,12 @@ const Metric: React.FC<MetricProps> = () => {
   }
 
   const handleEditModalOnOK = () => {
-    setOpenAddModal(false)
+    handleEditModalOnCancel()
     handleRefresh()
   }
   const handleEditModalOnCancel = () => {
     setOpenAddModal(false)
+    setEditId(0)
   }
 
   const handleOnAdd = () => {
@@ -134,7 +135,10 @@ const Metric: React.FC<MetricProps> = () => {
   return (
     <div className='metricDatasourceBox'>
       <EditModal
+        title={editId ? '编辑数据源' : '新建数据源'}
         width='50%'
+        closable={false}
+        maskClosable={false}
         datasourceId={editId}
         open={openAddModal}
         onOk={handleEditModalOnOK}
