@@ -7,6 +7,7 @@ import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
+import useStorage from '@/utils/storage'
 import { PlusOutlined } from '@ant-design/icons'
 import { Badge, Button, Radio, Space, Switch, theme } from 'antd'
 import { debounce } from 'lodash'
@@ -15,6 +16,7 @@ import styles from './index.module.scss'
 import { ModalAddPages } from './modal-add-pages'
 import { ModalDetail } from './modal-detail'
 import { formList, getColumnList } from './options'
+import RealtimeChart from './realtime-chart'
 
 const { useToken } = theme
 
@@ -32,7 +34,7 @@ const Group: React.FC = () => {
   const { isFullscreen, teamInfo, showLevelColor, setShowLevelColor } = useContext(GlobalContext)
 
   const [datasource, setDatasource] = useState<RealtimeAlarmItem[]>([])
-  const [searchParams, setSearchParams] = useState<ListAlarmRequest>(defaultSearchParams)
+
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
@@ -42,7 +44,15 @@ const Group: React.FC = () => {
   const [alertCounts, setAlertCounts] = useState<{ [key: number]: number }>({})
   const [realtimeId, setRealtimeId] = useState<number | undefined>()
   const [openDetail, setOpenDetail] = useState(false)
-  const [alarmPageID, setAlarmPageID] = useState(-1)
+  const [openChart, setOpenChart] = useState(false)
+  const [alarmID, setAlarmID] = useState<number | undefined>()
+  const [alarmPageID, setAlarmPageID] = useStorage<number>('alarmPageID', -1)
+  const [searchParams, setSearchParams] = useState<ListAlarmRequest>({
+    ...defaultSearchParams,
+    alarmPage: alarmPageID && alarmPageID > 0 ? alarmPageID : 0,
+    myAlarm: alarmPageID === -1
+  })
+
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
@@ -70,19 +80,35 @@ const Group: React.FC = () => {
     setRealtimeId(undefined)
   }
 
+  const handleOpenChart = (id: number) => {
+    setOpenChart(true)
+    setAlarmID(id)
+  }
+
+  const handleCloseChart = () => {
+    setOpenChart(false)
+    setAlarmID(undefined)
+  }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchMypageData = useCallback(
     debounce(async () => {
       if (!teamInfo || !teamInfo.id) return
       listAlarmPage({})
         .then(({ list, alertCounts }) => {
+          const findPageID = list?.find((item) => item.id === alarmPageID)?.id
           setMyPages(list || [])
           setAlertCounts(alertCounts || {})
+          if (!findPageID) {
+            setAlarmPageID(list?.[0]?.id || -1)
+          }
         })
         .finally(() => setLoading(false))
     }, 500),
     []
   )
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchData = useCallback(
     debounce(async (params) => {
       if (!teamInfo || !teamInfo.id) return
@@ -123,7 +149,7 @@ const Group: React.FC = () => {
   const onReset = () => {
     setSearchParams({
       ...defaultSearchParams,
-      alarmPage: alarmPageID > 0 ? alarmPageID : 0,
+      alarmPage: alarmPageID && alarmPageID > 0 ? alarmPageID : 0,
       myAlarm: alarmPageID === -1
     })
   }
@@ -142,6 +168,9 @@ const Group: React.FC = () => {
       case ActionKey.EDIT:
         break
       case ActionKey.DELETE:
+        break
+      case ActionKey.CHART:
+        handleOpenChart(item.id)
         break
     }
   }
@@ -181,12 +210,14 @@ const Group: React.FC = () => {
       onRefresh()
     }, 10000)
     return () => clearInterval(interval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
     <div className={styles.box}>
       <ModalAddPages open={openAddPages} onClose={() => setOpenAddPages(false)} onSubmit={onSubmitPages} />
       <ModalDetail open={openDetail} onCancel={handleCloseDetail} realtimeId={realtimeId} width='50%' />
+      <RealtimeChart open={openChart} onCancel={handleCloseChart} alarmID={alarmID} />
       <div
         style={{
           background: token.colorBgContainer,

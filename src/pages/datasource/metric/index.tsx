@@ -34,10 +34,7 @@ const Metric: React.FC<MetricProps> = () => {
   const [openAddModal, setOpenAddModal] = React.useState(false)
   const [refresh, setRefresh] = React.useState(false)
   const [editId, setEditId] = React.useState<number>()
-  const [tabKey, setTabKey] = useStorage<string>(
-    'metricDatasourceTab',
-    (localStorage.getItem('metricDatasourceTab') || 'basics') as string
-  )
+  const [tabKey, setTabKey] = useStorage<string>('metricDatasourceTab', 'basics')
 
   const handleRefresh = () => {
     setRefresh((prev) => !prev)

@@ -34,25 +34,18 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<RealtimeAlar
   const { onHandleMenuOnClick } = props
   const tableOperationItems = (): MoreMenuProps['items'] => [
     {
-      key: ActionKey.OPERATION_LOG,
+      key: ActionKey.CHART,
       label: (
         <Button size='small' type='link'>
-          操作日志
+          事件图表
         </Button>
       )
     },
-    {
-      key: ActionKey.EDIT,
-      label: (
-        <Button size='small' type='link'>
-          编辑
-        </Button>
-      )
-    },
+
     {
       key: ActionKey.DELETE,
       label: (
-        <Button type='link' size='small' danger>
+        <Button type='link' size='small' danger disabled>
           删除
         </Button>
       )
@@ -104,18 +97,16 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<RealtimeAlar
       fixed: 'right',
       width: 120,
       render: (_, record: RealtimeAlarmItem) => (
-        <Space size={20}>
+        <Space size={20} className='w-full'>
           <Button size='small' type='link' onClick={() => onHandleMenuOnClick(record, ActionKey.DETAIL)}>
             详情
           </Button>
-          {tableOperationItems && tableOperationItems?.length > 0 && (
-            <MoreMenu
-              items={tableOperationItems()}
-              onClick={(key: ActionKey) => {
-                onHandleMenuOnClick(record, key)
-              }}
-            />
-          )}
+          <MoreMenu
+            items={tableOperationItems()}
+            onClick={(key: ActionKey) => {
+              onHandleMenuOnClick(record, key)
+            }}
+          />
         </Space>
       )
     }

@@ -10,13 +10,11 @@ export default function Event() {
   const { token } = theme.useToken()
   const [datasource, setDatasource] = useState<EventDatasource[]>([])
   const [datasourceDetail, setDatasourceDetail] = useState<EventDatasource>()
-  const [tabKey, setTabKey] = useStorage<string>(
-    'mqDatasourceTab',
-    (localStorage.getItem('mqDatasourceTab') || 'basics') as string
-  )
+  const [tabKey, setTabKey] = useStorage<string>('mqDatasourceTab', 'basics')
   const refresh = () => {
     console.log('refresh')
   }
+
   const tabsItems: TabsProps['items'] = [
     {
       key: 'basics',

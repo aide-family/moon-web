@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react'
 
 function useStorage<T = string>(key: string, defaultValue?: T): [T | undefined, (value: T) => void, () => void] {
-  const [storedValue, setStoredValue] = useState(defaultValue)
+  const [storedValue, setStoredValue] = useState(getValue(localStorage.getItem(key), defaultValue) || defaultValue)
 
   const setStorageValue = (value: T) => {
     localStorage.setItem(key, toString(value))
