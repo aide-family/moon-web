@@ -1,7 +1,6 @@
-import { FC, useContext } from 'react'
-
 import logoIcon from '@/assets/images/logo.svg'
 import { GlobalContext } from '@/utils/context'
+import { FC, useContext } from 'react'
 
 const HeaderTitle: FC = () => {
   const { title = 'Moon', collapsed } = useContext(GlobalContext)

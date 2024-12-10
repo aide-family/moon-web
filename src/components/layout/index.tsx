@@ -10,6 +10,7 @@ import { HeaderOp } from './header-op'
 import HeaderTitle from './header-title'
 import RouteBreadcrumb from './route-breadcrumb'
 
+import MoonChat from '../chat/moon-chat'
 import './layout.scss'
 
 const { Header, Content, Footer, Sider } = Layout
@@ -158,6 +159,7 @@ const MoonLayout: React.FC = () => {
             </Footer>
           </Layout>
         </Layout>
+        <MoonChat />
       </CreateTeamModalProvider>
     </>
   )
