@@ -74,7 +74,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmHistory
       title: '状态',
       dataIndex: 'alertStatus',
       key: 'alertStatus',
-      width: 80,
+      width: 160,
       render: (status: AlertStatus) => {
         return AlertStatusData[status]
       }
