@@ -76,12 +76,14 @@ export function EditHookModal(props: EditHookModalProps) {
     } else {
       form.resetFields()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail])
 
   useEffect(() => {
     if (hookId && open) {
       handleGetHookDetail()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hookId, open])
 
   return (

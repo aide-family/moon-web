@@ -19,6 +19,7 @@ export const ModalDetail: React.FC<ModalDetailProps> = (props) => {
   const [detail, setDetail] = useState<RealtimeAlarmItem>()
   const [loading, setLoading] = useState(false)
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchData = useCallback(
     debounce(async (id: number) => {
       //   if (!realtimeId) return
@@ -35,6 +36,7 @@ export const ModalDetail: React.FC<ModalDetailProps> = (props) => {
   useEffect(() => {
     if (!realtimeId || !open) return
     fetchData(realtimeId)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [realtimeId, open])
 
   const items = (): DescriptionsProps['items'] => {

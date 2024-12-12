@@ -1,3 +1,6 @@
+import { listDatasource, ListDatasourceRequest } from '@/api/datasource'
+import { DatasourceItem } from '@/api/model-types'
+import useStorage from '@/utils/storage'
 import { Button, Empty, Input, Menu, Tabs, TabsProps, theme } from 'antd'
 import React, { useEffect } from 'react'
 import { AlarmTemplate } from './alarm-template'
@@ -5,11 +8,6 @@ import { Basics } from './basics'
 import { EditModal } from './edit-modal'
 import { Metadata } from './metadata'
 import { TimelyQuery } from './timely-query'
-
-import { listDatasource, ListDatasourceRequest } from '@/api/datasource'
-import { DatasourceItem } from '@/api/model-types'
-import useStorage from '@/utils/storage'
-import './index.scss'
 
 export interface MetricProps {}
 
@@ -50,7 +48,7 @@ const Metric: React.FC<MetricProps> = () => {
       key: 'basics',
       label: '基本信息',
       children: (
-        <div className='box' style={{ overflow: 'auto' }}>
+        <div className='overflow-auto overflow-x-hidden'>
           <Basics datasource={datasourceDetail} refresh={handleRefresh} editDataSource={editDataSource} />
         </div>
       )
@@ -59,7 +57,7 @@ const Metric: React.FC<MetricProps> = () => {
       key: 'metadata',
       label: '元数据',
       children: (
-        <div className='box'>
+        <div className='overflow-auto overflow-x-hidden'>
           <Metadata datasource={datasourceDetail} />
         </div>
       )
@@ -68,7 +66,7 @@ const Metric: React.FC<MetricProps> = () => {
       key: 'realtime-query',
       label: '及时查询',
       children: (
-        <div className='box'>
+        <div className='overflow-auto overflow-x-hidden'>
           <TimelyQuery datasource={datasourceDetail} />
         </div>
       )
@@ -78,7 +76,7 @@ const Metric: React.FC<MetricProps> = () => {
       label: '告警模板',
       disabled: true,
       children: (
-        <div className='box'>
+        <div className='overflow-auto overflow-x-hidden'>
           <AlarmTemplate datasource={datasourceDetail} />
         </div>
       )
@@ -130,7 +128,7 @@ const Metric: React.FC<MetricProps> = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh, searchDatasourceParams])
   return (
-    <div className='metricDatasourceBox'>
+    <div className='p-3 flex flex-row gap-3 h-full w-full'>
       <EditModal
         title={editId ? '编辑数据源' : '新建数据源'}
         width='50%'
@@ -141,8 +139,11 @@ const Metric: React.FC<MetricProps> = () => {
         onOk={handleEditModalOnOK}
         onCancel={handleEditModalOnCancel}
       />
-      <div className='sider' style={{ background: token.colorBgContainer }}>
-        <Button type='primary' style={{ width: '100%' }} onClick={handleOnAdd}>
+      <div
+        className='p-2 flex flex-col gap-2 h-full max-w-[400px] min-w-[200px]'
+        style={{ background: token.colorBgContainer }}
+      >
+        <Button type='primary' className='w-full' onClick={handleOnAdd}>
           新建数据源
         </Button>
         <Input.Search placeholder='数据源' onChange={handleOnSearch} onSearch={handleDatasourceSearch} />
@@ -153,17 +154,18 @@ const Metric: React.FC<MetricProps> = () => {
               label: item.name
             }
           })}
+          style={{ borderInlineEnd: 'none' }}
           selectedKeys={[datasourceDetail?.id + '']}
-          className='menu'
+          className='w-full flex-1 overflow-auto text-start'
           onSelect={(k) => handleDatasourceChange(+k.key)}
         />
       </div>
 
-      <div className='content' style={{ background: token.colorBgContainer }}>
+      <div className='p-3 flex-1 overflow-auto' style={{ background: token.colorBgContainer }}>
         {datasourceDetail ? (
           <Tabs defaultActiveKey='basics' activeKey={tabKey} onChange={setTabKey} items={tabsItems} />
         ) : (
-          <div style={{ height: '100%', width: '100%' }} className='center'>
+          <div className='h-full w-full flex justify-center items-center'>
             <Empty />
           </div>
         )}

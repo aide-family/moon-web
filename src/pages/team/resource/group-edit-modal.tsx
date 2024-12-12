@@ -3,8 +3,7 @@ import { getResource } from '@/api/resource'
 import { DataFrom } from '@/components/data/form'
 import { Form, Modal, ModalProps } from 'antd'
 import React, { useEffect, useState } from 'react'
-import styles from './index.module.scss'
-import { CreateDictFormType, editModalFormItems } from './options'
+import { editModalFormItems } from './options'
 
 export interface GroupEditModalProps extends ModalProps {
   groupId?: number
@@ -13,7 +12,7 @@ export interface GroupEditModalProps extends ModalProps {
 
 export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
   const { onCancel, open, title, groupId, disabled } = props
-  const [form] = Form.useForm<CreateDictFormType>()
+  const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [grounpDetail, setGroupDetail] = useState<ResourceItem>()
 
@@ -53,7 +52,6 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
   return (
     <>
       <Modal
-        className={styles.modal}
         {...props}
         title={title}
         open={open}
@@ -61,12 +59,10 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
         onOk={handleOnCancel}
         confirmLoading={loading}
       >
-        <div className={styles.edit_content}>
-          <DataFrom
-            items={editModalFormItems}
-            props={{ form, layout: 'vertical', autoComplete: 'off', disabled: disabled || loading }}
-          />
-        </div>
+        <DataFrom
+          items={editModalFormItems}
+          props={{ form, layout: 'vertical', autoComplete: 'off', disabled: disabled || loading }}
+        />
       </Modal>
     </>
   )

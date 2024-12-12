@@ -1,9 +1,9 @@
 import { Editor, Monaco } from '@monaco-editor/react'
-import React, { useEffect, useRef, useState } from 'react'
-import { editor as editorNameSpace } from 'monaco-editor'
-import { Position } from 'monaco-editor/esm/vs/editor/editor.api'
-import type { languages } from 'monaco-editor/esm/vs/editor/editor.api'
 import { Form, Input, theme } from 'antd'
+import { editor as editorNameSpace } from 'monaco-editor'
+import type { languages } from 'monaco-editor/esm/vs/editor/editor.api'
+import { Position } from 'monaco-editor/esm/vs/editor/editor.api'
+import React, { useEffect, useRef, useState } from 'react'
 import './style.css'
 
 const { useToken } = theme
@@ -276,8 +276,6 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
     setCode(value as string)
   }, [value])
 
-  console.log('language', language);
-
   return (
     <>
       {disabled ? (
@@ -289,9 +287,7 @@ export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
           language={language}
           line={11}
           value={code}
-          onChange={(value) => {
-            onChange?.(value)
-          }}
+          onChange={onChange}
           onMount={handleEditorDidMount}
           // 设置style
           options={{

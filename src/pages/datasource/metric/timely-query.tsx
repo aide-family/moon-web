@@ -12,7 +12,6 @@ import { Alert, Button, Empty, Form, InputNumber, List, Space, Tabs, TabsProps, 
 import dayjs, { Dayjs } from 'dayjs'
 import React, { useContext, useEffect, useState } from 'react'
 import ReactJson from 'react-json-view'
-// import { MetricsChart } from './child/metrics-chart'
 
 export interface TimelyQueryProps {
   datasource?: DatasourceItem
@@ -60,14 +59,14 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
       key: 'table',
       label: `Table`,
       children: (
-        <div className='tab-content'>
+        <div className='overflow-auto h-[calc(100vh-340px)]'>
           <List
             header={
               <div>
                 <Alert
                   message={
                     <div>
-                      共查询到 <b style={{ color: 'violet' }}>{promDetailData?.length || 0}</b> 条数据
+                      共查询到 <b className='text-violet-500'>{promDetailData?.length || 0}</b> 条数据
                     </div>
                   }
                   // description='Prometheus'
@@ -81,14 +80,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
             renderItem={(item: DetailValue, index: React.Key) => {
               return (
                 <List.Item key={index} id={`list-${index}`}>
-                  <Space
-                    direction='horizontal'
-                    style={{
-                      width: '100%',
-                      gap: 8,
-                      justifyContent: 'space-between'
-                    }}
-                  >
+                  <Space direction='horizontal' className='w-full gap-2 justify-between'>
                     <Paragraph copyable>
                       {item?.metric?.__name__
                         ? `${item?.metric?.__name__}{${Object.keys(item?.metric || {})
@@ -97,7 +89,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
                             .join(', ')}}`
                         : expr}
                     </Paragraph>
-                    <div style={{ float: 'right' }}>
+                    <div className='float-right'>
                       <b> {tabKey === 'table' && item?.value?.[1]}</b>
                     </div>
                   </Space>
@@ -112,7 +104,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
       key: 'graph',
       label: `Graph`,
       children: (
-        <div className='tab-content'>
+        <div className='overflow-auto h-[calc(100vh-340px)]'>
           <DataFrom
             items={[
               {
@@ -152,7 +144,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
             }}
           >
             <Form.Item name='step' initialValue={step}>
-              <InputNumber min={1} max={60} placeholder='步长' />
+              <InputNumber min={1} placeholder='步长' />
             </Form.Item>
             <Form.Item name='time'>
               <Button type='default' onClick={() => setShowArea(!showArea)}>
@@ -172,17 +164,9 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
       key: 'json',
       label: `Json`,
       children: (
-        <div className='tab-content'>
+        <div className='overflow-auto h-[calc(100vh-340px)]'>
           {promDetailData || promRangeData ? (
-            <div
-              style={{
-                gap: 8,
-                display: 'flex',
-                flexDirection: 'column',
-                height: '100%',
-                overflow: 'auto'
-              }}
-            >
+            <div className='gap-2 flex flex-col h-full overflow-auto'>
               <Alert
                 message={
                   <div>
@@ -296,7 +280,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
   }, [tabKey, datasource])
 
   return (
-    <div className='timely-query'>
+    <div>
       <div>
         <PromQLInput
           pathPrefix={pathPrefix}

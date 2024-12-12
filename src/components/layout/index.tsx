@@ -1,17 +1,14 @@
-import { Layout, Menu, Spin, theme } from 'antd'
-import React, { Suspense, useContext, useEffect, useState } from 'react'
-import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-
 import { healthApi, isLogin, setToken } from '@/api/request'
 import { GlobalContext } from '@/utils/context'
 import { CopyrightOutlined } from '@ant-design/icons'
+import { Layout, Menu, Spin, theme } from 'antd'
+import React, { Suspense, useContext, useEffect, useState } from 'react'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import MoonChat from '../chat/moon-chat'
 import { CreateTeamModalProvider } from './create-team-provider'
 import { HeaderOp } from './header-op'
 import HeaderTitle from './header-title'
 import RouteBreadcrumb from './route-breadcrumb'
-
-import MoonChat from '../chat/moon-chat'
-import './layout.scss'
 
 const { Header, Content, Footer, Sider } = Layout
 const { useToken } = theme
@@ -93,28 +90,16 @@ const MoonLayout: React.FC = () => {
   return (
     <>
       <CreateTeamModalProvider>
-        <Layout style={{ overflow: 'hidden', height: '100vh', width: '100vw' }} id='content-body'>
-          <Sider collapsed={collapsed} className='menu-sider' style={{ background: token.colorBgContainer }}>
-            <div
-              className='menu-header'
-              style={{
-                height: 60,
-                padding: '0 22px',
-                color: token.colorText
-              }}
-            >
+        <Layout className='overflow-hidden h-[100vh] w-[100vw]' id='content-body'>
+          <Sider collapsed={collapsed} className='relative' style={{ background: token.colorBgContainer }}>
+            <div className='flex px-5 justify-center items-center h-[60px]' style={{ color: token.colorText }}>
               <HeaderTitle />
             </div>
             <Menu
-              // theme={theme}
-              // theme='dark'
               mode='inline'
               items={menuItems}
-              style={{
-                height: '100%',
-                borderInlineEnd: 'none',
-                overflow: 'auto'
-              }}
+              style={{ borderInlineEnd: 'none' }}
+              className='h-full overflow-auto'
               openKeys={collapsed ? [] : openKeys}
               defaultOpenKeys={collapsed ? [] : openKeys}
               onSelect={({ key }) => handleOnSelect(key)}
@@ -123,15 +108,9 @@ const MoonLayout: React.FC = () => {
               onOpenChange={handleMenuOpenChange}
             />
           </Sider>
-          <Layout
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column'
-            }}
-          >
+          <Layout className='flex flex-col flex-1'>
             <Header
-              className='header'
+              className='bg-none flex justify-between pl-5 pr-5'
               style={{
                 background: token.colorBgContainer,
                 color: token.colorText
@@ -141,21 +120,17 @@ const MoonLayout: React.FC = () => {
               <HeaderOp />
             </Header>
 
-            <Content className='content' style={{ flex: 1 }}>
+            <Content className='flex flex-col flex-1'>
               <Suspense fallback={<Spin />}>
                 <Outlet />
               </Suspense>
             </Content>
-            <Footer className='footer center' style={{ background: token.colorBgContainer }}>
+            <Footer
+              className='h-8 flex items-center justify-center gap-1'
+              style={{ background: token.colorBgContainer }}
+            >
               <CopyrightOutlined />
-              {window.location.host}{' '}
-              <div
-                style={{
-                  marginLeft: 10
-                }}
-              >
-                version: {version}
-              </div>
+              {window.location.host} <div className='ml-2'>version: {version}</div>
             </Footer>
           </Layout>
         </Layout>

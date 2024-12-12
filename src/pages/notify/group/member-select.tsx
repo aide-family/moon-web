@@ -30,6 +30,7 @@ export const MemberSelect: React.FC<MemberSelectProps> = (props) => {
   const [memberList, setMemberList] = useState<TeamMemberItem[]>([])
   const [members, setMembers] = useState<{ [key: number]: NoticeItem }>({})
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchData = useCallback(
     debounce(async (params: ListTeamMemberRequest) => {
       listTeamMember(params).then(({ list }) => {
@@ -44,6 +45,7 @@ export const MemberSelect: React.FC<MemberSelectProps> = (props) => {
       pagination: { pageNum: 1, pageSize: 999 },
       status: Status.StatusEnable
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const noticeMemberColumns: ColumnsType<NoticeItem> = [

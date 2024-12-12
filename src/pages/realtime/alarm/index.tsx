@@ -12,7 +12,6 @@ import { PlusOutlined } from '@ant-design/icons'
 import { Badge, Button, Radio, Space, Switch, theme } from 'antd'
 import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
-import styles from './index.module.scss'
 import { ModalAddPages } from './modal-add-pages'
 import { ModalDetail } from './modal-detail'
 import { formList, getColumnList } from './options'
@@ -214,7 +213,7 @@ const Group: React.FC = () => {
   }, [])
 
   return (
-    <div className={styles.box}>
+    <div className='flex flex-col gap-3 p-3'>
       <ModalAddPages open={openAddPages} onClose={() => setOpenAddPages(false)} onSubmit={onSubmitPages} />
       <ModalDetail open={openDetail} onCancel={handleCloseDetail} realtimeId={realtimeId} width='50%' />
       <RealtimeChart open={openChart} onCancel={handleCloseChart} alarmID={alarmID} />
@@ -227,16 +226,14 @@ const Group: React.FC = () => {
         <SearchBox ref={searchRef} formList={formList} onSearch={onSearch} onReset={onReset} />
       </div>
       <div
-        className={styles.main}
+        className='p-3'
         style={{
           background: token.colorBgContainer,
           borderRadius: token.borderRadius
         }}
       >
-        <div className={styles.main_toolbar}>
-          <div className={styles.main_toolbar_left} style={{ fontSize: '16px' }}>
-            实时告警列表
-          </div>
+        <div className='flex justify-between items-center'>
+          <div className='text-lg font-bold'>实时告警列表</div>
           <Space size={8}>
             <Radio.Group buttonStyle='solid' onChange={(e) => alarmPageChange(e.target.value)} value={alarmPageID}>
               <Radio.Button value={-1}>
@@ -264,7 +261,7 @@ const Group: React.FC = () => {
             </Button>
           </Space>
         </div>
-        <div style={{ marginTop: '20px' }} ref={ADivRef}>
+        <div className='mt-3' ref={ADivRef}>
           <AutoTable
             rowKey={(record) => record.id}
             dataSource={datasource}

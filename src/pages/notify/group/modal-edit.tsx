@@ -4,7 +4,6 @@ import { CreateAlarmGroupRequest, getAlarmGroup } from '@/api/notify/alarm-group
 import { DataFrom } from '@/components/data/form'
 import { Form, Modal, ModalProps } from 'antd'
 import React, { useEffect, useState } from 'react'
-import styles from './index.module.scss'
 import { MemberSelect } from './member-select'
 import { editModalFormItems } from './options'
 
@@ -80,25 +79,15 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
 
   return (
     <>
-      <Modal
-        className={styles.modal}
-        {...props}
-        title={title}
-        open={open}
-        onCancel={handleOnCancel}
-        onOk={handleOnOk}
-        confirmLoading={loading}
-      >
-        <div className={styles.edit_content}>
-          <DataFrom
-            items={editModalFormItems}
-            props={{ form, layout: 'vertical', autoComplete: 'off', disabled: disabled || loading }}
-          >
-            <Form.Item label='成员列表' name='noticeMember'>
-              <MemberSelect />
-            </Form.Item>
-          </DataFrom>
-        </div>
+      <Modal {...props} title={title} open={open} onCancel={handleOnCancel} onOk={handleOnOk} confirmLoading={loading}>
+        <DataFrom
+          items={editModalFormItems}
+          props={{ form, layout: 'vertical', autoComplete: 'off', disabled: disabled || loading }}
+        >
+          <Form.Item label='成员列表' name='noticeMember'>
+            <MemberSelect />
+          </Form.Item>
+        </DataFrom>
       </Modal>
     </>
   )

@@ -6,7 +6,6 @@ import { Form, Modal, ModalProps } from 'antd'
 import FormItem from 'antd/es/form/FormItem'
 import { debounce } from 'lodash'
 import React, { useCallback, useEffect, useState } from 'react'
-import styles from './index.module.scss'
 import { editModalFormItems } from './options'
 import PermissionTree from './permission-tree'
 
@@ -74,6 +73,7 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
     })
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchData = useCallback(
     debounce(async (params: ListResourceRequest) => {
       listResource(params).then(({ list }) => {
@@ -90,29 +90,15 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
 
   return (
     <>
-      <Modal
-        className={styles.modal}
-        {...props}
-        title={title}
-        open={open}
-        onCancel={handleOnCancel}
-        onOk={handleOnOk}
-        confirmLoading={loading}
-      >
-        <div className={styles.edit_content}>
-          <DataFrom
-            items={editModalFormItems}
-            props={{ form, layout: 'vertical', autoComplete: 'off', disabled: disabled || loading }}
-          >
-            <FormItem label='权限列表' name='permissions'>
-              <PermissionTree
-                items={resourceList}
-                disabled={disabled}
-                // defalutValue={grounpDetail?.resources?.map((item) => item.id) || []}
-              />
-            </FormItem>
-          </DataFrom>
-        </div>
+      <Modal {...props} title={title} open={open} onCancel={handleOnCancel} onOk={handleOnOk} confirmLoading={loading}>
+        <DataFrom
+          items={editModalFormItems}
+          props={{ form, layout: 'vertical', autoComplete: 'off', disabled: disabled || loading }}
+        >
+          <FormItem label='权限列表' name='permissions'>
+            <PermissionTree items={resourceList} disabled={disabled} />
+          </FormItem>
+        </DataFrom>
       </Modal>
     </>
   )

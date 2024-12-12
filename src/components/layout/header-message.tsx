@@ -27,6 +27,7 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
     setRefresh(!refresh)
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchData = useCallback(
     debounce(async (params) => {
       listMessage(params).then(({ list, pagination }) => {
@@ -143,20 +144,14 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
   return (
     <Popover
       placement='bottomLeft'
-      className='header-message'
-      //   open={true}
       content={
-        <div className='header-message-popover' style={{ width: 400, height: 400 }}>
-          <div className='header-message-popover-header'>
-            <div className='header-message-popover-header-title' style={{ fontSize: 16 }}>
-              通知
-            </div>
-            <div className='header-message-popover-header-content' style={{ fontSize: 12 }}>
-              您有 {msgCnt} 条未读消息
-            </div>
+        <div className='w-[320px] h-[400px] flex flex-col'>
+          <div className='p-3 pb-2'>
+            <div className='text-base font-bold'>通知</div>
+            <div className='text-sm text-gray-500'>您有 {msgCnt} 条未读消息</div>
           </div>
           <Divider />
-          <Space direction='vertical' size={4} className='header-message-popover-content'>
+          <Space direction='vertical' size={4} className='text-[#888] text-sm'>
             {data.map((item, index) => {
               const { color, label } = getBizName(item.biz)
               return (
@@ -164,14 +159,14 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
                   key={index}
                   color={getMessageButtonColor(item.category)}
                   variant='filled'
-                  style={{ width: '100%', height: 80, cursor: 'pointer' }}
+                  className='w-full h-[80px] cursor-pointer'
                   onClick={() => handleMessage(item)}
                 >
-                  <Space size={12} style={{ width: '100%' }}>
-                    <div style={{ textAlign: 'left' }}>{getMessageIcon(item.category)}</div>
-                    <div style={{ fontSize: 12, textAlign: 'left' }}>
+                  <Space size={12} className='w-full'>
+                    <div className='text-left'>{getMessageIcon(item.category)}</div>
+                    <div className='text-sm text-left'>
                       <Space size={8}>
-                        <Tag color={color} bordered={false} style={{ width: '100%', textAlign: 'center' }}>
+                        <Tag color={color} bordered={false} className='w-full text-center'>
                           {label}
                         </Tag>
                         <div>
@@ -190,8 +185,8 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
           {msgCnt > 0 && (
             <>
               <Divider />
-              <div className='header-message-popover-footer'>
-                <Button style={{ width: '100%' }} type='primary'>
+              <div className='flex-1 overflow-auto overflow-x-hidden py-3'>
+                <Button className='w-full' type='primary'>
                   清空所有
                 </Button>
               </div>
@@ -223,6 +218,7 @@ const TimeDifference: React.FC<TimeDifferenceProps> = ({ timestamp, subfix = '',
 
     // 清除 interval
     return () => clearInterval(interval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timestamp])
 
   return <>{timeDiff ? timeDiff + subfix : ''}</>

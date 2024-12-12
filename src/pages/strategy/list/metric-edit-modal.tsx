@@ -29,7 +29,6 @@ import {
   Typography
 } from 'antd'
 import React, { useContext, useEffect, useState } from 'react'
-import styles from './index.module.scss'
 import { MetricEditModalFormData } from './options'
 const { useToken } = theme
 
@@ -360,16 +359,8 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
 
   return (
     <>
-      <Modal
-        className={styles.modal}
-        {...props}
-        title={title}
-        open={open}
-        onCancel={handleOnCancel}
-        onOk={handleOnOk}
-        confirmLoading={loading}
-      >
-        <div className={styles.edit_content}>
+      <Modal {...props} title={title} open={open} onCancel={handleOnCancel} onOk={handleOnOk} confirmLoading={loading}>
+        <div className='max-h-[76vh] overflow-y-auto overflow-x-hidden'>
           <Form form={form} layout='vertical' autoComplete='off' disabled={disabled || loading}>
             <Form.Item
               label='数据源'
@@ -476,7 +467,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                     <Row gutter={12} wrap>
                       {fields.map(({ key, name, ...restField }) => (
                         <Col span={12} key={key}>
-                          <Row gutter={12} style={{ width: '200%' }}>
+                          <Row gutter={12} className='w-[200%]'>
                             <Col span={4}>
                               <Form.Item
                                 {...restField}
@@ -493,13 +484,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                               </Form.Item>
                             </Col>
                             <Col span={8}>
-                              <span
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 8
-                                }}
-                              >
+                              <span className='flex items-center gap-2'>
                                 <Form.Item
                                   {...restField}
                                   name={[name, 'value']}
@@ -510,7 +495,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                       message: '标签值不允许为空'
                                     }
                                   ]}
-                                  style={{ flex: 1 }}
+                                  className='flex-1'
                                 >
                                   <Input placeholder='value' />
                                 </Form.Item>
@@ -538,7 +523,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                     <Popover
                       title='告警摘要, 告警内容如下所示'
                       content={
-                        <Typography.Text ellipsis copyable style={{ width: '30vw' }}>
+                        <Typography.Text ellipsis copyable className='w-[30vw]'>
                           {summaryOkInfo.info}
                         </Typography.Text>
                       }
@@ -559,7 +544,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                     <Popover
                       title='告警明细, 告警内容如下所示'
                       content={
-                        <Typography.Text ellipsis copyable style={{ width: '30vw' }}>
+                        <Typography.Text ellipsis copyable className='w-[30vw]'>
                           {descriptionOkInfo.info}
                         </Typography.Text>
                       }
@@ -582,13 +567,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
             <Form.Item label={<b>告警等级</b>} required>
               <Form.List name='strategyLevel'>
                 {(fields, { add, remove }) => (
-                  <div
-                    style={{
-                      display: 'flex',
-                      rowGap: 16,
-                      flexDirection: 'column'
-                    }}
-                  >
+                  <div className='flex flex-col gap-4'>
                     {fields.map((field) => (
                       <Card
                         size='small'
@@ -661,7 +640,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                 }
                               ]}
                             >
-                              <InputNumber style={{ width: '100%' }} placeholder='请输入阈值' />
+                              <InputNumber className='w-full' placeholder='请输入阈值' />
                             </Form.Item>
                           </Col>
                           <Col span={12}>
@@ -699,7 +678,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                 }
                               ]}
                             >
-                              <InputNumber addonAfter='秒' style={{ width: '100%' }} placeholder='请输入持续时间' />
+                              <InputNumber addonAfter='秒' className='w-full' placeholder='请输入持续时间' />
                             </Form.Item>
                           </Col>
                           <Col span={6}>
@@ -714,7 +693,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                 }
                               ]}
                             >
-                              <InputNumber addonAfter='次' style={{ width: '100%' }} placeholder='请输入持续次数' />
+                              <InputNumber addonAfter='次' className='w-full' placeholder='请输入持续次数' />
                             </Form.Item>
                           </Col>
                         </Row>
@@ -775,14 +754,8 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                 <Row gutter={24} wrap>
                                   {fields.map(({ key, name, ...restField }) => (
                                     <Col span={24} key={key}>
-                                      <span
-                                        style={{
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          gap: 8
-                                        }}
-                                      >
-                                        <Row gutter={24} style={{ width: '100%' }}>
+                                      <span className='flex items-center gap-2'>
+                                        <Row gutter={24} className='w-full'>
                                           <Col span={10}>
                                             <Form.Item
                                               name={[name, 'name']}
@@ -808,7 +781,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                                   message: '标签值不允许为空'
                                                 }
                                               ]}
-                                              style={{ flex: 1 }}
+                                              className='flex-1'
                                             >
                                               <Input placeholder='value' />
                                             </Form.Item>
@@ -824,7 +797,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
                                                   message: '标签值不允许为空'
                                                 }
                                               ]}
-                                              style={{ flex: 1 }}
+                                              className='flex-1'
                                             >
                                               <Input placeholder='通知对象' />
                                             </Form.Item>

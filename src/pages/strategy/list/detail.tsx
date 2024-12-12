@@ -93,7 +93,7 @@ export const Detail: React.FC<DetailProps> = (props) => {
         key: 'annotations',
         label: '注释',
         children: Object.keys(annotations).map((key) => (
-          <Space style={{ width: '100%' }} key={key}>{`${key}: ${annotations[key]}`}</Space>
+          <Space className='w-full' key={key}>{`${key}: ${annotations[key]}`}</Space>
         )),
         span: { xs: 12, sm: 12, md: 6, lg: 6, xl: 6, xxl: 6 }
       },
@@ -105,7 +105,7 @@ export const Detail: React.FC<DetailProps> = (props) => {
         span: 12,
         children: (
           <Table
-            style={{ width: '100%' }}
+            className='w-full'
             size='small'
             columns={[
               {

@@ -15,7 +15,7 @@ let timer: NodeJS.Timeout | null = null
 export function DetailModal(props: HookDetailModalProps) {
   const { id, open, onCancel, onOk } = props
 
-  const [detail, setDetail] = useState<TeamMemberItem>()
+  const [detail, setDetail] = useState<TeamMemberItem>({} as TeamMemberItem)
   const getHookDetail = () => {
     if (!id) {
       return
@@ -43,13 +43,13 @@ export function DetailModal(props: HookDetailModalProps) {
     },
     {
       label: '角色类型',
-      children: RoleData[detail?.role!],
+      children: RoleData[detail.role],
       span: { xs: 1, sm: 2, md: 3, lg: 3, xl: 2, xxl: 2 }
     },
     {
       label: '状态',
       children: detail ? (
-        <Badge color={StatusData[detail?.status!].color} text={StatusData[detail?.status!].text} />
+        <Badge color={StatusData[detail?.status]?.color} text={StatusData[detail.status]?.text} />
       ) : (
         '-'
       ),
@@ -81,6 +81,7 @@ export function DetailModal(props: HookDetailModalProps) {
     if (id && open) {
       getHookDetail()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, open])
 
   return (

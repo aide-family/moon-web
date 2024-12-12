@@ -1,4 +1,4 @@
-import { DictType, Status } from '@/api/enum'
+import { Status } from '@/api/enum'
 import { ActionKey, StatusData } from '@/api/global'
 import { ResourceItem } from '@/api/model-types'
 import { DataFromItem } from '@/components/data/form'
@@ -6,7 +6,6 @@ import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
 import { Badge, Button, Space } from 'antd'
-import { Color } from 'antd/es/color-picker'
 import { ColumnsType } from 'antd/es/table'
 
 export const formList: SearchFormItem[] = [
@@ -145,20 +144,6 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<ResourceItem
   ]
 }
 
-export type ColorType = 'hex' | 'rgb' | 'hsb'
-
-export interface CreateDictFormType {
-  name: string
-  value: string
-  dictType: DictType
-  colorType: string
-  cssClass: Color | string
-  icon: string
-  imageUrl: string
-  status: Status
-  languageCode: string
-  remark: string
-}
 export const editModalFormItems: (DataFromItem | DataFromItem[])[] = [
   {
     name: 'name',

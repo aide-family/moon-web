@@ -1,10 +1,9 @@
-import { FC, forwardRef, memo, useImperativeHandle, useState } from 'react'
-import { Button, Col, Form, Input, Row, Space, Select, DatePicker, Radio, TreeSelect, InputNumber } from 'antd'
-import FetchSelect, { FetchSelectProps } from './child/fetch-select'
-import type { InputProps, SelectProps, RadioGroupProps, DatePickerProps, InputNumberProps, TreeSelectProps } from 'antd'
 import { UpOutlined } from '@ant-design/icons'
+import type { DatePickerProps, InputNumberProps, InputProps, RadioGroupProps, SelectProps, TreeSelectProps } from 'antd'
+import { Button, Col, DatePicker, Form, Input, InputNumber, Radio, Row, Select, Space, TreeSelect } from 'antd'
 import type { Rule } from 'antd/es/form'
-import styles from './index.module.scss'
+import { FC, forwardRef, memo, useImperativeHandle, useState } from 'react'
+import FetchSelect, { FetchSelectProps } from './child/fetch-select'
 
 export type DataProps = {
   value?: string | number
@@ -54,9 +53,11 @@ export interface SearchProps {
   onSearch: (values: any) => void
   onReset: () => void
   labelCol?: number
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ref: any
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 const SearchBox: FC<SearchProps> = forwardRef((props: SearchProps, ref) => {
   const { formList, onSearch, onReset } = props
   const [isOpen, setIsOpen] = useState(false)
@@ -114,9 +115,9 @@ const SearchBox: FC<SearchProps> = forwardRef((props: SearchProps, ref) => {
   }
 
   return (
-    <div className={styles.search_box}>
+    <div className='p-6'>
       <Form form={form} onFinish={onFinish}>
-        <Row gutter={[16, 0]} style={{ position: 'relative' }}>
+        <Row gutter={[16, 0]} className='relative'>
           {formList?.map((item: SearchFormItem, index: number) => {
             const {
               label,
@@ -146,16 +147,7 @@ const SearchBox: FC<SearchProps> = forwardRef((props: SearchProps, ref) => {
             sm={12}
             lg={6}
             xl={6}
-            style={{
-              textAlign: 'right',
-              height: '56px',
-              position: 'absolute',
-              bottom: 0,
-              right: 0,
-              overflow: 'hidden',
-              whiteSpace: 'nowrap',
-              textOverflow: 'ellipsis'
-            }}
+            className='text-right h-14 absolute bottom-0 right-0 overflow-hidden whitespace-nowrap text-ellipsis'
           >
             <Space>
               <Button type='primary' htmlType='submit'>
@@ -166,7 +158,7 @@ const SearchBox: FC<SearchProps> = forwardRef((props: SearchProps, ref) => {
               </Button>
               {formList && formList.length > 3 ? (
                 <Space>
-                  <Button style={{ padding: 0 }} type='link' onClick={toggle}>
+                  <Button className='p-0' type='link' onClick={toggle}>
                     {isOpen ? '收起' : '展开'}
                     <UpOutlined rotate={isOpen ? 180 : 0} />
                   </Button>
@@ -180,4 +172,5 @@ const SearchBox: FC<SearchProps> = forwardRef((props: SearchProps, ref) => {
   )
 })
 
+// eslint-disable-next-line react-refresh/only-export-components
 export default memo(SearchBox)

@@ -167,7 +167,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
   }, [searchMetricParams, refresh])
 
   return (
-    <div className='metadata'>
+    <div className='flex flex-col gap-3'>
       <Label
         metricDetail={metricDetail}
         open={openMetricLabelModal}
@@ -175,7 +175,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
         onOk={handleLabelModalOnOK}
       />
       <Info datasource={datasource} />
-      <Flex justify='space-between' align='center' gap={12} className='op'>
+      <Flex justify='space-between' align='center' gap={12} className='gap-3'>
         <Space size='middle'>
           <Button type='primary' onClick={fetchSyncMetric}>
             同步数据
@@ -205,7 +205,11 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
               props={{
                 options: Object.entries(MetricTypeData).map((item) => {
                   return {
-                    label: <div style={{ color: item[1].color, width: '100%' }}>{item[1].text}</div>,
+                    label: (
+                      <div className='w-full' style={{ color: item[1].color }}>
+                        {item[1].text}
+                      </div>
+                    ),
                     value: +item[0]
                   }
                 }),

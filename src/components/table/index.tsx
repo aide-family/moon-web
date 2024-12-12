@@ -42,7 +42,7 @@ export const AutoTable: React.FC<AutoTableProps> = (props) => {
       <Table {...props} columns={columns} dataSource={dataSource} pagination={false} style={style} />
       {total > 0 && (
         <Pagination
-          className={styles.pagination}
+          className='text-right p-0 inline-block w-full'
           total={total}
           onChange={(e, size) => handleTurnPage?.(e, size)}
           pageSize={pageSize}

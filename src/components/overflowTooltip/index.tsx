@@ -1,6 +1,5 @@
-import React, { useRef, useEffect, useState } from 'react'
 import { Tooltip } from 'antd'
-import styles from './index.module.scss'
+import React, { useEffect, useRef, useState } from 'react'
 
 const OverflowTooltip = ({
   content,
@@ -23,24 +22,13 @@ const OverflowTooltip = ({
   }, [content])
 
   return (
-    <div
-      ref={textRef}
-      style={{
-        ...style,
-        maxWidth,
-        overflow: 'hidden',
-        whiteSpace: 'nowrap',
-        textOverflow: 'ellipsis'
-      }}
-    >
+    <div ref={textRef} style={{ ...style, maxWidth }} className='overflow-hidden whitespace-nowrap text-ellipsis'>
       {isOverflow ? (
-        <Tooltip title={content} overlayClassName={styles.tooltip}>
-          <div style={{ maxWidth: '100%' }} className={styles.text_overflow}>
-            {content}
-          </div>
+        <Tooltip title={content} overlayClassName='max-w-[300px] max-h-[200px] overflow-y-auto'>
+          <div className='max-w-full text-left overflow-hidden whitespace-nowrap text-ellipsis'>{content}</div>
         </Tooltip>
       ) : (
-        <div style={{ maxWidth: '100%', textAlign: 'left' }}>{content}</div>
+        <div className='max-w-full text-left'>{content}</div>
       )}
     </div>
   )

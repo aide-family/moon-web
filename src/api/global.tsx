@@ -139,7 +139,7 @@ export const ConditionData: Record<Condition, string> = {
 }
 
 export const SustainTypeData: Record<SustainType, string> = {
-  [SustainType.SustainTypeUnknown]: '未知',
+  [SustainType.SustainTypeUnknown]: '全部',
   [SustainType.SustainTypeFor]: 'm时间内出现n次',
   [SustainType.SustainTypeMax]: 'm时间内最多出现n次',
   [SustainType.SustainTypeMin]: 'm时间内最少出现n次'
@@ -198,20 +198,20 @@ export const DomainTypeData: Record<DomainType, string> = {
 }
 
 export const AlertStatusData: Record<AlertStatus, React.ReactNode> = {
-  [AlertStatus.ALERT_STATUS_UNKNOWN]: <Tag bordered={false}>Unknown</Tag>,
+  [AlertStatus.ALERT_STATUS_UNKNOWN]: <Tag bordered={false}>全部</Tag>,
   [AlertStatus.ALERT_STATUS_FIRING]: (
     <Tag bordered={false} color='red'>
-      Firang
+      告警中 (Firang)
     </Tag>
   ),
   [AlertStatus.ALERT_STATUS_RESOLVED]: (
     <Tag bordered={false} color='green'>
-      Resolved
+      已恢复 (Resolved)
     </Tag>
   ),
   [AlertStatus.ALERT_STATUS_Silenced]: (
     <Tag bordered={false} color='orange'>
-      Silenced
+      已静音 (Silenced)
     </Tag>
   )
 }

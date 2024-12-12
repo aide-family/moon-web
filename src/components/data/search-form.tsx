@@ -1,7 +1,6 @@
-import { FC } from 'react'
-
+import { Col, Form, Row } from 'antd'
 import type { FormProps } from 'antd/es/form'
-import { Form, Col, Row } from 'antd'
+import { FC } from 'react'
 import { DataInput } from './child/data-input'
 import { DataFromItem } from './form'
 

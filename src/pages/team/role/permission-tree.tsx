@@ -14,9 +14,9 @@ export interface PermissionTreeProps extends TreeProps {
 
 const PermissionTree: React.FC<PermissionTreeProps> = (props) => {
   const { items, onChange, value = props.defalutValue, disabled, autoExpandParent = true } = props
-  const [expandedKeys, setExpandedKeys] = useState<number[]>(value || [])
-  const [checkedKeys, setCheckedKeys] = useState<number[]>(value || [])
-  const [selectedKeys, setSelectedKeys] = useState<number[]>(value || [])
+  const [expandedKeys, setExpandedKeys] = useState<React.Key[]>(value || [])
+  const [checkedKeys, setCheckedKeys] = useState<React.Key[]>(value || [])
+  const [selectedKeys, setSelectedKeys] = useState<React.Key[]>(value || [])
   const [autoExpandParentX, setAutoExpandParentX] = useState(autoExpandParent)
 
   function convertToTreeData(resourceItems: ResourceItem[]): TreeDataNode[] {
@@ -64,33 +64,45 @@ const PermissionTree: React.FC<PermissionTreeProps> = (props) => {
     return Array.from(domainMap.values())
   }
 
-  const onExpand: TreeProps['onExpand'] = (expandedKeysValue) => {
+  const onExpand: TreeProps['onExpand'] = (expandedKeysValue: React.Key[]) => {
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
     // or, you can remove all expanded children keys.
-    setExpandedKeys(expandedKeysValue as number[])
+    setExpandedKeys(expandedKeysValue)
     setAutoExpandParentX(false)
   }
 
-  const onCheck: TreeProps['onCheck'] = (checkedKeysValue) => {
-    setCheckedKeys(
-      (checkedKeysValue as any[]).filter((key) => {
-        // 移除不是数字的key
-        return typeof key === 'number'
-      })
-    )
+  const onCheck: TreeProps['onCheck'] = (
+    checkedKeysValue:
+      | {
+          checked: React.Key[]
+          halfChecked: React.Key[]
+        }
+      | React.Key[]
+  ) => {
+    if (Array.isArray(checkedKeysValue)) {
+      setCheckedKeys(
+        checkedKeysValue.filter((key) => {
+          // 移除不是数字的key
+          return typeof key === 'number'
+        })
+      )
+    } else {
+      setCheckedKeys(checkedKeysValue.checked as number[])
+    }
   }
 
-  const onSelect: TreeProps['onSelect'] = (selectedKeysValue) => {
-    setSelectedKeys(selectedKeysValue as any[])
+  const onSelect: TreeProps['onSelect'] = (selectedKeysValue: React.Key[]) => {
+    setSelectedKeys(selectedKeysValue)
   }
 
   useEffect(() => {
-    onChange && onChange(checkedKeys)
+    onChange && onChange(checkedKeys as number[])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkedKeys])
 
   return (
     <Tree
-      style={{ height: 400, overflow: 'auto' }}
+      className='h-[400px] overflow-auto'
       disabled={disabled}
       checkable
       showLine

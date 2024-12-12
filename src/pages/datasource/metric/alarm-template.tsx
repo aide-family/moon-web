@@ -58,7 +58,7 @@ export const AlarmTemplate: React.FC<AlarmTemplateProps> = () => {
       title: '操作',
       key: 'action',
       width: 120,
-      render: (_, __: DatasourceItem) => (
+      render: () => (
         <Space size='middle'>
           <a>详情</a>
           <a>删除</a>
@@ -67,19 +67,19 @@ export const AlarmTemplate: React.FC<AlarmTemplateProps> = () => {
     }
   ]
   return (
-    <div className='alarm-template'>
-      <Flex justify='space-between' align='center' gap={12} className='op'>
+    <>
+      <Flex justify='space-between' align='center' gap={12} className='gap-3 pb-3'>
         <Button type='primary'>新建模板</Button>
         <Form layout='inline'>
           <Form.Item>
-            <Select placeholder='请选择模板类型' className='select' />
+            <Select placeholder='请选择模板类型' />
           </Form.Item>
           <Form.Item>
-            <Input.Search placeholder='请输入模板名称' className='search' />
+            <Input.Search placeholder='请输入模板名称' className='w-[400px]' />
           </Form.Item>
         </Form>
       </Flex>
       <Table rowKey={(row) => row.id} columns={columns} dataSource={data} />
-    </div>
+    </>
   )
 }

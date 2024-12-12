@@ -9,6 +9,7 @@ import MoreMenu from '@/components/moreMenu'
 import { Avatar, Badge, Button, Space } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const formList: SearchFormItem[] = [
   {
     name: 'keyword',
@@ -46,6 +47,7 @@ interface GroupColumnProps {
   pageSize: number
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmNoticeGroupItem> => {
   const { onHandleMenuOnClick, current, pageSize } = props
   const tableOperationItems = (record: AlarmNoticeGroupItem): MoreMenuProps['items'] => [
@@ -175,6 +177,7 @@ export const HookAvatar: React.FC<HookAvatarProps> = (props) => {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const editModalFormItems: (DataFromItem | DataFromItem[])[] = [
   {
     name: 'name',

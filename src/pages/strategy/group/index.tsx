@@ -18,7 +18,6 @@ import { Button, message, Modal, Space, theme } from 'antd'
 import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { GroupEditModal } from './group-edit-modal'
-import styles from './index.module.scss'
 import { formList, getColumnList, GroupEditModalFormData } from './options'
 
 const { confirm } = Modal
@@ -72,6 +71,7 @@ const Group: React.FC = () => {
     setRefresh(!refresh)
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchData = useCallback(
     debounce(async (params) => {
       setLoading(true)
@@ -189,7 +189,7 @@ const Group: React.FC = () => {
   })
 
   return (
-    <div className={styles.box}>
+    <div className='h-full flex flex-col gap-3 p-3'>
       <GroupEditModal
         title={editGroupId ? (disabledEditGroupModal ? '分组详情' : '编辑分组') : '新建分组'}
         width='40%'
@@ -209,16 +209,14 @@ const Group: React.FC = () => {
         <SearchBox ref={searchRef} formList={formList} onSearch={onSearch} onReset={onReset} />
       </div>
       <div
-        className={styles.main}
+        className='p-3'
         style={{
           background: token.colorBgContainer,
           borderRadius: token.borderRadius
         }}
       >
-        <div className={styles.main_toolbar}>
-          <div className={styles.main_toolbar_left} style={{ fontSize: '16px' }}>
-            策略组
-          </div>
+        <div className='flex justify-between items-center'>
+          <div className='font-bold text-lg'>策略组</div>
           <Space size={8}>
             <Button type='primary' onClick={() => handleEditModal()}>
               添加
@@ -229,7 +227,7 @@ const Group: React.FC = () => {
             </Button>
           </Space>
         </div>
-        <div style={{ marginTop: '20px' }} ref={ADivRef}>
+        <div className='mt-3' ref={ADivRef}>
           <AutoTable
             rowKey={(record) => record.id}
             dataSource={datasource}

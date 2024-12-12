@@ -142,6 +142,7 @@ export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
     form?.setFieldsValue({
       ...detail
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail])
   return (
     <Modal title={spaceId ? '编辑团队信息' : '创建团队信息'} open={open} onOk={hendleOnOK} onCancel={handleCancel}>

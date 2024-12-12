@@ -174,9 +174,9 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       render: (_, record: StrategyGroupItem) => {
         return (
           <b>
-            <span style={{ color: 'green' }}>{record.enableStrategyCount}</span>
+            <span className='text-green-500'>{record.enableStrategyCount}</span>
             {' / '}
-            <span style={{ color: '' }}>{record.strategyCount}</span>
+            <span className='text-red-500'>{record.strategyCount}</span>
           </b>
         )
       }

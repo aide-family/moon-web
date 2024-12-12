@@ -215,6 +215,9 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   '/home/datasource/metric': {
     name: 'Metric'
   },
+  '/home/datasource/event': {
+    name: 'Event'
+  },
   '/home/datasource/log': {
     name: 'Log'
   },

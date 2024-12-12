@@ -79,23 +79,21 @@ export const Basics: React.FC<BasicsProps> = (props) => {
   ]
 
   return (
-    <div>
-      <Descriptions
-        title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Button type='primary' onClick={refresh} icon={<RedoOutlined />} size='small' />
-            <span>名称：{datasource?.name}</span>
-          </div>
-        }
-        extra={
-          <Button type='dashed' onClick={editDataSource}>
-            编辑
-          </Button>
-        }
-        bordered
-        column={{ xs: 1, sm: 2, md: 2, lg: 2, xl: 2, xxl: 2 }}
-        items={items}
-      />
-    </div>
+    <Descriptions
+      title={
+        <div className='flex items-center gap-2'>
+          <Button type='primary' onClick={refresh} icon={<RedoOutlined />} size='small' />
+          <span>名称：{datasource?.name}</span>
+        </div>
+      }
+      extra={
+        <Button type='dashed' onClick={editDataSource}>
+          编辑
+        </Button>
+      }
+      bordered
+      column={{ xs: 1, sm: 2, md: 2, lg: 2, xl: 2, xxl: 2 }}
+      items={items}
+    />
   )
 }

@@ -17,7 +17,7 @@ export interface StrategyChartsProps extends ModalProps {
 }
 const StrategyCharts: React.FC<StrategyChartsProps> = ({ strategyID, ...rest }) => {
   const { teamInfo } = useContext(GlobalContext)
-  const [detail, setDetail] = useState<StrategyItem>()
+  const [strategyDetail, setStrategyDetail] = useState<StrategyItem>()
   const [loading, setLoading] = useState(false)
   const [activeKey, setActiveKey] = useState(0)
   const [items, setItems] = useState<TabsProps['items']>([])
@@ -39,7 +39,7 @@ const StrategyCharts: React.FC<StrategyChartsProps> = ({ strategyID, ...rest }) 
       setLoading(true)
       getStrategy({ id })
         .then(({ detail }) => {
-          setDetail(detail)
+          setStrategyDetail(detail)
           setActiveKey(detail?.datasource?.[0]?.id || 0)
           setItems(
             detail?.datasource?.map((item) => ({
@@ -53,9 +53,9 @@ const StrategyCharts: React.FC<StrategyChartsProps> = ({ strategyID, ...rest }) 
     []
   )
 
-  const onChange = (key: string) => {
+  const onChange = (expr: string, key: string) => {
     setActiveKey(Number(key))
-    metricQueryRange(detail?.expr || '', {
+    metricQueryRange(expr, {
       teamID: teamInfo?.id || 0,
       datasourceID: Number(key),
       start: timeRange[0],
@@ -75,9 +75,10 @@ const StrategyCharts: React.FC<StrategyChartsProps> = ({ strategyID, ...rest }) 
   }
 
   useEffect(() => {
-    onChange(activeKey.toString())
+    if (!strategyDetail) return
+    onChange(strategyDetail?.expr || '', activeKey.toString())
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeKey, refresh, strategyID, timeRange, step])
+  }, [strategyDetail, activeKey, refresh, timeRange, step])
 
   useEffect(() => {
     if (!strategyID) return
@@ -139,14 +140,14 @@ const StrategyCharts: React.FC<StrategyChartsProps> = ({ strategyID, ...rest }) 
           </Button>
         </Form.Item>
       </DataFrom>
-      <Tabs activeKey={`${activeKey}`} items={items} onChange={onChange} />
+      <Tabs activeKey={`${activeKey}`} items={items} onChange={(key) => setActiveKey(Number(key))} />
       <div className='tab-content'>
         {transformedData && transformedData?.length > 0 ? (
           <MetricsChart
             data={transformedData}
             showArea={showArea}
             thresholds={
-              detail?.metricLevels.map(
+              strategyDetail?.metricLevels.map(
                 (item): Threshold => ({
                   value: item.threshold,
                   label: { text: item?.level?.label },

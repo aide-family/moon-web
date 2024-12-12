@@ -27,6 +27,7 @@ export const ModalAddPages: React.FC<ModalAddPagesProps> = (props) => {
     })
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchMypageData = useCallback(
     debounce(async () => {
       if (!teamInfo || !teamInfo.id) return

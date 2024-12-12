@@ -23,7 +23,6 @@ import {
 } from 'antd'
 import React, { useContext, useEffect } from 'react'
 import { EditSpaceModal } from './edit-space-modal'
-import './index.scss'
 
 export interface SpaceManageProps {
   children?: React.ReactNode
@@ -108,9 +107,9 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
         onOk={handleEditModalOnOK}
         spaceId={operatorTeam?.id}
       />
-      <div className='spaceBox'>
-        <Row className='operator'>
-          <Col span={16} className='right'>
+      <div className='p-3 h-full flex flex-col gap-3'>
+        <Row className='pb-3'>
+          <Col span={16} className='flex gap-3'>
             <Button type='primary' onClick={() => setOpen?.(true)}>
               新建团队
               <PlusOutlined />
@@ -120,13 +119,13 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
             </Button>
           </Col>
         </Row>
-        <div className='center'>{!teamList?.length && <Empty />}</div>
+        <div className='flex justify-center items-center'>{!teamList?.length && <Empty />}</div>
         {loading ? (
-          <Spin spinning={loading} style={{ height: '600px' }}>
+          <Spin spinning={loading} className='h-[600px]'>
             <div></div>
           </Spin>
         ) : (
-          <Row gutter={[12, 12]} style={{ flex: 1, overflow: 'auto' }}>
+          <Row gutter={[12, 12]} className='flex-1 overflow-auto'>
             {teamList?.map((item, index) => {
               const { name, logo, status, id, remark, leader, admin, creator } = item
               const items: DescriptionsProps['items'] = [
@@ -186,11 +185,11 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
                   <Badge.Ribbon style={{ display: teamInfo?.id === id ? '' : 'none' }} text='current' color='purple'>
                     <Card
                       key={index + name}
-                      className='cardItem'
+                      className='min-h-[306px] border-none'
                       hoverable
                       title={
                         <Space>
-                          <Avatar shape='square' src={logo} className='logo'>
+                          <Avatar shape='square' src={logo} className='w-11 h-11'>
                             {!logo && name?.at(0)?.toUpperCase()}
                           </Avatar>
                           {name}

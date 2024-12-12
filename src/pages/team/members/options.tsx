@@ -1,4 +1,4 @@
-import { DictType, Role, Status } from '@/api/enum'
+import { Role, Status } from '@/api/enum'
 import { ActionKey, RoleData, StatusData } from '@/api/global'
 import { TeamMemberItem } from '@/api/model-types'
 import { getRoleSelectList } from '@/api/team/role'
@@ -7,7 +7,6 @@ import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
 import { Avatar, Badge, Button, Space } from 'antd'
-import { Color } from 'antd/es/color-picker'
 import { ColumnsType } from 'antd/es/table'
 
 export const formList: SearchFormItem[] = [
@@ -107,7 +106,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<TeamMemberIt
           user: { avatar, name, nickname }
         } = record
         return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className='flex items-center gap-2'>
             <Avatar src={avatar}>{nickname || name}</Avatar>
             {nickname || name}
           </div>
@@ -181,20 +180,6 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<TeamMemberIt
   ]
 }
 
-export type ColorType = 'hex' | 'rgb' | 'hsb'
-
-export interface CreateDictFormType {
-  name: string
-  value: string
-  dictType: DictType
-  colorType: string
-  cssClass: Color | string
-  icon: string
-  imageUrl: string
-  status: Status
-  languageCode: string
-  remark: string
-}
 export const inviteModalFormItems: (DataFromItem | DataFromItem[])[] = [
   {
     name: 'inviteCode',

@@ -4,7 +4,6 @@ import { DictItem } from '@/api/model-types'
 import { DataFrom } from '@/components/data/form'
 import { Form, Modal, ModalProps } from 'antd'
 import React, { useEffect, useState } from 'react'
-import styles from './index.module.scss'
 import { ColorType, CreateDictFormType, editModalFormItems } from './options'
 
 export interface GroupEditModalProps extends ModalProps {
@@ -90,21 +89,11 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
 
   return (
     <>
-      <Modal
-        className={styles.modal}
-        {...props}
-        title={title}
-        open={open}
-        onCancel={handleOnCancel}
-        onOk={handleOnOk}
-        confirmLoading={loading}
-      >
-        <div className={styles.edit_content}>
-          <DataFrom
-            items={editModalFormItems(colorType)}
-            props={{ form, layout: 'vertical', autoComplete: 'off', disabled: disabled || loading }}
-          />
-        </div>
+      <Modal {...props} title={title} open={open} onCancel={handleOnCancel} onOk={handleOnOk} confirmLoading={loading}>
+        <DataFrom
+          items={editModalFormItems(colorType)}
+          props={{ form, layout: 'vertical', autoComplete: 'off', disabled: disabled || loading }}
+        />
       </Modal>
     </>
   )

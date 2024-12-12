@@ -24,6 +24,7 @@ export const BaseInfo: React.FC<BaseInfoProps> = (props) => {
   }
   useEffect(() => {
     initSelfInfo()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo])
   return (
     <div>

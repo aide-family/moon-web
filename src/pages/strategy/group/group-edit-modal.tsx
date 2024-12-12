@@ -4,7 +4,6 @@ import { getStrategyGroup } from '@/api/strategy'
 import FetchSelect from '@/components/data/child/fetch-select'
 import { Form, Input, Modal, ModalProps } from 'antd'
 import React, { useEffect, useState } from 'react'
-import styles from './index.module.scss'
 import { GroupEditModalFormData } from './options'
 
 export type GroupEditModalData = {
@@ -88,47 +87,33 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
 
   return (
     <>
-      <Modal
-        className={styles.modal}
-        {...props}
-        title={title}
-        open={open}
-        onCancel={handleOnCancel}
-        onOk={handleOnOk}
-        confirmLoading={loading}
-      >
-        <div className={styles.edit_content}>
-          <Form form={form} layout='vertical' autoComplete='off' disabled={disabled || loading}>
-            <Form.Item label='规则组名称' name='name' rules={[{ required: true, message: '请输入规则组名称' }]}>
-              <Input placeholder='请输入规则组名称' allowClear />
-            </Form.Item>
-            <Form.Item
-              label='规则组分类'
-              name='categoriesIds'
-              rules={[{ required: true, message: '请选择规则组分类' }]}
-            >
-              <FetchSelect
-                selectProps={{
-                  placeholder: '请选择规则组分类',
-                  mode: 'multiple'
-                }}
-                handleFetch={(keyword: string) =>
-                  dictSelectList({
-                    keyword,
-                    dictType: DictType.DictTypeStrategyGroupCategory,
-                    pagination: {
-                      pageSize: 999,
-                      pageNum: 1
-                    }
-                  }).then(({ list }) => list)
-                }
-              />
-            </Form.Item>
-            <Form.Item label='规则组描述' name='remark'>
-              <Input.TextArea placeholder='请输入200字以内的规则组描述' allowClear maxLength={200} showCount />
-            </Form.Item>
-          </Form>
-        </div>
+      <Modal {...props} title={title} open={open} onCancel={handleOnCancel} onOk={handleOnOk} confirmLoading={loading}>
+        <Form form={form} layout='vertical' autoComplete='off' disabled={disabled || loading}>
+          <Form.Item label='规则组名称' name='name' rules={[{ required: true, message: '请输入规则组名称' }]}>
+            <Input placeholder='请输入规则组名称' allowClear />
+          </Form.Item>
+          <Form.Item label='规则组分类' name='categoriesIds' rules={[{ required: true, message: '请选择规则组分类' }]}>
+            <FetchSelect
+              selectProps={{
+                placeholder: '请选择规则组分类',
+                mode: 'multiple'
+              }}
+              handleFetch={(keyword: string) =>
+                dictSelectList({
+                  keyword,
+                  dictType: DictType.DictTypeStrategyGroupCategory,
+                  pagination: {
+                    pageSize: 999,
+                    pageNum: 1
+                  }
+                }).then(({ list }) => list)
+              }
+            />
+          </Form.Item>
+          <Form.Item label='规则组描述' name='remark'>
+            <Input.TextArea placeholder='请输入200字以内的规则组描述' allowClear maxLength={200} showCount />
+          </Form.Item>
+        </Form>
       </Modal>
     </>
   )

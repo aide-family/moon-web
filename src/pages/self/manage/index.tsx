@@ -1,10 +1,3 @@
-import type { DescriptionsProps } from 'antd'
-import { Avatar, Button, Card, Descriptions, Form, message, Modal, Space, theme } from 'antd'
-import React, { useContext, useEffect, useState } from 'react'
-import { BaseInfo } from './base-info'
-import './index.scss'
-import { MyTeam } from './my-team'
-
 import { UserItem } from '@/api/model-types'
 import {
   getUserBasic,
@@ -18,6 +11,11 @@ import { DataFrom } from '@/components/data/form'
 import { AesEncrypt } from '@/utils/aes'
 import { GlobalContext } from '@/utils/context'
 import { EditOutlined } from '@ant-design/icons'
+import type { DescriptionsProps } from 'antd'
+import { Avatar, Button, Card, Descriptions, Form, message, Modal, Space, theme } from 'antd'
+import React, { useContext, useEffect, useState } from 'react'
+import { BaseInfo } from './base-info'
+import { MyTeam } from './my-team'
 import { avatarOptions, emailOptions, passwordOptions, phoneOptions } from './options'
 
 export interface SelfManageProps {
@@ -81,7 +79,7 @@ const SelfManage: React.FC<SelfManageProps> = (props) => {
       label: '手机',
       children: (
         <Space size={4}>
-          <div>{userDetail.phone}</div>
+          <div>{userDetail.phone || '-'}</div>
           <Button type='link' size='small' onClick={() => showUpdateModal('phone')}>
             修改
           </Button>
@@ -98,10 +96,10 @@ const SelfManage: React.FC<SelfManageProps> = (props) => {
       label: '邮箱',
       children: (
         <Space size={4}>
-          <div>{userDetail.email}</div>
-          {/* <Button type='link' size='small' onClick={() => showUpdateModal('email')}>
+          <div>{userDetail.email || '-'}</div>
+          <Button type='link' size='small' onClick={() => showUpdateModal('email')}>
             修改
-          </Button> */}
+          </Button>
         </Space>
       )
     },
@@ -137,6 +135,7 @@ const SelfManage: React.FC<SelfManageProps> = (props) => {
 
   useEffect(() => {
     getUserInfo()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const showTab = (t: TabType) => {
@@ -166,33 +165,19 @@ const SelfManage: React.FC<SelfManageProps> = (props) => {
   }
 
   return (
-    <div
-      className='manage'
-      style={{
-        background: token.colorBgLayout
-      }}
-    >
-      <Card
-        style={{
-          background: token.colorBgContainer
-        }}
-      >
-        <div className='manage-user'>
-          <div className='manage-user-avatar ant-image-mask'>
-            <Avatar className='manage-user-avatar-box' src={userDetail.avatar}></Avatar>
-            <div className='manage-user-avatar-mask'>
+    <div className='h-full flex flex-col gap-3 p-3' style={{ background: token.colorBgLayout }}>
+      <Card style={{ background: token.colorBgContainer }}>
+        <div className='p-5 flex justify-between items-center gap-14'>
+          <div className='relative backdrop-blur-sm'>
+            <Avatar className='w-[120px] h-[120px]' src={userDetail.avatar}></Avatar>
+            <div className='absolute inset-0 flex justify-center items-center text-white bg-black/50 opacity-0 transition-opacity duration-slow rounded-full text-2xl cursor-pointer'>
               <EditOutlined onClick={() => showUpdateModal('avatar')} />
             </div>
           </div>
-          <Descriptions className='manage-user-descriptions' column={2} items={items} />
+          <Descriptions className='flex-1' column={2} items={items} />
         </div>
       </Card>
-      <Card
-        className='manage-content'
-        style={{
-          background: token.colorBgContainer
-        }}
-      >
+      <Card className='flex-1' style={{ background: token.colorBgContainer }}>
         <div>
           <Space size={8}>
             <Button type={tab === 'basic' ? 'primary' : 'default'} onClick={() => setTab('basic')}>
@@ -208,7 +193,7 @@ const SelfManage: React.FC<SelfManageProps> = (props) => {
               修改密码
             </Button>
           </Space>
-          <div className='manage-content-detail'>{showTab(tab)}</div>
+          <div className='pt-3'>{showTab(tab)}</div>
           {children}
         </div>
       </Card>

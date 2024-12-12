@@ -9,7 +9,6 @@ import AutoTable from '@/components/table'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
 import { Button, Space, theme } from 'antd'
-import styles from './index.module.scss'
 import { HookDetailModal } from './modal-detail'
 import { EditHookModal } from './modal-edit'
 import { formList, getColumnList } from './options'
@@ -144,6 +143,7 @@ const Hook: React.FC<HookProps> = () => {
 
   useEffect(() => {
     handleGetHookList()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, refresh])
 
   return (
@@ -160,7 +160,7 @@ const Hook: React.FC<HookProps> = () => {
         onCancel={onCloseDetailModal}
         onOk={onCloseDetailModal}
       />
-      <div className={styles.box}>
+      <div className='flex flex-col gap-3 p-3'>
         <div
           style={{
             background: token.colorBgContainer,
@@ -170,16 +170,14 @@ const Hook: React.FC<HookProps> = () => {
           <SearchBox ref={searchRef} formList={formList} onSearch={onSearch} onReset={onReset} />
         </div>
         <div
-          className={styles.main}
+          className='p-3'
           style={{
             background: token.colorBgContainer,
             borderRadius: token.borderRadius
           }}
         >
-          <div className={styles.main_toolbar}>
-            <div className={styles.main_toolbar_left} style={{ fontSize: '16px' }}>
-              告警Hook
-            </div>
+          <div className='flex justify-between items-center'>
+            <div className='text-lg font-bold'>告警Hook</div>
             <Space size={8}>
               <Button type='primary' onClick={() => handleEditModal()}>
                 添加
@@ -190,7 +188,7 @@ const Hook: React.FC<HookProps> = () => {
               </Button>
             </Space>
           </div>
-          <div style={{ marginTop: '20px' }} ref={ADivRef}>
+          <div className='mt-4' ref={ADivRef}>
             <AutoTable
               rowKey={(record) => record.id}
               dataSource={datasource}

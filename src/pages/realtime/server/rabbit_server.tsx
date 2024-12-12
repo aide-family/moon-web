@@ -31,10 +31,10 @@ const RabbitServer: React.FC = () => {
 
   return (
     <>
-      <div>
+      <div className='flex flex-col gap-3'>
         <Row justify='start' align='middle'>
           <Col span={2}>
-            <h2>rabbit服务</h2>
+            <span className='text-lg font-bold'>rabbit服务</span>
           </Col>
           <Col span={2}>
             <Button color='default' variant='filled' onClick={getRabbitServerList}>
@@ -48,7 +48,7 @@ const RabbitServer: React.FC = () => {
               <Col span={8}>
                 <Card title={'版本：' + item.version} bordered={true} style={{ marginBottom: 20 }}>
                   <p>名称：{item.server.name}</p>
-                  {item.server.network == 'http' || item.server.network == 'https' ? (
+                  {item.server.network.startsWith('http') ? (
                     <p>http地址：{item.server.httpEndpoint}</p>
                   ) : (
                     <p>grpc地址：{item.server.grpcEndpoint}</p>

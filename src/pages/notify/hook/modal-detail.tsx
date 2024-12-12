@@ -50,7 +50,7 @@ export function HookDetailModal(props: HookDetailModalProps) {
     {
       label: '状态',
       children: detail ? (
-        <Badge color={StatusData[detail?.status!].color} text={StatusData[detail?.status!].text} />
+        <Badge color={StatusData[detail?.status].color} text={StatusData[detail?.status].text} />
       ) : (
         '-'
       ),
@@ -60,7 +60,7 @@ export function HookDetailModal(props: HookDetailModalProps) {
       label: '创建人',
       children: (
         <Tooltip title={detail?.creator?.nickname || detail?.creator?.name}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className='flex items-center gap-2'>
             <Avatar src={detail?.creator?.avatar}>{detail?.creator?.nickname || detail?.creator?.name}</Avatar>
             {detail?.creator?.nickname || detail?.creator?.name}
           </div>
@@ -100,6 +100,7 @@ export function HookDetailModal(props: HookDetailModalProps) {
     if (hookId && open) {
       getHookDetail()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hookId, open])
 
   return (

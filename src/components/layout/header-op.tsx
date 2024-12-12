@@ -63,7 +63,7 @@ export const HeaderOp: React.FC = () => {
     }
   ]
   return (
-    <div className='center gap8' style={{ color: token.colorText }}>
+    <div className='flex items-center gap-2' style={{ color: token.colorText }}>
       <TeamMenu />
       <ButtonFullScreen bodyId='content-body' type='text' />
       <HeaderMessage />

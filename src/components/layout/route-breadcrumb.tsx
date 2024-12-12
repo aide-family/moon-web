@@ -1,10 +1,9 @@
-import { useContext, FC, useState, useEffect } from 'react'
-import { Breadcrumb, Button, Space } from 'antd'
-import { useLocation, useNavigate } from 'react-router-dom'
-
-import useToken from 'antd/es/theme/useToken'
 import { GlobalContext } from '@/utils/context'
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
+import { Breadcrumb, Button, Space } from 'antd'
+import useToken from 'antd/es/theme/useToken'
+import { FC, useContext, useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 let timer: NodeJS.Timeout | null = null
 const RouteBreadcrumb: FC = () => {

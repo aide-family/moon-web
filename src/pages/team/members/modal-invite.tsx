@@ -31,6 +31,7 @@ export const Invite: React.FC<InviteProps> = (props) => {
     if (open) {
       form.resetFields()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
   return (
