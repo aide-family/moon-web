@@ -1,18 +1,29 @@
-import { EventDatasource } from '@/api/datasource/mq'
+import { listDatasource } from '@/api/datasource'
+import { DatasourceType } from '@/api/enum'
+import { defaultPaginationReq } from '@/api/global'
+import { DatasourceItem } from '@/api/model-types'
 import useStorage from '@/utils/storage'
 import { Button, Empty, Input, Menu, Tabs, TabsProps, theme } from 'antd'
 import { useEffect, useState } from 'react'
+import Topics from '../metric/topics'
 import { Basics } from './basics'
 import { EditModal } from './edit-modal'
 
+let timer: NodeJS.Timeout | null = null
 export default function Event() {
   const [open, setOpen] = useState(false)
   const { token } = theme.useToken()
-  const [datasource, setDatasource] = useState<EventDatasource[]>([])
-  const [datasourceDetail, setDatasourceDetail] = useState<EventDatasource>()
+  const [datasource, setDatasource] = useState<DatasourceItem[]>([])
+  const [datasourceDetail, setDatasourceDetail] = useState<DatasourceItem>()
   const [tabKey, setTabKey] = useStorage<string>('mqDatasourceTab', 'basics')
+  const [editID, setEditID] = useState<number>(0)
   const refresh = () => {
-    console.log('refresh')
+    handleDatasourceSearch()
+  }
+
+  const handleOpenEditModal = (id: number) => {
+    setOpen(true)
+    setEditID(id)
   }
 
   const tabsItems: TabsProps['items'] = [
@@ -22,28 +33,50 @@ export default function Event() {
       children: (
         <div className='overflow-auto overflow-x-hidden'>
           {datasourceDetail && (
-            <Basics datasource={datasourceDetail} refresh={refresh} editDataSource={() => setOpen(true)} />
+            <Basics datasource={datasourceDetail} refresh={refresh} editDataSource={handleOpenEditModal} />
           )}
         </div>
       )
+    },
+    {
+      key: 'topic',
+      label: '主题',
+      children: <Topics datasourceID={datasourceDetail?.id} />
     }
   ]
 
-  const handleDatasourceSearch = () => {
-    console.log('search')
+  const handleDatasourceSearch = (value?: string) => {
+    if (timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(() => {
+      listDatasource({
+        pagination: defaultPaginationReq,
+        keyword: value,
+        datasourceType: DatasourceType.DatasourceTypeMQ
+      }).then((res) => {
+        setDatasource(res.list)
+      })
+    }, 500)
   }
 
   const handleDatasourceChange = (id: number) => {
     setDatasourceDetail(datasource?.find((item) => item.id === id))
   }
 
+  const handleCloseEditModal = () => {
+    setOpen(false)
+    setEditID(0)
+    handleDatasourceSearch()
+  }
+
   useEffect(() => {
-    setDatasource([])
+    handleDatasourceSearch()
   }, [])
 
   return (
     <div className='p-3 h-full w-full flex flex-row gap-2'>
-      <EditModal title='新建数据源' width='60%' open={open} onClose={() => setOpen(false)} />
+      <EditModal title='新建数据源' width='60%' open={open} datasourceId={editID} onClose={handleCloseEditModal} />
       <div
         className='max-w-[400px] min-w-[200px] p-2 flex flex-col gap-2'
         style={{ background: token.colorBgContainer }}

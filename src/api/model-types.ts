@@ -685,3 +685,33 @@ export interface MetricQueryValue {
    */
   timestamp: number
 }
+
+/**
+ * 主题
+ */
+export interface TopicItem {
+  /**
+   * 主题名称
+   */
+  name: string
+  /**
+   * 主题ID
+   */
+  id: number
+  /**
+   * 创建时间
+   */
+  createdAt: string
+  /**
+   * 更新时间
+   */
+  updatedAt: string
+  /**
+   * 主题备注
+   */
+  remark: string
+  /**
+   * 配置
+   */
+  config: { [key: string]: string }
+}

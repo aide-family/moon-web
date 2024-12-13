@@ -113,6 +113,10 @@ export interface UpdateDatasourceRequest {
   name: string
   status: Status
   remark?: string
+  endpoint?: string
+  datasourceType?: DatasourceType
+  storageType?: StorageType
+  configValue?: string
 }
 
 export interface UpdateDatasourceReply {}

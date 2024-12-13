@@ -1,9 +1,10 @@
-import { EventDatasource } from '@/api/datasource/mq'
+import { createDatasource, getDatasource, updateDatasource } from '@/api/datasource'
 import { DatasourceType, StorageType } from '@/api/enum'
 import { DataSourceTypeData, StatusData, StorageTypeData } from '@/api/global'
+import { DatasourceItem } from '@/api/model-types'
 import { DataFrom, DataFromItem } from '@/components/data/form'
 import { GlobalContext } from '@/utils/context'
-import { Button, Descriptions, Form, Modal, ModalProps, Space, Steps, Tag } from 'antd'
+import { Button, Descriptions, Form, message, Modal, ModalProps, Space, Steps, Tag } from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import ReactJson from 'react-json-view'
 import {
@@ -33,6 +34,8 @@ const formOptions = (t: StorageType) => {
   }
   return []
 }
+
+let timer: NodeJS.Timeout | null = null
 export const EditModal: React.FC<EditModalProps> = (props) => {
   const { datasourceId, onClose, ...rest } = props
   const { theme } = useContext(GlobalContext)
@@ -42,18 +45,37 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
   const [current, setCurrent] = useState(0)
   const [loading, setLoading] = useState(false)
   const [options, setOptions] = useState<(DataFromItem | DataFromItem[])[]>([])
-  const [editDatasource, setEditDatasource] = useState<EventDatasource>({
+  const [editDatasource, setEditDatasource] = useState<DatasourceItem>({
     datasourceType: DatasourceType.DatasourceTypeMQ
-  } as EventDatasource)
+  } as DatasourceItem)
   // 数据源类型
   const [datasourceType, setDatasourceType] = useState<StorageType>(StorageType.StorageTypeUnknown)
+  const [datasourceDetail, setDatasourceDetail] = useState<DatasourceItem>()
+
+  const init = () => {
+    setEditDatasource({
+      datasourceType: DatasourceType.DatasourceTypeMQ
+    } as DatasourceItem)
+    setCurrent(0)
+    setOptions(formOptions(datasourceType))
+    setDatasourceType(StorageType.StorageTypeUnknown)
+    setLoading(false)
+    basicForm.resetFields()
+    datasourceForm.resetFields()
+  }
 
   const fetchDatasourceDetail = async () => {
     if (!datasourceId) return
     setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-    }, 1000)
+    if (timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(() => {
+      getDatasource({ id: datasourceId }).then(({ detail }) => {
+        setDatasourceDetail(detail)
+        setLoading(false)
+      })
+    }, 500)
   }
 
   const next = () => {
@@ -83,13 +105,41 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
     setCurrent(current - 1)
   }
 
-  const onFinish = () => {
-    console.log(editDatasource)
+  const onFinish = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // console.log(editDatasource)
+    if (editDatasource.id) {
+      updateDatasource({
+        id: editDatasource.id,
+        name: editDatasource.name,
+        endpoint: editDatasource.endpoint,
+        datasourceType: editDatasource.datasourceType,
+        storageType: editDatasource.storageType,
+        configValue: JSON.stringify(editDatasource.config),
+        remark: editDatasource.remark,
+        status: editDatasource.status
+      })
+    } else {
+      createDatasource({
+        name: editDatasource.name,
+        endpoint: editDatasource.endpoint,
+        datasourceType: editDatasource.datasourceType,
+        storageType: editDatasource.storageType,
+        configValue: JSON.stringify(editDatasource.config),
+        remark: editDatasource.remark,
+        status: editDatasource.status
+      }).then(() => {
+        message.success('创建成功')
+        onClose?.(e)
+      })
+    }
   }
 
   useEffect(() => {
-    console.log(editDatasource)
-  }, [editDatasource])
+    if (props.open) {
+      init()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.open])
 
   useEffect(() => {
     setOptions(formOptions(datasourceType))
@@ -99,6 +149,14 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
     fetchDatasourceDetail()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [datasourceId])
+
+  useEffect(() => {
+    if (datasourceDetail) {
+      basicForm.setFieldsValue(datasourceDetail)
+      datasourceForm.setFieldsValue(datasourceDetail.config)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [datasourceDetail])
 
   return (
     <Modal

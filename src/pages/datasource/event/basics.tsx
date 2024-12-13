@@ -1,6 +1,6 @@
-import { EventDatasource } from '@/api/datasource/mq'
 import { Status } from '@/api/enum'
 import { DataSourceTypeData, StorageTypeData } from '@/api/global'
+import { DatasourceItem } from '@/api/model-types'
 import { GlobalContext } from '@/utils/context'
 import { RedoOutlined } from '@ant-design/icons'
 import { Badge, Button, Descriptions, DescriptionsProps, Typography } from 'antd'
@@ -8,9 +8,9 @@ import React, { useContext } from 'react'
 import ReactJson from 'react-json-view'
 
 export interface BasicsProps {
-  datasource: EventDatasource
+  datasource: DatasourceItem
   refresh?: () => void
-  editDataSource?: () => void
+  editDataSource?: (id: number) => void
 }
 
 export const Basics: React.FC<BasicsProps> = (props) => {
@@ -93,7 +93,7 @@ export const Basics: React.FC<BasicsProps> = (props) => {
           </div>
         }
         extra={
-          <Button type='dashed' onClick={editDataSource}>
+          <Button type='dashed' onClick={() => editDataSource?.(datasource?.id)}>
             编辑
           </Button>
         }

@@ -22,6 +22,11 @@ export interface PaginationReq {
   pageSize: number
 }
 
+export const defaultPaginationReq: PaginationReq = {
+  pageNum: 1,
+  pageSize: 999
+}
+
 export interface PaginationReply extends PaginationReq {
   total: number
 }
