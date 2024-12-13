@@ -75,6 +75,7 @@ export default function Event() {
 
   useEffect(() => {
     handleDatasourceSearch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

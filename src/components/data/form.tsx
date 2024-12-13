@@ -3,12 +3,14 @@ import { ValidateStatus } from 'antd/es/form/FormItem'
 import React, { FC } from 'react'
 import { DataInput, DataInputProps } from './child/data-input'
 
-export type DataFromItem = {
-  name: string
-  label?: React.ReactNode
-  formProps?: FormItemProps
-  id?: string
-} & DataInputProps
+export type DataFromItem =
+  | ({
+      name: string
+      label?: React.ReactNode
+      formProps?: FormItemProps
+      id?: string
+    } & DataInputProps)
+  | null
 
 export interface ValidateType {
   validateStatus?: ValidateStatus
@@ -60,6 +62,10 @@ const renderFormItems = (items: DataFromItem[], span: number = 24, validates?: R
 }
 
 const renderFormItem = (item: DataFromItem, span: number = 24, validates?: Record<string, ValidateType>) => {
+  if (!item) {
+    return null
+  }
+
   const { name, label, id, formProps } = item
 
   return (

@@ -13,6 +13,9 @@ const SearchForm: FC<SearchFormProps> = (props) => {
   const { items = [] } = props
 
   function renderFormItem(item: DataFromItem) {
+    if (!item) {
+      return null
+    }
     const { name, label, formProps } = item
     return (
       <Form.Item {...formProps} name={name} label={label} key={name + label}>

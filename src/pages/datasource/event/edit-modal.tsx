@@ -19,9 +19,9 @@ export interface EditModalProps extends ModalProps {
   datasourceId?: number
 }
 
-const formOptions = (t: StorageType) => {
+const formOptions = (t: StorageType, saslEnable?: 'true' | 'false') => {
   if (t === StorageType.StorageTypeKafka) {
-    return kafkaFormOptions()
+    return kafkaFormOptions(saslEnable)
   }
   if (t === StorageType.StorageTypeRocketmq) {
     return rocketmqFormOptions()
@@ -42,6 +42,8 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
 
   const [basicForm] = Form.useForm()
   const [datasourceForm] = Form.useForm()
+  const saslEnable = Form.useWatch('saslEnable', datasourceForm)
+
   const [current, setCurrent] = useState(0)
   const [loading, setLoading] = useState(false)
   const [options, setOptions] = useState<(DataFromItem | DataFromItem[])[]>([])
@@ -57,7 +59,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
       datasourceType: DatasourceType.DatasourceTypeMQ
     } as DatasourceItem)
     setCurrent(0)
-    setOptions(formOptions(datasourceType))
+    setOptions(formOptions(datasourceType, saslEnable))
     setDatasourceType(StorageType.StorageTypeUnknown)
     setLoading(false)
     basicForm.resetFields()
@@ -85,7 +87,8 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
         setDatasourceType(values.storageType)
         setEditDatasource({
           ...editDatasource,
-          ...values
+          ...values,
+          endpoint: values.endpoints.join(',')
         })
         setCurrent(current + 1)
       })
@@ -142,8 +145,8 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
   }, [props.open])
 
   useEffect(() => {
-    setOptions(formOptions(datasourceType))
-  }, [datasourceType])
+    setOptions(formOptions(datasourceType, saslEnable))
+  }, [datasourceType, saslEnable])
 
   useEffect(() => {
     fetchDatasourceDetail()
@@ -220,7 +223,11 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
               key: 'endpoint',
               label: '端点',
               span: 2,
-              children: <Button type='link'>{editDatasource?.endpoint}</Button>
+              children: editDatasource?.endpoint?.split(',').map((item, index) => (
+                <Button type='link' key={index}>
+                  {item}
+                </Button>
+              ))
             },
             {
               key: 'datasourceType',

@@ -86,13 +86,15 @@ export function basicFormOptions(): (DataFromItem | DataFromItem[])[] {
     [
       {
         label: '端点',
-        name: 'endpoint',
-        type: 'input',
+        name: 'endpoints',
+        type: 'select',
         formProps: {
-          rules: [{ required: true, message: '请输入端点', type: 'url' }],
+          rules: [
+            { required: true, message: '请输入端点', type: 'regexp', pattern: /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*$/ }
+          ],
           tooltip: 'endpoint'
         },
-        props: { placeholder: '请输入端点' }
+        props: { placeholder: '请输入端点', mode: 'tags', tokenSeparators: [',', ' '] }
       }
     ],
     [
@@ -110,8 +112,57 @@ export function basicFormOptions(): (DataFromItem | DataFromItem[])[] {
  * kafka 数据源表单配置
  * @returns DataFromItem[]
  */
-export function kafkaFormOptions(): (DataFromItem | DataFromItem[])[] {
-  return []
+export function kafkaFormOptions(saslEnable?: 'true' | 'false'): (DataFromItem | DataFromItem[])[] {
+  // {"groupName":"example-group","strategy":"roundrobin","saslEnable":"false","version":"3.8.1"}
+  return [
+    {
+      label: '组名(groupName)',
+      name: 'groupName',
+      type: 'input',
+      props: { placeholder: '请输入组名', autoComplete: 'off' }
+    },
+    [
+      {
+        label: '策略(strategy)',
+        name: 'strategy',
+        type: 'radio-group',
+        props: {
+          options: [
+            { label: '轮询(roundrobin)', value: 'roundrobin' },
+            { label: '随机(random)', value: 'random' },
+            { label: '粘性(sticky)', value: 'sticky' }
+          ]
+        }
+      },
+      {
+        label: 'SASL是否启用(saslEnable)',
+        name: 'saslEnable',
+        type: 'radio-group',
+        props: {
+          options: [
+            { label: '是', value: 'true' },
+            { label: '否', value: 'false' }
+          ]
+        }
+      }
+    ],
+    [
+      saslEnable === 'true'
+        ? {
+            label: '密码(password)',
+            name: 'password',
+            type: 'password',
+            props: { placeholder: '请输入密码', autoComplete: 'off' }
+          }
+        : null,
+      {
+        label: '版本(version)',
+        name: 'version',
+        type: 'input',
+        props: { placeholder: '请输入版本' }
+      }
+    ]
+  ]
 }
 
 /**
@@ -181,5 +232,46 @@ export function rabbitmqFormOptions(): (DataFromItem | DataFromItem[])[] {
  * @returns DataFromItem[]
  */
 export function mqttFormOptions(): (DataFromItem | DataFromItem[])[] {
-  return []
+  // {"broker":"tcp://broker.emqx.io:1883","username":"","password":"","autoReconnect":"true","qos":"1"}
+  return [
+    [
+      {
+        label: '用户名(username)',
+        name: 'username',
+        type: 'input',
+        props: { placeholder: '请输入用户名' }
+      },
+      {
+        label: '密码(password)',
+        name: 'password',
+        type: 'input',
+        props: { placeholder: '请输入密码' }
+      }
+    ],
+    [
+      {
+        label: '是否自动重连(autoReconnect)',
+        name: 'autoReconnect',
+        type: 'radio-group',
+        props: {
+          options: [
+            { label: '是', value: true },
+            { label: '否', value: false }
+          ]
+        }
+      },
+      {
+        label: '消息质量(qos)',
+        name: 'qos',
+        type: 'radio-group',
+        props: {
+          options: [
+            { label: '最多一次(0)', value: 0 },
+            { label: '至少一次(1)', value: 1 },
+            { label: '恰好一次(2)', value: 2 }
+          ]
+        }
+      }
+    ]
+  ]
 }
