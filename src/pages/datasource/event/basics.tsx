@@ -3,7 +3,7 @@ import { DataSourceTypeData, StorageTypeData } from '@/api/global'
 import { DatasourceItem } from '@/api/model-types'
 import { GlobalContext } from '@/utils/context'
 import { RedoOutlined } from '@ant-design/icons'
-import { Badge, Button, Descriptions, DescriptionsProps, Typography } from 'antd'
+import { Badge, Button, Descriptions, DescriptionsProps, Space, Tag, Typography } from 'antd'
 import React, { useContext } from 'react'
 import ReactJson from 'react-json-view'
 
@@ -51,7 +51,11 @@ export const Basics: React.FC<BasicsProps> = (props) => {
     },
     {
       label: '地址',
-      children: datasource?.endpoint
+      children: (
+        <Space size={[8, 16]} wrap className='w-full'>
+          {datasource?.endpoint.split(',').map((item, index) => <Tag key={index}>{item}</Tag>)}
+        </Space>
+      )
     },
     {
       label: '更新时间',
