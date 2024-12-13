@@ -92,7 +92,7 @@ export function basicFormOptions(): (DataFromItem | DataFromItem[])[] {
           rules: [
             { required: true, message: '请输入端点', type: 'regexp', pattern: /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*$/ }
           ],
-          tooltip: 'endpoint'
+          tooltip: 'endpoints'
         },
         props: { placeholder: '请输入端点', mode: 'tags', tokenSeparators: [',', ' '] }
       }

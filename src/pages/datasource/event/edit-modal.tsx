@@ -155,7 +155,10 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
 
   useEffect(() => {
     if (datasourceDetail) {
-      basicForm.setFieldsValue(datasourceDetail)
+      basicForm.setFieldsValue({
+        ...datasourceDetail,
+        endpoints: datasourceDetail.endpoint.split(',')
+      })
       datasourceForm.setFieldsValue(datasourceDetail.config)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
