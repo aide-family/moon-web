@@ -127,7 +127,7 @@ const StrategyCharts: React.FC<StrategyChartsProps> = ({ strategyID, ...rest }) 
         }}
       >
         <Form.Item name='step' initialValue={step}>
-          <InputNumber min={1} max={60} placeholder='步长' />
+          <InputNumber min={1} placeholder='步长' />
         </Form.Item>
         <Form.Item>
           <Button type='default' onClick={() => setShowArea(!showArea)}>

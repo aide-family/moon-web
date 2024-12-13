@@ -54,7 +54,7 @@ export default function RealtimeChart(props: RealtimeChartProps) {
       datasourceID: Number(datasourceID),
       start: dayjs(detail.startsAt),
       end: dayjs(detail.endsAt),
-      step: 14
+      step: 600
     })
       .then((res) => {
         setMetricsData(res)
