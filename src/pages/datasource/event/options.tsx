@@ -159,7 +159,7 @@ export function kafkaFormOptions(saslEnable?: 'true' | 'false'): (DataFromItem |
         label: '版本(version)',
         name: 'version',
         type: 'input',
-        props: { placeholder: '请输入版本' }
+        props: { placeholder: '请输入版本', autoComplete: 'off' }
       }
     ]
   ]
@@ -172,50 +172,54 @@ export function kafkaFormOptions(saslEnable?: 'true' | 'false'): (DataFromItem |
 export function rocketmqFormOptions(): (DataFromItem | DataFromItem[])[] {
   return [
     {
-      label: '组名',
-      name: 'groupName',
-      type: 'input',
-      formProps: {
-        tooltip: 'groupName'
-      },
-      props: { placeholder: '请输入组名' }
-    },
-    {
-      label: '区域',
-      name: 'region',
-      type: 'input',
-      formProps: {
-        tooltip: 'region'
-      },
-      props: { placeholder: '请输入区域' }
-    },
-    {
-      label: '访问密钥',
-      name: 'accessKey',
-      type: 'input',
-      formProps: {
-        tooltip: 'accessKey'
-      },
-      props: { placeholder: '请输入访问密钥' }
-    },
-    {
-      label: '秘密密钥',
-      name: 'secretKey',
-      type: 'input',
-      formProps: {
-        tooltip: 'secretKey'
-      },
-      props: { placeholder: '请输入秘密密钥' }
-    },
-    {
       label: '命名空间',
       name: 'namespace',
       type: 'input',
       formProps: {
         tooltip: 'namespace'
       },
-      props: { placeholder: '请输入命名空间' }
-    }
+      props: { placeholder: '请输入命名空间', autoComplete: 'off' }
+    },
+    [
+      {
+        label: '组名',
+        name: 'groupName',
+        type: 'input',
+        formProps: {
+          tooltip: 'groupName'
+        },
+        props: { placeholder: '请输入组名', autoComplete: 'off' }
+      },
+      {
+        label: '区域',
+        name: 'region',
+        type: 'input',
+        formProps: {
+          tooltip: 'region'
+        },
+        props: { placeholder: '请输入区域', autoComplete: 'off' }
+      }
+    ],
+    [
+      {
+        label: '访问密钥',
+        name: 'accessKey',
+        type: 'input',
+        formProps: {
+          tooltip: 'accessKey'
+        },
+        props: { placeholder: '请输入访问密钥', autoComplete: 'off' }
+      },
+      {
+        label: '秘密密钥',
+        name: 'secretKey',
+        type: 'input',
+        formProps: {
+          tooltip: 'secretKey'
+        },
+        props: { placeholder: '请输入秘密密钥', autoComplete: 'off' }
+      }
+    ]
   ]
 }
 
