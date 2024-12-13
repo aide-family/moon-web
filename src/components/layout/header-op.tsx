@@ -4,12 +4,14 @@ import { GlobalContext } from '@/utils/context'
 import { GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { Avatar, Button, Dropdown, MenuProps, theme } from 'antd'
 import React, { useContext } from 'react'
+import { Docusaurus } from '../icon'
 import { ButtonFullScreen } from './button-full-screen'
 import { useCreateTeamModal } from './create-team-provider'
 import { HeaderMessage } from './header-message'
 import { TeamMenu } from './team-menu'
 
 export const githubURL = `https://github.com/aide-family/moon`
+export const docURL = `https://aide-family.github.io/`
 
 const { useToken } = theme
 
@@ -68,6 +70,7 @@ export const HeaderOp: React.FC = () => {
       <ButtonFullScreen bodyId='content-body' type='text' />
       <HeaderMessage />
       <Button type='text' href={githubURL} target='_blank' icon={<GithubOutlined />} />
+      <Button type='text' href={docURL} target='_blank' icon={<Docusaurus />} />
       <Button
         type='text'
         icon={theme === 'dark' ? <SunOutlined /> : <MoonOutlined />}

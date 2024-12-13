@@ -1,6 +1,7 @@
 import { healthApi } from '@/api/request'
 import logoIcon from '@/assets/images/logo.svg'
-import { githubURL } from '@/components/layout/header-op'
+import { Docusaurus } from '@/components/icon'
+import { docURL, githubURL } from '@/components/layout/header-op'
 import { GlobalContext } from '@/utils/context'
 import { CopyrightOutlined, GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { Button, theme } from 'antd'
@@ -49,6 +50,16 @@ const Login: React.FC<LoginProps> = () => {
         <LoginForm />
       </div>
       <div className='absolute top-5 right-5 flex gap-2'>
+        <Button
+          color='primary'
+          variant='filled'
+          href={docURL}
+          target='_blank'
+          icon={<Docusaurus />}
+          style={{ textDecoration: 'none' }}
+        >
+          Moon Docs
+        </Button>
         <Button
           color='primary'
           variant='filled'
