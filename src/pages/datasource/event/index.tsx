@@ -56,6 +56,9 @@ export default function Event() {
         datasourceType: DatasourceType.DatasourceTypeMQ
       }).then((res) => {
         setDatasource(res.list)
+        if (!datasourceDetail && res.list.length > 0) {
+          setDatasourceDetail(res.list[0])
+        }
       })
     }, 500)
   }
