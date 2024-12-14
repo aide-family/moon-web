@@ -1,7 +1,7 @@
 import { healthApi } from '@/api/request'
 import logoIcon from '@/assets/images/logo.svg'
-import { Docusaurus } from '@/components/icon'
-import { docURL, githubURL } from '@/components/layout/header-op'
+import { Docusaurus, Gitee } from '@/components/icon'
+import { docURL, giteeURL, githubURL } from '@/components/layout/header-op'
 import { GlobalContext } from '@/utils/context'
 import { CopyrightOutlined, GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { Button, theme } from 'antd'
@@ -69,6 +69,16 @@ const Login: React.FC<LoginProps> = () => {
           style={{ textDecoration: 'none' }}
         >
           Github
+        </Button>
+        <Button
+          color='primary'
+          variant='filled'
+          href={giteeURL}
+          target='_blank'
+          icon={<Gitee width={15} height={15} />}
+          style={{ textDecoration: 'none' }}
+        >
+          Gitee
         </Button>
         <Button
           color='primary'

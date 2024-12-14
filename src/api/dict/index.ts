@@ -100,7 +100,7 @@ export interface CreateDictReply {}
 
 export interface ListDictRequest {
   pagination: PaginationReq
-  keyword: string
+  keyword?: string
   status?: Status
   dictType?: DictType
   languageCode?: string

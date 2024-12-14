@@ -1,6 +1,6 @@
 import { Status, StrategyType, TemplateSourceType } from '@/api/enum'
-import { ActionKey } from '@/api/global'
-import { StrategyGroupItem, StrategyItem } from '@/api/model-types'
+import { ActionKey, defaultPaginationReq, StrategyTypeData } from '@/api/global'
+import { StrategyItem } from '@/api/model-types'
 import {
   createStrategy,
   CreateStrategyLevelRequest,
@@ -21,21 +21,17 @@ import { Button, message, Modal, Space, theme } from 'antd'
 import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { Detail } from './detail'
+import EventEditModal from './event-edit.modal'
 import { MetricEditModal, MetricEditModalData } from './metric-edit-modal'
 import { formList, getColumnList } from './options'
 import StrategyCharts from './strategy-charts'
+import StrategyTypeModal from './strategy-type-modal'
 
 const { confirm } = Modal
 const { useToken } = theme
 
 const defaultSearchParams: ListStrategyRequest = {
-  pagination: {
-    pageNum: 1,
-    pageSize: 10
-  }
-  // keyword: '',
-  // status: Status.ALL
-  // teamId: ''
+  pagination: defaultPaginationReq
 }
 
 const StrategyMetric: React.FC = () => {
@@ -47,19 +43,28 @@ const StrategyMetric: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
-  const [openGroupEditModal, setOpenGroupEditModal] = useState(false)
-  const [editGroupId, setEditGroupId] = useState<number>()
+  const [openMetricEditModal, setOpenMetricEditModal] = useState(false)
+  const [openEventEditModal, setOpenEventEditModal] = useState(false)
+  const [editDetail, setEditDetail] = useState<StrategyItem>()
   const [disabledEditGroupModal, setDisabledEditGroupModal] = useState(false)
   const [openChartModal, setOpenChartModal] = useState(false)
-  const handleEditModal = (editId?: number) => {
-    setEditGroupId(editId)
-    setOpenGroupEditModal(true)
-  }
+  const [openStrategyTypeModal, setOpenStrategyTypeModal] = useState(false)
+
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
   const [detailId, setDetailId] = useState<number>()
   const [openDetailModal, setOpenDetailModal] = useState(false)
+
+  const handleOpenMetricEditModal = (item?: StrategyItem) => {
+    setEditDetail(item)
+    setOpenMetricEditModal(true)
+  }
+
+  const handleOpenEventEditModal = (item?: StrategyItem) => {
+    setEditDetail(item)
+    setOpenEventEditModal(true)
+  }
 
   const handleDetailModal = (id: number) => {
     setDetailId(id)
@@ -71,10 +76,15 @@ const StrategyMetric: React.FC = () => {
     setDetailId(0)
   }
 
-  const handleCloseGroupEditModal = () => {
-    setOpenGroupEditModal(false)
-    setEditGroupId(0)
+  const handleCloseMetricEditModal = () => {
+    setOpenMetricEditModal(false)
+    setEditDetail(undefined)
     setDisabledEditGroupModal(false)
+  }
+
+  const handleCloseEventEditModal = () => {
+    setOpenEventEditModal(false)
+    setEditDetail(undefined)
   }
 
   const onRefresh = () => {
@@ -142,19 +152,20 @@ const StrategyMetric: React.FC = () => {
       alarmGroupIds,
       status: Status.StatusEnable,
       sourceType: TemplateSourceType.TemplateSourceTypeTeam,
-      strategyType: StrategyType.StrategyTypeMetric
+      strategyType: StrategyType.StrategyTypeMetric,
+      strategyMqLevel: []
     }
 
     const call = () => {
-      if (!editGroupId) {
+      if (!editDetail) {
         return createStrategy(params)
       } else {
-        return updateStrategy({ data: params, id: editGroupId })
+        return updateStrategy({ data: params, id: editDetail.id })
       }
     }
     return call().then(() => {
-      message.success(`${editGroupId ? '编辑' : '添加'}成功`)
-      handleCloseGroupEditModal()
+      message.success(`${editDetail ? '编辑' : '添加'}成功`)
+      handleCloseMetricEditModal()
       onRefresh()
     })
   }
@@ -191,7 +202,21 @@ const StrategyMetric: React.FC = () => {
     setSearchParams(defaultSearchParams)
   }
 
-  const onHandleMenuOnClick = (item: StrategyGroupItem, key: ActionKey) => {
+  const handleOpenEditModal = (item: StrategyItem) => {
+    switch (item.strategyType) {
+      case StrategyType.StrategyTypeMetric:
+        handleOpenMetricEditModal(item)
+        break
+      case StrategyType.StrategyTypeMQ:
+        handleOpenEventEditModal(item)
+        break
+      default:
+        message.warning(`${StrategyTypeData[item.strategyType]}未开通`)
+        break
+    }
+  }
+
+  const onHandleMenuOnClick = (item: StrategyItem, key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
         updateStrategyStatus({ ids: [item.id], status: Status.StatusEnable }).then(() => {
@@ -211,7 +236,7 @@ const StrategyMetric: React.FC = () => {
         handleDetailModal(item.id)
         break
       case ActionKey.EDIT:
-        handleEditModal(item.id)
+        handleOpenEditModal(item)
         break
       case ActionKey.CHART:
         handleOpenChartModal(item.id)
@@ -246,17 +271,54 @@ const StrategyMetric: React.FC = () => {
     pageSize: searchParams.pagination.pageSize
   })
 
+  const handleOpenStrategyTypeModal = () => {
+    setOpenStrategyTypeModal(true)
+  }
+
+  const handleStrategyTypeSubmit = (type: StrategyType) => {
+    setOpenStrategyTypeModal(false)
+    switch (type) {
+      case StrategyType.StrategyTypeMetric:
+        handleOpenMetricEditModal()
+        break
+      case StrategyType.StrategyTypeMQ:
+        handleOpenEventEditModal()
+        break
+      default:
+        message.warning(`${StrategyTypeData[type]}未开通`)
+        break
+    }
+  }
+
+  const handleStrategyTypeCancel = () => {
+    setOpenStrategyTypeModal(false)
+  }
+
   return (
     <div className='h-full flex flex-col gap-3 p-3'>
+      <StrategyTypeModal
+        title='选择策略类型'
+        // width='60%'
+        open={openStrategyTypeModal}
+        onSubmit={handleStrategyTypeSubmit}
+        onCancel={handleStrategyTypeCancel}
+      />
       <MetricEditModal
-        title={editGroupId ? (disabledEditGroupModal ? '策略详情' : '编辑策略') : '新建策略'}
+        title={editDetail ? (disabledEditGroupModal ? '策略详情' : '编辑策略') : '新建策略'}
         width='60%'
-        strategyId={editGroupId}
+        strategyId={editDetail?.id}
         style={{ minWidth: 504 }}
-        open={openGroupEditModal}
-        onCancel={handleCloseGroupEditModal}
+        open={openMetricEditModal}
+        onCancel={handleCloseMetricEditModal}
         submit={handleMetricEditModalSubmit}
         disabled={disabledEditGroupModal}
+      />
+      <EventEditModal
+        title='事件策略编辑'
+        width='60%'
+        eventStrategyDetail={undefined}
+        open={openEventEditModal}
+        onCancel={handleCloseEventEditModal}
       />
       <StrategyCharts
         title='策略图表'
@@ -284,7 +346,7 @@ const StrategyMetric: React.FC = () => {
         <div className='flex justify-between items-center'>
           <div className='font-bold text-lg'>策略组</div>
           <Space size={8}>
-            <Button type='primary' onClick={() => handleEditModal()}>
+            <Button type='primary' onClick={handleOpenStrategyTypeModal}>
               添加
             </Button>
             {/* <Button onClick={() => handleEditModal()}>批量导入</Button> */}

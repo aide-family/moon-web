@@ -354,3 +354,51 @@ export enum StrategyType {
   /** MQ */
   StrategyTypeMQ = 6
 }
+
+// MQ判断条件
+export enum MQCondition {
+  /** 未知 */
+  MQConditionUnknown = 0,
+
+  /** 等于 */
+  MQConditionEQ = 1,
+
+  /** 不等于 */
+  MQConditionNE = 2,
+
+  /** 大于等于 */
+  MQConditionGTE = 4,
+
+  /** 小于 */
+  MQConditionLT = 5,
+
+  /** 小于等于 */
+  MQConditionLTE = 6,
+
+  /** 包含 */
+  MQConditionContain = 7,
+
+  /** 前缀 */
+  MQConditionPrefix = 8,
+
+  /** 后缀 */
+  MQConditionSuffix = 9,
+
+  /** 正则 */
+  MQConditionRegular = 10
+}
+
+/** MQ数据类型 */
+export enum MQDataType {
+  /** 未知 */
+  MQDataTypeUnknown = 0,
+
+  /** string */
+  MQDataTypeString = 1,
+
+  /** number */
+  MQDataTypeNumber = 2,
+
+  /** object */
+  MQDataTypeObject = 3
+}

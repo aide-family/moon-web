@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Type = string | number | any[]
 //获取该元素到浏览器顶部的距离
 export const useContainerHeightTop = (ref: React.RefObject<HTMLDivElement>, type: Type, isFullscreen?: boolean) => {

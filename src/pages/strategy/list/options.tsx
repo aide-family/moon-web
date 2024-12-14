@@ -1,6 +1,6 @@
 import { Condition, Status, SustainType } from '@/api/enum'
 import { ActionKey, StatusData } from '@/api/global'
-import { DatasourceItem, DictItem, StrategyGroupItem } from '@/api/model-types'
+import { DatasourceItem, DictItem, StrategyGroupItem, StrategyItem } from '@/api/model-types'
 import { listStrategyGroup } from '@/api/strategy'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
@@ -112,14 +112,14 @@ export const formList: SearchFormItem[] = [
 ]
 
 interface GroupColumnProps {
-  onHandleMenuOnClick: (item: StrategyGroupItem, key: ActionKey) => void
+  onHandleMenuOnClick: (item: StrategyItem, key: ActionKey) => void
   current: number
   pageSize: number
 }
 
-export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGroupItem> => {
+export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyItem> => {
   const { onHandleMenuOnClick } = props
-  const tableOperationItems = (record: StrategyGroupItem): MoreMenuProps['items'] => [
+  const tableOperationItems = (record: StrategyItem): MoreMenuProps['items'] => [
     record.status === Status.StatusDisable
       ? {
           key: ActionKey.ENABLE,
@@ -258,7 +258,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyGrou
       ellipsis: true,
       fixed: 'right',
       width: 120,
-      render: (record: StrategyGroupItem) => (
+      render: (record: StrategyItem) => (
         <Space size={20}>
           <Button size='small' type='link' onClick={() => onHandleMenuOnClick(record, ActionKey.DETAIL)}>
             详情

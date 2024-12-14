@@ -11,9 +11,12 @@ import {
   HookApp,
   MetricType,
   ModuleType,
+  MQCondition,
+  MQDataType,
   Role,
   Status,
   StorageType,
+  StrategyType,
   SustainType
 } from './enum'
 
@@ -141,6 +144,36 @@ export const ConditionData: Record<Condition, string> = {
   [Condition.ConditionGTE]: '大于等于(>=)',
   [Condition.ConditionLT]: '小于(<)',
   [Condition.ConditionLTE]: '小于等于(<=)'
+}
+
+export const MQConditionData: Record<MQCondition, string> = {
+  [MQCondition.MQConditionUnknown]: '全部',
+  [MQCondition.MQConditionEQ]: '等于(==)',
+  [MQCondition.MQConditionNE]: '不等于(!=)',
+  [MQCondition.MQConditionGTE]: '大于等于(>=)',
+  [MQCondition.MQConditionLT]: '小于(<)',
+  [MQCondition.MQConditionLTE]: '小于等于(<=)',
+  [MQCondition.MQConditionContain]: '包含(contains)',
+  [MQCondition.MQConditionPrefix]: '前缀(prefix)',
+  [MQCondition.MQConditionSuffix]: '后缀(suffix)',
+  [MQCondition.MQConditionRegular]: '正则(regular)'
+}
+
+export const MQDataTypeData: Record<MQDataType, string> = {
+  [MQDataType.MQDataTypeUnknown]: '全部',
+  [MQDataType.MQDataTypeString]: 'String',
+  [MQDataType.MQDataTypeNumber]: 'Number',
+  [MQDataType.MQDataTypeObject]: 'Object'
+}
+
+export const StrategyTypeData: Record<StrategyType, string> = {
+  [StrategyType.StrategyTypeUnknown]: '全部',
+  [StrategyType.StrategyTypeMetric]: 'Metric',
+  [StrategyType.StrategyTypeDomainCertificate]: '证书',
+  [StrategyType.StrategyTypeDomainPort]: '端口',
+  [StrategyType.StrategyTypePing]: 'Ping',
+  [StrategyType.StrategyTypeHTTP]: 'HTTP',
+  [StrategyType.StrategyTypeMQ]: '事件'
 }
 
 export const SustainTypeData: Record<SustainType, string> = {

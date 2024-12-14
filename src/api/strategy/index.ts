@@ -1,4 +1,13 @@
-import { Condition, DatasourceType, Status, StrategyType, SustainType, TemplateSourceType } from '../enum'
+import {
+  Condition,
+  DatasourceType,
+  MQCondition,
+  MQDataType,
+  Status,
+  StrategyType,
+  SustainType,
+  TemplateSourceType
+} from '../enum'
 import { PaginationReply, PaginationReq } from '../global'
 import { StrategyGroupItem, StrategyItem } from '../model-types'
 import request from '../request'
@@ -61,20 +70,59 @@ export interface UpdateStrategyGroupStatusRequest {
 
 export interface UpdateStrategyGroupStatusReply {}
 
-export interface CreateStrategyRequest {
-  groupId: number
-  templateId?: number
-  remark?: string
-  status?: Status
-  datasourceIds: number[]
-  sourceType?: TemplateSourceType
-  name: string
-  strategyMetricLevel: CreateStrategyLevelRequest[]
-  labels: { [key: string]: string }
-  annotations: { [key: string]: string }
-  expr: string
-  categoriesIds: number[]
+/** 创建策略事件项请求 */
+export interface CreateStrategyMQLevelRequest {
+  /** 值 */
+  value: string
+  /** 状态 */
+  status: Status
+  /** 条件 */
+  condition: MQCondition
+  /** 数据类型 */
+  dataType: MQDataType
+  /** 告警等级ID */
+  alarmLevelId: number
+  /** 告警页面 */
+  alarmPageIds: number[]
+  /** 告警分组 */
   alarmGroupIds: number[]
+  /** 策略标签 */
+  labelNotices: CreateStrategyLabelNoticeRequest[]
+  /** 对象状态下的数据KEY */
+  pathKey: string
+}
+
+/** 创建策略请求 */
+export interface CreateStrategyRequest {
+  /** 策略组ID */
+  groupId: number
+  /** 模板ID */
+  templateId?: number
+  /** 备注 */
+  remark?: string
+  /** 状态 */
+  status?: Status
+  /** 数据源ID */
+  datasourceIds: number[]
+  /** 模板来源 */
+  sourceType?: TemplateSourceType
+  /** 策略名称 */
+  name: string
+  /** 策略项 */
+  strategyMetricLevel: CreateStrategyLevelRequest[]
+  /** 策略事件项 */
+  strategyMqLevel: CreateStrategyMQLevelRequest[]
+  /** 策略标签 */
+  labels: { [key: string]: string }
+  /** 策略注解 */
+  annotations: { [key: string]: string }
+  /** 策略语句 */
+  expr: string
+  /** 策略分类 */
+  categoriesIds: number[]
+  /** 告警分组 */
+  alarmGroupIds: number[]
+  /** 策略类型 */
   strategyType: StrategyType
 }
 
@@ -274,3 +322,32 @@ export function copyStrategy(params: CopyStrategyRequest) {
 export function pushStrategy(id: number) {
   return request.GET<null>(`/v1/strategy/push/${id}`)
 }
+
+/**
+ * 将事件策略详情转换为表单数据
+ * @param detail 事件策略详情
+ * @returns 表单数据
+ */
+export const parseEventStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
+  groupId: detail.groupId,
+  datasourceIds: detail.datasource.map((item) => item.id),
+  name: detail.name,
+  strategyMetricLevel: [],
+  strategyMqLevel: detail.mqLevels.map((item) => ({
+    ...item,
+    status: item.status,
+    alarmPageIds: item.alarmPages.map((item) => item.value),
+    alarmGroupIds: item.alarmGroups.map((item) => item.id),
+    labelNotices: item.labelNotices.map((item) => ({
+      name: item.name,
+      value: item.value,
+      alarmGroupIds: item.alarmGroups.map((item) => item.id)
+    }))
+  })),
+  labels: detail.labels,
+  annotations: detail.annotations,
+  expr: detail.expr,
+  categoriesIds: detail.categories.map((item) => item.id),
+  alarmGroupIds: detail.alarmNoticeGroups.map((item) => item.id),
+  strategyType: detail.strategyType
+})

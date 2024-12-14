@@ -6,14 +6,15 @@ export const IconFont = createFromIconfontCN({
 })
 
 export function Github(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+  const { width = 24, height = 24, ...rest } = props
   return (
     <svg
-      {...props}
+      {...rest}
       role='img'
       viewBox='0 0 24 24'
       xmlns='http://www.w3.org/2000/svg'
-      width='24'
-      height='24'
+      width={width}
+      height={height}
       fill='currentColor'
     >
       <title>GitHub</title>
@@ -23,14 +24,15 @@ export function Github(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>)
 }
 
 export function Gitee(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+  const { width = 24, height = 24, ...rest } = props
   return (
     <svg
-      {...props}
+      {...rest}
       role='img'
       viewBox='0 0 24 24'
       xmlns='http://www.w3.org/2000/svg'
-      width='24'
-      height='24'
+      width={width}
+      height={height}
       fill='currentColor'
     >
       <title>Gitee</title>
@@ -40,14 +42,15 @@ export function Gitee(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) 
 }
 
 export function Kafka(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+  const { width = 24, height = 24, ...rest } = props
   return (
     <svg
-      {...props}
+      {...rest}
       role='img'
       viewBox='0 0 24 24'
       xmlns='http://www.w3.org/2000/svg'
-      width='24'
-      height='24'
+      width={width}
+      height={height}
       fill='currentColor'
     >
       <title>Apache Kafka</title>
@@ -56,14 +59,15 @@ export function Kafka(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) 
   )
 }
 export function RocketMQ(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+  const { width = 24, height = 24, ...rest } = props
   return (
     <svg
-      {...props}
+      {...rest}
       role='img'
       viewBox='0 0 24 24'
       xmlns='http://www.w3.org/2000/svg'
-      width='24'
-      height='24'
+      width={width}
+      height={height}
       fill='currentColor'
     >
       <title>Apache RocketMQ</title>
@@ -73,14 +77,15 @@ export function RocketMQ(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement
 }
 
 export function RabbitMQ(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+  const { width = 24, height = 24, ...rest } = props
   return (
     <svg
-      {...props}
+      {...rest}
       role='img'
       viewBox='0 0 24 24'
       xmlns='http://www.w3.org/2000/svg'
-      width='24'
-      height='24'
+      width={width}
+      height={height}
       fill='currentColor'
     >
       <title>RabbitMQ</title>
@@ -90,14 +95,15 @@ export function RabbitMQ(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement
 }
 
 export function MQTT(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+  const { width = 24, height = 24, ...rest } = props
   return (
     <svg
-      {...props}
+      {...rest}
       role='img'
       viewBox='0 0 24 24'
       xmlns='http://www.w3.org/2000/svg'
-      width='24'
-      height='24'
+      width={width}
+      height={height}
       fill='currentColor'
     >
       <title>MQTT</title>
@@ -107,14 +113,15 @@ export function MQTT(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
 }
 
 export function Prometheus(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+  const { width = 24, height = 24, ...rest } = props
   return (
     <svg
-      {...props}
+      {...rest}
       role='img'
       viewBox='0 0 24 24'
       xmlns='http://www.w3.org/2000/svg'
-      width='24'
-      height='24'
+      width={width}
+      height={height}
       fill='currentColor'
     >
       <title>Prometheus</title>
@@ -124,14 +131,15 @@ export function Prometheus(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGEleme
 }
 
 export function VictoriaMetrics(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+  const { width = 24, height = 24, ...rest } = props
   return (
     <svg
-      {...props}
+      {...rest}
       role='img'
       viewBox='0 0 24 24'
       xmlns='http://www.w3.org/2000/svg'
-      width='24'
-      height='24'
+      width={width}
+      height={height}
       fill='currentColor'
     >
       <title>VictoriaMetrics</title>

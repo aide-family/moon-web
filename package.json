@@ -21,6 +21,7 @@
     "@monaco-editor/react": "^4.6.0",
     "@prometheus-io/codemirror-promql": "^0.47.2",
     "@types/lodash": "^4.17.7",
+    "ahooks": "^3.8.4",
     "antd": "5.21.0",
     "axios": "^1.7.2",
     "crypto-js": "^4.2.0",

@@ -12,6 +12,7 @@ import { TeamMenu } from './team-menu'
 
 export const githubURL = `https://github.com/aide-family/moon`
 export const docURL = `https://aide-family.github.io/`
+export const giteeURL = `https://gitee.com/aide-cloud/moon`
 
 const { useToken } = theme
 

@@ -10,10 +10,13 @@ import {
   MenuType,
   MetricType,
   ModuleType,
+  MQCondition,
+  MQDataType,
   NotifyType,
   Role,
   Status,
   StorageType,
+  StrategyType,
   SustainType,
   TemplateSourceType
 } from './enum'
@@ -314,6 +317,36 @@ export interface StrategyMetricLevelItem {
   labelNotices: LabelNoticeItem[]
 }
 
+/** 事件策略等级项 */
+export interface StrategyEventLevelItem {
+  /** 事件策略ID */
+  id: number
+  /** 事件策略值 */
+  value: string
+  /** 事件策略条件 */
+  condition: MQCondition
+  /** 事件策略数据类型 */
+  dataType: MQDataType
+  /** 事件策略告警等级ID */
+  alarmLevelId: number
+  /** 事件策略告警等级 */
+  alarmLevel: SelectItem
+  /** 事件策略告警页面 */
+  alarmPages: SelectItem[]
+  /** 事件策略所属策略 */
+  strategyId: number
+  /** 事件策略告警分组 */
+  alarmGroups: AlarmNoticeGroupItem[]
+  /** 事件策略创建人 */
+  creator: UserItem
+  /** 对象状态下的数据KEY */
+  pathKey: string
+  /** 状态 */
+  status: Status
+  /** labelNotices  */
+  labelNotices: LabelNoticeItem[]
+}
+
 /** 策略项 */
 export interface StrategyItem {
   /** 策略名称 */
@@ -322,6 +355,8 @@ export interface StrategyItem {
   expr: string
   /** 根据策略等级配置的详细策略， key为策略等级ID */
   metricLevels: StrategyMetricLevelItem[]
+  /** 事件策略 */
+  mqLevels: StrategyEventLevelItem[]
   /** 策略标签 */
   labels: { [key: string]: string }
   /** 策略注解 */
@@ -350,6 +385,8 @@ export interface StrategyItem {
   categories: DictItem[]
   /** 告警分组 */
   alarmNoticeGroups: AlarmNoticeGroupItem[]
+  /** 策略类型 */
+  strategyType: StrategyType
 }
 
 /** 策略组项 */
