@@ -21,9 +21,11 @@ import { Button, message, Modal, Space, theme } from 'antd'
 import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { Detail } from './detail'
-import EventEditModal from './event-edit.modal'
+import { DomainEditModal } from './domain-edit-modal'
+import EventEditModal from './event-edit-modal'
 import { MetricEditModal, MetricEditModalData } from './metric-edit-modal'
 import { formList, getColumnList } from './options'
+import { PortEditModal } from './port-edit-modal'
 import StrategyCharts from './strategy-charts'
 import StrategyTypeModal from './strategy-type-modal'
 
@@ -45,6 +47,8 @@ const StrategyMetric: React.FC = () => {
   const [total, setTotal] = useState(0)
   const [openMetricEditModal, setOpenMetricEditModal] = useState(false)
   const [openEventEditModal, setOpenEventEditModal] = useState(false)
+  const [openDomainEditModal, setOpenDomainEditModal] = useState(false)
+  const [openPortEditModal, setOpenPortEditModal] = useState(false)
   const [editDetail, setEditDetail] = useState<StrategyItem>()
   const [disabledEditGroupModal, setDisabledEditGroupModal] = useState(false)
   const [openChartModal, setOpenChartModal] = useState(false)
@@ -66,6 +70,16 @@ const StrategyMetric: React.FC = () => {
     setOpenEventEditModal(true)
   }
 
+  const handleOpenDomainEditModal = (item?: StrategyItem) => {
+    setEditDetail(item)
+    setOpenDomainEditModal(true)
+  }
+
+  const handleOpenPortEditModal = (item?: StrategyItem) => {
+    setEditDetail(item)
+    setOpenPortEditModal(true)
+  }
+
   const handleDetailModal = (id: number) => {
     setDetailId(id)
     setOpenDetailModal(true)
@@ -84,6 +98,16 @@ const StrategyMetric: React.FC = () => {
 
   const handleCloseEventEditModal = () => {
     setOpenEventEditModal(false)
+    setEditDetail(undefined)
+  }
+
+  const handleCloseDomainEditModal = () => {
+    setOpenDomainEditModal(false)
+    setEditDetail(undefined)
+  }
+
+  const handleClosePortEditModal = () => {
+    setOpenPortEditModal(false)
     setEditDetail(undefined)
   }
 
@@ -210,6 +234,12 @@ const StrategyMetric: React.FC = () => {
       case StrategyType.StrategyTypeMQ:
         handleOpenEventEditModal(item)
         break
+      case StrategyType.StrategyTypeDomainCertificate:
+        handleOpenDomainEditModal(item)
+        break
+      case StrategyType.StrategyTypeDomainPort:
+        handleOpenPortEditModal(item)
+        break
       default:
         message.warning(`${StrategyTypeData[item.strategyType]}未开通`)
         break
@@ -284,6 +314,12 @@ const StrategyMetric: React.FC = () => {
       case StrategyType.StrategyTypeMQ:
         handleOpenEventEditModal()
         break
+      case StrategyType.StrategyTypeDomainCertificate:
+        handleOpenDomainEditModal()
+        break
+      case StrategyType.StrategyTypeDomainPort:
+        handleOpenPortEditModal()
+        break
       default:
         message.warning(`${StrategyTypeData[type]}未开通`)
         break
@@ -298,7 +334,6 @@ const StrategyMetric: React.FC = () => {
     <div className='h-full flex flex-col gap-3 p-3'>
       <StrategyTypeModal
         title='选择策略类型'
-        // width='60%'
         open={openStrategyTypeModal}
         onSubmit={handleStrategyTypeSubmit}
         onCancel={handleStrategyTypeCancel}
@@ -313,10 +348,24 @@ const StrategyMetric: React.FC = () => {
         submit={handleMetricEditModalSubmit}
         disabled={disabledEditGroupModal}
       />
+      <DomainEditModal
+        title='证书策略编辑'
+        width='60%'
+        strategyDetail={editDetail}
+        open={openDomainEditModal}
+        onCancel={handleCloseDomainEditModal}
+      />
+      <PortEditModal
+        title='端口策略编辑'
+        width='60%'
+        strategyDetail={editDetail}
+        open={openPortEditModal}
+        onCancel={handleClosePortEditModal}
+      />
       <EventEditModal
         title='事件策略编辑'
         width='60%'
-        eventStrategyDetail={undefined}
+        eventStrategyDetail={editDetail}
         open={openEventEditModal}
         onCancel={handleCloseEventEditModal}
       />
