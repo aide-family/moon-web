@@ -1,4 +1,5 @@
 import { listDatasource, ListDatasourceRequest } from '@/api/datasource'
+import { DatasourceType } from '@/api/enum'
 import { DatasourceItem } from '@/api/model-types'
 import useStorage from '@/utils/storage'
 import { Button, Empty, Input, Menu, Tabs, TabsProps, theme } from 'antd'
@@ -14,6 +15,7 @@ export interface MetricProps {}
 const { useToken } = theme
 
 const defaultSearchDatasourceParams: ListDatasourceRequest = {
+  datasourceType: DatasourceType.DatasourceTypeMetric,
   pagination: {
     pageNum: 1,
     pageSize: 100
