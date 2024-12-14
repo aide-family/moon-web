@@ -173,7 +173,8 @@ export const StrategyTypeData: Record<StrategyType, string> = {
   [StrategyType.StrategyTypeDomainPort]: '端口',
   [StrategyType.StrategyTypePing]: 'Ping',
   [StrategyType.StrategyTypeHTTP]: 'HTTP',
-  [StrategyType.StrategyTypeMQ]: '事件'
+  [StrategyType.StrategyTypeMQ]: '事件',
+  [StrategyType.StrategyTypeLog]: '日志'
 }
 
 export const SustainTypeData: Record<SustainType, string> = {

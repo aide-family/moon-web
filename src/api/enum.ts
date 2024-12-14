@@ -352,7 +352,10 @@ export enum StrategyType {
   StrategyTypeHTTP = 5,
 
   /** MQ */
-  StrategyTypeMQ = 6
+  StrategyTypeMQ = 6,
+
+  /** Log */
+  StrategyTypeLog = 7
 }
 
 // MQ判断条件

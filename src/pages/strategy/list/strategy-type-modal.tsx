@@ -1,6 +1,6 @@
 import { StrategyType } from '@/api/enum'
 import { message, Modal, ModalProps, theme } from 'antd'
-import { Activity, FileText, Gauge, Globe, Network, Radio, Stethoscope, Zap } from 'lucide-react'
+import { Activity, FileText, Gauge, Globe, Network, Radio, ScrollText, Stethoscope, Zap } from 'lucide-react'
 import { useState } from 'react'
 
 export interface StrategyTypeModalProps extends ModalProps {
@@ -19,7 +19,8 @@ const strategyGroups: StrategyTypeGroup[] = [
     icon: <Gauge className='h-5 w-5' />,
     strategies: [
       { id: StrategyType.StrategyTypeMetric, name: 'Metric', icon: <Activity className='h-5 w-5' /> },
-      { id: StrategyType.StrategyTypeMQ, name: '事件', icon: <Zap className='h-5 w-5' /> }
+      { id: StrategyType.StrategyTypeMQ, name: '事件', icon: <Zap className='h-5 w-5' /> },
+      { id: StrategyType.StrategyTypeLog, name: '日志', icon: <ScrollText className='h-5 w-5' /> }
     ]
   },
   {
