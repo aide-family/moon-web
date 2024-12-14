@@ -1,6 +1,6 @@
 import { StrategyType } from '@/api/enum'
 import { message, Modal, ModalProps, theme } from 'antd'
-import { Activity, FileText, Gauge, Globe, Network, Radio, Zap } from 'lucide-react'
+import { Activity, FileText, Gauge, Globe, Network, Radio, Stethoscope, Zap } from 'lucide-react'
 import { useState } from 'react'
 
 export interface StrategyTypeModalProps extends ModalProps {
@@ -18,7 +18,7 @@ const strategyGroups: StrategyTypeGroup[] = [
     name: '普通监控',
     icon: <Gauge className='h-5 w-5' />,
     strategies: [
-      { id: StrategyType.StrategyTypeMetric, name: 'Metric', icon: <Activity /> },
+      { id: StrategyType.StrategyTypeMetric, name: 'Metric', icon: <Activity className='h-5 w-5' /> },
       { id: StrategyType.StrategyTypeMQ, name: '事件', icon: <Zap className='h-5 w-5' /> }
     ]
   },
@@ -26,7 +26,8 @@ const strategyGroups: StrategyTypeGroup[] = [
     name: '探测监控',
     icon: <Radio className='h-5 w-5' />,
     strategies: [
-      { id: StrategyType.StrategyTypeDomainCertificate, name: '证书', icon: <FileText /> },
+      { id: StrategyType.StrategyTypeDomainCertificate, name: '证书', icon: <FileText className='h-5 w-5' /> },
+      { id: StrategyType.StrategyTypeDomainPort, name: '端口', icon: <Stethoscope className='h-5 w-5' /> },
       { id: StrategyType.StrategyTypePing, name: 'Ping', icon: <Network className='h-5 w-5' /> },
       { id: StrategyType.StrategyTypeHTTP, name: 'HTTP', icon: <Globe className='h-5 w-5' /> }
     ]
