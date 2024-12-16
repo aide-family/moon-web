@@ -1,17 +1,7 @@
-import { Status, StrategyType, TemplateSourceType } from '@/api/enum'
+import { Status, StrategyType } from '@/api/enum'
 import { ActionKey, defaultPaginationReq, StrategyTypeData } from '@/api/global'
 import { StrategyItem } from '@/api/model-types'
-import {
-  createStrategy,
-  CreateStrategyLevelRequest,
-  CreateStrategyRequest,
-  deleteStrategy,
-  listStrategy,
-  ListStrategyRequest,
-  pushStrategy,
-  updateStrategy,
-  updateStrategyStatus
-} from '@/api/strategy'
+import { deleteStrategy, listStrategy, ListStrategyRequest, pushStrategy, updateStrategyStatus } from '@/api/strategy'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
@@ -20,15 +10,15 @@ import { ExclamationCircleFilled } from '@ant-design/icons'
 import { Button, message, Modal, Space, theme } from 'antd'
 import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { Detail } from './detail'
 import { DomainEditModal } from './edit-modal-domain'
 import EventEditModal from './edit-modal-event'
 import { HTTPEditModal } from './edit-modal-http'
-import { MetricEditModal, MetricEditModalData } from './edit-modal-metric'
+import MetricEditModal from './edit-modal-metric'
 import { PortEditModal } from './edit-modal-port'
 import StrategyTypeModal from './edit-modal-strategy-type'
 import { formList, getColumnList } from './options'
-import StrategyCharts from './strategy-charts'
+import StrategyCharts from './strategy-metric-charts'
+import { Detail } from './strategy-metric-detail'
 
 const { confirm } = Modal
 const { useToken } = theme
@@ -52,7 +42,6 @@ const StrategyMetric: React.FC = () => {
   const [openPortEditModal, setOpenPortEditModal] = useState(false)
   const [openHttpEditModal, setOpenHttpEditModal] = useState(false)
   const [editDetail, setEditDetail] = useState<StrategyItem>()
-  const [disabledEditGroupModal, setDisabledEditGroupModal] = useState(false)
   const [openChartModal, setOpenChartModal] = useState(false)
   const [openStrategyTypeModal, setOpenStrategyTypeModal] = useState(false)
 
@@ -100,7 +89,6 @@ const StrategyMetric: React.FC = () => {
   const handleCloseMetricEditModal = () => {
     setOpenMetricEditModal(false)
     setEditDetail(undefined)
-    setDisabledEditGroupModal(false)
   }
 
   const handleCloseEventEditModal = () => {
@@ -151,63 +139,6 @@ const StrategyMetric: React.FC = () => {
     }, 500),
     []
   )
-
-  const handleMetricEditModalSubmit = (data: MetricEditModalData) => {
-    const {
-      name,
-      expr,
-      remark,
-      labels,
-      annotations,
-      alarmGroupIds,
-      categoriesIds,
-      groupId,
-      datasourceIds,
-      strategyLevel
-    } = data
-    const params: CreateStrategyRequest = {
-      name,
-      expr,
-      remark,
-      labels,
-      annotations,
-      categoriesIds,
-      groupId,
-      datasourceIds,
-      strategyMetricLevel: strategyLevel.map((item) => {
-        const { interval, alarmPageIds, alarmGroupIds, labelNotices } = item
-        return {
-          ...item,
-          duration: item.duration,
-          interval: interval,
-          alarmPageIds,
-          alarmGroupIds,
-          labelNotices
-        } satisfies CreateStrategyLevelRequest
-      }),
-      alarmGroupIds,
-      status: Status.StatusEnable,
-      sourceType: TemplateSourceType.TemplateSourceTypeTeam,
-      strategyType: StrategyType.StrategyTypeMetric,
-      strategyMqLevel: [],
-      strategyDomainLevel: [],
-      strategyPortLevel: [],
-      strategyHTTPLevel: []
-    }
-
-    const call = () => {
-      if (!editDetail) {
-        return createStrategy(params)
-      } else {
-        return updateStrategy({ data: params, id: editDetail.id })
-      }
-    }
-    return call().then(() => {
-      message.success(`${editDetail ? '编辑' : '添加'}成功`)
-      handleCloseMetricEditModal()
-      onRefresh()
-    })
-  }
 
   useEffect(() => {
     fetchData(searchParams)
@@ -360,14 +291,11 @@ const StrategyMetric: React.FC = () => {
         onCancel={handleStrategyTypeCancel}
       />
       <MetricEditModal
-        title={editDetail ? (disabledEditGroupModal ? '策略详情' : '编辑策略') : '新建策略'}
+        title='指标策略编辑'
         width='60%'
-        strategyId={editDetail?.id}
-        style={{ minWidth: 504 }}
+        strategyDetail={editDetail}
         open={openMetricEditModal}
         onCancel={handleCloseMetricEditModal}
-        submit={handleMetricEditModalSubmit}
-        disabled={disabledEditGroupModal}
       />
       <DomainEditModal
         title='证书策略编辑'

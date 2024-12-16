@@ -548,3 +548,43 @@ export const parsePortStrategyDetailToFormData = (detail: StrategyItem): CreateS
   alarmGroupIds: [],
   strategyType: StrategyType.StrategyTypeDomainPort
 })
+
+/**
+ * 将指标策略详情转换为表单数据
+ * @param detail 指标策略详情
+ * @returns 表单数据
+ */
+export const parseMetricStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
+  groupId: detail.groupId,
+  datasourceIds: detail.datasource.map((item) => item.id),
+  name: detail.name,
+  strategyMetricLevel: detail.metricLevels.map(
+    (item): CreateStrategyLevelRequest => ({
+      status: item.status,
+      alarmPageIds: item.alarmPages.map((item) => item.value),
+      alarmGroupIds: item.alarmGroups.map((item) => item.id),
+      labelNotices: item.labelNotices.map((item) => ({
+        name: item.name,
+        value: item.value,
+        alarmGroupIds: item.alarmGroups.map((item) => item.id)
+      })),
+      duration: item.duration,
+      count: item.count,
+      sustainType: item.sustainType,
+      interval: item.interval,
+      threshold: item.threshold,
+      condition: item.condition,
+      levelId: item.id
+    })
+  ),
+  strategyMqLevel: [],
+  strategyDomainLevel: [],
+  strategyPortLevel: [],
+  strategyHTTPLevel: [],
+  labels: {},
+  annotations: {},
+  expr: '',
+  categoriesIds: [],
+  alarmGroupIds: [],
+  strategyType: StrategyType.StrategyTypeMetric
+})

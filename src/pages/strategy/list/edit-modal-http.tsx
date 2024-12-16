@@ -273,7 +273,7 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
             </Form.Item>
           </Form.Item>
           <Form.Item label={<b>告警等级</b>} required>
-            <Form.List name='strategyLevel'>
+            <Form.List name='strategyHTTPLevel'>
               {(fields, { add, remove }) => (
                 <div className='flex flex-col gap-4'>
                   {fields.map((field) => (
