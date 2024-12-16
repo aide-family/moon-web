@@ -277,7 +277,7 @@ export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
             </Form.Item>
           </Form.Item>
           <Form.Item label={<b>告警等级</b>} required>
-            <Form.List name='strategyPortLevel'>
+            <Form.List name='strategyPortLevels'>
               {(fields, { add, remove }) => (
                 <div className='flex flex-col gap-4'>
                   {fields.map((field) => (

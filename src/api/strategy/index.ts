@@ -127,23 +127,23 @@ export type CreateStrategyRequest = CreateStrategyBaseRequest &
   (
     | {
         strategyType: StrategyType.StrategyTypeMetric
-        strategyMetricLevel: CreateStrategyLevelRequest[]
+        strategyMetricLevels: CreateStrategyLevelRequest[]
       }
     | {
         strategyType: StrategyType.StrategyTypeMQ
-        strategyMqLevel: CreateStrategyMQLevelRequest[]
+        strategyMqLevels: CreateStrategyMQLevelRequest[]
       }
     | {
         strategyType: StrategyType.StrategyTypeDomainCertificate
-        strategyDomainLevel: CreateStrategyDomainLevelRequest[]
+        strategyDomainLevels: CreateStrategyDomainLevelRequest[]
       }
     | {
         strategyType: StrategyType.StrategyTypeDomainPort
-        strategyPortLevel: CreateStrategyPortLevelRequest[]
+        strategyPortLevels: CreateStrategyPortLevelRequest[]
       }
     | {
         strategyType: StrategyType.StrategyTypeHTTP
-        strategyHTTPLevel: CreateStrategyHTTPLevelRequest[]
+        strategyHTTPLevels: CreateStrategyHTTPLevelRequest[]
       }
   )
 
@@ -440,7 +440,7 @@ export const parseStrategyDetailToFormData = (detail: StrategyItem): CreateStrat
 export const parseEventStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
   ...parseStrategyDetailToFormData(detail),
   strategyType: StrategyType.StrategyTypeMQ,
-  strategyMqLevel: detail.mqLevels.map(
+  strategyMqLevels: detail.mqLevels.map(
     (item): CreateStrategyMQLevelRequest => ({
       status: item.status,
       alarmPageIds: item.alarmPages.map((item) => item.value),
@@ -467,7 +467,7 @@ export const parseEventStrategyDetailToFormData = (detail: StrategyItem): Create
 export const parseDomainStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
   ...parseStrategyDetailToFormData(detail),
   strategyType: StrategyType.StrategyTypeDomainCertificate,
-  strategyDomainLevel: detail.domainLevels.map(
+  strategyDomainLevels: detail.domainLevels.map(
     (item): CreateStrategyDomainLevelRequest => ({
       levelId: item.id,
       status: Status.StatusEnable,
@@ -492,7 +492,7 @@ export const parseDomainStrategyDetailToFormData = (detail: StrategyItem): Creat
 export const parseHTTPStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
   ...parseStrategyDetailToFormData(detail),
   strategyType: StrategyType.StrategyTypeHTTP,
-  strategyHTTPLevel: detail.httpLevels.map(
+  strategyHTTPLevels: detail.httpLevels.map(
     (item): CreateStrategyHTTPLevelRequest => ({
       levelId: item.id,
       status: item.status,
@@ -523,7 +523,7 @@ export const parseHTTPStrategyDetailToFormData = (detail: StrategyItem): CreateS
 export const parsePortStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
   ...parseStrategyDetailToFormData(detail),
   strategyType: StrategyType.StrategyTypeDomainPort,
-  strategyPortLevel: detail.portLevels.map(
+  strategyPortLevels: detail.portLevels.map(
     (item): CreateStrategyPortLevelRequest => ({
       levelId: item.id,
       status: item.status,
@@ -548,7 +548,7 @@ export const parsePortStrategyDetailToFormData = (detail: StrategyItem): CreateS
 export const parseMetricStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
   ...parseStrategyDetailToFormData(detail),
   strategyType: StrategyType.StrategyTypeMetric,
-  strategyMetricLevel: detail.metricLevels.map(
+  strategyMetricLevels: detail.metricLevels.map(
     (item): CreateStrategyLevelRequest => ({
       status: item.status,
       alarmPageIds: item.alarmPages.map((item) => item.value),
