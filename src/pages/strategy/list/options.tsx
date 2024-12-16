@@ -1,11 +1,11 @@
-import { Condition, Status, SustainType } from '@/api/enum'
-import { ActionKey, StatusData } from '@/api/global'
+import { Condition, Status, StrategyType, SustainType } from '@/api/enum'
+import { ActionKey, StatusData, StrategyTypeData, StrategyTypeDataTag } from '@/api/global'
 import { DatasourceItem, DictItem, StrategyGroupItem, StrategyItem } from '@/api/model-types'
 import { listStrategyGroup } from '@/api/strategy'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
-import { Badge, Button, Space, Tooltip } from 'antd'
+import { Badge, Button, Space, Tag, Tooltip } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
 export type StrategyLabelType = {
@@ -68,6 +68,26 @@ export const formList: SearchFormItem[] = [
         },
         handleFetch: getStrategyGroups,
         defaultOptions: []
+      }
+    }
+  },
+  {
+    name: 'strategyType',
+    label: '策略类型',
+    dataProps: {
+      type: 'select',
+      itemProps: {
+        placeholder: '请选择策略类型',
+        allowClear: true,
+        mode: 'multiple',
+        options: Object.entries(StrategyTypeData)
+          .filter(([key]) => +key !== StrategyType.StrategyTypeUnknown)
+          .map(([key, value]) => {
+            return {
+              label: value,
+              value: Number(key)
+            }
+          })
       }
     }
   },
@@ -170,7 +190,15 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyItem
       title: '名称',
       dataIndex: 'name',
       key: 'name',
-      width: 200
+      width: 200,
+      render: (name: string, record: StrategyItem) => {
+        return (
+          <div className='flex items-center gap-2'>
+            <Tag {...StrategyTypeDataTag[record.strategyType || StrategyType.StrategyTypeMetric]} />
+            {name}
+          </div>
+        )
+      }
     },
     {
       title: '数据源',

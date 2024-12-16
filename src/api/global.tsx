@@ -185,6 +185,41 @@ export const StrategyTypeData: Record<StrategyType, string> = {
   [StrategyType.StrategyTypeLog]: '日志'
 }
 
+export const StrategyTypeDataTag: Record<StrategyType, TagItemType> = {
+  [StrategyType.StrategyTypeUnknown]: {
+    text: '全部',
+    color: ''
+  },
+  [StrategyType.StrategyTypeMetric]: {
+    text: 'Metric',
+    color: 'green'
+  },
+  [StrategyType.StrategyTypeDomainCertificate]: {
+    text: '证书',
+    color: 'blue'
+  },
+  [StrategyType.StrategyTypeDomainPort]: {
+    text: '端口',
+    color: 'orange'
+  },
+  [StrategyType.StrategyTypePing]: {
+    text: 'Ping',
+    color: 'red'
+  },
+  [StrategyType.StrategyTypeHTTP]: {
+    text: 'HTTP',
+    color: 'purple'
+  },
+  [StrategyType.StrategyTypeMQ]: {
+    text: '事件',
+    color: 'cyan'
+  },
+  [StrategyType.StrategyTypeLog]: {
+    text: '日志',
+    color: 'magenta'
+  }
+}
+
 export const HTTPMethodData: Record<HTTPMethod, string> = {
   [HTTPMethod.HTTPMethodUnknown]: '全部',
   [HTTPMethod.HTTPMethodGET]: 'GET',
