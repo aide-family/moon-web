@@ -1,7 +1,7 @@
 import { StrategyType } from '@/api/enum'
 import { message, Modal, ModalProps, theme } from 'antd'
 import { Activity, FileText, Gauge, Globe, Network, Radio, ScrollText, Stethoscope, Zap } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export interface StrategyTypeModalProps extends ModalProps {
   onSubmit: (data: StrategyType) => void
@@ -29,14 +29,14 @@ const strategyGroups: StrategyTypeGroup[] = [
     strategies: [
       { id: StrategyType.StrategyTypeDomainCertificate, name: '证书', icon: <FileText className='h-5 w-5' /> },
       { id: StrategyType.StrategyTypeDomainPort, name: '端口', icon: <Stethoscope className='h-5 w-5' /> },
-      { id: StrategyType.StrategyTypePing, name: 'Ping', icon: <Network className='h-5 w-5' /> },
-      { id: StrategyType.StrategyTypeHTTP, name: 'HTTP', icon: <Globe className='h-5 w-5' /> }
+      { id: StrategyType.StrategyTypeHTTP, name: 'HTTP', icon: <Globe className='h-5 w-5' /> },
+      { id: StrategyType.StrategyTypePing, name: 'Ping', icon: <Network className='h-5 w-5' /> }
     ]
   }
 ]
 
 export default function StrategyTypeModal(props: StrategyTypeModalProps) {
-  const { onSubmit, ...restProps } = props
+  const { onSubmit, open, ...restProps } = props
   const [selectedType, setSelectedType] = useState<StrategyType>(StrategyType.StrategyTypeUnknown)
   const { token } = theme.useToken()
   const handleSubmit = () => {
@@ -47,8 +47,14 @@ export default function StrategyTypeModal(props: StrategyTypeModalProps) {
     onSubmit(selectedType)
   }
 
+  useEffect(() => {
+    if (open) {
+      setSelectedType(StrategyType.StrategyTypeUnknown)
+    }
+  }, [open])
+
   return (
-    <Modal {...restProps} onOk={handleSubmit} okText='确定' cancelText='取消'>
+    <Modal {...restProps} open={open} onOk={handleSubmit} okText='确定' cancelText='取消'>
       <div className='space-y-6 p-4'>
         {strategyGroups.map((group) => (
           <div key={group.name} className='space-y-3'>
@@ -56,7 +62,7 @@ export default function StrategyTypeModal(props: StrategyTypeModalProps) {
               {group.icon}
               <span>{group.name}</span>
             </div>
-            <div className='grid grid-cols-3 gap-4'>
+            <div className='grid grid-cols-4 gap-4'>
               {group.strategies.map((strategy) => (
                 <button
                   key={strategy.id}

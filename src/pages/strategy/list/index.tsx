@@ -318,6 +318,7 @@ const StrategyMetric: React.FC = () => {
   return (
     <div className='h-full flex flex-col gap-3 p-3'>
       <StrategyTypeModal
+        width='780px'
         title='选择策略类型'
         open={openStrategyTypeModal}
         onSubmit={handleStrategyTypeSubmit}
