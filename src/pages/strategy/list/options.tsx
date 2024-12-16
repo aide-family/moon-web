@@ -7,7 +7,7 @@ import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
 import { Badge, Button, Space, Tooltip } from 'antd'
 import { ColumnsType } from 'antd/es/table'
-import { StrategyLevelTemplateType } from './metric-edit-modal'
+import { StrategyLevelTemplateType } from './edit-modal-metric'
 
 export type StrategyLabelType = {
   alarmGroupIds: number[]

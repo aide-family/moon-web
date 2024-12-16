@@ -21,13 +21,14 @@ import { Button, message, Modal, Space, theme } from 'antd'
 import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { Detail } from './detail'
-import { DomainEditModal } from './domain-edit-modal'
-import EventEditModal from './event-edit-modal'
-import { MetricEditModal, MetricEditModalData } from './metric-edit-modal'
+import { DomainEditModal } from './edit-modal-domain'
+import EventEditModal from './edit-modal-event'
+import { HTTPEditModal } from './edit-modal-http'
+import { MetricEditModal, MetricEditModalData } from './edit-modal-metric'
+import { PortEditModal } from './edit-modal-port'
+import StrategyTypeModal from './edit-modal-strategy-type'
 import { formList, getColumnList } from './options'
-import { PortEditModal } from './port-edit-modal'
 import StrategyCharts from './strategy-charts'
-import StrategyTypeModal from './strategy-type-modal'
 
 const { confirm } = Modal
 const { useToken } = theme
@@ -49,6 +50,7 @@ const StrategyMetric: React.FC = () => {
   const [openEventEditModal, setOpenEventEditModal] = useState(false)
   const [openDomainEditModal, setOpenDomainEditModal] = useState(false)
   const [openPortEditModal, setOpenPortEditModal] = useState(false)
+  const [openHttpEditModal, setOpenHttpEditModal] = useState(false)
   const [editDetail, setEditDetail] = useState<StrategyItem>()
   const [disabledEditGroupModal, setDisabledEditGroupModal] = useState(false)
   const [openChartModal, setOpenChartModal] = useState(false)
@@ -80,6 +82,11 @@ const StrategyMetric: React.FC = () => {
     setOpenPortEditModal(true)
   }
 
+  const handleOpenHttpEditModal = (item?: StrategyItem) => {
+    setEditDetail(item)
+    setOpenHttpEditModal(true)
+  }
+
   const handleDetailModal = (id: number) => {
     setDetailId(id)
     setOpenDetailModal(true)
@@ -108,6 +115,11 @@ const StrategyMetric: React.FC = () => {
 
   const handleClosePortEditModal = () => {
     setOpenPortEditModal(false)
+    setEditDetail(undefined)
+  }
+
+  const handleCloseHttpEditModal = () => {
+    setOpenHttpEditModal(false)
     setEditDetail(undefined)
   }
 
@@ -177,7 +189,10 @@ const StrategyMetric: React.FC = () => {
       status: Status.StatusEnable,
       sourceType: TemplateSourceType.TemplateSourceTypeTeam,
       strategyType: StrategyType.StrategyTypeMetric,
-      strategyMqLevel: []
+      strategyMqLevel: [],
+      strategyDomainLevel: [],
+      strategyPortLevel: [],
+      strategyHTTPLevel: []
     }
 
     const call = () => {
@@ -239,6 +254,9 @@ const StrategyMetric: React.FC = () => {
         break
       case StrategyType.StrategyTypeDomainPort:
         handleOpenPortEditModal(item)
+        break
+      case StrategyType.StrategyTypeHTTP:
+        handleOpenHttpEditModal(item)
         break
       default:
         message.warning(`${StrategyTypeData[item.strategyType]}未开通`)
@@ -320,6 +338,9 @@ const StrategyMetric: React.FC = () => {
       case StrategyType.StrategyTypeDomainPort:
         handleOpenPortEditModal()
         break
+      case StrategyType.StrategyTypeHTTP:
+        handleOpenHttpEditModal()
+        break
       default:
         message.warning(`${StrategyTypeData[type]}未开通`)
         break
@@ -368,6 +389,13 @@ const StrategyMetric: React.FC = () => {
         eventStrategyDetail={editDetail}
         open={openEventEditModal}
         onCancel={handleCloseEventEditModal}
+      />
+      <HTTPEditModal
+        title='HTTP策略编辑'
+        width='60%'
+        strategyDetail={editDetail}
+        open={openHttpEditModal}
+        onCancel={handleCloseHttpEditModal}
       />
       <StrategyCharts
         title='策略图表'

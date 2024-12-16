@@ -103,7 +103,7 @@ export const DomainEditModal: React.FC<DomainEditModalProps> = (props) => {
   }, [strategyDetail, restProps.open])
 
   return (
-    <Modal title='证书策略编辑' {...restProps} onOk={handleSubmit} confirmLoading={loading}>
+    <Modal {...restProps} onOk={handleSubmit} confirmLoading={loading}>
       <Form form={form} layout='vertical' autoComplete='off' disabled={loading}>
         <Row gutter={12}>
           <Col span={12}>

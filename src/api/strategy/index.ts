@@ -1,9 +1,11 @@
 import {
   Condition,
   DatasourceType,
+  HTTPMethod,
   MQCondition,
   MQDataType,
   Status,
+  StatusCodeCondition,
   StrategyType,
   SustainType,
   TemplateSourceType
@@ -112,6 +114,12 @@ export interface CreateStrategyRequest {
   strategyMetricLevel: CreateStrategyLevelRequest[]
   /** 策略事件项 */
   strategyMqLevel: CreateStrategyMQLevelRequest[]
+  /** 证书策略项 */
+  strategyDomainLevel: CreateStrategyDomainLevelRequest[]
+  /** 端口监控策略 */
+  strategyPortLevel: CreateStrategyPortLevelRequest[]
+  /** 策略HTTP项 */
+  strategyHTTPLevel: CreateStrategyHTTPLevelRequest[]
   /** 策略标签 */
   labels: { [key: string]: string }
   /** 策略注解 */
@@ -180,6 +188,72 @@ export interface CreateStrategyLevelRequest {
   alarmPageIds: number[]
   alarmGroupIds: number[]
   labelNotices: CreateStrategyLabelNoticeRequest[]
+}
+
+/** 创建策略HTTP等级请求 */
+export interface CreateStrategyHTTPLevelRequest {
+  /** 策略等级ID */
+  levelId: number
+  /** 状态 */
+  status: Status
+  /** 告警页面ID */
+  alarmPageIds: number[]
+  /** 告警组ID */
+  alarmGroupIds: number[]
+  /** 策略标签 */
+  labelNotices: CreateStrategyLabelNoticeRequest[]
+  /** 响应时间 */
+  responseTime: number
+  /** 状态码 */
+  statusCodes: number
+  /** 请求头 */
+  headers: { [key: string]: string }
+  /** 请求体 */
+  body: string
+  /** 查询参数 */
+  queryParams: string
+  /** 请求方式 */
+  method: HTTPMethod
+  /** 状态码判断条件 */
+  statusCodeCondition: StatusCodeCondition
+  /** 响应时间判断条件 */
+  responseTimeCondition: Condition
+}
+
+/** 创建策略证书等级请求 */
+export interface CreateStrategyDomainLevelRequest {
+  /** 策略等级ID */
+  levelId: number
+  /** 状态 */
+  status: Status
+  /** 告警页面ID */
+  alarmPageIds: number[]
+  /** 告警组ID */
+  alarmGroupIds: number[]
+  /** 策略标签 */
+  labelNotices: CreateStrategyLabelNoticeRequest[]
+  /** 阈值 */
+  threshold: number
+  /** 判断条件 */
+  condition: Condition
+}
+
+/** 创建策略端口等级请求 */
+export interface CreateStrategyPortLevelRequest {
+  /** 策略等级ID */
+  levelId: number
+  /** 状态 */
+  status: Status
+  /** 告警页面ID */
+  alarmPageIds: number[]
+  /** 告警组ID */
+  alarmGroupIds: number[]
+  /** 策略标签 */
+  labelNotices: CreateStrategyLabelNoticeRequest[]
+  /** 阈值 */
+  threshold: number
+  /** 端口 */
+  port: number
 }
 
 export interface CopyStrategyRequest {
@@ -349,5 +423,8 @@ export const parseEventStrategyDetailToFormData = (detail: StrategyItem): Create
   expr: detail.expr,
   categoriesIds: detail.categories.map((item) => item.id),
   alarmGroupIds: detail.alarmNoticeGroups.map((item) => item.id),
-  strategyType: detail.strategyType
+  strategyType: detail.strategyType,
+  strategyDomainLevel: [],
+  strategyPortLevel: [],
+  strategyHTTPLevel: []
 })

@@ -107,7 +107,7 @@ export default function EventEditModal(props: EventEditModalProps) {
   }, [eventStrategyDetail, restProps.open])
 
   return (
-    <Modal title='事件策略编辑' {...restProps} onOk={handleSubmit} confirmLoading={loading}>
+    <Modal {...restProps} onOk={handleSubmit} confirmLoading={loading}>
       <Form form={form} layout='vertical' autoComplete='off' disabled={loading}>
         <Form.Item label='数据源' name='datasourceIds' rules={[{ required: true, message: '请选择数据源' }]}>
           <Select

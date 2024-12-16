@@ -405,3 +405,42 @@ export enum MQDataType {
   /** object */
   MQDataTypeObject = 3
 }
+
+/** HTTP请求方式 */
+export enum HTTPMethod {
+  /** 未知 */
+  HTTPMethodUnknown = '',
+
+  /** GET */
+  HTTPMethodGET = 'GET',
+
+  /** POST */
+  HTTPMethodPOST = 'POST',
+
+  /** PUT */
+  HTTPMethodPUT = 'PUT',
+
+  /** DELETE */
+  HTTPMethodDELETE = 'DELETE',
+
+  /** PATCH */
+  HTTPMethodPATCH = 'PATCH',
+
+  /** HEAD */
+  HTTPMethodHEAD = 'HEAD',
+
+  /** OPTIONS */
+  HTTPMethodOPTIONS = 'OPTIONS'
+}
+
+/** 状态码判断条件 */
+export enum StatusCodeCondition {
+  /** 未知 */
+  StatusCodeConditionUnknown = 0,
+
+  /** 等于 */
+  StatusCodeConditionEQ = 1,
+
+  /** 不等于 */
+  StatusCodeConditionNE = 2
+}

@@ -1,5 +1,5 @@
-import { Status } from '@/api/enum'
-import { defaultPaginationReq } from '@/api/global'
+import { HTTPMethod, Status } from '@/api/enum'
+import { ConditionData, defaultPaginationReq, HTTPMethodData, StatusCodeConditionData } from '@/api/global'
 import { StrategyItem } from '@/api/model-types'
 import {
   createStrategy,
@@ -27,7 +27,6 @@ import {
   Modal,
   ModalProps,
   Popover,
-  Radio,
   Row,
   Select,
   Space,
@@ -36,11 +35,11 @@ import {
 } from 'antd'
 import { useEffect, useState } from 'react'
 
-export interface PortEditModalProps extends ModalProps {
+export interface HTTPEditModalProps extends ModalProps {
   strategyDetail?: StrategyItem
 }
 
-export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
+export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
   const { strategyDetail, ...restProps } = props
 
   const { token } = theme.useToken()
@@ -104,7 +103,7 @@ export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
   }, [strategyDetail, restProps.open])
 
   return (
-    <Modal title='证书策略编辑' {...restProps} onOk={handleSubmit} confirmLoading={loading}>
+    <Modal {...restProps} onOk={handleSubmit} confirmLoading={loading}>
       <Form form={form} layout='vertical' autoComplete='off' disabled={loading}>
         <Row gutter={12}>
           <Col span={12}>
@@ -158,8 +157,8 @@ export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
             }))}
           />
         </Form.Item>
-        <Form.Item label='服务地址' name='expr' rules={[{ required: true, message: '请输入服务地址' }]}>
-          <Input placeholder='请输入服务地址' allowClear />
+        <Form.Item label='请求地址' name='expr' rules={[{ required: true, message: '请输入请求地址', type: 'url' }]}>
+          <Input placeholder='请输入请求地址' allowClear />
         </Form.Item>
         <Form.Item label={<b>标签kv集合</b>} required>
           <Form.List
@@ -309,37 +308,162 @@ export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
                           />
                         </Form.Item>
                       </Col>
-                      <Col span={6}>
+                      <Col span={12}>
                         <Form.Item
-                          label='端口'
-                          name={[field.name, 'port']}
+                          label='请求方式'
+                          name={[field.name, 'method']}
                           rules={[
                             {
                               required: true,
-                              message: '请选择告警等级'
+                              message: '请选择请求方式'
                             }
                           ]}
                         >
-                          <InputNumber className='w-full' placeholder='请输入端口' />
+                          <Select
+                            placeholder='请选择请求方式'
+                            options={Object.entries(HTTPMethodData)
+                              .filter(([key]) => key !== HTTPMethod.HTTPMethodUnknown)
+                              .map(([key, value]) => ({
+                                value: +key,
+                                label: value
+                              }))}
+                          />
                         </Form.Item>
                       </Col>
                       <Col span={6}>
                         <Form.Item
-                          label='阈值'
-                          name={[field.name, 'threshold']}
+                          label='状态码判断条件'
+                          name={[field.name, 'statusCodeCondition']}
                           rules={[
                             {
                               required: true,
-                              message: '请选择阈值'
+                              message: '请选择状态码判断条件'
                             }
                           ]}
                         >
-                          <Radio.Group
-                            options={[
-                              { label: '开启', value: 1 },
-                              { label: '关闭', value: 0 }
-                            ]}
+                          <Select
+                            placeholder='请选择状态码判断条件'
+                            options={Object.entries(StatusCodeConditionData).map(([key, value]) => ({
+                              value: +key,
+                              label: value
+                            }))}
                           />
+                        </Form.Item>
+                      </Col>
+                      <Col span={6}>
+                        <Form.Item
+                          label='状态码'
+                          name={[field.name, 'statusCodes']}
+                          rules={[
+                            {
+                              required: true,
+                              message: '请输入状态码'
+                            }
+                          ]}
+                        >
+                          <InputNumber className='w-full' placeholder='请输入状态码' />
+                        </Form.Item>
+                      </Col>
+                      <Col span={6}>
+                        <Form.Item
+                          label='响应时间判断条件'
+                          name={[field.name, 'responseTimeCondition']}
+                          rules={[
+                            {
+                              required: true,
+                              message: '请选择响应时间判断条件'
+                            }
+                          ]}
+                        >
+                          <Select
+                            placeholder='请选择响应时间判断条件'
+                            options={Object.entries(ConditionData).map(([key, value]) => ({
+                              value: +key,
+                              label: value
+                            }))}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={6}>
+                        <Form.Item
+                          label='响应时间(ms)'
+                          name={[field.name, 'responseTime']}
+                          rules={[{ required: true, message: '请输入响应时间(ms)' }]}
+                        >
+                          <InputNumber className='w-full' placeholder='请输入响应时间(ms)' />
+                        </Form.Item>
+                      </Col>
+                      <Col span={24}>
+                        <Form.Item label='请求头'>
+                          <Form.List name={[field.name, 'headers']}>
+                            {(fields, { add, remove }) => (
+                              <div>
+                                {fields.map((field) => (
+                                  <div key={field.key} className='flex items-center gap-2'>
+                                    <Form.Item
+                                      name={[field.name, 'key']}
+                                      rules={[
+                                        {
+                                          required: true,
+                                          message: '请输入请求头Key'
+                                        }
+                                      ]}
+                                    >
+                                      <Input placeholder='key' />
+                                    </Form.Item>
+                                    <Form.Item
+                                      name={[field.name, 'value']}
+                                      rules={[
+                                        {
+                                          required: true,
+                                          message: '请输入请求头Value'
+                                        }
+                                      ]}
+                                    >
+                                      <Input placeholder='value' />
+                                    </Form.Item>
+                                    <MinusCircleOutlined
+                                      onClick={() => remove(field.name)}
+                                      style={{ color: token.colorError }}
+                                    />
+                                  </div>
+                                ))}
+                                <Button type='dashed' onClick={() => add()} block icon={<PlusOutlined />}>
+                                  添加新请求头
+                                </Button>
+                              </div>
+                            )}
+                          </Form.List>
+                        </Form.Item>
+                      </Col>
+                      <Col span={24}>
+                        <Form.Item
+                          label='查询参数'
+                          tooltip={
+                            <div>
+                              <p>查询请求参数格式: key=value</p>
+                              <p>多个参数请用&连接</p>
+                              <p>
+                                示例: <code>a=1&b=2&c=3</code>
+                              </p>
+                            </div>
+                          }
+                        >
+                          <Input.TextArea placeholder='请输入查询参数' />
+                        </Form.Item>
+                      </Col>
+                      <Col span={24}>
+                        <Form.Item
+                          label='请求体'
+                          tooltip={
+                            <div>
+                              <p>
+                                请求体格式: <code>{JSON.stringify({ a: 1, b: 2, c: 3 })}</code>
+                              </p>
+                            </div>
+                          }
+                        >
+                          <Input.TextArea placeholder='请输入请求体' />
                         </Form.Item>
                       </Col>
                     </Row>

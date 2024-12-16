@@ -9,12 +9,14 @@ import {
   DomainType,
   Gender,
   HookApp,
+  HTTPMethod,
   MetricType,
   ModuleType,
   MQCondition,
   MQDataType,
   Role,
   Status,
+  StatusCodeCondition,
   StorageType,
   StrategyType,
   SustainType
@@ -159,6 +161,12 @@ export const MQConditionData: Record<MQCondition, string> = {
   [MQCondition.MQConditionRegular]: '正则(regular)'
 }
 
+export const StatusCodeConditionData: Record<StatusCodeCondition, string> = {
+  [StatusCodeCondition.StatusCodeConditionUnknown]: '全部',
+  [StatusCodeCondition.StatusCodeConditionEQ]: '等于(==)',
+  [StatusCodeCondition.StatusCodeConditionNE]: '不等于(!=)'
+}
+
 export const MQDataTypeData: Record<MQDataType, string> = {
   [MQDataType.MQDataTypeUnknown]: '全部',
   [MQDataType.MQDataTypeString]: 'String',
@@ -175,6 +183,17 @@ export const StrategyTypeData: Record<StrategyType, string> = {
   [StrategyType.StrategyTypeHTTP]: 'HTTP',
   [StrategyType.StrategyTypeMQ]: '事件',
   [StrategyType.StrategyTypeLog]: '日志'
+}
+
+export const HTTPMethodData: Record<HTTPMethod, string> = {
+  [HTTPMethod.HTTPMethodUnknown]: '全部',
+  [HTTPMethod.HTTPMethodGET]: 'GET',
+  [HTTPMethod.HTTPMethodPOST]: 'POST',
+  [HTTPMethod.HTTPMethodPUT]: 'PUT',
+  [HTTPMethod.HTTPMethodDELETE]: 'DELETE',
+  [HTTPMethod.HTTPMethodPATCH]: 'PATCH',
+  [HTTPMethod.HTTPMethodHEAD]: 'HEAD',
+  [HTTPMethod.HTTPMethodOPTIONS]: 'OPTIONS'
 }
 
 export const SustainTypeData: Record<SustainType, string> = {
