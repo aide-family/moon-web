@@ -5,7 +5,7 @@ import { listStrategyGroup } from '@/api/strategy'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
-import { Badge, Button, Space, Tag, Tooltip } from 'antd'
+import { Badge, Button, Space, Tooltip } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
 export type StrategyLabelType = {
@@ -181,24 +181,21 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyItem
 
   return [
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      width: 60
+      title: '类型',
+      dataIndex: 'strategyType',
+      key: 'strategyType',
+      align: 'center',
+      width: 80,
+      render: (strategyType: StrategyType) => {
+        return StrategyTypeDataTag[strategyType || StrategyType.StrategyTypeMetric]
+      }
     },
     {
       title: '名称',
       dataIndex: 'name',
       key: 'name',
       width: 200,
-      render: (name: string, record: StrategyItem) => {
-        return (
-          <div className='flex items-center gap-2'>
-            <Tag {...StrategyTypeDataTag[record.strategyType || StrategyType.StrategyTypeMetric]} />
-            {name}
-          </div>
-        )
-      }
+      ellipsis: true
     },
     {
       title: '数据源',

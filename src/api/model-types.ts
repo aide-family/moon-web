@@ -5,6 +5,7 @@ import {
   DatasourceType,
   DictType,
   DomainType,
+  EventDataType,
   Gender,
   HookApp,
   HTTPMethod,
@@ -12,7 +13,6 @@ import {
   MetricType,
   ModuleType,
   MQCondition,
-  MQDataType,
   NotifyType,
   Role,
   Status,
@@ -328,7 +328,7 @@ export interface StrategyEventLevelItem {
   /** 事件策略条件 */
   condition: MQCondition
   /** 事件策略数据类型 */
-  dataType: MQDataType
+  dataType: EventDataType
   /** 事件策略告警等级ID */
   alarmLevelId: number
   /** 事件策略告警等级 */
@@ -436,7 +436,7 @@ export interface StrategyItem {
   /** 根据策略等级配置的详细策略， key为策略等级ID */
   metricLevels: StrategyMetricLevelItem[]
   /** 事件策略 */
-  mqLevels: StrategyEventLevelItem[]
+  eventLevels: StrategyEventLevelItem[]
   /** 域名策略 */
   domainLevels: StrategyDomainLevelItem[]
   /** 端口策略 */

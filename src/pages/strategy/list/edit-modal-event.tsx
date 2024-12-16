@@ -1,5 +1,5 @@
-import { DatasourceType, MQCondition, MQDataType, Status, StrategyType } from '@/api/enum'
-import { defaultPaginationReq, MQConditionData, MQDataTypeData } from '@/api/global'
+import { DatasourceType, EventDataType, MQCondition, Status, StrategyType } from '@/api/enum'
+import { defaultPaginationReq, EventDataTypeData, MQConditionData } from '@/api/global'
 import { StrategyItem } from '@/api/model-types'
 import {
   createStrategy,
@@ -178,8 +178,8 @@ export default function EventEditModal(props: EventEditModalProps) {
               }))}
             />
           </Form.Item>
-          <Form.Item label='查询语句' name='expr' rules={[{ required: true, message: '请检查查询语句' }]}>
-            <Input placeholder='请输入查询语句' allowClear />
+          <Form.Item label='主题' name='expr' rules={[{ required: true, message: '请输入主题' }]}>
+            <Input placeholder='请输入主题' allowClear />
           </Form.Item>
           <Form.Item label={<b>标签kv集合</b>} required>
             <Form.List
@@ -378,8 +378,8 @@ export default function EventEditModal(props: EventEditModalProps) {
                           >
                             <Select
                               placeholder='请选择数据类型'
-                              options={Object.entries(MQDataTypeData)
-                                .filter(([key]) => +key !== MQDataType.MQDataTypeUnknown)
+                              options={Object.entries(EventDataTypeData)
+                                .filter(([key]) => +key !== EventDataType.EventDataTypeUnknown)
                                 .map(([key, value]) => ({
                                   value: +key,
                                   label: value

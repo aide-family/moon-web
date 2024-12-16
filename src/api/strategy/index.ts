@@ -1,9 +1,9 @@
 import {
   Condition,
   DatasourceType,
+  EventDataType,
   HTTPMethod,
   MQCondition,
-  MQDataType,
   Status,
   StatusCodeCondition,
   StrategyType,
@@ -81,7 +81,7 @@ export interface CreateStrategyMQLevelRequest {
   /** 条件 */
   condition: MQCondition
   /** 数据类型 */
-  dataType: MQDataType
+  dataType: EventDataType
   /** 告警等级ID */
   alarmLevelId: number
   /** 告警页面 */
@@ -440,7 +440,7 @@ export const parseStrategyDetailToFormData = (detail: StrategyItem): CreateStrat
 export const parseEventStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
   ...parseStrategyDetailToFormData(detail),
   strategyType: StrategyType.StrategyTypeMQ,
-  strategyMqLevels: detail.mqLevels.map(
+  strategyMqLevels: detail.eventLevels.map(
     (item): CreateStrategyMQLevelRequest => ({
       status: item.status,
       alarmPageIds: item.alarmPages.map((item) => item.value),

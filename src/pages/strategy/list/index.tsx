@@ -105,8 +105,7 @@ const StrategyMetric: React.FC = () => {
         setOpenHttpDetailModal(true)
         break
       default:
-        setDetail(undefined)
-        message.warning(`${StrategyTypeData[item.strategyType]}未开通`)
+        setOpenMetricDetailModal(true)
         break
     }
   }

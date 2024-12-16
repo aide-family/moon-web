@@ -7,13 +7,13 @@ import {
   DatasourceType,
   DictType,
   DomainType,
+  EventDataType,
   Gender,
   HookApp,
   HTTPMethod,
   MetricType,
   ModuleType,
   MQCondition,
-  MQDataType,
   Role,
   Status,
   StatusCodeCondition,
@@ -167,11 +167,11 @@ export const StatusCodeConditionData: Record<StatusCodeCondition, string> = {
   [StatusCodeCondition.StatusCodeConditionNE]: '不等于(!=)'
 }
 
-export const MQDataTypeData: Record<MQDataType, string> = {
-  [MQDataType.MQDataTypeUnknown]: '全部',
-  [MQDataType.MQDataTypeString]: 'String',
-  [MQDataType.MQDataTypeNumber]: 'Number',
-  [MQDataType.MQDataTypeObject]: 'Object'
+export const EventDataTypeData: Record<EventDataType, string> = {
+  [EventDataType.EventDataTypeUnknown]: '全部',
+  [EventDataType.EventDataTypeString]: 'String',
+  [EventDataType.EventDataTypeNumber]: 'Number',
+  [EventDataType.EventDataTypeObject]: 'Object'
 }
 
 export const StrategyTypeData: Record<StrategyType, string> = {
@@ -185,39 +185,43 @@ export const StrategyTypeData: Record<StrategyType, string> = {
   [StrategyType.StrategyTypeLog]: '日志'
 }
 
-export const StrategyTypeDataTag: Record<StrategyType, TagItemType> = {
-  [StrategyType.StrategyTypeUnknown]: {
-    text: '全部',
-    color: ''
-  },
-  [StrategyType.StrategyTypeMetric]: {
-    text: 'Metric',
-    color: 'green'
-  },
-  [StrategyType.StrategyTypeDomainCertificate]: {
-    text: '证书',
-    color: 'blue'
-  },
-  [StrategyType.StrategyTypeDomainPort]: {
-    text: '端口',
-    color: 'orange'
-  },
-  [StrategyType.StrategyTypePing]: {
-    text: 'Ping',
-    color: 'red'
-  },
-  [StrategyType.StrategyTypeHTTP]: {
-    text: 'HTTP',
-    color: 'purple'
-  },
-  [StrategyType.StrategyTypeMQ]: {
-    text: '事件',
-    color: 'cyan'
-  },
-  [StrategyType.StrategyTypeLog]: {
-    text: '日志',
-    color: 'magenta'
-  }
+export const StrategyTypeDataTag: Record<StrategyType, React.ReactNode> = {
+  [StrategyType.StrategyTypeUnknown]: <Tag bordered={false}>全部</Tag>,
+  [StrategyType.StrategyTypeMetric]: (
+    <Tag bordered={false} color='green'>
+      Metric
+    </Tag>
+  ),
+  [StrategyType.StrategyTypeDomainCertificate]: (
+    <Tag bordered={false} color='blue'>
+      证书
+    </Tag>
+  ),
+  [StrategyType.StrategyTypeDomainPort]: (
+    <Tag bordered={false} color='orange'>
+      端口
+    </Tag>
+  ),
+  [StrategyType.StrategyTypePing]: (
+    <Tag bordered={false} color='red'>
+      Ping
+    </Tag>
+  ),
+  [StrategyType.StrategyTypeHTTP]: (
+    <Tag bordered={false} color='purple'>
+      HTTP
+    </Tag>
+  ),
+  [StrategyType.StrategyTypeMQ]: (
+    <Tag bordered={false} color='cyan'>
+      事件
+    </Tag>
+  ),
+  [StrategyType.StrategyTypeLog]: (
+    <Tag bordered={false} color='magenta'>
+      日志
+    </Tag>
+  )
 }
 
 export const HTTPMethodData: Record<HTTPMethod, string> = {

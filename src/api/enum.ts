@@ -392,18 +392,18 @@ export enum MQCondition {
 }
 
 /** MQ数据类型 */
-export enum MQDataType {
+export enum EventDataType {
   /** 未知 */
-  MQDataTypeUnknown = 0,
+  EventDataTypeUnknown = 0,
 
   /** string */
-  MQDataTypeString = 1,
+  EventDataTypeString = 1,
 
   /** number */
-  MQDataTypeNumber = 2,
+  EventDataTypeNumber = 2,
 
   /** object */
-  MQDataTypeObject = 3
+  EventDataTypeObject = 3
 }
 
 /** HTTP请求方式 */
