@@ -94,32 +94,22 @@ export interface CreateStrategyMQLevelRequest {
   pathKey: string
 }
 
-/** 创建策略请求 */
-export interface CreateStrategyRequest {
+/** 创建策略基础请求参数 */
+export type CreateStrategyBaseRequest = {
   /** 策略组ID */
   groupId: number
   /** 模板ID */
-  templateId?: number
+  templateId: number
   /** 备注 */
-  remark?: string
+  remark: string
   /** 状态 */
-  status?: Status
+  status: Status
   /** 数据源ID */
   datasourceIds: number[]
   /** 模板来源 */
-  sourceType?: TemplateSourceType
+  sourceType: TemplateSourceType
   /** 策略名称 */
   name: string
-  /** 策略项 */
-  strategyMetricLevel: CreateStrategyLevelRequest[]
-  /** 策略事件项 */
-  strategyMqLevel: CreateStrategyMQLevelRequest[]
-  /** 证书策略项 */
-  strategyDomainLevel: CreateStrategyDomainLevelRequest[]
-  /** 端口监控策略 */
-  strategyPortLevel: CreateStrategyPortLevelRequest[]
-  /** 策略HTTP项 */
-  strategyHTTPLevel: CreateStrategyHTTPLevelRequest[]
   /** 策略标签 */
   labels: { [key: string]: string }
   /** 策略注解 */
@@ -130,9 +120,32 @@ export interface CreateStrategyRequest {
   categoriesIds: number[]
   /** 告警分组 */
   alarmGroupIds: number[]
-  /** 策略类型 */
-  strategyType: StrategyType
 }
+
+/** 创建策略请求 */
+export type CreateStrategyRequest = CreateStrategyBaseRequest &
+  (
+    | {
+        strategyType: StrategyType.StrategyTypeMetric
+        strategyMetricLevel: CreateStrategyLevelRequest[]
+      }
+    | {
+        strategyType: StrategyType.StrategyTypeMQ
+        strategyMqLevel: CreateStrategyMQLevelRequest[]
+      }
+    | {
+        strategyType: StrategyType.StrategyTypeDomainCertificate
+        strategyDomainLevel: CreateStrategyDomainLevelRequest[]
+      }
+    | {
+        strategyType: StrategyType.StrategyTypeDomainPort
+        strategyPortLevel: CreateStrategyPortLevelRequest[]
+      }
+    | {
+        strategyType: StrategyType.StrategyTypeHTTP
+        strategyHTTPLevel: CreateStrategyHTTPLevelRequest[]
+      }
+  )
 
 export interface CreateStrategyReply {}
 
@@ -398,15 +411,35 @@ export function pushStrategy(id: number) {
 }
 
 /**
+ * 将策略详情转换为表单数据
+ * @param detail 策略详情
+ * @returns 表单数据
+ */
+export const parseStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyBaseRequest => {
+  return {
+    groupId: detail.groupId,
+    datasourceIds: detail.datasource.map((item) => item.id),
+    name: detail.name,
+    labels: detail.labels,
+    annotations: detail.annotations,
+    expr: detail.expr,
+    categoriesIds: detail.categories.map((item) => item.id),
+    alarmGroupIds: detail.alarmNoticeGroups.map((item) => item.id),
+    templateId: detail.templateId,
+    remark: detail.remark,
+    status: detail.status,
+    sourceType: detail.sourceType
+  }
+}
+
+/**
  * 将事件策略详情转换为表单数据
  * @param detail 事件策略详情
  * @returns 表单数据
  */
 export const parseEventStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
-  groupId: detail.groupId,
-  datasourceIds: detail.datasource.map((item) => item.id),
-  name: detail.name,
-  strategyMetricLevel: [],
+  ...parseStrategyDetailToFormData(detail),
+  strategyType: StrategyType.StrategyTypeMQ,
   strategyMqLevel: detail.mqLevels.map(
     (item): CreateStrategyMQLevelRequest => ({
       status: item.status,
@@ -423,16 +456,7 @@ export const parseEventStrategyDetailToFormData = (detail: StrategyItem): Create
       alarmLevelId: item.alarmLevelId,
       pathKey: item.pathKey
     })
-  ),
-  labels: detail.labels,
-  annotations: detail.annotations,
-  expr: detail.expr,
-  categoriesIds: detail.categories.map((item) => item.id),
-  alarmGroupIds: detail.alarmNoticeGroups.map((item) => item.id),
-  strategyType: StrategyType.StrategyTypeMQ,
-  strategyDomainLevel: [],
-  strategyPortLevel: [],
-  strategyHTTPLevel: []
+  )
 })
 
 /**
@@ -441,9 +465,8 @@ export const parseEventStrategyDetailToFormData = (detail: StrategyItem): Create
  * @returns 表单数据
  */
 export const parseDomainStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
-  groupId: detail.groupId,
-  datasourceIds: detail.datasource.map((item) => item.id),
-  name: detail.name,
+  ...parseStrategyDetailToFormData(detail),
+  strategyType: StrategyType.StrategyTypeDomainCertificate,
   strategyDomainLevel: detail.domainLevels.map(
     (item): CreateStrategyDomainLevelRequest => ({
       levelId: item.id,
@@ -458,17 +481,7 @@ export const parseDomainStrategyDetailToFormData = (detail: StrategyItem): Creat
       threshold: item.threshold,
       condition: item.condition
     })
-  ),
-  strategyPortLevel: [],
-  strategyHTTPLevel: [],
-  strategyMetricLevel: [],
-  strategyMqLevel: [],
-  labels: {},
-  annotations: {},
-  expr: '',
-  categoriesIds: [],
-  alarmGroupIds: [],
-  strategyType: StrategyType.StrategyTypeDomainCertificate
+  )
 })
 
 /**
@@ -477,9 +490,8 @@ export const parseDomainStrategyDetailToFormData = (detail: StrategyItem): Creat
  * @returns 表单数据
  */
 export const parseHTTPStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
-  groupId: detail.groupId,
-  datasourceIds: detail.datasource.map((item) => item.id),
-  name: detail.name,
+  ...parseStrategyDetailToFormData(detail),
+  strategyType: StrategyType.StrategyTypeHTTP,
   strategyHTTPLevel: detail.httpLevels.map(
     (item): CreateStrategyHTTPLevelRequest => ({
       levelId: item.id,
@@ -500,17 +512,7 @@ export const parseHTTPStrategyDetailToFormData = (detail: StrategyItem): CreateS
       statusCodeCondition: item.statusCodeCondition,
       responseTimeCondition: item.responseTimeCondition
     })
-  ),
-  strategyMetricLevel: [],
-  strategyMqLevel: [],
-  strategyDomainLevel: [],
-  strategyPortLevel: [],
-  labels: {},
-  annotations: {},
-  expr: '',
-  categoriesIds: [],
-  alarmGroupIds: [],
-  strategyType: StrategyType.StrategyTypeHTTP
+  )
 })
 
 /**
@@ -519,9 +521,8 @@ export const parseHTTPStrategyDetailToFormData = (detail: StrategyItem): CreateS
  * @returns 表单数据
  */
 export const parsePortStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
-  groupId: detail.groupId,
-  datasourceIds: detail.datasource.map((item) => item.id),
-  name: detail.name,
+  ...parseStrategyDetailToFormData(detail),
+  strategyType: StrategyType.StrategyTypeDomainPort,
   strategyPortLevel: detail.portLevels.map(
     (item): CreateStrategyPortLevelRequest => ({
       levelId: item.id,
@@ -536,17 +537,7 @@ export const parsePortStrategyDetailToFormData = (detail: StrategyItem): CreateS
       port: item.port,
       threshold: item.threshold
     })
-  ),
-  strategyMetricLevel: [],
-  strategyMqLevel: [],
-  strategyDomainLevel: [],
-  strategyHTTPLevel: [],
-  labels: {},
-  annotations: {},
-  expr: '',
-  categoriesIds: [],
-  alarmGroupIds: [],
-  strategyType: StrategyType.StrategyTypeDomainPort
+  )
 })
 
 /**
@@ -555,9 +546,8 @@ export const parsePortStrategyDetailToFormData = (detail: StrategyItem): CreateS
  * @returns 表单数据
  */
 export const parseMetricStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
-  groupId: detail.groupId,
-  datasourceIds: detail.datasource.map((item) => item.id),
-  name: detail.name,
+  ...parseStrategyDetailToFormData(detail),
+  strategyType: StrategyType.StrategyTypeMetric,
   strategyMetricLevel: detail.metricLevels.map(
     (item): CreateStrategyLevelRequest => ({
       status: item.status,
@@ -576,15 +566,5 @@ export const parseMetricStrategyDetailToFormData = (detail: StrategyItem): Creat
       condition: item.condition,
       levelId: item.id
     })
-  ),
-  strategyMqLevel: [],
-  strategyDomainLevel: [],
-  strategyPortLevel: [],
-  strategyHTTPLevel: [],
-  labels: {},
-  annotations: {},
-  expr: '',
-  categoriesIds: [],
-  alarmGroupIds: [],
-  strategyType: StrategyType.StrategyTypeMetric
+  )
 })

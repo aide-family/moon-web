@@ -473,6 +473,8 @@ export interface StrategyItem {
   alarmNoticeGroups: AlarmNoticeGroupItem[]
   /** 策略类型 */
   strategyType: StrategyType
+  /** 模板来源 */
+  sourceType: TemplateSourceType
 }
 
 /** 策略组项 */
