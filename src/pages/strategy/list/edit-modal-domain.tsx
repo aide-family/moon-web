@@ -332,16 +332,16 @@ export const DomainEditModal: React.FC<DomainEditModalProps> = (props) => {
                       </Col>
                       <Col span={6}>
                         <Form.Item
-                          label='阈值'
+                          label='剩余过期时间(d)'
                           name={[field.name, 'threshold']}
                           rules={[
                             {
                               required: true,
-                              message: '请输入阈值'
+                              message: '请输入剩余过期时间'
                             }
                           ]}
                         >
-                          <InputNumber className='w-full' placeholder='请输入阈值' />
+                          <InputNumber className='w-full' placeholder='请输入剩余过期时间' />
                         </Form.Item>
                       </Col>
                     </Row>
