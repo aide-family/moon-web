@@ -360,7 +360,7 @@ export const MetricEditModal: React.FC<TemplateEditModalProps> = (props) => {
   return (
     <>
       <Modal {...props} title={title} open={open} onCancel={handleOnCancel} onOk={handleOnOk} confirmLoading={loading}>
-        <div className='max-h-[76vh] overflow-y-auto overflow-x-hidden'>
+        <div className='max-h-[70vh] overflow-y-auto overflow-x-hidden'>
           <Form form={form} layout='vertical' autoComplete='off' disabled={disabled || loading}>
             <Form.Item
               label='数据源'
