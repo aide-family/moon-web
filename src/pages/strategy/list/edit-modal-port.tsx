@@ -4,7 +4,7 @@ import { StrategyItem } from '@/api/model-types'
 import {
   createStrategy,
   CreateStrategyRequest,
-  parseEventStrategyDetailToFormData,
+  parsePortStrategyDetailToFormData,
   updateStrategy
 } from '@/api/strategy'
 import { AnnotationsEditor } from '@/components/data/child/annotation-editor'
@@ -95,7 +95,7 @@ export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
   useEffect(() => {
     if (restProps.open) {
       if (strategyDetail) {
-        form.setFieldsValue(parseEventStrategyDetailToFormData(strategyDetail))
+        form.setFieldsValue(parsePortStrategyDetailToFormData(strategyDetail))
       } else {
         form.resetFields()
       }

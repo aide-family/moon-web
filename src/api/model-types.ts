@@ -7,6 +7,7 @@ import {
   DomainType,
   Gender,
   HookApp,
+  HTTPMethod,
   MenuType,
   MetricType,
   ModuleType,
@@ -15,6 +16,7 @@ import {
   NotifyType,
   Role,
   Status,
+  StatusCodeCondition,
   StorageType,
   StrategyType,
   SustainType,
@@ -347,6 +349,84 @@ export interface StrategyEventLevelItem {
   labelNotices: LabelNoticeItem[]
 }
 
+/** 域名策略等级项 */
+export interface StrategyDomainLevelItem {
+  /** 策略等级ID */
+  levelId: number
+  /** 告警等级明细 */
+  level: SelectItem
+  /** 状态 */
+  status: Status
+  /** 告警页面 */
+  alarmPages: SelectItem[]
+  /** 告警组 */
+  alarmGroups: AlarmNoticeGroupItem[]
+  /** 策略Labels */
+  labelNotices: LabelNoticeItem[]
+  /** ID */
+  id: number
+  /** 阈值 */
+  threshold: number
+  /** 判断条件 */
+  condition: Condition
+}
+
+/** 端口策略等级项 */
+export interface StrategyPortLevelItem {
+  /** 策略等级ID */
+  levelId: number
+  /** 告警等级明细 */
+  level: SelectItem
+  /** 状态 */
+  status: Status
+  /** 告警页面 */
+  alarmPages: SelectItem[]
+  /** 告警组 */
+  alarmGroups: AlarmNoticeGroupItem[]
+  /** 策略Labels */
+  labelNotices: LabelNoticeItem[]
+  /** ID */
+  id: number
+  /** 阈值 */
+  threshold: number
+  /** 端口 */
+  port: number
+}
+
+/** http策略等级项 */
+export interface StrategyHTTPLevelItem {
+  /** 策略等级ID */
+  levelId: number
+  /** 告警等级明细 */
+  level: SelectItem
+  /** 状态 */
+  status: Status
+  /** 告警页面 */
+  alarmPages: SelectItem[]
+  /** 告警组 */
+  alarmGroups: AlarmNoticeGroupItem[]
+  /** 策略Labels */
+  labelNotices: LabelNoticeItem[]
+  /** ID */
+  id: number
+  /** 状态码 */
+  statusCodes: number
+  /** 响应时间 */
+  responseTime: number
+  /** 请求头 */
+  headers: { [key: string]: string }
+  /** 请求体 */
+  body: string
+  /** 查询参数 */
+  queryParams: string
+  /** 请求方式 */
+  method: HTTPMethod
+  /** 状态码判断条件 */
+  statusCodeCondition: StatusCodeCondition
+  /** 响应时间判断条件 */
+  responseTimeCondition: Condition
+}
+
 /** 策略项 */
 export interface StrategyItem {
   /** 策略名称 */
@@ -357,6 +437,12 @@ export interface StrategyItem {
   metricLevels: StrategyMetricLevelItem[]
   /** 事件策略 */
   mqLevels: StrategyEventLevelItem[]
+  /** 域名策略 */
+  domainLevels: StrategyDomainLevelItem[]
+  /** 端口策略 */
+  portLevels: StrategyPortLevelItem[]
+  /** http策略 */
+  httpLevels: StrategyHTTPLevelItem[]
   /** 策略标签 */
   labels: { [key: string]: string }
   /** 策略注解 */

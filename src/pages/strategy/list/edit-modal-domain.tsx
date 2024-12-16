@@ -4,7 +4,7 @@ import { StrategyItem } from '@/api/model-types'
 import {
   createStrategy,
   CreateStrategyRequest,
-  parseEventStrategyDetailToFormData,
+  parseDomainStrategyDetailToFormData,
   updateStrategy
 } from '@/api/strategy'
 import { AnnotationsEditor } from '@/components/data/child/annotation-editor'
@@ -94,7 +94,7 @@ export const DomainEditModal: React.FC<DomainEditModalProps> = (props) => {
   useEffect(() => {
     if (restProps.open) {
       if (strategyDetail) {
-        form.setFieldsValue(parseEventStrategyDetailToFormData(strategyDetail))
+        form.setFieldsValue(parseDomainStrategyDetailToFormData(strategyDetail))
       } else {
         form.resetFields()
       }

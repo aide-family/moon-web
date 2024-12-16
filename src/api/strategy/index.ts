@@ -407,24 +407,144 @@ export const parseEventStrategyDetailToFormData = (detail: StrategyItem): Create
   datasourceIds: detail.datasource.map((item) => item.id),
   name: detail.name,
   strategyMetricLevel: [],
-  strategyMqLevel: detail.mqLevels.map((item) => ({
-    ...item,
-    status: item.status,
-    alarmPageIds: item.alarmPages.map((item) => item.value),
-    alarmGroupIds: item.alarmGroups.map((item) => item.id),
-    labelNotices: item.labelNotices.map((item) => ({
-      name: item.name,
+  strategyMqLevel: detail.mqLevels.map(
+    (item): CreateStrategyMQLevelRequest => ({
+      status: item.status,
+      alarmPageIds: item.alarmPages.map((item) => item.value),
+      alarmGroupIds: item.alarmGroups.map((item) => item.id),
+      labelNotices: item.labelNotices.map((item) => ({
+        name: item.name,
+        value: item.value,
+        alarmGroupIds: item.alarmGroups.map((item) => item.id)
+      })),
       value: item.value,
-      alarmGroupIds: item.alarmGroups.map((item) => item.id)
-    }))
-  })),
+      condition: item.condition,
+      dataType: item.dataType,
+      alarmLevelId: item.alarmLevelId,
+      pathKey: item.pathKey
+    })
+  ),
   labels: detail.labels,
   annotations: detail.annotations,
   expr: detail.expr,
   categoriesIds: detail.categories.map((item) => item.id),
   alarmGroupIds: detail.alarmNoticeGroups.map((item) => item.id),
-  strategyType: detail.strategyType,
+  strategyType: StrategyType.StrategyTypeMQ,
   strategyDomainLevel: [],
   strategyPortLevel: [],
   strategyHTTPLevel: []
+})
+
+/**
+ * 将证书策略详情转换为表单数据
+ * @param detail 证书策略详情
+ * @returns 表单数据
+ */
+export const parseDomainStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
+  groupId: detail.groupId,
+  datasourceIds: detail.datasource.map((item) => item.id),
+  name: detail.name,
+  strategyDomainLevel: detail.domainLevels.map(
+    (item): CreateStrategyDomainLevelRequest => ({
+      levelId: item.id,
+      status: Status.StatusEnable,
+      alarmPageIds: item.alarmPages.map((item) => item.value),
+      alarmGroupIds: item.alarmGroups.map((item) => item.id),
+      labelNotices: item.labelNotices.map((item) => ({
+        name: item.name,
+        value: item.value,
+        alarmGroupIds: item.alarmGroups.map((item) => item.id)
+      })),
+      threshold: item.threshold,
+      condition: item.condition
+    })
+  ),
+  strategyPortLevel: [],
+  strategyHTTPLevel: [],
+  strategyMetricLevel: [],
+  strategyMqLevel: [],
+  labels: {},
+  annotations: {},
+  expr: '',
+  categoriesIds: [],
+  alarmGroupIds: [],
+  strategyType: StrategyType.StrategyTypeDomainCertificate
+})
+
+/**
+ * 将HTTP策略详情转换为表单数据
+ * @param detail 证书策略详情
+ * @returns 表单数据
+ */
+export const parseHTTPStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
+  groupId: detail.groupId,
+  datasourceIds: detail.datasource.map((item) => item.id),
+  name: detail.name,
+  strategyHTTPLevel: detail.httpLevels.map(
+    (item): CreateStrategyHTTPLevelRequest => ({
+      levelId: item.id,
+      status: item.status,
+      alarmPageIds: item.alarmPages.map((item) => item.value),
+      alarmGroupIds: item.alarmGroups.map((item) => item.id),
+      labelNotices: item.labelNotices.map((item) => ({
+        name: item.name,
+        value: item.value,
+        alarmGroupIds: item.alarmGroups.map((item) => item.id)
+      })),
+      responseTime: item.responseTime,
+      statusCodes: item.statusCodes,
+      headers: item.headers,
+      body: item.body,
+      queryParams: item.queryParams,
+      method: item.method,
+      statusCodeCondition: item.statusCodeCondition,
+      responseTimeCondition: item.responseTimeCondition
+    })
+  ),
+  strategyMetricLevel: [],
+  strategyMqLevel: [],
+  strategyDomainLevel: [],
+  strategyPortLevel: [],
+  labels: {},
+  annotations: {},
+  expr: '',
+  categoriesIds: [],
+  alarmGroupIds: [],
+  strategyType: StrategyType.StrategyTypeHTTP
+})
+
+/**
+ * 将端口策略详情转换为表单数据
+ * @param detail 端口策略详情
+ * @returns 表单数据
+ */
+export const parsePortStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
+  groupId: detail.groupId,
+  datasourceIds: detail.datasource.map((item) => item.id),
+  name: detail.name,
+  strategyPortLevel: detail.portLevels.map(
+    (item): CreateStrategyPortLevelRequest => ({
+      levelId: item.id,
+      status: item.status,
+      alarmPageIds: item.alarmPages.map((item) => item.value),
+      alarmGroupIds: item.alarmGroups.map((item) => item.id),
+      labelNotices: item.labelNotices.map((item) => ({
+        name: item.name,
+        value: item.value,
+        alarmGroupIds: item.alarmGroups.map((item) => item.id)
+      })),
+      port: item.port,
+      threshold: item.threshold
+    })
+  ),
+  strategyMetricLevel: [],
+  strategyMqLevel: [],
+  strategyDomainLevel: [],
+  strategyHTTPLevel: [],
+  labels: {},
+  annotations: {},
+  expr: '',
+  categoriesIds: [],
+  alarmGroupIds: [],
+  strategyType: StrategyType.StrategyTypeDomainPort
 })

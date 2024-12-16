@@ -1,10 +1,10 @@
-import { HTTPMethod, Status } from '@/api/enum'
+import { Condition, HTTPMethod, Status, StatusCodeCondition } from '@/api/enum'
 import { ConditionData, defaultPaginationReq, HTTPMethodData, StatusCodeConditionData } from '@/api/global'
 import { StrategyItem } from '@/api/model-types'
 import {
   createStrategy,
   CreateStrategyRequest,
-  parseEventStrategyDetailToFormData,
+  parseHTTPStrategyDetailToFormData,
   updateStrategy
 } from '@/api/strategy'
 import { AnnotationsEditor } from '@/components/data/child/annotation-editor'
@@ -94,7 +94,7 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
   useEffect(() => {
     if (restProps.open) {
       if (strategyDetail) {
-        form.setFieldsValue(parseEventStrategyDetailToFormData(strategyDetail))
+        form.setFieldsValue(parseHTTPStrategyDetailToFormData(strategyDetail))
       } else {
         form.resetFields()
       }
@@ -343,10 +343,12 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
                         >
                           <Select
                             placeholder='请选择状态码判断条件'
-                            options={Object.entries(StatusCodeConditionData).map(([key, value]) => ({
-                              value: +key,
-                              label: value
-                            }))}
+                            options={Object.entries(StatusCodeConditionData)
+                              .filter(([key]) => +key !== StatusCodeCondition.StatusCodeConditionUnknown)
+                              .map(([key, value]) => ({
+                                value: +key,
+                                label: value
+                              }))}
                           />
                         </Form.Item>
                       </Col>
@@ -377,10 +379,12 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
                         >
                           <Select
                             placeholder='请选择响应时间判断条件'
-                            options={Object.entries(ConditionData).map(([key, value]) => ({
-                              value: +key,
-                              label: value
-                            }))}
+                            options={Object.entries(ConditionData)
+                              .filter(([key]) => +key !== Condition.ConditionUnknown)
+                              .map(([key, value]) => ({
+                                value: +key,
+                                label: value
+                              }))}
                           />
                         </Form.Item>
                       </Col>
