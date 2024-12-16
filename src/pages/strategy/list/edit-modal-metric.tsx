@@ -1,4 +1,4 @@
-import { DatasourceType, Status, SustainType } from '@/api/enum'
+import { DatasourceType, Status, StrategyType, SustainType } from '@/api/enum'
 import { ConditionData, defaultPaginationReq, SustainTypeData } from '@/api/global'
 import { StrategyItem } from '@/api/model-types'
 import { baseURL } from '@/api/request'
@@ -121,6 +121,9 @@ export default function MetricEditModal(props: MetricEditModalProps) {
     <Modal {...restProps} onOk={handleSubmit} confirmLoading={loading}>
       <div className='max-h-[70vh] overflow-y-auto overflow-x-hidden'>
         <Form form={form} layout='vertical' autoComplete='off' disabled={loading}>
+          <Form.Item name='strategyType' initialValue={StrategyType.StrategyTypeMetric} className='hidden'>
+            <Input className='hidden' />
+          </Form.Item>
           <Form.Item
             label='数据源'
             name='datasourceIds'

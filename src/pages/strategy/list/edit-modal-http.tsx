@@ -1,4 +1,4 @@
-import { Condition, HTTPMethod, Status, StatusCodeCondition } from '@/api/enum'
+import { Condition, HTTPMethod, Status, StatusCodeCondition, StrategyType } from '@/api/enum'
 import { ConditionData, defaultPaginationReq, HTTPMethodData, StatusCodeConditionData } from '@/api/global'
 import { StrategyItem } from '@/api/model-types'
 import {
@@ -106,6 +106,9 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
     <Modal {...restProps} onOk={handleSubmit} confirmLoading={loading}>
       <div className='max-h-[70vh] overflow-y-auto overflow-x-hidden'>
         <Form form={form} layout='vertical' autoComplete='off' disabled={loading}>
+          <Form.Item name='strategyType' initialValue={StrategyType.StrategyTypeHTTP} className='hidden'>
+            <Input className='hidden' />
+          </Form.Item>
           <Row gutter={12}>
             <Col span={12}>
               <Form.Item label='策略名称' name='name' rules={[{ required: true, message: '请输入策略名称' }]}>

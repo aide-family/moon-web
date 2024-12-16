@@ -6,11 +6,11 @@ import { Badge, Descriptions, DescriptionsProps, Modal, ModalProps, Space, Table
 import { debounce } from 'lodash'
 import React, { useCallback, useEffect, useState } from 'react'
 
-export interface DetailProps extends ModalProps {
+export interface MetricDetailProps extends ModalProps {
   strategyId?: number
 }
 
-export const Detail: React.FC<DetailProps> = (props) => {
+export const MetricDetail: React.FC<MetricDetailProps> = (props) => {
   const { strategyId, open, ...rest } = props
   const [detail, setDetail] = useState<StrategyItem>()
   const [loading, setLoading] = useState(false)

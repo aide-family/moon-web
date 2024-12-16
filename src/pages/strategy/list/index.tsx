@@ -10,6 +10,12 @@ import { ExclamationCircleFilled } from '@ant-design/icons'
 import { Button, message, Modal, Space, theme } from 'antd'
 import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import StrategyCharts from './charts-modal-metric'
+import { StrategyDetailDomain } from './detail-modal-domain'
+import { StrategyDetailEvent } from './detail-modal-event'
+import { StrategyDetailHttp } from './detail-modal-http'
+import { MetricDetail } from './detail-modal-metric'
+import { StrategyDetailPort } from './detail-modal-port'
 import { DomainEditModal } from './edit-modal-domain'
 import EventEditModal from './edit-modal-event'
 import { HTTPEditModal } from './edit-modal-http'
@@ -17,8 +23,6 @@ import MetricEditModal from './edit-modal-metric'
 import { PortEditModal } from './edit-modal-port'
 import StrategyTypeModal from './edit-modal-strategy-type'
 import { formList, getColumnList } from './options'
-import StrategyCharts from './strategy-metric-charts'
-import { Detail } from './strategy-metric-detail'
 
 const { confirm } = Modal
 const { useToken } = theme
@@ -41,88 +45,118 @@ const StrategyMetric: React.FC = () => {
   const [openDomainEditModal, setOpenDomainEditModal] = useState(false)
   const [openPortEditModal, setOpenPortEditModal] = useState(false)
   const [openHttpEditModal, setOpenHttpEditModal] = useState(false)
-  const [editDetail, setEditDetail] = useState<StrategyItem>()
+
+  const [openMetricDetailModal, setOpenMetricDetailModal] = useState(false)
+  const [openEventDetailModal, setOpenEventDetailModal] = useState(false)
+  const [openDomainDetailModal, setOpenDomainDetailModal] = useState(false)
+  const [openPortDetailModal, setOpenPortDetailModal] = useState(false)
+  const [openHttpDetailModal, setOpenHttpDetailModal] = useState(false)
+
+  const [detail, setDetail] = useState<StrategyItem>()
+
   const [openChartModal, setOpenChartModal] = useState(false)
   const [openStrategyTypeModal, setOpenStrategyTypeModal] = useState(false)
 
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
-  const [detailId, setDetailId] = useState<number>()
-  const [openDetailModal, setOpenDetailModal] = useState(false)
 
   const handleOpenMetricEditModal = (item?: StrategyItem) => {
-    setEditDetail(item)
+    setDetail(item)
     setOpenMetricEditModal(true)
   }
 
   const handleOpenEventEditModal = (item?: StrategyItem) => {
-    setEditDetail(item)
+    setDetail(item)
     setOpenEventEditModal(true)
   }
 
   const handleOpenDomainEditModal = (item?: StrategyItem) => {
-    setEditDetail(item)
+    setDetail(item)
     setOpenDomainEditModal(true)
   }
 
   const handleOpenPortEditModal = (item?: StrategyItem) => {
-    setEditDetail(item)
+    setDetail(item)
     setOpenPortEditModal(true)
   }
 
   const handleOpenHttpEditModal = (item?: StrategyItem) => {
-    setEditDetail(item)
+    setDetail(item)
     setOpenHttpEditModal(true)
   }
 
-  const handleDetailModal = (id: number) => {
-    setDetailId(id)
-    setOpenDetailModal(true)
+  const handleDetailModal = (item: StrategyItem) => {
+    setDetail(item)
+    switch (item.strategyType) {
+      case StrategyType.StrategyTypeMetric:
+        setOpenMetricDetailModal(true)
+        break
+      case StrategyType.StrategyTypeMQ:
+        setOpenEventDetailModal(true)
+        break
+      case StrategyType.StrategyTypeDomainCertificate:
+        setOpenDomainDetailModal(true)
+        break
+      case StrategyType.StrategyTypeDomainPort:
+        setOpenPortDetailModal(true)
+        break
+      case StrategyType.StrategyTypeHTTP:
+        setOpenHttpDetailModal(true)
+        break
+      default:
+        setDetail(undefined)
+        message.warning(`${StrategyTypeData[item.strategyType]}未开通`)
+        break
+    }
   }
 
   const handleCloseDetailModal = () => {
-    setOpenDetailModal(false)
-    setDetailId(0)
+    setDetail(undefined)
+    setOpenMetricDetailModal(false)
+    setOpenEventDetailModal(false)
+    setOpenDomainDetailModal(false)
+    setOpenPortDetailModal(false)
+    setOpenHttpDetailModal(false)
   }
 
   const handleCloseMetricEditModal = () => {
     setOpenMetricEditModal(false)
-    setEditDetail(undefined)
+    setDetail(undefined)
   }
 
   const handleCloseEventEditModal = () => {
     setOpenEventEditModal(false)
-    setEditDetail(undefined)
+    setDetail(undefined)
   }
 
   const handleCloseDomainEditModal = () => {
     setOpenDomainEditModal(false)
-    setEditDetail(undefined)
+    setDetail(undefined)
   }
 
   const handleClosePortEditModal = () => {
     setOpenPortEditModal(false)
-    setEditDetail(undefined)
+    setDetail(undefined)
   }
 
   const handleCloseHttpEditModal = () => {
     setOpenHttpEditModal(false)
-    setEditDetail(undefined)
+    setDetail(undefined)
   }
 
   const onRefresh = () => {
     setRefresh(!refresh)
   }
 
-  const handleOpenChartModal = (id: number) => {
+  const handleOpenChartModal = (item: StrategyItem) => {
     setOpenChartModal(true)
-    setDetailId(id)
+    setDetail(item)
   }
 
   const handleCloseChartModal = () => {
     setOpenChartModal(false)
-    setDetailId(0)
+    setDetail(undefined)
   }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -212,13 +246,13 @@ const StrategyMetric: React.FC = () => {
       case ActionKey.OPERATION_LOG:
         break
       case ActionKey.DETAIL:
-        handleDetailModal(item.id)
+        handleDetailModal(item)
         break
       case ActionKey.EDIT:
         handleOpenEditModal(item)
         break
       case ActionKey.CHART:
-        handleOpenChartModal(item.id)
+        handleOpenChartModal(item)
         break
       case ActionKey.IMMEDIATELY_PUSH:
         pushStrategy(item.id)
@@ -293,46 +327,75 @@ const StrategyMetric: React.FC = () => {
       <MetricEditModal
         title='指标策略编辑'
         width='60%'
-        strategyDetail={editDetail}
+        strategyDetail={detail}
         open={openMetricEditModal}
         onCancel={handleCloseMetricEditModal}
       />
       <DomainEditModal
         title='证书策略编辑'
         width='60%'
-        strategyDetail={editDetail}
+        strategyDetail={detail}
         open={openDomainEditModal}
         onCancel={handleCloseDomainEditModal}
       />
       <PortEditModal
         title='端口策略编辑'
         width='60%'
-        strategyDetail={editDetail}
+        strategyDetail={detail}
         open={openPortEditModal}
         onCancel={handleClosePortEditModal}
       />
       <EventEditModal
         title='事件策略编辑'
         width='60%'
-        eventStrategyDetail={editDetail}
+        eventStrategyDetail={detail}
         open={openEventEditModal}
         onCancel={handleCloseEventEditModal}
       />
       <HTTPEditModal
         title='HTTP策略编辑'
         width='60%'
-        strategyDetail={editDetail}
+        strategyDetail={detail}
         open={openHttpEditModal}
         onCancel={handleCloseHttpEditModal}
       />
       <StrategyCharts
         title='策略图表'
         width='60%'
-        strategyID={detailId}
+        strategyID={detail?.id}
         open={openChartModal}
         onCancel={handleCloseChartModal}
       />
-      <Detail width='60%' strategyId={detailId} open={openDetailModal} onCancel={handleCloseDetailModal} />
+      <MetricDetail
+        width='60%'
+        strategyId={detail?.id}
+        open={openMetricDetailModal}
+        onCancel={handleCloseDetailModal}
+      />
+      <StrategyDetailEvent
+        width='60%'
+        strategyId={detail?.id}
+        open={openEventDetailModal}
+        onCancel={handleCloseDetailModal}
+      />
+      <StrategyDetailDomain
+        width='60%'
+        strategyId={detail?.id}
+        open={openDomainDetailModal}
+        onCancel={handleCloseDetailModal}
+      />
+      <StrategyDetailPort
+        width='60%'
+        strategyId={detail?.id}
+        open={openPortDetailModal}
+        onCancel={handleCloseDetailModal}
+      />
+      <StrategyDetailHttp
+        width='60%'
+        strategyId={detail?.id}
+        open={openHttpDetailModal}
+        onCancel={handleCloseDetailModal}
+      />
       <div
         style={{
           background: token.colorBgContainer,

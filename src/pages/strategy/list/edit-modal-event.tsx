@@ -1,4 +1,4 @@
-import { DatasourceType, MQCondition, MQDataType, Status } from '@/api/enum'
+import { DatasourceType, MQCondition, MQDataType, Status, StrategyType } from '@/api/enum'
 import { defaultPaginationReq, MQConditionData, MQDataTypeData } from '@/api/global'
 import { StrategyItem } from '@/api/model-types'
 import {
@@ -110,6 +110,9 @@ export default function EventEditModal(props: EventEditModalProps) {
     <Modal {...restProps} onOk={handleSubmit} confirmLoading={loading}>
       <div className='max-h-[70vh] overflow-y-auto overflow-x-hidden'>
         <Form form={form} layout='vertical' autoComplete='off' disabled={loading}>
+          <Form.Item name='strategyType' initialValue={StrategyType.StrategyTypeMQ} className='hidden'>
+            <Input className='hidden' />
+          </Form.Item>
           <Form.Item label='数据源' name='datasourceIds' rules={[{ required: true, message: '请选择数据源' }]}>
             <Select
               loading={datasourceListLoading}

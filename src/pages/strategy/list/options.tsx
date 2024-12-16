@@ -7,7 +7,6 @@ import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
 import { Badge, Button, Space, Tooltip } from 'antd'
 import { ColumnsType } from 'antd/es/table'
-import { StrategyLevelTemplateType } from './edit-modal-metric'
 
 export type StrategyLabelType = {
   alarmGroupIds: number[]
@@ -25,26 +24,6 @@ export type LevelItemType = {
   status: Status
   strategyLabels: StrategyLabelType[]
   id?: number
-}
-
-export type MetricEditModalFormData = {
-  name: string
-  expr: string
-  remark: string
-  datasource?: string
-  labels: {
-    key: string
-    value: string
-  }[]
-  annotations: {
-    summary: string
-    description: string
-  }
-  categoriesIds: number[]
-  groupId: number
-  datasourceIds: number[]
-  strategyLevel: StrategyLevelTemplateType[]
-  alarmGroupIds: number[]
 }
 
 export const getStrategyGroups = (keyword: string) => {
