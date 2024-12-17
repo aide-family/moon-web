@@ -3,7 +3,7 @@ import { DataSourceTypeData, StorageTypeData } from '@/api/global'
 import { DatasourceItem } from '@/api/model-types'
 import { GlobalContext } from '@/utils/context'
 import { RedoOutlined } from '@ant-design/icons'
-import { Badge, Button, Descriptions, DescriptionsProps, Space, Tag, Typography } from 'antd'
+import { theme as AntdTheme, Badge, Button, Descriptions, DescriptionsProps, Space, Tag, Typography } from 'antd'
 import React, { useContext } from 'react'
 import ReactJson from 'react-json-view'
 
@@ -13,9 +13,12 @@ export interface BasicsProps {
   editDataSource?: (id: number) => void
 }
 
+const { useToken } = AntdTheme
+
 export const Basics: React.FC<BasicsProps> = (props) => {
   const { datasource, refresh, editDataSource } = props
   const { theme } = useContext(GlobalContext)
+  const { token } = useToken()
 
   const items: DescriptionsProps['items'] = [
     {
@@ -34,12 +37,12 @@ export const Basics: React.FC<BasicsProps> = (props) => {
     {
       key: 'datasourceType',
       label: '数据源类型',
-      children: <div>{DataSourceTypeData[datasource?.datasourceType]}</div>
-    },
-    {
-      key: 'storageType',
-      label: '存储类型',
-      children: <div>{StorageTypeData[datasource?.storageType]}</div>
+      children: (
+        <div className='flex flex-row items-center gap-2'>
+          <Tag color='blue'>{DataSourceTypeData[datasource?.datasourceType]}</Tag>
+          <Tag color='pink'>{StorageTypeData[datasource?.storageType]}</Tag>
+        </div>
+      )
     },
     {
       label: '创建者',
@@ -50,16 +53,21 @@ export const Basics: React.FC<BasicsProps> = (props) => {
       children: datasource?.createdAt
     },
     {
-      label: '地址',
-      children: (
-        <Space size={[8, 16]} wrap className='w-full'>
-          {datasource?.endpoint.split(',').map((item, index) => <Tag key={index}>{item}</Tag>)}
-        </Space>
-      )
-    },
-    {
       label: '更新时间',
       children: datasource?.updatedAt
+    },
+    {
+      label: '地址',
+      span: { xs: 1, sm: 2, md: 2, lg: 2, xl: 2, xxl: 2 },
+      children: (
+        <Space size={[8, 16]} wrap className='w-full'>
+          {datasource?.endpoint.split(',').map((item, index) => (
+            <Tag color={token.colorPrimary} key={index}>
+              {item}
+            </Tag>
+          ))}
+        </Space>
+      )
     },
     {
       label: '配置明细',

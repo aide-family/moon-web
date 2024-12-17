@@ -1,30 +1,32 @@
 import { Status } from '@/api/enum'
+import { DataSourceTypeData, StorageTypeData } from '@/api/global'
 import { DatasourceItem } from '@/api/model-types'
 import { GlobalContext } from '@/utils/context'
 import { RedoOutlined } from '@ant-design/icons'
-import { Badge, Button, Descriptions, DescriptionsProps, Typography } from 'antd'
+import { Badge, Button, Descriptions, DescriptionsProps, Tag, Typography, theme as antdTheme } from 'antd'
 import React, { useContext } from 'react'
 import ReactJson from 'react-json-view'
 
 export interface BasicsProps {
-  datasource?: DatasourceItem
+  datasource: DatasourceItem
   refresh?: () => void
   editDataSource?: () => void
 }
 
+const { useToken } = antdTheme
+
 export const Basics: React.FC<BasicsProps> = (props) => {
   const { datasource, refresh, editDataSource } = props
   const { theme } = useContext(GlobalContext)
+  const { token } = useToken()
 
   const items: DescriptionsProps['items'] = [
     {
       label: '数据源名称',
-      // span: 2,
       children: datasource?.name
     },
     {
       label: '状态',
-      // span: 2,
       children: (
         <Badge
           status={datasource?.status === Status.StatusEnable ? 'success' : 'error'}
@@ -33,25 +35,33 @@ export const Basics: React.FC<BasicsProps> = (props) => {
       )
     },
     {
+      key: 'datasourceType',
+      label: '数据源类型',
+      children: (
+        <div className='flex flex-row items-center gap-2'>
+          <Tag color='blue'>{DataSourceTypeData[datasource.datasourceType]}</Tag>
+          <Tag color='pink'>{StorageTypeData[datasource.storageType]}</Tag>
+        </div>
+      )
+    },
+    {
       label: '创建者',
-      // span: 2,
       children: `${datasource?.creator?.name || '-'}(${datasource?.creator?.nickname || '-'})`
     },
     {
       label: '创建时间',
-      // span: 2,
       children: datasource?.createdAt
     },
     {
-      label: '地址',
-      // span: 2,
-      children: datasource?.endpoint
-    },
-    {
       label: '更新时间',
-      // span: 2,
       children: datasource?.updatedAt
     },
+    {
+      label: '地址',
+      span: { xs: 1, sm: 2, md: 2, lg: 2, xl: 2, xxl: 2 },
+      children: <Tag color={token.colorPrimary}>{datasource?.endpoint}</Tag>
+    },
+
     {
       label: '配置明细',
       span: { xs: 1, sm: 2, md: 2, lg: 2, xl: 2, xxl: 2 },

@@ -17,8 +17,10 @@ export default function Event() {
   const [datasourceDetail, setDatasourceDetail] = useState<DatasourceItem>()
   const [tabKey, setTabKey] = useStorage<string>('mqDatasourceTab', 'basics')
   const [editID, setEditID] = useState<number>(0)
-  const refresh = () => {
-    handleDatasourceSearch()
+  const [refresh, setRefresh] = useState(false)
+
+  const handleRefresh = () => {
+    setRefresh(!refresh)
   }
 
   const handleOpenEditModal = (id: number) => {
@@ -33,7 +35,7 @@ export default function Event() {
       children: (
         <div className='overflow-auto overflow-x-hidden'>
           {datasourceDetail && (
-            <Basics datasource={datasourceDetail} refresh={refresh} editDataSource={handleOpenEditModal} />
+            <Basics datasource={datasourceDetail} refresh={handleRefresh} editDataSource={handleOpenEditModal} />
           )}
         </div>
       )
@@ -54,10 +56,12 @@ export default function Event() {
         pagination: defaultPaginationReq,
         keyword: value,
         datasourceType: DatasourceType.DatasourceTypeMQ
-      }).then((res) => {
-        setDatasource(res.list)
-        if (!datasourceDetail && res.list.length > 0) {
-          setDatasourceDetail(res.list[0])
+      }).then(({ list }) => {
+        setDatasource(list)
+        if (!datasourceDetail && list.length > 0) {
+          setDatasourceDetail(list[0])
+        } else {
+          setDatasourceDetail(list.find((item) => item.id === datasourceDetail?.id))
         }
       })
     }, 500)
@@ -73,14 +77,26 @@ export default function Event() {
     handleDatasourceSearch()
   }
 
+  const handleFinish = () => {
+    handleCloseEditModal()
+    handleRefresh()
+  }
+
   useEffect(() => {
     handleDatasourceSearch()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [refresh])
 
   return (
     <div className='p-3 h-full w-full flex flex-row gap-2'>
-      <EditModal title='新建数据源' width='60%' open={open} datasourceId={editID} onClose={handleCloseEditModal} />
+      <EditModal
+        title='新建数据源'
+        width='60%'
+        open={open}
+        datasourceId={editID}
+        onClose={handleCloseEditModal}
+        onFinish={handleFinish}
+      />
       <div
         className='max-w-[400px] min-w-[200px] p-2 flex flex-col gap-2'
         style={{ background: token.colorBgContainer }}

@@ -4,7 +4,7 @@ import { DataSourceTypeData, StatusData, StorageTypeData } from '@/api/global'
 import { DatasourceItem } from '@/api/model-types'
 import { DataFrom, DataFromItem } from '@/components/data/form'
 import { GlobalContext } from '@/utils/context'
-import { Button, Descriptions, Form, message, Modal, ModalProps, Space, Steps, Tag } from 'antd'
+import { theme as AntdTheme, Button, Descriptions, Form, message, Modal, ModalProps, Space, Steps, Tag } from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import ReactJson from 'react-json-view'
 import {
@@ -17,7 +17,10 @@ import {
 
 export interface EditModalProps extends ModalProps {
   datasourceId?: number
+  onFinish?: () => void
 }
+
+const { useToken } = AntdTheme
 
 const formOptions = (t: StorageType, saslEnable?: 'true' | 'false') => {
   if (t === StorageType.StorageTypeKafka) {
@@ -37,8 +40,9 @@ const formOptions = (t: StorageType, saslEnable?: 'true' | 'false') => {
 
 let timer: NodeJS.Timeout | null = null
 export const EditModal: React.FC<EditModalProps> = (props) => {
-  const { datasourceId, onClose, ...rest } = props
+  const { datasourceId, onFinish: finish, onClose, ...rest } = props
   const { theme } = useContext(GlobalContext)
+  const { token } = useToken()
 
   const [basicForm] = Form.useForm()
   const [datasourceForm] = Form.useForm()
@@ -108,18 +112,20 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
     setCurrent(current - 1)
   }
 
-  const onFinish = (e: React.MouseEvent<HTMLButtonElement>) => {
-    // console.log(editDatasource)
-    if (editDatasource.id) {
+  const onFinish = () => {
+    if (datasourceId) {
       updateDatasource({
-        id: editDatasource.id,
+        id: datasourceId,
         name: editDatasource.name,
         endpoint: editDatasource.endpoint,
         datasourceType: editDatasource.datasourceType,
         storageType: editDatasource.storageType,
-        configValue: JSON.stringify(editDatasource.config),
+        config: editDatasource.config,
         remark: editDatasource.remark,
         status: editDatasource.status
+      }).then(() => {
+        message.success('更新成功')
+        finish?.()
       })
     } else {
       createDatasource({
@@ -127,12 +133,12 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
         endpoint: editDatasource.endpoint,
         datasourceType: editDatasource.datasourceType,
         storageType: editDatasource.storageType,
-        configValue: JSON.stringify(editDatasource.config),
+        config: editDatasource.config,
         remark: editDatasource.remark,
         status: editDatasource.status
       }).then(() => {
         message.success('创建成功')
-        onClose?.(e)
+        finish?.()
       })
     }
   }
@@ -209,6 +215,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
           // title='确认信息'
           layout='vertical'
           column={2}
+          bordered
           items={[
             {
               key: 'name',
@@ -223,24 +230,24 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
               )
             },
             {
+              key: 'datasourceType',
+              label: '数据源类型',
+              children: (
+                <div className='flex flex-row items-center gap-2'>
+                  <Tag color='blue'>{DataSourceTypeData[editDatasource?.datasourceType]}</Tag>
+                  <Tag color='pink'>{StorageTypeData[editDatasource?.storageType]}</Tag>
+                </div>
+              )
+            },
+            {
               key: 'endpoint',
               label: '端点',
               span: 2,
               children: editDatasource?.endpoint?.split(',').map((item, index) => (
-                <Button type='link' key={index}>
+                <Tag color={token.colorPrimary} key={index}>
                   {item}
-                </Button>
+                </Tag>
               ))
-            },
-            {
-              key: 'datasourceType',
-              label: '数据源类型',
-              children: <div>{DataSourceTypeData[editDatasource?.datasourceType]}</div>
-            },
-            {
-              key: 'storageType',
-              label: '存储类型',
-              children: <div>{StorageTypeData[editDatasource?.storageType]}</div>
             },
             {
               key: 'config',

@@ -47,7 +47,7 @@ export function basicFormOptions(): (DataFromItem | DataFromItem[])[] {
           {
             label: (
               <Space>
-                <Kafka />
+                <Kafka width={15} height={15} />
                 Kafka
               </Space>
             ),
@@ -56,7 +56,7 @@ export function basicFormOptions(): (DataFromItem | DataFromItem[])[] {
           {
             label: (
               <Space>
-                <RocketMQ />
+                <RocketMQ width={15} height={15} />
                 RocketMQ
               </Space>
             ),
@@ -65,7 +65,7 @@ export function basicFormOptions(): (DataFromItem | DataFromItem[])[] {
           {
             label: (
               <Space>
-                <RabbitMQ />
+                <RabbitMQ width={15} height={15} />
                 RabbitMQ
               </Space>
             ),
@@ -74,7 +74,7 @@ export function basicFormOptions(): (DataFromItem | DataFromItem[])[] {
           {
             label: (
               <Space>
-                <MQTT />
+                <MQTT width={15} height={15} />
                 MQTT
               </Space>
             ),

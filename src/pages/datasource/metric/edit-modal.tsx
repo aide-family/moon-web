@@ -10,7 +10,7 @@ import { StatusData } from '@/api/global'
 import { DataFrom, DataFromItem } from '@/components/data/form'
 import { Prometheus, VictoriaMetrics } from '@/components/icon'
 import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons'
-import { Form, message, Modal, ModalProps, Space } from 'antd'
+import { Col, Form, Input, message, Modal, ModalProps, Row, Space } from 'antd'
 import React, { useEffect, useState } from 'react'
 
 export interface EditModalProps extends ModalProps {
@@ -57,7 +57,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
     timer = setTimeout(() => {
       getDatasource({ id: datasourceId })
         .then(({ detail }) => {
-          form.setFieldsValue({ ...detail, configValue: JSON.stringify(detail.config) })
+          form.setFieldsValue({ ...detail, config: detail.config })
         })
         .finally(() => {
           setLoading(false)
@@ -122,7 +122,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
             {
               label: (
                 <Space>
-                  <Prometheus />
+                  <Prometheus width={15} height={15} />
                   Prometheus
                 </Space>
               ),
@@ -131,7 +131,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
             {
               label: (
                 <Space>
-                  <VictoriaMetrics />
+                  <VictoriaMetrics width={15} height={15} />
                   VictoriaMetrics
                 </Space>
               ),
@@ -171,16 +171,6 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
       }
     },
     {
-      label: '数据源配置',
-      name: 'configValue',
-      type: 'textarea',
-      props: {
-        placeholder: '请输入数据源认证json',
-        maxLength: 200,
-        showCount: true
-      }
-    },
-    {
       label: '说明信息',
       name: 'remark',
       type: 'textarea',
@@ -201,7 +191,22 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
       onOk={handleOnOk}
       confirmLoading={loading}
     >
-      <DataFrom props={{ form, layout: 'vertical' }} items={formItems} />
+      <DataFrom props={{ form, layout: 'vertical' }} items={formItems}>
+        <Form.Item label='基础认证配置'>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name={['config', 'username']} label='用户名'>
+                <Input placeholder='请输入用户名' />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name={['config', 'password']} label='密码'>
+                <Input placeholder='请输入密码' />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form.Item>
+      </DataFrom>
     </Modal>
   )
 }

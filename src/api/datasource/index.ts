@@ -100,7 +100,7 @@ export interface CreateDatasourceRequest {
   endpoint: string
   status: Status
   remark?: string
-  configValue?: string
+  config?: Record<string, string>
   storageType?: StorageType
 }
 
@@ -116,7 +116,7 @@ export interface UpdateDatasourceRequest {
   endpoint?: string
   datasourceType?: DatasourceType
   storageType?: StorageType
-  configValue?: string
+  config?: Record<string, string>
 }
 
 export interface UpdateDatasourceReply {}
