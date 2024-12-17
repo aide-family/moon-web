@@ -3,8 +3,9 @@ import { defaultPaginationReq, EventDataTypeData, MQConditionData } from '@/api/
 import { StrategyItem } from '@/api/model-types'
 import {
   createStrategy,
-  CreateStrategyRequest,
+  CreateStrategyRequestFormData,
   parseEventStrategyDetailToFormData,
+  parseFormDataToStrategyLabels,
   updateStrategy
 } from '@/api/strategy'
 import { AnnotationsEditor } from '@/components/data/child/annotation-editor'
@@ -43,7 +44,7 @@ export interface EventEditModalProps extends ModalProps {
 export default function EventEditModal(props: EventEditModalProps) {
   const { eventStrategyDetail, ...restProps } = props
   const { token } = theme.useToken()
-  const [form] = Form.useForm<CreateStrategyRequest>()
+  const [form] = Form.useForm<CreateStrategyRequestFormData>()
   const [loading, setLoading] = useState(false)
   const { datasourceList, datasourceListLoading } = useDatasourceList({
     datasourceType: DatasourceType.DatasourceTypeMQ,
@@ -84,10 +85,14 @@ export default function EventEditModal(props: EventEditModalProps) {
     form
       .validateFields()
       .then((values) => {
+        const submitValues = {
+          ...values,
+          labels: parseFormDataToStrategyLabels(values.labels)
+        }
         if (eventStrategyDetail) {
-          return submit({ data: values, id: eventStrategyDetail?.id })
+          return submit({ data: submitValues, id: eventStrategyDetail?.id })
         } else {
-          return submit(values)
+          return submit(submitValues)
         }
       })
       .finally(() => {

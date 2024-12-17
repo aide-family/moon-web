@@ -3,7 +3,8 @@ import { ConditionData, defaultPaginationReq, HTTPMethodData, StatusCodeConditio
 import { StrategyItem } from '@/api/model-types'
 import {
   createStrategy,
-  CreateStrategyRequest,
+  CreateStrategyRequestFormData,
+  parseFormDataToStrategyLabels,
   parseHTTPStrategyDetailToFormData,
   updateStrategy
 } from '@/api/strategy'
@@ -43,7 +44,7 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
   const { strategyDetail, ...restProps } = props
 
   const { token } = theme.useToken()
-  const [form] = Form.useForm<CreateStrategyRequest>()
+  const [form] = Form.useForm<CreateStrategyRequestFormData>()
   const [loading, setLoading] = useState(false)
   const { strategyGroupList, strategyGroupListLoading } = useStrategyGroupList({
     pagination: defaultPaginationReq
@@ -80,10 +81,14 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
     form
       .validateFields()
       .then((values) => {
+        const submitValues = {
+          ...values,
+          labels: parseFormDataToStrategyLabels(values.labels)
+        }
         if (strategyDetail) {
-          return submit({ data: values, id: strategyDetail?.id })
+          return submit({ data: submitValues, id: strategyDetail?.id })
         } else {
-          return submit(values)
+          return submit(submitValues)
         }
       })
       .finally(() => {

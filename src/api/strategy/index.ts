@@ -95,7 +95,7 @@ export interface CreateStrategyMQLevelRequest {
 }
 
 /** 创建策略基础请求参数 */
-export type CreateStrategyBaseRequest = {
+export type CreateStrategyBaseRequest<T = { [key: string]: string }> = {
   /** 策略组ID */
   groupId: number
   /** 模板ID */
@@ -111,7 +111,7 @@ export type CreateStrategyBaseRequest = {
   /** 策略名称 */
   name: string
   /** 策略标签 */
-  labels: { [key: string]: string }
+  labels: T
   /** 策略注解 */
   annotations: { [key: string]: string }
   /** 策略语句 */
@@ -123,7 +123,7 @@ export type CreateStrategyBaseRequest = {
 }
 
 /** 创建策略请求 */
-export type CreateStrategyRequest = CreateStrategyBaseRequest &
+export type CreateStrategyRequest<T = { [key: string]: string }> = CreateStrategyBaseRequest<T> &
   (
     | {
         strategyType: StrategyType.StrategyTypeMetric
@@ -146,6 +146,9 @@ export type CreateStrategyRequest = CreateStrategyBaseRequest &
         strategyHTTPLevels: CreateStrategyHTTPLevelRequest[]
       }
   )
+
+/** 创建策略表单数据 */
+export type CreateStrategyRequestFormData = CreateStrategyRequest<KV[]>
 
 export interface CreateStrategyReply {}
 
@@ -410,6 +413,8 @@ export function pushStrategy(id: number) {
   return request.GET<null>(`/v1/strategy/push/${id}`)
 }
 
+export type KV = { key: string; value: string }
+
 /**
  * 将策略详情转换为表单数据
  * @param detail 策略详情
@@ -437,9 +442,10 @@ export const parseStrategyDetailToFormData = (detail: StrategyItem): CreateStrat
  * @param detail 事件策略详情
  * @returns 表单数据
  */
-export const parseEventStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
+export const parseEventStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequestFormData => ({
   ...parseStrategyDetailToFormData(detail),
   strategyType: StrategyType.StrategyTypeMQ,
+  labels: parseStrategyLabelsToFormData(detail.labels),
   strategyMqLevels: detail.eventLevels.map(
     (item): CreateStrategyMQLevelRequest => ({
       status: item.status,
@@ -464,9 +470,10 @@ export const parseEventStrategyDetailToFormData = (detail: StrategyItem): Create
  * @param detail 证书策略详情
  * @returns 表单数据
  */
-export const parseDomainStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
+export const parseDomainStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequestFormData => ({
   ...parseStrategyDetailToFormData(detail),
   strategyType: StrategyType.StrategyTypeDomainCertificate,
+  labels: parseStrategyLabelsToFormData(detail.labels),
   strategyDomainLevels: detail.domainLevels.map(
     (item): CreateStrategyDomainLevelRequest => ({
       levelId: item.id,
@@ -489,9 +496,10 @@ export const parseDomainStrategyDetailToFormData = (detail: StrategyItem): Creat
  * @param detail 证书策略详情
  * @returns 表单数据
  */
-export const parseHTTPStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
+export const parseHTTPStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequestFormData => ({
   ...parseStrategyDetailToFormData(detail),
   strategyType: StrategyType.StrategyTypeHTTP,
+  labels: parseStrategyLabelsToFormData(detail.labels),
   strategyHTTPLevels: detail.httpLevels.map(
     (item): CreateStrategyHTTPLevelRequest => ({
       levelId: item.id,
@@ -520,9 +528,10 @@ export const parseHTTPStrategyDetailToFormData = (detail: StrategyItem): CreateS
  * @param detail 端口策略详情
  * @returns 表单数据
  */
-export const parsePortStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
+export const parsePortStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequestFormData => ({
   ...parseStrategyDetailToFormData(detail),
   strategyType: StrategyType.StrategyTypeDomainPort,
+  labels: parseStrategyLabelsToFormData(detail.labels),
   strategyPortLevels: detail.portLevels.map(
     (item): CreateStrategyPortLevelRequest => ({
       levelId: item.id,
@@ -545,9 +554,10 @@ export const parsePortStrategyDetailToFormData = (detail: StrategyItem): CreateS
  * @param detail 指标策略详情
  * @returns 表单数据
  */
-export const parseMetricStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequest => ({
+export const parseMetricStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequestFormData => ({
   ...parseStrategyDetailToFormData(detail),
   strategyType: StrategyType.StrategyTypeMetric,
+  labels: parseStrategyLabelsToFormData(detail.labels),
   strategyMetricLevels: detail.metricLevels.map(
     (item): CreateStrategyLevelRequest => ({
       status: item.status,
@@ -568,3 +578,24 @@ export const parseMetricStrategyDetailToFormData = (detail: StrategyItem): Creat
     })
   )
 })
+
+/**
+ * 将策略标签转换为表单数据
+ * @param labels 策略标签
+ * @returns 表单数据
+ */
+export const parseStrategyLabelsToFormData = (labels: { [key: string]: string }): KV[] => {
+  return Object.entries(labels).map(([key, value]) => ({ key, value }))
+}
+
+/**
+ * 将表单数据转换为策略标签
+ * @param labels 表单数据
+ * @returns 策略标签
+ */
+export const parseFormDataToStrategyLabels = (labels: KV[]): { [key: string]: string } => {
+  return labels.reduce((acc: { [key: string]: string }, item) => {
+    acc[item.key] = item.value
+    return acc
+  }, {})
+}

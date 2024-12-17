@@ -4,7 +4,8 @@ import { StrategyItem } from '@/api/model-types'
 import { baseURL } from '@/api/request'
 import {
   createStrategy,
-  CreateStrategyRequest,
+  CreateStrategyRequestFormData,
+  parseFormDataToStrategyLabels,
   parseMetricStrategyDetailToFormData,
   updateStrategy
 } from '@/api/strategy'
@@ -48,7 +49,7 @@ export default function MetricEditModal(props: MetricEditModalProps) {
   const { token } = theme.useToken()
   const { teamInfo } = useContext(GlobalContext)
 
-  const [form] = Form.useForm<CreateStrategyRequest>()
+  const [form] = Form.useForm<CreateStrategyRequestFormData>()
   const selectDatasource = Form.useWatch('datasourceIds', form)
 
   const [loading, setLoading] = useState(false)
@@ -91,12 +92,15 @@ export default function MetricEditModal(props: MetricEditModalProps) {
     form
       .validateFields()
       .then((values) => {
-        console.log(values)
+        const submitValues = {
+          ...values,
+          labels: parseFormDataToStrategyLabels(values.labels)
+        }
         // return
         if (strategyDetail) {
-          return submit({ data: values, id: strategyDetail?.id })
+          return submit({ data: submitValues, id: strategyDetail?.id })
         } else {
-          return submit(values)
+          return submit(submitValues)
         }
       })
       .finally(() => {
