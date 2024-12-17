@@ -153,14 +153,16 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyItem
         </Button>
       )
     },
-    {
-      key: ActionKey.CHART,
-      label: (
-        <Button size='small' type='link'>
-          策略图表
-        </Button>
-      )
-    },
+    record.strategyType === StrategyType.StrategyTypeMetric || !record.strategyType
+      ? {
+          key: ActionKey.CHART,
+          label: (
+            <Button size='small' type='link'>
+              策略图表
+            </Button>
+          )
+        }
+      : null,
     {
       key: ActionKey.OPERATION_LOG,
       label: (

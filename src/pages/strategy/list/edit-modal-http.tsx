@@ -405,41 +405,52 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
                           <Form.Item label='请求头'>
                             <Form.List name={[field.name, 'headers']}>
                               {(fields, { add, remove }) => (
-                                <div>
-                                  {fields.map((field) => (
-                                    <div key={field.key} className='flex items-center gap-2'>
-                                      <Form.Item
-                                        name={[field.name, 'key']}
-                                        rules={[
-                                          {
-                                            required: true,
-                                            message: '请输入请求头Key'
-                                          }
-                                        ]}
-                                      >
-                                        <Input placeholder='key' />
-                                      </Form.Item>
-                                      <Form.Item
-                                        name={[field.name, 'value']}
-                                        rules={[
-                                          {
-                                            required: true,
-                                            message: '请输入请求头Value'
-                                          }
-                                        ]}
-                                      >
-                                        <Input placeholder='value' />
-                                      </Form.Item>
-                                      <MinusCircleOutlined
-                                        onClick={() => remove(field.name)}
-                                        style={{ color: token.colorError }}
-                                      />
-                                    </div>
+                                <Row gutter={12} wrap>
+                                  {fields.map(({ key, name, ...restField }) => (
+                                    <Col span={12} key={key}>
+                                      <Row gutter={12} className='w-[200%]'>
+                                        <Col span={4}>
+                                          <Form.Item
+                                            {...restField}
+                                            name={[name, 'key']}
+                                            rules={[
+                                              {
+                                                required: true,
+                                                message: '请输入请求头Key'
+                                              }
+                                            ]}
+                                          >
+                                            <Input placeholder='key' />
+                                          </Form.Item>
+                                        </Col>
+                                        <Col span={8}>
+                                          <span className='flex items-center gap-2'>
+                                            <Form.Item
+                                              {...restField}
+                                              className='flex-1'
+                                              name={[name, 'value']}
+                                              rules={[
+                                                {
+                                                  required: true,
+                                                  message: '请输入请求头Value'
+                                                }
+                                              ]}
+                                            >
+                                              <Input placeholder='value' />
+                                            </Form.Item>
+                                            <MinusCircleOutlined
+                                              onClick={() => remove(field.name)}
+                                              style={{ color: token.colorError }}
+                                            />
+                                          </span>
+                                        </Col>
+                                      </Row>
+                                    </Col>
                                   ))}
                                   <Button type='dashed' onClick={() => add()} block icon={<PlusOutlined />}>
                                     添加新请求头
                                   </Button>
-                                </div>
+                                </Row>
                               )}
                             </Form.List>
                           </Form.Item>
