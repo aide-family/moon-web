@@ -298,7 +298,7 @@ export default function EventEditModal(props: EventEditModalProps) {
             </Form.Item>
           </Form.Item>
           <Form.Item label={<b>告警等级</b>} required>
-            <Form.List name='strategyMqLevels'>
+            <Form.List name='strategyEventLevels'>
               {(fields, { add, remove }) => (
                 <div className='flex flex-col gap-4'>
                   {fields.map((field) => (

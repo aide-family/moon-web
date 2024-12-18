@@ -333,7 +333,7 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
                               options={Object.entries(HTTPMethodData)
                                 .filter(([key]) => key !== HTTPMethod.HTTPMethodUnknown)
                                 .map(([key, value]) => ({
-                                  value: +key,
+                                  value: key,
                                   label: value
                                 }))}
                             />

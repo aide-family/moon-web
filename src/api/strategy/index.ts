@@ -73,7 +73,7 @@ export interface UpdateStrategyGroupStatusRequest {
 export interface UpdateStrategyGroupStatusReply {}
 
 /** 创建策略事件项请求 */
-export interface CreateStrategyMQLevelRequest {
+export interface CreateStrategyEventLevelRequest {
   /** 值 */
   value: string
   /** 状态 */
@@ -127,11 +127,11 @@ export type CreateStrategyRequest<T = { [key: string]: string }> = CreateStrateg
   (
     | {
         strategyType: StrategyType.StrategyTypeMetric
-        strategyMetricLevels: CreateStrategyLevelRequest[]
+        strategyMetricLevels: CreateStrategyMetricLevelRequest[]
       }
     | {
         strategyType: StrategyType.StrategyTypeMQ
-        strategyMqLevels: CreateStrategyMQLevelRequest[]
+        strategyEventLevels: CreateStrategyEventLevelRequest[]
       }
     | {
         strategyType: StrategyType.StrategyTypeDomainCertificate
@@ -192,7 +192,7 @@ export interface UpdateStrategyStatusRequest {
 
 export interface UpdateStrategyStatusReply {}
 
-export interface CreateStrategyLevelRequest {
+export interface CreateStrategyMetricLevelRequest {
   duration: number
   count: number
   sustainType: SustainType
@@ -223,7 +223,7 @@ export interface CreateStrategyHTTPLevelRequest {
   /** 状态码 */
   statusCodes: number
   /** 请求头 */
-  headers: { [key: string]: string }
+  headers: KV[]
   /** 请求体 */
   body: string
   /** 查询参数 */
@@ -446,8 +446,8 @@ export const parseEventStrategyDetailToFormData = (detail: StrategyItem): Create
   ...parseStrategyDetailToFormData(detail),
   strategyType: StrategyType.StrategyTypeMQ,
   labels: parseStrategyLabelsToFormData(detail.labels),
-  strategyMqLevels: detail.eventLevels.map(
-    (item): CreateStrategyMQLevelRequest => ({
+  strategyEventLevels: detail.eventLevels.map(
+    (item): CreateStrategyEventLevelRequest => ({
       status: item.status,
       alarmPageIds: item.alarmPages.map((item) => item.value),
       alarmGroupIds: item.alarmGroups.map((item) => item.id),
@@ -513,7 +513,7 @@ export const parseHTTPStrategyDetailToFormData = (detail: StrategyItem): CreateS
       })),
       responseTime: item.responseTime,
       statusCodes: item.statusCodes,
-      headers: item.headers,
+      headers: parseStrategyLabelsToFormData(item.headers),
       body: item.body,
       queryParams: item.queryParams,
       method: item.method,
@@ -559,7 +559,7 @@ export const parseMetricStrategyDetailToFormData = (detail: StrategyItem): Creat
   strategyType: StrategyType.StrategyTypeMetric,
   labels: parseStrategyLabelsToFormData(detail.labels),
   strategyMetricLevels: detail.metricLevels.map(
-    (item): CreateStrategyLevelRequest => ({
+    (item): CreateStrategyMetricLevelRequest => ({
       status: item.status,
       alarmPageIds: item.alarmPages.map((item) => item.value),
       alarmGroupIds: item.alarmGroups.map((item) => item.id),
