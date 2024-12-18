@@ -61,6 +61,11 @@ export function RuleDetailModal(props: RuleDetailModalProps) {
       span: { xs: 1, sm: 2, md: 3, lg: 3, xl: 2, xxl: 2 }
     },
     {
+      label: '规则',
+      children: detail?.rule,
+      span: { xs: 1, sm: 2, md: 3, lg: 3, xl: 2, xxl: 2 }
+    },
+    {
       label: '创建人',
       children: (
         <Tooltip title={detail?.creator?.nickname || detail?.creator?.name}>
@@ -100,7 +105,7 @@ export function RuleDetailModal(props: RuleDetailModalProps) {
   return (
     <>
       <Modal width='50%' centered open={open} onOk={onOk} onCancel={onCancel} footer={null}>
-        <Descriptions title='时间引擎规则信息' bordered items={items} />
+        <Descriptions title='通知规则信息' bordered items={items} />
       </Modal>
     </>
   )

@@ -180,7 +180,7 @@ const Rule: React.FC = () => {
           }}
         >
           <div className='flex justify-between items-center'>
-            <div className='text-lg font-bold'>告警Rule</div>
+            <div className='text-lg font-bold'>通知规则</div>
             <Space size={8}>
               <Button type='primary' onClick={() => handleEditModal()}>
                 添加
