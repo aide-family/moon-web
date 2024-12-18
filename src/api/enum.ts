@@ -444,3 +444,21 @@ export enum StatusCodeCondition {
   /** 不等于 */
   StatusCodeConditionNE = 2
 }
+
+/** 时间引擎规则类型 */
+export enum TimeEngineRuleType {
+  /** 未知 */
+  TimeEngineRuleTypeUnknown = 0,
+
+  /** 小时范围 */
+  TimeEngineRuleTypeHourRange = 1,
+
+  /** 星期 */
+  TimeEngineRuleTypeDaysOfWeek = 2,
+
+  /** 日期 */
+  TimeEngineRuleTypeDaysOfMonth = 3,
+
+  /** 月份 */
+  TimeEngineRuleTypeMonths = 4
+}

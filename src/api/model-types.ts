@@ -20,7 +20,8 @@ import {
   StorageType,
   StrategyType,
   SustainType,
-  TemplateSourceType
+  TemplateSourceType,
+  TimeEngineRuleType
 } from './enum'
 
 /** 下拉选择扩展数据 */
@@ -839,4 +840,28 @@ export interface TopicItem {
    * 配置
    */
   config: { [key: string]: string }
+}
+
+/**
+ * 时间引擎规则项
+ */
+export interface TimeEngineRuleItem {
+  /** ID */
+  id: number
+  /** 名称 */
+  name: string
+  /** 类型 */
+  category: TimeEngineRuleType
+  /** 规则 */
+  rule: number[]
+  /** 状态 */
+  status: Status
+  /** 备注 */
+  remark: string
+  /** 创建时间 */
+  createdAt: string
+  /** 更新时间 */
+  updatedAt: string
+  /** 创建者 */
+  creator: UserItem
 }

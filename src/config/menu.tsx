@@ -72,11 +72,11 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: 'Hook',
         key: '/home/notify/hook'
+      },
+      {
+        label: '通知规则',
+        key: '/home/notify/rule'
       }
-      // {
-      //   label: '通知规则',
-      //   key: '/home/notify/rule'
-      // },
       // {
       //   label: '告警记录',
       //   key: '/home/notify/record'
