@@ -19,7 +19,8 @@ import {
   StatusCodeCondition,
   StorageType,
   StrategyType,
-  SustainType
+  SustainType,
+  TimeEngineRuleType
 } from './enum'
 
 export interface PaginationReq {
@@ -339,6 +340,29 @@ export const AlertStatusData: Record<AlertStatus, React.ReactNode> = {
       已静音 (Silenced)
     </Tag>
   )
+}
+
+export const TimeEngineRuleTypeData: Record<TimeEngineRuleType, { label: string; icon: React.ReactNode }> = {
+  [TimeEngineRuleType.TimeEngineRuleTypeUnknown]: {
+    label: '全部',
+    icon: <IconFont type='icon-disable3' />
+  },
+  [TimeEngineRuleType.TimeEngineRuleTypeHourRange]: {
+    label: '小时范围',
+    icon: <IconFont type='icon-disable3' />
+  },
+  [TimeEngineRuleType.TimeEngineRuleTypeDaysOfWeek]: {
+    label: '星期',
+    icon: <IconFont type='icon-disable3' />
+  },
+  [TimeEngineRuleType.TimeEngineRuleTypeDaysOfMonth]: {
+    label: '日期',
+    icon: <IconFont type='icon-disable3' />
+  },
+  [TimeEngineRuleType.TimeEngineRuleTypeMonths]: {
+    label: '月份',
+    icon: <IconFont type='icon-disable3' />
+  }
 }
 
 // 操作

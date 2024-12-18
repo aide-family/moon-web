@@ -1,5 +1,5 @@
-import { HookApp, Status } from '@/api/enum'
-import { ActionKey, HookAppData, PaginationReq, StatusData } from '@/api/global'
+import { Status, TimeEngineRuleType } from '@/api/enum'
+import { ActionKey, StatusData, TimeEngineRuleTypeData } from '@/api/global'
 import { TimeEngineRuleItem } from '@/api/model-types'
 import { SearchFormItem } from '@/components/data/search-box'
 import MoreMenu, { MoreMenuProps } from '@/components/moreMenu'
@@ -45,7 +45,7 @@ export const formList: SearchFormItem[] = [
         placeholder: '类型',
         allowClear: true,
         mode: 'multiple',
-        options: Object.entries(HookAppData).map(([key, value]) => {
+        options: Object.entries(TimeEngineRuleTypeData).map(([key, value]) => {
           const { label, icon } = value
           return {
             label: (
@@ -62,14 +62,14 @@ export const formList: SearchFormItem[] = [
   }
 ]
 
-interface NotifyHookColumnProps {
+interface NotifyRuleColumnProps {
   onHandleMenuOnClick: (item: TimeEngineRuleItem, key: ActionKey) => void
-  pagination: PaginationReq
+  current: number
+  pageSize: number
 }
 
-export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<TimeEngineRuleItem> => {
-  const { onHandleMenuOnClick, pagination } = props
-  const { pageNum, pageSize } = pagination
+export const getColumnList = (props: NotifyRuleColumnProps): ColumnsType<TimeEngineRuleItem> => {
+  const { onHandleMenuOnClick, current, pageSize } = props
   const tableOperationItems = (record: TimeEngineRuleItem): MoreMenuProps['items'] => [
     record.status === Status.StatusDisable
       ? {
@@ -121,7 +121,7 @@ export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<TimeEng
       key: 'index',
       width: 60,
       render: (_, __, index: number) => {
-        return <span>{(pageNum - 1) * pageSize + index + 1}</span>
+        return <span>{(current - 1) * pageSize + index + 1}</span>
       }
     },
     {
@@ -135,8 +135,8 @@ export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<TimeEng
       dataIndex: 'hookApp',
       key: 'hookApp',
       width: 160,
-      render: (hookApp: HookApp) => {
-        const { label, icon } = HookAppData[hookApp]
+      render: (hookApp: TimeEngineRuleType) => {
+        const { label, icon } = TimeEngineRuleTypeData[hookApp]
         return (
           <Space direction='horizontal'>
             <Avatar size='small' shape='square' icon={icon} />
@@ -198,3 +198,95 @@ export const getColumnList = (props: NotifyHookColumnProps): ColumnsType<TimeEng
     }
   ]
 }
+
+export const weekOptions = [
+  {
+    label: '星期一',
+    value: 1
+  },
+  {
+    label: '星期二',
+    value: 2
+  },
+  {
+    label: '星期三',
+    value: 3
+  },
+  {
+    label: '星期四',
+    value: 4
+  },
+  {
+    label: '星期五',
+    value: 5
+  },
+  {
+    label: '星期六',
+    value: 6
+  },
+  {
+    label: '星期日',
+    value: 7
+  }
+]
+
+export const monthOptions = [
+  {
+    label: '一月',
+    value: 1
+  },
+  {
+    label: '二月',
+    value: 2
+  },
+  {
+    label: '三月',
+    value: 3
+  },
+  {
+    label: '四月',
+    value: 4
+  },
+  {
+    label: '五月',
+    value: 5
+  },
+  {
+    label: '六月',
+    value: 6
+  },
+  {
+    label: '七月',
+    value: 7
+  },
+  {
+    label: '八月',
+    value: 8
+  },
+  {
+    label: '九月',
+    value: 9
+  },
+  {
+    label: '十月',
+    value: 10
+  },
+  {
+    label: '十一月',
+    value: 11
+  },
+  {
+    label: '十二月',
+    value: 12
+  }
+]
+
+export const dayOptions = Array.from({ length: 31 }, (_, index) => ({
+  label: `${index + 1} 日`,
+  value: index + 1
+}))
+
+export const hourOptions = Array.from({ length: 24 }, (_, index) => ({
+  label: `${index < 10 ? '0' + index : index} 时`,
+  value: index
+}))

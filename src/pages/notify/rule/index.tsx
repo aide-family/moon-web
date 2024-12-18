@@ -1,26 +1,39 @@
-import { ActionKey, defaultPaginationReq } from '@/api/global'
+import React, { useContext, useEffect, useRef, useState } from 'react'
+
+import { Status } from '@/api/enum'
+import { ActionKey } from '@/api/global'
 import { TimeEngineRuleItem } from '@/api/model-types'
-import { listTimeEngineRule, ListTimeEngineRuleRequest } from '@/api/notify/time-engine-rule'
+import {
+  deleteTimeEngineRule,
+  listTimeEngineRule,
+  ListTimeEngineRuleRequest,
+  updateTimeEngineRuleStatus
+} from '@/api/notify/rule'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
 import { Button, Space, theme } from 'antd'
-import { useContext, useEffect, useRef, useState } from 'react'
+import { RuleDetailModal } from './modal-detail'
+import { EditRuleModal } from './modal-edit'
 import { formList, getColumnList } from './options'
 
 const { useToken } = theme
 
 let timer: NodeJS.Timeout | null = null
-export default function Rule() {
+const Rule: React.FC = () => {
   const { token } = useToken()
   const { isFullscreen } = useContext(GlobalContext)
 
   const [datasource, setDatasource] = useState<TimeEngineRuleItem[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
-  const [searchParams, setSearchParams] = useState<ListTimeEngineRuleRequest>({
-    pagination: defaultPaginationReq
+  const [searchParams, setSearchParams] = useState({
+    keyword: '',
+    pagination: {
+      pageNum: 1,
+      pageSize: 10
+    }
   })
   const [refresh, setRefresh] = useState(true)
   const [showModal, setShowModal] = useState(false)
@@ -62,36 +75,48 @@ export default function Rule() {
         .finally(() => {
           setLoading(false)
         })
-    }, 1000)
+    }, 200)
+  }
+
+  const onReset = () => {}
+
+  const handleEditModal = (detail?: TimeEngineRuleItem) => {
+    setShowModal(true)
+    setRuleDetail(detail)
   }
 
   const onRefresh = () => {
     setRefresh(!refresh)
   }
 
-  const onReset = () => {
-    setSearchParams({
-      pagination: defaultPaginationReq
-    })
+  const handleDelete = (id: number) => {
+    deleteTimeEngineRule(id).then(onRefresh)
+  }
+
+  const onChangeStatus = (hookId: number, status: Status) => {
+    updateTimeEngineRuleStatus({ ids: [hookId], status }).then(onRefresh)
   }
 
   const onHandleMenuOnClick = (item: TimeEngineRuleItem, key: ActionKey) => {
     switch (key) {
       case ActionKey.EDIT:
+        handleEditModal(item)
+        break
+      case ActionKey.DELETE:
+        handleDelete(item.id)
+        break
+      case ActionKey.DETAIL:
         onOpenDetailModal(item)
+        break
+      case ActionKey.DISABLE:
+        onChangeStatus(item.id, Status.StatusDisable)
+        break
+      case ActionKey.ENABLE:
+        onChangeStatus(item.id, Status.StatusEnable)
         break
       default:
         break
     }
-  }
-
-  const columns = getColumnList({
-    onHandleMenuOnClick,
-    pagination: searchParams.pagination
-  })
-
-  const handleEditModal = () => {
-    setShowModal(true)
   }
 
   const handleTurnPage = (pageNum: number, pageSize: number) => {
@@ -104,13 +129,40 @@ export default function Rule() {
     })
   }
 
+  const closeEditRuleModal = () => {
+    setShowModal(false)
+  }
+
+  const handleEditRuleModalOnOk = () => {
+    setShowModal(false)
+    onRefresh()
+  }
+
+  const columns = getColumnList({
+    onHandleMenuOnClick,
+    current: searchParams.pagination.pageNum,
+    pageSize: searchParams.pagination.pageSize
+  })
+
   useEffect(() => {
     handleGetRuleList()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh])
+  }, [searchParams, refresh])
 
   return (
     <>
+      <EditRuleModal
+        open={showModal}
+        ruleId={ruleDetail?.id}
+        onCancel={closeEditRuleModal}
+        onOk={handleEditRuleModalOnOk}
+      />
+      <RuleDetailModal
+        ruleId={ruleDetail?.id || 0}
+        open={openDetailModal}
+        onCancel={onCloseDetailModal}
+        onOk={onCloseDetailModal}
+      />
       <div className='flex flex-col gap-3 p-3'>
         <div
           style={{
@@ -128,7 +180,7 @@ export default function Rule() {
           }}
         >
           <div className='flex justify-between items-center'>
-            <div className='text-lg font-bold'>告警通知规则</div>
+            <div className='text-lg font-bold'>告警Rule</div>
             <Space size={8}>
               <Button type='primary' onClick={() => handleEditModal()}>
                 添加
@@ -166,3 +218,5 @@ export default function Rule() {
     </>
   )
 }
+
+export default Rule

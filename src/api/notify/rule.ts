@@ -30,6 +30,16 @@ export interface UpdateTimeEngineRuleRequest {
 }
 
 /**
+ * 更新时间引擎规则状态请求
+ */
+export interface UpdateTimeEngineRuleStatusRequest {
+  /* 规则ID */
+  ids: number[]
+  /* 状态 */
+  status: Status
+}
+
+/**
  * 获取时间引擎规则列表请求
  */
 export interface ListTimeEngineRuleRequest {
@@ -44,19 +54,21 @@ export interface ListTimeEngineRuleRequest {
 }
 
 /**
- * // 获取时间引擎规则列表返回
-message ListTimeEngineRuleReply {
-  // 规则列表
-  repeated TimeEngineRuleItem list = 1;
-  // 分页
-  PaginationReply pagination = 2;
-}
+ * 获取时间引擎规则列表返回
  */
 export interface ListTimeEngineRuleReply {
   /* 规则列表 */
   list: TimeEngineRuleItem[]
   /* 分页 */
   pagination: PaginationReply
+}
+
+/**
+ * 获取时间引擎规则明细返回
+ */
+export interface GetTimeEngineRuleDetailReply {
+  /* 规则明细 */
+  detail: TimeEngineRuleItem
 }
 
 /**
@@ -78,6 +90,15 @@ export const updateTimeEngineRule = (data: UpdateTimeEngineRuleRequest) => {
 }
 
 /**
+ * 更新时间引擎规则状态
+ * @param data UpdateTimeEngineRuleStatusRequest
+ * @returns
+ */
+export const updateTimeEngineRuleStatus = (data: UpdateTimeEngineRuleStatusRequest) => {
+  return request.PUT('/v1/admin/alarm/time_engine_rule/update_status', data)
+}
+
+/**
  * 删除时间引擎规则
  * @param id
  * @returns
@@ -87,12 +108,12 @@ export const deleteTimeEngineRule = (id: number) => {
 }
 
 /**
- * 获取时间引擎规则
+ * 获取时间引擎规则明细
  * @param id
  * @returns
  */
-export const getTimeEngineRule = (id: number) => {
-  return request.GET(`/v1/admin/alarm/time_engine_rule/get/${id}`)
+export const getTimeEngineRule = (id: number): Promise<GetTimeEngineRuleDetailReply> => {
+  return request.GET<GetTimeEngineRuleDetailReply>(`/v1/admin/alarm/time_engine_rule/get/${id}`)
 }
 
 /**

@@ -8,7 +8,7 @@ import React, { useContext } from 'react'
 import ReactJson from 'react-json-view'
 
 export interface BasicsProps {
-  datasource: DatasourceItem
+  datasource?: DatasourceItem
   refresh?: () => void
   editDataSource?: () => void
 }
@@ -19,6 +19,8 @@ export const Basics: React.FC<BasicsProps> = (props) => {
   const { datasource, refresh, editDataSource } = props
   const { theme } = useContext(GlobalContext)
   const { token } = useToken()
+
+  if (!datasource) return null
 
   const items: DescriptionsProps['items'] = [
     {
