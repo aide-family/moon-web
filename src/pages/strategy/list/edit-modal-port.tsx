@@ -32,6 +32,7 @@ import {
   Row,
   Select,
   Space,
+  Tag,
   theme,
   Typography
 } from 'antd'
@@ -142,7 +143,15 @@ export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
               allowClear
               mode='multiple'
               loading={strategyCategoryListLoading}
-              options={strategyCategoryList}
+              options={strategyCategoryList.map((item) => ({
+                label: (
+                  <Tag bordered={false} color={item.extend?.color}>
+                    {item.label}
+                  </Tag>
+                ),
+                value: item.value,
+                disabled: item.disabled
+              }))}
             />
           </Form.Item>
           <Form.Item
@@ -314,7 +323,15 @@ export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
                             <Select
                               placeholder='请选择告警等级'
                               loading={alarmLevelListLoading}
-                              options={alarmLevelList}
+                              options={alarmLevelList.map((item) => ({
+                                label: (
+                                  <Tag bordered={false} color={item.extend?.color}>
+                                    {item.label}
+                                  </Tag>
+                                ),
+                                value: item.value,
+                                disabled: item.disabled
+                              }))}
                             />
                           </Form.Item>
                         </Col>
@@ -369,7 +386,15 @@ export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
                               allowClear
                               placeholder='请选择告警页面'
                               loading={alarmPageListLoading}
-                              options={alarmPageList}
+                              options={alarmPageList.map((item) => ({
+                                label: (
+                                  <Tag bordered={false} color={item.extend?.color}>
+                                    {item.label}
+                                  </Tag>
+                                ),
+                                value: item.value,
+                                disabled: item.disabled
+                              }))}
                             />
                           </Form.Item>
                         </Col>

@@ -224,15 +224,43 @@ export const StrategyTypeDataTag: Record<StrategyType, React.ReactNode> = {
   )
 }
 
-export const HTTPMethodData: Record<HTTPMethod, string> = {
-  [HTTPMethod.HTTPMethodUnknown]: '全部',
-  [HTTPMethod.HTTPMethodGET]: 'GET',
-  [HTTPMethod.HTTPMethodPOST]: 'POST',
-  [HTTPMethod.HTTPMethodPUT]: 'PUT',
-  [HTTPMethod.HTTPMethodDELETE]: 'DELETE',
-  [HTTPMethod.HTTPMethodPATCH]: 'PATCH',
-  [HTTPMethod.HTTPMethodHEAD]: 'HEAD',
-  [HTTPMethod.HTTPMethodOPTIONS]: 'OPTIONS'
+export const HTTPMethodData: Record<HTTPMethod, React.ReactNode> = {
+  [HTTPMethod.HTTPMethodUnknown]: <Tag bordered={false}>全部</Tag>,
+  [HTTPMethod.HTTPMethodGET]: (
+    <Tag bordered={false} color='green'>
+      GET
+    </Tag>
+  ),
+  [HTTPMethod.HTTPMethodPOST]: (
+    <Tag bordered={false} color='blue'>
+      POST
+    </Tag>
+  ),
+  [HTTPMethod.HTTPMethodPUT]: (
+    <Tag bordered={false} color='orange'>
+      PUT
+    </Tag>
+  ),
+  [HTTPMethod.HTTPMethodDELETE]: (
+    <Tag bordered={false} color='red'>
+      DELETE
+    </Tag>
+  ),
+  [HTTPMethod.HTTPMethodPATCH]: (
+    <Tag bordered={false} color='purple'>
+      PATCH
+    </Tag>
+  ),
+  [HTTPMethod.HTTPMethodHEAD]: (
+    <Tag bordered={false} color='cyan'>
+      HEAD
+    </Tag>
+  ),
+  [HTTPMethod.HTTPMethodOPTIONS]: (
+    <Tag bordered={false} color='magenta'>
+      OPTIONS
+    </Tag>
+  )
 }
 
 export const SustainTypeData: Record<SustainType, string> = {

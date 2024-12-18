@@ -35,6 +35,7 @@ import {
   Row,
   Select,
   Space,
+  Tag,
   theme,
   Typography
 } from 'antd'
@@ -177,7 +178,15 @@ export default function MetricEditModal(props: MetricEditModalProps) {
               allowClear
               loading={strategyCategoryListLoading}
               mode='multiple'
-              options={strategyCategoryList}
+              options={strategyCategoryList.map((item) => ({
+                label: (
+                  <Tag bordered={false} color={item.extend?.color}>
+                    {item.label}
+                  </Tag>
+                ),
+                value: item.value,
+                disabled: item.disabled
+              }))}
             />
           </Form.Item>
 
@@ -357,7 +366,15 @@ export default function MetricEditModal(props: MetricEditModalProps) {
                             <Select
                               placeholder='请选择告警等级'
                               loading={alarmLevelListLoading}
-                              options={alarmLevelList}
+                              options={alarmLevelList.map((item) => ({
+                                label: (
+                                  <Tag bordered={false} color={item.extend?.color}>
+                                    {item.label}
+                                  </Tag>
+                                ),
+                                value: item.value,
+                                disabled: item.disabled
+                              }))}
                             />
                           </Form.Item>
                         </Col>
@@ -465,7 +482,15 @@ export default function MetricEditModal(props: MetricEditModalProps) {
                               placeholder='请选择告警页面'
                               loading={alarmPageListLoading}
                               mode='multiple'
-                              options={alarmPageList}
+                              options={alarmPageList.map((item) => ({
+                                label: (
+                                  <Tag bordered={false} color={item.extend?.color}>
+                                    {item.label}
+                                  </Tag>
+                                ),
+                                value: item.value,
+                                disabled: item.disabled
+                              }))}
                             />
                           </Form.Item>
                         </Col>
