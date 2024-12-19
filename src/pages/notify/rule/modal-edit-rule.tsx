@@ -140,7 +140,10 @@ export function EditRuleModal(props: EditRuleModalProps) {
             />
           </Form.Item>
           {category === TimeEngineRuleType.TimeEngineRuleTypeDaysOfMonth && (
-            <Form.Item label='规则'>
+            <Form.Item
+              label='规则'
+              tooltip='日期类型是时间引擎的一种执行单元，他表示在一个月中的某几天范围内，例如表示一个月的上旬，那么表示在1-10号之间，中旬表示在11-20号之间，下旬表示在21-30号之间'
+            >
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item name={['rules', 0]}>
@@ -156,12 +159,21 @@ export function EditRuleModal(props: EditRuleModalProps) {
             </Form.Item>
           )}
           {category === TimeEngineRuleType.TimeEngineRuleTypeDaysOfWeek && (
-            <Form.Item label='规则' name='rules' rules={[{ required: true, message: '请选择星期' }]}>
+            <Form.Item
+              label='规则'
+              name='rules'
+              rules={[{ required: true, message: '请选择星期' }]}
+              tooltip='星期类型是时间引擎的一种执行单元，他表示在一个星期中的某几天，例如工作日，那么表示周一到周五，选择周末，那么表示周六和周日'
+            >
               <Select placeholder='请选择星期' options={weekOptions} mode='multiple' />
             </Form.Item>
           )}
           {category === TimeEngineRuleType.TimeEngineRuleTypeMonths && (
-            <Form.Item label='规则' name='rules'>
+            <Form.Item
+              label='规则'
+              name='rules'
+              tooltip='月份类型是时间引擎的一种执行单元，他表示在一年中的某几个月，例如表示一年中的上半年，那么表示1-6月，下半年表示7-12月'
+            >
               <Form.Item name={['rules', 0]} rules={[{ required: true, message: '请输入开始月份' }]}>
                 <Select placeholder='请选择开始月份' options={monthOptions} />
               </Form.Item>
@@ -171,7 +183,12 @@ export function EditRuleModal(props: EditRuleModalProps) {
             </Form.Item>
           )}
           {category === TimeEngineRuleType.TimeEngineRuleTypeHourRange && (
-            <Form.Item label='规则' name='rules' rules={[{ required: true, message: '请选择开始和结束时间' }]}>
+            <Form.Item
+              label='规则'
+              name='rules'
+              rules={[{ required: true, message: '请选择开始和结束时间' }]}
+              tooltip='时间范围类型是时间引擎的一种执行单元，他表示在一天中的某几个小时范围内，例如表示一天的上午，那么表示6-12点之间，下午表示12-18点之间，晚上表示18-0点之间，凌晨表示0-6点之间'
+            >
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item name={['rules', 0]} rules={[{ required: true, message: '请选择开始时间' }]}>

@@ -108,7 +108,11 @@ export function EngineEditModal(props: EditModalProps) {
           <Form.Item label='名称' name='name' rules={[{ required: true, message: '请输入名称' }]}>
             <Input placeholder='请输入名称' />
           </Form.Item>
-          <Form.Item label='规则' name='rules'>
+          <Form.Item
+            label='规则'
+            name='rules'
+            tooltip='规则是时间引擎的执行单元，他们之间是且的关系，也就是说，只有当所有规则都满足时，才表示满足条件'
+          >
             <Select
               loading={timeEngineRuleListLoading}
               placeholder='请选择规则'

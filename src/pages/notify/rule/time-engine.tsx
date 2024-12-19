@@ -13,8 +13,8 @@ import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
-import { SwapOutlined } from '@ant-design/icons'
-import { Button, Space, theme } from 'antd'
+import { QuestionCircleOutlined, SwapOutlined } from '@ant-design/icons'
+import { Button, Space, theme, Tooltip } from 'antd'
 import { EngineDetailModal } from './modal-detail-engine'
 import { EngineEditModal } from './modal-edit-engine'
 import { engineFormList, getEngineColumnList } from './options'
@@ -180,7 +180,16 @@ const TimeEngine: React.FC<TimeEngineProps> = ({ switchTimeEngine }) => {
         >
           <div className='flex justify-between items-center'>
             <div className='flex items-center gap-2'>
-              <div className='text-lg font-bold'>时间引擎</div>
+              <div className='text-lg font-bold flex items-center gap-2'>
+                时间引擎
+                <Tooltip
+                  overlayClassName='!max-w-[300px] !text-sm'
+                  title={`时间引擎包含多个时间规则，他们之前是且的关系，也就是说，只有当所有时间规则都满足时，才表示满足条件;
+                    多个时间引擎作用时，他们是或的关系，也就是说，只要有一个时间引擎满足条件，就表示满足条件`}
+                >
+                  <QuestionCircleOutlined className='text-slate-400 text-sm' />
+                </Tooltip>
+              </div>
               <Button type='link' onClick={switchTimeEngine}>
                 <SwapOutlined />
               </Button>
