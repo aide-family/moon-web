@@ -6,7 +6,7 @@ import { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
-import { Button, Space } from 'antd'
+import { Button, Space, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
 export const formList: SearchFormItem[] = [
@@ -128,7 +128,16 @@ export const addPagesFormItems: (DataFromItem | DataFromItem[])[] = [
           dictType: DictType.DictTypeAlarmPage,
           pagination: { pageNum: 1, pageSize: 999 },
           keyword: value
-        }).then(({ list }) => list)
+        }).then(({ list }) => {
+          return list.map((item) => ({
+            value: item.value,
+            label: (
+              <Tag bordered={false} color={item.extend?.color}>
+                {item.label}
+              </Tag>
+            )
+          }))
+        })
       }
     }
   }

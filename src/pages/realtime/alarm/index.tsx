@@ -237,13 +237,19 @@ const Group: React.FC = () => {
           <Space size={8}>
             <Radio.Group buttonStyle='solid' onChange={(e) => alarmPageChange(e.target.value)} value={alarmPageID}>
               <Radio.Button value={-1}>
-                我的告警
-                <Badge count={alertCounts[-1]} style={{ display: '' }} />
+                <div className='flex items-center gap-2'>
+                  <div className='h-1 w-1' style={{ background: '#000' }}></div>
+                  我的告警
+                  <Badge count={alertCounts[-1]} style={{ display: '' }} />
+                </div>
               </Radio.Button>
               {myPages.map((item) => (
                 <Radio.Button key={item.id} value={item.id}>
-                  {item.name}
-                  <Badge count={alertCounts[item.id] || 0} style={{ display: '' }} />
+                  <div className='flex items-center gap-2'>
+                    <div className='h-1 w-1' style={{ background: item.cssClass }}></div>
+                    {item.name}
+                    <Badge count={alertCounts[item.id] || 0} style={{ display: '' }} />
+                  </div>
                 </Radio.Button>
               ))}
             </Radio.Group>
