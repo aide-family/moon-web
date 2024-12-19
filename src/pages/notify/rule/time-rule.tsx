@@ -186,10 +186,10 @@ const TimeRule: React.FC<TimeRuleProps> = ({ switchTimeEngine }) => {
           <div className='flex justify-between items-center'>
             <div className='flex items-center gap-2'>
               <div className='text-lg font-bold flex items-center gap-2'>
-                通知规则
+                规则单元
                 <Tooltip
                   overlayClassName='!max-w-[300px] !text-sm'
-                  title={`通知规则是时间引擎的规则单元，他们由不同的方式构成一个规则单元，多个规则单元组成一个时间引擎，他们共同作用`}
+                  title={`规则单元是时间引擎的规则单元，他们由不同的方式构成一个规则单元，多个规则单元组成一个时间引擎，他们共同作用`}
                 >
                   <QuestionCircleOutlined className='text-slate-400 text-sm' />
                 </Tooltip>

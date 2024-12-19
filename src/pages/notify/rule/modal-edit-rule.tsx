@@ -110,7 +110,7 @@ export function EditRuleModal(props: EditRuleModalProps) {
   return (
     <>
       <Modal
-        title={`${ruleId ? '编辑' : '新增'}通知规则`}
+        title={`${ruleId ? '编辑' : '新增'}规则单元`}
         open={open}
         onOk={handleOnOk}
         onCancel={handleOnCancel}

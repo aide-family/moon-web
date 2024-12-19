@@ -150,7 +150,7 @@ export function RuleDetailModal(props: RuleDetailModalProps) {
   return (
     <>
       <Modal width='50%' centered open={open} onOk={onOk} onCancel={onCancel} footer={null}>
-        <Descriptions title='通知规则信息' bordered items={items} />
+        <Descriptions title='规则单元信息' bordered items={items} />
       </Modal>
     </>
   )

@@ -184,7 +184,7 @@ const TimeEngine: React.FC<TimeEngineProps> = ({ switchTimeEngine }) => {
                 时间引擎
                 <Tooltip
                   overlayClassName='!max-w-[300px] !text-sm'
-                  title={`时间引擎包含多个时间规则，他们之前是且的关系，也就是说，只有当所有时间规则都满足时，才表示满足条件;
+                  title={`时间引擎包含多个规则单元，他们之前是且的关系，也就是说，只有当所有规则单元都满足时，才表示满足条件;
                     多个时间引擎作用时，他们是或的关系，也就是说，只要有一个时间引擎满足条件，就表示满足条件`}
                 >
                   <QuestionCircleOutlined className='text-slate-400 text-sm' />
@@ -193,7 +193,7 @@ const TimeEngine: React.FC<TimeEngineProps> = ({ switchTimeEngine }) => {
               <Button type='link' onClick={switchTimeEngine}>
                 <SwapOutlined />
               </Button>
-              <div className='text-lg font-bold text-slate-400'>通知规则</div>
+              <div className='text-lg font-bold text-slate-400'>规则单元</div>
             </div>
             <Space size={8}>
               <Button type='primary' onClick={() => handleEditModal()}>
