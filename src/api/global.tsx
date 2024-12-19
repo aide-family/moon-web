@@ -346,23 +346,23 @@ export const AlertStatusData: Record<AlertStatus, React.ReactNode> = {
 export const TimeEngineRuleTypeData: Record<TimeEngineRuleType, { label: string; icon: React.ReactNode }> = {
   [TimeEngineRuleType.TimeEngineRuleTypeUnknown]: {
     label: '全部',
-    icon: <IconFont type='icon-disable3' />
+    icon: <IconFont type='icon-disable3' className='h-5 w-5' />
   },
   [TimeEngineRuleType.TimeEngineRuleTypeHourRange]: {
     label: '小时范围',
-    icon: <Hourglass />
+    icon: <Hourglass className='h-5 w-5' />
   },
   [TimeEngineRuleType.TimeEngineRuleTypeDaysOfWeek]: {
     label: '星期',
-    icon: <SunMoon />
+    icon: <SunMoon className='h-5 w-5' />
   },
   [TimeEngineRuleType.TimeEngineRuleTypeDaysOfMonth]: {
     label: '日期',
-    icon: <CalendarRange />
+    icon: <CalendarRange className='h-5 w-5' />
   },
   [TimeEngineRuleType.TimeEngineRuleTypeMonths]: {
     label: '月份',
-    icon: <Calendar1 />
+    icon: <Calendar1 className='h-5 w-5' />
   }
 }
 

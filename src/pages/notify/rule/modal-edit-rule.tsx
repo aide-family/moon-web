@@ -174,12 +174,18 @@ export function EditRuleModal(props: EditRuleModalProps) {
               name='rules'
               tooltip='月份类型是时间引擎的一种执行单元，他表示在一年中的某几个月，例如表示一年中的上半年，那么表示1-6月，下半年表示7-12月'
             >
-              <Form.Item name={['rules', 0]} rules={[{ required: true, message: '请输入开始月份' }]}>
-                <Select placeholder='请选择开始月份' options={monthOptions} />
-              </Form.Item>
-              <Form.Item name={['rules', 1]} rules={[{ required: true, message: '请输入结束月份' }]}>
-                <Select placeholder='请选择结束月份' options={monthOptions} />
-              </Form.Item>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item name={['rules', 0]} rules={[{ required: true, message: '请选择开始月份' }]}>
+                    <Select placeholder='请选择开始月份' options={monthOptions} />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item name={['rules', 1]} rules={[{ required: true, message: '请选择结束月份' }]}>
+                    <Select placeholder='请选择结束月份' options={monthOptions} />
+                  </Form.Item>
+                </Col>
+              </Row>
             </Form.Item>
           )}
           {category === TimeEngineRuleType.TimeEngineRuleTypeHourRange && (
