@@ -1,5 +1,5 @@
 import { Status, StrategyType } from '@/api/enum'
-import { ActionKey, defaultPaginationReq, StrategyTypeData } from '@/api/global'
+import { ActionKey, StrategyTypeData } from '@/api/global'
 import { StrategyItem } from '@/api/model-types'
 import { deleteStrategy, listStrategy, ListStrategyRequest, pushStrategy, updateStrategyStatus } from '@/api/strategy'
 import SearchBox from '@/components/data/search-box'
@@ -28,7 +28,10 @@ const { confirm } = Modal
 const { useToken } = theme
 
 const defaultSearchParams: ListStrategyRequest = {
-  pagination: defaultPaginationReq
+  pagination: {
+    pageNum: 1,
+    pageSize: 50
+  }
 }
 
 const StrategyMetric: React.FC = () => {
@@ -84,6 +87,36 @@ const StrategyMetric: React.FC = () => {
   const handleOpenHttpEditModal = (item?: StrategyItem) => {
     setDetail(item)
     setOpenHttpEditModal(true)
+  }
+
+  const handleMetricEditOk = () => {
+    setOpenMetricEditModal(false)
+    setDetail(undefined)
+    onRefresh()
+  }
+
+  const handleDomainEditOk = () => {
+    setOpenDomainEditModal(false)
+    setDetail(undefined)
+    onRefresh()
+  }
+
+  const handlePortEditOk = () => {
+    setOpenPortEditModal(false)
+    setDetail(undefined)
+    onRefresh()
+  }
+
+  const handleEventEditOk = () => {
+    setOpenEventEditModal(false)
+    setDetail(undefined)
+    onRefresh()
+  }
+
+  const handleHttpEditOk = () => {
+    setOpenHttpEditModal(false)
+    setDetail(undefined)
+    onRefresh()
   }
 
   const handleDetailModal = (item: StrategyItem) => {
@@ -330,6 +363,7 @@ const StrategyMetric: React.FC = () => {
         strategyDetail={detail}
         open={openMetricEditModal}
         onCancel={handleCloseMetricEditModal}
+        onOk={handleMetricEditOk}
       />
       <DomainEditModal
         title='证书策略编辑'
@@ -337,6 +371,7 @@ const StrategyMetric: React.FC = () => {
         strategyDetail={detail}
         open={openDomainEditModal}
         onCancel={handleCloseDomainEditModal}
+        onOk={handleDomainEditOk}
       />
       <PortEditModal
         title='端口策略编辑'
@@ -344,6 +379,7 @@ const StrategyMetric: React.FC = () => {
         strategyDetail={detail}
         open={openPortEditModal}
         onCancel={handleClosePortEditModal}
+        onOk={handlePortEditOk}
       />
       <EventEditModal
         title='事件策略编辑'
@@ -351,6 +387,7 @@ const StrategyMetric: React.FC = () => {
         eventStrategyDetail={detail}
         open={openEventEditModal}
         onCancel={handleCloseEventEditModal}
+        onOk={handleEventEditOk}
       />
       <HTTPEditModal
         title='HTTP策略编辑'
@@ -358,6 +395,7 @@ const StrategyMetric: React.FC = () => {
         strategyDetail={detail}
         open={openHttpEditModal}
         onCancel={handleCloseHttpEditModal}
+        onOk={handleHttpEditOk}
       />
       <StrategyCharts
         title='策略图表'

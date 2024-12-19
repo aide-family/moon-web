@@ -51,7 +51,8 @@ export const formList: SearchFormItem[] = [
       type: 'input',
       itemProps: {
         placeholder: '请输入策略名称',
-        allowClear: true
+        allowClear: true,
+        autoComplete: 'off'
       }
     }
   },
@@ -72,7 +73,7 @@ export const formList: SearchFormItem[] = [
     }
   },
   {
-    name: 'strategyType',
+    name: 'strategyTypes',
     label: '策略类型',
     dataProps: {
       type: 'select',

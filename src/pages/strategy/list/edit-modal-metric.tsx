@@ -46,7 +46,7 @@ export interface MetricEditModalProps extends ModalProps {
 }
 
 export default function MetricEditModal(props: MetricEditModalProps) {
-  const { strategyDetail, ...restProps } = props
+  const { strategyDetail, onOk, ...restProps } = props
   const { token } = theme.useToken()
   const { teamInfo } = useContext(GlobalContext)
 
@@ -55,7 +55,7 @@ export default function MetricEditModal(props: MetricEditModalProps) {
 
   const [loading, setLoading] = useState(false)
   const { datasourceList, datasourceListLoading } = useDatasourceList({
-    datasourceType: DatasourceType.DatasourceTypeMQ,
+    datasourceType: DatasourceType.DatasourceTypeMetric,
     pagination: defaultPaginationReq
   })
   const { strategyGroupList, strategyGroupListLoading } = useStrategyGroupList({
@@ -88,7 +88,7 @@ export default function MetricEditModal(props: MetricEditModalProps) {
     info: ''
   })
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     setLoading(true)
     form
       .validateFields()
@@ -103,6 +103,9 @@ export default function MetricEditModal(props: MetricEditModalProps) {
         } else {
           return submit(submitValues)
         }
+      })
+      .then(() => {
+        onOk?.(e)
       })
       .finally(() => {
         setLoading(false)
