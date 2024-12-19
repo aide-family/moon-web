@@ -74,7 +74,7 @@ export const defaultMenuItems: ItemType[] = [
         key: '/home/notify/hook'
       },
       {
-        label: '通知规则',
+        label: '时间引擎',
         key: '/home/notify/rule'
       }
       // {
@@ -243,7 +243,7 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
     name: 'Hook'
   },
   '/home/notify/rule': {
-    name: '通知规则'
+    name: '时间引擎'
   },
   '/home/notify/record': {
     name: '告警记录'
