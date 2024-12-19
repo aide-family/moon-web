@@ -1,5 +1,6 @@
 import { IconFont } from '@/components/icon'
 import { BadgeProps, Tag } from 'antd'
+import { Calendar1, CalendarRange, Hourglass, SunMoon } from 'lucide-react'
 import React from 'react'
 import {
   AlertStatus,
@@ -349,19 +350,19 @@ export const TimeEngineRuleTypeData: Record<TimeEngineRuleType, { label: string;
   },
   [TimeEngineRuleType.TimeEngineRuleTypeHourRange]: {
     label: '小时范围',
-    icon: <IconFont type='icon-disable3' />
+    icon: <Hourglass />
   },
   [TimeEngineRuleType.TimeEngineRuleTypeDaysOfWeek]: {
     label: '星期',
-    icon: <IconFont type='icon-disable3' />
+    icon: <SunMoon />
   },
   [TimeEngineRuleType.TimeEngineRuleTypeDaysOfMonth]: {
     label: '日期',
-    icon: <IconFont type='icon-disable3' />
+    icon: <CalendarRange />
   },
   [TimeEngineRuleType.TimeEngineRuleTypeMonths]: {
     label: '月份',
-    icon: <IconFont type='icon-disable3' />
+    icon: <Calendar1 />
   }
 }
 

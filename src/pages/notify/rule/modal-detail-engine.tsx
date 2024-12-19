@@ -1,7 +1,7 @@
 import { StatusData } from '@/api/global'
 import { TimeEngineItem } from '@/api/model-types'
 import { getTimeEngine } from '@/api/notify/time-engine'
-import { Avatar, Badge, Descriptions, DescriptionsProps, Modal, Tag, Tooltip } from 'antd'
+import { Avatar, Badge, Descriptions, DescriptionsProps, Modal, Space, Tag, Tooltip } from 'antd'
 import { useEffect, useState } from 'react'
 
 export interface EngineDetailModalProps {
@@ -48,11 +48,11 @@ export function EngineDetailModal(props: EngineDetailModalProps) {
     {
       label: '规则',
       children: detail?.rules.slice(0, 3).map((item, index) => (
-        <div key={index} className='flex items-center gap-2'>
+        <Space key={index} size={8} wrap>
           <Tag color='blue' bordered={false}>
             {item.name}
           </Tag>
-        </div>
+        </Space>
       )),
       span: 3
     },

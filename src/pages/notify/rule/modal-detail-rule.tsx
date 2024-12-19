@@ -2,8 +2,53 @@ import { TimeEngineRuleType } from '@/api/enum'
 import { StatusData, TimeEngineRuleTypeData } from '@/api/global'
 import { TimeEngineRuleItem } from '@/api/model-types'
 import { getTimeEngineRule } from '@/api/notify/rule'
-import { Avatar, Badge, Descriptions, DescriptionsProps, Modal, Space, Tooltip } from 'antd'
+import { Avatar, Badge, Descriptions, DescriptionsProps, Modal, Space, Tag, Tooltip } from 'antd'
 import { useEffect, useState } from 'react'
+import { dayOptions, hourOptions, monthOptions, weekOptions } from './options'
+
+const RenderRule = (props: { rules: number[]; category?: TimeEngineRuleType }) => {
+  const { rules, category } = props
+  switch (category) {
+    case TimeEngineRuleType.TimeEngineRuleTypeHourRange:
+      return (
+        <Space direction='horizontal' wrap>
+          {rules.map((item, index) => {
+            const hour = hourOptions.find((hour) => hour.value === item)
+            return <Tag key={index}>{hour?.label}</Tag>
+          })}
+        </Space>
+      )
+    case TimeEngineRuleType.TimeEngineRuleTypeDaysOfWeek:
+      return (
+        <Space direction='horizontal' wrap>
+          {rules.map((item, index) => {
+            const week = weekOptions.find((week) => week.value === item)
+            return <Tag key={index}>{week?.label}</Tag>
+          })}
+        </Space>
+      )
+    case TimeEngineRuleType.TimeEngineRuleTypeDaysOfMonth:
+      return (
+        <Space direction='horizontal' wrap>
+          {rules.map((item, index) => {
+            const day = dayOptions.find((day) => day.value === item)
+            return <Tag key={index}>{day?.label}</Tag>
+          })}
+        </Space>
+      )
+    case TimeEngineRuleType.TimeEngineRuleTypeMonths:
+      return (
+        <Space direction='horizontal' wrap>
+          {rules.map((item, index) => {
+            const month = monthOptions.find((month) => month.value === item)
+            return <Tag key={index}>{month?.label}</Tag>
+          })}
+        </Space>
+      )
+    default:
+      return <div>未知</div>
+  }
+}
 
 export interface RuleDetailModalProps {
   ruleId: number
@@ -62,7 +107,7 @@ export function RuleDetailModal(props: RuleDetailModalProps) {
     },
     {
       label: '规则',
-      children: detail?.rules,
+      children: <RenderRule rules={detail?.rules || []} category={detail?.category} />,
       span: { xs: 1, sm: 2, md: 3, lg: 3, xl: 2, xxl: 2 }
     },
     {
