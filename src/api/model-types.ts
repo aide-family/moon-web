@@ -689,6 +689,8 @@ export interface AlarmNoticeGroupItem {
   noticeUsers: NoticeItem[]
   /** hooks */
   hooks: AlarmHookItem[]
+  /** 时间引擎 */
+  timeEngines: TimeEngineItem[]
 }
 
 /** 通知人 */

@@ -43,7 +43,8 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
       form?.setFieldsValue({
         ...groupDetail,
         hookIds: groupDetail?.hooks?.map((item) => item.id),
-        noticeMember: groupDetail?.noticeUsers
+        noticeMember: groupDetail?.noticeUsers,
+        timeEngines: groupDetail?.timeEngines?.map((item) => item.id)
       })
       return
     }

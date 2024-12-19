@@ -1,7 +1,8 @@
 import { Status } from '@/api/enum'
-import { ActionKey, HookAppData, StatusData } from '@/api/global'
+import { ActionKey, defaultPaginationReq, HookAppData, StatusData } from '@/api/global'
 import { AlarmHookItem, AlarmNoticeGroupItem } from '@/api/model-types'
 import { listHook } from '@/api/notify/hook'
+import { listTimeEngine } from '@/api/notify/time-engine'
 import { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
@@ -198,6 +199,25 @@ export const editModalFormItems: (DataFromItem | DataFromItem[])[] = [
       placeholder: '请输入描述',
       maxLength: 200,
       showCount: true
+    }
+  },
+  {
+    name: 'timeEngines',
+    label: '时间引擎',
+    type: 'select-fetch',
+    props: {
+      handleFetch: (value: string) => {
+        return listTimeEngine({ keyword: value, pagination: defaultPaginationReq }).then((res) =>
+          res.list.map((item) => ({
+            label: item.name,
+            value: item.id
+          }))
+        )
+      },
+      selectProps: {
+        placeholder: '请选择时间引擎',
+        mode: 'multiple'
+      }
     }
   },
   {

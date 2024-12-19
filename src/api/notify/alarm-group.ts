@@ -85,6 +85,7 @@ export interface CreateAlarmGroupRequest {
   status: Status
   noticeMember: NoticeMember[]
   hookIds: number[]
+  timeEngines: number[]
 }
 export interface CreateAlarmGroupReply {}
 
