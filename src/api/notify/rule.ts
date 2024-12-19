@@ -14,7 +14,7 @@ export interface CreateTimeEngineRuleRequest {
   /* 规则类型 */
   category: number
   /* 规则 */
-  rule: number[]
+  rules: number[]
   /* 状态 */
   status: Status
 }
@@ -95,7 +95,7 @@ export const updateTimeEngineRule = (data: UpdateTimeEngineRuleRequest) => {
  * @returns
  */
 export const updateTimeEngineRuleStatus = (data: UpdateTimeEngineRuleStatusRequest) => {
-  return request.PUT('/v1/admin/alarm/time_engine_rule/update_status', data)
+  return request.PUT('/v1/admin/alarm/time_engine_rule/status', data)
 }
 
 /**

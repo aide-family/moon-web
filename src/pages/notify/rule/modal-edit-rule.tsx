@@ -1,8 +1,12 @@
-import { TimeEngineRuleType } from '@/api/enum'
+import { Status, TimeEngineRuleType } from '@/api/enum'
 import { TimeEngineRuleTypeData } from '@/api/global'
 import { TimeEngineRuleItem } from '@/api/model-types'
-import { createHook } from '@/api/notify/hook'
-import { CreateTimeEngineRuleRequest, getTimeEngineRule, updateTimeEngineRule } from '@/api/notify/rule'
+import {
+  createTimeEngineRule,
+  CreateTimeEngineRuleRequest,
+  getTimeEngineRule,
+  updateTimeEngineRule
+} from '@/api/notify/rule'
 import { Avatar, Col, Form, Input, Modal, Row, Select, Space } from 'antd'
 import { useEffect, useState } from 'react'
 import { dayOptions, hourOptions, monthOptions, weekOptions } from './options'
@@ -18,12 +22,17 @@ let timer: NodeJS.Timeout | null = null
 export function EditRuleModal(props: EditRuleModalProps) {
   const { open, ruleId, onOk, onCancel } = props
 
-  const [form] = Form.useForm()
+  const [form] = Form.useForm<CreateTimeEngineRuleRequest>()
 
   const category = Form.useWatch('category', form)
 
   const [loading, setLoading] = useState(false)
   const [detail, setDetail] = useState<TimeEngineRuleItem>()
+
+  const init = () => {
+    setDetail(undefined)
+    form.resetFields()
+  }
 
   const handleOnOk = () => {
     form.validateFields().then((values) => {
@@ -31,16 +40,16 @@ export function EditRuleModal(props: EditRuleModalProps) {
       if (ruleId) {
         updateTimeEngineRule({ id: ruleId, data: values })
           .then(() => {
-            form.resetFields()
+            init()
             onOk?.(values)
           })
           .finally(() => {
             setLoading(false)
           })
       } else {
-        createHook(values)
+        createTimeEngineRule({ ...values, status: Status.StatusEnable })
           .then(() => {
-            form.resetFields()
+            init()
             onOk?.(values)
           })
           .finally(() => {
@@ -74,8 +83,7 @@ export function EditRuleModal(props: EditRuleModalProps) {
       form.setFieldsValue({
         name: detail.name,
         category: detail.category,
-        rule: detail.rule,
-        status: detail.status,
+        rules: detail.rules,
         remark: detail.remark
       })
     } else {
@@ -85,6 +93,7 @@ export function EditRuleModal(props: EditRuleModalProps) {
   }, [detail])
 
   useEffect(() => {
+    init()
     if (ruleId && open) {
       handleGetRuleDetail()
     }
@@ -93,9 +102,7 @@ export function EditRuleModal(props: EditRuleModalProps) {
 
   useEffect(() => {
     if (category) {
-      form.setFieldsValue({
-        rule: []
-      })
+      form.setFieldsValue({ rules: [] })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category])
@@ -133,15 +140,15 @@ export function EditRuleModal(props: EditRuleModalProps) {
             />
           </Form.Item>
           {category === TimeEngineRuleType.TimeEngineRuleTypeDaysOfMonth && (
-            <Form.Item label='规则' rules={[{ required: true, message: '请输入规则' }]}>
+            <Form.Item label='规则'>
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item name={['rule', 0]}>
+                  <Form.Item name={['rules', 0]}>
                     <Select placeholder='请选择开始日期' options={dayOptions} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name={['rule', 1]}>
+                  <Form.Item name={['rules', 1]}>
                     <Select placeholder='请选择结束日期' options={dayOptions} />
                   </Form.Item>
                 </Col>
@@ -149,25 +156,30 @@ export function EditRuleModal(props: EditRuleModalProps) {
             </Form.Item>
           )}
           {category === TimeEngineRuleType.TimeEngineRuleTypeDaysOfWeek && (
-            <Form.Item label='规则' name='rule' rules={[{ required: true, message: '请输入规则' }]}>
-              <Select placeholder='请选择规则' options={weekOptions} mode='multiple' />
+            <Form.Item label='规则' name='rules' rules={[{ required: true, message: '请选择星期' }]}>
+              <Select placeholder='请选择星期' options={weekOptions} mode='multiple' />
             </Form.Item>
           )}
           {category === TimeEngineRuleType.TimeEngineRuleTypeMonths && (
-            <Form.Item label='规则' name='rule' rules={[{ required: true, message: '请输入规则' }]}>
-              <Select placeholder='请选择规则' options={monthOptions} mode='multiple' />
+            <Form.Item label='规则' name='rules'>
+              <Form.Item name={['rules', 0]} rules={[{ required: true, message: '请输入开始月份' }]}>
+                <Select placeholder='请选择开始月份' options={monthOptions} />
+              </Form.Item>
+              <Form.Item name={['rules', 1]} rules={[{ required: true, message: '请输入结束月份' }]}>
+                <Select placeholder='请选择结束月份' options={monthOptions} />
+              </Form.Item>
             </Form.Item>
           )}
           {category === TimeEngineRuleType.TimeEngineRuleTypeHourRange && (
-            <Form.Item label='规则' name='rule' rules={[{ required: true, message: '请输入规则' }]}>
+            <Form.Item label='规则' name='rules' rules={[{ required: true, message: '请选择开始和结束时间' }]}>
               <Row gutter={16}>
                 <Col span={12}>
-                  <Form.Item name={['rule', 0]}>
+                  <Form.Item name={['rules', 0]} rules={[{ required: true, message: '请选择开始时间' }]}>
                     <Select placeholder='请选择开始时间' options={hourOptions} />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name={['rule', 1]}>
+                  <Form.Item name={['rules', 1]} rules={[{ required: true, message: '请选择结束时间' }]}>
                     <Select placeholder='请选择结束时间' options={hourOptions} />
                   </Form.Item>
                 </Col>

@@ -78,7 +78,7 @@ export default function EmailVerification() {
 
     setEmailWithLogin({
       email: email,
-      code: value.emailCode,
+      code: value.emailCode?.toUpperCase(),
       oauthID: oauthID,
       token: searchOAuthToken || ''
     })

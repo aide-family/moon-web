@@ -62,7 +62,7 @@ export function RuleDetailModal(props: RuleDetailModalProps) {
     },
     {
       label: '规则',
-      children: detail?.rule,
+      children: detail?.rules,
       span: { xs: 1, sm: 2, md: 3, lg: 3, xl: 2, xxl: 2 }
     },
     {

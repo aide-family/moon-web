@@ -853,7 +853,31 @@ export interface TimeEngineRuleItem {
   /** 类型 */
   category: TimeEngineRuleType
   /** 规则 */
-  rule: number[]
+  rules: number[]
+  /** 状态 */
+  status: Status
+  /** 备注 */
+  remark: string
+  /** 创建时间 */
+  createdAt: string
+  /** 更新时间 */
+  updatedAt: string
+  /** 创建者 */
+  creator: UserItem
+}
+
+/**
+ * 时间引擎
+ */
+export interface TimeEngineItem {
+  /** ID */
+  id: number
+  /** 名称 */
+  name: string
+  /** 类型 */
+  category: TimeEngineRuleType
+  /** 规则 */
+  rules: TimeEngineRuleItem[]
   /** 状态 */
   status: Status
   /** 备注 */

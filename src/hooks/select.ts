@@ -2,6 +2,7 @@ import { listDatasource, ListDatasourceRequest } from '@/api/datasource'
 import { dictSelectList, ListDictRequest } from '@/api/dict'
 import { DictType } from '@/api/enum'
 import { listAlarmGroup, ListAlarmGroupRequest } from '@/api/notify/alarm-group'
+import { listTimeEngineRule, ListTimeEngineRuleRequest } from '@/api/notify/rule'
 import { listStrategyGroup, ListStrategyGroupRequest } from '@/api/strategy'
 import { useRequest } from 'ahooks'
 
@@ -75,4 +76,16 @@ export const useAlarmLevelList = (params: ListDictRequest) => {
     defaultParams: [{ ...params, dictType: DictType.DictTypeAlarmLevel }]
   })
   return { alarmLevelList: data?.list || [], error, alarmLevelListLoading: loading }
+}
+
+/**
+ * 获取时间引擎规则列表
+ * @param params
+ * @returns { timeEngineRuleList: TimeEngineRule[], error, timeEngineRuleListLoading: boolean }
+ */
+export const useTimeEngineRuleList = (params: ListTimeEngineRuleRequest) => {
+  const { data, loading, error } = useRequest(listTimeEngineRule, {
+    defaultParams: [params]
+  })
+  return { timeEngineRuleList: data?.list || [], error, timeEngineRuleListLoading: loading }
 }

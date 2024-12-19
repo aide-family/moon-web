@@ -76,7 +76,7 @@ export default function Register() {
 
     registerWithEmail({
       email: email,
-      code: value.emailCode,
+      code: value.emailCode?.toUpperCase(),
       password: hashMd5(value.password),
       username: value.username
     })
