@@ -25,7 +25,6 @@ import {
   Col,
   Form,
   Input,
-  InputNumber,
   Modal,
   ModalProps,
   Popover,
@@ -384,7 +383,7 @@ export default function EventEditModal(props: EventEditModalProps) {
                               }
                             ]}
                           >
-                            <InputNumber className='w-full' placeholder='请输入阈值' />
+                            <Input className='w-full' placeholder='请输入阈值' />
                           </Form.Item>
                         </Col>
                         <Col span={12}>

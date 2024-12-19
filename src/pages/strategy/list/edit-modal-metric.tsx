@@ -1,4 +1,4 @@
-import { DatasourceType, Status, StrategyType, SustainType } from '@/api/enum'
+import { Condition, DatasourceType, Status, StrategyType, SustainType } from '@/api/enum'
 import { ConditionData, defaultPaginationReq, SustainTypeData } from '@/api/global'
 import { StrategyItem } from '@/api/model-types'
 import { baseURL } from '@/api/request'
@@ -394,10 +394,12 @@ export default function MetricEditModal(props: MetricEditModalProps) {
                           >
                             <Select
                               placeholder='请选择判断条件'
-                              options={Object.entries(ConditionData).map(([key, value]) => ({
-                                value: +key,
-                                label: value
-                              }))}
+                              options={Object.entries(ConditionData)
+                                .filter(([key]) => +key !== Condition.ConditionUnknown)
+                                .map(([key, value]) => ({
+                                  value: +key,
+                                  label: value
+                                }))}
                             />
                           </Form.Item>
                         </Col>
