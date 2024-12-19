@@ -189,6 +189,7 @@ const TimeRule: React.FC<TimeRuleProps> = ({ switchTimeEngine }) => {
               <Button type='link' onClick={switchTimeEngine}>
                 <SwapOutlined />
               </Button>
+              <div className='text-lg font-bold text-slate-400'>时间引擎</div>
             </div>
             <Space size={8}>
               <Button type='primary' onClick={() => handleEditModal()}>
