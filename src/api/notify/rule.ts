@@ -12,7 +12,7 @@ export interface CreateTimeEngineRuleRequest {
   /* 规则备注 */
   remark: string
   /* 规则类型 */
-  category: number
+  category: TimeEngineRuleType
   /* 规则 */
   rules: number[]
   /* 状态 */
