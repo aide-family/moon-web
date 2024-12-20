@@ -238,7 +238,7 @@ const Group: React.FC = () => {
             <Radio.Group buttonStyle='solid' onChange={(e) => alarmPageChange(e.target.value)} value={alarmPageID}>
               <Radio.Button value={-1}>
                 <div className='flex items-center gap-2'>
-                  <div className='h-1 w-1' style={{ background: '#000' }}></div>
+                  <div className='h-1 w-1' style={{ background: token.colorPrimary }}></div>
                   我的告警
                   <Badge count={alertCounts[-1]} style={{ display: '' }} />
                 </div>

@@ -87,13 +87,6 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // useEffect(() => {
-  //   if (!teamInfo || !teamInfo.id) {
-  //     createTeamContext?.setOpen?.(true)
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [teamInfo])
-
   useEffect(() => {
     if (!createTeamContext.open) {
       handleGetMyTeamList()

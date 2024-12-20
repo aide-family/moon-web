@@ -5,32 +5,43 @@ import { docURL, giteeURL, githubURL } from '@/components/layout/header-op'
 import { GlobalContext } from '@/utils/context'
 import { CopyrightOutlined, GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { Button, theme } from 'antd'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import Banner from './banner'
 import LoginForm from './form'
 
 export interface LoginProps {}
 const { useToken } = theme
 
-let timer: NodeJS.Timeout | null = null
 const Login: React.FC<LoginProps> = () => {
   const { theme, setTheme, title = 'Moon' } = useContext(GlobalContext)
   const { token } = useToken()
   const [version, setVersion] = useState('version')
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   const getVersion = () => {
-    if (timer) {
-      clearTimeout(timer)
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
     }
-    timer = setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       healthApi().then((res) => {
         setVersion(res.version)
       })
     }, 300)
   }
+
   useEffect(() => {
     getVersion()
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
+    }
   }, [])
+
+  useEffect(() => {
+    document.title = title
+  }, [title])
+
   return (
     <div
       className='flex w-full h-full'
