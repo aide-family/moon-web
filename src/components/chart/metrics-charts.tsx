@@ -1,4 +1,4 @@
-import { MetricSeries } from '@/types/metrics'
+import type { MetricSeries } from '@/types/metrics'
 import { GlobalContext } from '@/utils/context'
 import { getDataRange } from '@/utils/metricsTransform'
 import { Chart } from '@antv/g2'
@@ -30,7 +30,7 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className, thr
     // Transform data for G2
     const chartData = data.flatMap((series) =>
       series.values.map((point) => ({
-        instance: series.instance?.length > 130 ? series.instance.substring(0, 130) + '...' : series.instance,
+        instance: series.instance?.length > 130 ? `${series.instance.substring(0, 130)}...` : series.instance,
         timestamp: point.timestamp,
         value: point.value
       }))
@@ -52,7 +52,8 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className, thr
     chart.theme({ type: theme === 'dark' ? 'classicDark' : 'classic' })
 
     // 生成阈值线
-    thresholds?.forEach((threshold) => {
+
+    for (const threshold of thresholds || []) {
       chart
         .line()
         .encode('x', 'timestamp')
@@ -69,7 +70,7 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className, thr
           dy: 0
         })
         .tooltip(false)
-    })
+    }
 
     chart.options({
       tooltip: {
@@ -164,7 +165,7 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className, thr
         }
       },
       label: {
-        formatter: (v: string) => parseFloat(v).toFixed(3),
+        formatter: (v: string) => Number.parseFloat(v).toFixed(3),
         style: {
           fontSize: 11,
           fill: '#666'
@@ -184,7 +185,7 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className, thr
       },
       label: {
         formatter: (v: string) => {
-          const date = new Date(parseInt(v))
+          const date = new Date(Number.parseInt(v))
           return `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`
         },
         style: {
@@ -207,8 +208,7 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({ data, className, thr
     return () => {
       chart.destroy()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, theme, showArea])
+  }, [data, theme, showArea, thresholds])
 
   return <div ref={containerRef} className={className} />
 }

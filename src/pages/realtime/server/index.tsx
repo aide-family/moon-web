@@ -1,11 +1,10 @@
 import { theme } from 'antd'
-import React from 'react'
+import type React from 'react'
 import HouyiServer from './houyi_server'
 import RabbimtServer from './rabbit_server'
-export interface LoginProps {}
 
 const { useToken } = theme
-const Server: React.FC<LoginProps> = () => {
+const Server: React.FC = () => {
   const { token } = useToken()
   return (
     <div className='flex flex-col gap-3 p-3'>

@@ -1,127 +1,299 @@
+import { GlobalContext } from '@/utils/context'
+import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons'
 import { Chart } from '@antv/g2'
-import { Card, Col, Row } from 'antd'
-import React, { useEffect, useRef } from 'react'
+import { Card, Col, List, Row, theme as antTheme } from 'antd'
+import type React from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
+import data from './data.json'
+
+export interface AlarmData {
+  summary: string
+  level: string
+}
+
+const { useToken } = antTheme
 
 const Dashboard: React.FC = () => {
+  const { token } = useToken()
+
+  const { theme } = useContext(GlobalContext)
+
   const alarmChartRef = useRef<HTMLDivElement | null>(null)
   const notifyChartRef = useRef<HTMLDivElement | null>(null)
   const todayChartRef = useRef<HTMLDivElement | null>(null)
   const top5ChartRef = useRef<HTMLDivElement | null>(null)
+  const [dataSource, setDataSource] = useState<AlarmData[]>([])
+
+  const fetchAlarmData = async () => {
+    setDataSource(data)
+  }
 
   useEffect(() => {
-    // 告警总览图表
-    if (alarmChartRef.current) {
-      const chart = new Chart({
-        container: alarmChartRef.current,
-        autoFit: true,
-        height: 200
-      })
-      chart.data([
-        { time: '00:00', count: 35 },
-        { time: '04:00', count: 70 },
-        { time: '08:00', count: 90 },
-        { time: '12:00', count: 100 },
-        { time: '16:00', count: 120 },
-        { time: '20:00', count: 140 }
-      ])
-      chart.line().encode('x', 'time').encode('y', 'count').style('stroke', '#6c34e6')
-      chart.interaction('element-active')
-      chart.render()
+    fetchAlarmData()
+  })
+
+  useEffect(() => {
+    if (!alarmChartRef.current) {
+      return
+    }
+    const alarmChart = new Chart({
+      container: alarmChartRef.current,
+      autoFit: true,
+      height: 50
+    })
+    alarmChart.data([
+      264, 417, 438, 887, 309, 397, 550, 575, 563, 430, 525, 592, 492, 467, 513, 546, 983, 340, 539, 243, 226, 192
+    ])
+    if (theme === 'dark') {
+      alarmChart.theme({ type: 'classicDark' })
+    }
+    alarmChart
+      .area()
+      .encode('x', (_: unknown, idx: number) => idx)
+      .encode('y', (d: number) => d)
+      .encode('shape', 'smooth')
+      .scale('y', { zero: true })
+      .style('fill', 'linear-gradient(-90deg, #d3adf7 0%, #6c34e6 100%)')
+      .style('fillOpacity', 0.6)
+      .animate('enter', { type: 'fadeIn' })
+      .axis(false)
+
+    alarmChart.render()
+    return () => {
+      alarmChart.destroy()
+    }
+  }, [theme])
+
+  useEffect(() => {
+    if (!notifyChartRef.current) {
+      return
+    }
+    const data = [235, 213, 222, 411, 235, 213, 222, 411, 235, 213, 222, 411, 235, 213, 222, 411]
+    const notifyChart = new Chart({
+      container: notifyChartRef.current,
+      autoFit: true,
+      height: 50
+    })
+    if (theme === 'dark') {
+      notifyChart.theme({ type: 'classicDark' })
+    }
+    notifyChart.data(data)
+    notifyChart
+      .area()
+      .encode('x', (_: unknown, idx: number) => idx)
+      .encode('y', (d: number) => d)
+      .encode('shape', 'smooth')
+      .scale('y', { zero: true })
+      .style('fill', 'linear-gradient(-90deg, #ffadd2 0%, #780650 100%)')
+      .style('fillOpacity', 0.6)
+      .animate('enter', { type: 'fadeIn' })
+      .axis(false)
+
+    notifyChart.render()
+    return () => {
+      notifyChart.destroy()
+    }
+  }, [theme])
+
+  useEffect(() => {
+    if (!todayChartRef.current) {
+      return
+    }
+    const data = [
+      264, 417, 438, 887, 309, 397, 550, 575, 563, 430, 525, 592, 492, 467, 513, 546, 983, 340, 539, 243, 226, 192
+    ]
+    const todayChart = new Chart({
+      container: todayChartRef.current,
+      autoFit: true,
+      height: 50
+    })
+    if (theme === 'dark') {
+      todayChart.theme({ type: 'classicDark' })
     }
 
-    // 通知统计图表
-    if (notifyChartRef.current) {
-      const chart = new Chart({
-        container: notifyChartRef.current,
-        autoFit: true,
-        height: 200
-      })
-      chart.data([
-        { time: '00:00', success: 300, fail: 20 },
-        { time: '04:00', success: 600, fail: 40 },
-        { time: '08:00', success: 900, fail: 60 },
-        { time: '12:00', success: 1200, fail: 80 }
-      ])
-      chart.area().encode('x', 'time').encode('y', 'success').style('fill', '#6c34e6')
-      chart.line().encode('x', 'time').encode('y', 'fail').style('stroke', '#6c34e6')
-      chart.interaction('element-active')
-      chart.render()
+    todayChart.data(data)
+
+    todayChart
+      .interval()
+      .encode('x', (_: unknown, idx: number) => idx)
+      .encode('y', (d: unknown) => d)
+      // .encode('shape', 'smooth')
+      .scale('y', { zero: true })
+      .style('fill', 'linear-gradient(-90deg, #87e8de 0%, #006d75 100%)')
+      .style('fillOpacity', 0.6)
+      .animate('enter', { type: 'fadeIn' })
+      .axis(false)
+
+    todayChart.render()
+    return () => {
+      todayChart.destroy()
+    }
+  }, [theme])
+
+  useEffect(() => {
+    if (!top5ChartRef.current) {
+      return
     }
 
-    // 今日告警统计图表
-    if (todayChartRef.current) {
-      const chart = new Chart({
-        container: todayChartRef.current,
-        autoFit: true,
-        height: 200
-      })
-      chart.data([
-        { time: '00:00', new: 5, resolved: 2 },
-        { time: '04:00', new: 10, resolved: 5 },
-        { time: '08:00', new: 15, resolved: 8 },
-        { time: '12:00', new: 20, resolved: 12 }
-      ])
-      chart.interval().encode('x', 'time').encode('y', 'new').style('fill', '#6c34e6')
-      chart.interval().encode('x', 'time').encode('y', 'resolved').style('fill', '#6c34e6')
-      chart.interaction('element-active')
-      chart.render()
+    const top5Chart = new Chart({
+      container: top5ChartRef.current,
+      autoFit: true
+    })
+    if (theme === 'dark') {
+      top5Chart.theme({ type: 'classicDark' })
     }
+    top5Chart.data([
+      { strategy: '1', name: '策略1', count: 60 },
+      { strategy: '2', name: '策略2', count: 50 },
+      { strategy: '3', name: '策略3', count: 40 },
+      { strategy: '4', name: '策略4', count: 30 },
+      { strategy: '5', name: '策略5', count: 20 }
+    ])
+    top5Chart
+      .interval()
+      .coordinate({ transform: [{ type: 'transpose' }] })
+      .encode('x', 'name')
+      .encode('y', 'count')
+      .encode('color', 'name')
+      // 重命名y轴
+      .axis('y', { labelFormatter: (d: number) => `${d} 次` })
+    top5Chart.render()
 
-    // 策略告警数量Top5图表
-    if (top5ChartRef.current) {
-      const chart = new Chart({
-        container: top5ChartRef.current,
-        autoFit: true,
-        height: 200
-      })
-      chart.data([
-        { strategy: 'CPU使用率超过90%', count: 60 },
-        { strategy: '存储使用率超过85%', count: 50 },
-        { strategy: '磁盘空间不足10%', count: 40 },
-        { strategy: '网络延迟超过200ms', count: 30 },
-        { strategy: '连接数超过1000', count: 20 }
-      ])
-      chart.interval().encode('x', 'strategy').encode('y', 'count').style('fill', '#6c34e6')
-      chart.interaction('element-active')
-      chart.render()
+    return () => {
+      top5Chart.destroy()
     }
-  }, [])
+  }, [theme])
 
   return (
-    <div style={{ padding: 24 }}>
-      <h1>监控大盘</h1>
+    <div className='flex flex-col gap-3 p-3 overflow-y-auto'>
       <Row gutter={16}>
         <Col span={8}>
-          <Card title='告警总览' bordered={false}>
-            <div ref={alarmChartRef}></div>
+          <Card bordered={false}>
+            <div className='flex justify-between'>
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ fontSize: 16, color: token.colorTextLabel }}> 告警总数 </span>
+                </div>
+                <Row align='middle' gutter={16}>
+                  <Col span={24}>
+                    <div style={{ fontSize: 28, fontWeight: 'bold' }}>2,1123</div>
+                    <div className='text-red-400'>
+                      <ArrowUpOutlined /> +25% 比前日
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ fontSize: 16, color: token.colorTextLabel }}> 一级告警总数 </span>
+                </div>
+                <Row align='middle' gutter={16}>
+                  <Col span={24}>
+                    <div style={{ fontSize: 28, fontWeight: 'bold' }}>1123</div>
+                    <div className='text-green-400'>
+                      <ArrowDownOutlined /> -11% 比前日
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            </div>
+            <div ref={alarmChartRef} style={{ height: 50 }} />
           </Card>
         </Col>
         <Col span={8}>
-          <Card title='告警通知统计' bordered={false}>
-            <div ref={notifyChartRef}></div>
+          <Card bordered={false}>
+            <div className='flex justify-between'>
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ fontSize: 16, color: '#666' }}> 告警通知统计 </span>
+                </div>
+                <Row align='middle' gutter={16}>
+                  <Col span={24}>
+                    <div style={{ fontSize: 28, fontWeight: 'bold' }}>32</div>
+                    <div className='text-green-400'>
+                      <ArrowDownOutlined /> -25% 比前日
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ fontSize: 16, color: '#666' }}> 告警失败通知统计 </span>
+                </div>
+                <Row align='middle' gutter={16}>
+                  <Col span={24}>
+                    <div style={{ fontSize: 28, fontWeight: 'bold' }}>12</div>
+                    <div className='text-red-400'>
+                      <ArrowUpOutlined /> +5% 比前日
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            </div>
+            <div ref={notifyChartRef} style={{ height: 50 }} />
           </Card>
         </Col>
         <Col span={8}>
-          <Card title='今日告警统计' bordered={false}>
-            <div ref={todayChartRef}></div>
+          <Card bordered={false} className='h-full'>
+            <div className='flex justify-between'>
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ fontSize: 16, color: '#666' }}>今日告警总数</span>
+                </div>
+                <Row align='middle' gutter={16}>
+                  <Col span={24} className='flex flex-col justify-between'>
+                    <div>
+                      <div style={{ fontSize: 28, fontWeight: 'bold' }}>32</div>
+                      <div className='text-red-400'>
+                        <ArrowUpOutlined /> +25% 比前日
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ fontSize: 16, color: '#666' }}>今日告警失败数量</span>
+                </div>
+                <Row align='middle' gutter={16}>
+                  <Col span={24} className='flex flex-col justify-between'>
+                    <div>
+                      <div style={{ fontSize: 28, fontWeight: 'bold' }}>0</div>
+                      <div className='text-green-400'>
+                        <ArrowDownOutlined /> -100% 比前日
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            </div>
+            <div ref={todayChartRef} style={{ height: 50 }} />
           </Card>
         </Col>
       </Row>
-      <Row gutter={16} style={{ marginTop: 16 }}>
-        <Col span={12}>
-          <Card title='实时告警事件消息' bordered={false}>
-            <ul>
-              <li>服务器CPU使用率超过90% - 严重</li>
-              <li>数据库连接数接近上限 - 警告</li>
-              <li>网络延迟超过200ms - 注意</li>
-              <li>磁盘空间使用��过85% - 警告</li>
-              <li>应用程序响应时间超过3秒 - 严重</li>
-            </ul>
+
+      <Row gutter={16}>
+        <Col span={12} className='max-h-[500px]'>
+          <Card title='告警列表' bordered={false} className='h-full overflow-auto'>
+            <List
+              dataSource={dataSource}
+              renderItem={(item) => (
+                <List.Item className='flex justify-between'>
+                  <div>{item.summary}</div>
+                  <div>{item.level}</div>
+                </List.Item>
+              )}
+            />
           </Card>
         </Col>
         <Col span={12}>
-          <Card title='策略告警数量Top5' bordered={false}>
-            <div ref={top5ChartRef}></div>
+          <Card
+            title='策略告警数量Top5'
+            bordered={false}
+            className='h-full'
+            extra={<span style={{ color: '#666' }}>每周</span>}
+          >
+            <div ref={top5ChartRef} style={{ height: 300 }} />
           </Card>
         </Col>
       </Row>

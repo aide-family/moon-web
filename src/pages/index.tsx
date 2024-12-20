@@ -1,15 +1,15 @@
-import { TeamItem, UserItem } from '@/api/model-types'
+import type { TeamItem, UserItem } from '@/api/model-types'
 import '@/assets/styles/index.scss'
 import { defaultTeamInfo } from '@/components/layout/team-menu'
 import { breadcrumbNameMap, defaultMenuItems } from '@/config/menu'
 import { routers } from '@/config/router'
-import { getUseTheme, GlobalContext, GlobalContextType, LangType, ThemeType } from '@/utils/context'
+import { GlobalContext, type GlobalContextType, type LangType, type ThemeType, getUseTheme } from '@/utils/context'
 import useStorage from '@/utils/storage'
 import { ConfigProvider, theme } from 'antd'
-import { SpaceSize } from 'antd/es/space'
+import type { SpaceSize } from 'antd/es/space'
 import zhCN from 'antd/locale/zh_CN'
 import { Suspense, useState } from 'react'
-import { createHashRouter, RouterProvider } from 'react-router-dom'
+import { RouterProvider, createHashRouter } from 'react-router-dom'
 
 const { useToken } = theme
 

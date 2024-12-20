@@ -1,12 +1,12 @@
-import { RealtimeAlarmItem } from '@/api/model-types'
+import type { RealtimeAlarmItem } from '@/api/model-types'
 import { getAlarm } from '@/api/realtime/alarm'
 import { MetricsChart } from '@/components/chart/metrics-charts'
 import { metricQueryRange } from '@/components/chart/query-range'
-import { MetricsResponse } from '@/types/metrics'
+import type { MetricsResponse } from '@/types/metrics'
 import { GlobalContext } from '@/utils/context'
 import { transformMetricsData } from '@/utils/metricsTransform'
 import { AreaChartOutlined, LineChartOutlined } from '@ant-design/icons'
-import { Button, Empty, message, Modal, ModalProps } from 'antd'
+import { Button, Empty, Modal, type ModalProps, message } from 'antd'
 import dayjs from 'dayjs'
 import { debounce } from 'lodash'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
@@ -62,14 +62,12 @@ export default function RealtimeChart(props: RealtimeChartProps) {
       .catch((err) => {
         message.error(err?.message || '获取数据失败')
       })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail])
+  }, [detail, teamInfo])
 
   useEffect(() => {
     if (!alarmID || !open) return
     fetchData(alarmID)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [alarmID, open])
+  }, [alarmID, open, fetchData])
 
   return (
     <Modal
