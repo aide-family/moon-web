@@ -15,11 +15,11 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: '服务监控',
         key: '/home/realtime/server'
+      },
+      {
+        label: '数据大盘',
+        key: '/home/realtime/dashboard'
       }
-      // {
-      //   label: '数据大盘',
-      //   key: '/home/realtime/dashboard'
-      // }
     ]
   },
   {
