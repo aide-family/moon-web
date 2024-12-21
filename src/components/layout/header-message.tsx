@@ -1,3 +1,4 @@
+import { getInvite } from '@/api/user/invite'
 import {
   cancelMessage,
   confirmMessage,
@@ -7,17 +8,26 @@ import {
   MessageCategory,
   NoticeUserMessageItem
 } from '@/api/user/message'
+import { GlobalContext } from '@/utils/context'
 import { BellOutlined, CheckOutlined, XOutlined } from '@ant-design/icons'
-import { Badge, Button, Divider, Modal, Popover, Space, Tag } from 'antd'
+import { theme as antTheme, Badge, Button, Divider, Modal, Popover, Space, Tag } from 'antd'
 import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn' // 导入中文语言包
+import relativeTime from 'dayjs/plugin/relativeTime'
 import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
+// 设置 dayjs 的语言为中文
+dayjs.locale('zh-cn')
+// 使用插件
+dayjs.extend(relativeTime)
 
 export interface HeaderMessageProps {}
 
 const { confirm, info } = Modal
 
+const { useToken } = antTheme
 export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
+  const { token } = useToken()
   const { setRefreshMyTeamList } = useContext(GlobalContext)
   const [msgCnt, setMsgCnt] = useState(0)
   const [data, setData] = useState<NoticeUserMessageItem[]>([])
@@ -25,6 +35,11 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
 
   const handleRefresh = () => {
     setRefresh(!refresh)
+  }
+
+  const handleOnOk = () => {
+    handleRefresh()
+    setRefreshMyTeamList?.()
   }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,16 +102,18 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
       title: '团队邀请',
       icon: getMessageIcon(messageItem.category),
       content: (
-        <div>
-          <div>{messageItem.content}</div>
-          <h4>您将加入的团队：</h4>
-          <ul>{detail.team && <li>{detail.team.name}</li>}</ul>
+        <div className='flex flex-col gap-2'>
+          <div className='text-lg'>{messageItem.content}</div>
+          <h4 className='text-base'>您将加入的团队：</h4>
+          <ul className='text-base font-bold list-disc'>{detail.team && <li>{detail.team.name}</li>}</ul>
           {detail.roles && detail.roles.length > 0 && (
             <>
-              <h4>您将被授予以下角色：</h4>
-              <ul>
+              <h4 className='text-base'>您将被授予以下角色：</h4>
+              <ul className='text-base list-disc'>
                 {detail.roles.map((role) => (
-                  <li key={role.id}>{role.name}</li>
+                  <li key={role.id} className='text-base text-gray-500'>
+                    {role.name}
+                  </li>
                 ))}
               </ul>
             </>
@@ -106,7 +123,7 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
       cancelText: '拒绝',
       okText: '接受',
       async onOk() {
-        return confirmMessage(messageItem.id).finally(setRefreshMyTeamList)
+        return confirmMessage(messageItem.id).finally(handleOnOk)
       },
       async onCancel() {
         return cancelMessage(messageItem.id).finally(handleRefresh)
@@ -145,52 +162,50 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
     <Popover
       placement='bottomLeft'
       content={
-        <div className='w-[320px] h-[400px] flex flex-col'>
-          <div className='p-3 pb-2'>
+        <div className='w-[400px] h-[400px] flex flex-col relative'>
+          <div className='p-3 pb-2 flex justify-between'>
             <div className='text-base font-bold'>通知</div>
             <div className='text-sm text-gray-500'>您有 {msgCnt} 条未读消息</div>
           </div>
-          <Divider />
-          <Space direction='vertical' size={4} className='text-[#888] text-sm'>
+          <Divider className='m-1 p-0' />
+          <Space direction='vertical' size={4} className='text-[#888] text-lg p-1' wrap>
             {data.map((item, index) => {
               const { color, label } = getBizName(item.biz)
               return (
-                <Button
+                <div
                   key={index}
-                  color={getMessageButtonColor(item.category)}
-                  variant='filled'
-                  className='w-full h-[80px] cursor-pointer'
+                  style={{
+                    background: getMessageButtonColor(item.category),
+                    borderRadius: token.borderRadius
+                  }}
+                  className='w-full cursor-pointer hover:bg-gray-100 p-2'
                   onClick={() => handleMessage(item)}
                 >
                   <Space size={12} className='w-full'>
                     <div className='text-left'>{getMessageIcon(item.category)}</div>
-                    <div className='text-sm text-left'>
-                      <Space size={8}>
+                    <div className='text-sm text-left flex flex-col justify-between gap-3'>
+                      <Space size={8} className='w-full'>
                         <Tag color={color} bordered={false} className='w-full text-center'>
                           {label}
                         </Tag>
-                        <div>
-                          <TimeDifference timestamp={+item.timestamp * 1000} subfix='前' />
-                        </div>
+                        <div>{dayjs(item.timestamp * 1000).fromNow()}</div>
                       </Space>
-                      <div>
-                        <p>{item.content}</p>
-                      </div>
+                      <div className='text-sm text-ellipsis'>{item.content}</div>
                     </div>
                   </Space>
-                </Button>
+                </div>
               )
             })}
           </Space>
           {msgCnt > 0 && (
-            <>
-              <Divider />
+            <div className='absolute bottom-0 left-0 right-0'>
+              <Divider className='m-1 p-0' />
               <div className='flex-1 overflow-auto overflow-x-hidden py-3'>
                 <Button className='w-full' type='primary'>
                   清空所有
                 </Button>
               </div>
-            </>
+            </div>
           )}
         </div>
       }
@@ -200,56 +215,4 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
       </Badge>
     </Popover>
   )
-}
-
-export interface TimeDifferenceProps {
-  timestamp: number
-  subfix?: string
-  startAt?: dayjs.Dayjs
-}
-const TimeDifference: React.FC<TimeDifferenceProps> = ({ timestamp, subfix = '', startAt = dayjs() }) => {
-  const [timeDiff, setTimeDiff] = useState('')
-
-  useEffect(() => {
-    // 每秒钟更新一次时间差
-    const interval = setInterval(() => {
-      setTimeDiff(formatTimeDiff(startAt, timestamp))
-    }, 1000)
-
-    // 清除 interval
-    return () => clearInterval(interval)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timestamp])
-
-  return <>{timeDiff ? timeDiff + subfix : ''}</>
-}
-
-export default TimeDifference
-
-import { getInvite } from '@/api/user/invite'
-import { GlobalContext } from '@/utils/context'
-import duration from 'dayjs/plugin/duration'
-
-// 扩展 dayjs 以使用 duration 插件
-dayjs.extend(duration)
-
-const formatTimeDiff = (startAt: dayjs.Dayjs, timestamp: number) => {
-  const targetTime = dayjs(timestamp)
-
-  // 计算时间差
-  const diff = startAt.diff(targetTime)
-
-  // 转换成 duration 对象
-  const diffDuration = dayjs.duration(diff)
-
-  // 根据时间差的长度选择显示格式
-  if (diffDuration.asSeconds() < 60) {
-    return `${diffDuration.seconds()}s`
-  } else if (diffDuration.asMinutes() < 60) {
-    return `${diffDuration.minutes()}m${diffDuration.seconds()}s`
-  } else if (diffDuration.asHours() < 24) {
-    return `${Math.floor(diffDuration.asHours())}h${diffDuration.minutes()}m${diffDuration.seconds()}s`
-  } else {
-    return `${Math.floor(diffDuration.asDays())}d${Math.floor(diffDuration.asHours() % 24)}h${diffDuration.minutes()}m${diffDuration.seconds()}s`
-  }
 }
