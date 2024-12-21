@@ -81,7 +81,15 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<UserItem> =>
               禁用
             </Button>
           )
-        }
+        },
+    {
+      key: ActionKey.UPDATE_ROLE,
+      label: (
+        <Button type='link' size='small'>
+          设置角色
+        </Button>
+      )
+    }
   ]
 
   return [

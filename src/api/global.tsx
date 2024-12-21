@@ -378,6 +378,8 @@ export enum ActionKey {
   ENABLE = '__enable__',
   /** 禁用 */
   DISABLE = '__disable__',
+  /** 设置角色 */
+  UPDATE_ROLE = '__update_role__',
   /** 操作日志 */
   OPERATION_LOG = '__operation_log__',
   /** 立即推送 */

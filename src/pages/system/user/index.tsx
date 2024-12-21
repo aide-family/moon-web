@@ -10,6 +10,7 @@ import { Button, message, Space, theme } from 'antd'
 import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { DetailModal } from './modal-detail'
+import { ModalRoleSet } from './modal-role-set'
 import { formList, getColumnList } from './options'
 
 const { useToken } = theme
@@ -32,6 +33,8 @@ const User: React.FC = () => {
   const [total, setTotal] = useState(0)
   const [openDetail, setOpenDetail] = useState(false)
   const [detailId, setDetailId] = useState(0)
+  const [openSetRoleModal, setOpenSetRoleModal] = useState(false)
+  const [userDetail, setUserDetail] = useState<UserItem>()
 
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
@@ -49,6 +52,21 @@ const User: React.FC = () => {
   const onCloseDetail = () => {
     setOpenDetail(false)
     setDetailId(0)
+  }
+
+  const onOpenSetRoleModal = (item: UserItem) => {
+    setUserDetail(item)
+    setOpenSetRoleModal(true)
+  }
+
+  const onCloseSetRoleModal = () => {
+    setOpenSetRoleModal(false)
+    setUserDetail(undefined)
+  }
+
+  const onOkSetRoleModal = () => {
+    onCloseSetRoleModal()
+    onRefresh()
   }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -113,6 +131,9 @@ const User: React.FC = () => {
         break
       case ActionKey.OPERATION_LOG:
         break
+      case ActionKey.UPDATE_ROLE:
+        onOpenSetRoleModal(item)
+        break
       case ActionKey.DETAIL:
         onOpenDetail(item.id)
         break
@@ -128,6 +149,13 @@ const User: React.FC = () => {
   return (
     <div className='p-3 gap-3 flex flex-col'>
       <DetailModal id={detailId} open={openDetail} onCancel={onCloseDetail} />
+      <ModalRoleSet
+        title='设置角色'
+        detail={userDetail}
+        open={openSetRoleModal}
+        onCancel={onCloseSetRoleModal}
+        onOk={onOkSetRoleModal}
+      />
       <div
         style={{
           background: token.colorBgContainer,

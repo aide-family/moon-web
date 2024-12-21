@@ -1,3 +1,4 @@
+import { Role } from '../enum'
 import { PaginationReply, PaginationReq } from '../global'
 import { SelectItem, UserItem } from '../model-types'
 import request from '../request'
@@ -142,6 +143,16 @@ export function updateUserBaseInfo(params: UpdateUserBaseInfoRequest): Promise<U
   return request.PUT<UpdateUserBaseInfoReply>('/v1/user/self/base', params)
 }
 
+/**
+ * 设置用户角色
+ * @method: put /v1/user/role
+ * @param {UpdateUserRoleRequest} params
+ * @returns {UpdateUserRoleReply}
+ */
+export function updateUserRole(params: UpdateUserRoleRequest): Promise<UpdateUserRoleReply> {
+  return request.PUT<UpdateUserRoleReply>('/v1/user/role', params)
+}
+
 export interface CreateUserRequest {
   name: string
   nickname: string
@@ -242,3 +253,10 @@ export interface UpdateUserBaseInfoRequest {
 }
 
 export interface UpdateUserBaseInfoReply {}
+
+export interface UpdateUserRoleRequest {
+  id: number
+  role: Role
+}
+
+export interface UpdateUserRoleReply {}
