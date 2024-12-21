@@ -107,7 +107,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<TeamMemberIt
         } = record
         return (
           <div className='flex items-center gap-2'>
-            <Avatar src={avatar}>{nickname || name}</Avatar>
+            <Avatar src={avatar}>{(nickname || name).at(0)?.toUpperCase()}</Avatar>
             {nickname || name}
           </div>
         )

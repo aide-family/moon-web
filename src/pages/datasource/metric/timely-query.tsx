@@ -42,7 +42,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
   const [promDetailData, setPromDetailData] = React.useState<DetailValue[]>([])
   const [metricsData, setMetricsData] = React.useState<MetricsResponse>()
   const [promRangeData, setPromRangeData] = React.useState<RangeValue[]>([])
-  const [expr, setExpr] = useStorage<string>('timelyQueryExpr')
+  const [expr, setExpr] = useStorage<string>('timelyQueryExpr', '')
   const [tabKey, setTabKey] = useStorage<TableKey>('timelyQueryTab', 'table')
   const [timeRange, setTimeRange] = useState<Dayjs[]>([dayjs().subtract(5, 'minute'), dayjs()])
   const [showArea, setShowArea] = useState(true)

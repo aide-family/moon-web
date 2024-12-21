@@ -101,8 +101,8 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<UserItem> =>
       key: 'avatar',
       align: 'center',
       width: 50,
-      render: (avatar: string) => {
-        return <Avatar src={avatar} />
+      render: (avatar: string, record: UserItem) => {
+        return <Avatar src={avatar}>{avatar ? '' : record.name.at(0)?.toUpperCase()}</Avatar>
       }
     },
     {
