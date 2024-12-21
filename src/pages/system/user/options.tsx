@@ -1,4 +1,4 @@
-import { Status } from '@/api/enum'
+import { Role, Status } from '@/api/enum'
 import { ActionKey, RoleData, StatusData } from '@/api/global'
 import { UserItem } from '@/api/model-types'
 import { DataFromItem } from '@/components/data/form'
@@ -36,6 +36,23 @@ export const formList: SearchFormItem[] = [
         })
       }
     }
+  },
+  {
+    name: 'role',
+    label: '角色',
+    dataProps: {
+      type: 'select',
+      itemProps: {
+        placeholder: '角色',
+        allowClear: true,
+        options: Object.entries(RoleData).map(([key, value]) => {
+          return {
+            label: value,
+            value: Number(key)
+          }
+        })
+      }
+    }
   }
 ]
 
@@ -64,23 +81,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<UserItem> =>
               禁用
             </Button>
           )
-        },
-    {
-      key: ActionKey.OPERATION_LOG,
-      label: (
-        <Button size='small' type='link'>
-          操作日志
-        </Button>
-      )
-    },
-    {
-      key: ActionKey.EDIT,
-      label: (
-        <Button size='small' type='link'>
-          编辑
-        </Button>
-      )
-    }
+        }
   ]
 
   return [
@@ -108,14 +109,15 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<UserItem> =>
       title: '用户名',
       dataIndex: 'name',
       key: 'name',
-      width: 200,
-      render: (name: string, record: UserItem) => {
-        return (
-          <div className='flex items-center gap-2'>
-            <div className='text-sm font-bold'>{name}</div>
-            <Tag color='blue'>{RoleData[record.role]}</Tag>
-          </div>
-        )
+      width: 200
+    },
+    {
+      title: '角色',
+      dataIndex: 'role',
+      key: 'role',
+      width: 120,
+      render: (role: Role) => {
+        return <Tag color='blue'>{RoleData[role]}</Tag>
       }
     },
     {
