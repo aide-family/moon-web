@@ -95,6 +95,10 @@ export const routers: RouteObject[] = [
           {
             path: '/home/team/dashboard',
             Component: lazy(() => import('@/pages/team/dashboard'))
+          },
+          {
+            path: '/home/team/config',
+            Component: lazy(() => import('@/pages/team/config'))
           }
         ]
       },

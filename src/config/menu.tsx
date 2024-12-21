@@ -122,6 +122,10 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: '资源管理',
         key: '/home/team/resource'
+      },
+      {
+        label: '团队配置',
+        key: '/home/team/config'
       }
       // {
       //   label: '大盘管理',

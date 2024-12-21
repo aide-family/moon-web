@@ -1,13 +1,15 @@
 import { GlobalContext } from '@/utils/context'
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons'
 import { Chart } from '@antv/g2'
-import { Card, Col, List, Row, theme as antTheme } from 'antd'
+import { Card, Col, List, Row, Table, theme as antTheme } from 'antd'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn' // 导入中文语言包
 import relativeTime from 'dayjs/plugin/relativeTime'
 import type React from 'react'
 import { useContext, useEffect, useRef, useState } from 'react'
 import data from './data.json'
+import intervenes from './intervene.json'
+import { interveneColumns } from './options'
 // 设置 dayjs 的语言为中文
 dayjs.locale('zh-cn')
 // 使用插件
@@ -17,6 +19,14 @@ export interface AlarmData {
   summary: string
   level: string
   time: string
+}
+
+export interface InterveneData {
+  intervene_user: string
+  level: string
+  event: string
+  time: string
+  intervene_time: string
 }
 
 const { useToken } = antTheme
@@ -31,6 +41,7 @@ const Dashboard: React.FC = () => {
   const todayChartRef = useRef<HTMLDivElement | null>(null)
   const top10ChartRef = useRef<HTMLDivElement | null>(null)
   const [dataSource, setDataSource] = useState<AlarmData[]>([])
+  const [nowTime, setNowTime] = useState<string>(dayjs().format('YYYY-MM-DD HH:mm:ss'))
 
   const fetchAlarmData = async () => {
     setDataSource(data)
@@ -38,7 +49,13 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     fetchAlarmData()
-  })
+    const interval = setInterval(() => {
+      setNowTime(dayjs().format('YYYY-MM-DD HH:mm:ss'))
+    }, 1000)
+    return () => {
+      clearInterval(interval)
+    }
+  }, [])
 
   useEffect(() => {
     if (!alarmChartRef.current) {
@@ -199,6 +216,19 @@ const Dashboard: React.FC = () => {
               </div>
               <div>
                 <div style={{ marginBottom: 12 }}>
+                  <span style={{ fontSize: 16, color: token.colorTextLabel }}> 正在告警总数 </span>
+                </div>
+                <Row align='middle' gutter={16}>
+                  <Col span={24}>
+                    <div style={{ fontSize: 28, fontWeight: 'bold' }}>120</div>
+                    <div className='text-red-400'>
+                      <ArrowUpOutlined /> +2% 比前日
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+              <div>
+                <div style={{ marginBottom: 12 }}>
                   <span style={{ fontSize: 16, color: token.colorTextLabel }}> 一级告警总数 </span>
                 </div>
                 <Row align='middle' gutter={16}>
@@ -286,15 +316,30 @@ const Dashboard: React.FC = () => {
         </Col>
       </Row>
       <Row gutter={16}>
+        <Col span={12}>
+          <Card
+            title='策略告警数量Top10'
+            bordered={false}
+            className='h-full'
+            extra={<span style={{ color: token.colorTextDescription }}>{dayjs().format('dddd')}</span>}
+          >
+            <div ref={top10ChartRef} style={{ height: 300 }} />
+          </Card>
+        </Col>
         <Col span={12} className='max-h-[500px]'>
-          <Card title='告警列表' bordered={false} className='max-h-[500px]'>
+          <Card
+            title='告警事件'
+            bordered={false}
+            className='h-full max-h-[500px]'
+            extra={<span style={{ color: token.colorTextDescription }}>{nowTime}</span>}
+          >
             <List
               className='h-[400px] overflow-auto'
               dataSource={dataSource}
               renderItem={(item) => (
                 <List.Item className='flex justify-between'>
                   <div className='flex flex-col gap-1'>
-                    <div className='text-sm font-bold' style={{ color: token.colorText }}>
+                    <div className='text-sm font-bold text-ellipsis' style={{ color: token.colorText }}>
                       {item.summary}
                     </div>
                     <div className='text-xs text-gray-500'>{dayjs(item.time).fromNow()}</div>
@@ -305,14 +350,17 @@ const Dashboard: React.FC = () => {
             />
           </Card>
         </Col>
-        <Col span={12}>
-          <Card
-            title='策略告警数量Top10'
-            bordered={false}
-            className='h-full'
-            extra={<span style={{ color: token.colorTextDescription }}>每周</span>}
-          >
-            <div ref={top10ChartRef} style={{ height: 300 }} />
+      </Row>
+      <Row gutter={16}>
+        <Col span={24}>
+          <Card title='告警介入列表' bordered={false} className='h-full'>
+            <Table
+              dataSource={intervenes}
+              size='small'
+              columns={interveneColumns}
+              scroll={{ y: 400 }}
+              pagination={false}
+            />
           </Card>
         </Col>
       </Row>
