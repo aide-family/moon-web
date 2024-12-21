@@ -1,6 +1,5 @@
 import type { TeamItem, UserItem } from '@/api/model-types'
 import '@/assets/styles/index.scss'
-import { defaultTeamInfo } from '@/components/layout/team-menu'
 import { breadcrumbNameMap, defaultMenuItems } from '@/config/menu'
 import { routers } from '@/config/router'
 import { GlobalContext, type GlobalContextType, type LangType, type ThemeType, getUseTheme } from '@/utils/context'
@@ -33,7 +32,7 @@ function App() {
   const [size, setSize] = useStorage<SpaceSize>('size', 'middle')
   const [collapsed, setCollapsed] = useStorage<boolean>('collapsed', false)
   const [userInfo, setUserInfo] = useStorage<UserItem>('userInfo', getUserInfo())
-  const [teamInfo, setTeamInfo, removeTeamInfo] = useStorage<TeamItem>('teamInfo', defaultTeamInfo)
+  const [teamInfo, setTeamInfo, removeTeamInfo] = useStorage<TeamItem>('teamInfo')
   const [refreshMyTeamList, setRefreshMyTeamList] = useState<boolean>(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showLevelColor, setShowLevelColor] = useStorage<boolean>('showLevelColor', false)

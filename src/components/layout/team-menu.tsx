@@ -1,39 +1,15 @@
 import { refreshToken } from '@/api/authorization'
-import { Status } from '@/api/enum'
 import { TeamItem } from '@/api/model-types'
 import { setToken } from '@/api/request'
 import { myTeam } from '@/api/team'
 import { GlobalContext } from '@/utils/context'
 import { DownOutlined } from '@ant-design/icons'
-import { Avatar, Col, Dropdown, Row, Space } from 'antd'
+import { Avatar, Col, Dropdown, message, Row, Space } from 'antd'
 import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect } from 'react'
 import { useCreateTeamModal } from './create-team-provider'
 
 export interface TeamMenuProps {}
-
-// eslint-disable-next-line react-refresh/only-export-components
-export const defaultTeamInfo: TeamItem = {
-  id: 0,
-  name: '请选择团队信息',
-  status: Status.StatusEnable,
-  remark: '',
-  createdAt: '',
-  updatedAt: '',
-  logo: '',
-  admin: []
-}
-function getTeamInfo() {
-  const teamInfo = localStorage.getItem('teamInfo')
-  if (teamInfo) {
-    try {
-      return JSON.parse(teamInfo)
-    } catch (e) {
-      return defaultTeamInfo
-    }
-  }
-  return defaultTeamInfo
-}
 
 export const TeamMenu: React.FC<TeamMenuProps> = () => {
   const createTeamContext = useCreateTeamModal()
@@ -56,8 +32,7 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
       myTeam().then(({ list }) => {
         setTeamList(list || [])
         if (!list?.length) {
-          setTeamInfo?.(getTeamInfo())
-          createTeamContext?.setOpen?.(true)
+          message.warning('当前没有团队信息, 部分功能无法使用，你需要创建团队或者加入团队')
           return
         }
         const exist = list.some((item) => {
@@ -102,11 +77,11 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
             label: (
               <Row gutter={12} className='text-center flex items-center min-w-[200px]'>
                 <Col>
-                  <Avatar src={item.logo} shape='square'>
+                  <Avatar src={item?.logo} shape='square'>
                     {item?.name?.at(0)?.toUpperCase()}
                   </Avatar>
                 </Col>
-                <Col>{item.name}</Col>
+                <Col>{item?.name}</Col>
               </Row>
             ),
             onClick: () => {
@@ -119,17 +94,15 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
       placement='bottom'
     >
       <Space>
-        {teamInfo ? (
+        {!!teamInfo && (
           <Row gutter={12} className='text-center flex items-center'>
             <Col>
-              <Avatar src={teamInfo?.logo} shape='square'>
+              <Avatar src={teamInfo?.logo || null} shape='square'>
                 {teamInfo?.name?.at(0)?.toUpperCase()}
               </Avatar>
             </Col>
             <Col>{teamInfo?.name}</Col>
           </Row>
-        ) : (
-          '请选择你的团队'
         )}
         <DownOutlined />
       </Space>

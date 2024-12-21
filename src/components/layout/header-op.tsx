@@ -80,7 +80,7 @@ export const HeaderOp: React.FC = () => {
         }}
       />
       <Dropdown menu={{ items: dropdownItems }}>
-        <Avatar src={userInfo?.avatar}>{userInfo?.nickname || userInfo?.name}</Avatar>
+        <Avatar src={userInfo?.avatar}>{(userInfo?.nickname || userInfo?.name)?.at(0)?.toUpperCase()}</Avatar>
       </Dropdown>
     </div>
   )
