@@ -2,13 +2,21 @@ import { GlobalContext } from '@/utils/context'
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons'
 import { Chart } from '@antv/g2'
 import { Card, Col, List, Row, theme as antTheme } from 'antd'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn' // 导入中文语言包
+import relativeTime from 'dayjs/plugin/relativeTime'
 import type React from 'react'
 import { useContext, useEffect, useRef, useState } from 'react'
 import data from './data.json'
+// 设置 dayjs 的语言为中文
+dayjs.locale('zh-cn')
+// 使用插件
+dayjs.extend(relativeTime)
 
 export interface AlarmData {
   summary: string
   level: string
+  time: string
 }
 
 const { useToken } = antTheme
@@ -21,7 +29,7 @@ const Dashboard: React.FC = () => {
   const alarmChartRef = useRef<HTMLDivElement | null>(null)
   const notifyChartRef = useRef<HTMLDivElement | null>(null)
   const todayChartRef = useRef<HTMLDivElement | null>(null)
-  const top5ChartRef = useRef<HTMLDivElement | null>(null)
+  const top10ChartRef = useRef<HTMLDivElement | null>(null)
   const [dataSource, setDataSource] = useState<AlarmData[]>([])
 
   const fetchAlarmData = async () => {
@@ -131,13 +139,14 @@ const Dashboard: React.FC = () => {
   }, [theme])
 
   useEffect(() => {
-    if (!top5ChartRef.current) {
+    if (!top10ChartRef.current) {
       return
     }
 
     const top5Chart = new Chart({
-      container: top5ChartRef.current,
-      autoFit: true
+      container: top10ChartRef.current,
+      autoFit: true,
+      height: 420
     })
     if (theme === 'dark') {
       top5Chart.theme({ type: 'classicDark' })
@@ -147,7 +156,12 @@ const Dashboard: React.FC = () => {
       { strategy: '2', name: '策略2', count: 50 },
       { strategy: '3', name: '策略3', count: 40 },
       { strategy: '4', name: '策略4', count: 30 },
-      { strategy: '5', name: '策略5', count: 20 }
+      { strategy: '5', name: '策略5', count: 20 },
+      { strategy: '6', name: '策略6', count: 10 },
+      { strategy: '7', name: '策略7', count: 9 },
+      { strategy: '8', name: '策略8', count: 8 },
+      { strategy: '9', name: '策略9', count: 7 },
+      { strategy: '10', name: '策略10', count: 6 }
     ])
     top5Chart
       .interval()
@@ -205,7 +219,7 @@ const Dashboard: React.FC = () => {
             <div className='flex justify-between'>
               <div>
                 <div style={{ marginBottom: 12 }}>
-                  <span style={{ fontSize: 16, color: '#666' }}> 告警通知统计 </span>
+                  <span style={{ fontSize: 16, color: token.colorTextLabel }}> 告警通知总数 </span>
                 </div>
                 <Row align='middle' gutter={16}>
                   <Col span={24}>
@@ -218,7 +232,7 @@ const Dashboard: React.FC = () => {
               </div>
               <div>
                 <div style={{ marginBottom: 12 }}>
-                  <span style={{ fontSize: 16, color: '#666' }}> 告警失败通知统计 </span>
+                  <span style={{ fontSize: 16, color: token.colorTextLabel }}> 告警失败总数 </span>
                 </div>
                 <Row align='middle' gutter={16}>
                   <Col span={24}>
@@ -238,7 +252,7 @@ const Dashboard: React.FC = () => {
             <div className='flex justify-between'>
               <div>
                 <div style={{ marginBottom: 12 }}>
-                  <span style={{ fontSize: 16, color: '#666' }}>今日告警总数</span>
+                  <span style={{ fontSize: 16, color: token.colorTextLabel }}>今日告警总数</span>
                 </div>
                 <Row align='middle' gutter={16}>
                   <Col span={24} className='flex flex-col justify-between'>
@@ -253,7 +267,7 @@ const Dashboard: React.FC = () => {
               </div>
               <div>
                 <div style={{ marginBottom: 12 }}>
-                  <span style={{ fontSize: 16, color: '#666' }}>今日告警失败数量</span>
+                  <span style={{ fontSize: 16, color: token.colorTextLabel }}>今日告警失败总数</span>
                 </div>
                 <Row align='middle' gutter={16}>
                   <Col span={24} className='flex flex-col justify-between'>
@@ -271,15 +285,20 @@ const Dashboard: React.FC = () => {
           </Card>
         </Col>
       </Row>
-
       <Row gutter={16}>
         <Col span={12} className='max-h-[500px]'>
-          <Card title='告警列表' bordered={false} className='h-full overflow-auto'>
+          <Card title='告警列表' bordered={false} className='max-h-[500px]'>
             <List
+              className='h-[400px] overflow-auto'
               dataSource={dataSource}
               renderItem={(item) => (
                 <List.Item className='flex justify-between'>
-                  <div>{item.summary}</div>
+                  <div className='flex flex-col gap-1'>
+                    <div className='text-sm font-bold' style={{ color: token.colorText }}>
+                      {item.summary}
+                    </div>
+                    <div className='text-xs text-gray-500'>{dayjs(item.time).fromNow()}</div>
+                  </div>
                   <div>{item.level}</div>
                 </List.Item>
               )}
@@ -288,12 +307,12 @@ const Dashboard: React.FC = () => {
         </Col>
         <Col span={12}>
           <Card
-            title='策略告警数量Top5'
+            title='策略告警数量Top10'
             bordered={false}
             className='h-full'
-            extra={<span style={{ color: '#666' }}>每周</span>}
+            extra={<span style={{ color: token.colorTextDescription }}>每周</span>}
           >
-            <div ref={top5ChartRef} style={{ height: 300 }} />
+            <div ref={top10ChartRef} style={{ height: 300 }} />
           </Card>
         </Col>
       </Row>
