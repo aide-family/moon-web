@@ -3,13 +3,21 @@ import { PaginationReply, PaginationReq } from '../global'
 import { ResourceItem, SelectItem } from '../model-types'
 import request from '../request'
 
+const buildHeader = (isSystem?: boolean) => {
+  return {
+    headers: {
+      'Source-Type': isSystem ? 'System' : 'Team'
+    }
+  }
+}
+
 /**
  * 获取资源详情
  * @param {GetResourceRequest} params
  * @returns {Promise<GetResourceReply>}
  */
-export function getResource(params: GetResourceRequest): Promise<GetResourceReply> {
-  return request.GET<GetResourceReply>(`/v1/resource/${params.id}`)
+export function getResource(params: GetResourceRequest, isSystem?: boolean): Promise<GetResourceReply> {
+  return request.GET<GetResourceReply>(`/v1/resource/${params.id}`, {}, buildHeader(isSystem))
 }
 
 /**
@@ -17,8 +25,8 @@ export function getResource(params: GetResourceRequest): Promise<GetResourceRepl
  * @param {ListResourceRequest} params
  * @returns {Promise<ListResourceReply>}
  */
-export function listResource(params: ListResourceRequest): Promise<ListResourceReply> {
-  return request.POST<ListResourceReply>('/v1/resource', params)
+export function listResource(params: ListResourceRequest, isSystem?: boolean): Promise<ListResourceReply> {
+  return request.POST<ListResourceReply>('/v1/resource', params, buildHeader(isSystem))
 }
 
 /**
@@ -27,9 +35,10 @@ export function listResource(params: ListResourceRequest): Promise<ListResourceR
  * @returns {Promise<BatchUpdateResourceStatusReply>}
  */
 export function batchUpdateResourceStatus(
-  params: BatchUpdateResourceStatusRequest
+  params: BatchUpdateResourceStatusRequest,
+  isSystem?: boolean
 ): Promise<BatchUpdateResourceStatusReply> {
-  return request.PUT<BatchUpdateResourceStatusReply>('/v1/resource/status', params)
+  return request.PUT<BatchUpdateResourceStatusReply>('/v1/resource/status', params, buildHeader(isSystem))
 }
 
 /**
@@ -37,8 +46,11 @@ export function batchUpdateResourceStatus(
  * @param {ListResourceRequest} params
  * @returns {Promise<GetResourceSelectListReply>}
  */
-export function getResourceSelectList(params: ListResourceRequest): Promise<GetResourceSelectListReply> {
-  return request.POST<GetResourceSelectListReply>('/v1/resource/select', params)
+export function getResourceSelectList(
+  params: ListResourceRequest,
+  isSystem?: boolean
+): Promise<GetResourceSelectListReply> {
+  return request.POST<GetResourceSelectListReply>('/v1/resource/select', params, buildHeader(isSystem))
 }
 
 // Types for the requests and responses

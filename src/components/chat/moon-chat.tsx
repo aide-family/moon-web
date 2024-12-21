@@ -193,7 +193,15 @@ export default function MoonChat() {
           />
         </div>
       </Drawer>
-      <FloatButton icon={<QuestionCircleOutlined />} type='primary' onClick={() => setOpenChat(true)} />
+      <FloatButton
+        style={{
+          insetInlineEnd: 24,
+          insetBlockEnd: 24
+        }}
+        icon={<QuestionCircleOutlined />}
+        type='primary'
+        onClick={() => setOpenChat(true)}
+      />
     </div>
   )
 }

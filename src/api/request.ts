@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { message, notification } from 'antd'
-import axios, { AxiosError } from 'axios'
+import axios, { AxiosError, AxiosRequestConfig } from 'axios'
 
 const host = window.location.origin
 
@@ -84,20 +84,20 @@ export const isLogin = () => {
 export type NullObject = Record<string, never>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const GET = async <T>(url: string, params?: any) => {
-  return request.get<NullObject, T>(url, { params })
+const GET = async <T>(url: string, params?: any, config?: AxiosRequestConfig) => {
+  return request.get<NullObject, T>(url, { params, ...config })
 }
 
-const POST = async <T>(url: string, data?: any) => {
-  return request.post<NullObject, T>(url, data)
+const POST = async <T>(url: string, data?: any, config?: AxiosRequestConfig) => {
+  return request.post<NullObject, T>(url, data, config)
 }
 
-const PUT = async <T>(url: string, data?: any) => {
-  return request.put<NullObject, T>(url, data)
+const PUT = async <T>(url: string, data?: any, config?: AxiosRequestConfig) => {
+  return request.put<NullObject, T>(url, data, config)
 }
 
-const DELETE = async <T>(url: string, data?: any) => {
-  return request.delete<NullObject, T>(url, { data })
+const DELETE = async <T>(url: string, data?: any, config?: AxiosRequestConfig) => {
+  return request.delete<NullObject, T>(url, { data, ...config })
 }
 
 export default {

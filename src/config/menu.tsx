@@ -1,5 +1,5 @@
 import { IconFont } from '@/components/icon'
-import { SettingOutlined, UserOutlined } from '@ant-design/icons'
+import { SettingOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
 import { ItemType } from 'antd/es/menu/interface'
 
 export const defaultMenuItems: ItemType[] = [
@@ -105,7 +105,7 @@ export const defaultMenuItems: ItemType[] = [
   {
     label: '团队管理',
     key: '/home/team',
-    icon: <SettingOutlined />,
+    icon: <TeamOutlined />,
     children: [
       {
         label: '团队成员',
@@ -145,6 +145,21 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: '个人设置',
         key: '/home/self/manage'
+      }
+    ]
+  },
+  {
+    label: '系统管理',
+    key: '/home/system',
+    icon: <SettingOutlined />,
+    children: [
+      {
+        label: '用户管理',
+        key: '/home/system/user'
+      },
+      {
+        label: '资源管理',
+        key: '/home/system/resource'
       }
     ]
   }
@@ -272,5 +287,14 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   },
   '/home/community/discussion': {
     name: '讨论'
+  },
+  '/home/system': {
+    name: '系统管理'
+  },
+  '/home/system/user': {
+    name: '用户管理'
+  },
+  '/home/system/resource': {
+    name: '资源管理'
   }
 }

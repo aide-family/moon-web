@@ -143,6 +143,19 @@ export const routers: RouteObject[] = [
         ]
       },
       {
+        path: '/home/system',
+        children: [
+          {
+            path: '/home/system/user',
+            Component: lazy(() => import('@/pages/system/user'))
+          },
+          {
+            path: '/home/system/resource',
+            Component: lazy(() => import('@/pages/system/resource'))
+          }
+        ]
+      },
+      {
         path: '/home',
         // 重定向/home
         element: <Navigate to='/home/realtime/alarm' replace={true} />

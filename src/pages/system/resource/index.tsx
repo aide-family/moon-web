@@ -1,46 +1,34 @@
-import {
-  batchUpdateDictStatus,
-  createDict,
-  CreateDictRequest,
-  deleteDict,
-  listDict,
-  ListDictRequest,
-  updateDict
-} from '@/api/dict'
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { DictItem } from '@/api/model-types'
-import { ListStrategyGroupRequest } from '@/api/strategy'
+import { ResourceItem } from '@/api/model-types'
+import { batchUpdateResourceStatus, listResource, ListResourceRequest } from '@/api/resource'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
-import { ExclamationCircleFilled } from '@ant-design/icons'
-import { Button, message, Modal, Space, theme } from 'antd'
+import { Button, message, Space, theme } from 'antd'
 import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { GroupEditModal } from './edit-modal'
+import { ResourceEditModal } from './edit-modal'
 import { formList, getColumnList } from './options'
 
-const { confirm } = Modal
 const { useToken } = theme
 
-const defaultSearchParams: ListDictRequest = {
+const defaultSearchParams: ListResourceRequest = {
   pagination: {
     pageNum: 1,
     pageSize: 10
   },
   keyword: '',
   status: Status.StatusAll
-  // teamId: ''
 }
 
-const Group: React.FC = () => {
+const Resource: React.FC = () => {
   const { token } = useToken()
   const { isFullscreen } = useContext(GlobalContext)
 
-  const [datasource, setDatasource] = useState<DictItem[]>([])
-  const [searchParams, setSearchParams] = useState<ListDictRequest>(defaultSearchParams)
+  const [datasource, setDatasource] = useState<ResourceItem[]>([])
+  const [searchParams, setSearchParams] = useState<ListResourceRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
@@ -58,11 +46,6 @@ const Group: React.FC = () => {
     setDisabledEditGroupModal(false)
   }
 
-  const handleEditModal = (editId?: number) => {
-    setEditGroupId(editId)
-    setOpenGroupEditModal(true)
-  }
-
   const handleOpenDetailModal = (groupId: number) => {
     setEditGroupId(groupId)
     setOpenGroupEditModal(true)
@@ -77,7 +60,7 @@ const Group: React.FC = () => {
   const fetchData = useCallback(
     debounce(async (params) => {
       setLoading(true)
-      listDict(params)
+      listResource(params, true)
         .then(({ list, pagination }) => {
           setDatasource(list || [])
           setTotal(pagination?.total || 0)
@@ -87,30 +70,12 @@ const Group: React.FC = () => {
     []
   )
 
-  const handleGroupEditModalSubmit = (data: CreateDictRequest) => {
-    const call = () => {
-      if (!editGroupId) {
-        return createDict(data)
-      } else {
-        return updateDict({
-          data: data,
-          id: editGroupId
-        })
-      }
-    }
-    return call().then(() => {
-      message.success(`${editGroupId ? '编辑' : '添加'}成功`)
-      handleCloseGroupEditModal()
-      onRefresh()
-    })
-  }
-
   useEffect(() => {
     fetchData(searchParams)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh, searchParams, fetchData])
 
-  const onSearch = (formData: ListStrategyGroupRequest) => {
+  const onSearch = (formData: ListResourceRequest) => {
     setSearchParams({
       ...searchParams,
       ...formData,
@@ -137,16 +102,16 @@ const Group: React.FC = () => {
     setSearchParams(defaultSearchParams)
   }
 
-  const onHandleMenuOnClick = (item: DictItem, key: ActionKey) => {
+  const onHandleMenuOnClick = (item: ResourceItem, key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
-        batchUpdateDictStatus({ ids: [item.id], status: Status.StatusEnable }).then(() => {
+        batchUpdateResourceStatus({ ids: [item.id], status: Status.StatusEnable }, true).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
         break
       case ActionKey.DISABLE:
-        batchUpdateDictStatus({ ids: [item.id], status: Status.StatusDisable }).then(() => {
+        batchUpdateResourceStatus({ ids: [item.id], status: Status.StatusDisable }, true).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
@@ -155,25 +120,6 @@ const Group: React.FC = () => {
         break
       case ActionKey.DETAIL:
         handleOpenDetailModal(item.id)
-        break
-      case ActionKey.EDIT:
-        handleEditModal(item.id)
-        break
-      case ActionKey.DELETE:
-        confirm({
-          title: `请确认是否删除该字典?`,
-          icon: <ExclamationCircleFilled />,
-          content: '此操作不可逆',
-          onOk() {
-            deleteDict({ id: item.id }).then(() => {
-              message.success('删除成功')
-              onRefresh()
-            })
-          },
-          onCancel() {
-            message.info('取消操作')
-          }
-        })
         break
     }
   }
@@ -186,14 +132,13 @@ const Group: React.FC = () => {
 
   return (
     <div className='p-3 gap-3 flex flex-col'>
-      <GroupEditModal
-        title={editGroupId ? (disabledEditGroupModal ? '字典详情' : '编辑字典') : '新建字典'}
+      <ResourceEditModal
+        title={editGroupId ? (disabledEditGroupModal ? '资源详情' : '编辑资源') : '新建资源'}
         width='60%'
         style={{ minWidth: 504 }}
         open={openGroupEditModal}
         onCancel={handleCloseGroupEditModal}
-        submit={handleGroupEditModalSubmit}
-        groupId={editGroupId}
+        resourceId={editGroupId}
         disabled={disabledEditGroupModal}
       />
       <div
@@ -212,12 +157,8 @@ const Group: React.FC = () => {
         }}
       >
         <div className='flex justify-between'>
-          <div className='text-lg font-bold'>字典列表</div>
+          <div className='text-lg font-bold'>系统资源列表</div>
           <Space size={8}>
-            <Button type='primary' onClick={() => handleEditModal()}>
-              添加
-            </Button>
-            <Button onClick={() => handleEditModal()}>批量导入</Button>
             <Button color='default' variant='filled' onClick={onRefresh}>
               刷新
             </Button>
@@ -250,4 +191,4 @@ const Group: React.FC = () => {
   )
 }
 
-export default Group
+export default Resource

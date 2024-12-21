@@ -1,83 +1,61 @@
-import {
-  batchUpdateDictStatus,
-  createDict,
-  CreateDictRequest,
-  deleteDict,
-  listDict,
-  ListDictRequest,
-  updateDict
-} from '@/api/dict'
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { DictItem } from '@/api/model-types'
-import { ListStrategyGroupRequest } from '@/api/strategy'
+import { UserItem } from '@/api/model-types'
+import { batchUpdateUserStatus, listUser, ListUserRequest } from '@/api/user'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
-import { ExclamationCircleFilled } from '@ant-design/icons'
-import { Button, message, Modal, Space, theme } from 'antd'
+import { Button, message, Space, theme } from 'antd'
 import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { GroupEditModal } from './edit-modal'
+import { DetailModal } from './modal-detail'
 import { formList, getColumnList } from './options'
 
-const { confirm } = Modal
 const { useToken } = theme
 
-const defaultSearchParams: ListDictRequest = {
+const defaultSearchParams: ListUserRequest = {
   pagination: {
     pageNum: 1,
-    pageSize: 10
-  },
-  keyword: '',
-  status: Status.StatusAll
-  // teamId: ''
+    pageSize: 50
+  }
 }
 
-const Group: React.FC = () => {
+const User: React.FC = () => {
   const { token } = useToken()
   const { isFullscreen } = useContext(GlobalContext)
 
-  const [datasource, setDatasource] = useState<DictItem[]>([])
-  const [searchParams, setSearchParams] = useState<ListDictRequest>(defaultSearchParams)
+  const [datasource, setDatasource] = useState<UserItem[]>([])
+  const [searchParams, setSearchParams] = useState<ListUserRequest>(defaultSearchParams)
   const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
-  const [openGroupEditModal, setOpenGroupEditModal] = useState(false)
-  const [editGroupId, setEditGroupId] = useState<number>()
-  const [disabledEditGroupModal, setDisabledEditGroupModal] = useState(false)
+  const [openDetail, setOpenDetail] = useState(false)
+  const [detailId, setDetailId] = useState(0)
 
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
 
-  const handleCloseGroupEditModal = () => {
-    setOpenGroupEditModal(false)
-    setEditGroupId(0)
-    setDisabledEditGroupModal(false)
-  }
-
-  const handleEditModal = (editId?: number) => {
-    setEditGroupId(editId)
-    setOpenGroupEditModal(true)
-  }
-
-  const handleOpenDetailModal = (groupId: number) => {
-    setEditGroupId(groupId)
-    setOpenGroupEditModal(true)
-    setDisabledEditGroupModal(true)
-  }
-
   const onRefresh = () => {
     setRefresh(!refresh)
+  }
+
+  const onOpenDetail = (id: number) => {
+    setDetailId(id)
+    setOpenDetail(true)
+  }
+
+  const onCloseDetail = () => {
+    setOpenDetail(false)
+    setDetailId(0)
   }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchData = useCallback(
     debounce(async (params) => {
       setLoading(true)
-      listDict(params)
+      listUser(params)
         .then(({ list, pagination }) => {
           setDatasource(list || [])
           setTotal(pagination?.total || 0)
@@ -87,30 +65,12 @@ const Group: React.FC = () => {
     []
   )
 
-  const handleGroupEditModalSubmit = (data: CreateDictRequest) => {
-    const call = () => {
-      if (!editGroupId) {
-        return createDict(data)
-      } else {
-        return updateDict({
-          data: data,
-          id: editGroupId
-        })
-      }
-    }
-    return call().then(() => {
-      message.success(`${editGroupId ? '编辑' : '添加'}成功`)
-      handleCloseGroupEditModal()
-      onRefresh()
-    })
-  }
-
   useEffect(() => {
     fetchData(searchParams)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh, searchParams, fetchData])
 
-  const onSearch = (formData: ListStrategyGroupRequest) => {
+  const onSearch = (formData: ListUserRequest) => {
     setSearchParams({
       ...searchParams,
       ...formData,
@@ -137,16 +97,16 @@ const Group: React.FC = () => {
     setSearchParams(defaultSearchParams)
   }
 
-  const onHandleMenuOnClick = (item: DictItem, key: ActionKey) => {
+  const onHandleMenuOnClick = (item: UserItem, key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
-        batchUpdateDictStatus({ ids: [item.id], status: Status.StatusEnable }).then(() => {
+        batchUpdateUserStatus({ ids: [item.id], status: Status.StatusEnable }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
         break
       case ActionKey.DISABLE:
-        batchUpdateDictStatus({ ids: [item.id], status: Status.StatusDisable }).then(() => {
+        batchUpdateUserStatus({ ids: [item.id], status: Status.StatusDisable }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
@@ -154,26 +114,7 @@ const Group: React.FC = () => {
       case ActionKey.OPERATION_LOG:
         break
       case ActionKey.DETAIL:
-        handleOpenDetailModal(item.id)
-        break
-      case ActionKey.EDIT:
-        handleEditModal(item.id)
-        break
-      case ActionKey.DELETE:
-        confirm({
-          title: `请确认是否删除该字典?`,
-          icon: <ExclamationCircleFilled />,
-          content: '此操作不可逆',
-          onOk() {
-            deleteDict({ id: item.id }).then(() => {
-              message.success('删除成功')
-              onRefresh()
-            })
-          },
-          onCancel() {
-            message.info('取消操作')
-          }
-        })
+        onOpenDetail(item.id)
         break
     }
   }
@@ -186,16 +127,7 @@ const Group: React.FC = () => {
 
   return (
     <div className='p-3 gap-3 flex flex-col'>
-      <GroupEditModal
-        title={editGroupId ? (disabledEditGroupModal ? '字典详情' : '编辑字典') : '新建字典'}
-        width='60%'
-        style={{ minWidth: 504 }}
-        open={openGroupEditModal}
-        onCancel={handleCloseGroupEditModal}
-        submit={handleGroupEditModalSubmit}
-        groupId={editGroupId}
-        disabled={disabledEditGroupModal}
-      />
+      <DetailModal id={detailId} open={openDetail} onCancel={onCloseDetail} />
       <div
         style={{
           background: token.colorBgContainer,
@@ -212,12 +144,8 @@ const Group: React.FC = () => {
         }}
       >
         <div className='flex justify-between'>
-          <div className='text-lg font-bold'>字典列表</div>
+          <div className='text-lg font-bold'>用户列表</div>
           <Space size={8}>
-            <Button type='primary' onClick={() => handleEditModal()}>
-              添加
-            </Button>
-            <Button onClick={() => handleEditModal()}>批量导入</Button>
             <Button color='default' variant='filled' onClick={onRefresh}>
               刷新
             </Button>
@@ -250,4 +178,4 @@ const Group: React.FC = () => {
   )
 }
 
-export default Group
+export default User

@@ -1,12 +1,11 @@
-import { DictType, Status } from '@/api/enum'
-import { ActionKey, DictTypeData, StatusData } from '@/api/global'
-import { DictItem } from '@/api/model-types'
+import { Status } from '@/api/enum'
+import { ActionKey, RoleData, StatusData } from '@/api/global'
+import { UserItem } from '@/api/model-types'
 import { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
-import { Badge, Button, Space } from 'antd'
-import { Color } from 'antd/es/color-picker'
+import { Avatar, Badge, Button, Space, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 
 export const formList: SearchFormItem[] = [
@@ -16,25 +15,8 @@ export const formList: SearchFormItem[] = [
     dataProps: {
       type: 'input',
       itemProps: {
-        placeholder: '字典名称',
+        placeholder: '用户名称',
         allowClear: true
-      }
-    }
-  },
-  {
-    name: 'dictType',
-    label: '字典类型',
-    dataProps: {
-      type: 'select',
-      itemProps: {
-        placeholder: '字典类型',
-        allowClear: true,
-        options: Object.entries(DictTypeData).map(([key, value]) => {
-          return {
-            label: value,
-            value: Number(key)
-          }
-        })
       }
     }
   },
@@ -58,14 +40,14 @@ export const formList: SearchFormItem[] = [
 ]
 
 interface GroupColumnProps {
-  onHandleMenuOnClick: (item: DictItem, key: ActionKey) => void
+  onHandleMenuOnClick: (item: UserItem, key: ActionKey) => void
   current: number
   pageSize: number
 }
 
-export const getColumnList = (props: GroupColumnProps): ColumnsType<DictItem> => {
+export const getColumnList = (props: GroupColumnProps): ColumnsType<UserItem> => {
   const { onHandleMenuOnClick, current, pageSize } = props
-  const tableOperationItems = (record: DictItem): MoreMenuProps['items'] => [
+  const tableOperationItems = (record: UserItem): MoreMenuProps['items'] => [
     record.status === Status.StatusDisable
       ? {
           key: ActionKey.ENABLE,
@@ -98,14 +80,6 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<DictItem> =>
           编辑
         </Button>
       )
-    },
-    {
-      key: ActionKey.DELETE,
-      label: (
-        <Button type='link' size='small' danger>
-          删除
-        </Button>
-      )
     }
   ]
 
@@ -121,46 +95,47 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<DictItem> =>
       }
     },
     {
-      title: '名称',
+      title: '头像',
+      dataIndex: 'avatar',
+      key: 'avatar',
+      align: 'center',
+      width: 50,
+      render: (avatar: string) => {
+        return <Avatar src={avatar} />
+      }
+    },
+    {
+      title: '用户名',
       dataIndex: 'name',
       key: 'name',
       width: 200,
-      render: (name: string, record: DictItem) => {
+      render: (name: string, record: UserItem) => {
         return (
-          <Space className='w-full'>
-            <div className='w-4 h-4' style={{ background: record.cssClass }} />
-            {name}
-          </Space>
+          <div className='flex items-center gap-2'>
+            <div className='text-sm font-bold'>{name}</div>
+            <Tag color='blue'>{RoleData[record.role]}</Tag>
+          </div>
         )
       }
     },
     {
-      title: '编码',
-      dataIndex: 'value',
-      key: 'value',
-      width: 160
+      title: '邮箱',
+      dataIndex: 'email',
+      key: 'email',
+      width: 200
     },
     {
-      title: '语言',
-      dataIndex: 'languageCode',
-      key: 'languageCode',
-      width: 160
-    },
-    {
-      title: '类型',
-      dataIndex: 'dictType',
-      key: 'dictType',
-      width: 160,
-      render: (dictType: DictType) => {
-        return <>{DictTypeData[dictType]}</>
-      }
+      title: '昵称',
+      dataIndex: 'nickname',
+      key: 'nickname',
+      width: 200
     },
     {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
       align: 'center',
-      width: 160,
+      width: 120,
       render: (status: Status) => {
         const { text, color } = StatusData[status]
         return <Badge color={color} text={text} />
@@ -178,19 +153,13 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<DictItem> =>
       }
     },
     {
-      title: '更新时间',
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      width: 180
-    },
-    {
       title: '操作',
       key: 'action',
       align: 'center',
       ellipsis: true,
       fixed: 'right',
       width: 120,
-      render: (_, record: DictItem) => (
+      render: (_, record: UserItem) => (
         <Space size={20}>
           <Button size='small' type='link' onClick={() => onHandleMenuOnClick(record, ActionKey.DETAIL)}>
             详情
@@ -209,43 +178,15 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<DictItem> =>
   ]
 }
 
-export type ColorType = 'hex' | 'rgb' | 'hsb'
-
 export interface CreateDictFormType {
   name: string
   value: string
-  dictType: DictType
-  colorType: string
-  cssClass: Color | string
-  icon: string
-  imageUrl: string
   status: Status
   languageCode: string
   remark: string
 }
-export const editModalFormItems = (colorType: ColorType): (DataFromItem | DataFromItem[])[] => [
+export const editModalFormItems = (): (DataFromItem | DataFromItem[])[] => [
   [
-    {
-      name: 'dictType',
-      label: '字典类型',
-      type: 'select',
-      formProps: {
-        rules: [{ required: true, message: '请选择字典类型' }]
-      },
-      props: {
-        placeholder: '请选择字典类型',
-        options: Object.entries(DictTypeData)
-          .filter(([key]) => {
-            return +key !== DictType.DictTypeUnknown
-          })
-          .map(([key, value]) => {
-            return {
-              label: value,
-              value: Number(key)
-            }
-          })
-      }
-    },
     {
       name: 'name',
       label: '名称',
@@ -277,47 +218,6 @@ export const editModalFormItems = (colorType: ColorType): (DataFromItem | DataFr
       props: {
         placeholder: '请输入语言',
         options: ['zh-CN', 'en-US'].map((item) => ({ label: item, value: item }))
-      }
-    }
-  ],
-  [
-    {
-      name: 'colorType',
-      label: '颜色类型',
-      type: 'select',
-      props: {
-        placeholder: '请选择颜色类型',
-        options: ['hex', 'rgb', 'hsb'].map((item) => ({
-          label: item,
-          value: item
-        }))
-      }
-    },
-    {
-      name: 'cssClass',
-      label: '颜色',
-      type: 'color',
-      props: {
-        format: colorType,
-        showText: true
-      }
-    }
-  ],
-  [
-    {
-      name: 'icon',
-      label: '图标',
-      type: 'input',
-      props: {
-        placeholder: '请输入图标'
-      }
-    },
-    {
-      name: 'imageUrl',
-      label: '图片',
-      type: 'input',
-      props: {
-        placeholder: '请输入图片URL'
       }
     }
   ],
