@@ -138,7 +138,11 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<UserItem> =>
       title: '昵称',
       dataIndex: 'nickname',
       key: 'nickname',
-      width: 200
+      width: 200,
+      ellipsis: true,
+      render: (nickname: string) => {
+        return nickname || '-'
+      }
     },
     {
       title: '状态',
