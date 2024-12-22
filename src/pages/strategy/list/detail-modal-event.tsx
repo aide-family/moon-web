@@ -108,6 +108,7 @@ export const StrategyDetailEvent: React.FC<StrategyDetailEventProps> = (props) =
           <Table
             className='w-full'
             size='small'
+            rowKey={(recrd) => recrd.levelId}
             columns={[
               {
                 title: '告警等级',

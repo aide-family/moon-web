@@ -223,7 +223,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyItem
       dataIndex: 'status',
       key: 'status',
       align: 'center',
-      width: 160,
+      width: 80,
       render: (status: Status) => {
         const { text, color } = StatusData[status]
         return <Badge color={color} text={text} />

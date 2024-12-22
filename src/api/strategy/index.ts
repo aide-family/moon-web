@@ -59,7 +59,7 @@ export interface UpdateStrategyGroupStatusRequest {
 /** 创建策略事件项请求 */
 export interface CreateStrategyEventLevelRequest {
   /** 值 */
-  value: string
+  threshold: string
   /** 状态 */
   status: Status
   /** 条件 */
@@ -67,7 +67,7 @@ export interface CreateStrategyEventLevelRequest {
   /** 数据类型 */
   dataType: EventDataType
   /** 告警等级ID */
-  alarmLevelId: number
+  levelId: number
   /** 告警页面 */
   alarmPageIds: number[]
   /** 告警分组 */
@@ -432,10 +432,10 @@ export const parseEventStrategyDetailToFormData = (detail: StrategyItem): Create
         value: item.value,
         alarmGroupIds: item.alarmGroups.map((item) => item.id)
       })),
-      value: item.value,
+      threshold: item.threshold,
       condition: item.condition,
       dataType: item.dataType,
-      alarmLevelId: item.alarmLevelId,
+      levelId: item.levelId,
       pathKey: item.pathKey
     })
   )
@@ -550,7 +550,7 @@ export const parseMetricStrategyDetailToFormData = (detail: StrategyItem): Creat
       interval: item.interval,
       threshold: item.threshold,
       condition: item.condition,
-      levelId: item.id
+      levelId: item.levelId
     })
   )
 })

@@ -1,4 +1,4 @@
-import {
+import type {
   AlertStatus,
   ChartType,
   Condition,
@@ -7,12 +7,12 @@ import {
   DomainType,
   EventDataType,
   Gender,
-  HookApp,
   HTTPMethod,
+  HookApp,
+  MQCondition,
   MenuType,
   MetricType,
   ModuleType,
-  MQCondition,
   NotifyType,
   Role,
   Status,
@@ -325,15 +325,15 @@ export interface StrategyEventLevelItem {
   /** 事件策略ID */
   id: number
   /** 事件策略值 */
-  value: string
+  threshold: string
   /** 事件策略条件 */
   condition: MQCondition
   /** 事件策略数据类型 */
   dataType: EventDataType
   /** 事件策略告警等级ID */
-  alarmLevelId: number
+  levelId: number
   /** 事件策略告警等级 */
-  alarmLevel: SelectItem
+  level: SelectItem
   /** 事件策略告警页面 */
   alarmPages: SelectItem[]
   /** 事件策略所属策略 */

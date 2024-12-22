@@ -114,7 +114,11 @@ export default function MetricEditModal(props: MetricEditModalProps) {
   useEffect(() => {
     if (restProps.open) {
       if (strategyDetail) {
-        form.setFieldsValue(parseMetricStrategyDetailToFormData(strategyDetail))
+        const formData = parseMetricStrategyDetailToFormData(strategyDetail)
+        console.log('formData', formData)
+        console.log('detail', strategyDetail)
+
+        form.setFieldsValue(formData)
       } else {
         form.resetFields()
       }
