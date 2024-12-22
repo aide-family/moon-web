@@ -411,7 +411,7 @@ export interface StrategyHTTPLevelItem {
   /** ID */
   id: number
   /** 状态码 */
-  statusCodes: number
+  statusCode: number
   /** 响应时间 */
   responseTime: number
   /** 请求头 */

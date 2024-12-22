@@ -197,7 +197,7 @@ export interface CreateStrategyHTTPLevelRequest {
   /** 响应时间 */
   responseTime: number
   /** 状态码 */
-  statusCodes: number
+  statusCode: number
   /** 请求头 */
   headers: KV[]
   /** 请求体 */
@@ -478,7 +478,7 @@ export const parseHTTPStrategyDetailToFormData = (detail: StrategyItem): CreateS
   labels: parseStrategyLabelsToFormData(detail.labels),
   strategyHTTPLevels: detail.httpLevels.map(
     (item): CreateStrategyHTTPLevelRequest => ({
-      levelId: item.id,
+      levelId: item.levelId,
       status: item.status,
       alarmPageIds: item.alarmPages.map((item) => item.value),
       alarmGroupIds: item.alarmGroups.map((item) => item.id),
@@ -488,7 +488,7 @@ export const parseHTTPStrategyDetailToFormData = (detail: StrategyItem): CreateS
         alarmGroupIds: item.alarmGroups.map((item) => item.id)
       })),
       responseTime: item.responseTime,
-      statusCodes: item.statusCodes,
+      statusCode: item.statusCode,
       headers: parseStrategyLabelsToFormData(item.headers),
       body: item.body,
       queryParams: item.queryParams,
@@ -510,7 +510,7 @@ export const parsePortStrategyDetailToFormData = (detail: StrategyItem): CreateS
   labels: parseStrategyLabelsToFormData(detail.labels),
   strategyPortLevels: detail.portLevels.map(
     (item): CreateStrategyPortLevelRequest => ({
-      levelId: item.id,
+      levelId: item.levelId,
       status: item.status,
       alarmPageIds: item.alarmPages.map((item) => item.value),
       alarmGroupIds: item.alarmGroups.map((item) => item.id),

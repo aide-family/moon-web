@@ -382,7 +382,7 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
                         <Col span={6}>
                           <Form.Item
                             label='状态码'
-                            name={[field.name, 'statusCodes']}
+                            name={[field.name, 'statusCode']}
                             rules={[
                               {
                                 required: true,
@@ -390,7 +390,7 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
                               }
                             ]}
                           >
-                            <InputNumber className='w-full' placeholder='请输入状态码' />
+                            <Input className='w-full' placeholder='请输入状态码' />
                           </Form.Item>
                         </Col>
                         <Col span={6}>

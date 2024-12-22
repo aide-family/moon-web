@@ -127,12 +127,12 @@ export const StrategyDetailHttp: React.FC<StrategyDetailHttpProps> = (props) => 
               },
               {
                 title: '状态码',
-                dataIndex: 'statusCodes',
-                render(statusCodes, record: StrategyHTTPLevelItem) {
+                dataIndex: 'statusCode',
+                render(statusCode, record: StrategyHTTPLevelItem) {
                   const { statusCodeCondition } = record
                   return (
                     <div className='flex items-center gap-2'>
-                      {StatusCodeConditionData[statusCodeCondition]} {statusCodes}
+                      {StatusCodeConditionData[statusCodeCondition]} {statusCode}
                     </div>
                   )
                 }
