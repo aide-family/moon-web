@@ -452,7 +452,7 @@ export const parseDomainStrategyDetailToFormData = (detail: StrategyItem): Creat
   labels: parseStrategyLabelsToFormData(detail.labels),
   strategyDomainLevels: detail.domainLevels.map(
     (item): CreateStrategyDomainLevelRequest => ({
-      levelId: item.id,
+      levelId: item.levelId,
       status: Status.StatusEnable,
       alarmPageIds: item.alarmPages.map((item) => item.value),
       alarmGroupIds: item.alarmGroups.map((item) => item.id),

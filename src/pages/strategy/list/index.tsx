@@ -468,7 +468,6 @@ const StrategyMetric: React.FC = () => {
             <Button type='primary' onClick={handleOpenStrategyTypeModal}>
               添加
             </Button>
-            {/* <Button onClick={() => handleEditModal()}>批量导入</Button> */}
             <Button color='default' variant='filled' onClick={onRefresh}>
               刷新
             </Button>
