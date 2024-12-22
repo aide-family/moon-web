@@ -1,9 +1,9 @@
 import { DatasourceType, EventDataType, MQCondition, Status, StrategyType } from '@/api/enum'
-import { defaultPaginationReq, EventDataTypeData, MQConditionData } from '@/api/global'
-import { StrategyItem } from '@/api/model-types'
+import { EventDataTypeData, MQConditionData, defaultPaginationReq } from '@/api/global'
+import type { StrategyItem } from '@/api/model-types'
 import {
+  type CreateStrategyRequestFormData,
   createStrategy,
-  CreateStrategyRequestFormData,
   parseEventStrategyDetailToFormData,
   parseFormDataToStrategyLabels,
   updateStrategy
@@ -26,14 +26,14 @@ import {
   Form,
   Input,
   Modal,
-  ModalProps,
+  type ModalProps,
   Popover,
   Row,
   Select,
   Space,
   Tag,
-  theme,
-  Typography
+  Typography,
+  theme
 } from 'antd'
 import { useEffect, useState } from 'react'
 
@@ -42,7 +42,7 @@ export interface EventEditModalProps extends ModalProps {
 }
 
 export default function EventEditModal(props: EventEditModalProps) {
-  const { eventStrategyDetail, ...restProps } = props
+  const { eventStrategyDetail, onOk, ...restProps } = props
   const { token } = theme.useToken()
   const [form] = Form.useForm<CreateStrategyRequestFormData>()
   const [loading, setLoading] = useState(false)
@@ -80,7 +80,7 @@ export default function EventEditModal(props: EventEditModalProps) {
     info: ''
   })
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     setLoading(true)
     form
       .validateFields()
@@ -91,9 +91,11 @@ export default function EventEditModal(props: EventEditModalProps) {
         }
         if (eventStrategyDetail) {
           return submit({ data: submitValues, id: eventStrategyDetail?.id })
-        } else {
-          return submit(submitValues)
         }
+        return submit(submitValues)
+      })
+      .then(() => {
+        onOk?.(e)
       })
       .finally(() => {
         setLoading(false)
@@ -108,8 +110,7 @@ export default function EventEditModal(props: EventEditModalProps) {
         form.resetFields()
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eventStrategyDetail, restProps.open])
+  }, [eventStrategyDetail, restProps.open, form])
 
   return (
     <Modal {...restProps} onOk={handleSubmit} confirmLoading={loading}>

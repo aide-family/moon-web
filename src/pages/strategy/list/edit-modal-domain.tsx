@@ -1,9 +1,9 @@
 import { Condition, Status, StrategyType } from '@/api/enum'
 import { ConditionData, defaultPaginationReq } from '@/api/global'
-import { StrategyItem } from '@/api/model-types'
+import type { StrategyItem } from '@/api/model-types'
 import {
+  type CreateStrategyRequestFormData,
   createStrategy,
-  CreateStrategyRequestFormData,
   parseDomainStrategyDetailToFormData,
   parseFormDataToStrategyLabels,
   updateStrategy
@@ -26,14 +26,14 @@ import {
   Input,
   InputNumber,
   Modal,
-  ModalProps,
+  type ModalProps,
   Popover,
   Row,
   Select,
   Space,
   Tag,
-  theme,
-  Typography
+  Typography,
+  theme
 } from 'antd'
 import { useEffect, useState } from 'react'
 
@@ -42,7 +42,7 @@ export interface DomainEditModalProps extends ModalProps {
 }
 
 export const DomainEditModal: React.FC<DomainEditModalProps> = (props) => {
-  const { strategyDetail, ...restProps } = props
+  const { strategyDetail, onOk, ...restProps } = props
 
   const { token } = theme.useToken()
   const [form] = Form.useForm<CreateStrategyRequestFormData>()
@@ -77,20 +77,25 @@ export const DomainEditModal: React.FC<DomainEditModalProps> = (props) => {
     info: ''
   })
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     setLoading(true)
     form
       .validateFields()
       .then((values) => {
-        const submitValues = { ...values, labels: parseFormDataToStrategyLabels(values.labels) }
+        const submitValues = {
+          ...values,
+          labels: parseFormDataToStrategyLabels(values.labels)
+        }
         if (strategyDetail) {
           return submit({
             data: submitValues,
             id: strategyDetail?.id
           })
-        } else {
-          return submit(submitValues)
         }
+        return submit(submitValues)
+      })
+      .then(() => {
+        onOk?.(e)
       })
       .finally(() => {
         setLoading(false)
@@ -105,8 +110,7 @@ export const DomainEditModal: React.FC<DomainEditModalProps> = (props) => {
         form.resetFields()
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strategyDetail, restProps.open])
+  }, [strategyDetail, restProps.open, form])
 
   return (
     <Modal {...restProps} onOk={handleSubmit} confirmLoading={loading}>

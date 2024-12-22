@@ -1,12 +1,12 @@
-import { Condition, Status, StrategyType, SustainType } from '@/api/enum'
+import { type Condition, Status, StrategyType, type SustainType } from '@/api/enum'
 import { ActionKey, StatusData, StrategyTypeData, StrategyTypeDataTag } from '@/api/global'
-import { DatasourceItem, DictItem, StrategyGroupItem, StrategyItem } from '@/api/model-types'
+import type { DatasourceItem, DictItem, StrategyGroupItem, StrategyItem } from '@/api/model-types'
 import { listStrategyGroup } from '@/api/strategy'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
 import { Badge, Button, Space, Tooltip } from 'antd'
-import { ColumnsType } from 'antd/es/table'
+import type { ColumnsType } from 'antd/es/table'
 
 export type StrategyLabelType = {
   alarmGroupIds: number[]

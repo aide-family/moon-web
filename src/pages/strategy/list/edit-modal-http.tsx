@@ -1,9 +1,9 @@
 import { Condition, HTTPMethod, Status, StatusCodeCondition, StrategyType } from '@/api/enum'
-import { ConditionData, defaultPaginationReq, HTTPMethodData, StatusCodeConditionData } from '@/api/global'
-import { StrategyItem } from '@/api/model-types'
+import { ConditionData, HTTPMethodData, StatusCodeConditionData, defaultPaginationReq } from '@/api/global'
+import type { StrategyItem } from '@/api/model-types'
 import {
+  type CreateStrategyRequestFormData,
   createStrategy,
-  CreateStrategyRequestFormData,
   parseFormDataToStrategyLabels,
   parseHTTPStrategyDetailToFormData,
   updateStrategy
@@ -26,14 +26,14 @@ import {
   Input,
   InputNumber,
   Modal,
-  ModalProps,
+  type ModalProps,
   Popover,
   Row,
   Select,
   Space,
   Tag,
-  theme,
-  Typography
+  Typography,
+  theme
 } from 'antd'
 import { useEffect, useState } from 'react'
 
@@ -42,7 +42,7 @@ export interface HTTPEditModalProps extends ModalProps {
 }
 
 export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
-  const { strategyDetail, ...restProps } = props
+  const { strategyDetail, onOk, ...restProps } = props
 
   const { token } = theme.useToken()
   const [form] = Form.useForm<CreateStrategyRequestFormData>()
@@ -77,7 +77,7 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
     info: ''
   })
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     setLoading(true)
     form
       .validateFields()
@@ -88,9 +88,11 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
         }
         if (strategyDetail) {
           return submit({ data: submitValues, id: strategyDetail?.id })
-        } else {
-          return submit(submitValues)
         }
+        return submit(submitValues)
+      })
+      .then(() => {
+        onOk?.(e)
       })
       .finally(() => {
         setLoading(false)
@@ -105,8 +107,7 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
         form.resetFields()
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strategyDetail, restProps.open])
+  }, [strategyDetail, restProps.open, form])
 
   return (
     <Modal {...restProps} onOk={handleSubmit} confirmLoading={loading}>
@@ -462,7 +463,9 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
                                             </Form.Item>
                                             <MinusCircleOutlined
                                               onClick={() => remove(field.name)}
-                                              style={{ color: token.colorError }}
+                                              style={{
+                                                color: token.colorError
+                                              }}
                                             />
                                           </span>
                                         </Col>

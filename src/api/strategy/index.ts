@@ -1,26 +1,18 @@
 import {
-  Condition,
-  DatasourceType,
-  EventDataType,
-  HTTPMethod,
-  MQCondition,
+  type Condition,
+  type DatasourceType,
+  type EventDataType,
+  type HTTPMethod,
+  type MQCondition,
   Status,
-  StatusCodeCondition,
+  type StatusCodeCondition,
   StrategyType,
-  SustainType,
-  TemplateSourceType
+  type SustainType,
+  type TemplateSourceType
 } from '../enum'
-import { PaginationReply, PaginationReq } from '../global'
-import { StrategyGroupItem, StrategyItem } from '../model-types'
+import type { PaginationReply, PaginationReq } from '../global'
+import type { StrategyGroupItem, StrategyItem } from '../model-types'
 import request from '../request'
-
-export interface SubscriberStrategyRequest {
-  // 订阅策略请求参数
-}
-
-export interface SubscriberStrategyReply {
-  // 订阅策略响应
-}
 
 // 策略组相关类型定义
 export interface CreateStrategyGroupRequest {
@@ -30,13 +22,9 @@ export interface CreateStrategyGroupRequest {
   categoriesIds: number[]
 }
 
-export interface CreateStrategyGroupReply {}
-
 export interface DeleteStrategyGroupRequest {
   id: number
 }
-
-export interface DeleteStrategyGroupReply {}
 
 export interface ListStrategyGroupRequest {
   pagination: PaginationReq
@@ -63,14 +51,10 @@ export interface UpdateStrategyGroupRequest {
   update: CreateStrategyGroupRequest
 }
 
-export interface UpdateStrategyGroupReply {}
-
 export interface UpdateStrategyGroupStatusRequest {
   ids: number[]
   status: Status
 }
-
-export interface UpdateStrategyGroupStatusReply {}
 
 /** 创建策略事件项请求 */
 export interface CreateStrategyEventLevelRequest {
@@ -150,20 +134,14 @@ export type CreateStrategyRequest<T = { [key: string]: string }> = CreateStrateg
 /** 创建策略表单数据 */
 export type CreateStrategyRequestFormData = CreateStrategyRequest<KV[]>
 
-export interface CreateStrategyReply {}
-
 export interface UpdateStrategyRequest {
   id: number
   data: CreateStrategyRequest
 }
 
-export interface UpdateStrategyReply {}
-
 export interface DeleteStrategyRequest {
   id: number
 }
-
-export interface DeleteStrategyReply {}
 
 export interface GetStrategyRequest {
   id: number
@@ -189,8 +167,6 @@ export interface UpdateStrategyStatusRequest {
   ids: number[]
   status: Status
 }
-
-export interface UpdateStrategyStatusReply {}
 
 export interface CreateStrategyMetricLevelRequest {
   duration: number
@@ -293,7 +269,7 @@ export interface CreateStrategyLabelNoticeRequest {
  * @returns CreateStrategyGroupReply
  */
 export function createStrategyGroup(params: CreateStrategyGroupRequest) {
-  return request.POST<CreateStrategyGroupReply>('/v1/group/strategy/create', params)
+  return request.POST('/v1/group/strategy/create', params)
 }
 
 /**
@@ -302,7 +278,7 @@ export function createStrategyGroup(params: CreateStrategyGroupRequest) {
  * @returns DeleteStrategyGroupReply
  */
 export function deleteStrategyGroup(params: DeleteStrategyGroupRequest) {
-  return request.DELETE<DeleteStrategyGroupReply>(`/v1/group/strategy/${params.id}`)
+  return request.DELETE(`/v1/group/strategy/${params.id}`)
 }
 
 /**
@@ -329,7 +305,7 @@ export function getStrategyGroup(params: GetStrategyGroupRequest) {
  * @returns UpdateStrategyGroupReply
  */
 export function updateStrategyGroup(params: UpdateStrategyGroupRequest) {
-  return request.PUT<UpdateStrategyGroupReply>(`/v1/group/strategy/${params.id}`, params.update)
+  return request.PUT(`/v1/group/strategy/${params.id}`, params.update)
 }
 
 /**
@@ -338,7 +314,7 @@ export function updateStrategyGroup(params: UpdateStrategyGroupRequest) {
  * @returns UpdateStrategyGroupStatusReply
  */
 export function updateStrategyGroupStatus(params: UpdateStrategyGroupStatusRequest) {
-  return request.PUT<UpdateStrategyGroupStatusReply>('/v1/group/strategy/update/status', params)
+  return request.PUT('/v1/group/strategy/update/status', params)
 }
 
 /**
@@ -347,7 +323,7 @@ export function updateStrategyGroupStatus(params: UpdateStrategyGroupStatusReque
  * @returns CreateStrategyReply
  */
 export function createStrategy(params: CreateStrategyRequest) {
-  return request.POST<CreateStrategyReply>('/v1/strategy/create', params)
+  return request.POST('/v1/strategy/create', params)
 }
 
 /**
@@ -356,7 +332,7 @@ export function createStrategy(params: CreateStrategyRequest) {
  * @returns UpdateStrategyReply
  */
 export function updateStrategy(params: UpdateStrategyRequest) {
-  return request.PUT<UpdateStrategyReply>(`/v1/strategy/update/${params.id}`, params)
+  return request.PUT(`/v1/strategy/update/${params.id}`, params)
 }
 
 /**
@@ -365,7 +341,7 @@ export function updateStrategy(params: UpdateStrategyRequest) {
  * @returns UpdateStrategyStatusReply
  */
 export function updateStrategyStatus(params: UpdateStrategyStatusRequest) {
-  return request.PUT<UpdateStrategyStatusReply>('/v1/strategy/status', params)
+  return request.PUT('/v1/strategy/status', params)
 }
 
 /**
@@ -374,7 +350,7 @@ export function updateStrategyStatus(params: UpdateStrategyStatusRequest) {
  * @returns DeleteStrategyReply
  */
 export function deleteStrategy(params: DeleteStrategyRequest) {
-  return request.DELETE<DeleteStrategyReply>(`/v1/strategy/delete/${params.id}`)
+  return request.DELETE(`/v1/strategy/delete/${params.id}`)
 }
 
 /**

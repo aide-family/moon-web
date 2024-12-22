@@ -1,9 +1,9 @@
 import { Status, StrategyType } from '@/api/enum'
 import { defaultPaginationReq } from '@/api/global'
-import { StrategyItem } from '@/api/model-types'
+import type { StrategyItem } from '@/api/model-types'
 import {
+  type CreateStrategyRequestFormData,
   createStrategy,
-  CreateStrategyRequestFormData,
   parseFormDataToStrategyLabels,
   parsePortStrategyDetailToFormData,
   updateStrategy
@@ -26,15 +26,15 @@ import {
   Input,
   InputNumber,
   Modal,
-  ModalProps,
+  type ModalProps,
   Popover,
   Radio,
   Row,
   Select,
   Space,
   Tag,
-  theme,
-  Typography
+  Typography,
+  theme
 } from 'antd'
 import { useEffect, useState } from 'react'
 
@@ -43,7 +43,7 @@ export interface PortEditModalProps extends ModalProps {
 }
 
 export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
-  const { strategyDetail, ...restProps } = props
+  const { strategyDetail, onOk, ...restProps } = props
 
   const { token } = theme.useToken()
   const [form] = Form.useForm<CreateStrategyRequestFormData>()
@@ -78,7 +78,7 @@ export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
     info: ''
   })
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     setLoading(true)
     form
       .validateFields()
@@ -89,9 +89,11 @@ export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
         }
         if (strategyDetail) {
           return submit({ data: submitValues, id: strategyDetail?.id })
-        } else {
-          return submit(submitValues)
         }
+        return submit(submitValues)
+      })
+      .then(() => {
+        onOk?.(e)
       })
       .finally(() => {
         setLoading(false)
@@ -106,8 +108,7 @@ export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
         form.resetFields()
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strategyDetail, restProps.open])
+  }, [strategyDetail, restProps.open, form])
 
   return (
     <Modal {...restProps} onOk={handleSubmit} confirmLoading={loading}>

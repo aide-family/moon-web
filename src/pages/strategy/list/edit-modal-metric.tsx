@@ -1,10 +1,10 @@
 import { Condition, DatasourceType, Status, StrategyType, SustainType } from '@/api/enum'
-import { ConditionData, defaultPaginationReq, SustainTypeData } from '@/api/global'
-import { StrategyItem } from '@/api/model-types'
+import { ConditionData, SustainTypeData, defaultPaginationReq } from '@/api/global'
+import type { StrategyItem } from '@/api/model-types'
 import { baseURL } from '@/api/request'
 import {
+  type CreateStrategyRequestFormData,
   createStrategy,
-  CreateStrategyRequestFormData,
   parseFormDataToStrategyLabels,
   parseMetricStrategyDetailToFormData,
   updateStrategy
@@ -30,14 +30,14 @@ import {
   Input,
   InputNumber,
   Modal,
-  ModalProps,
+  type ModalProps,
   Popover,
   Row,
   Select,
   Space,
   Tag,
-  theme,
-  Typography
+  Typography,
+  theme
 } from 'antd'
 import { useContext, useEffect, useState } from 'react'
 
@@ -100,9 +100,8 @@ export default function MetricEditModal(props: MetricEditModalProps) {
         // return
         if (strategyDetail) {
           return submit({ data: submitValues, id: strategyDetail?.id })
-        } else {
-          return submit(submitValues)
         }
+        return submit(submitValues)
       })
       .then(() => {
         onOk?.(e)
@@ -120,8 +119,7 @@ export default function MetricEditModal(props: MetricEditModalProps) {
         form.resetFields()
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strategyDetail, restProps.open])
+  }, [strategyDetail, restProps.open, form])
 
   const pathPrefix = `${baseURL}/metric/${teamInfo?.id || 0}/${selectDatasource?.at(0) || 0}`
 
@@ -436,7 +434,7 @@ export default function MetricEditModal(props: MetricEditModalProps) {
                                   value: +key,
                                   label: value
                                 }))}
-                            ></Select>
+                            />
                           </Form.Item>
                         </Col>
 

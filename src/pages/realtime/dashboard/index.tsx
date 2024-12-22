@@ -55,7 +55,7 @@ const Dashboard: React.FC = () => {
     return () => {
       clearInterval(interval)
     }
-  }, [])
+  })
 
   useEffect(() => {
     if (!alarmChartRef.current) {

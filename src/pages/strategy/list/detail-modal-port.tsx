@@ -1,9 +1,10 @@
 import { StatusData } from '@/api/global'
-import { StrategyItem } from '@/api/model-types'
+import type { StrategyItem } from '@/api/model-types'
 import { getStrategy } from '@/api/strategy'
-import { Badge, Descriptions, DescriptionsProps, Modal, ModalProps, Space, Table, Tag } from 'antd'
+import { Badge, Descriptions, type DescriptionsProps, Modal, type ModalProps, Space, Table, Tag } from 'antd'
 import { debounce } from 'lodash'
-import React, { useCallback, useEffect, useState } from 'react'
+import type React from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 export interface StrategyDetailPortProps extends ModalProps {
   strategyId?: number
@@ -32,7 +33,7 @@ export const StrategyDetailPort: React.FC<StrategyDetailPortProps> = (props) => 
     if (!strategyId || !open) return
     fetchData(strategyId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strategyId, open])
+  }, [strategyId, open, fetchData])
 
   const items = (): DescriptionsProps['items'] => {
     if (!detail) return []

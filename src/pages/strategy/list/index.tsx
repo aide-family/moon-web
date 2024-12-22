@@ -1,15 +1,22 @@
 import { Status, StrategyType } from '@/api/enum'
 import { ActionKey, StrategyTypeData } from '@/api/global'
-import { StrategyItem } from '@/api/model-types'
-import { deleteStrategy, listStrategy, ListStrategyRequest, pushStrategy, updateStrategyStatus } from '@/api/strategy'
+import type { StrategyItem } from '@/api/model-types'
+import {
+  type ListStrategyRequest,
+  deleteStrategy,
+  listStrategy,
+  pushStrategy,
+  updateStrategyStatus
+} from '@/api/strategy'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
 import { ExclamationCircleFilled } from '@ant-design/icons'
-import { Button, message, Modal, Space, theme } from 'antd'
+import { Button, Modal, Space, message, theme } from 'antd'
 import { debounce } from 'lodash'
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import type React from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import StrategyCharts from './charts-modal-metric'
 import { StrategyDetailDomain } from './detail-modal-domain'
 import { StrategyDetailEvent } from './detail-modal-event'
@@ -206,9 +213,9 @@ const StrategyMetric: React.FC = () => {
     []
   )
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     fetchData(searchParams)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh, searchParams, fetchData])
 
   const onSearch = (formData: ListStrategyRequest) => {
@@ -264,13 +271,19 @@ const StrategyMetric: React.FC = () => {
   const onHandleMenuOnClick = (item: StrategyItem, key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
-        updateStrategyStatus({ ids: [item.id], status: Status.StatusEnable }).then(() => {
+        updateStrategyStatus({
+          ids: [item.id],
+          status: Status.StatusEnable
+        }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
         break
       case ActionKey.DISABLE:
-        updateStrategyStatus({ ids: [item.id], status: Status.StatusDisable }).then(() => {
+        updateStrategyStatus({
+          ids: [item.id],
+          status: Status.StatusDisable
+        }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
@@ -293,7 +306,7 @@ const StrategyMetric: React.FC = () => {
         break
       case ActionKey.DELETE:
         confirm({
-          title: `请确认是否删除该策略组?`,
+          title: '请确认是否删除该策略组?',
           icon: <ExclamationCircleFilled />,
           content: '此操作不可逆',
           onOk() {

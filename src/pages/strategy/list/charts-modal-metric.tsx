@@ -1,14 +1,14 @@
-import { StrategyItem } from '@/api/model-types'
+import type { StrategyItem } from '@/api/model-types'
 import { getStrategy } from '@/api/strategy'
-import { MetricsChart, Threshold } from '@/components/chart/metrics-charts'
+import { MetricsChart, type Threshold } from '@/components/chart/metrics-charts'
 import { metricQueryRange } from '@/components/chart/query-range'
 import { DataFrom } from '@/components/data/form'
-import { MetricsResponse } from '@/types/metrics'
+import type { MetricsResponse } from '@/types/metrics'
 import { GlobalContext } from '@/utils/context'
 import { transformMetricsData } from '@/utils/metricsTransform'
 import { AreaChartOutlined, LineChartOutlined } from '@ant-design/icons'
-import { Button, Empty, Form, InputNumber, message, Modal, ModalProps, Tabs, TabsProps } from 'antd'
-import dayjs, { Dayjs } from 'dayjs'
+import { Button, Empty, Form, InputNumber, Modal, type ModalProps, Tabs, type TabsProps, message } from 'antd'
+import dayjs, { type Dayjs } from 'dayjs'
 import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 
@@ -74,6 +74,7 @@ const StrategyCharts: React.FC<StrategyChartsProps> = ({ strategyID, ...rest }) 
     setRefresh(!refresh)
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (!strategyDetail) return
     onChange(strategyDetail?.expr || '', activeKey.toString())
@@ -84,7 +85,7 @@ const StrategyCharts: React.FC<StrategyChartsProps> = ({ strategyID, ...rest }) 
     if (!strategyID) return
     fetchData(strategyID)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strategyID])
+  }, [strategyID, fetchData])
 
   return (
     <Modal {...rest} loading={loading}>
@@ -102,14 +103,38 @@ const StrategyCharts: React.FC<StrategyChartsProps> = ({ strategyID, ...rest }) 
               showTime: true,
               // 预置时间选项
               presets: [
-                { label: '最近5分钟', value: [dayjs().subtract(5, 'minute'), dayjs()] },
-                { label: '最近1小时', value: [dayjs().subtract(1, 'hour'), dayjs()] },
-                { label: '最近3小时', value: [dayjs().subtract(3, 'hour'), dayjs()] },
-                { label: '最近6小时', value: [dayjs().subtract(6, 'hour'), dayjs()] },
-                { label: '最近12小时', value: [dayjs().subtract(12, 'hour'), dayjs()] },
-                { label: '最近1天', value: [dayjs().subtract(1, 'day'), dayjs()] },
-                { label: '最近2天', value: [dayjs().subtract(2, 'day'), dayjs()] },
-                { label: '最近7天', value: [dayjs().subtract(7, 'day'), dayjs()] }
+                {
+                  label: '最近5分钟',
+                  value: [dayjs().subtract(5, 'minute'), dayjs()]
+                },
+                {
+                  label: '最近1小时',
+                  value: [dayjs().subtract(1, 'hour'), dayjs()]
+                },
+                {
+                  label: '最近3小时',
+                  value: [dayjs().subtract(3, 'hour'), dayjs()]
+                },
+                {
+                  label: '最近6小时',
+                  value: [dayjs().subtract(6, 'hour'), dayjs()]
+                },
+                {
+                  label: '最近12小时',
+                  value: [dayjs().subtract(12, 'hour'), dayjs()]
+                },
+                {
+                  label: '最近1天',
+                  value: [dayjs().subtract(1, 'day'), dayjs()]
+                },
+                {
+                  label: '最近2天',
+                  value: [dayjs().subtract(2, 'day'), dayjs()]
+                },
+                {
+                  label: '最近7天',
+                  value: [dayjs().subtract(7, 'day'), dayjs()]
+                }
               ]
             }
           }
@@ -119,9 +144,9 @@ const StrategyCharts: React.FC<StrategyChartsProps> = ({ strategyID, ...rest }) 
           onValuesChange: (_, values) => {
             setStep(values.step)
             const ts: Dayjs[] = []
-            values.time.forEach((t: string) => {
+            for (const t of values.time) {
               ts.push(dayjs(t))
-            })
+            }
             setTimeRange(ts)
           }
         }}
