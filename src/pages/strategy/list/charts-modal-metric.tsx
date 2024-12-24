@@ -15,7 +15,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react'
 export interface StrategyChartsProps extends ModalProps {
   strategyID?: number
 }
-const StrategyCharts: React.FC<StrategyChartsProps> = ({ strategyID, ...rest }) => {
+const StrategyCharts: React.FC<StrategyChartsProps> = ({ strategyID, open, ...rest }) => {
   const { teamInfo } = useContext(GlobalContext)
   const [strategyDetail, setStrategyDetail] = useState<StrategyItem>()
   const [loading, setLoading] = useState(false)
@@ -82,13 +82,13 @@ const StrategyCharts: React.FC<StrategyChartsProps> = ({ strategyID, ...rest }) 
   }, [strategyDetail, activeKey, refresh, timeRange, step])
 
   useEffect(() => {
-    if (!strategyID) return
+    if (!strategyID || !open) return
     fetchData(strategyID)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strategyID, fetchData])
+  }, [strategyID, open, fetchData])
 
   return (
-    <Modal {...rest} loading={loading}>
+    <Modal {...rest} open={open} loading={loading}>
       <DataFrom
         items={[
           {

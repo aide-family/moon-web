@@ -2,10 +2,10 @@ import type { Condition, SustainType } from '@/api/enum'
 import { ConditionData, StatusData, SustainTypeData } from '@/api/global'
 import type { StrategyItem } from '@/api/model-types'
 import { getStrategy } from '@/api/strategy'
+import { useRequest } from 'ahooks'
 import { Badge, Descriptions, type DescriptionsProps, Modal, type ModalProps, Space, Table } from 'antd'
-import { debounce } from 'lodash'
 import type React from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export interface MetricDetailProps extends ModalProps {
   strategyId?: number
@@ -14,27 +14,18 @@ export interface MetricDetailProps extends ModalProps {
 export const MetricDetail: React.FC<MetricDetailProps> = (props) => {
   const { strategyId, open, ...rest } = props
   const [detail, setDetail] = useState<StrategyItem>()
-  const [loading, setLoading] = useState(false)
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = useCallback(
-    debounce(async (id: number) => {
-      //   if (!realtimeId) return
-      setLoading(true)
-      getStrategy({ id })
-        .then(({ detail }) => {
-          setDetail(detail)
-        })
-        .finally(() => setLoading(false))
-    }, 500),
-    []
-  )
+  const { run: initDetail, loading: detailLoading } = useRequest(getStrategy, {
+    manual: true,
+    onSuccess: (data) => {
+      setDetail(data?.detail)
+    }
+  })
 
   useEffect(() => {
     if (!strategyId || !open) return
-    fetchData(strategyId)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strategyId, open, fetchData])
+    initDetail({ id: strategyId })
+  }, [strategyId, open, initDetail])
 
   const items = (): DescriptionsProps['items'] => {
     if (!detail) return []
@@ -147,7 +138,7 @@ export const MetricDetail: React.FC<MetricDetailProps> = (props) => {
 
   return (
     <>
-      <Modal {...rest} open={open} footer={null} loading={loading} title='Metric 策略详情'>
+      <Modal {...rest} open={open} footer={null} loading={detailLoading} title='Metric 策略详情'>
         <Descriptions
           className='max-h-[70vh] overflow-y-auto overflow-x-hidden'
           items={items()}

@@ -2,10 +2,10 @@ import type { Condition } from '@/api/enum'
 import { ConditionData, StatusData } from '@/api/global'
 import type { StrategyItem } from '@/api/model-types'
 import { getStrategy } from '@/api/strategy'
+import { useRequest } from 'ahooks'
 import { Badge, Descriptions, type DescriptionsProps, Modal, type ModalProps, Space, Table } from 'antd'
-import { debounce } from 'lodash'
 import type React from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export interface StrategyDetailDomainProps extends ModalProps {
   strategyId?: number
@@ -14,27 +14,18 @@ export interface StrategyDetailDomainProps extends ModalProps {
 export const StrategyDetailDomain: React.FC<StrategyDetailDomainProps> = (props) => {
   const { strategyId, open, ...rest } = props
   const [detail, setDetail] = useState<StrategyItem>()
-  const [loading, setLoading] = useState(false)
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = useCallback(
-    debounce(async (id: number) => {
-      //   if (!realtimeId) return
-      setLoading(true)
-      getStrategy({ id })
-        .then(({ detail }) => {
-          setDetail(detail)
-        })
-        .finally(() => setLoading(false))
-    }, 500),
-    []
-  )
+  const { run: initDetail, loading: detailLoading } = useRequest(getStrategy, {
+    manual: true,
+    onSuccess: (data) => {
+      setDetail(data?.detail)
+    }
+  })
 
   useEffect(() => {
     if (!strategyId || !open) return
-    fetchData(strategyId)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strategyId, open, fetchData])
+    initDetail({ id: strategyId })
+  }, [strategyId, open, initDetail])
 
   const items = (): DescriptionsProps['items'] => {
     if (!detail) return []
@@ -136,7 +127,7 @@ export const StrategyDetailDomain: React.FC<StrategyDetailDomainProps> = (props)
   }
 
   return (
-    <Modal {...rest} open={open} title='证书监控策略详情' loading={loading}>
+    <Modal {...rest} open={open} title='证书监控策略详情' loading={detailLoading}>
       <Descriptions
         className='max-h-[70vh] overflow-y-auto overflow-x-hidden'
         items={items()}
