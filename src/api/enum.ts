@@ -123,8 +123,8 @@ export enum DatasourceType {
   /** Log */
   DatasourceTypeLog = 3,
 
-  /** MQ */
-  DatasourceTypeMQ = 4
+  /** Event */
+  DatasourceTypeEvent = 4
 }
 
 /** 存储器类型 prometheus、victoriametrics等 */

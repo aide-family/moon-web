@@ -52,7 +52,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
   const [loading, setLoading] = useState(false)
   const [options, setOptions] = useState<(DataFromItem | DataFromItem[])[]>([])
   const [editDatasource, setEditDatasource] = useState<DatasourceItem>({
-    datasourceType: DatasourceType.DatasourceTypeMQ
+    datasourceType: DatasourceType.DatasourceTypeEvent
   } as DatasourceItem)
   // 数据源类型
   const [datasourceType, setDatasourceType] = useState<StorageType>(StorageType.StorageTypeUnknown)
@@ -60,7 +60,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
 
   const init = () => {
     setEditDatasource({
-      datasourceType: DatasourceType.DatasourceTypeMQ
+      datasourceType: DatasourceType.DatasourceTypeEvent
     } as DatasourceItem)
     setCurrent(0)
     setOptions(formOptions(datasourceType, saslEnable))

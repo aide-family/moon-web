@@ -127,7 +127,7 @@ export const DataSourceTypeData: Record<DatasourceType, string> = {
   [DatasourceType.DatasourceTypeMetric]: 'Metric',
   [DatasourceType.DatasourceTypeLog]: 'Log',
   [DatasourceType.DatasourceTypeTrace]: 'Trace',
-  [DatasourceType.DatasourceTypeMQ]: 'MQ'
+  [DatasourceType.DatasourceTypeEvent]: 'Event'
 }
 
 export const StorageTypeData: Record<StorageType, string> = {

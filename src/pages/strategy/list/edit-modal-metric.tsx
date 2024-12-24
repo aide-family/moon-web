@@ -1,27 +1,30 @@
-import { Condition, DatasourceType, Status, StrategyType, SustainType } from '@/api/enum'
+import { listDatasource } from '@/api/datasource'
+import { dictSelectList } from '@/api/dict'
+import { Condition, DatasourceType, DictType, Status, StrategyType, SustainType } from '@/api/enum'
 import { ConditionData, SustainTypeData, defaultPaginationReq } from '@/api/global'
-import type { StrategyItem } from '@/api/model-types'
+import type {
+  AlarmNoticeGroupItem,
+  DatasourceItem,
+  SelectItem,
+  StrategyGroupItem,
+  StrategyItem
+} from '@/api/model-types'
+import { listAlarmGroup } from '@/api/notify/alarm-group'
 import { baseURL } from '@/api/request'
 import {
   type CreateStrategyRequestFormData,
   createStrategy,
+  listStrategyGroup,
   parseFormDataToStrategyLabels,
   parseMetricStrategyDetailToFormData,
   updateStrategy
 } from '@/api/strategy'
 import { AnnotationsEditor } from '@/components/data/child/annotation-editor'
 import PromQLInput from '@/components/data/child/prom-ql'
-import {
-  useAlarmLevelList,
-  useAlarmNoticeGroupList,
-  useAlarmPageList,
-  useDatasourceList,
-  useStrategyCategoryList,
-  useStrategyGroupList
-} from '@/hooks/select'
 import { useSubmit } from '@/hooks/submit'
 import { GlobalContext } from '@/utils/context'
 import { MinusCircleOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import { useRequest } from 'ahooks'
 import {
   Button,
   Card,
@@ -39,7 +42,7 @@ import {
   Typography,
   theme
 } from 'antd'
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 
 export interface MetricEditModalProps extends ModalProps {
   strategyDetail?: StrategyItem
@@ -54,25 +57,92 @@ export default function MetricEditModal(props: MetricEditModalProps) {
   const selectDatasource = Form.useWatch('datasourceIds', form)
 
   const [loading, setLoading] = useState(false)
-  const { datasourceList, datasourceListLoading } = useDatasourceList({
-    datasourceType: DatasourceType.DatasourceTypeMetric,
-    pagination: defaultPaginationReq
+
+  const [datasourceList, setDatasourceList] = useState<DatasourceItem[]>([])
+  const [strategyGroupList, setStrategyGroupList] = useState<StrategyGroupItem[]>([])
+  const [strategyCategoryList, setStrategyCategoryList] = useState<SelectItem[]>([])
+  const [alarmGroupList, setAlarmGroupList] = useState<AlarmNoticeGroupItem[]>([])
+  const [alarmPageList, setAlarmPageList] = useState<SelectItem[]>([])
+  const [alarmLevelList, setAlarmLevelList] = useState<SelectItem[]>([])
+
+  const { run: initDatasourceList, loading: datasourceListLoading } = useRequest(listDatasource, {
+    manual: true,
+    onSuccess: (data) => {
+      setDatasourceList(data?.list || [])
+    }
   })
-  const { strategyGroupList, strategyGroupListLoading } = useStrategyGroupList({
-    pagination: defaultPaginationReq
+  const { run: initStrategyCategoryList, loading: strategyCategoryListLoading } = useRequest(dictSelectList, {
+    manual: true,
+    onSuccess: (data) => {
+      setStrategyCategoryList(data?.list || [])
+    }
   })
-  const { strategyCategoryList, strategyCategoryListLoading } = useStrategyCategoryList({
-    pagination: defaultPaginationReq
+
+  const { run: initStrategyGroupList, loading: strategyGroupListLoading } = useRequest(listStrategyGroup, {
+    manual: true,
+    onSuccess: (data) => {
+      setStrategyGroupList(data?.list || [])
+    }
   })
-  const { alarmGroupList, alarmGroupListLoading } = useAlarmNoticeGroupList({
-    pagination: defaultPaginationReq
+
+  const { run: initAlarmGroupList, loading: alarmGroupListLoading } = useRequest(listAlarmGroup, {
+    manual: true,
+    onSuccess: (data) => {
+      setAlarmGroupList(data?.list || [])
+    }
   })
-  const { alarmPageList, alarmPageListLoading } = useAlarmPageList({
-    pagination: defaultPaginationReq
+
+  const { run: initAlarmPageList, loading: alarmPageListLoading } = useRequest(dictSelectList, {
+    manual: true,
+    onSuccess: (data) => {
+      setAlarmPageList(data?.list || [])
+    }
   })
-  const { alarmLevelList, alarmLevelListLoading } = useAlarmLevelList({
-    pagination: defaultPaginationReq
+
+  const { run: initAlarmLevelList, loading: alarmLevelListLoading } = useRequest(dictSelectList, {
+    manual: true,
+    onSuccess: (data) => {
+      setAlarmLevelList(data?.list || [])
+    }
   })
+
+  const initFormDeps = useCallback(() => {
+    initDatasourceList({
+      datasourceType: DatasourceType.DatasourceTypeMetric,
+      pagination: defaultPaginationReq
+    })
+    initStrategyGroupList({
+      pagination: defaultPaginationReq
+    })
+    initStrategyCategoryList({
+      pagination: defaultPaginationReq,
+      dictType: DictType.DictTypeStrategyCategory
+    })
+    initAlarmGroupList({
+      pagination: defaultPaginationReq
+    })
+    initAlarmPageList({
+      pagination: defaultPaginationReq,
+      dictType: DictType.DictTypeAlarmPage
+    })
+    initAlarmLevelList({
+      pagination: defaultPaginationReq
+    })
+  }, [
+    initDatasourceList,
+    initStrategyGroupList,
+    initStrategyCategoryList,
+    initAlarmGroupList,
+    initAlarmPageList,
+    initAlarmLevelList
+  ])
+
+  useEffect(() => {
+    if (restProps.open) {
+      initFormDeps()
+    }
+  }, [restProps.open, initFormDeps])
+
   const { submit } = useSubmit(updateStrategy, createStrategy, strategyDetail?.id)
 
   const [descriptionOkInfo] = useState<{
@@ -365,6 +435,7 @@ export default function MetricEditModal(props: MetricEditModalProps) {
                             ]}
                           >
                             <Select
+                              allowClear
                               placeholder='请选择告警等级'
                               loading={alarmLevelListLoading}
                               options={alarmLevelList.map((item) => ({
@@ -391,6 +462,7 @@ export default function MetricEditModal(props: MetricEditModalProps) {
                             ]}
                           >
                             <Select
+                              allowClear
                               placeholder='请选择判断条件'
                               options={Object.entries(ConditionData)
                                 .filter(([key]) => +key !== Condition.ConditionUnknown)
@@ -427,6 +499,7 @@ export default function MetricEditModal(props: MetricEditModalProps) {
                             ]}
                           >
                             <Select
+                              allowClear
                               placeholder='请选择触发类型'
                               options={Object.entries(SustainTypeData)
                                 .filter(([key]) => +key !== SustainType.SustainTypeUnknown)
@@ -482,6 +555,7 @@ export default function MetricEditModal(props: MetricEditModalProps) {
                             ]}
                           >
                             <Select
+                              allowClear
                               placeholder='请选择告警页面'
                               loading={alarmPageListLoading}
                               mode='multiple'
@@ -577,6 +651,7 @@ export default function MetricEditModal(props: MetricEditModalProps) {
                                             className='flex-1'
                                           >
                                             <Select
+                                              allowClear
                                               placeholder='请选择通知对象'
                                               loading={alarmGroupListLoading}
                                               options={alarmGroupList.map((item) => ({

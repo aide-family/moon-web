@@ -55,7 +55,7 @@ export default function Event() {
       listDatasource({
         pagination: defaultPaginationReq,
         keyword: value,
-        datasourceType: DatasourceType.DatasourceTypeMQ
+        datasourceType: DatasourceType.DatasourceTypeEvent
       }).then(({ list }) => {
         setDatasource(list)
         if (!datasourceDetail && list.length > 0) {
