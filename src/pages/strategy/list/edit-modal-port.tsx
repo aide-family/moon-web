@@ -6,6 +6,7 @@ import { listAlarmGroup } from '@/api/notify/alarm-group'
 import {
   type CreateStrategyRequestFormData,
   createStrategy,
+  getStrategy,
   listStrategyGroup,
   parseFormDataToStrategyLabels,
   parsePortStrategyDetailToFormData,
@@ -44,13 +45,20 @@ export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
 
   const { token } = theme.useToken()
   const [form] = Form.useForm<CreateStrategyRequestFormData>()
-  const [loading, setLoading] = useState(false)
 
   const [strategyGroupList, setStrategyGroupList] = useState<StrategyGroupItem[]>([])
   const [strategyCategoryList, setStrategyCategoryList] = useState<SelectItem[]>([])
   const [alarmGroupList, setAlarmGroupList] = useState<AlarmNoticeGroupItem[]>([])
   const [alarmPageList, setAlarmPageList] = useState<SelectItem[]>([])
   const [alarmLevelList, setAlarmLevelList] = useState<SelectItem[]>([])
+  const [detail, setDetail] = useState<StrategyItem>()
+
+  const { run: initDetail, loading: detailLoading } = useRequest(getStrategy, {
+    manual: true,
+    onSuccess: (data) => {
+      setDetail(data?.detail)
+    }
+  })
 
   const { run: initStrategyCategoryList, loading: strategyCategoryListLoading } = useRequest(dictSelectList, {
     manual: true,
@@ -105,7 +113,20 @@ export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
     initAlarmLevelList({
       pagination: defaultPaginationReq
     })
-  }, [initStrategyGroupList, initStrategyCategoryList, initAlarmGroupList, initAlarmPageList, initAlarmLevelList])
+    if (strategyDetail) {
+      initDetail({
+        id: strategyDetail.id
+      })
+    }
+  }, [
+    initStrategyGroupList,
+    initStrategyCategoryList,
+    initAlarmGroupList,
+    initAlarmPageList,
+    initAlarmLevelList,
+    initDetail,
+    strategyDetail
+  ])
 
   useEffect(() => {
     if (restProps.open) {
@@ -113,7 +134,7 @@ export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
     }
   }, [restProps.open, initFormDeps])
 
-  const { submit } = useSubmit(updateStrategy, createStrategy, strategyDetail?.id)
+  const { submit, loading } = useSubmit(updateStrategy, createStrategy, strategyDetail?.id)
 
   const [descriptionOkInfo] = useState<{
     info: string
@@ -129,7 +150,6 @@ export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
   })
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setLoading(true)
     form
       .validateFields()
       .then((values) => {
@@ -145,23 +165,20 @@ export const PortEditModal: React.FC<PortEditModalProps> = (props) => {
       .then(() => {
         onOk?.(e)
       })
-      .finally(() => {
-        setLoading(false)
-      })
   }
 
   useEffect(() => {
     if (restProps.open) {
-      if (strategyDetail) {
-        form.setFieldsValue(parsePortStrategyDetailToFormData(strategyDetail))
+      if (detail) {
+        form.setFieldsValue(parsePortStrategyDetailToFormData(detail))
       } else {
         form.resetFields()
       }
     }
-  }, [strategyDetail, restProps.open, form])
+  }, [detail, restProps.open, form])
 
   return (
-    <Modal {...restProps} onOk={handleSubmit} confirmLoading={loading}>
+    <Modal {...restProps} onOk={handleSubmit} loading={detailLoading} confirmLoading={loading}>
       <div className='max-h-[70vh] overflow-y-auto overflow-x-hidden'>
         <Form form={form} layout='vertical' autoComplete='off' disabled={loading}>
           <Form.Item name='strategyType' initialValue={StrategyType.StrategyTypeDomainPort} className='hidden'>

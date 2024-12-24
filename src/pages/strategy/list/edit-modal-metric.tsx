@@ -14,6 +14,7 @@ import { baseURL } from '@/api/request'
 import {
   type CreateStrategyRequestFormData,
   createStrategy,
+  getStrategy,
   listStrategyGroup,
   parseFormDataToStrategyLabels,
   parseMetricStrategyDetailToFormData,
@@ -56,14 +57,20 @@ export default function MetricEditModal(props: MetricEditModalProps) {
   const [form] = Form.useForm<CreateStrategyRequestFormData>()
   const selectDatasource = Form.useWatch('datasourceIds', form)
 
-  const [loading, setLoading] = useState(false)
-
   const [datasourceList, setDatasourceList] = useState<DatasourceItem[]>([])
   const [strategyGroupList, setStrategyGroupList] = useState<StrategyGroupItem[]>([])
   const [strategyCategoryList, setStrategyCategoryList] = useState<SelectItem[]>([])
   const [alarmGroupList, setAlarmGroupList] = useState<AlarmNoticeGroupItem[]>([])
   const [alarmPageList, setAlarmPageList] = useState<SelectItem[]>([])
   const [alarmLevelList, setAlarmLevelList] = useState<SelectItem[]>([])
+  const [detail, setDetail] = useState<StrategyItem>()
+
+  const { run: initDetail, loading: detailLoading } = useRequest(getStrategy, {
+    manual: true,
+    onSuccess: (data) => {
+      setDetail(data?.detail)
+    }
+  })
 
   const { run: initDatasourceList, loading: datasourceListLoading } = useRequest(listDatasource, {
     manual: true,
@@ -128,13 +135,20 @@ export default function MetricEditModal(props: MetricEditModalProps) {
     initAlarmLevelList({
       pagination: defaultPaginationReq
     })
+    if (strategyDetail) {
+      initDetail({
+        id: strategyDetail.id
+      })
+    }
   }, [
     initDatasourceList,
     initStrategyGroupList,
     initStrategyCategoryList,
     initAlarmGroupList,
     initAlarmPageList,
-    initAlarmLevelList
+    initAlarmLevelList,
+    strategyDetail,
+    initDetail
   ])
 
   useEffect(() => {
@@ -143,7 +157,7 @@ export default function MetricEditModal(props: MetricEditModalProps) {
     }
   }, [restProps.open, initFormDeps])
 
-  const { submit } = useSubmit(updateStrategy, createStrategy, strategyDetail?.id)
+  const { submit, loading } = useSubmit(updateStrategy, createStrategy, strategyDetail?.id)
 
   const [descriptionOkInfo] = useState<{
     info: string
@@ -159,7 +173,6 @@ export default function MetricEditModal(props: MetricEditModalProps) {
   })
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setLoading(true)
     form
       .validateFields()
       .then((values) => {
@@ -176,25 +189,22 @@ export default function MetricEditModal(props: MetricEditModalProps) {
       .then(() => {
         onOk?.(e)
       })
-      .finally(() => {
-        setLoading(false)
-      })
   }
 
   useEffect(() => {
     if (restProps.open) {
-      if (strategyDetail) {
-        form.setFieldsValue(parseMetricStrategyDetailToFormData(strategyDetail))
+      if (detail) {
+        form.setFieldsValue(parseMetricStrategyDetailToFormData(detail))
       } else {
         form.resetFields()
       }
     }
-  }, [strategyDetail, restProps.open, form])
+  }, [detail, restProps.open, form])
 
   const pathPrefix = `${baseURL}/metric/${teamInfo?.id || 0}/${selectDatasource?.at(0) || 0}`
 
   return (
-    <Modal {...restProps} onOk={handleSubmit} confirmLoading={loading}>
+    <Modal {...restProps} onOk={handleSubmit} loading={detailLoading} confirmLoading={loading}>
       <div className='max-h-[70vh] overflow-y-auto overflow-x-hidden'>
         <Form form={form} layout='vertical' autoComplete='off' disabled={loading}>
           <Form.Item name='strategyType' initialValue={StrategyType.StrategyTypeMetric} className='hidden'>
