@@ -296,14 +296,6 @@ export interface StrategyMetricLevelItem {
   count: number
   /** 持续的类型 */
   sustainType: SustainType
-  /** 执行频率 */
-  interval: number
-  /** 状态 */
-  status: Status
-  /** 数据主键 */
-  id: number
-  /** 告警等级ID */
-  levelId: number
   /** 告警等级明细 */
   level: SelectItem
   /** 告警页面 */
@@ -322,16 +314,12 @@ export interface StrategyMetricLevelItem {
 
 /** 事件策略等级项 */
 export interface StrategyEventLevelItem {
-  /** 事件策略ID */
-  id: number
   /** 事件策略值 */
   threshold: string
   /** 事件策略条件 */
   condition: MQCondition
   /** 事件策略数据类型 */
   dataType: EventDataType
-  /** 事件策略告警等级ID */
-  levelId: number
   /** 事件策略告警等级 */
   level: SelectItem
   /** 事件策略告警页面 */
@@ -344,28 +332,20 @@ export interface StrategyEventLevelItem {
   creator: UserItem
   /** 对象状态下的数据KEY */
   pathKey: string
-  /** 状态 */
-  status: Status
   /** labelNotices  */
   labelNotices: LabelNoticeItem[]
 }
 
 /** 域名策略等级项 */
 export interface StrategyDomainLevelItem {
-  /** 策略等级ID */
-  levelId: number
   /** 告警等级明细 */
   level: SelectItem
-  /** 状态 */
-  status: Status
   /** 告警页面 */
   alarmPages: SelectItem[]
   /** 告警组 */
   alarmGroups: AlarmNoticeGroupItem[]
   /** 策略Labels */
   labelNotices: LabelNoticeItem[]
-  /** ID */
-  id: number
   /** 阈值 */
   threshold: number
   /** 判断条件 */
@@ -374,20 +354,14 @@ export interface StrategyDomainLevelItem {
 
 /** 端口策略等级项 */
 export interface StrategyPortLevelItem {
-  /** 策略等级ID */
-  levelId: number
   /** 告警等级明细 */
   level: SelectItem
-  /** 状态 */
-  status: Status
   /** 告警页面 */
   alarmPages: SelectItem[]
   /** 告警组 */
   alarmGroups: AlarmNoticeGroupItem[]
   /** 策略Labels */
   labelNotices: LabelNoticeItem[]
-  /** ID */
-  id: number
   /** 阈值 */
   threshold: number
   /** 端口 */
@@ -396,20 +370,14 @@ export interface StrategyPortLevelItem {
 
 /** http策略等级项 */
 export interface StrategyHTTPLevelItem {
-  /** 策略等级ID */
-  levelId: number
   /** 告警等级明细 */
   level: SelectItem
-  /** 状态 */
-  status: Status
   /** 告警页面 */
   alarmPages: SelectItem[]
   /** 告警组 */
   alarmGroups: AlarmNoticeGroupItem[]
   /** 策略Labels */
   labelNotices: LabelNoticeItem[]
-  /** ID */
-  id: number
   /** 状态码 */
   statusCode: number
   /** 响应时间 */
