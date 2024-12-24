@@ -1,5 +1,5 @@
 import { Status, StorageType } from '@/api/enum'
-import { DataFromItem } from '@/components/data/form'
+import type { DataFromItem } from '@/components/data/form'
 import { Kafka, MQTT, RabbitMQ, RocketMQ } from '@/components/icon'
 import { Space } from 'antd'
 
@@ -90,11 +90,20 @@ export function basicFormOptions(): (DataFromItem | DataFromItem[])[] {
         type: 'select',
         formProps: {
           rules: [
-            { required: true, message: '请输入端点', type: 'regexp', pattern: /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*$/ }
+            {
+              required: true,
+              message: '请输入端点',
+              type: 'regexp',
+              pattern: /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*$/
+            }
           ],
           tooltip: 'endpoints'
         },
-        props: { placeholder: '请输入端点', mode: 'tags', tokenSeparators: [',', ' '] }
+        props: {
+          placeholder: '请输入端点',
+          mode: 'tags',
+          tokenSeparators: [',', ' ']
+        }
       }
     ],
     [
@@ -151,7 +160,7 @@ export function kafkaFormOptions(saslEnable?: 'true' | 'false'): (DataFromItem |
         ? {
             label: '密码(password)',
             name: 'password',
-            type: 'password',
+            type: 'input',
             props: { placeholder: '请输入密码', autoComplete: 'off' }
           }
         : null,

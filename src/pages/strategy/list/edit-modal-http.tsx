@@ -110,7 +110,8 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
       dictType: DictType.DictTypeAlarmPage
     })
     initAlarmLevelList({
-      pagination: defaultPaginationReq
+      pagination: defaultPaginationReq,
+      dictType: DictType.DictTypeAlarmLevel
     })
     if (strategyDetail) {
       initDetail({

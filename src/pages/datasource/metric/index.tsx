@@ -1,16 +1,15 @@
-import { listDatasource, ListDatasourceRequest } from '@/api/datasource'
+import { type ListDatasourceRequest, listDatasource } from '@/api/datasource'
 import { DatasourceType } from '@/api/enum'
-import { DatasourceItem } from '@/api/model-types'
+import type { DatasourceItem } from '@/api/model-types'
 import useStorage from '@/utils/storage'
-import { Button, Empty, Input, Menu, Tabs, TabsProps, theme } from 'antd'
-import React, { useEffect } from 'react'
+import { Button, Empty, Input, Menu, Tabs, type TabsProps, theme } from 'antd'
+import type React from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { AlarmTemplate } from './alarm-template'
 import { Basics } from './basics'
 import { EditModal } from './edit-modal'
 import { Metadata } from './metadata'
 import { TimelyQuery } from './timely-query'
-
-export interface MetricProps {}
 
 const { useToken } = theme
 
@@ -23,17 +22,17 @@ const defaultSearchDatasourceParams: ListDatasourceRequest = {
 }
 
 let searchTimer: NodeJS.Timeout | null = null
-const Metric: React.FC<MetricProps> = () => {
+const Metric: React.FC = () => {
   const { token } = useToken()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [datasource, setDatasource] = React.useState<DatasourceItem[]>([])
-  const [datasourceDetail, setDatasourceDetail] = React.useState<DatasourceItem>()
+
+  const [datasource, setDatasource] = useState<DatasourceItem[]>([])
+  const [datasourceDetail, setDatasourceDetail] = useState<DatasourceItem>()
 
   const [searchDatasourceParams, setSearchDatasourceParams] =
-    React.useState<ListDatasourceRequest>(defaultSearchDatasourceParams)
-  const [openAddModal, setOpenAddModal] = React.useState(false)
-  const [refresh, setRefresh] = React.useState(false)
-  const [editId, setEditId] = React.useState<number>()
+    useState<ListDatasourceRequest>(defaultSearchDatasourceParams)
+  const [openAddModal, setOpenAddModal] = useState(false)
+  const [refresh, setRefresh] = useState(false)
+  const [editId, setEditId] = useState<number>()
   const [tabKey, setTabKey] = useStorage<string>('metricDatasourceTab', 'basics')
 
   const handleRefresh = () => {
@@ -89,7 +88,7 @@ const Metric: React.FC<MetricProps> = () => {
     setDatasourceDetail(datasource.find((item) => item.id === key))
   }
 
-  const handleDatasourceSearch = () => {
+  const handleDatasourceSearch = useCallback(() => {
     if (searchTimer) {
       clearTimeout(searchTimer)
     }
@@ -98,7 +97,7 @@ const Metric: React.FC<MetricProps> = () => {
         setDatasource(res?.list || [])
       })
     }, 500)
-  }
+  }, [searchDatasourceParams])
 
   const handleEditModalOnOK = () => {
     handleEditModalOnCancel()
@@ -116,7 +115,7 @@ const Metric: React.FC<MetricProps> = () => {
   const handleOnSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchDatasourceParams({
       ...searchDatasourceParams,
-      keyword: e.target.value + '%'
+      keyword: `${e.target.value}%`
     })
   }
 
@@ -125,10 +124,10 @@ const Metric: React.FC<MetricProps> = () => {
     setDatasourceDetail(datasource?.[0])
   }, [datasource])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     handleDatasourceSearch()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, searchDatasourceParams])
+  }, [refresh, handleDatasourceSearch])
   return (
     <div className='p-3 flex flex-row gap-3 h-full w-full'>
       <EditModal
@@ -157,7 +156,7 @@ const Metric: React.FC<MetricProps> = () => {
             }
           })}
           style={{ borderInlineEnd: 'none' }}
-          selectedKeys={[datasourceDetail?.id + '']}
+          selectedKeys={[`${datasourceDetail?.id}`]}
           className='w-full flex-1 overflow-auto text-start'
           onSelect={(k) => handleDatasourceChange(+k.key)}
         />

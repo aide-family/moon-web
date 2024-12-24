@@ -1,17 +1,17 @@
 import {
+  type CreateDatasourceRequestFormData,
   createDatasource,
-  CreateDatasourceRequest,
   datasourceHealth,
   getDatasource,
   updateDatasource
 } from '@/api/datasource'
 import { DatasourceType, Status, StorageType } from '@/api/enum'
 import { StatusData } from '@/api/global'
-import { DataFrom, DataFromItem } from '@/components/data/form'
+import { DataFrom, type DataFromItem } from '@/components/data/form'
 import { Prometheus, VictoriaMetrics } from '@/components/icon'
 import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons'
-import { Col, Form, Input, message, Modal, ModalProps, Row, Space } from 'antd'
-import React, { useEffect, useState } from 'react'
+import { Col, Form, Input, Modal, type ModalProps, Row, Space, message } from 'antd'
+import React, { useCallback, useEffect, useState } from 'react'
 
 export interface EditModalProps extends ModalProps {
   datasourceId?: number
@@ -20,15 +20,18 @@ export interface EditModalProps extends ModalProps {
 let timer: NodeJS.Timeout | null = null
 export const EditModal: React.FC<EditModalProps> = (props) => {
   const { onCancel, onOk, open, datasourceId } = props
-  const [form] = Form.useForm<CreateDatasourceRequest>()
+  const [form] = Form.useForm<CreateDatasourceRequestFormData>()
   const [loading, setLoading] = React.useState(false)
   const [dataSourceHealthStatus, setDataSourceHealth] = useState(false)
   const handleOnOk = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     form.validateFields().then((values) => {
-      values = { ...values, datasourceType: DatasourceType.DatasourceTypeMetric }
+      const newValues = {
+        ...values,
+        datasourceType: DatasourceType.DatasourceTypeMetric
+      }
       setLoading(true)
       if (datasourceId) {
-        updateDatasource({ ...values, id: datasourceId })
+        updateDatasource({ ...newValues, id: datasourceId, config: JSON.stringify(values.config) })
           .then(() => {
             form.resetFields()
             onOk?.(e)
@@ -41,7 +44,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
         setLoading(false)
         return
       }
-      createDatasource(values)
+      createDatasource({ ...newValues, config: JSON.stringify(values.config) })
         .then(() => {
           form.resetFields()
           onOk?.(e)
@@ -51,26 +54,31 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
     })
   }
 
-  const handleGetDatasource = () => {
+  const handleGetDatasource = useCallback(() => {
     if (!datasourceId) return
     if (timer) clearTimeout(timer)
     timer = setTimeout(() => {
       getDatasource({ id: datasourceId })
         .then(({ detail }) => {
-          form.setFieldsValue({ ...detail, config: detail.config })
+          let config: Record<string, string> = {}
+          try {
+            config = JSON.parse(detail.config)
+          } catch (error) {
+            message.error('数据源配置解析失败，请检查配置')
+          }
+          form.setFieldsValue({ ...detail, config })
         })
         .finally(() => {
           setLoading(false)
         })
     }, 500)
-  }
+  }, [datasourceId, form])
 
   useEffect(() => {
     if (open) {
       handleGetDatasource()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, datasourceId])
+  }, [open, handleGetDatasource])
 
   const handleOnCancel = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     form.resetFields()
@@ -156,7 +164,10 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
         enterButton: '连接测试',
         onSearch: async (value: string) => {
           setDataSourceHealth(false)
-          datasourceHealth({ url: value, type: form.getFieldValue('storageType') }).then(() => {
+          datasourceHealth({
+            url: value,
+            type: form.getFieldValue('storageType')
+          }).then(() => {
             setDataSourceHealth(true)
           })
         },

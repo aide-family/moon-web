@@ -4,7 +4,7 @@ import {
   type EventDataType,
   type HTTPMethod,
   type MQCondition,
-  Status,
+  type Status,
   type StatusCodeCondition,
   StrategyType,
   type SustainType,
@@ -515,7 +515,7 @@ export const parsePortStrategyDetailToFormData = (detail: StrategyItem): CreateS
         alarmGroupIds: item.alarmGroups.map((item) => item.id)
       })),
       port: item.port,
-      threshold: item.threshold
+      threshold: +item.threshold
     })
   )
 })

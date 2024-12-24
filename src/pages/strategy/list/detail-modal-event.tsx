@@ -1,5 +1,5 @@
-import type { Condition, EventDataType } from '@/api/enum'
-import { ConditionData, EventDataTypeData, StatusData } from '@/api/global'
+import type { EventDataType, MQCondition } from '@/api/enum'
+import { EventDataTypeData, MQConditionData, StatusData } from '@/api/global'
 import type { StrategyItem } from '@/api/model-types'
 import { getStrategy } from '@/api/strategy'
 import { useRequest } from 'ahooks'
@@ -99,7 +99,7 @@ export const StrategyDetailEvent: React.FC<StrategyDetailEventProps> = (props) =
           <Table
             className='w-full'
             size='small'
-            rowKey={(recrd) => recrd.levelId}
+            rowKey={(recrd) => recrd?.level?.value}
             columns={[
               {
                 title: '告警等级',
@@ -113,8 +113,8 @@ export const StrategyDetailEvent: React.FC<StrategyDetailEventProps> = (props) =
                 title: '判断条件',
                 dataIndex: 'condition',
                 key: 'condition',
-                render(value: Condition) {
-                  return ConditionData[value]
+                render(value: MQCondition) {
+                  return MQConditionData[value]
                 }
               },
               { title: '阈值', dataIndex: 'threshold' },

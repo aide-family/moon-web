@@ -1,10 +1,12 @@
 import { dictSelectList } from '@/api/dict'
-import { DictType } from '@/api/enum'
+import { defaultPaginationReq } from '@/api/global'
+import type { SelectItem, StrategyGroupItem } from '@/api/model-types'
 import { getStrategyGroup } from '@/api/strategy'
-import FetchSelect from '@/components/data/child/fetch-select'
-import { Form, Input, Modal, ModalProps } from 'antd'
-import React, { useEffect, useState } from 'react'
-import { GroupEditModalFormData } from './options'
+import { useRequest } from 'ahooks'
+import { Form, Input, Modal, type ModalProps, Select, Tag } from 'antd'
+import type React from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import type { GroupEditModalFormData } from './options'
 
 export type GroupEditModalData = {
   id?: number
@@ -26,39 +28,45 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
   const { onCancel, submit, open, title, groupId, disabled } = props
   const [form] = Form.useForm<GroupEditModalFormData>()
   const [loading, setLoading] = useState(false)
-  const [grounpDetail, setGroupDetail] = useState<GroupEditModalFormData>()
+  const [grounpDetail, setGroupDetail] = useState<StrategyGroupItem>()
+  const [strategyCategoryList, setStrategyCategoryList] = useState<SelectItem[]>([])
 
-  const getGroupDetail = async () => {
+  const { run: initStrategyCategoryList, loading: strategyCategoryListLoading } = useRequest(dictSelectList, {
+    manual: true,
+    onSuccess: (data) => {
+      setStrategyCategoryList(data?.list || [])
+    }
+  })
+
+  const { run: initDetail, loading: detailLoading } = useRequest(getStrategyGroup, {
+    manual: true,
+    onSuccess: (data) => {
+      setGroupDetail(data.detail)
+    }
+  })
+
+  const initFormDeps = useCallback(() => {
+    initStrategyCategoryList({
+      pagination: defaultPaginationReq
+    })
     if (groupId) {
-      setLoading(true)
-      getStrategyGroup({ id: groupId })
-        .then(({ detail }) => {
-          const { name, remark, categories } = detail
-          setGroupDetail({
-            name,
-            remark,
-            categoriesIds: categories?.map((item) => item.id) ?? []
-          })
-        })
-        .finally(() => setLoading(false))
+      initDetail({ id: groupId })
     }
-  }
+  }, [initStrategyCategoryList, initDetail, groupId])
 
   useEffect(() => {
-    if (!groupId) {
-      setGroupDetail(undefined)
-    }
-    getGroupDetail()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groupId])
-
-  useEffect(() => {
-    if (open && form && grounpDetail) {
+    if (open && grounpDetail) {
       form?.setFieldsValue(grounpDetail)
       return
     }
     form?.resetFields()
   }, [grounpDetail, open, form])
+
+  useEffect(() => {
+    if (open) {
+      initFormDeps()
+    }
+  }, [open, initFormDeps])
 
   const handleOnCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     onCancel?.(e)
@@ -87,27 +95,34 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
 
   return (
     <>
-      <Modal {...props} title={title} open={open} onCancel={handleOnCancel} onOk={handleOnOk} confirmLoading={loading}>
+      <Modal
+        {...props}
+        title={title}
+        loading={detailLoading}
+        open={open}
+        onCancel={handleOnCancel}
+        onOk={handleOnOk}
+        confirmLoading={loading}
+      >
         <Form form={form} layout='vertical' autoComplete='off' disabled={disabled || loading}>
           <Form.Item label='规则组名称' name='name' rules={[{ required: true, message: '请输入规则组名称' }]}>
             <Input placeholder='请输入规则组名称' allowClear />
           </Form.Item>
           <Form.Item label='规则组分类' name='categoriesIds' rules={[{ required: true, message: '请选择规则组分类' }]}>
-            <FetchSelect
-              selectProps={{
-                placeholder: '请选择规则组分类',
-                mode: 'multiple'
-              }}
-              handleFetch={(keyword: string) =>
-                dictSelectList({
-                  keyword,
-                  dictType: DictType.DictTypeStrategyGroupCategory,
-                  pagination: {
-                    pageSize: 999,
-                    pageNum: 1
-                  }
-                }).then(({ list }) => list)
-              }
+            <Select
+              placeholder='请选择策略组类型'
+              allowClear
+              mode='multiple'
+              loading={strategyCategoryListLoading}
+              options={strategyCategoryList.map((item) => ({
+                label: (
+                  <Tag bordered={false} color={item.extend?.color}>
+                    {item.label}
+                  </Tag>
+                ),
+                value: item.value,
+                disabled: item.disabled
+              }))}
             />
           </Form.Item>
           <Form.Item label='规则组描述' name='remark'>

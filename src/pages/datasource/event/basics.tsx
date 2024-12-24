@@ -1,10 +1,11 @@
 import { Status } from '@/api/enum'
 import { DataSourceTypeData, StorageTypeData } from '@/api/global'
-import { DatasourceItem } from '@/api/model-types'
+import type { DatasourceItem } from '@/api/model-types'
 import { GlobalContext } from '@/utils/context'
 import { RedoOutlined } from '@ant-design/icons'
-import { theme as AntdTheme, Badge, Button, Descriptions, DescriptionsProps, Space, Tag, Typography } from 'antd'
-import React, { useContext } from 'react'
+import { theme as AntdTheme, Badge, Button, Descriptions, type DescriptionsProps, Space, Tag, Typography } from 'antd'
+import type React from 'react'
+import { useContext } from 'react'
 import ReactJson from 'react-json-view'
 
 export interface BasicsProps {
@@ -61,8 +62,8 @@ export const Basics: React.FC<BasicsProps> = (props) => {
       span: { xs: 1, sm: 2, md: 2, lg: 2, xl: 2, xxl: 2 },
       children: (
         <Space size={[8, 16]} wrap className='w-full'>
-          {datasource?.endpoint.split(',').map((item, index) => (
-            <Tag color={token.colorPrimary} key={index}>
+          {datasource?.endpoint.split(',').map((item) => (
+            <Tag color={token.colorPrimary} key={item}>
               {item}
             </Tag>
           ))}
@@ -75,7 +76,7 @@ export const Basics: React.FC<BasicsProps> = (props) => {
       children: (
         <>
           <ReactJson
-            src={datasource?.config || {}}
+            src={JSON.parse(datasource?.config || '{}')}
             name={false}
             displayDataTypes={false}
             theme={theme === 'dark' ? 'bright' : 'bright:inverted'}

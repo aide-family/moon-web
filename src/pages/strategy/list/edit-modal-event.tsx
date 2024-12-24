@@ -126,7 +126,8 @@ export default function EventEditModal(props: EventEditModalProps) {
       dictType: DictType.DictTypeAlarmPage
     })
     initAlarmLevelList({
-      pagination: defaultPaginationReq
+      pagination: defaultPaginationReq,
+      dictType: DictType.DictTypeAlarmLevel
     })
     if (eventStrategyDetail) {
       initDetail({

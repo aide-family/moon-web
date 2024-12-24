@@ -1,11 +1,22 @@
 import { createDatasource, getDatasource, updateDatasource } from '@/api/datasource'
 import { DatasourceType, StorageType } from '@/api/enum'
 import { DataSourceTypeData, StatusData, StorageTypeData } from '@/api/global'
-import { DatasourceItem } from '@/api/model-types'
-import { DataFrom, DataFromItem } from '@/components/data/form'
+import type { DatasourceItem } from '@/api/model-types'
+import { DataFrom, type DataFromItem } from '@/components/data/form'
 import { GlobalContext } from '@/utils/context'
-import { theme as AntdTheme, Button, Descriptions, Form, message, Modal, ModalProps, Space, Steps, Tag } from 'antd'
-import { useContext, useEffect, useState } from 'react'
+import {
+  theme as AntdTheme,
+  Button,
+  Descriptions,
+  Form,
+  Modal,
+  type ModalProps,
+  Space,
+  Steps,
+  Tag,
+  message
+} from 'antd'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import ReactJson from 'react-json-view'
 import {
   basicFormOptions,
@@ -70,7 +81,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
     datasourceForm.resetFields()
   }
 
-  const fetchDatasourceDetail = async () => {
+  const fetchDatasourceDetail = useCallback(async () => {
     if (!datasourceId) return
     setLoading(true)
     if (timer) {
@@ -82,7 +93,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
         setLoading(false)
       })
     }, 500)
-  }
+  }, [datasourceId])
 
   const next = () => {
     // 表单校验
@@ -101,7 +112,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
       datasourceForm.validateFields().then((values) => {
         setEditDatasource({
           ...editDatasource,
-          config: values
+          config: JSON.stringify(values)
         })
         setCurrent(current + 1)
       })
@@ -143,6 +154,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
     }
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (props.open) {
       init()
@@ -156,16 +168,16 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
 
   useEffect(() => {
     fetchDatasourceDetail()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [datasourceId])
+  }, [fetchDatasourceDetail])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (datasourceDetail) {
       basicForm.setFieldsValue({
         ...datasourceDetail,
         endpoints: datasourceDetail.endpoint.split(',')
       })
-      datasourceForm.setFieldsValue(datasourceDetail.config)
+      datasourceForm.setFieldsValue(JSON.parse(datasourceDetail.config || '{}'))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [datasourceDetail])
@@ -243,8 +255,8 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
               key: 'endpoint',
               label: '端点',
               span: 2,
-              children: editDatasource?.endpoint?.split(',').map((item, index) => (
-                <Tag color={token.colorPrimary} key={index}>
+              children: editDatasource?.endpoint?.split(',').map((item) => (
+                <Tag color={token.colorPrimary} key={item}>
                   {item}
                 </Tag>
               ))
@@ -256,7 +268,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
               children: (
                 <ReactJson
                   style={{ width: '100%' }}
-                  src={editDatasource?.config}
+                  src={editDatasource?.config ? JSON.parse(editDatasource?.config) : {}}
                   displayDataTypes={false}
                   name={false}
                   iconStyle='square'

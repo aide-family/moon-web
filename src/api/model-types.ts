@@ -215,7 +215,7 @@ export interface DatasourceItem {
   /** 更新时间 */
   updatedAt: string
   /** 配置信息 */
-  config: { [key: string]: string }
+  config: string
   /** 描述 */
   remark: string
   /** 存储器类型 */

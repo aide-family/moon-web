@@ -133,7 +133,8 @@ export default function MetricEditModal(props: MetricEditModalProps) {
       dictType: DictType.DictTypeAlarmPage
     })
     initAlarmLevelList({
-      pagination: defaultPaginationReq
+      pagination: defaultPaginationReq,
+      dictType: DictType.DictTypeAlarmLevel
     })
     if (strategyDetail) {
       initDetail({
