@@ -51,8 +51,10 @@ const PermissionTree: React.FC<PermissionTreeProps> = (props) => {
       moduleNode.children!.push({
         title: (
           <Space>
-            <Tag style={{ width: 120, textAlign: 'center' }}>{resource.name}</Tag>
-            {resource.remark}
+            <Tag style={{ width: 180 }}>
+              <div className='text-ellipsis whitespace-nowrap overflow-hidden'>{resource.name}</div>
+            </Tag>
+            <div className='text-ellipsis whitespace-nowrap overflow-hidden'>{resource.remark}</div>
           </Space>
         ),
         disabled: resource.status !== Status.StatusEnable,

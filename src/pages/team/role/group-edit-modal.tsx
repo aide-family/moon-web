@@ -54,9 +54,11 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
   useEffect(() => {
     if (groupId && open) {
       initRoleDetail({ id: groupId })
+    }
+    if (open) {
       initResourceList({ pagination: { pageNum: 1, pageSize: 999 } })
     }
-  }, [open, groupId, initRoleDetail, initResourceList])
+  }, [open, groupId, initRoleDetail, initResourceList, disabled])
 
   useEffect(() => {
     if (open && form && grounpDetail) {
