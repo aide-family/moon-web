@@ -555,6 +555,7 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
                         <Col span={24}>
                           <Form.Item
                             label='查询参数'
+                            name={[field.name, 'queryParams']}
                             tooltip={
                               <div>
                                 <p>查询请求参数格式: key=value</p>
@@ -571,6 +572,7 @@ export const HTTPEditModal: React.FC<HTTPEditModalProps> = (props) => {
                         <Col span={24}>
                           <Form.Item
                             label='请求体'
+                            name={[field.name, 'body']}
                             tooltip={
                               <div>
                                 <p>
