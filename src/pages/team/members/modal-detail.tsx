@@ -1,8 +1,8 @@
 import { RoleData, StatusData } from '@/api/global'
-import { TeamMemberItem } from '@/api/model-types'
+import type { TeamMemberItem } from '@/api/model-types'
 import { getTeamMemberDetail } from '@/api/team'
 import { useRequest } from 'ahooks'
-import { Avatar, Badge, Descriptions, DescriptionsProps, Modal } from 'antd'
+import { Avatar, Badge, Descriptions, type DescriptionsProps, Modal } from 'antd'
 import { useEffect, useState } from 'react'
 
 export interface HookDetailModalProps {

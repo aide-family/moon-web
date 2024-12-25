@@ -28,9 +28,12 @@ export function EmailConfigSection() {
           rules={[
             {
               required: true,
-              message: '请输入SMTP服务器地址',
+              message: '请输入SMTP服务器地址'
+            },
+            {
               type: 'regexp',
-              pattern: /^([a-zA-Z0-9][-a-zA-Z0-9]*\.)+[a-zA-Z]{2,}$|^(\d{1,3}\.){3}\d{1,3}$/
+              pattern: /^([a-zA-Z0-9][-a-zA-Z0-9]*\.)+[a-zA-Z]{2,}$|^(\d{1,3}\.){3}\d{1,3}$/,
+              message: '请输入正确的SMTP服务器地址'
             }
           ]}
         >

@@ -1,9 +1,10 @@
-import { DashboardItem } from '@/api/model-types'
-import { CreateDashboardRequest, getDashboard } from '@/api/realtime/dashboard'
+import type { DashboardItem } from '@/api/model-types'
+import { type CreateDashboardRequest, getDashboard } from '@/api/realtime/dashboard'
 import { DataFrom } from '@/components/data/form'
-import { Form, Modal, ModalProps } from 'antd'
-import React, { useEffect, useState } from 'react'
-import { CreateDashobardFormType, editModalFormItems } from './options'
+import { Form, Modal, type ModalProps } from 'antd'
+import type React from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { type CreateDashobardFormType, editModalFormItems } from './options'
 
 export interface GroupEditModalProps extends ModalProps {
   groupId?: number
@@ -17,7 +18,7 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
   const [loading, setLoading] = useState(false)
   const [grounpDetail, setGroupDetail] = useState<DashboardItem>()
 
-  const getGroupDetail = async () => {
+  const getGroupDetail = useCallback(() => {
     if (groupId) {
       setLoading(true)
       getDashboard({ id: groupId })
@@ -26,15 +27,14 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
         })
         .finally(() => setLoading(false))
     }
-  }
+  }, [groupId])
 
   useEffect(() => {
     if (!groupId) {
       setGroupDetail(undefined)
     }
     getGroupDetail()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groupId])
+  }, [groupId, getGroupDetail])
 
   useEffect(() => {
     if (open && form && grounpDetail) {
@@ -80,7 +80,12 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
       <Modal {...props} title={title} open={open} onCancel={handleOnCancel} onOk={handleOnOk} confirmLoading={loading}>
         <DataFrom
           items={editModalFormItems('hex')}
-          props={{ form, layout: 'vertical', autoComplete: 'off', disabled: disabled || loading }}
+          props={{
+            form,
+            layout: 'vertical',
+            autoComplete: 'off',
+            disabled: disabled || loading
+          }}
         />
       </Modal>
     </>

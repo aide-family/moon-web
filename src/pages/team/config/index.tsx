@@ -1,10 +1,10 @@
-import { AsymmetricEncryptionConfigItem, SymmetricEncryptionConfigItem, TeamConfigItem } from '@/api/model-types'
+import type { AsymmetricEncryptionConfigItem, SymmetricEncryptionConfigItem, TeamConfigItem } from '@/api/model-types'
 import { getTeamConfig, updateTeamConfig } from '@/api/team'
 import { GlobalContext } from '@/utils/context'
 import { SaveOutlined } from '@ant-design/icons'
 import { useRequest } from 'ahooks'
-import { Button, Card, Col, Form, message, Row } from 'antd'
-import { FolderKey, Mail, Settings } from 'lucide-react'
+import { Button, Card, Col, Form, Row, message } from 'antd'
+import { FileLock2, FolderKey, Mail, Settings } from 'lucide-react'
 import { useContext, useEffect, useState } from 'react'
 import { AsymmetricEncryptionSection } from './config-asymmetric'
 import { EmailConfigSection } from './config-email'
@@ -75,8 +75,8 @@ export default function TeamConfig() {
         ...teamConfig,
         emailConfig: {
           ...teamConfig.emailConfig,
-          host: [teamConfig.emailConfig.host],
-          port: [teamConfig.emailConfig.port]
+          host: teamConfig.emailConfig.host ? [teamConfig.emailConfig.host] : [],
+          port: teamConfig.emailConfig.port ? [teamConfig.emailConfig.port] : []
         }
       })
     }
@@ -122,7 +122,7 @@ export default function TeamConfig() {
               type='inner'
               title={
                 <div className='flex items-center gap-2'>
-                  <FolderKey /> 对称加密
+                  <FileLock2 /> 对称加密
                 </div>
               }
               className='mb-4'

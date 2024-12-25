@@ -1,8 +1,9 @@
-import { DomainType, Status } from '@/api/enum'
+import { type DomainType, Status } from '@/api/enum'
 import { DomainTypeData, ModuleTypeData } from '@/api/global'
-import { ResourceItem } from '@/api/model-types'
-import { Space, Tag, Tree, TreeDataNode, TreeProps } from 'antd'
-import React, { useEffect, useState } from 'react'
+import type { ResourceItem } from '@/api/model-types'
+import { Space, Tag, Tree, type TreeDataNode, type TreeProps } from 'antd'
+import type React from 'react'
+import { useEffect, useState } from 'react'
 
 export interface PermissionTreeProps extends TreeProps {
   items: ResourceItem[]
@@ -22,33 +23,33 @@ const PermissionTree: React.FC<PermissionTreeProps> = (props) => {
   function convertToTreeData(resourceItems: ResourceItem[]): TreeDataNode[] {
     const domainMap = new Map<DomainType, TreeDataNode>()
 
-    resourceItems.forEach((resource) => {
+    for (const resource of resourceItems) {
       // 1. 如果 domain 不存在，先创建 Domain 节点
       if (!domainMap.has(resource.domain)) {
         domainMap.set(resource.domain, {
           title: DomainTypeData[resource.domain],
-          key: resource.domain + '_domain', // 使用 Map 大小作为唯一 key
+          key: `${resource.domain}_domain`, // 使用 Map 大小作为唯一 key
           children: []
         })
       }
 
       // 2. 获取 domain 节点
-      const domainNode = domainMap.get(resource.domain)!
+      const domainNode = domainMap.get(resource.domain)
 
       // 3. 在 domain 下查找或创建 module 节点
-      let moduleNode = domainNode.children!.find((child) => child.key === resource.module + '_module')
+      let moduleNode = domainNode?.children?.find((child) => child.key === `${resource.module}_module`)
 
       if (!moduleNode) {
         moduleNode = {
           title: ModuleTypeData[resource.module],
-          key: resource.module + '_module',
+          key: `${resource.module}_module`,
           children: []
         }
-        domainNode.children!.push(moduleNode)
+        domainNode?.children?.push(moduleNode)
       }
 
       // 4. 在 module 下添加 resource 节点
-      moduleNode.children!.push({
+      moduleNode?.children?.push({
         title: (
           <Space>
             <Tag style={{ width: 180 }}>
@@ -60,7 +61,7 @@ const PermissionTree: React.FC<PermissionTreeProps> = (props) => {
         disabled: resource.status !== Status.StatusEnable,
         key: resource.id
       })
-    })
+    }
 
     // 将 Map 转换为数组返回
     return Array.from(domainMap.values())
@@ -98,9 +99,8 @@ const PermissionTree: React.FC<PermissionTreeProps> = (props) => {
   }
 
   useEffect(() => {
-    onChange && onChange(checkedKeys as number[])
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkedKeys])
+    onChange?.(checkedKeys as number[])
+  }, [checkedKeys, onChange])
 
   return (
     <Tree

@@ -1,11 +1,12 @@
-import { ResourceItem, TeamRole } from '@/api/model-types'
+import type { ResourceItem, TeamRole } from '@/api/model-types'
 import { listResource } from '@/api/resource'
-import { createRole, CreateRoleRequest, getRole, updateRole } from '@/api/team/role'
+import { type CreateRoleRequest, createRole, getRole, updateRole } from '@/api/team/role'
 import { DataFrom } from '@/components/data/form'
 import { useRequest } from 'ahooks'
-import { Form, Modal, ModalProps } from 'antd'
+import { Form, Modal, type ModalProps } from 'antd'
 import FormItem from 'antd/es/form/FormItem'
-import React, { useEffect, useState } from 'react'
+import type React from 'react'
+import { useEffect, useState } from 'react'
 import { editModalFormItems } from './options'
 import PermissionTree from './permission-tree'
 
@@ -51,6 +52,7 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
     }
   })
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (groupId && open) {
       initRoleDetail({ id: groupId })
@@ -62,7 +64,10 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
 
   useEffect(() => {
     if (open && form && grounpDetail) {
-      form?.setFieldsValue({ ...grounpDetail, permissions: grounpDetail?.resources?.map((item) => item.id) || [] })
+      form?.setFieldsValue({
+        ...grounpDetail,
+        permissions: grounpDetail?.resources?.map((item) => item.id) || []
+      })
       return
     }
   }, [grounpDetail, open, form])

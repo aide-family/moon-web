@@ -1,11 +1,12 @@
 import { createDict, getDict, updateDict } from '@/api/dict'
 import { Status } from '@/api/enum'
-import { DictItem } from '@/api/model-types'
+import type { DictItem } from '@/api/model-types'
 import { DataFrom } from '@/components/data/form'
 import { useRequest } from 'ahooks'
-import { Form, Modal, ModalProps } from 'antd'
-import React, { useEffect, useState } from 'react'
-import { ColorType, CreateDictFormType, editModalFormItems } from './options'
+import { Form, Modal, type ModalProps } from 'antd'
+import type React from 'react'
+import { useEffect, useState } from 'react'
+import { type ColorType, type CreateDictFormType, editModalFormItems } from './options'
 
 export interface GroupEditModalProps extends ModalProps {
   groupId?: number

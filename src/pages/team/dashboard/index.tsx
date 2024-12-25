@@ -1,23 +1,24 @@
-import { ListDictRequest } from '@/api/dict'
+import type { ListDictRequest } from '@/api/dict'
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { DashboardItem } from '@/api/model-types'
+import type { DashboardItem } from '@/api/model-types'
 import {
+  type CreateDashboardRequest,
   batchUpdateDashboardStatus,
   createDashboard,
-  CreateDashboardRequest,
   deleteDashboard,
   listDashboard,
   updateDashboard
 } from '@/api/realtime/dashboard'
-import { ListStrategyGroupRequest } from '@/api/strategy'
+import type { ListStrategyGroupRequest } from '@/api/strategy'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { ExclamationCircleFilled } from '@ant-design/icons'
-import { Button, message, Modal, Space, theme } from 'antd'
+import { Button, Modal, Space, message, theme } from 'antd'
 import { debounce } from 'lodash'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import type React from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { GroupEditModal } from './group-edit-modal'
 import { formList, getColumnList } from './options'
 
@@ -87,12 +88,8 @@ const Group: React.FC = () => {
     const call = () => {
       if (!editGroupId) {
         return createDashboard(data)
-      } else {
-        return updateDashboard({
-          ...data,
-          id: editGroupId
-        })
       }
+      return updateDashboard({ ...data, id: editGroupId })
     }
     return call().then(() => {
       message.success(`${editGroupId ? '编辑' : '添加'}成功`)
@@ -101,6 +98,7 @@ const Group: React.FC = () => {
     })
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     fetchData(searchParams)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -136,13 +134,19 @@ const Group: React.FC = () => {
   const onHandleMenuOnClick = (item: DashboardItem, key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
-        batchUpdateDashboardStatus({ ids: [item.id], status: Status.StatusEnable }).then(() => {
+        batchUpdateDashboardStatus({
+          ids: [item.id],
+          status: Status.StatusEnable
+        }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
         break
       case ActionKey.DISABLE:
-        batchUpdateDashboardStatus({ ids: [item.id], status: Status.StatusDisable }).then(() => {
+        batchUpdateDashboardStatus({
+          ids: [item.id],
+          status: Status.StatusDisable
+        }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
@@ -157,7 +161,7 @@ const Group: React.FC = () => {
         break
       case ActionKey.DELETE:
         confirm({
-          title: `请确认是否删除该仪表盘?`,
+          title: '请确认是否删除该仪表盘?',
           icon: <ExclamationCircleFilled />,
           content: '此操作不可逆',
           onOk() {

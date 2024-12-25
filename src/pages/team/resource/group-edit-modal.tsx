@@ -1,9 +1,10 @@
-import { ResourceItem } from '@/api/model-types'
+import type { ResourceItem } from '@/api/model-types'
 import { getResource } from '@/api/resource'
 import { DataFrom } from '@/components/data/form'
 import { useRequest } from 'ahooks'
-import { Form, Modal, ModalProps } from 'antd'
-import React, { useEffect, useState } from 'react'
+import { Form, Modal, type ModalProps } from 'antd'
+import type React from 'react'
+import { useEffect, useState } from 'react'
 import { editModalFormItems } from './options'
 
 export interface GroupEditModalProps extends ModalProps {
@@ -55,7 +56,12 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
       >
         <DataFrom
           items={editModalFormItems}
-          props={{ form, layout: 'vertical', autoComplete: 'off', disabled: disabled }}
+          props={{
+            form,
+            layout: 'vertical',
+            autoComplete: 'off',
+            disabled: disabled
+          }}
         />
       </Modal>
     </>

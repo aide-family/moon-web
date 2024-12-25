@@ -13,6 +13,7 @@ export const useContainerHeightTop = (ref: React.RefObject<HTMLDivElement>, type
     }
   }, [ref])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     handleResize()
     window.addEventListener('resize', handleResize)

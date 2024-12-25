@@ -1,16 +1,17 @@
-import { batchUpdateDictStatus, deleteDict, listDict, ListDictRequest } from '@/api/dict'
+import { type ListDictRequest, batchUpdateDictStatus, deleteDict, listDict } from '@/api/dict'
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { DictItem } from '@/api/model-types'
-import { ListStrategyGroupRequest } from '@/api/strategy'
+import type { DictItem } from '@/api/model-types'
+import type { ListStrategyGroupRequest } from '@/api/strategy'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
 import { ExclamationCircleFilled } from '@ant-design/icons'
-import { Button, message, Modal, Space, theme } from 'antd'
-import { debounce } from 'lodash'
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { useRequest } from 'ahooks'
+import { Button, Modal, Space, message, theme } from 'antd'
+import type React from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { GroupEditModal } from './edit-modal'
 import { formList, getColumnList } from './options'
 
@@ -33,7 +34,6 @@ const Group: React.FC = () => {
 
   const [datasource, setDatasource] = useState<DictItem[]>([])
   const [searchParams, setSearchParams] = useState<ListDictRequest>(defaultSearchParams)
-  const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
   const [openGroupEditModal, setOpenGroupEditModal] = useState(false)
@@ -43,6 +43,14 @@ const Group: React.FC = () => {
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
+
+  const { run: initDictList, loading: initDictListLoading } = useRequest(listDict, {
+    manual: true,
+    onSuccess: (data) => {
+      setDatasource(data.list || [])
+      setTotal(data.pagination?.total || 0)
+    }
+  })
 
   const handleCloseGroupEditModal = () => {
     setOpenGroupEditModal(false)
@@ -65,29 +73,15 @@ const Group: React.FC = () => {
     setRefresh(!refresh)
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = useCallback(
-    debounce(async (params) => {
-      setLoading(true)
-      listDict(params)
-        .then(({ list, pagination }) => {
-          setDatasource(list || [])
-          setTotal(pagination?.total || 0)
-        })
-        .finally(() => setLoading(false))
-    }, 500),
-    []
-  )
-
   const handleGroupEditModalSubmit = () => {
     handleCloseGroupEditModal()
     onRefresh()
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    fetchData(searchParams)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, searchParams, fetchData])
+    initDictList(searchParams)
+  }, [refresh, searchParams, initDictList])
 
   const onSearch = (formData: ListStrategyGroupRequest) => {
     setSearchParams({
@@ -119,13 +113,19 @@ const Group: React.FC = () => {
   const onHandleMenuOnClick = (item: DictItem, key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
-        batchUpdateDictStatus({ ids: [item.id], status: Status.StatusEnable }).then(() => {
+        batchUpdateDictStatus({
+          ids: [item.id],
+          status: Status.StatusEnable
+        }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
         break
       case ActionKey.DISABLE:
-        batchUpdateDictStatus({ ids: [item.id], status: Status.StatusDisable }).then(() => {
+        batchUpdateDictStatus({
+          ids: [item.id],
+          status: Status.StatusDisable
+        }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
@@ -140,7 +140,7 @@ const Group: React.FC = () => {
         break
       case ActionKey.DELETE:
         confirm({
-          title: `请确认是否删除该字典?`,
+          title: '请确认是否删除该字典?',
           icon: <ExclamationCircleFilled />,
           content: '此操作不可逆',
           onOk() {
@@ -207,7 +207,7 @@ const Group: React.FC = () => {
             rowKey={(record) => record.id}
             dataSource={datasource}
             total={total}
-            loading={loading}
+            loading={initDictListLoading}
             columns={columns}
             handleTurnPage={handleTurnPage}
             pageSize={searchParams.pagination.pageSize}
@@ -218,7 +218,7 @@ const Group: React.FC = () => {
               borderRadius: token.borderRadius
             }}
             scroll={{
-              y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,
+              y: `calc(100vh - 174px  - ${AutoTableHeight}px)`,
               x: 1000
             }}
             size='middle'

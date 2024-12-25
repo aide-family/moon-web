@@ -1,13 +1,13 @@
-import { Role, Status } from '@/api/enum'
+import { type Role, Status } from '@/api/enum'
 import { ActionKey, RoleData, StatusData } from '@/api/global'
-import { TeamMemberItem } from '@/api/model-types'
+import type { TeamMemberItem } from '@/api/model-types'
 import { getRoleSelectList } from '@/api/team/role'
-import { DataFromItem } from '@/components/data/form'
+import type { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
 import { Avatar, Badge, Button, Space } from 'antd'
-import { ColumnsType } from 'antd/es/table'
+import type { ColumnsType } from 'antd/es/table'
 
 export const formList: SearchFormItem[] = [
   {
@@ -212,7 +212,10 @@ export const inviteModalFormItems: (DataFromItem | DataFromItem[])[] = [
     type: 'select-fetch',
     props: {
       handleFetch: (keyword: string) => {
-        return getRoleSelectList({ keyword, pagination: { pageNum: 1, pageSize: 999 } }).then((res) => {
+        return getRoleSelectList({
+          keyword,
+          pagination: { pageNum: 1, pageSize: 999 }
+        }).then((res) => {
           return res.list
         })
       },

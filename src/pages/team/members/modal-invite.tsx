@@ -1,8 +1,9 @@
-import { inviteUser, InviteUserRequest } from '@/api/team/invite'
+import { type InviteUserRequest, inviteUser } from '@/api/team/invite'
 import { DataFrom } from '@/components/data/form'
 import { useRequest } from 'ahooks'
-import { Form, message, Modal } from 'antd'
-import React, { useEffect } from 'react'
+import { Form, Modal, message } from 'antd'
+import type React from 'react'
+import { useEffect } from 'react'
 import { inviteModalFormItems } from './options'
 
 export interface InviteProps {
@@ -34,13 +35,13 @@ export const Invite: React.FC<InviteProps> = (props) => {
       form.resetFields()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open])
+  }, [open, form])
 
   return (
     <Modal
       open={open}
       onOk={onSubmit}
-      onCancel={() => setOpen!(false)}
+      onCancel={() => setOpen?.(false)}
       title='邀请成员'
       width={800}
       confirmLoading={inviteUserLoading}

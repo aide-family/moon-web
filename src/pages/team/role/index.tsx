@@ -1,17 +1,18 @@
 import { deleteDict } from '@/api/dict'
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { TeamRole } from '@/api/model-types'
-import { ListStrategyGroupRequest } from '@/api/strategy'
-import { listRole, ListRoleRequest, updateRoleStatus } from '@/api/team/role'
+import type { TeamRole } from '@/api/model-types'
+import type { ListStrategyGroupRequest } from '@/api/strategy'
+import { type ListRoleRequest, listRole, updateRoleStatus } from '@/api/team/role'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
 import { ExclamationCircleFilled } from '@ant-design/icons'
-import { Button, message, Modal, Space, theme } from 'antd'
+import { Button, Modal, Space, message, theme } from 'antd'
 import { debounce } from 'lodash'
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import type React from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { GroupEditModal } from './group-edit-modal'
 import { formList, getColumnList } from './options'
 
@@ -85,6 +86,7 @@ const Group: React.FC = () => {
     onRefresh()
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     fetchData(searchParams)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -141,7 +143,7 @@ const Group: React.FC = () => {
         break
       case ActionKey.DELETE:
         confirm({
-          title: `请确认是否删除该角色?`,
+          title: '请确认是否删除该角色?',
           icon: <ExclamationCircleFilled />,
           content: '此操作不可逆',
           onOk() {

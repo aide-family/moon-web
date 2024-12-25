@@ -1,14 +1,14 @@
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { ResourceItem } from '@/api/model-types'
-import { batchUpdateResourceStatus, listResource, ListResourceRequest } from '@/api/resource'
+import type { ResourceItem } from '@/api/model-types'
+import { type ListResourceRequest, batchUpdateResourceStatus, listResource } from '@/api/resource'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
 import { useRequest } from 'ahooks'
-import { Button, message, Space, theme } from 'antd'
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import { Button, Space, message, theme } from 'antd'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { GroupEditModal } from './group-edit-modal'
 import { formList, getColumnList } from './options'
 
@@ -23,7 +23,7 @@ const defaultSearchParams: ListResourceRequest = {
   status: Status.StatusAll
 }
 
-const Group: React.FC = () => {
+export default function Index() {
   const { token } = useToken()
   const { isFullscreen } = useContext(GlobalContext)
 
@@ -63,6 +63,7 @@ const Group: React.FC = () => {
     setRefresh(!refresh)
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     featchResourceList(searchParams)
   }, [refresh, searchParams, featchResourceList])
@@ -97,13 +98,19 @@ const Group: React.FC = () => {
   const onHandleMenuOnClick = (item: ResourceItem, key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
-        batchUpdateResourceStatus({ ids: [item.id], status: Status.StatusEnable }).then(() => {
+        batchUpdateResourceStatus({
+          ids: [item.id],
+          status: Status.StatusEnable
+        }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
         break
       case ActionKey.DISABLE:
-        batchUpdateResourceStatus({ ids: [item.id], status: Status.StatusDisable }).then(() => {
+        batchUpdateResourceStatus({
+          ids: [item.id],
+          status: Status.StatusDisable
+        }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
@@ -172,7 +179,7 @@ const Group: React.FC = () => {
               borderRadius: token.borderRadius
             }}
             scroll={{
-              y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,
+              y: `calc(100vh - 174px  - ${AutoTableHeight}px)`,
               x: 1000
             }}
             size='middle'
@@ -182,5 +189,3 @@ const Group: React.FC = () => {
     </div>
   )
 }
-
-export default Group

@@ -1,15 +1,15 @@
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { TeamMemberItem } from '@/api/model-types'
-import { ListStrategyGroupRequest } from '@/api/strategy'
-import { batchUpdateTeamMembersStatus, listTeamMember, ListTeamMemberRequest, removeTeamMember } from '@/api/team'
+import type { TeamMemberItem } from '@/api/model-types'
+import type { ListStrategyGroupRequest } from '@/api/strategy'
+import { type ListTeamMemberRequest, batchUpdateTeamMembersStatus, listTeamMember, removeTeamMember } from '@/api/team'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
 import { ExclamationCircleFilled } from '@ant-design/icons'
 import { useRequest } from 'ahooks'
-import { Button, message, Modal, Space, theme } from 'antd'
+import { Button, Modal, Space, message, theme } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { DetailModal } from './modal-detail'
 import { Invite } from './modal-invite'
@@ -60,6 +60,7 @@ export default function Index() {
     setRefresh(!refresh)
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     featchMemberList(searchParams)
   }, [refresh, searchParams, featchMemberList])
@@ -94,13 +95,19 @@ export default function Index() {
   const onHandleMenuOnClick = (item: TeamMemberItem, key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
-        batchUpdateTeamMembersStatus({ memberIds: [item.id], status: Status.StatusEnable }).then(() => {
+        batchUpdateTeamMembersStatus({
+          memberIds: [item.id],
+          status: Status.StatusEnable
+        }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
         break
       case ActionKey.DISABLE:
-        batchUpdateTeamMembersStatus({ memberIds: [item.id], status: Status.StatusDisable }).then(() => {
+        batchUpdateTeamMembersStatus({
+          memberIds: [item.id],
+          status: Status.StatusDisable
+        }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
@@ -112,7 +119,7 @@ export default function Index() {
         break
       case ActionKey.DELETE:
         confirm({
-          title: `请确认是否删除该团队成员?`,
+          title: '请确认是否删除该团队成员?',
           icon: <ExclamationCircleFilled />,
           content: '此操作不可逆',
           onOk() {
