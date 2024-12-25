@@ -1,12 +1,4 @@
-import {
-  batchUpdateDictStatus,
-  createDict,
-  CreateDictRequest,
-  deleteDict,
-  listDict,
-  ListDictRequest,
-  updateDict
-} from '@/api/dict'
+import { batchUpdateDictStatus, deleteDict, listDict, ListDictRequest } from '@/api/dict'
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
 import { DictItem } from '@/api/model-types'
@@ -87,22 +79,9 @@ const Group: React.FC = () => {
     []
   )
 
-  const handleGroupEditModalSubmit = (data: CreateDictRequest) => {
-    const call = () => {
-      if (!editGroupId) {
-        return createDict(data)
-      } else {
-        return updateDict({
-          data: data,
-          id: editGroupId
-        })
-      }
-    }
-    return call().then(() => {
-      message.success(`${editGroupId ? '编辑' : '添加'}成功`)
-      handleCloseGroupEditModal()
-      onRefresh()
-    })
+  const handleGroupEditModalSubmit = () => {
+    handleCloseGroupEditModal()
+    onRefresh()
   }
 
   useEffect(() => {
@@ -192,9 +171,9 @@ const Group: React.FC = () => {
         style={{ minWidth: 504 }}
         open={openGroupEditModal}
         onCancel={handleCloseGroupEditModal}
-        submit={handleGroupEditModalSubmit}
         groupId={editGroupId}
         disabled={disabledEditGroupModal}
+        onOk={handleGroupEditModalSubmit}
       />
       <div
         style={{

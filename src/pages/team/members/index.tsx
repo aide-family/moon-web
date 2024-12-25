@@ -8,9 +8,9 @@ import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
 import { ExclamationCircleFilled } from '@ant-design/icons'
+import { useRequest } from 'ahooks'
 import { Button, message, Modal, Space, theme } from 'antd'
-import { debounce } from 'lodash'
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { DetailModal } from './modal-detail'
 import { Invite } from './modal-invite'
 import { formList, getColumnList } from './options'
@@ -27,13 +27,12 @@ const defaultSearchParams: ListTeamMemberRequest = {
   status: Status.StatusAll
 }
 
-const Group: React.FC = () => {
+export default function Index() {
   const { token } = useToken()
 
   const { userInfo, isFullscreen } = useContext(GlobalContext)
   const [datasource, setDatasource] = useState<TeamMemberItem[]>([])
   const [searchParams, setSearchParams] = useState<ListTeamMemberRequest>(defaultSearchParams)
-  const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
   const [detail, setDetail] = useState<TeamMemberItem>()
@@ -44,6 +43,14 @@ const Group: React.FC = () => {
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
 
+  const { run: featchMemberList, loading: featchMemberListLoading } = useRequest(listTeamMember, {
+    manual: true,
+    onSuccess: (res) => {
+      setDatasource(res.list || [])
+      setTotal(res.pagination?.total || 0)
+    }
+  })
+
   const handleOpenDetailModal = (detail: TeamMemberItem) => {
     setDetail(detail)
     setOpenDetailModal(true)
@@ -53,24 +60,9 @@ const Group: React.FC = () => {
     setRefresh(!refresh)
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = useCallback(
-    debounce(async (params) => {
-      setLoading(true)
-      listTeamMember(params)
-        .then(({ list, pagination }) => {
-          setDatasource(list || [])
-          setTotal(pagination?.total || 0)
-        })
-        .finally(() => setLoading(false))
-    }, 500),
-    []
-  )
-
   useEffect(() => {
-    fetchData(searchParams)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, searchParams, fetchData])
+    featchMemberList(searchParams)
+  }, [refresh, searchParams, featchMemberList])
 
   const onSearch = (formData: ListStrategyGroupRequest) => {
     setSearchParams({
@@ -192,7 +184,7 @@ const Group: React.FC = () => {
             rowKey={(record) => record.id}
             dataSource={datasource}
             total={total}
-            loading={loading}
+            loading={featchMemberListLoading}
             columns={columns}
             handleTurnPage={handleTurnPage}
             pageSize={searchParams.pagination.pageSize}
@@ -213,5 +205,3 @@ const Group: React.FC = () => {
     </div>
   )
 }
-
-export default Group

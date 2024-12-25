@@ -1,7 +1,8 @@
 import { inviteUser, InviteUserRequest } from '@/api/team/invite'
 import { DataFrom } from '@/components/data/form'
+import { useRequest } from 'ahooks'
 import { Form, message, Modal } from 'antd'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { inviteModalFormItems } from './options'
 
 export interface InviteProps {
@@ -13,17 +14,18 @@ export const Invite: React.FC<InviteProps> = (props) => {
   const { open, setOpen } = props
 
   const [form] = Form.useForm<InviteUserRequest>()
-  const [loading, setLoading] = useState(false)
+
+  const { run: submitInvite, loading: inviteUserLoading } = useRequest(inviteUser, {
+    manual: true,
+    onSuccess: () => {
+      message.info('邀请发送成功')
+      setOpen?.(false)
+    }
+  })
 
   const onSubmit = () => {
     form.validateFields().then((values) => {
-      setLoading(true)
-      inviteUser(values)
-        .then(() => {
-          message.info('邀请成功')
-          setOpen?.(false)
-        })
-        .finally(() => setLoading(false))
+      submitInvite(values)
     })
   }
 
@@ -41,9 +43,9 @@ export const Invite: React.FC<InviteProps> = (props) => {
       onCancel={() => setOpen!(false)}
       title='邀请成员'
       width={800}
-      confirmLoading={loading}
+      confirmLoading={inviteUserLoading}
     >
-      <DataFrom items={inviteModalFormItems} props={{ form, disabled: loading, layout: 'vertical' }} />
+      <DataFrom items={inviteModalFormItems} props={{ form, disabled: inviteUserLoading, layout: 'vertical' }} />
     </Modal>
   )
 }

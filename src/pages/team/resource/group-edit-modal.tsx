@@ -1,6 +1,7 @@
 import { ResourceItem } from '@/api/model-types'
 import { getResource } from '@/api/resource'
 import { DataFrom } from '@/components/data/form'
+import { useRequest } from 'ahooks'
 import { Form, Modal, ModalProps } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { editModalFormItems } from './options'
@@ -13,27 +14,20 @@ export interface GroupEditModalProps extends ModalProps {
 export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
   const { onCancel, open, title, groupId, disabled } = props
   const [form] = Form.useForm()
-  const [loading, setLoading] = useState(false)
   const [grounpDetail, setGroupDetail] = useState<ResourceItem>()
 
-  const getGroupDetail = async () => {
-    if (groupId) {
-      setLoading(true)
-      getResource({ id: groupId })
-        .then(({ detail }) => {
-          setGroupDetail(detail)
-        })
-        .finally(() => setLoading(false))
+  const { run: initResourceDetail, loading: initResourceDetailLoading } = useRequest(getResource, {
+    manual: true,
+    onSuccess: (res) => {
+      setGroupDetail(res.detail)
     }
-  }
+  })
 
   useEffect(() => {
-    if (!groupId) {
-      setGroupDetail(undefined)
+    if (groupId && open) {
+      initResourceDetail({ id: groupId })
     }
-    getGroupDetail()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groupId])
+  }, [open, groupId, initResourceDetail])
 
   useEffect(() => {
     if (open && form && grounpDetail) {
@@ -57,11 +51,11 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
         open={open}
         onCancel={handleOnCancel}
         onOk={handleOnCancel}
-        confirmLoading={loading}
+        loading={initResourceDetailLoading}
       >
         <DataFrom
           items={editModalFormItems}
-          props={{ form, layout: 'vertical', autoComplete: 'off', disabled: disabled || loading }}
+          props={{ form, layout: 'vertical', autoComplete: 'off', disabled: disabled }}
         />
       </Modal>
     </>

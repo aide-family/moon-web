@@ -1,6 +1,7 @@
 import { RoleData, StatusData } from '@/api/global'
 import { TeamMemberItem } from '@/api/model-types'
 import { getTeamMemberDetail } from '@/api/team'
+import { useRequest } from 'ahooks'
 import { Avatar, Badge, Descriptions, DescriptionsProps, Modal } from 'antd'
 import { useEffect, useState } from 'react'
 
@@ -11,24 +12,17 @@ export interface HookDetailModalProps {
   onOk?: () => void
 }
 
-let timer: NodeJS.Timeout | null = null
 export function DetailModal(props: HookDetailModalProps) {
   const { id, open, onCancel, onOk } = props
 
   const [detail, setDetail] = useState<TeamMemberItem>({} as TeamMemberItem)
-  const getHookDetail = () => {
-    if (!id) {
-      return
+
+  const { run: initTeamMemberDetail, loading: initTeamMemberDetailLoading } = useRequest(getTeamMemberDetail, {
+    manual: true,
+    onSuccess: (res) => {
+      setDetail(res.detail)
     }
-    if (timer) {
-      clearTimeout(timer)
-    }
-    timer = setTimeout(() => {
-      getTeamMemberDetail({ id }).then((res) => {
-        setDetail(res.detail)
-      })
-    }, 400)
-  }
+  })
 
   const items: DescriptionsProps['items'] = [
     {
@@ -79,14 +73,21 @@ export function DetailModal(props: HookDetailModalProps) {
 
   useEffect(() => {
     if (id && open) {
-      getHookDetail()
+      initTeamMemberDetail({ id })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, open])
+  }, [open, id, initTeamMemberDetail])
 
   return (
     <>
-      <Modal width='50%' centered open={open} onOk={onOk} onCancel={onCancel} footer={null}>
+      <Modal
+        width='50%'
+        centered
+        open={open}
+        onOk={onOk}
+        loading={initTeamMemberDetailLoading}
+        onCancel={onCancel}
+        footer={null}
+      >
         <Descriptions title='成员信息' bordered items={items} />
       </Modal>
     </>

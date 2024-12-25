@@ -91,7 +91,7 @@ export default function TeamConfig() {
           <div className='flex items-center gap-2'>
             <Settings />
             团队配置
-            <Button size='small' type='default' onClick={initTeamConfig}>
+            <Button size='small' color='default' variant='filled' onClick={initTeamConfig}>
               刷新
             </Button>
           </div>

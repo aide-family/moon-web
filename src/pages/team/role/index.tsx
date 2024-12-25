@@ -3,7 +3,7 @@ import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
 import { TeamRole } from '@/api/model-types'
 import { ListStrategyGroupRequest } from '@/api/strategy'
-import { createRole, CreateRoleRequest, listRole, ListRoleRequest, updateRole, updateRoleStatus } from '@/api/team/role'
+import { listRole, ListRoleRequest, updateRoleStatus } from '@/api/team/role'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
@@ -79,22 +79,10 @@ const Group: React.FC = () => {
     []
   )
 
-  const handleGroupEditModalSubmit = (data: CreateRoleRequest) => {
-    const call = () => {
-      if (!editGroupId) {
-        return createRole(data)
-      } else {
-        return updateRole({
-          data: data,
-          id: editGroupId
-        })
-      }
-    }
-    return call().then(() => {
-      message.success(`${editGroupId ? '编辑' : '添加'}成功`)
-      handleCloseGroupEditModal()
-      onRefresh()
-    })
+  const handleGroupEditModalSubmit = () => {
+    message.success(`${editGroupId ? '编辑' : '添加'}成功`)
+    handleCloseGroupEditModal()
+    onRefresh()
   }
 
   useEffect(() => {
@@ -184,7 +172,7 @@ const Group: React.FC = () => {
         style={{ minWidth: 504 }}
         open={openGroupEditModal}
         onCancel={handleCloseGroupEditModal}
-        submit={handleGroupEditModalSubmit}
+        onOk={handleGroupEditModalSubmit}
         groupId={editGroupId}
         disabled={disabledEditGroupModal}
       />

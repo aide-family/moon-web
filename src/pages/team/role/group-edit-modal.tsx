@@ -1,45 +1,62 @@
 import { ResourceItem, TeamRole } from '@/api/model-types'
-import { listResource, ListResourceRequest } from '@/api/resource'
-import { CreateRoleRequest, getRole } from '@/api/team/role'
+import { listResource } from '@/api/resource'
+import { createRole, CreateRoleRequest, getRole, updateRole } from '@/api/team/role'
 import { DataFrom } from '@/components/data/form'
+import { useRequest } from 'ahooks'
 import { Form, Modal, ModalProps } from 'antd'
 import FormItem from 'antd/es/form/FormItem'
-import { debounce } from 'lodash'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { editModalFormItems } from './options'
 import PermissionTree from './permission-tree'
 
 export interface GroupEditModalProps extends ModalProps {
   groupId?: number
   disabled?: boolean
-  submit?: (data: CreateRoleRequest & { id?: number }) => Promise<void>
+  onOk?: () => void
 }
 
 export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
-  const { onCancel, submit, open, title, groupId, disabled } = props
+  const { onCancel, onOk, open, title, groupId, disabled } = props
   const [form] = Form.useForm<CreateRoleRequest>()
-  const [loading, setLoading] = useState(false)
   const [grounpDetail, setGroupDetail] = useState<TeamRole>()
   const [resourceList, setResourceList] = useState<ResourceItem[]>([])
 
-  const getGroupDetail = async () => {
-    if (groupId) {
-      setLoading(true)
-      getRole({ id: groupId })
-        .then(({ detail }) => {
-          setGroupDetail(detail)
-        })
-        .finally(() => setLoading(false))
+  const { run: initRoleDetail, loading: initRoleDetailLoading } = useRequest(getRole, {
+    manual: true,
+    onSuccess: (res) => {
+      setGroupDetail(res.detail)
     }
-  }
+  })
+
+  const { run: initResourceList, loading: initResourceListLoading } = useRequest(listResource, {
+    manual: true,
+    onSuccess: (res) => {
+      setResourceList(res.list || [])
+    }
+  })
+
+  const { run: addRole, loading: addRoleLoading } = useRequest(createRole, {
+    manual: true,
+    onSuccess: () => {
+      form?.resetFields()
+      onOk?.()
+    }
+  })
+
+  const { run: editRole, loading: editRoleLoading } = useRequest(updateRole, {
+    manual: true,
+    onSuccess: () => {
+      form?.resetFields()
+      onOk?.()
+    }
+  })
 
   useEffect(() => {
-    if (!groupId) {
-      setGroupDetail(undefined)
+    if (groupId && open) {
+      initRoleDetail({ id: groupId })
+      initResourceList({ pagination: { pageNum: 1, pageSize: 999 } })
     }
-    getGroupDetail()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groupId])
+  }, [open, groupId, initRoleDetail, initResourceList])
 
   useEffect(() => {
     if (open && form && grounpDetail) {
@@ -57,43 +74,37 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
 
   const handleOnOk = () => {
     form?.validateFields().then((formValues) => {
-      setLoading(true)
-      submit?.({
+      const data = {
         ...formValues,
         id: groupId
-      })
-        .then(() => {
-          form?.resetFields()
-          setGroupDetail(undefined)
-          setResourceList([])
-        })
-        .finally(() => {
-          setLoading(false)
-        })
+      }
+      if (groupId) {
+        editRole({ id: groupId, data: formValues })
+      } else {
+        addRole(data)
+      }
     })
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = useCallback(
-    debounce(async (params: ListResourceRequest) => {
-      listResource(params).then(({ list }) => {
-        setResourceList(list || [])
-      })
-    }, 500),
-    []
-  )
-
-  useEffect(() => {
-    if (!open) return
-    fetchData({ pagination: { pageNum: 1, pageSize: 999 } })
-  }, [fetchData, open])
-
   return (
     <>
-      <Modal {...props} title={title} open={open} onCancel={handleOnCancel} onOk={handleOnOk} confirmLoading={loading}>
+      <Modal
+        {...props}
+        title={title}
+        open={open}
+        onCancel={handleOnCancel}
+        onOk={handleOnOk}
+        loading={initRoleDetailLoading || initResourceListLoading}
+        confirmLoading={addRoleLoading || editRoleLoading}
+      >
         <DataFrom
           items={editModalFormItems}
-          props={{ form, layout: 'vertical', autoComplete: 'off', disabled: disabled || loading }}
+          props={{
+            form,
+            layout: 'vertical',
+            autoComplete: 'off',
+            disabled: disabled || addRoleLoading || editRoleLoading
+          }}
         >
           <FormItem label='权限列表' name='permissions'>
             <PermissionTree items={resourceList} disabled={disabled} />

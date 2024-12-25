@@ -6,9 +6,9 @@ import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
+import { useRequest } from 'ahooks'
 import { Button, message, Space, theme } from 'antd'
-import { debounce } from 'lodash'
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { GroupEditModal } from './group-edit-modal'
 import { formList, getColumnList } from './options'
 
@@ -29,7 +29,6 @@ const Group: React.FC = () => {
 
   const [datasource, setDatasource] = useState<ResourceItem[]>([])
   const [searchParams, setSearchParams] = useState<ListResourceRequest>(defaultSearchParams)
-  const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
   const [openGroupEditModal, setOpenGroupEditModal] = useState(false)
@@ -39,6 +38,14 @@ const Group: React.FC = () => {
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
+
+  const { run: featchResourceList, loading: featchResourceListLoading } = useRequest(listResource, {
+    manual: true,
+    onSuccess: (res) => {
+      setDatasource(res.list || [])
+      setTotal(res.pagination?.total || 0)
+    }
+  })
 
   const handleCloseGroupEditModal = () => {
     setOpenGroupEditModal(false)
@@ -56,24 +63,9 @@ const Group: React.FC = () => {
     setRefresh(!refresh)
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = useCallback(
-    debounce(async (params) => {
-      setLoading(true)
-      listResource(params)
-        .then(({ list, pagination }) => {
-          setDatasource(list || [])
-          setTotal(pagination?.total || 0)
-        })
-        .finally(() => setLoading(false))
-    }, 500),
-    []
-  )
-
   useEffect(() => {
-    fetchData(searchParams)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, searchParams, fetchData])
+    featchResourceList(searchParams)
+  }, [refresh, searchParams, featchResourceList])
 
   const onSearch = (formData: ListResourceRequest) => {
     setSearchParams({
@@ -169,7 +161,7 @@ const Group: React.FC = () => {
             rowKey={(record) => record.id}
             dataSource={datasource}
             total={total}
-            loading={loading}
+            loading={featchResourceListLoading}
             columns={columns}
             handleTurnPage={handleTurnPage}
             pageSize={searchParams.pagination.pageSize}
