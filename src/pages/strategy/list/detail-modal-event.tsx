@@ -1,9 +1,9 @@
 import type { EventDataType, MQCondition } from '@/api/enum'
 import { EventDataTypeData, MQConditionData, StatusData } from '@/api/global'
-import type { StrategyItem } from '@/api/model-types'
+import type { SelectItem, StrategyItem } from '@/api/model-types'
 import { getStrategy } from '@/api/strategy'
 import { useRequest } from 'ahooks'
-import { Badge, Descriptions, type DescriptionsProps, Modal, type ModalProps, Space, Table } from 'antd'
+import { Badge, Descriptions, type DescriptionsProps, Modal, type ModalProps, Space, Table, Tag } from 'antd'
 import type React from 'react'
 import { useEffect, useState } from 'react'
 
@@ -105,8 +105,8 @@ export const StrategyDetailEvent: React.FC<StrategyDetailEventProps> = (props) =
                 title: '告警等级',
                 dataIndex: 'level',
                 key: 'level',
-                render(value) {
-                  return value?.label || '-'
+                render(value: SelectItem) {
+                  return <Tag color={value?.extend?.color}>{value?.label || '-'}</Tag>
                 }
               },
               {

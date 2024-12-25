@@ -1,5 +1,5 @@
 import { StatusData } from '@/api/global'
-import type { StrategyItem } from '@/api/model-types'
+import type { SelectItem, StrategyItem } from '@/api/model-types'
 import { getStrategy } from '@/api/strategy'
 import { useRequest } from 'ahooks'
 import { Badge, Descriptions, type DescriptionsProps, Modal, type ModalProps, Space, Table, Tag } from 'antd'
@@ -103,8 +103,8 @@ export const StrategyDetailPort: React.FC<StrategyDetailPortProps> = (props) => 
                 title: '告警等级',
                 dataIndex: 'level',
                 key: 'level',
-                render(value) {
-                  return value?.label || '-'
+                render(value: SelectItem) {
+                  return <Tag color={value?.extend?.color}>{value?.label || '-'}</Tag>
                 }
               },
               {
