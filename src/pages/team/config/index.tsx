@@ -1,39 +1,100 @@
-import { KeyOutlined, MailOutlined, SaveOutlined } from '@ant-design/icons'
+import { AsymmetricEncryptionConfigItem, SymmetricEncryptionConfigItem, TeamConfigItem } from '@/api/model-types'
+import { getTeamConfig, updateTeamConfig } from '@/api/team'
+import { GlobalContext } from '@/utils/context'
+import { SaveOutlined } from '@ant-design/icons'
+import { useRequest } from 'ahooks'
 import { Button, Card, Col, Form, message, Row } from 'antd'
+import { FolderKey, Mail, Settings } from 'lucide-react'
+import { useContext, useEffect, useState } from 'react'
+import { AsymmetricEncryptionSection } from './config-asymmetric'
 import { EmailConfigSection } from './config-email'
-import { PublicKeySection } from './config-public-key'
+import { SymmetricEncryptionSection } from './config-symmetric'
 
-export interface TeamConfigFormData {
-  email: {
+export type TeamConfigFormData = {
+  /** 邮箱配置 */
+  emailConfig: {
+    /** 邮箱用户名 */
     user: string
+    /** 邮箱密码 */
     pass: string
-    host: string
-    port: string
+    /** 邮箱服务器 */
+    host: string[]
+    /** 邮箱端口 */
+    port: string[]
   }
-  publicKey: string
+  /** 对称加密配置 */
+  symmetricEncryptionConfig: SymmetricEncryptionConfigItem
+  /** 非对称加密配置 */
+  asymmetricEncryptionConfig: AsymmetricEncryptionConfigItem
 }
 
 export default function TeamConfig() {
   const [form] = Form.useForm<TeamConfigFormData>()
+  const { contentHeight } = useContext(GlobalContext)
 
-  const handleSubmit = async () => {
-    try {
-      const values = await form.validateFields()
-      console.log(values)
+  const [teamConfig, setTeamConfig] = useState<TeamConfigItem>()
+
+  const { run: initTeamConfig, loading: isLoading } = useRequest(getTeamConfig, {
+    manual: true,
+    onSuccess: (data) => {
+      setTeamConfig(data)
+    }
+  })
+
+  const { run: editTeamConfig, loading: isEditing } = useRequest(updateTeamConfig, {
+    manual: true,
+    onSuccess: () => {
       message.success('配置保存成功')
+    }
+  })
+
+  const handleSubmit = () => {
+    try {
+      const values = form.getFieldsValue()
+      editTeamConfig({
+        ...values,
+        emailConfig: {
+          ...values.emailConfig,
+          host: values.emailConfig.host?.at(0) ?? '',
+          port: values.emailConfig.port?.at(0) ?? ''
+        }
+      })
     } catch (error) {
+      console.error(error)
       message.error('请检查表单填写是否完整')
     }
   }
 
+  useEffect(() => {
+    initTeamConfig()
+  }, [initTeamConfig])
+
+  useEffect(() => {
+    if (teamConfig) {
+      form.setFieldsValue({
+        ...teamConfig,
+        emailConfig: {
+          ...teamConfig.emailConfig,
+          host: [teamConfig.emailConfig.host],
+          port: [teamConfig.emailConfig.port]
+        }
+      })
+    }
+  }, [teamConfig, form])
+
   return (
     <Form className='p-3 gap-3 flex flex-col' form={form} layout='vertical' onFinish={handleSubmit}>
       <Card
+        loading={isLoading || isEditing}
         bordered={false}
         title={
-          <>
-            <MailOutlined /> 团队配置
-          </>
+          <div className='flex items-center gap-2'>
+            <Settings />
+            团队配置
+            <Button size='small' type='default' onClick={initTeamConfig}>
+              刷新
+            </Button>
+          </div>
         }
         extra={
           <Button type='primary' htmlType='submit' icon={<SaveOutlined />}>
@@ -42,13 +103,13 @@ export default function TeamConfig() {
         }
         className='shadow-md overflow-auto'
       >
-        <Row gutter={16}>
-          <Col span={12}>
+        <Row gutter={16} className='h-full overflow-auto' style={{ height: contentHeight ? contentHeight - 24 : 0 }}>
+          <Col span={24}>
             <Card
               type='inner'
               title={
                 <div className='flex items-center gap-2'>
-                  <MailOutlined /> 邮箱配置
+                  <Mail /> 邮箱配置
                 </div>
               }
               className='mb-4'
@@ -56,17 +117,30 @@ export default function TeamConfig() {
               <EmailConfigSection />
             </Card>
           </Col>
-          <Col span={12}>
+          <Col span={24}>
             <Card
               type='inner'
               title={
                 <div className='flex items-center gap-2'>
-                  <KeyOutlined /> 加密密钥
+                  <FolderKey /> 对称加密
                 </div>
               }
               className='mb-4'
             >
-              <PublicKeySection />
+              <SymmetricEncryptionSection />
+            </Card>
+          </Col>
+          <Col span={24}>
+            <Card
+              type='inner'
+              title={
+                <div className='flex items-center gap-2'>
+                  <FolderKey /> 非对称加密
+                </div>
+              }
+              className='mb-4'
+            >
+              <AsymmetricEncryptionSection />
             </Card>
           </Col>
         </Row>

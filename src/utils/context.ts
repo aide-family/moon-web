@@ -31,6 +31,8 @@ export type GlobalContextType = {
   setIsFullscreen?: (isFullscreen: boolean) => void
   showLevelColor?: boolean
   setShowLevelColor?: (showLevelColor: boolean) => void
+  contentHeight?: number
+  setContentHeight?: (contentHeight: number) => void
 }
 
 export const GlobalContext = createContext<GlobalContextType>({

@@ -859,3 +859,46 @@ export interface TimeEngineItem {
   /** 创建者 */
   creator: UserItem
 }
+
+/**
+ * 邮箱配置
+ */
+export interface EmailConfigItem {
+  /** 邮箱用户名 */
+  user: string
+  /** 邮箱密码 */
+  pass: string
+  /** 邮箱服务器 */
+  host: string
+  /** 邮箱端口 */
+  port: string
+}
+
+/**
+ * 对称加密配置
+ */
+export interface SymmetricEncryptionConfigItem {
+  /** 密钥 */
+  key: string
+  /** 初始化向量 */
+  iv: string
+}
+
+/**
+ * 非对称加密配置
+ */
+export interface AsymmetricEncryptionConfigItem {
+  /** 公钥 */
+  publicKey: string
+  /** 私钥 */
+  privateKey: string
+}
+
+export interface TeamConfigItem {
+  /** 邮箱配置 */
+  emailConfig: EmailConfigItem
+  /** 对称加密配置 */
+  symmetricEncryptionConfig: SymmetricEncryptionConfigItem
+  /** 非对称加密配置 */
+  asymmetricEncryptionConfig: AsymmetricEncryptionConfigItem
+}

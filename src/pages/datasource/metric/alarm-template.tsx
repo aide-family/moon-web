@@ -21,7 +21,7 @@ export const AlarmTemplate: React.FC<AlarmTemplateProps> = () => {
       endpoint: '',
       createdAt: '',
       updatedAt: '',
-      config: {},
+      config: '',
       storageType: StorageType.StorageTypeUnknown
     }
   ])

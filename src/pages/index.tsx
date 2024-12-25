@@ -36,6 +36,7 @@ function App() {
   const [refreshMyTeamList, setRefreshMyTeamList] = useState<boolean>(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showLevelColor, setShowLevelColor] = useStorage<boolean>('showLevelColor', false)
+  const [contentHeight, setContentHeight] = useState(0)
 
   const contextValue: GlobalContextType = {
     theme: theme,
@@ -59,7 +60,9 @@ function App() {
     isFullscreen: isFullscreen,
     setIsFullscreen: setIsFullscreen,
     showLevelColor: showLevelColor,
-    setShowLevelColor: setShowLevelColor
+    setShowLevelColor: setShowLevelColor,
+    contentHeight: contentHeight,
+    setContentHeight: setContentHeight
   }
 
   return (

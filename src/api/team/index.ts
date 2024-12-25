@@ -1,6 +1,6 @@
 import { Status } from '../enum'
 import { PaginationReply, PaginationReq } from '../global'
-import { TeamItem, TeamMemberItem } from '../model-types'
+import { TeamConfigItem, TeamItem, TeamMemberItem } from '../model-types'
 import request from '../request'
 
 /**
@@ -137,7 +137,7 @@ export function transferTeamLeader(params: TransferTeamLeaderRequest): Promise<T
  * 更改团队成员状态
  * @method: put /v1/team/member/status
  */
-export function batchUpdateTeamMembersStatus(params: BatchUpdateTeamMemberStatusRequest): Promise<{}> {
+export function batchUpdateTeamMembersStatus(params: BatchUpdateTeamMemberStatusRequest): Promise<null> {
   return request.PUT(`/v1/team/member/status`, params)
 }
 
@@ -147,6 +147,22 @@ export function batchUpdateTeamMembersStatus(params: BatchUpdateTeamMemberStatus
  */
 export function getTeamMemberDetail(params: GetTeamMemberDetailRequest): Promise<GetTeamMemberDetailReply> {
   return request.GET<GetTeamMemberDetailReply>(`/v1/team/member/detail/${params.id}`)
+}
+
+/**
+ * 获取团队配置
+ * @method: get /v1/team/config
+ */
+export function getTeamConfig(): Promise<TeamConfigItem> {
+  return request.GET<TeamConfigItem>('/v1/team/get/config')
+}
+
+/**
+ * 更新团队配置
+ * @method: put /v1/team/config
+ */
+export function updateTeamConfig(params: TeamConfigItem): Promise<null> {
+  return request.PUT('/v1/team/set/config', params)
 }
 
 // 示例类型定义

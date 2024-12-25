@@ -1,8 +1,9 @@
 import { healthApi, isLogin, setToken } from '@/api/request'
+import { useContainerHeight } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
 import { CopyrightOutlined } from '@ant-design/icons'
 import { Layout, Menu, Spin, theme } from 'antd'
-import React, { Suspense, useContext, useEffect, useState } from 'react'
+import React, { Suspense, useContext, useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import MoonChat from '../chat/moon-chat'
 import { CreateTeamModalProvider } from './create-team-provider'
@@ -41,12 +42,21 @@ const MoonLayout: React.FC = () => {
   }
 
   const { token } = useToken()
-  const { menuItems, collapsed } = useContext(GlobalContext)
+  const { menuItems, collapsed, setContentHeight } = useContext(GlobalContext)
 
   const [openKeys, setOpenKeys] = useState<string[]>([])
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
   const [locationPath, setLocationPath] = useState<string>(location.pathname)
   const [version, setVersion] = useState('version')
+
+  const contentRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLDivElement>(null)
+  const footerRef = useRef<HTMLDivElement>(null)
+  const autoContentHeight = useContainerHeight(contentRef, headerRef, footerRef)
+
+  useEffect(() => {
+    setContentHeight?.(autoContentHeight)
+  }, [autoContentHeight, setContentHeight])
 
   const getVersion = () => {
     healthApi().then((res) => {
@@ -110,6 +120,7 @@ const MoonLayout: React.FC = () => {
           </Sider>
           <Layout className='flex flex-col flex-1'>
             <Header
+              ref={headerRef}
               className='bg-none flex justify-between pl-5 pr-5'
               style={{
                 background: token.colorBgContainer,
@@ -120,12 +131,13 @@ const MoonLayout: React.FC = () => {
               <HeaderOp />
             </Header>
 
-            <Content className='flex flex-col flex-1'>
+            <Content className='flex flex-col flex-1' ref={contentRef}>
               <Suspense fallback={<Spin />}>
                 <Outlet />
               </Suspense>
             </Content>
             <Footer
+              ref={footerRef}
               className='h-8 flex items-center justify-center gap-1'
               style={{ background: token.colorBgContainer }}
             >
