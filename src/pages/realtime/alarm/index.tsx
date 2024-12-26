@@ -9,8 +9,8 @@ import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
 import useStorage from '@/utils/storage'
 import { PlusOutlined } from '@ant-design/icons'
+import { useRequest } from 'ahooks'
 import { Badge, Button, Radio, Space, Switch, theme } from 'antd'
-import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { ModalAddPages } from './modal-add-pages'
 import { ModalDetail } from './modal-detail'
@@ -33,8 +33,6 @@ const Group: React.FC = () => {
   const { isFullscreen, teamInfo, showLevelColor, setShowLevelColor } = useContext(GlobalContext)
 
   const [datasource, setDatasource] = useState<RealtimeAlarmItem[]>([])
-
-  const [loading, setLoading] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
   const [myPages, setMyPages] = useState<SelfAlarmPageItem[]>([])
@@ -56,13 +54,13 @@ const Group: React.FC = () => {
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
 
-  const onRefresh = () => {
+  const onRefresh = useCallback(() => {
     setRefresh(!refresh)
-  }
+  }, [refresh])
 
-  const onRefreshPages = () => {
+  const onRefreshPages = useCallback(() => {
     setRefreshPages(!refreshPages)
-  }
+  }, [refreshPages])
 
   const onSubmitPages = () => {
     setOpenAddPages(false)
@@ -89,38 +87,27 @@ const Group: React.FC = () => {
     setAlarmID(undefined)
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchMypageData = useCallback(
-    debounce(async () => {
-      if (!teamInfo || !teamInfo.id) return
-      listAlarmPage({})
-        .then(({ list, alertCounts }) => {
-          const findPageID = list?.find((item) => item.id === alarmPageID)?.id
-          setMyPages(list || [])
-          setAlertCounts(alertCounts || {})
-          if (!findPageID) {
-            setAlarmPageID(list?.[0]?.id || -1)
-          }
-        })
-        .finally(() => setLoading(false))
-    }, 500),
-    []
-  )
+  const { run: initMyPage } = useRequest(listAlarmPage, {
+    manual: true,
+    onSuccess: ({ list, alertCounts }) => {
+      if (list.length > 0) {
+        setMyPages(list || [])
+        const findPageID = list?.find((item) => item.id === alarmPageID)?.id
+        if (!findPageID) {
+          setAlarmPageID(list?.[0]?.id || -1)
+        }
+      }
+      setAlertCounts(alertCounts || {})
+    }
+  })
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = useCallback(
-    debounce(async (params) => {
-      if (!teamInfo || !teamInfo.id) return
-      setLoading(true)
-      listAlarm(params)
-        .then(({ list, pagination }) => {
-          setDatasource(list || [])
-          setTotal(pagination?.total || 0)
-        })
-        .finally(() => setLoading(false))
-    }, 500),
-    []
-  )
+  const { run: fetchData, loading: fetchDataLoading } = useRequest(listAlarm, {
+    manual: true,
+    onSuccess: ({ list, pagination }) => {
+      setDatasource(list || [])
+      setTotal(pagination?.total || 0)
+    }
+  })
 
   const onSearch = (formData: ListStrategyGroupRequest) => {
     setSearchParams({
@@ -194,14 +181,14 @@ const Group: React.FC = () => {
   }
 
   useEffect(() => {
-    fetchMypageData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshPages])
+    if (!teamInfo || !teamInfo.id) return
+    initMyPage({})
+  }, [refreshPages, initMyPage, teamInfo])
 
   useEffect(() => {
+    if (!teamInfo || !teamInfo.id) return
     fetchData(searchParams)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, searchParams])
+  }, [refresh, searchParams, fetchData, teamInfo])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -209,8 +196,7 @@ const Group: React.FC = () => {
       onRefresh()
     }, 10000)
     return () => clearInterval(interval)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [onRefreshPages, onRefresh])
 
   return (
     <div className='flex flex-col gap-3 p-3'>
@@ -272,7 +258,7 @@ const Group: React.FC = () => {
             rowKey={(record) => record.id}
             dataSource={datasource}
             total={total}
-            loading={loading}
+            loading={fetchDataLoading}
             columns={columns}
             handleTurnPage={handleTurnPage}
             pageSize={searchParams.pagination.pageSize}

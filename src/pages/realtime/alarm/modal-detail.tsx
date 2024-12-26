@@ -42,6 +42,12 @@ export const ModalDetail: React.FC<ModalDetailProps> = (props) => {
   const items = (): DescriptionsProps['items'] => {
     if (!detail) return []
     const { status, startsAt, duration, summary, description, rawInfo, expr } = detail
+    let rawInfoJson: Record<string, unknown> = {}
+    try {
+      rawInfoJson = JSON.parse(rawInfo || '{}')
+    } catch (error) {
+      console.error(error)
+    }
     return [
       {
         key: 'status',
@@ -130,7 +136,7 @@ export const ModalDetail: React.FC<ModalDetailProps> = (props) => {
               overflow: 'auto',
               width: '100%'
             }}
-            src={JSON.parse(rawInfo)}
+            src={rawInfoJson}
             displayDataTypes={false}
             displayObjectSize={false}
             // shouldCollapse={() => true}

@@ -59,7 +59,11 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<RealtimeAlar
       key: 'metricLevel',
       width: 80,
       render: (level: StrategyMetricLevelItem) => {
-        return level?.level?.label || '-'
+        if (!level?.level) {
+          return '-'
+        }
+        const { label, extend } = level.level
+        return <Tag color={extend?.color}>{label}</Tag>
       }
     },
     {
