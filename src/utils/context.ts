@@ -1,8 +1,8 @@
-import { TeamItem, UserItem } from '@/api/model-types'
-import { BreadcrumbNameType } from '@/config/menu'
+import type { TeamItem, UserItem } from '@/api/model-types'
+import type { BreadcrumbNameType } from '@/config/menu'
 import { theme } from 'antd'
-import { ItemType } from 'antd/es/menu/interface'
-import { SpaceSize } from 'antd/es/space'
+import type { ItemType } from 'antd/es/menu/interface'
+import type { SpaceSize } from 'antd/es/space'
 import { createContext } from 'react'
 
 export type ThemeType = 'light' | 'dark'

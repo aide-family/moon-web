@@ -1,21 +1,22 @@
-import { ServerItem } from '@/api/model-types'
+import type { ServerItem } from '@/api/model-types'
 import { getRabbitServer } from '@/api/realtime/server'
+import { useRequest } from 'ahooks'
 import { Button, Card, Col, Empty, Row, Spin } from 'antd'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 
 const RabbitServer: React.FC = () => {
-  const [loading, setLoading] = useState(true)
   const [serverList, setServerList] = React.useState<ServerItem[]>([])
 
-  const getRabbitServerList = () => {
-    setLoading(true)
-    getRabbitServer({ type: 'rabbit' })
-      .then((res) => {
-        setServerList(res.list)
-        setLoading(false)
-      })
-      .finally(() => setLoading(false))
-  }
+  const { run: initRabbitServerList, loading: initRabbitServerListLoading } = useRequest(getRabbitServer, {
+    manual: true,
+    onSuccess: (res) => {
+      setServerList(res.list)
+    }
+  })
+
+  const getRabbitServerList = useCallback(() => {
+    initRabbitServerList({ type: 'rabbit' })
+  }, [initRabbitServerList])
 
   useEffect(() => {
     getRabbitServerList()
@@ -23,7 +24,7 @@ const RabbitServer: React.FC = () => {
       getRabbitServerList()
     }, 10000)
     return () => clearInterval(interval)
-  }, [])
+  }, [getRabbitServerList])
 
   return (
     <>
@@ -38,21 +39,21 @@ const RabbitServer: React.FC = () => {
             </Button>
           </Col>
         </Row>
-        <Spin spinning={loading}>
+        <Spin spinning={initRabbitServerListLoading}>
           <Row gutter={16}>
             {serverList?.length > 0 ? (
-              serverList.map((item) => (
-                <Col span={8}>
-                  <Card title={'版本：' + item.version} bordered={true} style={{ marginBottom: 20 }}>
-                    <p>名称：{item.server.name}</p>
+              serverList.map((item, index) => (
+                <Col span={8} key={`${item.server.name}-${item.version}-${index}`}>
+                  <Card title={`版本：${item.version}`} bordered={true} style={{ marginBottom: 20 }}>
+                    <p>名称: {item.server.name}</p>
                     {item.server.network.startsWith('http') ? (
-                      <p>http地址：{item.server.httpEndpoint}</p>
+                      <p>http地址: {item.server.httpEndpoint}</p>
                     ) : (
-                      <p>grpc地址：{item.server.grpcEndpoint}</p>
+                      <p>grpc地址: {item.server.grpcEndpoint}</p>
                     )}
-                    <p>服务类型：{item.server.network}</p>
-                    <p>工作时长：{item.server.upTime}</p>
-                    <p>上线时间：{item.server.startTime}</p>
+                    <p>服务类型: {item.server.network}</p>
+                    <p>工作时长: {item.server.upTime}</p>
+                    <p>上线时间: {item.server.startTime}</p>
                   </Card>
                 </Col>
               ))

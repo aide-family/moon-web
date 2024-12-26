@@ -1,13 +1,13 @@
 import { dictSelectList } from '@/api/dict'
 import { DictType } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { RealtimeAlarmItem, StrategyMetricLevelItem } from '@/api/model-types'
-import { DataFromItem } from '@/components/data/form'
+import type { RealtimeAlarmItem, StrategyMetricLevelItem } from '@/api/model-types'
+import type { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
 import { Button, Space, Tag } from 'antd'
-import { ColumnsType } from 'antd/es/table'
+import type { ColumnsType } from 'antd/es/table'
 
 export const formList: SearchFormItem[] = [
   {

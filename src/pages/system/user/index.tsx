@@ -1,14 +1,15 @@
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { UserItem } from '@/api/model-types'
-import { batchUpdateUserStatus, listUser, ListUserRequest } from '@/api/user'
+import type { UserItem } from '@/api/model-types'
+import { type ListUserRequest, batchUpdateUserStatus, listUser } from '@/api/user'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
-import { Button, message, Space, theme } from 'antd'
-import { debounce } from 'lodash'
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { useRequest } from 'ahooks'
+import { Button, Space, message, theme } from 'antd'
+import type React from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { DetailModal } from './modal-detail'
 import { ModalRoleSet } from './modal-role-set'
 import { formList, getColumnList } from './options'
@@ -28,8 +29,6 @@ const User: React.FC = () => {
 
   const [datasource, setDatasource] = useState<UserItem[]>([])
   const [searchParams, setSearchParams] = useState<ListUserRequest>(defaultSearchParams)
-  const [loading, setLoading] = useState(false)
-  const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
   const [openDetail, setOpenDetail] = useState(false)
   const [detailId, setDetailId] = useState(0)
@@ -40,8 +39,16 @@ const User: React.FC = () => {
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
 
+  const { run: initUserList, loading: initUserListLoading } = useRequest(listUser, {
+    manual: true,
+    onSuccess: (data) => {
+      setDatasource(data.list || [])
+      setTotal(data.pagination?.total || 0)
+    }
+  })
+
   const onRefresh = () => {
-    setRefresh(!refresh)
+    initUserList(searchParams)
   }
 
   const onOpenDetail = (id: number) => {
@@ -69,24 +76,9 @@ const User: React.FC = () => {
     onRefresh()
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = useCallback(
-    debounce(async (params) => {
-      setLoading(true)
-      listUser(params)
-        .then(({ list, pagination }) => {
-          setDatasource(list || [])
-          setTotal(pagination?.total || 0)
-        })
-        .finally(() => setLoading(false))
-    }, 500),
-    []
-  )
-
   useEffect(() => {
-    fetchData(searchParams)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, searchParams, fetchData])
+    initUserList(searchParams)
+  }, [searchParams, initUserList])
 
   const onSearch = (formData: ListUserRequest) => {
     setSearchParams({
@@ -118,13 +110,19 @@ const User: React.FC = () => {
   const onHandleMenuOnClick = (item: UserItem, key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
-        batchUpdateUserStatus({ ids: [item.id], status: Status.StatusEnable }).then(() => {
+        batchUpdateUserStatus({
+          ids: [item.id],
+          status: Status.StatusEnable
+        }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
         break
       case ActionKey.DISABLE:
-        batchUpdateUserStatus({ ids: [item.id], status: Status.StatusDisable }).then(() => {
+        batchUpdateUserStatus({
+          ids: [item.id],
+          status: Status.StatusDisable
+        }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
@@ -184,7 +182,7 @@ const User: React.FC = () => {
             rowKey={(record) => record.id}
             dataSource={datasource}
             total={total}
-            loading={loading}
+            loading={initUserListLoading}
             columns={columns}
             handleTurnPage={handleTurnPage}
             pageSize={searchParams.pagination.pageSize}
@@ -195,7 +193,7 @@ const User: React.FC = () => {
               borderRadius: token.borderRadius
             }}
             scroll={{
-              y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,
+              y: `calc(100vh - 174px - ${AutoTableHeight}px)`,
               x: 1000
             }}
             size='middle'

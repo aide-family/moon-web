@@ -1,7 +1,8 @@
 import { dictSelectList } from '@/api/dict'
+import { DictType } from '@/api/enum'
 import { defaultPaginationReq } from '@/api/global'
 import type { SelectItem, StrategyGroupItem } from '@/api/model-types'
-import { getStrategyGroup } from '@/api/strategy'
+import { createStrategyGroup, getStrategyGroup, updateStrategyGroup } from '@/api/strategy'
 import { useRequest } from 'ahooks'
 import { Form, Input, Modal, type ModalProps, Select, Tag } from 'antd'
 import type React from 'react'
@@ -21,13 +22,14 @@ export type GroupEditModalData = {
 export interface GroupEditModalProps extends ModalProps {
   groupId?: number
   disabled?: boolean
-  submit?: (data: GroupEditModalData) => Promise<void>
+  onOk?: () => void
 }
 
 export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
-  const { onCancel, submit, open, title, groupId, disabled } = props
+  const { onCancel, onOk, open, title, groupId, disabled } = props
+
   const [form] = Form.useForm<GroupEditModalFormData>()
-  const [loading, setLoading] = useState(false)
+
   const [grounpDetail, setGroupDetail] = useState<StrategyGroupItem>()
   const [strategyCategoryList, setStrategyCategoryList] = useState<SelectItem[]>([])
 
@@ -45,9 +47,18 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
     }
   })
 
+  const { runAsync: editStrategyGroup, loading: editStrategyGroupLoading } = useRequest(updateStrategyGroup, {
+    manual: true
+  })
+
+  const { runAsync: addStrategyGroup, loading: addStrategyGroupLoading } = useRequest(createStrategyGroup, {
+    manual: true
+  })
+
   const initFormDeps = useCallback(() => {
     initStrategyCategoryList({
-      pagination: defaultPaginationReq
+      pagination: defaultPaginationReq,
+      dictType: DictType.DictTypeStrategyGroupCategory
     })
     if (groupId) {
       initDetail({ id: groupId })
@@ -77,19 +88,15 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
   const handleOnOk = () => {
     form?.validateFields().then((formValues) => {
       const { name, remark, categoriesIds } = formValues
-      setLoading(true)
-      submit?.({
+      const data = {
         id: groupId,
         name,
         remark,
         categoriesIds
+      }
+      Promise.all([groupId ? editStrategyGroup({ id: groupId, update: data }) : addStrategyGroup(data)]).then(() => {
+        onOk?.()
       })
-        .then(() => {
-          form?.resetFields()
-        })
-        .finally(() => {
-          setLoading(false)
-        })
     })
   }
 
@@ -102,9 +109,14 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
         open={open}
         onCancel={handleOnCancel}
         onOk={handleOnOk}
-        confirmLoading={loading}
+        confirmLoading={editStrategyGroupLoading || addStrategyGroupLoading}
       >
-        <Form form={form} layout='vertical' autoComplete='off' disabled={disabled || loading}>
+        <Form
+          form={form}
+          layout='vertical'
+          autoComplete='off'
+          disabled={disabled || editStrategyGroupLoading || addStrategyGroupLoading}
+        >
           <Form.Item label='规则组名称' name='name' rules={[{ required: true, message: '请输入规则组名称' }]}>
             <Input placeholder='请输入规则组名称' allowClear />
           </Form.Item>

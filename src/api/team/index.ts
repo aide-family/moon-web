@@ -1,6 +1,6 @@
-import { Status } from '../enum'
-import { PaginationReply, PaginationReq } from '../global'
-import { TeamConfigItem, TeamItem, TeamMemberItem } from '../model-types'
+import type { Status } from '../enum'
+import type { PaginationReply, PaginationReq } from '../global'
+import type { TeamConfigItem, TeamItem, TeamMemberItem } from '../model-types'
 import request from '../request'
 
 /**
@@ -9,8 +9,8 @@ import request from '../request'
  * @param {CreateTeamRequest} params
  * @returns {CreateTeamReply}
  */
-export function createTeam(params: CreateTeamRequest): Promise<CreateTeamReply> {
-  return request.POST<CreateTeamReply>('/v1/team', params)
+export function createTeam(params: CreateTeamRequest): Promise<null> {
+  return request.POST<null>('/v1/team', params)
 }
 
 /**
@@ -19,8 +19,8 @@ export function createTeam(params: CreateTeamRequest): Promise<CreateTeamReply> 
  * @param {UpdateTeamRequest} params
  * @returns {UpdateTeamReply}
  */
-export function updateTeam(params: UpdateTeamRequest): Promise<UpdateTeamReply> {
-  return request.PUT<UpdateTeamReply>(`/v1/team/${params.id}`, params)
+export function updateTeam(params: UpdateTeamRequest): Promise<null> {
+  return request.PUT<null>(`/v1/team/${params.id}`, params)
 }
 
 /**
@@ -49,8 +49,8 @@ export function listTeam(params: ListTeamRequest): Promise<ListTeamReply> {
  * @param {UpdateTeamStatusRequest} params
  * @returns {UpdateTeamStatusReply}
  */
-export function updateTeamStatus(params: UpdateTeamStatusRequest): Promise<UpdateTeamStatusReply> {
-  return request.PUT<UpdateTeamStatusReply>(`/v1/team/status`, params)
+export function updateTeamStatus(params: UpdateTeamStatusRequest): Promise<null> {
+  return request.PUT<null>('/v1/team/status', params)
 }
 
 /**
@@ -69,8 +69,8 @@ export function myTeam(): Promise<MyTeamReply> {
  * @param {AddTeamMemberRequest} params
  * @returns {AddTeamMemberReply}
  */
-export function addTeamMember(params: AddTeamMemberRequest): Promise<AddTeamMemberReply> {
-  return request.POST<AddTeamMemberReply>(`/v1/team/member/add`, params)
+export function addTeamMember(params: AddTeamMemberRequest): Promise<null> {
+  return request.POST<null>('/v1/team/member/add', params)
 }
 
 /**
@@ -79,8 +79,8 @@ export function addTeamMember(params: AddTeamMemberRequest): Promise<AddTeamMemb
  * @param {RemoveTeamMemberRequest} params
  * @returns {RemoveTeamMemberReply}
  */
-export function removeTeamMember(params: RemoveTeamMemberRequest): Promise<RemoveTeamMemberReply> {
-  return request.DELETE<RemoveTeamMemberReply>(`/v1/team/member`, params)
+export function removeTeamMember(params: RemoveTeamMemberRequest): Promise<null> {
+  return request.DELETE<null>('/v1/team/member', params)
 }
 
 /**
@@ -89,8 +89,8 @@ export function removeTeamMember(params: RemoveTeamMemberRequest): Promise<Remov
  * @param {SetTeamAdminRequest} params
  * @returns {SetTeamAdminReply}
  */
-export function setTeamAdmin(params: SetTeamAdminRequest): Promise<SetTeamAdminReply> {
-  return request.PUT<SetTeamAdminReply>(`/v1/team/member/set/admin`, params)
+export function setTeamAdmin(params: SetTeamAdminRequest): Promise<null> {
+  return request.PUT<null>('/v1/team/member/set/admin', params)
 }
 
 /**
@@ -99,8 +99,8 @@ export function setTeamAdmin(params: SetTeamAdminRequest): Promise<SetTeamAdminR
  * @param {RemoveTeamAdminRequest} params
  * @returns {RemoveTeamAdminReply}
  */
-export function removeTeamAdmin(params: RemoveTeamAdminRequest): Promise<RemoveTeamAdminReply> {
-  return request.DELETE<RemoveTeamAdminReply>(`/v1/team/member/remove/admin`, params)
+export function removeTeamAdmin(params: RemoveTeamAdminRequest): Promise<null> {
+  return request.DELETE<null>('/v1/team/member/remove/admin', params)
 }
 
 /**
@@ -109,8 +109,8 @@ export function removeTeamAdmin(params: RemoveTeamAdminRequest): Promise<RemoveT
  * @param {SetMemberRoleRequest} params
  * @returns {SetMemberRoleReply}
  */
-export function setMemberRole(params: SetMemberRoleRequest): Promise<SetMemberRoleReply> {
-  return request.PUT<SetMemberRoleReply>(`/v1/team/member/role`, params)
+export function setMemberRole(params: SetMemberRoleRequest): Promise<null> {
+  return request.PUT<null>('/v1/team/member/role', params)
 }
 
 /**
@@ -120,7 +120,7 @@ export function setMemberRole(params: SetMemberRoleRequest): Promise<SetMemberRo
  * @returns {ListTeamMemberReply}
  */
 export function listTeamMember(params: ListTeamMemberRequest): Promise<ListTeamMemberReply> {
-  return request.POST<ListTeamMemberReply>(`/v1/team/member/list`, params)
+  return request.POST<ListTeamMemberReply>('/v1/team/member/list', params)
 }
 
 /**
@@ -129,8 +129,8 @@ export function listTeamMember(params: ListTeamMemberRequest): Promise<ListTeamM
  * @param {TransferTeamLeaderRequest} params
  * @returns {TransferTeamLeaderReply}
  */
-export function transferTeamLeader(params: TransferTeamLeaderRequest): Promise<TransferTeamLeaderReply> {
-  return request.PUT<TransferTeamLeaderReply>(`/v1/team/leader/transfer`, params)
+export function transferTeamLeader(params: TransferTeamLeaderRequest): Promise<null> {
+  return request.PUT<null>('/v1/team/leader/transfer', params)
 }
 
 /**
@@ -138,7 +138,7 @@ export function transferTeamLeader(params: TransferTeamLeaderRequest): Promise<T
  * @method: put /v1/team/member/status
  */
 export function batchUpdateTeamMembersStatus(params: BatchUpdateTeamMemberStatusRequest): Promise<null> {
-  return request.PUT(`/v1/team/member/status`, params)
+  return request.PUT('/v1/team/member/status', params)
 }
 
 /**
@@ -151,7 +151,7 @@ export function getTeamMemberDetail(params: GetTeamMemberDetailRequest): Promise
 
 /**
  * 获取团队配置
- * @method: get /v1/team/config
+ * @method: get /v1/team/get/config
  */
 export function getTeamConfig(): Promise<TeamConfigItem> {
   return request.GET<TeamConfigItem>('/v1/team/get/config')
@@ -175,10 +175,6 @@ export interface CreateTeamRequest {
   adminIds: number[]
 }
 
-export interface CreateTeamReply {
-  detail?: TeamItem
-}
-
 export interface UpdateTeamRequest {
   id: number
   name: string
@@ -186,8 +182,6 @@ export interface UpdateTeamRequest {
   logo: string
   status: number
 }
-
-export interface UpdateTeamReply {}
 
 export interface GetTeamRequest {
   id: number
@@ -216,8 +210,6 @@ export interface UpdateTeamStatusRequest {
   status: Status
 }
 
-export interface UpdateTeamStatusReply {}
-
 export interface MyTeamReply {
   list: TeamItem[]
 }
@@ -225,8 +217,6 @@ export interface MyTeamReply {
 export interface AddTeamMemberRequest {
   members: MemberItem[]
 }
-
-export interface AddTeamMemberReply {}
 
 export interface MemberItem {
   memberID: number
@@ -238,26 +228,18 @@ export interface RemoveTeamMemberRequest {
   memberID: number
 }
 
-export interface RemoveTeamMemberReply {}
-
 export interface SetTeamAdminRequest {
   memberIds: number[]
 }
-
-export interface SetTeamAdminReply {}
 
 export interface RemoveTeamAdminRequest {
   memberIds: number[]
 }
 
-export interface RemoveTeamAdminReply {}
-
 export interface SetMemberRoleRequest {
   memberID: number
   roles: number[]
 }
-
-export interface SetMemberRoleReply {}
 
 export interface ListTeamMemberRequest {
   keyword?: string
@@ -276,8 +258,6 @@ export interface ListTeamMemberReply {
 export interface TransferTeamLeaderRequest {
   memberID: number
 }
-
-export interface TransferTeamLeaderReply {}
 
 export interface BatchUpdateTeamMemberStatusRequest {
   status: Status

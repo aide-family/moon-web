@@ -1,24 +1,22 @@
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { AlarmNoticeGroupItem } from '@/api/model-types'
+import type { AlarmNoticeGroupItem } from '@/api/model-types'
 import {
-  createAlarmGroup,
-  CreateAlarmGroupRequest,
+  type ListAlarmGroupRequest,
   deleteAlarmGroup,
   listAlarmGroup,
-  ListAlarmGroupRequest,
-  updateAlarmGroup,
   updateAlarmGroupStatus
 } from '@/api/notify/alarm-group'
-import { ListStrategyGroupRequest } from '@/api/strategy'
+import type { ListStrategyGroupRequest } from '@/api/strategy'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
 import { ExclamationCircleFilled } from '@ant-design/icons'
-import { Button, message, Modal, Space, theme } from 'antd'
-import { debounce } from 'lodash'
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { useRequest } from 'ahooks'
+import { Button, Modal, Space, message, theme } from 'antd'
+import type React from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { GroupEditModal } from './modal-edit'
 import { formList, getColumnList } from './options'
 
@@ -32,7 +30,6 @@ const defaultSearchParams: ListAlarmGroupRequest = {
   },
   keyword: '',
   status: Status.StatusAll
-  // teamId: ''
 }
 
 const Group: React.FC = () => {
@@ -41,8 +38,6 @@ const Group: React.FC = () => {
 
   const [datasource, setDatasource] = useState<AlarmNoticeGroupItem[]>([])
   const [searchParams, setSearchParams] = useState<ListAlarmGroupRequest>(defaultSearchParams)
-  const [loading, setLoading] = useState(false)
-  const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
   const [openGroupEditModal, setOpenGroupEditModal] = useState(false)
   const [editGroupId, setEditGroupId] = useState<number>()
@@ -69,46 +64,21 @@ const Group: React.FC = () => {
     setDisabledEditGroupModal(true)
   }
 
-  const onRefresh = () => {
-    setRefresh(!refresh)
-  }
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = useCallback(
-    debounce(async (params) => {
-      setLoading(true)
-      listAlarmGroup(params)
-        .then(({ list, pagination }) => {
-          setDatasource(list || [])
-          setTotal(pagination?.total || 0)
-        })
-        .finally(() => setLoading(false))
-    }, 500),
-    []
-  )
-
-  const handleGroupEditModalSubmit = async (data: CreateAlarmGroupRequest) => {
-    const call = () => {
-      if (!editGroupId) {
-        return createAlarmGroup(data)
-      } else {
-        return updateAlarmGroup({
-          update: data,
-          id: editGroupId
-        })
-      }
+  const { run: fetchData, loading } = useRequest(listAlarmGroup, {
+    manual: true,
+    onSuccess: (res) => {
+      setDatasource(res.list || [])
+      setTotal(res.pagination?.total || 0)
     }
-    return call().then(() => {
-      message.success(`${editGroupId ? '编辑' : '添加'}成功`)
-      handleCloseGroupEditModal()
-      onRefresh()
-    })
-  }
+  })
+
+  const onRefresh = useCallback(() => {
+    fetchData(searchParams)
+  }, [fetchData, searchParams])
 
   useEffect(() => {
     fetchData(searchParams)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, searchParams, fetchData])
+  }, [searchParams, fetchData])
 
   const onSearch = (formData: ListStrategyGroupRequest) => {
     setSearchParams({
@@ -120,11 +90,6 @@ const Group: React.FC = () => {
       }
     })
   }
-
-  // 批量操作
-  // const handlerBatchData = (selectedRowKeys: Key[], selectedRows: StrategyGroupItem[]) => {
-  //   console.log(selectedRowKeys, selectedRows)
-  // }
 
   // 切换分页
   const handleTurnPage = (page: number, pageSize: number) => {
@@ -145,13 +110,19 @@ const Group: React.FC = () => {
   const onHandleMenuOnClick = (item: AlarmNoticeGroupItem, key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
-        updateAlarmGroupStatus({ id: item.id, status: Status.StatusEnable }).then(() => {
+        updateAlarmGroupStatus({
+          id: item.id,
+          status: Status.StatusEnable
+        }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
         break
       case ActionKey.DISABLE:
-        updateAlarmGroupStatus({ id: item.id, status: Status.StatusDisable }).then(() => {
+        updateAlarmGroupStatus({
+          id: item.id,
+          status: Status.StatusDisable
+        }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
@@ -166,7 +137,7 @@ const Group: React.FC = () => {
         break
       case ActionKey.DELETE:
         confirm({
-          title: `请确认是否删除该告警组?`,
+          title: '请确认是否删除该告警组?',
           icon: <ExclamationCircleFilled />,
           content: '此操作不可逆',
           onOk() {
@@ -189,6 +160,11 @@ const Group: React.FC = () => {
     pageSize: searchParams.pagination.pageSize
   })
 
+  const handleOnOK = () => {
+    handleCloseGroupEditModal()
+    onRefresh()
+  }
+
   return (
     <div className='flex flex-col gap-3 p-3'>
       <GroupEditModal
@@ -197,9 +173,9 @@ const Group: React.FC = () => {
         style={{ minWidth: 504 }}
         open={openGroupEditModal}
         onCancel={handleCloseGroupEditModal}
-        submit={handleGroupEditModalSubmit}
         groupId={editGroupId}
         disabled={disabledEditGroupModal}
+        onOk={handleOnOK}
       />
       <div
         style={{
@@ -243,7 +219,7 @@ const Group: React.FC = () => {
               borderRadius: token.borderRadius
             }}
             scroll={{
-              y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,
+              y: `calc(100vh - 174px  - ${AutoTableHeight}px)`,
               x: 1000
             }}
             size='middle'

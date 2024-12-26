@@ -1,12 +1,10 @@
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { StrategyGroupItem } from '@/api/model-types'
+import type { StrategyGroupItem } from '@/api/model-types'
 import {
-  createStrategyGroup,
+  type ListStrategyGroupRequest,
   deleteStrategyGroup,
   listStrategyGroup,
-  ListStrategyGroupRequest,
-  updateStrategyGroup,
   updateStrategyGroupStatus
 } from '@/api/strategy'
 import SearchBox from '@/components/data/search-box'
@@ -14,11 +12,12 @@ import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
 import { ExclamationCircleFilled } from '@ant-design/icons'
-import { Button, message, Modal, Space, theme } from 'antd'
-import { debounce } from 'lodash'
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { useRequest } from 'ahooks'
+import { Button, Modal, Space, message, theme } from 'antd'
+import type React from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { GroupEditModal } from './group-edit-modal'
-import { formList, getColumnList, GroupEditModalFormData } from './options'
+import { formList, getColumnList } from './options'
 
 const { confirm } = Modal
 const { useToken } = theme
@@ -30,7 +29,6 @@ const defaultSearchParams: ListStrategyGroupRequest = {
   },
   keyword: '',
   status: Status.StatusAll
-  // teamId: ''
 }
 
 const Group: React.FC = () => {
@@ -39,8 +37,6 @@ const Group: React.FC = () => {
 
   const [datasource, setDatasource] = useState<StrategyGroupItem[]>([])
   const [searchParams, setSearchParams] = useState<ListStrategyGroupRequest>(defaultSearchParams)
-  const [loading, setLoading] = useState(false)
-  const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
   const [openGroupEditModal, setOpenGroupEditModal] = useState(false)
   const [editGroupId, setEditGroupId] = useState<number>()
@@ -49,6 +45,14 @@ const Group: React.FC = () => {
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
+
+  const { run: initDatasource, loading: initDatasourceLoading } = useRequest(listStrategyGroup, {
+    manual: true,
+    onSuccess: (res) => {
+      setDatasource(res.list || [])
+      setTotal(res.pagination?.total || 0)
+    }
+  })
 
   const handleCloseGroupEditModal = () => {
     setOpenGroupEditModal(false)
@@ -68,51 +72,8 @@ const Group: React.FC = () => {
   }
 
   const onRefresh = () => {
-    setRefresh(!refresh)
+    initDatasource(searchParams)
   }
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = useCallback(
-    debounce(async (params) => {
-      setLoading(true)
-      listStrategyGroup(params)
-        .then(({ list, pagination }) => {
-          setDatasource(list || [])
-          setTotal(pagination?.total || 0)
-        })
-        .finally(() => setLoading(false))
-    }, 500),
-    []
-  )
-
-  const handleGroupEditModalSubmit = (data: GroupEditModalFormData) => {
-    const { name, remark, categoriesIds } = data
-    const params = {
-      remark,
-      name,
-      categoriesIds
-    }
-    const upParams = {
-      update: params
-    }
-    const call = () => {
-      if (!editGroupId) {
-        return createStrategyGroup(params)
-      } else {
-        return updateStrategyGroup({ id: editGroupId, ...upParams })
-      }
-    }
-    return call().then(() => {
-      message.success(`${editGroupId ? '编辑' : '添加'}成功`)
-      handleCloseGroupEditModal()
-      onRefresh()
-    })
-  }
-
-  useEffect(() => {
-    fetchData(searchParams)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, searchParams, fetchData])
 
   const onSearch = (formData: ListStrategyGroupRequest) => {
     setSearchParams({
@@ -144,13 +105,19 @@ const Group: React.FC = () => {
   const onHandleMenuOnClick = (item: StrategyGroupItem, key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
-        updateStrategyGroupStatus({ ids: [item.id], status: Status.StatusEnable }).then(() => {
+        updateStrategyGroupStatus({
+          ids: [item.id],
+          status: Status.StatusEnable
+        }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
         break
       case ActionKey.DISABLE:
-        updateStrategyGroupStatus({ ids: [item.id], status: Status.StatusDisable }).then(() => {
+        updateStrategyGroupStatus({
+          ids: [item.id],
+          status: Status.StatusDisable
+        }).then(() => {
           message.success('更改状态成功')
           onRefresh()
         })
@@ -165,7 +132,7 @@ const Group: React.FC = () => {
         break
       case ActionKey.DELETE:
         confirm({
-          title: `请确认是否删除该策略组?`,
+          title: '请确认是否删除该策略组?',
           icon: <ExclamationCircleFilled />,
           content: '此操作不可逆',
           onOk() {
@@ -188,6 +155,15 @@ const Group: React.FC = () => {
     pageSize: searchParams.pagination.pageSize
   })
 
+  const handleOnOKGroupEditModal = () => {
+    handleCloseGroupEditModal()
+    onRefresh()
+  }
+
+  useEffect(() => {
+    initDatasource(searchParams)
+  }, [initDatasource, searchParams])
+
   return (
     <div className='h-full flex flex-col gap-3 p-3'>
       <GroupEditModal
@@ -196,32 +172,20 @@ const Group: React.FC = () => {
         style={{ minWidth: 504 }}
         open={openGroupEditModal}
         onCancel={handleCloseGroupEditModal}
-        submit={handleGroupEditModalSubmit}
+        onOk={handleOnOKGroupEditModal}
         groupId={editGroupId}
         disabled={disabledEditGroupModal}
       />
-      <div
-        style={{
-          background: token.colorBgContainer,
-          borderRadius: token.borderRadius
-        }}
-      >
+      <div style={{ background: token.colorBgContainer, borderRadius: token.borderRadius }}>
         <SearchBox ref={searchRef} formList={formList} onSearch={onSearch} onReset={onReset} />
       </div>
-      <div
-        className='p-3'
-        style={{
-          background: token.colorBgContainer,
-          borderRadius: token.borderRadius
-        }}
-      >
+      <div className='p-3' style={{ background: token.colorBgContainer, borderRadius: token.borderRadius }}>
         <div className='flex justify-between items-center'>
           <div className='font-bold text-lg'>策略组</div>
           <Space size={8}>
             <Button type='primary' onClick={() => handleEditModal()}>
               添加
             </Button>
-            {/* <Button onClick={() => handleEditModal()}>批量导入</Button> */}
             <Button color='default' variant='filled' onClick={onRefresh}>
               刷新
             </Button>
@@ -232,20 +196,14 @@ const Group: React.FC = () => {
             rowKey={(record) => record.id}
             dataSource={datasource}
             total={total}
-            loading={loading}
+            loading={initDatasourceLoading}
             columns={columns}
             handleTurnPage={handleTurnPage}
             pageSize={searchParams.pagination.pageSize}
             pageNum={searchParams.pagination.pageNum}
             showSizeChanger={true}
-            style={{
-              background: token.colorBgContainer,
-              borderRadius: token.borderRadius
-            }}
-            scroll={{
-              y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,
-              x: 1000
-            }}
+            style={{ background: token.colorBgContainer, borderRadius: token.borderRadius }}
+            scroll={{ y: `calc(100vh - 174px - ${AutoTableHeight}px)` }}
             size='middle'
           />
         </div>

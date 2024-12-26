@@ -1,6 +1,6 @@
-import { Role } from '../enum'
-import { PaginationReply, PaginationReq } from '../global'
-import { SelectItem, UserItem } from '../model-types'
+import type { Role } from '../enum'
+import type { PaginationReply, PaginationReq } from '../global'
+import type { SelectItem, UserItem } from '../model-types'
 import request from '../request'
 
 /**
@@ -9,8 +9,8 @@ import request from '../request'
  * @param {CreateUserRequest} params
  * @returns {CreateUserReply}
  */
-export function createUser(params: CreateUserRequest): Promise<CreateUserReply> {
-  return request.POST<CreateUserReply>('/v1/user', params)
+export function createUser(params: CreateUserRequest): Promise<null> {
+  return request.POST<null>('/v1/user', params)
 }
 
 /**
@@ -19,8 +19,8 @@ export function createUser(params: CreateUserRequest): Promise<CreateUserReply> 
  * @param {UpdateUserRequest} params
  * @returns {UpdateUserReply}
  */
-export function updateUser(params: UpdateUserRequest): Promise<UpdateUserReply> {
-  return request.PUT<UpdateUserReply>(`/v1/user/update/${params.id}`, params.data)
+export function updateUser(params: UpdateUserRequest): Promise<null> {
+  return request.PUT<null>(`/v1/user/update/${params.id}`, params.data)
 }
 
 /**
@@ -29,8 +29,8 @@ export function updateUser(params: UpdateUserRequest): Promise<UpdateUserReply> 
  * @param {DeleteUserRequest} params
  * @returns {DeleteUserReply}
  */
-export function deleteUser(params: DeleteUserRequest): Promise<DeleteUserReply> {
-  return request.DELETE<DeleteUserReply>(`/v1/user/${params.id}`)
+export function deleteUser(params: DeleteUserRequest): Promise<null> {
+  return request.DELETE<null>(`/v1/user/${params.id}`)
 }
 
 /**
@@ -50,7 +50,7 @@ export function getUser(params: GetUserRequest): Promise<GetUserReply> {
  * @returns {GetUserReply}
  */
 export function getUserBasic(): Promise<GetUserReply> {
-  return request.GET<GetUserReply>(`/v1/user/self/basic`)
+  return request.GET<GetUserReply>('/v1/user/self/basic')
 }
 
 /**
@@ -69,8 +69,8 @@ export function listUser(params: ListUserRequest): Promise<ListUserReply> {
  * @param {BatchUpdateUserStatusRequest} params
  * @returns {BatchUpdateUserStatusReply}
  */
-export function batchUpdateUserStatus(params: BatchUpdateUserStatusRequest): Promise<BatchUpdateUserStatusReply> {
-  return request.PUT<BatchUpdateUserStatusReply>('/v1/user/status', params)
+export function batchUpdateUserStatus(params: BatchUpdateUserStatusRequest): Promise<null> {
+  return request.PUT<null>('/v1/user/status', params)
 }
 
 /**
@@ -79,8 +79,8 @@ export function batchUpdateUserStatus(params: BatchUpdateUserStatusRequest): Pro
  * @param {ResetUserPasswordRequest} params
  * @returns {ResetUserPasswordReply}
  */
-export function resetUserPassword(params: ResetUserPasswordRequest): Promise<ResetUserPasswordReply> {
-  return request.PUT<ResetUserPasswordReply>('/v1/user/password', params)
+export function resetUserPassword(params: ResetUserPasswordRequest): Promise<null> {
+  return request.PUT<null>('/v1/user/password', params)
 }
 
 /**
@@ -89,8 +89,8 @@ export function resetUserPassword(params: ResetUserPasswordRequest): Promise<Res
  * @param {ResetUserPasswordBySelfRequest} params
  * @returns {ResetUserPasswordBySelfReply}
  */
-export function resetUserPasswordBySelf(params: ResetUserPasswordBySelfRequest): Promise<ResetUserPasswordBySelfReply> {
-  return request.PUT<ResetUserPasswordBySelfReply>('/v1/user/password/self', params)
+export function resetUserPasswordBySelf(params: ResetUserPasswordBySelfRequest): Promise<null> {
+  return request.PUT<null>('/v1/user/password/self', params)
 }
 
 /**
@@ -109,8 +109,8 @@ export function getUserSelectList(params: ListUserRequest): Promise<GetUserSelec
  * @param {UpdateUserPhoneRequest} params
  * @returns {UpdateUserPhoneReply}
  */
-export function updateUserPhone(params: UpdateUserPhoneRequest): Promise<UpdateUserPhoneReply> {
-  return request.PUT<UpdateUserPhoneReply>('/v1/user/phone', params)
+export function updateUserPhone(params: UpdateUserPhoneRequest): Promise<null> {
+  return request.PUT<null>('/v1/user/phone', params)
 }
 
 /**
@@ -119,8 +119,8 @@ export function updateUserPhone(params: UpdateUserPhoneRequest): Promise<UpdateU
  * @param {UpdateUserEmailRequest} params
  * @returns {UpdateUserEmailReply}
  */
-export function updateUserEmail(params: UpdateUserEmailRequest): Promise<UpdateUserEmailReply> {
-  return request.PUT<UpdateUserEmailReply>('/v1/user/email', params)
+export function updateUserEmail(params: UpdateUserEmailRequest): Promise<null> {
+  return request.PUT<null>('/v1/user/email', params)
 }
 
 /**
@@ -129,8 +129,8 @@ export function updateUserEmail(params: UpdateUserEmailRequest): Promise<UpdateU
  * @param {UpdateUserAvatarRequest} params
  * @returns {UpdateUserAvatarReply}
  */
-export function updateUserAvatar(params: UpdateUserAvatarRequest): Promise<UpdateUserAvatarReply> {
-  return request.PUT<UpdateUserAvatarReply>('/v1/user/avatar', params)
+export function updateUserAvatar(params: UpdateUserAvatarRequest): Promise<null> {
+  return request.PUT<null>('/v1/user/avatar', params)
 }
 
 /**
@@ -139,8 +139,8 @@ export function updateUserAvatar(params: UpdateUserAvatarRequest): Promise<Updat
  * @param {UpdateUserBaseInfoRequest} params
  * @returns {UpdateUserBaseInfoReply}
  */
-export function updateUserBaseInfo(params: UpdateUserBaseInfoRequest): Promise<UpdateUserBaseInfoReply> {
-  return request.PUT<UpdateUserBaseInfoReply>('/v1/user/self/base', params)
+export function updateUserBaseInfo(params: UpdateUserBaseInfoRequest): Promise<null> {
+  return request.PUT<null>('/v1/user/self/base', params)
 }
 
 /**
@@ -149,8 +149,8 @@ export function updateUserBaseInfo(params: UpdateUserBaseInfoRequest): Promise<U
  * @param {UpdateUserRoleRequest} params
  * @returns {UpdateUserRoleReply}
  */
-export function updateUserRole(params: UpdateUserRoleRequest): Promise<UpdateUserRoleReply> {
-  return request.PUT<UpdateUserRoleReply>('/v1/user/role', params)
+export function updateUserRole(params: UpdateUserRoleRequest): Promise<null> {
+  return request.PUT<null>('/v1/user/role', params)
 }
 
 export interface CreateUserRequest {
@@ -166,20 +166,14 @@ export interface CreateUserRequest {
   role: number
 }
 
-export interface CreateUserReply {}
-
 export interface UpdateUserRequest {
   id: number
   data: CreateUserRequest
 }
 
-export interface UpdateUserReply {}
-
 export interface DeleteUserRequest {
   id: number
 }
-
-export interface DeleteUserReply {}
 
 export interface GetUserRequest {
   id: number
@@ -208,20 +202,14 @@ export interface BatchUpdateUserStatusRequest {
   status: number
 }
 
-export interface BatchUpdateUserStatusReply {}
-
 export interface ResetUserPasswordRequest {
   id: number
 }
-
-export interface ResetUserPasswordReply {}
 
 export interface ResetUserPasswordBySelfRequest {
   oldPassword: string
   newPassword: string
 }
-
-export interface ResetUserPasswordBySelfReply {}
 
 export interface GetUserSelectListReply {
   list: SelectItem[]
@@ -232,19 +220,13 @@ export interface UpdateUserPhoneRequest {
   phone: string
 }
 
-export interface UpdateUserPhoneReply {}
-
 export interface UpdateUserEmailRequest {
   email: string
 }
 
-export interface UpdateUserEmailReply {}
-
 export interface UpdateUserAvatarRequest {
   avatar: string
 }
-
-export interface UpdateUserAvatarReply {}
 
 export interface UpdateUserBaseInfoRequest {
   nickname: string
@@ -252,11 +234,7 @@ export interface UpdateUserBaseInfoRequest {
   remark: string
 }
 
-export interface UpdateUserBaseInfoReply {}
-
 export interface UpdateUserRoleRequest {
   id: number
   role: Role
 }
-
-export interface UpdateUserRoleReply {}

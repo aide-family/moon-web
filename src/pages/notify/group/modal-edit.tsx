@@ -1,42 +1,58 @@
 import { Status } from '@/api/enum'
-import { AlarmNoticeGroupItem, NoticeItem } from '@/api/model-types'
-import { CreateAlarmGroupRequest, getAlarmGroup } from '@/api/notify/alarm-group'
+import type { AlarmNoticeGroupItem, NoticeItem } from '@/api/model-types'
+import {
+  type CreateAlarmGroupRequest,
+  createAlarmGroup,
+  getAlarmGroup,
+  updateAlarmGroup
+} from '@/api/notify/alarm-group'
 import { DataFrom } from '@/components/data/form'
-import { Form, Modal, ModalProps } from 'antd'
-import React, { useEffect, useState } from 'react'
+import { useRequest } from 'ahooks'
+import { Form, Modal, type ModalProps, message } from 'antd'
+import type React from 'react'
+import { useEffect, useState } from 'react'
 import { MemberSelect } from './member-select'
 import { editModalFormItems } from './options'
 
 export interface GroupEditModalProps extends ModalProps {
   groupId?: number
   disabled?: boolean
-  submit?: (data: CreateAlarmGroupRequest & { id?: number }) => Promise<void>
+  onOk?: () => void
 }
 
 export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
-  const { onCancel, submit, open, title, groupId, disabled } = props
+  const { onCancel, onOk, open, title, groupId, disabled } = props
   const [form] = Form.useForm<CreateAlarmGroupRequest & { noticeMember: NoticeItem[] }>()
-  const [loading, setLoading] = useState(false)
   const [groupDetail, setGroupDetail] = useState<AlarmNoticeGroupItem>()
 
-  const getGroupDetail = async () => {
-    if (groupId) {
-      setLoading(true)
-      getAlarmGroup({ id: groupId })
-        .then(({ detail }) => {
-          setGroupDetail(detail)
-        })
-        .finally(() => setLoading(false))
+  const { run: initGroupDetail, loading: initGroupDetailLoading } = useRequest(getAlarmGroup, {
+    manual: true,
+    onSuccess: (data) => {
+      setGroupDetail(data.detail)
     }
-  }
+  })
+
+  const { runAsync: addGroup, loading: addGroupLoading } = useRequest(createAlarmGroup, {
+    manual: true,
+    onSuccess: () => {
+      message.success('新建告警组成功')
+      onOk?.()
+    }
+  })
+
+  const { runAsync: editGroup, loading: editGroupLoading } = useRequest(updateAlarmGroup, {
+    manual: true,
+    onSuccess: () => {
+      message.success('编辑告警组成功')
+      onOk?.()
+    }
+  })
 
   useEffect(() => {
-    if (!groupId) {
-      setGroupDetail(undefined)
+    if (groupId) {
+      initGroupDetail({ id: groupId })
     }
-    getGroupDetail()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groupId])
+  }, [groupId, initGroupDetail])
 
   useEffect(() => {
     if (open && form && groupDetail) {
@@ -52,15 +68,14 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
   }, [groupDetail, open, form])
 
   const handleOnCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
-    onCancel?.(e)
     form?.resetFields()
     setGroupDetail(undefined)
+    onCancel?.(e)
   }
 
   const handleOnOk = () => {
     form?.validateFields().then((formValues) => {
-      setLoading(true)
-      submit?.({
+      const data = {
         ...formValues,
         status: Status.StatusEnable,
         id: groupId,
@@ -68,22 +83,34 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
           memberId: item.member.id,
           notifyType: item.notifyType
         }))
-      })
-        .then(() => {
-          form?.resetFields()
-        })
-        .finally(() => {
-          setLoading(false)
-        })
+      }
+      if (groupId) {
+        editGroup({ update: data, id: groupId })
+      } else {
+        addGroup(data)
+      }
     })
   }
 
   return (
     <>
-      <Modal {...props} title={title} open={open} onCancel={handleOnCancel} onOk={handleOnOk} confirmLoading={loading}>
+      <Modal
+        {...props}
+        title={title}
+        open={open}
+        onCancel={handleOnCancel}
+        loading={initGroupDetailLoading}
+        onOk={handleOnOk}
+        confirmLoading={addGroupLoading || editGroupLoading}
+      >
         <DataFrom
           items={editModalFormItems}
-          props={{ form, layout: 'vertical', autoComplete: 'off', disabled: disabled || loading }}
+          props={{
+            form,
+            layout: 'vertical',
+            autoComplete: 'off',
+            disabled: disabled || initGroupDetailLoading || addGroupLoading || editGroupLoading
+          }}
         >
           <Form.Item label='成员列表' name='noticeMember'>
             <MemberSelect />

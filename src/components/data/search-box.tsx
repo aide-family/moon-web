@@ -2,13 +2,12 @@ import { UpOutlined } from '@ant-design/icons'
 import type { DatePickerProps, InputNumberProps, InputProps, RadioGroupProps, SelectProps, TreeSelectProps } from 'antd'
 import { Button, Col, DatePicker, Form, Input, InputNumber, Radio, Row, Select, Space, TreeSelect } from 'antd'
 import type { Rule } from 'antd/es/form'
-import { FC, forwardRef, memo, useImperativeHandle, useState } from 'react'
-import FetchSelect, { FetchSelectProps } from './child/fetch-select'
+import { type FC, forwardRef, memo, useImperativeHandle, useState } from 'react'
+import FetchSelect, { type FetchSelectProps } from './child/fetch-select'
 
 export type DataProps = {
   value?: string | number
-  // eslint-disable-next-line
-  onChange?: (value: any) => void
+  onChange?: (value: Record<string, unknown>) => void
   defaultValue?: string | number
 } & (
   | {
@@ -49,11 +48,9 @@ export type SearchFormItem = {
 }
 export interface SearchProps {
   formList: SearchFormItem[]
-  // eslint-disable-next-line
   onSearch: (values: any) => void
   onReset: () => void
   labelCol?: number
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ref: any
 }
 
@@ -77,11 +74,8 @@ const SearchBox: FC<SearchProps> = forwardRef((props: SearchProps, ref) => {
 
   useImperativeHandle(ref, () => ({
     // 设置部分表单值
-    // eslint-disable-next-line
-    onSearchSome: (val: any) => {
-      form.setFieldsValue({
-        ...val
-      })
+    onSearchSome: (val: Record<string, unknown>) => {
+      form.setFieldsValue(val)
     }
   }))
 
@@ -116,7 +110,7 @@ const SearchBox: FC<SearchProps> = forwardRef((props: SearchProps, ref) => {
 
   return (
     <div className='p-6'>
-      <Form form={form} onFinish={onFinish}>
+      <Form form={form} onFinish={onFinish} autoComplete='off'>
         <Row gutter={[16, 0]} className='relative'>
           {formList?.map((item: SearchFormItem, index: number) => {
             const {
@@ -132,7 +126,7 @@ const SearchBox: FC<SearchProps> = forwardRef((props: SearchProps, ref) => {
             } = item
             if (index < count) {
               return (
-                <Col key={index} xs={24} sm={12} lg={6} xl={6}>
+                <Col key={name} xs={24} sm={12} lg={6} xl={6}>
                   <Form.Item label={label} key={name} name={name} rules={rules}>
                     {formItem(dataProps)}
                   </Form.Item>
@@ -141,7 +135,7 @@ const SearchBox: FC<SearchProps> = forwardRef((props: SearchProps, ref) => {
             }
             return null
           })}
-          {<Col xs={24} sm={12} lg={6} xl={6} style={{ height: '56px' }}></Col>}
+          <Col xs={24} sm={12} lg={6} xl={6} style={{ height: '56px' }} />
           <Col
             xs={24}
             sm={12}

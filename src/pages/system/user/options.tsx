@@ -1,12 +1,12 @@
-import { Role, Status } from '@/api/enum'
+import { type Role, Status } from '@/api/enum'
 import { ActionKey, RoleData, StatusData } from '@/api/global'
-import { UserItem } from '@/api/model-types'
-import { DataFromItem } from '@/components/data/form'
+import type { UserItem } from '@/api/model-types'
+import type { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
 import { Avatar, Badge, Button, Space, Tag } from 'antd'
-import { ColumnsType } from 'antd/es/table'
+import type { ColumnsType } from 'antd/es/table'
 
 export const formList: SearchFormItem[] = [
   {
@@ -231,7 +231,10 @@ export const editModalFormItems = (): (DataFromItem | DataFromItem[])[] => [
       type: 'select',
       props: {
         placeholder: '请输入语言',
-        options: ['zh-CN', 'en-US'].map((item) => ({ label: item, value: item }))
+        options: ['zh-CN', 'en-US'].map((item) => ({
+          label: item,
+          value: item
+        }))
       }
     }
   ],

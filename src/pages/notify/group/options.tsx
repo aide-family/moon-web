@@ -1,14 +1,14 @@
 import { Status } from '@/api/enum'
-import { ActionKey, defaultPaginationReq, HookAppData, StatusData } from '@/api/global'
-import { AlarmHookItem, AlarmNoticeGroupItem } from '@/api/model-types'
+import { ActionKey, HookAppData, StatusData, defaultPaginationReq } from '@/api/global'
+import type { AlarmHookItem, AlarmNoticeGroupItem } from '@/api/model-types'
 import { listHook } from '@/api/notify/hook'
 import { listTimeEngine } from '@/api/notify/time-engine'
-import { DataFromItem } from '@/components/data/form'
+import type { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
 import { Avatar, Badge, Button, Space } from 'antd'
-import { ColumnsType } from 'antd/es/table'
+import type { ColumnsType } from 'antd/es/table'
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const formList: SearchFormItem[] = [
@@ -207,7 +207,10 @@ export const editModalFormItems: (DataFromItem | DataFromItem[])[] = [
     type: 'select-fetch',
     props: {
       handleFetch: (value: string) => {
-        return listTimeEngine({ keyword: value, pagination: defaultPaginationReq }).then((res) =>
+        return listTimeEngine({
+          keyword: value,
+          pagination: defaultPaginationReq
+        }).then((res) =>
           res.list.map((item) => ({
             label: item.name,
             value: item.id
@@ -226,7 +229,10 @@ export const editModalFormItems: (DataFromItem | DataFromItem[])[] = [
     type: 'select-fetch',
     props: {
       handleFetch: (value: string) => {
-        return listHook({ keyword: value, pagination: { pageNum: 1, pageSize: 999 } }).then((res) =>
+        return listHook({
+          keyword: value,
+          pagination: { pageNum: 1, pageSize: 999 }
+        }).then((res) =>
           res.list.map((item) => ({
             label: <HookAvatar {...item} />,
             value: item.id,

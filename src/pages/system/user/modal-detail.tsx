@@ -1,7 +1,8 @@
 import { RoleData, StatusData } from '@/api/global'
-import { UserItem } from '@/api/model-types'
+import type { UserItem } from '@/api/model-types'
 import { getUser } from '@/api/user'
-import { Avatar, Badge, Descriptions, DescriptionsProps, Modal } from 'antd'
+import { useRequest } from 'ahooks'
+import { Avatar, Badge, Descriptions, type DescriptionsProps, Modal } from 'antd'
 import { useEffect, useState } from 'react'
 
 export interface UserDetailModalProps {
@@ -11,24 +12,23 @@ export interface UserDetailModalProps {
   onOk?: () => void
 }
 
-let timer: NodeJS.Timeout | null = null
 export function DetailModal(props: UserDetailModalProps) {
   const { id, open, onCancel, onOk } = props
 
   const [detail, setDetail] = useState<UserItem>({} as UserItem)
-  const getUserDetail = () => {
-    if (!id) {
-      return
+
+  const { run: initUserDetail, loading: initUserDetailLoading } = useRequest(getUser, {
+    manual: true,
+    onSuccess: (data) => {
+      setDetail(data.detail)
     }
-    if (timer) {
-      clearTimeout(timer)
+  })
+
+  useEffect(() => {
+    if (id && open) {
+      initUserDetail({ id })
     }
-    timer = setTimeout(() => {
-      getUser({ id }).then((res) => {
-        setDetail(res.detail)
-      })
-    }, 400)
-  }
+  }, [id, open, initUserDetail])
 
   const items: DescriptionsProps['items'] = [
     {
@@ -76,14 +76,21 @@ export function DetailModal(props: UserDetailModalProps) {
 
   useEffect(() => {
     if (id && open) {
-      getUserDetail()
+      initUserDetail({ id })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, open])
+  }, [id, open, initUserDetail])
 
   return (
     <>
-      <Modal width='50%' centered open={open} onOk={onOk} onCancel={onCancel} footer={null}>
+      <Modal
+        width='50%'
+        centered
+        open={open}
+        onOk={onOk}
+        onCancel={onCancel}
+        loading={initUserDetailLoading}
+        footer={null}
+      >
         <Descriptions title='成员信息' bordered items={items} />
       </Modal>
     </>

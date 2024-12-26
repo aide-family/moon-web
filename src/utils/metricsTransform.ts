@@ -1,31 +1,27 @@
-import { MetricSeries, MetricsData, MetricsDataResult } from '@/types/metrics'
+import type { MetricSeries, MetricsData, MetricsDataResult } from '@/types/metrics'
 
 export const transformMetricsData = (data: MetricsData): MetricSeries[] => {
   return data.result.map((series: MetricsDataResult) => ({
     instance: JSON.stringify(series.metric),
     values: series.values.map((point: [number, string]) => ({
       timestamp: point[0] * 1000, // Convert to milliseconds
-      value: parseFloat(point[1])
+      value: Number.parseFloat(point[1])
     }))
   }))
 }
 
 export const getDataRange = (data: MetricSeries[]) => {
-  let min = Infinity
-  let max = -Infinity
+  let min = Number.POSITIVE_INFINITY
+  let max = Number.NEGATIVE_INFINITY
 
-  data.forEach((series) => {
-    series.values.forEach((point) => {
+  for (const series of data) {
+    for (const point of series.values) {
       min = Math.min(min, point.value)
       max = Math.max(max, point.value)
-    })
-  })
-
-  // Remove padding to show exact min/max range
-  return {
-    min,
-    max
+    }
   }
+
+  return { min, max }
 }
 
 export const formatTimestamp = (timestamp: number): string => {

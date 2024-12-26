@@ -1,17 +1,20 @@
 // https://stackoverflow.com/questions/68424114/next-js-how-to-fetch-localstorage-data-before-client-side-rendering
 // 解决 nextJS 无法获取初始localstorage问题
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 function useStorage<T = string>(key: string, defaultValue?: T): [T | undefined, (value: T) => void, () => void] {
   const [storedValue, setStoredValue] = useState(getValue(localStorage.getItem(key), defaultValue) || defaultValue)
 
-  const setStorageValue = (value: T) => {
-    localStorage.setItem(key, toString(value))
-    if (value !== storedValue) {
-      setStoredValue(value)
-    }
-  }
+  const setStorageValue = useCallback(
+    (value: T) => {
+      localStorage.setItem(key, storageToString(value))
+      if (value !== storedValue) {
+        setStoredValue(value)
+      }
+    },
+    [key, storedValue]
+  )
 
   const removeStorage = () => {
     localStorage.removeItem(key)
@@ -42,12 +45,12 @@ function useStorage<T = string>(key: string, defaultValue?: T): [T | undefined, 
     }
     return () => void 0
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key])
+  }, [key, defaultValue, setStorageValue])
 
   return [storedValue, setStorageValue, removeStorage]
 }
 
-function toString<T = string>(val: T): string {
+function storageToString<T = string>(val: T): string {
   const t = typeof val
   let res = ''
   switch (t) {
@@ -67,24 +70,24 @@ function toString<T = string>(val: T): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getValue<T>(value: string | null, defalutVal: T): any {
+function getValue<T>(value: string | null, defalutVal: T): T {
   if (value === null) {
     return defalutVal
   }
 
   switch (typeof defalutVal) {
     case 'number':
-      return +value
+      return +value as T
     case 'boolean':
-      return value === 'true'
+      return (value === 'true') as T
     case 'object':
       try {
-        return JSON.parse(value)
+        return JSON.parse(value) as T
       } catch (e) {
         return defalutVal
       }
     default:
-      return value
+      return value as T
   }
 }
 

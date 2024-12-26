@@ -1,10 +1,11 @@
 import { NotifyType, Status } from '@/api/enum'
-import { NoticeItem, TeamMemberItem, UserItem } from '@/api/model-types'
-import { listTeamMember, ListTeamMemberRequest } from '@/api/team'
+import type { NoticeItem, TeamMemberItem, UserItem } from '@/api/model-types'
+import { listTeamMember } from '@/api/team'
+import { useRequest } from 'ahooks'
 import { Avatar, Checkbox, Select, Space, Table } from 'antd'
-import { ColumnsType } from 'antd/es/table'
-import { debounce } from 'lodash'
-import React, { useCallback, useEffect, useState } from 'react'
+import type { ColumnsType } from 'antd/es/table'
+import type React from 'react'
+import { useEffect, useState } from 'react'
 
 export interface MemberSelectProps {
   value?: NoticeItem[]
@@ -30,23 +31,19 @@ export const MemberSelect: React.FC<MemberSelectProps> = (props) => {
   const [memberList, setMemberList] = useState<TeamMemberItem[]>([])
   const [members, setMembers] = useState<{ [key: number]: NoticeItem }>({})
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = useCallback(
-    debounce(async (params: ListTeamMemberRequest) => {
-      listTeamMember(params).then(({ list }) => {
-        setMemberList(list || [])
-      })
-    }, 500),
-    []
-  )
+  const { run: initMemberList, loading: initMemberListLoading } = useRequest(listTeamMember, {
+    manual: true,
+    onSuccess: (data) => {
+      setMemberList(data.list || [])
+    }
+  })
 
   useEffect(() => {
-    fetchData({
+    initMemberList({
       pagination: { pageNum: 1, pageSize: 999 },
       status: Status.StatusEnable
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [initMemberList])
 
   const noticeMemberColumns: ColumnsType<NoticeItem> = [
     {
@@ -93,7 +90,7 @@ export const MemberSelect: React.FC<MemberSelectProps> = (props) => {
                 }
               }
               setMembers(v)
-              onChange && onChange(Object.values(v))
+              onChange?.(Object.values(v))
             }}
           />
         )
@@ -104,6 +101,7 @@ export const MemberSelect: React.FC<MemberSelectProps> = (props) => {
   return (
     <div>
       <Select
+        loading={initMemberListLoading}
         placeholder='请选择成员'
         mode='multiple'
         options={memberList.map((item) => ({
@@ -116,10 +114,10 @@ export const MemberSelect: React.FC<MemberSelectProps> = (props) => {
           const items = memberList.filter((item) => list.includes(item.id))
           if (items.length === 0) {
             setMembers({})
-            onChange && onChange([])
+            onChange?.([])
             return
           }
-          items.forEach((item) => {
+          for (const item of items) {
             const v = {
               ...members,
               [item.id]: {
@@ -128,8 +126,8 @@ export const MemberSelect: React.FC<MemberSelectProps> = (props) => {
               }
             }
             setMembers(v)
-            onChange && onChange(Object.values(v))
-          })
+            onChange?.(Object.values(v))
+          }
         }}
         allowClear
       />

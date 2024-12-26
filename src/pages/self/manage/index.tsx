@@ -1,19 +1,23 @@
-import { UserItem } from '@/api/model-types'
+import type { UserItem } from '@/api/model-types'
 import {
+  type ResetUserPasswordBySelfRequest,
+  type UpdateUserAvatarRequest,
+  type UpdateUserBaseInfoRequest,
+  type UpdateUserRequest,
   getUserBasic,
   resetUserPasswordBySelf,
-  ResetUserPasswordBySelfRequest,
   updateUserAvatar,
   updateUserEmail,
   updateUserPhone
 } from '@/api/user'
-import { DataFrom } from '@/components/data/form'
+import { DataFrom, type DataFromItem } from '@/components/data/form'
 import { AesEncrypt } from '@/utils/aes'
 import { GlobalContext } from '@/utils/context'
 import { EditOutlined } from '@ant-design/icons'
 import type { DescriptionsProps } from 'antd'
-import { Avatar, Button, Card, Descriptions, Form, message, Modal, Space, theme } from 'antd'
-import React, { useContext, useEffect, useState } from 'react'
+import { Avatar, Button, Card, Descriptions, Form, Modal, Space, message, theme } from 'antd'
+import type React from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { BaseInfo } from './base-info'
 import { MyTeam } from './my-team'
 import { avatarOptions, emailOptions, passwordOptions, phoneOptions } from './options'
@@ -32,10 +36,13 @@ const SelfManage: React.FC<SelfManageProps> = (props) => {
   const [tab, setTab] = useState<TabType>('basic')
   const { token } = useToken()
   const [userDetail, setUserDetail] = useState<UserItem>({} as UserItem)
-  const [form] = Form.useForm()
+  const [form] = Form.useForm<UpdateUserRequest | UpdateUserBaseInfoRequest | UpdateUserAvatarRequest>()
 
   const showUpdateModal = (type: 'phone' | 'email' | 'avatar') => {
-    let options, title, update
+    let options: (DataFromItem | DataFromItem[])[]
+    let title: string
+    let update: (params: any) => Promise<null>
+
     switch (type) {
       case 'phone': {
         options = phoneOptions
@@ -149,7 +156,12 @@ const SelfManage: React.FC<SelfManageProps> = (props) => {
           <Space>
             <DataFrom
               items={passwordOptions}
-              props={{ layout: 'vertical', form, onFinish: updatePassword, autoComplete: 'off' }}
+              props={{
+                layout: 'vertical',
+                form,
+                onFinish: updatePassword,
+                autoComplete: 'off'
+              }}
             >
               <Form.Item>
                 <Button type='primary' htmlType='submit'>

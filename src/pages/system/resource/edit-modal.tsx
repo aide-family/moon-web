@@ -1,8 +1,10 @@
-import { ResourceItem } from '@/api/model-types'
+import type { ResourceItem } from '@/api/model-types'
 import { getResource } from '@/api/resource'
 import { DataFrom } from '@/components/data/form'
-import { Form, Modal, ModalProps } from 'antd'
-import React, { useEffect, useState } from 'react'
+import { useRequest } from 'ahooks'
+import { Form, Modal, type ModalProps } from 'antd'
+import type React from 'react'
+import { useEffect, useState } from 'react'
 import { editModalFormItems } from './options'
 
 export interface ResourceEditModalProps extends ModalProps {
@@ -13,27 +15,20 @@ export interface ResourceEditModalProps extends ModalProps {
 export const ResourceEditModal: React.FC<ResourceEditModalProps> = (props) => {
   const { onCancel, open, title, resourceId, disabled } = props
   const [form] = Form.useForm()
-  const [loading, setLoading] = useState(false)
   const [resourceDetail, setResourceDetail] = useState<ResourceItem>()
 
-  const getResourceDetail = async () => {
-    if (resourceId) {
-      setLoading(true)
-      getResource({ id: resourceId }, true)
-        .then(({ detail }) => {
-          setResourceDetail(detail)
-        })
-        .finally(() => setLoading(false))
+  const { run: initResourceDetail, loading: initResourceDetailLoading } = useRequest(getResource, {
+    manual: true,
+    onSuccess: (data) => {
+      setResourceDetail(data.detail)
     }
-  }
+  })
 
   useEffect(() => {
-    if (!resourceId) {
-      setResourceDetail(undefined)
+    if (resourceId && open) {
+      initResourceDetail({ id: resourceId })
     }
-    getResourceDetail()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resourceId])
+  }, [resourceId, open, initResourceDetail])
 
   useEffect(() => {
     if (open && form && resourceDetail) {
@@ -57,11 +52,16 @@ export const ResourceEditModal: React.FC<ResourceEditModalProps> = (props) => {
         open={open}
         onCancel={handleOnCancel}
         onOk={handleOnCancel}
-        confirmLoading={loading}
+        confirmLoading={initResourceDetailLoading}
       >
         <DataFrom
           items={editModalFormItems}
-          props={{ form, layout: 'vertical', autoComplete: 'off', disabled: disabled || loading }}
+          props={{
+            form,
+            layout: 'vertical',
+            autoComplete: 'off',
+            disabled: disabled || initResourceDetailLoading
+          }}
         />
       </Modal>
     </>

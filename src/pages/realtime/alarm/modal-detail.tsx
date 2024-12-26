@@ -1,11 +1,12 @@
-import { Condition, SustainType } from '@/api/enum'
+import type { Condition, SustainType } from '@/api/enum'
 import { AlertStatusData, ConditionData, SustainTypeData } from '@/api/global'
-import { RealtimeAlarmItem } from '@/api/model-types'
+import type { RealtimeAlarmItem } from '@/api/model-types'
 import { getAlarm } from '@/api/realtime/alarm'
 import { GlobalContext } from '@/utils/context'
-import { Descriptions, DescriptionsProps, Modal, ModalProps, Table } from 'antd'
-import { debounce } from 'lodash'
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import { useRequest } from 'ahooks'
+import { Descriptions, type DescriptionsProps, Modal, type ModalProps, Table } from 'antd'
+import type React from 'react'
+import { useContext, useEffect, useState } from 'react'
 import ReactJson from 'react-json-view'
 
 export interface ModalDetailProps extends ModalProps {
@@ -17,27 +18,18 @@ export const ModalDetail: React.FC<ModalDetailProps> = (props) => {
   const { realtimeId, open, ...reset } = props
 
   const [detail, setDetail] = useState<RealtimeAlarmItem>()
-  const [loading, setLoading] = useState(false)
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = useCallback(
-    debounce(async (id: number) => {
-      //   if (!realtimeId) return
-      setLoading(true)
-      getAlarm({ id })
-        .then(({ detail }) => {
-          setDetail(detail)
-        })
-        .finally(() => setLoading(false))
-    }, 500),
-    []
-  )
+  const { run: initDetail, loading: initDetailLoading } = useRequest(getAlarm, {
+    manual: true,
+    onSuccess: (res) => {
+      setDetail(res?.detail)
+    }
+  })
 
   useEffect(() => {
     if (!realtimeId || !open) return
-    fetchData(realtimeId)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [realtimeId, open])
+    initDetail({ id: realtimeId })
+  }, [realtimeId, open, initDetail])
 
   const items = (): DescriptionsProps['items'] => {
     if (!detail) return []
@@ -54,7 +46,7 @@ export const ModalDetail: React.FC<ModalDetailProps> = (props) => {
         label: '告警状态',
         children: (
           <>
-            {AlertStatusData[status!]} {duration}
+            {AlertStatusData[status]} {duration}
           </>
         ),
         span: 2
@@ -151,7 +143,7 @@ export const ModalDetail: React.FC<ModalDetailProps> = (props) => {
   }
   return (
     <>
-      <Modal {...reset} open={open} footer={null} loading={loading}>
+      <Modal {...reset} open={open} footer={null} loading={initDetailLoading}>
         <Descriptions title='告警详情' items={items()} layout='vertical' />
       </Modal>
     </>

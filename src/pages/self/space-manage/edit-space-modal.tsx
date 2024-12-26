@@ -1,9 +1,10 @@
 import { StatusData } from '@/api/global'
-import { TeamItem } from '@/api/model-types'
-import { ErrorResponse, NullObject } from '@/api/request'
-import { createTeam, CreateTeamRequest, getTeam, updateTeam } from '@/api/team'
-import { DataFrom, DataFromItem, ValidateType } from '@/components/data/form'
-import { Modal, ModalProps } from 'antd'
+import type { TeamItem } from '@/api/model-types'
+import type { ErrorResponse } from '@/api/request'
+import { type CreateTeamRequest, createTeam, getTeam, updateTeam } from '@/api/team'
+import { DataFrom, type DataFromItem, type ValidateType } from '@/components/data/form'
+import { useRequest } from 'ahooks'
+import { Modal, type ModalProps } from 'antd'
 import { useForm } from 'antd/es/form/Form'
 import React, { useEffect } from 'react'
 
@@ -84,29 +85,29 @@ export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
   const [detail, setDetail] = React.useState<TeamItem>()
   const [validates, setValidates] = React.useState<Record<string, ValidateType>>()
 
-  const handleGetTeamDetail = (id?: number) => {
-    if (id) {
-      getTeam({ id }).then((res) => {
-        setDetail(res?.detail)
-      })
+  const { run: initTeamDetail, loading: initTeamDetailLoading } = useRequest(getTeam, {
+    manual: true,
+    onSuccess: (res) => {
+      setDetail(res?.detail)
     }
-  }
+  })
+
+  const { runAsync: addTeam, loading: addTeamLoading } = useRequest(createTeam, {
+    manual: true
+  })
+
+  const { runAsync: editTeam, loading: editTeamLoading } = useRequest(updateTeam, {
+    manual: true
+  })
 
   useEffect(() => {
-    handleGetTeamDetail(spaceId)
-  }, [spaceId])
-
-  const save = (params: CreateTeamRequest): Promise<NullObject> => {
     if (spaceId) {
-      // TODO: 更新团队
-      return updateTeam({
-        ...params,
-        id: spaceId
-      }).then(() => ({}))
-    } else {
-      // TODO: 创建团队
-      return createTeam(params).then(() => ({}))
+      initTeamDetail({ id: spaceId })
     }
+  }, [initTeamDetail, spaceId])
+
+  const save = (params: CreateTeamRequest): Promise<null> => {
+    return spaceId ? editTeam({ ...params, id: spaceId }) : addTeam(params)
   }
 
   const hendleOnOK = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -139,13 +140,18 @@ export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
 
   useEffect(() => {
     if (!form || !detail) return
-    form?.setFieldsValue({
-      ...detail
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail])
+    form.setFieldsValue(detail)
+  }, [detail, form])
+
   return (
-    <Modal title={spaceId ? '编辑团队信息' : '创建团队信息'} open={open} onOk={hendleOnOK} onCancel={handleCancel}>
+    <Modal
+      title={spaceId ? '编辑团队信息' : '创建团队信息'}
+      open={open}
+      onOk={hendleOnOK}
+      loading={initTeamDetailLoading}
+      onCancel={handleCancel}
+      confirmLoading={addTeamLoading || editTeamLoading}
+    >
       <DataFrom items={items} props={{ layout: 'vertical', form }} validates={validates} />
     </Modal>
   )

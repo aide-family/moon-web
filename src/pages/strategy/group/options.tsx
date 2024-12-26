@@ -1,12 +1,12 @@
 import { dictSelectList } from '@/api/dict'
 import { DictType, Status } from '@/api/enum'
 import { ActionKey, StatusData } from '@/api/global'
-import { DictItem, StrategyGroupItem } from '@/api/model-types'
+import type { DictItem, StrategyGroupItem } from '@/api/model-types'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
 import { Badge, Button, Space, Tooltip } from 'antd'
-import { ColumnsType } from 'antd/es/table'
+import type { ColumnsType } from 'antd/es/table'
 
 export type GroupEditModalFormData = {
   name: string

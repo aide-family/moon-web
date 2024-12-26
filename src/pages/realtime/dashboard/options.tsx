@@ -1,6 +1,6 @@
-import { ColumnsType } from 'antd/es/table'
+import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
-import { InterveneData } from '.'
+import type { InterveneData } from '.'
 
 export const interveneColumns: ColumnsType<InterveneData> = [
   {

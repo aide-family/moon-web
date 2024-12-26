@@ -1,8 +1,8 @@
 import { ActionKey } from '@/api/global'
-import { RealtimeAlarmItem, SelfAlarmPageItem } from '@/api/model-types'
-import { listAlarm, ListAlarmRequest } from '@/api/realtime/alarm'
+import type { RealtimeAlarmItem, SelfAlarmPageItem } from '@/api/model-types'
+import { type ListAlarmRequest, listAlarm } from '@/api/realtime/alarm'
 import { listAlarmPage } from '@/api/realtime/alarm_page_self'
-import { ListStrategyGroupRequest } from '@/api/strategy'
+import type { ListStrategyGroupRequest } from '@/api/strategy'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
@@ -11,7 +11,8 @@ import useStorage from '@/utils/storage'
 import { PlusOutlined } from '@ant-design/icons'
 import { useRequest } from 'ahooks'
 import { Badge, Button, Radio, Space, Switch, theme } from 'antd'
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import type React from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { ModalAddPages } from './modal-add-pages'
 import { ModalDetail } from './modal-detail'
 import { formList, getColumnList } from './options'
@@ -33,10 +34,8 @@ const Group: React.FC = () => {
   const { isFullscreen, teamInfo, showLevelColor, setShowLevelColor } = useContext(GlobalContext)
 
   const [datasource, setDatasource] = useState<RealtimeAlarmItem[]>([])
-  const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
   const [myPages, setMyPages] = useState<SelfAlarmPageItem[]>([])
-  const [refreshPages, setRefreshPages] = useState(false)
   const [openAddPages, setOpenAddPages] = useState(false)
   const [alertCounts, setAlertCounts] = useState<{ [key: number]: number }>({})
   const [realtimeId, setRealtimeId] = useState<number | undefined>()
@@ -53,14 +52,6 @@ const Group: React.FC = () => {
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
-
-  const onRefresh = useCallback(() => {
-    setRefresh(!refresh)
-  }, [refresh])
-
-  const onRefreshPages = useCallback(() => {
-    setRefreshPages(!refreshPages)
-  }, [refreshPages])
 
   const onSubmitPages = () => {
     setOpenAddPages(false)
@@ -180,15 +171,23 @@ const Group: React.FC = () => {
     })
   }
 
+  const onRefresh = useCallback(() => {
+    fetchData(searchParams)
+  }, [searchParams, fetchData])
+
+  const onRefreshPages = useCallback(() => {
+    initMyPage({})
+  }, [initMyPage])
+
   useEffect(() => {
     if (!teamInfo || !teamInfo.id) return
     initMyPage({})
-  }, [refreshPages, initMyPage, teamInfo])
+  }, [initMyPage, teamInfo])
 
   useEffect(() => {
     if (!teamInfo || !teamInfo.id) return
     fetchData(searchParams)
-  }, [refresh, searchParams, fetchData, teamInfo])
+  }, [searchParams, fetchData, teamInfo])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -224,7 +223,7 @@ const Group: React.FC = () => {
             <Radio.Group buttonStyle='solid' onChange={(e) => alarmPageChange(e.target.value)} value={alarmPageID}>
               <Radio.Button value={-1}>
                 <div className='flex items-center gap-2'>
-                  <div className='h-1 w-1' style={{ background: token.colorPrimary }}></div>
+                  <div className='h-1 w-1' style={{ background: token.colorPrimary }} />
                   我的告警
                   <Badge count={alertCounts[-1]} style={{ display: '' }} />
                 </div>
@@ -232,7 +231,7 @@ const Group: React.FC = () => {
               {myPages.map((item) => (
                 <Radio.Button key={item.id} value={item.id}>
                   <div className='flex items-center gap-2'>
-                    <div className='h-1 w-1' style={{ background: item.cssClass }}></div>
+                    <div className='h-1 w-1' style={{ background: item.cssClass }} />
                     {item.name}
                     <Badge count={alertCounts[item.id] || 0} style={{ display: '' }} />
                   </div>

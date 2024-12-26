@@ -71,19 +71,12 @@ function App() {
         locale={zhCN}
         theme={{
           components: {
-            Layout: {
-              colorTextBase: token.colorTextBase,
-              headerColor: '#FFF'
-            },
-            Badge: {
-              colorBorderBg: 'none'
-            }
+            Layout: { colorTextBase: token.colorTextBase, headerColor: '#FFF' },
+            Badge: { colorBorderBg: 'none' }
           },
           algorithm: getUseTheme(theme),
           cssVar: true,
-          token: {
-            colorPrimary: '#6c34e6'
-          }
+          token: { colorPrimary: '#6c34e6' }
         }}
       >
         <GlobalContext.Provider value={contextValue}>

@@ -1,14 +1,15 @@
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { ResourceItem } from '@/api/model-types'
-import { batchUpdateResourceStatus, listResource, ListResourceRequest } from '@/api/resource'
+import type { ResourceItem } from '@/api/model-types'
+import { type ListResourceRequest, batchUpdateResourceStatus, listResource } from '@/api/resource'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
-import { Button, message, Space, theme } from 'antd'
-import { debounce } from 'lodash'
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { useRequest } from 'ahooks'
+import { Button, Space, message, theme } from 'antd'
+import type React from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { ResourceEditModal } from './edit-modal'
 import { formList, getColumnList } from './options'
 
@@ -29,8 +30,6 @@ const Resource: React.FC = () => {
 
   const [datasource, setDatasource] = useState<ResourceItem[]>([])
   const [searchParams, setSearchParams] = useState<ListResourceRequest>(defaultSearchParams)
-  const [loading, setLoading] = useState(false)
-  const [refresh, setRefresh] = useState(false)
   const [total, setTotal] = useState(0)
   const [openGroupEditModal, setOpenGroupEditModal] = useState(false)
   const [editGroupId, setEditGroupId] = useState<number>()
@@ -39,6 +38,14 @@ const Resource: React.FC = () => {
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
+
+  const { run: initResourceDetail, loading: initResourceDetailLoading } = useRequest(listResource, {
+    manual: true,
+    onSuccess: (data) => {
+      setDatasource(data.list || [])
+      setTotal(data.pagination?.total || 0)
+    }
+  })
 
   const handleCloseGroupEditModal = () => {
     setOpenGroupEditModal(false)
@@ -53,27 +60,12 @@ const Resource: React.FC = () => {
   }
 
   const onRefresh = () => {
-    setRefresh(!refresh)
+    initResourceDetail(searchParams)
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = useCallback(
-    debounce(async (params) => {
-      setLoading(true)
-      listResource(params, true)
-        .then(({ list, pagination }) => {
-          setDatasource(list || [])
-          setTotal(pagination?.total || 0)
-        })
-        .finally(() => setLoading(false))
-    }, 500),
-    []
-  )
-
   useEffect(() => {
-    fetchData(searchParams)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, searchParams, fetchData])
+    initResourceDetail(searchParams)
+  }, [searchParams, initResourceDetail])
 
   const onSearch = (formData: ListResourceRequest) => {
     setSearchParams({
@@ -169,7 +161,7 @@ const Resource: React.FC = () => {
             rowKey={(record) => record.id}
             dataSource={datasource}
             total={total}
-            loading={loading}
+            loading={initResourceDetailLoading}
             columns={columns}
             handleTurnPage={handleTurnPage}
             pageSize={searchParams.pagination.pageSize}
@@ -180,7 +172,7 @@ const Resource: React.FC = () => {
               borderRadius: token.borderRadius
             }}
             scroll={{
-              y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,
+              y: `calc(100vh - 174px - ${AutoTableHeight}px)`,
               x: 1000
             }}
             size='middle'

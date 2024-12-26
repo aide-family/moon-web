@@ -1,9 +1,10 @@
 import { Status } from '@/api/enum'
-import { TeamItem } from '@/api/model-types'
+import type { TeamItem } from '@/api/model-types'
 import { myTeam, updateTeamStatus } from '@/api/team'
 import { useCreateTeamModal } from '@/components/layout/create-team-provider'
 import { GlobalContext } from '@/utils/context'
 import { EditOutlined, PlusOutlined, UserSwitchOutlined } from '@ant-design/icons'
+import { useRequest } from 'ahooks'
 import {
   Avatar,
   Badge,
@@ -11,10 +12,10 @@ import {
   Card,
   Col,
   Descriptions,
-  DescriptionsProps,
+  type DescriptionsProps,
   Dropdown,
   Empty,
-  MenuProps,
+  type MenuProps,
   Row,
   Space,
   Spin,
@@ -28,20 +29,25 @@ export interface SpaceManageProps {
   children?: React.ReactNode
 }
 
-let timeout: NodeJS.Timeout | null = null
 const SpaceManage: React.FC<SpaceManageProps> = () => {
   const { setRefreshMyTeamList, teamInfo } = useContext(GlobalContext)
   const { setOpen, open } = useCreateTeamModal()
   const [openEditModal, setOpenEditModal] = React.useState(false)
   const [operatorTeam, setOperatorTeam] = React.useState<TeamItem>()
-  const [loading, setLoading] = React.useState(false)
   const [teamList, setTeamList] = React.useState<TeamItem[]>([])
-  const [refresh, setRefresh] = React.useState(false)
+
+  const { run: initTeamList, loading: initTeamListLoading } = useRequest(myTeam, {
+    manual: true,
+    onSuccess: (res) => {
+      setTeamList(res?.list)
+    }
+  })
 
   const handleEditTeam = (teamInfo: TeamItem) => {
     setOperatorTeam(teamInfo)
     setOpenEditModal(true)
   }
+
   const menuItems = (teamInfo: TeamItem): MenuProps['items'] => [
     {
       label: '编辑信息',
@@ -57,22 +63,7 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
   ]
 
   const handleRefresh = () => {
-    setRefresh(!refresh)
-  }
-
-  const handleGetTeamList = () => {
-    if (timeout) {
-      clearTimeout(timeout)
-    }
-    setLoading(true)
-    timeout = setTimeout(() => {
-      myTeam()
-        .then((res) => {
-          const { list } = res
-          setTeamList(list)
-        })
-        .finally(() => setLoading(false))
-    }, 200)
+    initTeamList()
   }
 
   const handleChangeStatus = (teamId: number, checked: boolean) => {
@@ -83,9 +74,10 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
   }
 
   useEffect(() => {
-    handleGetTeamList()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, open])
+    if (open) {
+      initTeamList()
+    }
+  }, [open, initTeamList])
 
   const handleEditModalOnOK = () => {
     setOpenEditModal(false)
@@ -120,9 +112,9 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
           </Col>
         </Row>
         <div className='flex justify-center items-center'>{!teamList?.length && <Empty />}</div>
-        {loading ? (
-          <Spin spinning={loading} className='h-[600px]'>
-            <div></div>
+        {initTeamListLoading ? (
+          <Spin spinning={initTeamListLoading} className='h-[600px]'>
+            <div className='h-[600px]' />
           </Spin>
         ) : (
           <Row gutter={[12, 12]} className='flex-1 overflow-auto'>
@@ -158,7 +150,9 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
                     <Avatar.Group size='small'>
                       {admin
                         ? admin?.map((item) => (
-                            <Avatar src={item?.user?.avatar}>{item?.user?.nickname || item?.user?.name}</Avatar>
+                            <Avatar key={item?.user?.id} src={item?.user?.avatar}>
+                              {item?.user?.nickname || item?.user?.name}
+                            </Avatar>
                           ))
                         : '-'}
                     </Avatar.Group>
@@ -181,7 +175,7 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
                 }
               ]
               return (
-                <Col xs={24} sm={12} md={12} lg={12} xl={8} xxl={6}>
+                <Col key={index + name} xs={24} sm={12} md={12} lg={12} xl={8} xxl={6}>
                   <Badge.Ribbon style={{ display: teamInfo?.id === id ? '' : 'none' }} text='current' color='purple'>
                     <Card
                       key={index + name}

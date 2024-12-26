@@ -1,8 +1,10 @@
-import { UserItem } from '@/api/model-types'
-import { updateUserBaseInfo, UpdateUserBaseInfoRequest } from '@/api/user'
+import type { UserItem } from '@/api/model-types'
+import { type UpdateUserBaseInfoRequest, updateUserBaseInfo } from '@/api/user'
 import { DataFrom } from '@/components/data/form'
-import { Button, Form, message, Space } from 'antd'
-import React, { useEffect } from 'react'
+import { useRequest } from 'ahooks'
+import { Button, Form, Space, message } from 'antd'
+import type React from 'react'
+import { useCallback, useEffect } from 'react'
 import { baseInfoOptions } from './options'
 
 export interface BaseInfoProps {
@@ -13,19 +15,29 @@ export interface BaseInfoProps {
 export const BaseInfo: React.FC<BaseInfoProps> = (props) => {
   const { userInfo, onOK } = props
   const [form] = Form.useForm()
-  const updateSelfInfo = (values: UpdateUserBaseInfoRequest) => {
-    updateUserBaseInfo(values).then(() => {
+
+  const { run: editSelfInfo, loading } = useRequest(updateUserBaseInfo, {
+    manual: true,
+    onSuccess: () => {
       message.success('修改成功')
       onOK()
-    })
+    }
+  })
+
+  const updateSelfInfo = (values: UpdateUserBaseInfoRequest) => {
+    editSelfInfo(values)
   }
-  const initSelfInfo = () => {
-    form.setFieldsValue(userInfo)
-  }
+
+  const initSelfInfo = useCallback(() => {
+    if (userInfo) {
+      form.setFieldsValue(userInfo)
+    }
+  }, [userInfo, form])
+
   useEffect(() => {
     initSelfInfo()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo])
+  }, [initSelfInfo])
+
   return (
     <div>
       <DataFrom items={baseInfoOptions} props={{ layout: 'vertical', form, onFinish: updateSelfInfo }}>
@@ -36,7 +48,7 @@ export const BaseInfo: React.FC<BaseInfoProps> = (props) => {
             </Button>
           </Form.Item>
           <Form.Item>
-            <Button type='primary' htmlType='submit'>
+            <Button type='primary' htmlType='submit' loading={loading}>
               保存
             </Button>
           </Form.Item>
