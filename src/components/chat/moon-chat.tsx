@@ -190,14 +190,12 @@ export default function MoonChat() {
               loading ? (
                 <Button type='primary' icon={<CloseCircleOutlined />} onClick={handleClose} />
               ) : (
-                <SendOutlined />
+                <SendOutlined className='cursor-pointer' onClick={sendMessage} />
               )
             }
             value={msg}
             onChange={(e) => setMsg(e.target.value)}
-            onPressEnter={() => {
-              sendMessage()
-            }}
+            onPressEnter={sendMessage}
           />
         </div>
       </Drawer>
