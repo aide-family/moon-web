@@ -33,6 +33,7 @@ export default function Team() {
   const [teamId, setTeamId] = useState<number>(0)
 
   const { run: getTeamList, loading } = useRequest(listTeam, {
+    manual: true,
     onSuccess: (data) => {
       setTeamList(data.list)
       setTotal(data.pagination.total)
