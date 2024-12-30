@@ -152,6 +152,10 @@ export const routers: RouteObject[] = [
           {
             path: '/home/system/resource',
             Component: lazy(() => import('@/pages/system/resource'))
+          },
+          {
+            path: '/home/system/team',
+            Component: lazy(() => import('@/pages/system/team'))
           }
         ]
       },

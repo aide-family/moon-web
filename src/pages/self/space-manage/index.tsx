@@ -117,7 +117,7 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
         ) : (
           <Row gutter={[12, 12]} className='flex-1 overflow-auto'>
             {teamList?.map((item, index) => {
-              const { name, logo, status, id, remark, leader, admin, creator } = item
+              const { name, logo, status, id, remark, leader, admins: admin, creator } = item
               const items: DescriptionsProps['items'] = [
                 {
                   key: 'leader',

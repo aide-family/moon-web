@@ -160,6 +160,10 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: '资源管理',
         key: '/home/system/resource'
+      },
+      {
+        label: '团队管理',
+        key: '/home/system/team'
       }
     ]
   }
@@ -296,5 +300,8 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   },
   '/home/system/resource': {
     name: '资源管理'
+  },
+  '/home/system/team': {
+    name: '团队管理'
   }
 }

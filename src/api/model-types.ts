@@ -177,7 +177,7 @@ export interface TeamItem {
   /** 团队LOGO */
   logo: string
   /** 管理员（不包含创建者，因为创建者不一定是管理员，但是包含负责人） */
-  admin?: TeamMemberItem[]
+  admins?: TeamMemberItem[]
 }
 
 /** 团队角色模块 */
