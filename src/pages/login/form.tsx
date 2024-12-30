@@ -1,12 +1,19 @@
-import { CaptchaReply, getCaptcha, getOAuthList, login, LoginRequest, OAuthItem } from '@/api/authorization'
+import {
+  type CaptchaReply,
+  type LoginRequest,
+  type OAuthItem,
+  getCaptcha,
+  getOAuthList,
+  login
+} from '@/api/authorization'
 import { CaptchaType } from '@/api/enum'
-import { ErrorResponse, isLogin, setToken } from '@/api/request'
+import { type ErrorResponse, isLogin, setToken } from '@/api/request'
 import { Gitee, Github } from '@/components/icon'
 import { GlobalContext } from '@/utils/context'
 import { hashMd5 } from '@/utils/hash'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
 import { Button, Checkbox, Divider, Flex, Form, Input, theme } from 'antd'
-import { FC, useContext, useEffect, useState } from 'react'
+import { type FC, useContext, useEffect, useState } from 'react'
 import cookie from 'react-cookies'
 import { useNavigate } from 'react-router-dom'
 
@@ -136,7 +143,7 @@ const LoginForm: FC = () => {
         <Form.Item
           name='username'
           rules={[
-            { required: true, message: '请输入用户名' },
+            { required: true, message: '请输入邮箱' },
             { type: 'email', message: '请输入正确的邮箱' }
           ]}
           validateStatus={err?.metadata?.['username'] ? 'error' : 'success'}
@@ -146,7 +153,7 @@ const LoginForm: FC = () => {
             autoComplete='off'
             style={{ lineHeight: '38px' }}
             prefix={<UserOutlined className='site-form-item-icon' />}
-            placeholder='请输入用户名'
+            placeholder='请输入邮箱'
           />
         </Form.Item>
         <Form.Item
@@ -201,7 +208,10 @@ const LoginForm: FC = () => {
         <Divider
           dashed
           className='text-sm'
-          style={{ borderColor: token.colorBorderSecondary, color: token.colorTextSecondary }}
+          style={{
+            borderColor: token.colorBorderSecondary,
+            color: token.colorTextSecondary
+          }}
         >
           没有账户？
           <Button onClick={() => navigate('/register')} type='link'>
