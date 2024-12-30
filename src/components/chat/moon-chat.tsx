@@ -12,7 +12,8 @@ import {
 import { Avatar, Button, Drawer, FloatButton, Input, message, Space, theme } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 type ChatItem = {
   role: 'user' | 'assistant'
   content: string
@@ -42,7 +43,7 @@ const UserAvatar = (props: { user?: UserItem }) => {
 
 export default function MoonChat() {
   const { token } = theme.useToken()
-  const { userInfo } = useContext(GlobalContext)
+  const { userInfo, theme: sysTheme } = useContext(GlobalContext)
   const [msg, setMsg] = useState('')
   const [response, setResponse] = useState<ChatItem[]>([
     {
@@ -159,24 +160,48 @@ export default function MoonChat() {
                   {index === response.length - 1 && item.role !== 'user' && loading && <LoadingOutlined />}
                 </div>
                 <div
-                  className={`text-sm p-3 rounded-lg relative ${
-                    item.role === 'user' ? 'bg-blue-500 text-white ml-12' : 'bg-gray-100 text-gray-800 mr-12'
-                  }`}
+                  className='text-sm p-3 rounded-lg relative'
+                  style={
+                    item.role === 'user'
+                      ? {
+                          backgroundColor: token.colorPrimary,
+                          color: token.colorText
+                        }
+                      : {
+                          backgroundColor: token.colorBgTextActive,
+                          color: token.colorText
+                        }
+                  }
                 >
-                  <div
-                    onClick={() => {
-                      navigator.clipboard.writeText(item.content).then(() => {
-                        message.success('Copied to clipboard')
-                      })
-                    }}
-                    className='absolute top-0 right-0 cursor-pointer'
-                  >
-                    <CopyOutlined />
-                  </div>
                   {item.role === 'user' ? (
                     item.content
                   ) : (
-                    <ReactMarkdown>{item.content.replace(/\\n/g, '\n')}</ReactMarkdown>
+                    <ReactMarkdown
+                      children={item.content.replace(/\\n/g, '\n')}
+                      components={{
+                        code({ className, children }) {
+                          const match = /language-(\w+)/.exec(className || '')
+                          const code = String(children).replace(/\n$/, '')
+                          return (
+                            <div className='relative w-full'>
+                              <SyntaxHighlighter
+                                style={sysTheme === 'dark' ? oneDark : oneLight}
+                                language={match ? match[1] : 'go'}
+                                children={code}
+                              />
+                              <CopyOutlined
+                                className='absolute top-2 right-2 cursor-pointer text-blue-500'
+                                onClick={() => {
+                                  navigator.clipboard.writeText(code).then(() => {
+                                    message.success('Copied to clipboard')
+                                  })
+                                }}
+                              />
+                            </div>
+                          )
+                        }
+                      }}
+                    />
                   )}
                 </div>
               </Space>
