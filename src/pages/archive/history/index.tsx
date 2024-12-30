@@ -157,7 +157,7 @@ const Group: React.FC = () => {
               borderRadius: token.borderRadius
             }}
             scroll={{
-              y: `calc(100vh - 165px  - ${AutoTableHeight}px)`,
+              y: `calc(100vh - 174px - ${AutoTableHeight}px)`,
               x: 1000
             }}
             size='middle'

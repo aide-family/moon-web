@@ -138,7 +138,7 @@ export const MetricDetail: React.FC<MetricDetailProps> = (props) => {
 
   return (
     <>
-      <Modal {...rest} open={open} footer={null} loading={detailLoading} title='Metric 策略详情'>
+      <Modal {...rest} open={open} footer={null} loading={detailLoading}>
         <Descriptions
           className='max-h-[70vh] overflow-y-auto overflow-x-hidden'
           items={items()}

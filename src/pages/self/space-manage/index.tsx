@@ -1,7 +1,7 @@
 import { Status } from '@/api/enum'
 import type { TeamItem } from '@/api/model-types'
 import { myTeam, updateTeamStatus } from '@/api/team'
-import { useCreateTeamModal } from '@/components/layout/create-team-provider'
+import { useCreateTeamModal } from '@/hooks/create-team'
 import { GlobalContext } from '@/utils/context'
 import { EditOutlined, PlusOutlined, UserSwitchOutlined } from '@ant-design/icons'
 import { useRequest } from 'ahooks'
@@ -31,12 +31,12 @@ export interface SpaceManageProps {
 
 const SpaceManage: React.FC<SpaceManageProps> = () => {
   const { setRefreshMyTeamList, teamInfo } = useContext(GlobalContext)
-  const { setOpen, open } = useCreateTeamModal()
+  const { setOpen } = useCreateTeamModal()
   const [openEditModal, setOpenEditModal] = React.useState(false)
   const [operatorTeam, setOperatorTeam] = React.useState<TeamItem>()
   const [teamList, setTeamList] = React.useState<TeamItem[]>([])
 
-  const { run: initTeamList, loading: initTeamListLoading } = useRequest(myTeam, {
+  const { runAsync: initTeamList, loading: initTeamListLoading } = useRequest(myTeam, {
     manual: true,
     onSuccess: (res) => {
       setTeamList(res?.list)
@@ -74,10 +74,8 @@ const SpaceManage: React.FC<SpaceManageProps> = () => {
   }
 
   useEffect(() => {
-    if (open) {
-      initTeamList()
-    }
-  }, [open, initTeamList])
+    initTeamList()
+  }, [initTeamList])
 
   const handleEditModalOnOK = () => {
     setOpenEditModal(false)

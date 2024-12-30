@@ -2,12 +2,12 @@ import { refreshToken } from '@/api/authorization'
 import { TeamItem } from '@/api/model-types'
 import { setToken } from '@/api/request'
 import { myTeam } from '@/api/team'
+import { useCreateTeamModal } from '@/hooks/create-team'
 import { GlobalContext } from '@/utils/context'
 import { DownOutlined } from '@ant-design/icons'
 import { Avatar, Col, Dropdown, message, Row, Space } from 'antd'
 import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect } from 'react'
-import { useCreateTeamModal } from './create-team-provider'
 
 export interface TeamMenuProps {}
 

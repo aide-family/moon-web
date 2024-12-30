@@ -3,7 +3,7 @@ import { EventDataTypeData, MQConditionData, StatusData } from '@/api/global'
 import type { SelectItem, StrategyItem } from '@/api/model-types'
 import { getStrategy } from '@/api/strategy'
 import { useRequest } from 'ahooks'
-import { Badge, Descriptions, type DescriptionsProps, Modal, type ModalProps, Space, Table, Tag } from 'antd'
+import { Badge, Descriptions, type DescriptionsProps, Modal, type ModalProps, Space, Table, Tag, Tooltip } from 'antd'
 import type React from 'react'
 import { useEffect, useState } from 'react'
 
@@ -126,7 +126,12 @@ export const StrategyDetailEvent: React.FC<StrategyDetailEventProps> = (props) =
                   return EventDataTypeData[value]
                 }
               },
-              { title: '数据KEY', dataIndex: 'pathKey' }
+              {
+                title: '数据KEY',
+                dataIndex: 'pathKey',
+                ellipsis: true,
+                render: (value) => <Tooltip title={value}>{value || '-'}</Tooltip>
+              }
             ]}
             dataSource={levels}
             pagination={false}
@@ -137,7 +142,7 @@ export const StrategyDetailEvent: React.FC<StrategyDetailEventProps> = (props) =
   }
 
   return (
-    <Modal {...rest} open={open} title='事件监控策略详情' loading={detailLoading}>
+    <Modal {...rest} open={open} loading={detailLoading} footer={null}>
       <Descriptions
         className='max-h-[70vh] overflow-y-auto overflow-x-hidden'
         items={items()}

@@ -418,30 +418,35 @@ const StrategyMetric: React.FC = () => {
         onCancel={handleCloseChartModal}
       />
       <MetricDetail
+        title='Metric 策略详情'
         width='60%'
         strategyId={detail?.id}
         open={openMetricDetailModal}
         onCancel={handleCloseDetailModal}
       />
       <StrategyDetailEvent
+        title='事件监控策略详情'
         width='60%'
         strategyId={detail?.id}
         open={openEventDetailModal}
         onCancel={handleCloseDetailModal}
       />
       <StrategyDetailDomain
+        title='证书监控策略详情'
         width='60%'
         strategyId={detail?.id}
         open={openDomainDetailModal}
         onCancel={handleCloseDetailModal}
       />
       <StrategyDetailPort
+        title='端口监控策略详情'
         width='60%'
         strategyId={detail?.id}
         open={openPortDetailModal}
         onCancel={handleCloseDetailModal}
       />
       <StrategyDetailHttp
+        title='HTTP监控策略详情'
         width='60%'
         strategyId={detail?.id}
         open={openHttpDetailModal}

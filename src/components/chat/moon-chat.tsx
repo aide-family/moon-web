@@ -63,13 +63,21 @@ export default function MoonChat() {
     setLoading(false)
   }
 
-  function sendMessage() {
+  async function sendMessage() {
     if (!msg) return
 
-    setResponse((prev) => [...prev, { role: 'user', content: msg }])
+    const message: ChatItem = {
+      role: 'user',
+      content: msg
+    }
+    setResponse((prev) => [...prev, message])
     setLoading(true)
+    await fetch(`${baseURL}/ollama/push?token=${getToken()}`, {
+      method: 'POST',
+      body: JSON.stringify(message)
+    })
     setMsg('')
-    const eventSource = new EventSource(`${baseURL}/ollama/chat?message=${encodeURIComponent(msg)}&token=${getToken()}`)
+    const eventSource = new EventSource(`${baseURL}/ollama/chat?token=${getToken()}`)
 
     setEvent(eventSource)
     let response = ''

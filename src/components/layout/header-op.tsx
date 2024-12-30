@@ -1,12 +1,12 @@
 import { logout } from '@/api/authorization'
 import { removeToken } from '@/api/request'
+import { useCreateTeamModal } from '@/hooks/create-team'
 import { GlobalContext } from '@/utils/context'
 import { GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { Avatar, Button, Dropdown, MenuProps, theme } from 'antd'
 import React, { useContext } from 'react'
 import { Docusaurus } from '../icon'
 import { ButtonFullScreen } from './button-full-screen'
-import { useCreateTeamModal } from './create-team-provider'
 import { HeaderMessage } from './header-message'
 import { TeamMenu } from './team-menu'
 

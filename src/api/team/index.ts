@@ -9,8 +9,8 @@ import request from '../request'
  * @param {CreateTeamRequest} params
  * @returns {CreateTeamReply}
  */
-export function createTeam(params: CreateTeamRequest): Promise<null> {
-  return request.POST<null>('/v1/team', params)
+export function createTeam(params: CreateTeamRequest): Promise<CreateTeamReply> {
+  return request.POST<CreateTeamReply>('/v1/team', params)
 }
 
 /**
@@ -173,6 +173,10 @@ export interface CreateTeamRequest {
   status: number
   leaderId?: number
   adminIds: number[]
+}
+
+export interface CreateTeamReply {
+  detail: TeamItem
 }
 
 export interface UpdateTeamRequest {

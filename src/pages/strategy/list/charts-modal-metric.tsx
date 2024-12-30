@@ -88,7 +88,7 @@ const StrategyCharts: React.FC<StrategyChartsProps> = ({ strategyID, open, ...re
   }, [strategyID, open, fetchData])
 
   return (
-    <Modal {...rest} open={open} loading={loading}>
+    <Modal {...rest} open={open} loading={loading} footer={null}>
       <DataFrom
         items={[
           {

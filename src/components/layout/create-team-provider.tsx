@@ -80,11 +80,3 @@ export function CreateTeamModalProvider({ children }: CreateTeamModalProps) {
     </CreateTeamModalProviderContext.Provider>
   )
 }
-
-export const useCreateTeamModal = () => {
-  const context = useContext(CreateTeamModalProviderContext)
-  if (context === undefined) {
-    throw new Error('useCreateTeamModal must be used within a CreateTeamModalProvider')
-  }
-  return context
-}

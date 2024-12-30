@@ -1,7 +1,7 @@
 import { StatusData } from '@/api/global'
 import type { TeamItem } from '@/api/model-types'
 import type { ErrorResponse } from '@/api/request'
-import { type CreateTeamRequest, createTeam, getTeam, updateTeam } from '@/api/team'
+import { CreateTeamReply, type CreateTeamRequest, createTeam, getTeam, updateTeam } from '@/api/team'
 import { DataFrom, type DataFromItem, type ValidateType } from '@/components/data/form'
 import { useRequest } from 'ahooks'
 import { Modal, type ModalProps } from 'antd'
@@ -106,7 +106,7 @@ export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
     }
   }, [initTeamDetail, spaceId])
 
-  const save = (params: CreateTeamRequest): Promise<null> => {
+  const save = (params: CreateTeamRequest): Promise<null | CreateTeamReply> => {
     return spaceId ? editTeam({ ...params, id: spaceId }) : addTeam(params)
   }
 

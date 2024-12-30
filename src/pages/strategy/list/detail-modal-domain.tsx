@@ -127,7 +127,7 @@ export const StrategyDetailDomain: React.FC<StrategyDetailDomainProps> = (props)
   }
 
   return (
-    <Modal {...rest} open={open} title='证书监控策略详情' loading={detailLoading}>
+    <Modal {...rest} open={open} loading={detailLoading} footer={null}>
       <Descriptions
         className='max-h-[70vh] overflow-y-auto overflow-x-hidden'
         items={items()}
