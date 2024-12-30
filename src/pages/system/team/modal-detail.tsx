@@ -1,8 +1,8 @@
 import { StatusData } from '@/api/global'
-import { TeamItem } from '@/api/model-types'
+import type { TeamItem } from '@/api/model-types'
 import { getTeam } from '@/api/team'
 import { useRequest } from 'ahooks'
-import { Avatar, Descriptions, DescriptionsProps, Modal, ModalProps, Tag } from 'antd'
+import { Avatar, Descriptions, type DescriptionsProps, Modal, type ModalProps, Tag } from 'antd'
 import { useEffect, useState } from 'react'
 
 export interface ModalDetailProps extends ModalProps {
@@ -47,7 +47,7 @@ export const TeamDetailModal: React.FC<ModalDetailProps> = (props) => {
       children: detail?.admins?.length ? (
         <Avatar.Group size='small'>
           {detail?.admins?.map((item) => (
-            <Avatar src={item?.user?.avatar} shape='square'>
+            <Avatar src={item?.user?.avatar} shape='square' key={item?.user?.id}>
               {item?.user?.name?.at(0)?.toUpperCase()}
             </Avatar>
           ))}

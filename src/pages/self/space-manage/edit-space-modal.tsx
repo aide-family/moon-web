@@ -1,7 +1,7 @@
 import { StatusData } from '@/api/global'
 import type { TeamItem } from '@/api/model-types'
 import type { ErrorResponse } from '@/api/request'
-import { CreateTeamReply, type CreateTeamRequest, createTeam, getTeam, updateTeam } from '@/api/team'
+import { type CreateTeamReply, type CreateTeamRequest, createTeam, getTeam, updateTeam } from '@/api/team'
 import { DataFrom, type DataFromItem, type ValidateType } from '@/components/data/form'
 import { useRequest } from 'ahooks'
 import { Modal, type ModalProps } from 'antd'

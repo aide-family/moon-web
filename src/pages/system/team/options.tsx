@@ -123,7 +123,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<TeamItem> =>
         return admins?.length > 0 ? (
           <Avatar.Group size='small'>
             {admins?.map((item) => (
-              <Avatar src={item?.user?.avatar} shape='square'>
+              <Avatar src={item?.user?.avatar} shape='square' key={item?.user?.id}>
                 {item?.user?.name?.at(0)?.toUpperCase()}
               </Avatar>
             ))}
