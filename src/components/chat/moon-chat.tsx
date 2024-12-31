@@ -1,6 +1,7 @@
 import { UserItem } from '@/api/model-types'
 import { baseURL, getToken } from '@/api/request'
 import logoIcon from '@/assets/images/logo.svg'
+import useStorage from '@/hooks/storage'
 import { GlobalContext } from '@/utils/context'
 import {
   CloseCircleOutlined,
@@ -9,7 +10,8 @@ import {
   QuestionCircleOutlined,
   SendOutlined
 } from '@ant-design/icons'
-import { Avatar, Button, Drawer, FloatButton, Input, message, Space, theme } from 'antd'
+import { Avatar, Button, Drawer, FloatButton, Input, message, Modal, Space, theme } from 'antd'
+import { ArrowDownToLine, ArrowLeftFromLine, ArrowRightFromLine, ArrowUpToLine, Command } from 'lucide-react'
 import { useContext, useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -54,6 +56,14 @@ export default function MoonChat() {
   const [loading, setLoading] = useState(false)
   const [event, setEvent] = useState<EventSource | null>(null)
   const [openChat, setOpenChat] = useState(false)
+  // 快捷键配置
+  const [shortcutKey, setShortcutKey] = useStorage('shortcutKey', 'm')
+  const [shortcutKeyOpen, setShortcutKeyOpen] = useState(false)
+  // 抽屉方向
+  const [drawerPlacement, setDrawerPlacement] = useStorage<'left' | 'right' | 'top' | 'bottom'>(
+    'drawerPlacement',
+    'top'
+  )
 
   const handleClose = () => {
     if (!event) {
@@ -119,26 +129,98 @@ export default function MoonChat() {
     }
   }, [response]) // 每当 response 更新时触发
 
-  // 监听ctrl+c退出
+  // 增加control + m 打开聊天框
   useEffect(() => {
+    if (!shortcutKey || shortcutKeyOpen) return
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'c' && e.ctrlKey) {
-        handleClose()
+      if (e.key === shortcutKey && e.ctrlKey) {
+        setOpenChat(!openChat)
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [openChat, shortcutKey, shortcutKeyOpen])
+
+  // 快捷键配置
+  useEffect(() => {
+    if (shortcutKeyOpen) {
+      // 监听快捷键， 并转换成输入放入shortcutKey，支持多个按键下的组合输入
+      const handleKeyDown = (e: KeyboardEvent) => {
+        // 不支持删除键
+        if (e.key === 'Delete' || e.key === 'Backspace') {
+          setShortcutKey(shortcutKey?.slice(0, shortcutKey.length - 1) || '')
+          return
+        }
+        setShortcutKey(e.key)
+      }
+      window.addEventListener('keydown', handleKeyDown)
+      return () => window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [shortcutKeyOpen])
 
   return (
     <div className='w-full h-full'>
+      <Modal title='快捷键设置' open={shortcutKeyOpen} onCancel={() => setShortcutKeyOpen(false)} footer={null}>
+        <Input prefix='ctrl+' value={shortcutKey} placeholder='请输入快捷键' />
+      </Modal>
       <Drawer
-        title='Moon Chat'
+        title={
+          <div className='flex items-center justify-between gap-2'>
+            <div>Moon Chat</div>
+            <div>
+              <Button color='primary' variant='outlined' size='small' onClick={() => setShortcutKeyOpen(true)}>
+                <Command /> Ctrl + {shortcutKey}
+              </Button>
+            </div>
+            <div className='flex items-center gap-2'>
+              <Button
+                type='text'
+                size='small'
+                icon={
+                  <ArrowDownToLine
+                    onClick={() => setDrawerPlacement('top')}
+                    className={`cursor-pointer ${drawerPlacement === 'top' ? 'text-blue-500' : ''}`}
+                  />
+                }
+              />
+              <Button
+                type='text'
+                size='small'
+                icon={
+                  <ArrowUpToLine
+                    onClick={() => setDrawerPlacement('bottom')}
+                    className={`cursor-pointer ${drawerPlacement === 'bottom' ? 'text-blue-500' : ''}`}
+                  />
+                }
+              />
+              <Button
+                type='text'
+                size='small'
+                icon={
+                  <ArrowLeftFromLine
+                    onClick={() => setDrawerPlacement('right')}
+                    className={`cursor-pointer ${drawerPlacement === 'right' ? 'text-blue-500' : ''}`}
+                  />
+                }
+              />
+              <Button
+                type='text'
+                size='small'
+                icon={
+                  <ArrowRightFromLine
+                    onClick={() => setDrawerPlacement('left')}
+                    className={`cursor-pointer ${drawerPlacement === 'left' ? 'text-blue-500' : ''}`}
+                  />
+                }
+              />
+            </div>
+          </div>
+        }
         open={openChat}
         onClose={() => setOpenChat(false)}
         width='80%'
-        placement='left'
+        height='80%'
+        placement={drawerPlacement}
         closeIcon={null}
       >
         <div className='flex flex-col gap-2 overflow-y-auto h-full w-full'>
@@ -146,7 +228,7 @@ export default function MoonChat() {
             className='flex flex-col gap-2 overflow-y-auto h-[calc(100vh-100px)] border-0 rounded-lg p-3'
             style={{
               borderColor: token.colorBorder,
-              backgroundColor: token.colorBgContainer
+              backgroundColor: token.colorBgLayout
             }}
             ref={chatContainerRef}
           >
@@ -165,7 +247,7 @@ export default function MoonChat() {
                     item.role === 'user'
                       ? {
                           backgroundColor: token.colorPrimary,
-                          color: token.colorText
+                          color: '#FFFFFFD9'
                         }
                       : {
                           backgroundColor: token.colorBgTextActive,
