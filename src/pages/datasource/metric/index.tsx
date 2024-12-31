@@ -1,7 +1,7 @@
 import { type ListDatasourceRequest, listDatasource } from '@/api/datasource'
 import { DatasourceType } from '@/api/enum'
 import type { DatasourceItem } from '@/api/model-types'
-import useStorage from '@/utils/storage'
+import useStorage from '@/hooks/storage'
 import { Button, Empty, Input, Menu, Tabs, type TabsProps, theme } from 'antd'
 import type React from 'react'
 import { useCallback, useEffect, useState } from 'react'
