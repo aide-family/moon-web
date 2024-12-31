@@ -50,7 +50,7 @@ export function listTeam(params: ListTeamRequest): Promise<ListTeamReply> {
  * @returns {UpdateTeamStatusReply}
  */
 export function updateTeamStatus(params: UpdateTeamStatusRequest): Promise<null> {
-  return request.PUT<null>('/v1/team/status', params)
+  return request.PUT<null>('/v1/team/update/status', params)
 }
 
 /**
