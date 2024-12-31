@@ -5,50 +5,51 @@ import { myTeam } from '@/api/team'
 import { useCreateTeamModal } from '@/hooks/create-team'
 import { GlobalContext } from '@/utils/context'
 import { DownOutlined } from '@ant-design/icons'
+import { useRequest } from 'ahooks'
 import { Avatar, Col, Dropdown, message, Row, Space } from 'antd'
-import { debounce } from 'lodash'
 import React, { useCallback, useContext, useEffect } from 'react'
 
-export interface TeamMenuProps {}
-
-export const TeamMenu: React.FC<TeamMenuProps> = () => {
+export const TeamMenu: React.FC = () => {
   const createTeamContext = useCreateTeamModal()
   const { teamInfo, setTeamInfo, setUserInfo, refreshMyTeamList } = useContext(GlobalContext)
   const [teamList, setTeamList] = React.useState<TeamItem[]>([])
 
-  const handleRefreshToken = (team?: TeamItem) => {
-    if (!team || !team.id) return
-    setTeamInfo?.(team)
-    refreshToken({ teamID: team.id }).then((res) => {
-      const { token, user } = res
+  const { run: initRefreshToken } = useRequest(refreshToken, {
+    manual: true,
+    onSuccess: ({ token, user }) => {
       setToken(token)
       setUserInfo?.(user)
-    })
-  }
+    }
+  })
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleGetMyTeamList = useCallback(
-    debounce(async () => {
-      myTeam().then(({ list }) => {
-        setTeamList(list || [])
-        if (!list?.length) {
-          message.warning('当前没有团队信息, 部分功能无法使用，你需要创建团队或者加入团队')
-          return
-        }
-        const exist = list.some((item) => {
-          if (item.id === teamInfo?.id) {
-            setTeamInfo?.(item)
-            return true
-          }
-        })
-        if (!exist) {
-          handleRefreshToken(list?.[0])
-          setTeamInfo?.(list?.[0])
+  const handleRefreshToken = useCallback(
+    (team?: TeamItem) => {
+      if (!team || !team.id) return
+      initRefreshToken({ teamID: team.id })
+    },
+    [initRefreshToken]
+  )
+
+  const { run: initTeamList } = useRequest(myTeam, {
+    manual: true,
+    onSuccess: ({ list }) => {
+      setTeamList(list || [])
+      if (!list?.length) {
+        message.warning('当前没有团队信息, 部分功能无法使用，你需要创建团队或者加入团队')
+        return
+      }
+      const exist = list.some((item) => {
+        if (item.id === teamInfo?.id) {
+          setTeamInfo?.(item)
+          return true
         }
       })
-    }, 500),
-    []
-  )
+      if (!exist) {
+        handleRefreshToken(list?.[0])
+        setTeamInfo?.(list?.[0])
+      }
+    }
+  })
 
   useEffect(() => {
     handleRefreshToken(teamInfo)
@@ -59,14 +60,13 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
       1000 * 60 * 10
     )
     return () => clearInterval(interval)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [handleRefreshToken, teamInfo])
 
   useEffect(() => {
     if (!createTeamContext.open) {
-      handleGetMyTeamList()
+      initTeamList()
     }
-  }, [createTeamContext.open, handleGetMyTeamList, refreshMyTeamList])
+  }, [createTeamContext.open, initTeamList, refreshMyTeamList])
 
   return (
     <Dropdown
@@ -85,7 +85,7 @@ export const TeamMenu: React.FC<TeamMenuProps> = () => {
               </Row>
             ),
             onClick: () => {
-              handleRefreshToken(item)
+              setTeamInfo?.(item)
               window.location.reload()
             }
           }

@@ -1,11 +1,11 @@
-import { healthApi } from '@/api/request'
 import logoIcon from '@/assets/images/logo.svg'
 import { Docusaurus, Gitee } from '@/components/icon'
+import LayoutFooter from '@/components/layout/footer'
 import { docURL, giteeURL, githubURL } from '@/components/layout/header-op'
 import { GlobalContext } from '@/utils/context'
-import { CopyrightOutlined, GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
+import { GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { Button, theme } from 'antd'
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect } from 'react'
 import Banner from './banner'
 import LoginForm from './form'
 
@@ -15,28 +15,6 @@ const { useToken } = theme
 const Login: React.FC<LoginProps> = () => {
   const { theme, setTheme, title = 'Moon' } = useContext(GlobalContext)
   const { token } = useToken()
-  const [version, setVersion] = useState('version')
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
-
-  const getVersion = () => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current)
-    }
-    timerRef.current = setTimeout(() => {
-      healthApi().then((res) => {
-        setVersion(res.version)
-      })
-    }, 300)
-  }
-
-  useEffect(() => {
-    getVersion()
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current)
-      }
-    }
-  }, [])
 
   useEffect(() => {
     document.title = title
@@ -103,9 +81,7 @@ const Login: React.FC<LoginProps> = () => {
         </Button>
       </div>
       <div className='absolute bottom-3 flex items-center justify-center gap-2 w-full'>
-        <CopyrightOutlined />
-        {window.location.host}
-        <div className='ml-2'>version: {version}</div>
+        <LayoutFooter />
       </div>
     </div>
   )

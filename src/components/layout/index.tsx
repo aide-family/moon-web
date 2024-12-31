@@ -1,12 +1,12 @@
-import { healthApi, isLogin, setToken } from '@/api/request'
+import { isLogin, setToken } from '@/api/request'
 import { useContainerHeight } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
-import { CopyrightOutlined } from '@ant-design/icons'
 import { Layout, Menu, Spin, theme } from 'antd'
 import React, { Suspense, useContext, useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import MoonChat from '../chat/moon-chat'
 import { CreateTeamModalProvider } from './create-team-provider'
+import LayoutFooter from './footer'
 import { HeaderOp } from './header-op'
 import HeaderTitle from './header-title'
 import RouteBreadcrumb from './route-breadcrumb'
@@ -47,7 +47,6 @@ const MoonLayout: React.FC = () => {
   const [openKeys, setOpenKeys] = useState<string[]>([])
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
   const [locationPath, setLocationPath] = useState<string>(location.pathname)
-  const [version, setVersion] = useState('version')
 
   const contentRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
@@ -57,12 +56,6 @@ const MoonLayout: React.FC = () => {
   useEffect(() => {
     setContentHeight?.(autoContentHeight)
   }, [autoContentHeight, setContentHeight])
-
-  const getVersion = () => {
-    healthApi().then((res) => {
-      setVersion(res.version)
-    })
-  }
 
   const handleMenuOpenChange = (keys: string[]) => {
     let openKeyList: string[] = keys
@@ -81,7 +74,6 @@ const MoonLayout: React.FC = () => {
   }
 
   useEffect(() => {
-    getVersion()
     setSelectedKeys([location.pathname])
 
     const openKey = location.pathname.split('/').slice(1)
@@ -141,8 +133,7 @@ const MoonLayout: React.FC = () => {
               className='h-8 flex items-center justify-center gap-1'
               style={{ background: token.colorBgContainer }}
             >
-              <CopyrightOutlined />
-              {window.location.host} <div className='ml-2'>version: {version}</div>
+              <LayoutFooter />
             </Footer>
           </Layout>
         </Layout>
