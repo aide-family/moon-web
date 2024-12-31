@@ -2,9 +2,9 @@ import { isLogin, setToken } from '@/api/request'
 import { useContainerHeight } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
 import { Layout, Menu, Spin, theme } from 'antd'
-import React, { Suspense, useContext, useEffect, useRef, useState } from 'react'
+import type React from 'react'
+import { Suspense, useContext, useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import MoonChat from '../chat/moon-chat'
 import { CreateTeamModalProvider } from './create-team-provider'
 import LayoutFooter from './footer'
 import { HeaderOp } from './header-op'
@@ -63,7 +63,7 @@ const MoonLayout: React.FC = () => {
       openKeyList = locationPath.split('/').slice(1)
       // 去掉最后一级
       openKeyList.pop()
-      openKeyList = ['/' + openKeyList.join('/')]
+      openKeyList = [`/${openKeyList.join('/')}`]
     }
     setOpenKeys(openKeyList)
     // setSelectedKeys(keys)
@@ -78,16 +78,16 @@ const MoonLayout: React.FC = () => {
 
     const openKey = location.pathname.split('/').slice(1)
     const keys: string[] = []
-    let key: string
-    openKey.forEach((item) => {
-      key += '/' + item
+    let key = ''
+    for (const item of openKey) {
+      key += `/${item}`
       keys.push(key)
-    })
+    }
     // 去掉最后一级
     openKey.pop()
-    setOpenKeys([...keys, '/' + openKey.join('/')])
+    setOpenKeys([...keys, `/${openKey.join('/')}`])
     setLocationPath(location.pathname)
-  }, [location.pathname, collapsed])
+  }, [location.pathname])
 
   return (
     <>
@@ -137,7 +137,6 @@ const MoonLayout: React.FC = () => {
             </Footer>
           </Layout>
         </Layout>
-        <MoonChat />
       </CreateTeamModalProvider>
     </>
   )

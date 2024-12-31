@@ -3,16 +3,18 @@ import { removeToken } from '@/api/request'
 import { useCreateTeamModal } from '@/hooks/create-team'
 import { GlobalContext } from '@/utils/context'
 import { GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
-import { Avatar, Button, Dropdown, MenuProps, theme } from 'antd'
-import React, { useContext } from 'react'
+import { Avatar, Button, Dropdown, type MenuProps, theme } from 'antd'
+import type React from 'react'
+import { useContext } from 'react'
+import MoonChat from '../chat/moon-chat'
 import { Docusaurus } from '../icon'
 import { ButtonFullScreen } from './button-full-screen'
 import { HeaderMessage } from './header-message'
 import { TeamMenu } from './team-menu'
 
-export const githubURL = `https://github.com/aide-family/moon`
-export const docURL = `https://aide-family.github.io/`
-export const giteeURL = `https://gitee.com/aide-cloud/moon`
+export const githubURL = 'https://github.com/aide-family/moon'
+export const docURL = 'https://aide-family.github.io/'
+export const giteeURL = 'https://gitee.com/aide-cloud/moon'
 
 const { useToken } = theme
 
@@ -70,6 +72,7 @@ export const HeaderOp: React.FC = () => {
       <TeamMenu />
       <ButtonFullScreen bodyId='content-body' type='text' />
       <HeaderMessage />
+      <MoonChat />
       <Button type='text' href={githubURL} target='_blank' icon={<GithubOutlined />} />
       <Button type='text' href={docURL} target='_blank' icon={<Docusaurus />} />
       <Button

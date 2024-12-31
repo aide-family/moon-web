@@ -1,8 +1,8 @@
 import { Status } from '@/api/enum'
-import { ErrorResponse } from '@/api/request'
-import { createTeam, CreateTeamRequest } from '@/api/team'
+import type { ErrorResponse } from '@/api/request'
+import { type CreateTeamRequest, createTeam } from '@/api/team'
 import { GlobalContext } from '@/utils/context'
-import { Form, Input, message, Modal } from 'antd'
+import { Form, Input, Modal, message } from 'antd'
 import { createContext, useContext, useState } from 'react'
 
 export type CreateTeamModalProps = {
@@ -41,7 +41,7 @@ export function CreateTeamModalProvider({ children }: CreateTeamModalProps) {
       setLoading(true)
       createTeam({ ...value, adminIds: [], status: Status.StatusEnable })
         .then(({ detail }) => {
-          message.success(value.name + '创建成功')
+          message.success(`${value.name}创建成功`)
           form.resetFields()
           detail && setTeamInfo?.(detail)
           setOpen(false)

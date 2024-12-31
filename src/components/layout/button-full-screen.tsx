@@ -1,7 +1,8 @@
 import { GlobalContext } from '@/utils/context'
 import { FullscreenOutlined } from '@ant-design/icons'
-import { Button, ButtonProps } from 'antd'
-import React, { useContext } from 'react'
+import { Button, type ButtonProps } from 'antd'
+import type React from 'react'
+import { useContext } from 'react'
 
 export interface ButtonFullScreenProps extends ButtonProps {
   bodyId: string
@@ -11,7 +12,7 @@ export const ButtonFullScreen: React.FC<ButtonFullScreenProps> = (props) => {
   const { bodyId, ...resetProps } = props
   const { isFullscreen, setIsFullscreen } = useContext(GlobalContext)
 
-  const elem = document.getElementById(bodyId)!
+  const elem = document.getElementById(bodyId)
 
   // 进入全屏模式的函数
   function openFullscreen() {

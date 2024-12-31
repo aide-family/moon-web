@@ -1,32 +1,31 @@
 import { getInvite } from '@/api/user/invite'
 import {
+  type MessageCategory,
+  type NoticeUserMessageItem,
   cancelMessage,
   confirmMessage,
   deleteMessage,
   getBizName,
-  listMessage,
-  MessageCategory,
-  NoticeUserMessageItem
+  listMessage
 } from '@/api/user/message'
 import { GlobalContext } from '@/utils/context'
 import { BellOutlined, CheckOutlined, XOutlined } from '@ant-design/icons'
-import { theme as antTheme, Badge, Button, Divider, Modal, Popover, Space, Tag } from 'antd'
+import { Badge, Button, Divider, Modal, Popover, Space, Tag, theme as antTheme } from 'antd'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn' // 导入中文语言包
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { debounce } from 'lodash'
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import type React from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 // 设置 dayjs 的语言为中文
 dayjs.locale('zh-cn')
 // 使用插件
 dayjs.extend(relativeTime)
 
-export interface HeaderMessageProps {}
-
 const { confirm, info } = Modal
 
 const { useToken } = antTheme
-export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
+export const HeaderMessage: React.FC = () => {
   const { token } = useToken()
   const { setRefreshMyTeamList } = useContext(GlobalContext)
   const [msgCnt, setMsgCnt] = useState(0)
@@ -69,8 +68,7 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
       })
     }, 60000)
     return () => clearInterval(interval)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [fetchData])
 
   const getMessageIcon = (category: MessageCategory) => {
     switch (category) {
@@ -173,13 +171,18 @@ export const HeaderMessage: React.FC<HeaderMessageProps> = () => {
               const { color, label } = getBizName(item.biz)
               return (
                 <div
-                  key={index}
+                  key={`${index}-${item.id}`}
                   style={{
                     background: getMessageButtonColor(item.category),
                     borderRadius: token.borderRadius
                   }}
                   className='w-full cursor-pointer hover:bg-gray-100 p-2'
                   onClick={() => handleMessage(item)}
+                  onKeyUp={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      handleMessage(item)
+                    }
+                  }}
                 >
                   <Space size={12} className='w-full'>
                     <div className='text-left'>{getMessageIcon(item.category)}</div>

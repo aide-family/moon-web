@@ -1,12 +1,12 @@
 import { refreshToken } from '@/api/authorization'
-import { TeamItem } from '@/api/model-types'
+import type { TeamItem } from '@/api/model-types'
 import { setToken } from '@/api/request'
 import { myTeam } from '@/api/team'
 import { useCreateTeamModal } from '@/hooks/create-team'
 import { GlobalContext } from '@/utils/context'
 import { DownOutlined } from '@ant-design/icons'
 import { useRequest } from 'ahooks'
-import { Avatar, Col, Dropdown, message, Row, Space } from 'antd'
+import { Avatar, Col, Dropdown, Row, Space, message } from 'antd'
 import React, { useCallback, useContext, useEffect } from 'react'
 
 export const TeamMenu: React.FC = () => {
@@ -62,6 +62,7 @@ export const TeamMenu: React.FC = () => {
     return () => clearInterval(interval)
   }, [handleRefreshToken, teamInfo])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (!createTeamContext.open) {
       initTeamList()

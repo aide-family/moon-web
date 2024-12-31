@@ -27,9 +27,15 @@ export default function LayoutFooter() {
         {window.location.host}
       </div>
       {actionList.map((item, index) => (
-        <div className='flex justify-center items-center h-[20px]' onClick={() => window.open(item.url)} key={index}>
+        <a
+          className='flex justify-center items-center h-[20px]'
+          href={item.url}
+          target='_blank'
+          key={`${index}-${item.url}`}
+          rel='noreferrer'
+        >
           <img src={item.img} alt='' />
-        </div>
+        </a>
       ))}
     </div>
   )
