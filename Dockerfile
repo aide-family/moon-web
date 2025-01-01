@@ -10,7 +10,7 @@ COPY . .
 RUN rm -rf node_modules
 
 # 设置npm源
-#RUN npm config set registry https://registry.npmmirror.com/
+RUN npm config set registry https://registry.npmmirror.com/
 
 # 安装依赖
 # RUN npm install
