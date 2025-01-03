@@ -258,5 +258,15 @@ export const editModalFormItems: (DataFromItem | DataFromItem[])[] = [
     props: {
       placeholder: '请输入模板内容'
     }
+  },
+  {
+    name: 'remark',
+    label: '备注',
+    type: 'textarea',
+    props: {
+      placeholder: '请输入备注',
+      maxLength: 200,
+      showCount: true
+    }
   }
 ]

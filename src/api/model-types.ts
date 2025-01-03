@@ -927,4 +927,6 @@ export interface SendTemplateItem {
   updatedAt: string
   /** 创建人 */
   creator: UserItem
+  /** 备注 */
+  remark: string
 }

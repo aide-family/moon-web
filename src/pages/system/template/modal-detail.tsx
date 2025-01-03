@@ -90,6 +90,11 @@ export function SendTemplateDetailModal(props: SendTemplateDetailModalProps) {
       label: '更新时间',
       children: detail?.updatedAt,
       span: { xs: 1, sm: 2, md: 3, lg: 3, xl: 2, xxl: 2 }
+    },
+    {
+      label: '备注',
+      children: detail?.remark || '-',
+      span: 3
     }
   ]
 
