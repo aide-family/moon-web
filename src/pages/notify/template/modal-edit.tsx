@@ -8,11 +8,11 @@ import { editModalFormItems } from './options'
 export interface EditSendTemplateModalProps extends ModalProps {
   sendTemplateId?: number
   onOk?: () => void
-  onClose?: () => void
+  onCancel?: () => void
 }
 
 export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
-  const { open, sendTemplateId, onOk, onClose, ...rest } = props
+  const { open, sendTemplateId, onOk, onCancel, ...rest } = props
 
   const [form] = Form.useForm<CreateTemplateRequest>()
 
@@ -42,8 +42,8 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
     })
   }
 
-  const handleOnClose = () => {
-    onClose?.()
+  const handleOnCancel = () => {
+    onCancel?.()
   }
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
         title={`${sendTemplateId ? '编辑' : '新增'}通知模板`}
         open={open}
         onOk={handleOnOk}
-        onClose={handleOnClose}
+        onCancel={handleOnCancel}
         loading={initSendTemplateDetailLoading}
         confirmLoading={addSendTemplateLoading || updateSendTemplateLoading}
       >
