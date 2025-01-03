@@ -139,6 +139,10 @@ export const routers: RouteObject[] = [
           {
             path: '/home/notify/rule',
             Component: lazy(() => import('@/pages/notify/rule'))
+          },
+          {
+            path: '/home/notify/template',
+            Component: lazy(() => import('@/pages/notify/template'))
           }
         ]
       },

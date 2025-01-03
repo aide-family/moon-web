@@ -331,6 +331,30 @@ export enum HookApp {
   HOOK_APP_FEI_SHU = 4
 }
 
+/** 告警通知模板类型 */
+export enum AlarmSendType {
+  /** 未知 */
+  StrategyTypeUnknown = 0,
+
+  /** 邮件 */
+  AlarmSendTypeEmail = 1,
+
+  /** 短信 */
+  AlarmSendTypeSMS = 2,
+
+  /** 钉钉 */
+  AlarmSendTypeDingTalk = 3,
+
+  /** 飞书 */
+  AlarmSendTypeFeiShu = 4,
+
+  /** 企业微信 */
+  AlarmSendTypeWeChat = 5,
+
+  /** 自定义 */
+  AlarmSendTypeCustom = 6
+}
+
 /** 策略类型 */
 export enum StrategyType {
   /** 未知 */

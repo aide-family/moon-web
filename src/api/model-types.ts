@@ -1,4 +1,5 @@
 import type {
+  AlarmSendType,
   AlertStatus,
   ChartType,
   Condition,
@@ -894,6 +895,9 @@ export interface AsymmetricEncryptionConfigItem {
   privateKey: string
 }
 
+/**
+ * 团队配置
+ */
 export interface TeamConfigItem {
   /** 邮箱配置 */
   emailConfig: EmailConfigItem
@@ -901,4 +905,26 @@ export interface TeamConfigItem {
   symmetricEncryptionConfig: SymmetricEncryptionConfigItem
   /** 非对称加密配置 */
   asymmetricEncryptionConfig: AsymmetricEncryptionConfigItem
+}
+
+/**
+ * 告警通知模板
+ */
+export interface SendTemplateItem {
+  /** 模板ID */
+  id: number
+  /** 模板名称 */
+  name: string
+  /** 模板内容 */
+  content: string
+  /** 模板发送类型 */
+  sendType: AlarmSendType
+  /** 模板状态 */
+  status: Status
+  /** 创建时间 */
+  createdAt: string
+  /** 更新时间 */
+  updatedAt: string
+  /** 创建人 */
+  creator: UserItem
 }

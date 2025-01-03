@@ -3,6 +3,7 @@ import { BadgeProps, Tag } from 'antd'
 import { Calendar1, CalendarRange, Hourglass, SunMoon } from 'lucide-react'
 import React from 'react'
 import {
+  AlarmSendType,
   AlertStatus,
   Condition,
   DatasourceType,
@@ -292,6 +293,37 @@ export const HookAppData: Record<HookApp, { icon: React.ReactNode; label: React.
   [HookApp.HOOK_APP_WE_CHAT]: {
     icon: <IconFont type='icon-qiyeweixin' />,
     label: '企业微信'
+  }
+}
+
+export const AlarmSendTypeData: Record<AlarmSendType, { icon: React.ReactNode; label: React.ReactNode }> = {
+  [AlarmSendType.StrategyTypeUnknown]: {
+    label: '全部',
+    icon: <IconFont type='icon-disable3' />
+  },
+  [AlarmSendType.AlarmSendTypeEmail]: {
+    label: '邮件',
+    icon: <IconFont type='icon-youjian' />
+  },
+  [AlarmSendType.AlarmSendTypeSMS]: {
+    label: '短信',
+    icon: <IconFont type='icon-duanxin' />
+  },
+  [AlarmSendType.AlarmSendTypeWeChat]: {
+    label: '企业微信',
+    icon: <IconFont type='icon-qiyeweixin' />
+  },
+  [AlarmSendType.AlarmSendTypeDingTalk]: {
+    label: '钉钉',
+    icon: <IconFont type='icon-dingding' />
+  },
+  [AlarmSendType.AlarmSendTypeFeiShu]: {
+    label: '飞书',
+    icon: <IconFont type='icon-feishu' />
+  },
+  [AlarmSendType.AlarmSendTypeCustom]: {
+    label: '自定义',
+    icon: <IconFont type='icon-zidingyi' />
   }
 }
 

@@ -76,6 +76,10 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: '时间引擎',
         key: '/home/notify/rule'
+      },
+      {
+        label: '通知模板',
+        key: '/home/notify/template'
       }
       // {
       //   label: '告警记录',
@@ -270,6 +274,9 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   },
   '/home/notify/record': {
     name: '告警记录'
+  },
+  '/home/notify/template': {
+    name: '通知模板'
   },
   '/home/archive': {
     name: '告警归档'
