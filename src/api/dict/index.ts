@@ -1,6 +1,6 @@
-import { DictType, Status } from '../enum'
-import { EnumItem, PaginationReply, PaginationReq } from '../global'
-import { DictItem, SelectItem } from '../model-types'
+import type { DictType, Status } from '../enum'
+import type { EnumItem, PaginationReply, PaginationReq } from '../global'
+import type { DictItem, SelectItem } from '../model-types'
 import request from '../request'
 
 /**
@@ -8,8 +8,8 @@ import request from '../request'
  * @param params 创建字典请求参数
  * @returns 创建字典响应
  */
-export function createDict(params: CreateDictRequest): Promise<CreateDictReply> {
-  return request.POST<CreateDictReply>('/v1/dict/create', params)
+export function createDict(params: CreateDictRequest): Promise<unknown> {
+  return request.POST<unknown>('/v1/dict/create', params)
 }
 
 /**
@@ -17,8 +17,8 @@ export function createDict(params: CreateDictRequest): Promise<CreateDictReply> 
  * @param params 更新字典请求参数
  * @returns 更新字典响应
  */
-export function updateDict(params: UpdateDictRequest): Promise<UpdateDictReply> {
-  return request.PUT<UpdateDictReply>(`/v1/dict/update/${params.id}`, params)
+export function updateDict(params: UpdateDictRequest): Promise<unknown> {
+  return request.PUT<unknown>(`/v1/dict/update/${params.id}`, params)
 }
 
 /**
@@ -35,8 +35,8 @@ export function listDict(params: ListDictRequest): Promise<ListDictReply> {
  * @param params 批量修改字典状态请求参数
  * @returns 批量修改字典状态响应
  */
-export function batchUpdateDictStatus(params: BatchUpdateDictStatusRequest): Promise<BatchUpdateDictStatusReply> {
-  return request.PUT<BatchUpdateDictStatusReply>('/v1/dict/status', params)
+export function batchUpdateDictStatus(params: BatchUpdateDictStatusRequest): Promise<unknown> {
+  return request.PUT<unknown>('/v1/dict/status', params)
 }
 
 /**
@@ -44,8 +44,8 @@ export function batchUpdateDictStatus(params: BatchUpdateDictStatusRequest): Pro
  * @param params 删除字典请求参数
  * @returns 删除字典响应
  */
-export function deleteDict(params: DeleteDictRequest): Promise<DeleteDictReply> {
-  return request.DELETE<DeleteDictReply>(`/v1/dict/delete/${params.id}`)
+export function deleteDict(params: DeleteDictRequest): Promise<unknown> {
+  return request.DELETE<unknown>(`/v1/dict/delete/${params.id}`)
 }
 
 /**
@@ -81,8 +81,6 @@ export interface BatchUpdateDictStatusRequest {
   status: Status
 }
 
-export interface BatchUpdateDictStatusReply {}
-
 export interface CreateDictRequest {
   name: string
   value: string
@@ -95,8 +93,6 @@ export interface CreateDictRequest {
   languageCode: string
   remark: string
 }
-
-export interface CreateDictReply {}
 
 export interface ListDictRequest {
   pagination: PaginationReq
@@ -116,13 +112,9 @@ export interface UpdateDictRequest {
   data: CreateDictRequest
 }
 
-export interface UpdateDictReply {}
-
 export interface DeleteDictRequest {
   id: number
 }
-
-export interface DeleteDictReply {}
 
 export interface GetDictRequest {
   id: number
@@ -132,7 +124,10 @@ export interface GetDictReply {
   detail: DictItem
 }
 
-export interface ListDictTypeRequest {}
+export type ListDictTypeRequest = {
+  pagination: PaginationReq
+  keyword?: string
+}
 
 export interface ListDictTypeReply {
   list: EnumItem[]

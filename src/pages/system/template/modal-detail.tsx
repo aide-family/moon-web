@@ -26,7 +26,7 @@ export function SendTemplateDetailModal(props: SendTemplateDetailModalProps) {
     if (!sendTemplateId) {
       return
     }
-    runGetSendTemplateDetail(sendTemplateId)
+    runGetSendTemplateDetail(sendTemplateId, true)
   }, [sendTemplateId, runGetSendTemplateDetail])
 
   useEffect(() => {
@@ -66,15 +66,13 @@ export function SendTemplateDetailModal(props: SendTemplateDetailModalProps) {
     },
     {
       label: '创建人',
-      children: detail?.creator ? (
+      children: (
         <Tooltip title={detail?.creator?.nickname || detail?.creator?.name}>
           <div className='flex items-center gap-2'>
             <Avatar src={detail?.creator?.avatar}>{detail?.creator?.nickname || detail?.creator?.name}</Avatar>
             {detail?.creator?.nickname || detail?.creator?.name}
           </div>
         </Tooltip>
-      ) : (
-        '-'
       ),
       span: { xs: 1, sm: 2, md: 3, lg: 3, xl: 2, xxl: 2 }
     },

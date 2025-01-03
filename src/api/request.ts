@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { message, notification } from 'antd'
-import axios, { AxiosError, AxiosRequestConfig } from 'axios'
+import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 
 const host = window.location.origin
 
@@ -16,7 +16,7 @@ export const hostMap: { [key: string]: string } = {
   [local127]: 'http://localhost:8000'
 }
 
-export const baseURL = hostMap[host] || host + '/api'
+export const baseURL = hostMap[host] || `${host}/api`
 
 const request = axios.create({
   baseURL: baseURL,
@@ -152,4 +152,17 @@ const errorHandle = (err: ErrorResponse) => {
         break
     }
   }, 500)
+}
+
+/**
+ * 构建请求头
+ * @param isSystem 是否是系统请求
+ * @returns 请求头
+ */
+export const buildHeader = (isSystem?: boolean) => {
+  return {
+    headers: {
+      'Source-Type': isSystem ? 'System' : 'Team'
+    }
+  }
 }

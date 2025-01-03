@@ -81,15 +81,15 @@ const Template: React.FC = () => {
   }
 
   const onRefresh = () => {
-    runGetTemplateList(searchParams)
+    runGetTemplateList(searchParams, true)
   }
 
   const handleDelete = (id: number) => {
-    deleteTemplate(id).then(onRefresh)
+    deleteTemplate(id, true).then(onRefresh)
   }
 
   const onChangeStatus = (SendTemplateId: number, status: Status) => {
-    updateTemplateStatus({ ids: [SendTemplateId], status }).then(onRefresh)
+    updateTemplateStatus({ ids: [SendTemplateId], status }, true).then(onRefresh)
   }
 
   const onHandleMenuOnClick = (item: SendTemplateItem, key: ActionKey) => {
@@ -140,7 +140,7 @@ const Template: React.FC = () => {
   })
 
   useEffect(() => {
-    runGetTemplateList(searchParams)
+    runGetTemplateList(searchParams, true)
   }, [searchParams, runGetTemplateList])
 
   return (

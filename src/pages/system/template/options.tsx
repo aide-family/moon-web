@@ -47,20 +47,18 @@ export const formList: SearchFormItem[] = [
         allowClear: true,
         mode: 'multiple',
         maxTagCount: 1,
-        options: Object.entries(AlarmSendTypeData)
-          .filter(([key]) => +key !== AlarmSendType.StrategyTypeUnknown)
-          .map(([key, value]) => {
-            const { label, icon } = value
-            return {
-              label: (
-                <Space direction='horizontal'>
-                  <Avatar size='small' shape='square' icon={icon} />
-                  {label}
-                </Space>
-              ),
-              value: +key
-            }
-          })
+        options: Object.entries(AlarmSendTypeData).map(([key, value]) => {
+          const { label, icon } = value
+          return {
+            label: (
+              <Space direction='horizontal'>
+                <Avatar size='small' shape='square' icon={icon} />
+                {label}
+              </Space>
+            ),
+            value: +key
+          }
+        })
       }
     }
   }

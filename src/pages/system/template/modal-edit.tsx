@@ -34,7 +34,7 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
   const handleOnOk = () => {
     form.validateFields().then((values) => {
       Promise.all([
-        sendTemplateId ? updateSendTemplate({ id: sendTemplateId, data: values }) : addSendTemplate(values)
+        sendTemplateId ? updateSendTemplate({ id: sendTemplateId, data: values }, true) : addSendTemplate(values, true)
       ]).then(() => {
         form.resetFields()
         onOk?.()
@@ -48,7 +48,7 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
 
   useEffect(() => {
     if (sendTemplateId && open) {
-      initSendTemplateDetail(sendTemplateId)
+      initSendTemplateDetail(sendTemplateId, true)
     }
   }, [sendTemplateId, open, initSendTemplateDetail])
 

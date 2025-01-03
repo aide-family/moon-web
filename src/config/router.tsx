@@ -1,6 +1,6 @@
 import { Error403, Error404 } from '@/components/error'
 import { lazy } from 'react'
-import { Navigate, RouteObject } from 'react-router-dom'
+import { Navigate, type RouteObject } from 'react-router-dom'
 
 export const routers: RouteObject[] = [
   {
@@ -160,6 +160,10 @@ export const routers: RouteObject[] = [
           {
             path: '/home/system/team',
             Component: lazy(() => import('@/pages/system/team'))
+          },
+          {
+            path: '/home/system/template',
+            Component: lazy(() => import('@/pages/system/template'))
           }
         ]
       },

@@ -1,15 +1,7 @@
-import { Status } from '../enum'
-import { PaginationReply, PaginationReq } from '../global'
-import { ResourceItem, SelectItem } from '../model-types'
-import request from '../request'
-
-const buildHeader = (isSystem?: boolean) => {
-  return {
-    headers: {
-      'Source-Type': isSystem ? 'System' : 'Team'
-    }
-  }
-}
+import type { Status } from '../enum'
+import type { PaginationReply, PaginationReq } from '../global'
+import type { ResourceItem, SelectItem } from '../model-types'
+import request, { buildHeader } from '../request'
 
 /**
  * 获取资源详情
@@ -79,7 +71,7 @@ export interface BatchUpdateResourceStatusRequest {
   status: Status
 }
 
-export interface BatchUpdateResourceStatusReply {}
+export type BatchUpdateResourceStatusReply = {}
 
 export interface GetResourceSelectListReply {
   pagination: PaginationReply

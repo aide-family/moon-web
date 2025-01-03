@@ -1,6 +1,6 @@
 import { IconFont } from '@/components/icon'
 import { SettingOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
-import { ItemType } from 'antd/es/menu/interface'
+import type { ItemType } from 'antd/es/menu/interface'
 
 export const defaultMenuItems: ItemType[] = [
   {
@@ -168,6 +168,10 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: '团队管理',
         key: '/home/system/team'
+      },
+      {
+        label: '通知模板',
+        key: '/home/system/template'
       }
     ]
   }
@@ -310,5 +314,8 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   },
   '/home/system/team': {
     name: '团队管理'
+  },
+  '/home/system/template': {
+    name: '通知模板'
   }
 }

@@ -1,7 +1,7 @@
-import { AlarmSendType, Status } from '@/api/enum'
-import request from '@/api/request'
-import { PaginationReply, PaginationReq } from '../global'
-import { SendTemplateItem } from '../model-types'
+import type { AlarmSendType, Status } from '@/api/enum'
+import request, { buildHeader } from '@/api/request'
+import type { PaginationReply, PaginationReq } from '../global'
+import type { SendTemplateItem } from '../model-types'
 
 const { POST, GET, PUT, DELETE } = request
 
@@ -10,43 +10,48 @@ const { POST, GET, PUT, DELETE } = request
  * @param data
  * @returns
  */
-export const createTemplate = (data: CreateTemplateRequest) => POST('/v1/admin/template/send/create', data)
+export const createTemplate = (data: CreateTemplateRequest, isSystem?: boolean) =>
+  POST('/v1/admin/template/send/create', data, buildHeader(isSystem))
 
 /**
  * 更新告警通知模板
  * @param data
  * @returns
  */
-export const updateTemplate = (data: UpdateTemplateRequest) => PUT('/v1/admin/template/send/update', data)
+export const updateTemplate = (data: UpdateTemplateRequest, isSystem?: boolean) =>
+  PUT('/v1/admin/template/send/update', data, buildHeader(isSystem))
 
 /**
  * 删除告警通知模板
  * @param data
  * @returns
  */
-export const deleteTemplate = (id: number) => DELETE(`/v1/admin/template/send/delete/${id}`)
+export const deleteTemplate = (id: number, isSystem?: boolean) =>
+  DELETE(`/v1/admin/template/send/delete/${id}`, {}, buildHeader(isSystem))
 
 /**
  * 获取告警通知模板
  * @param id
  * @returns
  */
-export const getTemplate = (id: number): Promise<GetTemplateReply> => GET(`/v1/admin/template/send/get/${id}`)
+export const getTemplate = (id: number, isSystem?: boolean): Promise<GetTemplateReply> =>
+  GET(`/v1/admin/template/send/get/${id}`, {}, buildHeader(isSystem))
 
 /**
  * 获取告警通知模板列表
  * @param data
  * @returns
  */
-export const getTemplateList = (data: GetTemplateListRequest): Promise<GetTemplateListReply> =>
-  POST('/v1/admin/template/send/list', data)
+export const getTemplateList = (data: GetTemplateListRequest, isSystem?: boolean): Promise<GetTemplateListReply> =>
+  POST('/v1/admin/template/send/list', data, buildHeader(isSystem))
 
 /**
  * 更新告警通知模板状态
  * @param data
  * @returns
  */
-export const updateTemplateStatus = (data: UpdateTemplateStatusRequest) => PUT('/v1/admin/template/send/status', data)
+export const updateTemplateStatus = (data: UpdateTemplateStatusRequest, isSystem?: boolean) =>
+  PUT('/v1/admin/template/send/status', data, buildHeader(isSystem))
 
 /**
  * 创建告警通知模板
