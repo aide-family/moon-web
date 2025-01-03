@@ -85,15 +85,6 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<RealtimeAlar
       width: 400
     },
     {
-      title: '明细',
-      dataIndex: 'description',
-      key: 'description',
-      ellipsis: true,
-      render: (text: string) => {
-        return text || '-'
-      }
-    },
-    {
       title: '操作',
       key: 'action',
       align: 'center',

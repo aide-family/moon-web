@@ -130,7 +130,6 @@ export default function Team() {
         <SearchBox ref={searchRef} formList={formList} onSearch={onSearch} onReset={onReset} />
       </div>
       <div
-        ref={ADivRef}
         className='p-3'
         style={{
           background: token.colorBgContainer,

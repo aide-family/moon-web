@@ -15,7 +15,7 @@ export const formList: SearchFormItem[] = [
     dataProps: {
       type: 'input',
       itemProps: {
-        placeholder: '规则组名称',
+        placeholder: '资源名称模糊查询',
         allowClear: true
       }
     }

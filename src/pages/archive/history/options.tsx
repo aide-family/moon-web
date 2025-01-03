@@ -10,11 +10,11 @@ import { ColumnsType } from 'antd/es/table'
 export const formList: SearchFormItem[] = [
   {
     name: 'keyword',
-    label: '名称',
+    label: '模糊查询',
     dataProps: {
       type: 'input',
       itemProps: {
-        placeholder: '规则组名称',
+        placeholder: '模糊查询',
         allowClear: true
       }
     }
@@ -97,14 +97,6 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmHistory
       dataIndex: 'summary',
       key: 'summary',
       width: 400
-    },
-    {
-      title: '明细',
-      dataIndex: 'annotations',
-      key: 'annotations',
-      render: (annotations: Record<string, string>) => {
-        return annotations?.['description'] || '-'
-      }
     },
     {
       title: '操作',

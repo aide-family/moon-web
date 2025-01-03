@@ -1,7 +1,6 @@
 import { type Role, Status } from '@/api/enum'
 import { ActionKey, RoleData, StatusData } from '@/api/global'
 import type { UserItem } from '@/api/model-types'
-import type { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
 import type { MoreMenuProps } from '@/components/moreMenu'
 import MoreMenu from '@/components/moreMenu'
@@ -191,61 +190,3 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<UserItem> =>
     }
   ]
 }
-
-export interface CreateDictFormType {
-  name: string
-  value: string
-  status: Status
-  languageCode: string
-  remark: string
-}
-export const editModalFormItems = (): (DataFromItem | DataFromItem[])[] => [
-  [
-    {
-      name: 'name',
-      label: '名称',
-      type: 'input',
-      formProps: {
-        rules: [{ required: true, message: '请输入字典名称' }]
-      },
-      props: {
-        placeholder: '请输入字典名称'
-      }
-    }
-  ],
-  [
-    {
-      name: 'value',
-      label: '编码',
-      type: 'input',
-      formProps: {
-        rules: [{ required: true, message: '请输入字典编码' }]
-      },
-      props: {
-        placeholder: '请输入字典编码'
-      }
-    },
-    {
-      name: 'languageCode',
-      label: '语言',
-      type: 'select',
-      props: {
-        placeholder: '请输入语言',
-        options: ['zh-CN', 'en-US'].map((item) => ({
-          label: item,
-          value: item
-        }))
-      }
-    }
-  ],
-  {
-    name: 'remark',
-    label: '描述',
-    type: 'textarea',
-    props: {
-      placeholder: '请输入描述',
-      maxLength: 200,
-      showCount: true
-    }
-  }
-]
