@@ -159,12 +159,12 @@ export const getColumnList = (props: NotifyTemplateColumnProps): ColumnsType<Sen
       }
     },
     {
-      title: '模板内容',
-      dataIndex: 'content',
-      key: 'content',
+      title: '备注',
+      dataIndex: 'remark',
+      key: 'remark',
       ellipsis: true,
-      render: (text: string) => {
-        return text || '-'
+      render: (remark: string) => {
+        return remark || '-'
       }
     },
     {
