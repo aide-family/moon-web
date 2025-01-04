@@ -1,13 +1,13 @@
-import React, { useContext } from 'react'
-import { useRef, useState, useEffect } from 'react'
+import type React from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 
+import { type GlobalToken, theme } from 'antd'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import { GlobalToken, theme } from 'antd'
 import './userWorker'
 
-import './style.css'
-import { GlobalContext, ThemeType } from '@/utils/context'
+import { GlobalContext, type ThemeType } from '@/utils/context'
 import { defaultTheme } from './color'
+import './style.css'
 
 export interface DingTemplateEditorProps {
   value?: string
@@ -410,13 +410,15 @@ export const DingTemplateEditor: React.FC<DingTemplateEditorProps> = (props) => 
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   const monacoEl = useRef(null)
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     setEditor((editor) => {
       if (editor) {
         return editor
       }
 
-      const curr = monacoEl.current!
+      const curr = monacoEl.current
+      if (!curr) return null
       const e = monaco.editor.create(curr, {
         model: model,
         theme: DingTemplateTheme,
@@ -434,12 +436,11 @@ export const DingTemplateEditor: React.FC<DingTemplateEditorProps> = (props) => 
       })
       return e
     })
-  }, [defaultValue, editor, monacoEl, onChange, value])
+  }, [defaultValue, editor, monacoEl, onChange, value, theme])
 
   useEffect(() => {
     init(token, theme)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [token, theme])
 
   return (
     <div

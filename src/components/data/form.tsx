@@ -1,7 +1,8 @@
-import { type FormItemProps, Col, Form, FormProps, Row } from 'antd'
-import { ValidateStatus } from 'antd/es/form/FormItem'
-import React, { FC } from 'react'
-import { DataInput, DataInputProps } from './child/data-input'
+import { Col, Form, type FormItemProps, type FormProps, Row } from 'antd'
+import type { ValidateStatus } from 'antd/es/form/FormItem'
+import type React from 'react'
+import type { FC } from 'react'
+import { DataInput, type DataInputProps } from './child/data-input'
 
 export type DataFromItem =
   | ({
@@ -22,6 +23,7 @@ export interface DataFromProps {
   props?: FormProps
   children?: React.ReactNode
   validates?: Record<string, ValidateType>
+  slot?: Record<string, React.ReactNode>
 }
 
 export const DataFrom: React.FC<DataFromProps> = (props) => {
@@ -29,7 +31,7 @@ export const DataFrom: React.FC<DataFromProps> = (props) => {
   return (
     <Form {...props.props} autoComplete='off'>
       <Row gutter={12}>
-        <RenderForm items={items} validates={validates} />
+        <RenderForm p={props} items={items} validates={validates} />
       </Row>
       {children}
     </Form>
@@ -37,31 +39,36 @@ export const DataFrom: React.FC<DataFromProps> = (props) => {
 }
 
 const RenderForm: FC<{
+  p: DataFromProps
   items: (DataFromItem | DataFromItem[])[]
   validates?: Record<string, ValidateType>
 }> = (props) => {
-  const { items, validates } = props
+  const { items, validates, p } = props
 
   if (Array.isArray(items)) {
     return items.map((item) => {
       const span = 24
       if (Array.isArray(item)) {
-        return renderFormItems(item, span / item.length, validates)
+        return renderFormItems(p, item, span / item.length, validates)
       }
-      return renderFormItem(item, span, validates)
+      return renderFormItem(p, item, span, validates)
     })
-  } else {
-    return renderFormItem(items, 24, validates)
   }
+  return renderFormItem(p, items, 24, validates)
 }
 
-const renderFormItems = (items: DataFromItem[], span: number = 24, validates?: Record<string, ValidateType>) => {
+const renderFormItems = (
+  p: DataFromProps,
+  items: DataFromItem[],
+  span = 24,
+  validates?: Record<string, ValidateType>
+) => {
   return items.map((item) => {
-    return renderFormItem(item, span, validates)
+    return renderFormItem(p, item, span, validates)
   })
 }
 
-const renderFormItem = (item: DataFromItem, span: number = 24, validates?: Record<string, ValidateType>) => {
+const renderFormItem = (p: DataFromProps, item: DataFromItem, span = 24, validates?: Record<string, ValidateType>) => {
   if (!item) {
     return null
   }
@@ -71,7 +78,7 @@ const renderFormItem = (item: DataFromItem, span: number = 24, validates?: Recor
   return (
     <Col span={span} key={name} id={id}>
       <Form.Item {...formProps} name={name} label={label} key={name} {...validates?.[name]}>
-        <DataInput {...item} />
+        {p.slot?.[name] || <DataInput {...item} />}
       </Form.Item>
     </Col>
   )

@@ -1,13 +1,11 @@
-import React, { useContext } from 'react'
-import { useRef, useState, useEffect } from 'react'
-
+import { GlobalContext, type ThemeType } from '@/utils/context'
+import { type GlobalToken, theme } from 'antd'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import { GlobalToken, theme } from 'antd'
-import './userWorker'
-
-import './style.css'
-import { GlobalContext, ThemeType } from '@/utils/context'
+import type React from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { defaultTheme } from './color'
+import './style.css'
+import './userWorker'
 
 export interface EmailTemplateEditorProps {
   value?: string
@@ -150,13 +148,15 @@ export const EmailTemplateEditor: React.FC<EmailTemplateEditorProps> = (props) =
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   const monacoEl = useRef(null)
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     setEditor((editor) => {
       if (editor) {
         return editor
       }
 
-      const curr = monacoEl.current!
+      const curr = monacoEl.current
+      if (!curr) return null
       const e = monaco.editor.create(curr, {
         theme: emailNotifyTemplateTheme,
         language: emailNotifyTemplate,
@@ -173,12 +173,11 @@ export const EmailTemplateEditor: React.FC<EmailTemplateEditorProps> = (props) =
       })
       return e
     })
-  }, [defaultValue, editor, monacoEl, onChange, value])
+  }, [defaultValue, editor, monacoEl, onChange, value, token, theme])
 
   useEffect(() => {
     init(token, theme)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [token, theme])
 
   return (
     <div

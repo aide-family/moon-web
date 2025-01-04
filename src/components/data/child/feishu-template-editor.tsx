@@ -1,13 +1,11 @@
-import React, { useContext } from 'react'
-import { useRef, useState, useEffect } from 'react'
-
+import { GlobalContext, type ThemeType } from '@/utils/context'
+import { type GlobalToken, theme } from 'antd'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import { GlobalToken, theme } from 'antd'
-import './userWorker'
-
-import './style.css'
+import type React from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { defaultTheme } from './color'
-import { GlobalContext, ThemeType } from '@/utils/context'
+import './style.css'
+import './userWorker'
 
 export interface FeishuTemplateEditorProps {
   value?: string
@@ -272,7 +270,7 @@ const i18nJsonSchema = {
   }
 }
 
-const init = (token: GlobalToken, theme?: ThemeType) => {
+const init = (editor: monaco.editor.IStandaloneCodeEditor, token: GlobalToken, theme?: ThemeType) => {
   monaco.languages.setMonarchTokensProvider(FeishuTemplate, {
     tokenizer: {
       root: [[/\{\{[ ]*\.[ ]*[^}]*[ ]*\}\}/, 'keyword']]
@@ -404,10 +402,38 @@ const init = (token: GlobalToken, theme?: ThemeType) => {
   monaco.languages.registerCompletionItemProvider(FeishuTemplate, {
     provideCompletionItems: provideCompletionItems
   })
+
+  editor.onDidChangeModelContent(() => {
+    const position = editor.getPosition()
+    const model = editor.getModel()
+    if (!model) return
+    if (!position) return
+    const text = model?.getValueInRange({
+      startLineNumber: position.lineNumber,
+      startColumn: Math.max(1, position.column - 8),
+      endLineNumber: position.lineNumber,
+      endColumn: position.column
+    })
+    // console.log('text', text)
+    if (text.endsWith('{{')) {
+      editor.executeEdits('', [
+        {
+          range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column),
+          text: '  }}',
+          forceMoveMarkers: true
+        }
+      ])
+
+      editor.setPosition({
+        lineNumber: position.lineNumber,
+        column: position.column + 1
+      })
+    }
+  })
 }
 
 export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = (props) => {
-  const { value, defaultValue, onChange, width = '100%', height = '100%' } = props
+  const { value, onChange, width = '100%', height = '100%' } = props
 
   const { token } = useToken()
   const { theme } = useContext(GlobalContext)
@@ -415,18 +441,23 @@ export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = (props)
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   const monacoEl = useRef(null)
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     setEditor((editor) => {
       if (editor) {
+        editor.setValue(value || '')
         return editor
       }
 
-      const curr = monacoEl.current!
+      const curr = monacoEl.current
+      if (!curr) {
+        return null
+      }
       const e = monaco.editor.create(curr, {
         model: model,
         theme: FeishuTemplateTheme,
         language: FeishuTemplate,
-        value: value || defaultValue,
+        value: value,
         // 展示行号和内容的边框
         lineNumbersMinChars: 4,
         minimap: {
@@ -439,12 +470,13 @@ export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = (props)
       })
       return e
     })
-  }, [defaultValue, editor, monacoEl, onChange, value])
+  }, [editor, monacoEl, onChange, theme, token, value])
 
   useEffect(() => {
-    init(token, theme)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    if (editor) {
+      init(editor, token, theme)
+    }
+  }, [editor, token, theme])
 
   return (
     <div

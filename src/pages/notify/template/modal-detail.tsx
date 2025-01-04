@@ -1,9 +1,23 @@
 import { AlarmSendTypeData, StatusData } from '@/api/global'
 import type { SendTemplateItem } from '@/api/model-types'
 import { getTemplate } from '@/api/notify/template'
+import { GlobalContext } from '@/utils/context'
+import { CopyOutlined } from '@ant-design/icons'
 import { useRequest } from 'ahooks'
-import { Avatar, Badge, Descriptions, type DescriptionsProps, Modal, type ModalProps, Space, Tooltip } from 'antd'
-import { useCallback, useEffect, useState } from 'react'
+import {
+  Avatar,
+  Badge,
+  Descriptions,
+  type DescriptionsProps,
+  Modal,
+  type ModalProps,
+  Space,
+  Tooltip,
+  message
+} from 'antd'
+import { useCallback, useContext, useEffect, useState } from 'react'
+import SyntaxHighlighter from 'react-syntax-highlighter'
+import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 export interface SendTemplateDetailModalProps extends ModalProps {
   sendTemplateId: number
@@ -12,7 +26,7 @@ export interface SendTemplateDetailModalProps extends ModalProps {
 
 export function SendTemplateDetailModal(props: SendTemplateDetailModalProps) {
   const { sendTemplateId, open, onCancel, onOk, ...rest } = props
-
+  const { theme: sysTheme } = useContext(GlobalContext)
   const [detail, setDetail] = useState<SendTemplateItem>()
 
   const { run: runGetSendTemplateDetail, loading: getSendTemplateDetailLoading } = useRequest(getTemplate, {
@@ -80,8 +94,34 @@ export function SendTemplateDetailModal(props: SendTemplateDetailModalProps) {
     },
     {
       label: '模板内容',
-      children: detail?.content || '-',
-      span: 3
+      children: detail?.content ? (
+        <div className='relative max-h-[300px] overflow-auto'>
+          <SyntaxHighlighter
+            wrapLines
+            wrapLongLines
+            lineProps={() => ({
+              style: {
+                whiteSpace: 'pre-wrap'
+              }
+            })}
+            style={sysTheme === 'dark' ? oneDark : oneLight}
+            language='json'
+          >
+            {detail?.content}
+          </SyntaxHighlighter>
+          <CopyOutlined
+            className='absolute top-2 right-2 cursor-pointer text-blue-500'
+            onClick={() => {
+              navigator.clipboard.writeText(detail?.content).then(() => {
+                message.success('Copied to clipboard')
+              })
+            }}
+          />
+        </div>
+      ) : (
+        '-'
+      ),
+      span: 4
     },
     {
       label: '创建时间',
@@ -96,7 +136,7 @@ export function SendTemplateDetailModal(props: SendTemplateDetailModalProps) {
     {
       label: '备注',
       children: detail?.remark || '-',
-      span: 3
+      span: 4
     }
   ]
 

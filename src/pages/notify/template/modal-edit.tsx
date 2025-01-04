@@ -1,8 +1,8 @@
 import { type CreateTemplateRequest, createTemplate, getTemplate, updateTemplate } from '@/api/notify/template'
 import { DataFrom } from '@/components/data/form'
 import { useRequest } from 'ahooks'
-import { Form, Modal, type ModalProps } from 'antd'
-import { useEffect } from 'react'
+import { Form, Input, Modal, type ModalProps } from 'antd'
+import { useEffect, useState } from 'react'
 import { editModalFormItems } from './options'
 
 export interface EditSendTemplateModalProps extends ModalProps {
@@ -15,6 +15,10 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
   const { open, sendTemplateId, onOk, onCancel, ...rest } = props
 
   const [form] = Form.useForm<CreateTemplateRequest>()
+
+  const sendType = Form.useWatch('sendType', form)
+
+  const [contentBox, setContentBox] = useState<React.ReactNode | null>(null)
 
   const { run: initSendTemplateDetail, loading: initSendTemplateDetailLoading } = useRequest(getTemplate, {
     manual: true,
@@ -43,6 +47,7 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
   }
 
   const handleOnCancel = () => {
+    form.resetFields()
     onCancel?.()
   }
 
@@ -51,6 +56,25 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
       initSendTemplateDetail(sendTemplateId)
     }
   }, [sendTemplateId, open, initSendTemplateDetail])
+
+  useEffect(() => {
+    switch (sendType) {
+      // case AlarmSendType.AlarmSendTypeFeiShu:
+      //   setContentBox(<FeishuTemplateEditor height={400} />)
+      //   break
+      // case AlarmSendType.AlarmSendTypeDingTalk:
+      //   setContentBox(<DingTemplateEditor height={400} />)
+      //   break
+      // case AlarmSendType.AlarmSendTypeEmail:
+      //   setContentBox(<EmailTemplateEditor height={400} />)
+      //   break
+      // case AlarmSendType.AlarmSendTypeWeChat:
+      //   setContentBox(<WechatTemplateEditor height={400} />)
+      //   break
+      default:
+        setContentBox(<Input.TextArea rows={4} placeholder='请输入模板内容' />)
+    }
+  }, [sendType])
 
   return (
     <>
@@ -63,7 +87,7 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
         loading={initSendTemplateDetailLoading}
         confirmLoading={addSendTemplateLoading || updateSendTemplateLoading}
       >
-        <DataFrom items={editModalFormItems} props={{ form, layout: 'vertical' }} />
+        <DataFrom items={editModalFormItems} props={{ form, layout: 'vertical' }} slot={{ content: contentBox }} />
       </Modal>
     </>
   )

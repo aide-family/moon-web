@@ -1,9 +1,9 @@
-import { Editor, Monaco } from '@monaco-editor/react'
+import { Editor, type Monaco } from '@monaco-editor/react'
 import { Form, Input, theme } from 'antd'
-import { editor as editorNameSpace } from 'monaco-editor'
-import type { languages } from 'monaco-editor/esm/vs/editor/editor.api'
-import { Position } from 'monaco-editor/esm/vs/editor/editor.api'
-import React, { useEffect, useRef, useState } from 'react'
+import type { editor as editorNameSpace } from 'monaco-editor'
+import type { languages, Position } from 'monaco-editor/esm/vs/editor/editor.api'
+import type React from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './style.css'
 
 const { useToken } = theme

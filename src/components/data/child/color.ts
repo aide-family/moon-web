@@ -1,6 +1,6 @@
-import { ThemeType } from '@/utils/context'
-import { GlobalToken } from 'antd'
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import type { ThemeType } from '@/utils/context'
+import type { GlobalToken } from 'antd'
+import type * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 
 export const foregroundColor = '#fa541c'
 export const tokenForegroundColor = '#9254de'
