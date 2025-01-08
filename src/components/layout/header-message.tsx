@@ -1,3 +1,4 @@
+import { baseURL, getToken } from '@/api/request'
 import { getInvite } from '@/api/user/invite'
 import {
   type MessageCategory,
@@ -10,11 +11,11 @@ import {
 } from '@/api/user/message'
 import { GlobalContext } from '@/utils/context'
 import { BellOutlined, CheckOutlined, XOutlined } from '@ant-design/icons'
+import { useRequest } from 'ahooks'
 import { Badge, Button, Divider, Modal, Popover, Space, Tag, theme as antTheme } from 'antd'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn' // 导入中文语言包
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { debounce } from 'lodash'
 import type React from 'react'
 import { useCallback, useContext, useEffect, useState } from 'react'
 // 设置 dayjs 的语言为中文
@@ -30,45 +31,60 @@ export const HeaderMessage: React.FC = () => {
   const { setRefreshMyTeamList } = useContext(GlobalContext)
   const [msgCnt, setMsgCnt] = useState(0)
   const [data, setData] = useState<NoticeUserMessageItem[]>([])
-  const [refresh, setRefresh] = useState(false)
+  const [eventSource, setEventSource] = useState<EventSource | null>(null)
 
-  const handleRefresh = () => {
-    setRefresh(!refresh)
-  }
+  const connectToSSE = useCallback(() => {
+    if (eventSource) {
+      return
+    }
+
+    const url = new URL(`${baseURL}/v1/message/conn`)
+    url.searchParams.set('token', getToken())
+    const SSEEvent = new EventSource(url.toString())
+    setEventSource(SSEEvent)
+
+    SSEEvent.onmessage = (event) => {
+      setData((prev) => [...prev, JSON.parse(event.data || '{}')])
+      setMsgCnt((prev) => +prev + 1)
+    }
+
+    SSEEvent.onerror = (e) => {
+      console.log('Error connecting to server.', e)
+      SSEEvent.close()
+    }
+
+    SSEEvent.onopen = () => {
+      console.log('SSE connection established.')
+    }
+  }, [eventSource])
+
+  const { run: getMyMessage } = useRequest(listMessage, {
+    manual: true,
+    onSuccess: ({ list, pagination }) => {
+      setData(list || [])
+      setMsgCnt(pagination?.total || 0)
+    }
+  })
+
+  const getMessage = useCallback(() => {
+    getMyMessage({ pagination: { pageNum: 1, pageSize: 999 } })
+  }, [getMyMessage])
 
   const handleOnOk = () => {
-    handleRefresh()
+    getMessage()
     setRefreshMyTeamList?.()
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = useCallback(
-    debounce(async (params) => {
-      listMessage(params).then(({ list, pagination }) => {
-        setData(list || [])
-        setMsgCnt(pagination?.total || 0)
-      })
-    }, 500),
-    []
-  )
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    getMessage()
+  }, [])
 
   useEffect(() => {
-    fetchData({
-      pagination: {
-        pageNum: 1,
-        pageSize: 999
-      }
-    })
-    const interval = setInterval(() => {
-      fetchData({
-        pagination: {
-          pageNum: 1,
-          pageSize: 999
-        }
-      })
-    }, 60000)
-    return () => clearInterval(interval)
-  }, [fetchData])
+    if (!eventSource) {
+      connectToSSE()
+    }
+  }, [connectToSSE, eventSource])
 
   const getMessageIcon = (category: MessageCategory) => {
     switch (category) {
@@ -124,7 +140,7 @@ export const HeaderMessage: React.FC = () => {
         return confirmMessage(messageItem.id).finally(handleOnOk)
       },
       async onCancel() {
-        return cancelMessage(messageItem.id).finally(handleRefresh)
+        return cancelMessage(messageItem.id).finally(getMessage)
       }
     })
   }
@@ -140,7 +156,7 @@ export const HeaderMessage: React.FC = () => {
         </div>
       ),
       async onOk() {
-        return deleteMessage({ ids: [messageItem.id] }).finally(handleRefresh)
+        return deleteMessage({ ids: [messageItem.id] }).finally(getMessage)
       }
     })
   }
@@ -160,13 +176,13 @@ export const HeaderMessage: React.FC = () => {
     <Popover
       placement='bottomLeft'
       content={
-        <div className='w-[400px] h-[400px] flex flex-col relative'>
+        <div className='w-[400px] h-[400px] flex flex-col'>
           <div className='p-3 pb-2 flex justify-between'>
             <div className='text-base font-bold'>通知</div>
             <div className='text-sm text-gray-500'>您有 {msgCnt} 条未读消息</div>
           </div>
           <Divider className='m-1 p-0' />
-          <Space direction='vertical' size={4} className='text-[#888] text-lg p-1' wrap>
+          <div className='text-[#888] text-lg p-1 overflow-auto flex flex-col gap-2 h-[400px]'>
             {data.map((item, index) => {
               const { color, label } = getBizName(item.biz)
               return (
@@ -199,9 +215,9 @@ export const HeaderMessage: React.FC = () => {
                 </div>
               )
             })}
-          </Space>
+          </div>
           {msgCnt > 0 && (
-            <div className='absolute bottom-0 left-0 right-0'>
+            <div>
               <Divider className='m-1 p-0' />
               <div className='flex-1 overflow-auto overflow-x-hidden py-3'>
                 <Button className='w-full' type='primary'>
@@ -213,7 +229,7 @@ export const HeaderMessage: React.FC = () => {
         </div>
       }
     >
-      <Badge count={msgCnt} overflowCount={99} size='small'>
+      <Badge count={msgCnt} overflowCount={999} size='small'>
         <Button icon={<BellOutlined />} type='text' />
       </Badge>
     </Popover>

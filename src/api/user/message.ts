@@ -1,4 +1,4 @@
-import { PaginationReply, PaginationReq } from '../global'
+import type { PaginationReply, PaginationReq } from '../global'
 import request from '../request'
 
 /**
@@ -19,7 +19,7 @@ export interface ListMessageReply {
 }
 
 export type MessageCategory = 'info' | 'success' | 'warning' | 'error'
-export type MessageBiz = 'invitation' | 'invitation_rejected' | 'invitation_accepted'
+export type MessageBiz = 'invitation' | 'invitation_rejected' | 'invitation_accepted' | 'notice'
 /**
  * api.admin.NoticeUserMessage
  */
@@ -60,6 +60,11 @@ export function getBizName(biz: MessageBiz): MessageBizItem {
         label: '邀请被拒绝',
         color: '#F56C6C'
       }
+    case 'notice':
+      return {
+        label: '通知',
+        color: '#409EFF'
+      }
     default:
       return {
         label: '未知',
@@ -81,7 +86,7 @@ export interface DeleteMessageRepquest {
  * @description 接口地址：https://app.apifox.com/link/project/5266863/apis/api-221535243
  */
 export function deleteMessage(params: DeleteMessageRepquest): Promise<unknown> {
-  return request.POST(`/v1/user/messages/read`, params)
+  return request.POST('/v1/user/messages/read', params)
 }
 
 /**
@@ -96,9 +101,9 @@ export function listMessage(params: ListMessageRequest): Promise<ListMessageRepl
 }
 
 export function confirmMessage(id: number): Promise<unknown> {
-  return request.POST(`/v1/user/messages/confirm`, { id })
+  return request.POST('/v1/user/messages/confirm', { id })
 }
 
 export function cancelMessage(id: number): Promise<unknown> {
-  return request.POST(`/v1/user/messages/cancel`, { id })
+  return request.POST('/v1/user/messages/cancel', { id })
 }
