@@ -263,7 +263,7 @@ export default function MoonChat() {
                                 className='absolute top-2 right-2 cursor-pointer text-blue-500'
                                 onClick={() => {
                                   navigator.clipboard.writeText(code).then(() => {
-                                    message.success('Copied to clipboard')
+                                    message.success('复制成功')
                                   })
                                 }}
                               />

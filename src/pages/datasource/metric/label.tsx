@@ -3,7 +3,7 @@ import { MetricType } from '@/api/enum'
 import { MetricTypeData } from '@/api/global'
 import { MetricItem, MetricLabelItem } from '@/api/model-types'
 import { GlobalContext } from '@/utils/context'
-import { Modal, ModalProps, Space, Table, Tag } from 'antd'
+import { message, Modal, ModalProps, Space, Table, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import { Network } from 'lucide-react'
 import React, { useContext, useEffect } from 'react'
@@ -51,6 +51,11 @@ export const Label: React.FC<LabelProps> = (props) => {
               <Tag
                 key={`${index}-${item}`}
                 bordered={false}
+                onClick={() => {
+                  navigator.clipboard.writeText(item).then(() => {
+                    message.success('复制成功')
+                  })
+                }}
                 className={
                   theme === 'dark'
                     ? 'bg-slate-800 hover:bg-slate-700 text-slate-100 transition-colors'
