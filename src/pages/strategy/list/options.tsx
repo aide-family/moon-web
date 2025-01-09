@@ -81,11 +81,12 @@ export const formList: SearchFormItem[] = [
         placeholder: '请选择策略类型',
         allowClear: true,
         mode: 'multiple',
+        maxTagCount: 2,
         options: Object.entries(StrategyTypeData)
           .filter(([key]) => +key !== StrategyType.StrategyTypeUnknown)
-          .map(([key, value]) => {
+          .map(([key]) => {
             return {
-              label: value,
+              label: StrategyTypeDataTag[+key as StrategyType],
               value: Number(key)
             }
           })
