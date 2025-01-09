@@ -246,17 +246,9 @@ export interface MetricLabelItem {
   /** 标签名称 */
   name: string
   /** 标签值 */
-  values: MetricLabelValueItem[]
+  values: string[]
   /** ID */
   id: number
-}
-
-/** 指标数据标签值 */
-export interface MetricLabelValueItem {
-  /** ID */
-  id: number
-  /** 值 */
-  value: string
 }
 
 /** 字典项 */

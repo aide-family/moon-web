@@ -2,7 +2,7 @@ import { getMetric } from '@/api/datasource/metric'
 import { MetricType } from '@/api/enum'
 import { MetricTypeData } from '@/api/global'
 import { MetricItem, MetricLabelItem } from '@/api/model-types'
-import { Button, Modal, ModalProps, Space, Table, Tag } from 'antd'
+import { Modal, ModalProps, Space, Table, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import React, { useEffect } from 'react'
 import { LabelEditModal } from './label-edit-modal'
@@ -18,10 +18,6 @@ export const Label: React.FC<LabelProps> = (props) => {
   const [metricLabelDetail, setMetricLabelDetail] = React.useState<MetricLabelItem>()
   const [openEditModal, setOpenEditModal] = React.useState(false)
 
-  const handleEdit = (detail: MetricLabelItem) => {
-    setMetricLabelDetail(detail)
-    setOpenEditModal(true)
-  }
   const handleEditModalOnOK = () => {
     setOpenEditModal(false)
     getMetricLabels()
@@ -37,46 +33,47 @@ export const Label: React.FC<LabelProps> = (props) => {
       title: '标签名',
       dataIndex: 'name',
       key: 'name',
+      ellipsis: true,
       width: 300
     },
     {
       title: '标签值',
       dataIndex: 'value',
       key: 'value',
-      // width: 200,
+      ellipsis: true,
       render(_, record) {
         return (
           <>
-            {record.values.map((item) => (
-              <Tag key={item.id}>{item.value}</Tag>
+            {record.values.map((item, index) => (
+              <Tag key={`${index}-${item}`}>{item}</Tag>
             ))}
           </>
         )
       }
-    },
-    {
-      title: '备注',
-      dataIndex: 'remark',
-      key: 'remark',
-      render(value) {
-        return <div>{value || '-'}</div>
-      }
-    },
-    {
-      title: '操作',
-      key: 'op',
-      width: 120,
-      align: 'center',
-      render: (_, record) => {
-        return (
-          <Space>
-            <Button size='small' type='link' onClick={() => handleEdit(record)}>
-              编辑
-            </Button>
-          </Space>
-        )
-      }
     }
+    // {
+    //   title: '备注',
+    //   dataIndex: 'remark',
+    //   key: 'remark',
+    //   render(value) {
+    //     return <div>{value || '-'}</div>
+    //   }
+    // }
+    // {
+    //   title: '操作',
+    //   key: 'op',
+    //   width: 120,
+    //   align: 'center',
+    //   render: (_, record) => {
+    //     return (
+    //       <Space>
+    //         <Button size='small' type='link' onClick={() => handleEdit(record)}>
+    //           编辑
+    //         </Button>
+    //       </Space>
+    //     )
+    //   }
+    // }
   ]
 
   const getMetricLabels = async () => {

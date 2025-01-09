@@ -5,7 +5,8 @@ import { DatasourceItem, MetricItem } from '@/api/model-types'
 import { DataInput } from '@/components/data/child/data-input'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
-import { Button, Flex, Form, Input, Space, Table, Tag } from 'antd'
+import { useRequest } from 'ahooks'
+import { Button, Flex, Form, Input, Space, Table, Tag, Typography } from 'antd'
 import { ColumnsType } from 'antd/es/table'
 import React, { useContext, useEffect, useRef } from 'react'
 import { Info } from './info'
@@ -15,7 +16,8 @@ export interface MetadataProps {
   datasource?: DatasourceItem
 }
 
-let searchTimer: NodeJS.Timeout | null = null
+const { Text } = Typography
+
 export const Metadata: React.FC<MetadataProps> = (props) => {
   const { datasource } = props
   const [form] = Form.useForm()
@@ -30,24 +32,26 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
   })
   const [metricListTotal, setMetricListTotal] = React.useState(0)
   const [metricList, setMetricList] = React.useState<MetricItem[]>([])
-  const [refresh, setRefresh] = React.useState(false)
-  const [loading, setLoading] = React.useState(false)
   const [metricDetail, setMetricDetail] = React.useState<MetricItem>()
   const [openMetricLabelModal, setOpenMetricLabelModal] = React.useState(false)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, metricList, isFullscreen)
 
-  const handleRefresh = () => {
-    setRefresh(!refresh)
-  }
+  const { run: getMetricList, loading } = useRequest(listMetric, {
+    manual: true,
+    onSuccess: (reply) => {
+      const {
+        list,
+        pagination: { total }
+      } = reply
+      setMetricList(list || [])
+      setMetricListTotal(total || 0)
+    }
+  })
 
   const handleLabel = (record: MetricItem) => {
     setMetricDetail(record)
     setOpenMetricLabelModal(true)
-  }
-
-  const hendleEditMetric = (record: MetricItem) => {
-    setMetricDetail(record)
   }
 
   const hanleLabelModalOnCancel = () => {
@@ -82,9 +86,14 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
       title: '指标名称',
       dataIndex: 'name',
       key: 'name',
-      // width: 200,
+      ellipsis: true,
+      width: 400,
       render(value) {
-        return <a>{value}</a>
+        return (
+          <Text copyable={{ text: value }}>
+            <a href='#'>{value.length > 42 ? `${value.slice(0, 42)}...` : value}</a>
+          </Text>
+        )
       }
     },
     {
@@ -113,42 +122,16 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
           <Button type='link' size='small' onClick={() => handleLabel(record)}>
             标签
           </Button>
-          <Button type='link' size='small' onClick={() => hendleEditMetric(record)}>
-            编辑
-          </Button>
         </Space>
       )
     }
   ]
 
-  const fectMetricList = () => {
-    if (searchTimer) {
-      clearTimeout(searchTimer)
-    }
-    searchTimer = setTimeout(() => {
-      setLoading(true)
-      listMetric(searchMetricParams)
-        .then((reply) => {
-          const {
-            list,
-            pagination: { total }
-          } = reply
-
-          if (!list || !total) return
-          setMetricList(list)
-          setMetricListTotal(total || 0)
-        })
-        .finally(() => {
-          setLoading(false)
-        })
-    }, 500)
-  }
-
   const fetchSyncMetric = () => {
     if (!datasource?.id) return
     syncDatasourceMeta({
       id: datasource?.id
-    }).then(handleRefresh)
+    }).then(() => getMetricList(searchMetricParams))
   }
 
   useEffect(() => {
@@ -162,9 +145,8 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
   }, [datasource])
 
   useEffect(() => {
-    fectMetricList()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchMetricParams, refresh])
+    getMetricList(searchMetricParams)
+  }, [searchMetricParams, getMetricList])
 
   return (
     <div className='flex flex-col gap-3'>
@@ -180,7 +162,7 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
           <Button type='primary' onClick={fetchSyncMetric}>
             同步数据
           </Button>
-          <Button color='default' variant='filled' onClick={handleRefresh} loading={loading}>
+          <Button color='default' variant='filled' onClick={() => getMetricList(searchMetricParams)} loading={loading}>
             刷新
           </Button>
         </Space>
