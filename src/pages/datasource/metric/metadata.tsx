@@ -14,12 +14,13 @@ import { Label } from './label'
 
 export interface MetadataProps {
   datasource?: DatasourceItem
+  toTimelyQuery?: (expr: string) => void
 }
 
 const { Text } = Typography
 
 export const Metadata: React.FC<MetadataProps> = (props) => {
-  const { datasource } = props
+  const { datasource, toTimelyQuery } = props
   const [form] = Form.useForm()
   const { isFullscreen } = useContext(GlobalContext)
 
@@ -64,6 +65,10 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
     setMetricDetail(undefined)
   }
 
+  const handleToTimelyQuery = (expr: string) => {
+    toTimelyQuery?.(expr)
+  }
+
   const columns: ColumnsType<MetricItem> = [
     {
       title: '指标类型',
@@ -91,7 +96,9 @@ export const Metadata: React.FC<MetadataProps> = (props) => {
       render(value) {
         return (
           <Text copyable={{ text: value }}>
-            <a href='#'>{value.length > 42 ? `${value.slice(0, 42)}...` : value}</a>
+            <button className='text-violet-500' onClick={() => handleToTimelyQuery(value)}>
+              {value.length > 42 ? `${value.slice(0, 42)}...` : value}
+            </button>
           </Text>
         )
       }

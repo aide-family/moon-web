@@ -16,6 +16,8 @@ import ReactJson from 'react-json-view'
 export interface TimelyQueryProps {
   datasource?: DatasourceItem
   apiPath?: string
+  expr?: string
+  setExpr?: (expr: string) => void
 }
 
 export interface PromValue {
@@ -37,12 +39,11 @@ const { Paragraph } = Typography
 let searchTimeout: NodeJS.Timeout | null = null
 export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
   const { teamInfo, theme } = useContext(GlobalContext)
-  const { datasource, apiPath = 'api/v1' } = props
+  const { datasource, apiPath = 'api/v1', expr, setExpr } = props
   const [loading, setLoading] = useState(false)
   const [promDetailData, setPromDetailData] = React.useState<DetailValue[]>([])
   const [metricsData, setMetricsData] = React.useState<MetricsResponse>()
   const [promRangeData, setPromRangeData] = React.useState<RangeValue[]>([])
-  const [expr, setExpr] = useStorage<string>('timelyQueryExpr', '')
   const [tabKey, setTabKey] = useStorage<TableKey>('timelyQueryTab', 'table')
   const [timeRange, setTimeRange] = useState<Dayjs[]>([dayjs().subtract(5, 'minute'), dayjs()])
   const [showArea, setShowArea] = useState(true)
@@ -252,13 +253,14 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
   }
 
   const onChange = (exp: string) => {
-    setExpr(exp)
+    setExpr?.(exp)
   }
 
   const onSearch = (t: number = 200) => {
     if (searchTimeout) {
       clearTimeout(searchTimeout)
     }
+
     searchTimeout = setTimeout(() => {
       setLoading(true)
       setPromDetailData([])
@@ -284,7 +286,7 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
       <div>
         <PromQLInput
           pathPrefix={pathPrefix}
-          onChange={(exp) => onChange(`${exp}`)}
+          onChange={(exp) => onChange(`${exp || ''}`)}
           value={expr}
           subfix={
             <Button

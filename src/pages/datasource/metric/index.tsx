@@ -34,6 +34,7 @@ const Metric: React.FC = () => {
   const [refresh, setRefresh] = useState(false)
   const [editId, setEditId] = useState<number>()
   const [tabKey, setTabKey] = useStorage<string>('metricDatasourceTab', 'basics')
+  const [expr, setExpr] = useStorage<string>('timelyQueryExpr', '')
 
   const handleRefresh = () => {
     setRefresh((prev) => !prev)
@@ -42,6 +43,11 @@ const Metric: React.FC = () => {
   const editDataSource = () => {
     setOpenAddModal(true)
     setEditId(datasourceDetail?.id)
+  }
+
+  const handleToTimelyQuery = (expr: string) => {
+    setExpr(expr)
+    setTabKey('realtime-query')
   }
 
   const tabsItems: TabsProps['items'] = [
@@ -59,7 +65,7 @@ const Metric: React.FC = () => {
       label: '元数据',
       children: (
         <div className='overflow-auto overflow-x-hidden'>
-          <Metadata datasource={datasourceDetail} />
+          <Metadata datasource={datasourceDetail} toTimelyQuery={handleToTimelyQuery} />
         </div>
       )
     },
@@ -68,7 +74,7 @@ const Metric: React.FC = () => {
       label: '及时查询',
       children: (
         <div className='overflow-auto overflow-x-hidden'>
-          <TimelyQuery datasource={datasourceDetail} />
+          <TimelyQuery datasource={datasourceDetail} expr={expr} setExpr={setExpr} />
         </div>
       )
     },
