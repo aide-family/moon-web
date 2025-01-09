@@ -79,19 +79,24 @@ export const TimelyQuery: React.FC<TimelyQueryProps> = (props) => {
             loading={loading}
             dataSource={tabKey === 'table' ? promDetailData : []}
             renderItem={(item: DetailValue, index: React.Key) => {
+              const metricExpr = item?.metric?.__name__
+                ? `${item?.metric?.__name__}{${Object.keys(item?.metric || {})
+                    .filter((key) => key !== '__name__' && key !== 'id')
+                    .map((key) => `${key}="${item?.metric[key]}"`)
+                    .join(', ')}}`
+                : expr || ''
               return (
                 <List.Item key={index} id={`list-${index}`}>
                   <Space direction='horizontal' className='w-full gap-2 justify-between'>
-                    <Paragraph copyable>
-                      {item?.metric?.__name__
-                        ? `${item?.metric?.__name__}{${Object.keys(item?.metric || {})
-                            .filter((key) => key !== '__name__' && key !== 'id')
-                            .map((key) => `${key}="${item?.metric[key]}"`)
-                            .join(', ')}}`
-                        : expr}
+                    <Paragraph
+                      copyable={{ text: metricExpr }}
+                      className='text-violet-500 hover:text-violet-600 cursor-pointer text-ellipsis'
+                      onClick={() => setExpr?.(metricExpr)}
+                    >
+                      {metricExpr}
                     </Paragraph>
                     <div className='float-right'>
-                      <b> {tabKey === 'table' && item?.value?.[1]}</b>
+                      <b>{item?.value?.[1]}</b>
                     </div>
                   </Space>
                 </List.Item>
