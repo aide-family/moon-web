@@ -7,7 +7,7 @@ import AutoTable from '@/components/table'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
 import { useRequest } from 'ahooks'
-import { Button, Checkbox, message, Modal, Space, theme } from 'antd'
+import { Alert, Button, Checkbox, message, Modal, Space, theme } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { formList, getColumnList } from './options'
 
@@ -80,15 +80,15 @@ export default function Subscribe() {
         Modal.confirm({
           title: `确定要取消订阅【${item?.strategy?.name}】吗？`,
           content: (
-            <div>
-              <div>取消订阅后，将不再收到该策略的通知</div>
+            <div className='flex flex-col gap-2'>
+              <Alert message='取消订阅后，将不再收到该策略的通知' type='info' showIcon />
               <div>
                 <Checkbox.Group
                   value={checkedList}
                   options={[
-                    { label: '手机', value: NotifyType.NOTIFY_PHONE, disabled: true },
+                    { label: '手机', value: NotifyType.NOTIFY_PHONE },
                     { label: '邮件', value: NotifyType.NOTIFY_EMAIL },
-                    { label: '短信', value: NotifyType.NOTIFY_SMS, disabled: true }
+                    { label: '短信', value: NotifyType.NOTIFY_SMS }
                   ]}
                 />
               </div>

@@ -81,6 +81,7 @@ export const getColumnList = (props: ColumnProps): ColumnsType<StrategySubscribe
       dataIndex: 'datasource',
       key: 'datasource',
       width: 160,
+      ellipsis: true,
       render: (_, record: StrategySubscribeItem) => {
         const { strategy } = record
         if (!strategy) return '-'
@@ -127,18 +128,13 @@ export const getColumnList = (props: ColumnProps): ColumnsType<StrategySubscribe
       title: '策略类目',
       dataIndex: 'categories',
       key: 'categories',
-      width: 160,
       ellipsis: true,
       render: (_, record) => {
         const { strategy } = record
         if (!strategy) return '-'
         const { categories } = strategy
         if (!categories) return '-'
-        return (
-          <Tooltip placement='top' title={<div>{categories.map((item) => item.name).join(', ')}</div>}>
-            <div>{categories.map((item) => item.name).join(', ')}</div>
-          </Tooltip>
-        )
+        return categories.map((item) => item.name).join(', ')
       }
     },
     {
