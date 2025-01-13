@@ -410,6 +410,8 @@ export enum ActionKey {
   CANCEL_SUBSCRIBE = '__cancel_subscribe__',
   /** 订阅 */
   SUBSCRIBE = '__subscribe__',
+  /** 订阅者 */
+  SUBSCRIBER = '__subscriber__',
   /** 启用 */
   ENABLE = '__enable__',
   /** 禁用 */

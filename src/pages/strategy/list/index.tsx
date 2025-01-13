@@ -30,6 +30,7 @@ import MetricEditModal from './edit-modal-metric'
 import { PortEditModal } from './edit-modal-port'
 import StrategyTypeModal from './edit-modal-strategy-type'
 import { ModalSubscribe } from './modal-subscribe'
+import ModalSubscriber from './modal-subscriber'
 import { formList, getColumnList } from './options'
 
 const { confirm } = Modal
@@ -64,6 +65,7 @@ const StrategyMetric: React.FC = () => {
   const [openHttpDetailModal, setOpenHttpDetailModal] = useState(false)
 
   const [openSubscribeModal, setOpenSubscribeModal] = useState(false)
+  const [openSubscriberModal, setOpenSubscriberModal] = useState(false)
 
   const [detail, setDetail] = useState<StrategyItem>()
 
@@ -104,6 +106,11 @@ const StrategyMetric: React.FC = () => {
     setOpenSubscribeModal(true)
   }
 
+  const handleOpenSubscriberModal = (item?: StrategyItem) => {
+    setDetail(item)
+    setOpenSubscriberModal(true)
+  }
+
   const handleMetricEditOk = () => {
     setOpenMetricEditModal(false)
     setDetail(undefined)
@@ -142,6 +149,11 @@ const StrategyMetric: React.FC = () => {
 
   const handleCloseSubscribeModal = () => {
     setOpenSubscribeModal(false)
+    setDetail(undefined)
+  }
+
+  const handleCloseSubscriberModal = () => {
+    setOpenSubscriberModal(false)
     setDetail(undefined)
   }
 
@@ -326,6 +338,9 @@ const StrategyMetric: React.FC = () => {
       case ActionKey.SUBSCRIBE:
         handleOpenSubscribeModal(item)
         break
+      case ActionKey.SUBSCRIBER:
+        handleOpenSubscriberModal(item)
+        break
       case ActionKey.DELETE:
         confirm({
           title: '请确认是否删除该策略组?',
@@ -385,6 +400,13 @@ const StrategyMetric: React.FC = () => {
 
   return (
     <div className='h-full flex flex-col gap-3 p-3'>
+      <ModalSubscriber
+        title={`【${detail?.name}】策略订阅者`}
+        width='60%'
+        open={openSubscriberModal}
+        onClose={handleCloseSubscriberModal}
+        strategyId={detail?.id}
+      />
       <ModalSubscribe
         title={`订阅【${detail?.name}】策略`}
         // width='60%'

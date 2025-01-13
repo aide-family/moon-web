@@ -174,6 +174,14 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyItem
       )
     },
     {
+      key: ActionKey.SUBSCRIBER,
+      label: (
+        <Button size='small' type='link'>
+          订阅者
+        </Button>
+      )
+    },
+    {
       key: ActionKey.OPERATION_LOG,
       label: (
         <Button size='small' type='link'>
