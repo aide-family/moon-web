@@ -9,21 +9,55 @@ import { DatasourceType, Status, StorageType } from '@/api/enum'
 import { StatusData } from '@/api/global'
 import { DataFrom, type DataFromItem } from '@/components/data/form'
 import { Prometheus, VictoriaMetrics } from '@/components/icon'
-import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons'
-import { Col, Form, Input, Modal, type ModalProps, Row, Space, message } from 'antd'
+import { CheckCircleTwoTone, CloseCircleTwoTone, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import { useRequest } from 'ahooks'
+import { Button, Col, Form, Input, Modal, type ModalProps, Radio, Row, Space, message, theme } from 'antd'
 import React, { useCallback, useEffect, useState } from 'react'
 
 export interface EditModalProps extends ModalProps {
   datasourceId?: number
+  onOk?: () => void
 }
 
-let timer: NodeJS.Timeout | null = null
+const { useToken } = theme
+
 export const EditModal: React.FC<EditModalProps> = (props) => {
+  const { token } = useToken()
   const { onCancel, onOk, open, datasourceId } = props
   const [form] = Form.useForm<CreateDatasourceRequestFormData>()
   const [loading, setLoading] = React.useState(false)
   const [dataSourceHealthStatus, setDataSourceHealth] = useState(false)
-  const handleOnOk = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+
+  const { run: getDatasourceDetail, loading: getDatasourceDetailLoading } = useRequest(getDatasource, {
+    manual: true,
+    onSuccess: ({ detail }) => {
+      let config: Record<string, string> = {}
+      try {
+        config = JSON.parse(detail.config)
+      } catch (error) {
+        message.error('数据源配置解析失败，请检查配置')
+      }
+      form.setFieldsValue({ ...detail, config })
+    }
+  })
+
+  const { run: updateDatasourceDetail, loading: updateDatasourceDetailLoading } = useRequest(updateDatasource, {
+    manual: true,
+    onSuccess: () => {
+      form.resetFields()
+      onOk?.()
+    }
+  })
+
+  const { run: createDatasourceDetail, loading: createDatasourceDetailLoading } = useRequest(createDatasource, {
+    manual: true,
+    onSuccess: () => {
+      form.resetFields()
+      onOk?.()
+    }
+  })
+
+  const handleOnOk = () => {
     form.validateFields().then((values) => {
       const newValues = {
         ...values,
@@ -31,12 +65,7 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
       }
       setLoading(true)
       if (datasourceId) {
-        updateDatasource({ ...newValues, id: datasourceId, config: JSON.stringify(values.config) })
-          .then(() => {
-            form.resetFields()
-            onOk?.(e)
-          })
-          .finally(() => setLoading(false))
+        updateDatasourceDetail({ ...newValues, id: datasourceId, config: JSON.stringify(values.config) })
         return
       }
       if (!dataSourceHealthStatus) {
@@ -44,35 +73,15 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
         setLoading(false)
         return
       }
-      createDatasource({ ...newValues, config: JSON.stringify(values.config) })
-        .then(() => {
-          form.resetFields()
-          onOk?.(e)
-        })
-        .finally(() => setLoading(false))
+      createDatasourceDetail({ ...newValues, config: JSON.stringify(values.config) })
       return values
     })
   }
 
   const handleGetDatasource = useCallback(() => {
     if (!datasourceId) return
-    if (timer) clearTimeout(timer)
-    timer = setTimeout(() => {
-      getDatasource({ id: datasourceId })
-        .then(({ detail }) => {
-          let config: Record<string, string> = {}
-          try {
-            config = JSON.parse(detail.config)
-          } catch (error) {
-            message.error('数据源配置解析失败，请检查配置')
-          }
-          form.setFieldsValue({ ...detail, config })
-        })
-        .finally(() => {
-          setLoading(false)
-        })
-    }, 500)
-  }, [datasourceId, form])
+    getDatasourceDetail({ id: datasourceId })
+  }, [datasourceId, getDatasourceDetail])
 
   useEffect(() => {
     if (open) {
@@ -200,9 +209,74 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
       open={open}
       onCancel={handleOnCancel}
       onOk={handleOnOk}
-      confirmLoading={loading}
+      confirmLoading={loading || updateDatasourceDetailLoading || createDatasourceDetailLoading}
+      loading={getDatasourceDetailLoading}
     >
       <DataFrom props={{ form, layout: 'vertical' }} items={formItems}>
+        <Form.Item label='请求头'>
+          <Form.List name={['config', 'headers']}>
+            {(fields, { add, remove }) => {
+              return (
+                <div key={fields.length} className='w-full'>
+                  {fields.map(({ key, name, ...restField }) => {
+                    return (
+                      <Row gutter={12}>
+                        <Col span={12} key={key}>
+                          <Form.Item {...restField} name={[name, 'key']} label={['headers', name, 'key'].join('.')}>
+                            <Input placeholder='请输入请求头KEY' />
+                          </Form.Item>
+                        </Col>
+                        <Col span={11} key={key}>
+                          <Form.Item {...restField} name={[name, 'value']} label={['headers', name, 'value'].join('.')}>
+                            <Input placeholder='请输入请求头VALUE' />
+                          </Form.Item>
+                        </Col>
+                        <Col span={1} className='flex items-center justify-center'>
+                          <MinusCircleOutlined onClick={() => remove(name)} style={{ color: token.colorError }} />
+                        </Col>
+                      </Row>
+                    )
+                  })}
+                  <Button type='dashed' onClick={() => add()} block icon={<PlusOutlined />}>
+                    添加新请求头
+                  </Button>
+                </div>
+              )
+            }}
+          </Form.List>
+        </Form.Item>
+        <Form.Item label='请求参数'>
+          <Form.List name={['config', 'params']}>
+            {(fields, { add, remove }) => {
+              return (
+                <div key={fields.length}>
+                  {fields.map(({ key, name, ...restField }) => {
+                    return (
+                      <Row gutter={12}>
+                        <Col span={12} key={key}>
+                          <Form.Item {...restField} name={[name, 'key']} label={['params', name, 'key'].join('.')}>
+                            <Input placeholder='请输入请求参数KEY' />
+                          </Form.Item>
+                        </Col>
+                        <Col span={11} key={key}>
+                          <Form.Item {...restField} name={[name, 'value']} label={['params', name, 'value'].join('.')}>
+                            <Input placeholder='请输入请求参数VALUE' />
+                          </Form.Item>
+                        </Col>
+                        <Col span={1} className='flex items-center justify-center'>
+                          <MinusCircleOutlined onClick={() => remove(name)} style={{ color: token.colorError }} />
+                        </Col>
+                      </Row>
+                    )
+                  })}
+                  <Button type='dashed' onClick={() => add()} block icon={<PlusOutlined />}>
+                    添加新请求参数
+                  </Button>
+                </div>
+              )
+            }}
+          </Form.List>
+        </Form.Item>
         <Form.Item label='基础认证配置'>
           <Row gutter={16}>
             <Col span={12}>
@@ -213,6 +287,38 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
             <Col span={12}>
               <Form.Item name={['config', 'password']} label='密码'>
                 <Input placeholder='请输入密码' />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form.Item>
+        <Form.Item name={['config', 'selfCACert']} label='自签证书'>
+          <Input placeholder='请输入自签证书' />
+        </Form.Item>
+        <Form.Item label='TLS'>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name={['config', 'serverName']} label='服务名'>
+                <Input placeholder='请输入服务名' />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name={['config', 'skipVerify']} label='跳过验证'>
+                <Radio.Group
+                  options={[
+                    { label: '是', value: true },
+                    { label: '否', value: false }
+                  ]}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name={['config', 'clientCert']} label='客户端证书'>
+                <Input placeholder='请输入客户端证书' />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name={['config', 'clientKey']} label='客户端密钥'>
+                <Input placeholder='请输入客户端密钥' />
               </Form.Item>
             </Col>
           </Row>

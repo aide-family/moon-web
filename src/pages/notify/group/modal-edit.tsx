@@ -60,7 +60,8 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
         ...groupDetail,
         hookIds: groupDetail?.hooks?.map((item) => item.id),
         noticeMember: groupDetail?.noticeUsers,
-        timeEngines: groupDetail?.timeEngines?.map((item) => item.id)
+        timeEngines: groupDetail?.timeEngines?.map((item) => item.id),
+        templates: groupDetail?.templates?.map((item) => item.id)
       })
       return
     }

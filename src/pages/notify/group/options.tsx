@@ -2,6 +2,7 @@ import { Status } from '@/api/enum'
 import { ActionKey, HookAppData, StatusData, defaultPaginationReq } from '@/api/global'
 import type { AlarmHookItem, AlarmNoticeGroupItem } from '@/api/model-types'
 import { listHook } from '@/api/notify/hook'
+import { getTemplateList } from '@/api/notify/template'
 import { listTimeEngine } from '@/api/notify/time-engine'
 import type { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
@@ -242,6 +243,28 @@ export const editModalFormItems: (DataFromItem | DataFromItem[])[] = [
       },
       selectProps: {
         placeholder: '请选择hook列表',
+        mode: 'multiple'
+      }
+    }
+  },
+  {
+    name: 'templates',
+    label: '模板',
+    type: 'select-fetch',
+    props: {
+      handleFetch: (value: string) => {
+        return getTemplateList({
+          keyword: value,
+          pagination: defaultPaginationReq
+        }).then((res) =>
+          res.list.map((item) => ({
+            label: item.name,
+            value: item.id
+          }))
+        )
+      },
+      selectProps: {
+        placeholder: '请选择模板',
         mode: 'multiple'
       }
     }

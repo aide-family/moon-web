@@ -652,6 +652,8 @@ export interface AlarmNoticeGroupItem {
   hooks: AlarmHookItem[]
   /** 时间引擎 */
   timeEngines: TimeEngineItem[]
+  /** 模板 */
+  templates: SendTemplateItem[]
 }
 
 /** 通知人 */
