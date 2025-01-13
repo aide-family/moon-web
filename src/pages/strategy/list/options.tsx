@@ -166,6 +166,14 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyItem
         }
       : null,
     {
+      key: ActionKey.SUBSCRIBE,
+      label: (
+        <Button size='small' type='link'>
+          订阅
+        </Button>
+      )
+    },
+    {
       key: ActionKey.OPERATION_LOG,
       label: (
         <Button size='small' type='link'>
@@ -240,7 +248,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyItem
       }
     },
     {
-      title: '策略类型',
+      title: '策略类目',
       dataIndex: 'categories',
       key: 'categories',
       width: 160,

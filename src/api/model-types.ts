@@ -924,3 +924,13 @@ export interface SendTemplateItem {
   /** 备注 */
   remark: string
 }
+
+/**
+ * 订阅策略
+ */
+export interface StrategySubscribeItem {
+  /** 通知类型 */
+  notifyType: NotifyType
+  /** 策略 */
+  strategy: StrategyItem
+}

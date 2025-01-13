@@ -29,6 +29,7 @@ import { HTTPEditModal } from './edit-modal-http'
 import MetricEditModal from './edit-modal-metric'
 import { PortEditModal } from './edit-modal-port'
 import StrategyTypeModal from './edit-modal-strategy-type'
+import { ModalSubscribe } from './modal-subscribe'
 import { formList, getColumnList } from './options'
 
 const { confirm } = Modal
@@ -61,6 +62,8 @@ const StrategyMetric: React.FC = () => {
   const [openDomainDetailModal, setOpenDomainDetailModal] = useState(false)
   const [openPortDetailModal, setOpenPortDetailModal] = useState(false)
   const [openHttpDetailModal, setOpenHttpDetailModal] = useState(false)
+
+  const [openSubscribeModal, setOpenSubscribeModal] = useState(false)
 
   const [detail, setDetail] = useState<StrategyItem>()
 
@@ -96,6 +99,11 @@ const StrategyMetric: React.FC = () => {
     setOpenHttpEditModal(true)
   }
 
+  const handleOpenSubscribeModal = (item?: StrategyItem) => {
+    setDetail(item)
+    setOpenSubscribeModal(true)
+  }
+
   const handleMetricEditOk = () => {
     setOpenMetricEditModal(false)
     setDetail(undefined)
@@ -124,6 +132,17 @@ const StrategyMetric: React.FC = () => {
     setOpenHttpEditModal(false)
     setDetail(undefined)
     onRefresh()
+  }
+
+  const handleSubscribeOk = () => {
+    setOpenSubscribeModal(false)
+    setDetail(undefined)
+    onRefresh()
+  }
+
+  const handleCloseSubscribeModal = () => {
+    setOpenSubscribeModal(false)
+    setDetail(undefined)
   }
 
   const handleDetailModal = (item: StrategyItem) => {
@@ -304,6 +323,9 @@ const StrategyMetric: React.FC = () => {
           .then(() => message.success('推送成功'))
           .catch(() => message.error('推送失败'))
         break
+      case ActionKey.SUBSCRIBE:
+        handleOpenSubscribeModal(item)
+        break
       case ActionKey.DELETE:
         confirm({
           title: '请确认是否删除该策略组?',
@@ -363,6 +385,14 @@ const StrategyMetric: React.FC = () => {
 
   return (
     <div className='h-full flex flex-col gap-3 p-3'>
+      <ModalSubscribe
+        title={`订阅【${detail?.name}】策略`}
+        // width='60%'
+        open={openSubscribeModal}
+        item={detail}
+        onOk={handleSubscribeOk}
+        onCancel={handleCloseSubscribeModal}
+      />
       <StrategyTypeModal
         width='780px'
         title='选择策略类型'

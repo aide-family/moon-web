@@ -70,6 +70,10 @@ export const routers: RouteObject[] = [
           {
             path: '/home/strategy/list',
             Component: lazy(() => import('@/pages/strategy/list'))
+          },
+          {
+            path: '/home/strategy/subscribe',
+            Component: lazy(() => import('@/pages/strategy/subscribe'))
           }
         ]
       },

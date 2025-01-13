@@ -1,6 +1,6 @@
 import { NotifyType } from '../enum'
 import { PaginationReply, PaginationReq } from '../global'
-import { StrategyItem, StrategySubscriberItem } from '../model-types'
+import { StrategySubscribeItem, StrategySubscriberItem } from '../model-types'
 import request from '../request'
 
 /**
@@ -46,7 +46,7 @@ export function getStrategySubscriber(params: StrategySubscriberRequest): Promis
 // 示例类型定义
 export interface SubscriberStrategyRequest {
   strategyId: number
-  notifyType?: NotifyType
+  notifyType: number
 }
 
 export interface SubscriberStrategyReply {}
@@ -64,7 +64,7 @@ export interface UserSubscriberListRequest {
 }
 
 export interface UserSubscriberListReply {
-  strategies: StrategyItem[]
+  list: StrategySubscribeItem[]
   pagination: PaginationReply
 }
 

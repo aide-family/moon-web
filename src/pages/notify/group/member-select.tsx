@@ -131,7 +131,7 @@ export const MemberSelect: React.FC<MemberSelectProps> = (props) => {
         }}
         allowClear
       />
-      <Table rowKey={(row) => row.member?.id} columns={noticeMemberColumns} dataSource={value} />
+      <Table rowKey={(row) => row.member?.id} pagination={false} columns={noticeMemberColumns} dataSource={value} />
     </div>
   )
 }

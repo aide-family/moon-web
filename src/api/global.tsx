@@ -406,6 +406,10 @@ export enum ActionKey {
   EDIT = '__edit__',
   /** 删除 */
   DELETE = '__delete__',
+  /** 取消订阅 */
+  CANCEL_SUBSCRIBE = '__cancel_subscribe__',
+  /** 订阅 */
+  SUBSCRIBE = '__subscribe__',
   /** 启用 */
   ENABLE = '__enable__',
   /** 禁用 */

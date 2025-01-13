@@ -57,6 +57,10 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: '策略列表',
         key: '/home/strategy/list'
+      },
+      {
+        label: '我的订阅',
+        key: '/home/strategy/subscribe'
       }
     ]
   },
@@ -263,6 +267,9 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   },
   '/home/strategy/list': {
     name: '策略列表'
+  },
+  '/home/strategy/subscribe': {
+    name: '我的订阅'
   },
   '/home/notify': {
     name: '告警通知'
