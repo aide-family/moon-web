@@ -92,7 +92,7 @@ export default function ModalSubscriber({ open, strategyId = 0, onClose, ...rese
   }
 
   return (
-    <Modal title='订阅者' open={open} onClose={onClose} footer={null} loading={loading} {...reset}>
+    <Modal title='订阅者' open={open} onClose={onClose} onCancel={onClose} footer={null} loading={loading} {...reset}>
       <AutoTable
         rowKey={(record) => record.id}
         dataSource={datasource}
