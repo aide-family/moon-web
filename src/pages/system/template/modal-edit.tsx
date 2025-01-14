@@ -1,7 +1,9 @@
+import { AlarmSendType } from '@/api/enum'
 import { type CreateTemplateRequest, createTemplate, getTemplate, updateTemplate } from '@/api/notify/template'
+import { FeishuTemplateEditor } from '@/components/data/child/feishu-template-editor'
 import { DataFrom } from '@/components/data/form'
 import { useRequest } from 'ahooks'
-import { Form, Modal, type ModalProps } from 'antd'
+import { Form, Input, Modal, type ModalProps } from 'antd'
 import { useEffect } from 'react'
 import { editModalFormItems } from './options'
 
@@ -15,6 +17,7 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
   const { open, sendTemplateId, onOk, onCancel, ...rest } = props
 
   const [form] = Form.useForm<CreateTemplateRequest>()
+  const sendType = Form.useWatch<AlarmSendType>('sendType', form)
 
   const { run: initSendTemplateDetail, loading: initSendTemplateDetailLoading } = useRequest(getTemplate, {
     manual: true,
@@ -52,10 +55,20 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
     }
   }, [sendTemplateId, open, initSendTemplateDetail])
 
+  const getCendTypeContent = (t: AlarmSendType) => {
+    switch (t) {
+      case AlarmSendType.AlarmSendTypeFeiShu:
+        return <FeishuTemplateEditor />
+      default:
+        return <Input.TextArea rows={10} showCount placeholder='请输入模板内容' />
+    }
+  }
+
   return (
     <>
       <Modal
         {...rest}
+        forceRender
         title={`${sendTemplateId ? '编辑' : '新增'}通知模板`}
         open={open}
         onOk={handleOnOk}
@@ -63,7 +76,13 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
         loading={initSendTemplateDetailLoading}
         confirmLoading={addSendTemplateLoading || updateSendTemplateLoading}
       >
-        <DataFrom items={editModalFormItems} props={{ form, layout: 'vertical' }} />
+        <DataFrom
+          items={editModalFormItems}
+          props={{ form, layout: 'vertical' }}
+          slot={{
+            content: getCendTypeContent(sendType)
+          }}
+        />
       </Modal>
     </>
   )

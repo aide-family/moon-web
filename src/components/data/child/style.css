@@ -23,7 +23,7 @@
 }
 
 .monaco-scrollable-element {
-  left: 0 !important;
+  /* left: 0 !important; */
 }
 
 /* "success" | "warning" | "error" | "validating" */

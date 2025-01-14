@@ -1,492 +1,157 @@
-import { GlobalContext, type ThemeType } from '@/utils/context'
-import { type GlobalToken, theme } from 'antd'
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import type React from 'react'
-import { useContext, useEffect, useRef, useState } from 'react'
-import { defaultTheme } from './color'
-import './style.css'
-import './userWorker'
+import { GlobalContext } from '@/utils/context'
+import Editor, { Monaco } from '@monaco-editor/react'
+import React, { useContext, useRef } from 'react'
+import { feishuJsonSchema } from './config/feishu'
 
 export interface FeishuTemplateEditorProps {
   value?: string
-  defaultValue?: string
   onChange?: (value: string) => void
-  width?: number | string
-  height?: number | string
 }
 
-const { useToken } = theme
+export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = ({ value, onChange }) => {
+  const { theme } = useContext(GlobalContext)
+  const editorRef = useRef(null)
 
-const FeishuTemplate = 'json'
-const FeishuTemplateTheme = 'FeishuTemplateTheme'
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleEditorDidMount = (editor: any, monaco: Monaco) => {
+    editorRef.current = editor
 
-const tpl = `Moon监控系统告警通知
-告警状态: {{ .Status }}
-机器实例: {{ .Labels.instance }}
-规则名称: {{ .Labels.alertname }}
-告警描述: {{ .Annotations.summary }}
-告警详情: {{ .Annotations.description }}
-告警时间: {{ .StartsAt }}
-恢复时间: {{ .EndsAt }}
-链接地址: {{ .GeneratorURL }}
-告警指纹: {{ .Fingerprint }}
-当前值: {{ .Value }}`
-
-function createDependencyProposals(range: monaco.IRange) {
-  return [
-    {
-      label: '"Labels"',
-      kind: monaco.languages.CompletionItemKind.Keyword,
-      insertText: '{{ .Labels.${1:labelName} }}',
-      range: range,
-      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
-    },
-    {
-      label: '"Annotations"',
-      kind: monaco.languages.CompletionItemKind.Function,
-      insertText: '{{ .Annotations.${1:annotationName} }}',
-      range: range,
-      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
-    },
-    {
-      label: '"summary"',
-      kind: monaco.languages.CompletionItemKind.Function,
-      insertText: 'summary',
-      range: range
-    },
-    {
-      label: '"description"',
-      kind: monaco.languages.CompletionItemKind.Function,
-      insertText: 'description',
-      range: range
-    },
-    {
-      label: '"Status"',
-      kind: monaco.languages.CompletionItemKind.Function,
-      insertText: '{{ .Status }}',
-      range: range
-    },
-    {
-      label: '"StartsAt"',
-      kind: monaco.languages.CompletionItemKind.Function,
-      insertText: '{{ .StartsAt }}',
-      range: range
-    },
-    {
-      label: '"EndsAt"',
-      kind: monaco.languages.CompletionItemKind.Function,
-      insertText: '{{ .EndsAt }}',
-      range: range
-    },
-    {
-      label: '"GeneratorURL"',
-      kind: monaco.languages.CompletionItemKind.Function,
-      insertText: '{{ .GeneratorURL }}',
-      range: range
-    },
-    {
-      label: '"Fingerprint"',
-      kind: monaco.languages.CompletionItemKind.Function,
-      insertText: '{{ .Fingerprint }}',
-      range: range
-    },
-    {
-      label: '"Value"',
-      kind: monaco.languages.CompletionItemKind.Function,
-      insertText: '{{ .Value }}',
-      range: range
-    },
-
-    {
-      label: 'tpl',
-      kind: monaco.languages.CompletionItemKind.Snippet,
-      insertText: tpl,
-      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      range: range
-    }
-  ]
-}
-
-const tplText = `{
-    "msg_type": "text",
-    "content": {
-        "text": "<at user_id="ou_xxx">Tom</at> 新监控告警提醒\n \${1:alarmContent}"
-    }
-}`
-
-const tplMarkdown = `{
-	"msg_type": "post",
-	"content": {
-		"post": {
-			"zh_cn": {
-				"title": "Moon监控告警通知",
-				"content": [
-					[
-                        {
-							"tag": "text",
-							"text": "\${1:alarmContent}"
-						},
-						{
-							"tag": "a",
-							"text": "请查看",
-							"href": "\${2:alarmUrl}"
-						},
-						{
-							"tag": "at",
-							"user_id": "\${3:userId}"
-						}
-					]
-				]
-			}
-		}
-	}
-}`
-
-const tplInteractive = `{
-    "msg_type": "interactive",
-    "card": {
-        "elements": [{
-                "tag": "div",
-                "text": {
-                        "content": "\${1:alarmContent}",
-                        "tag": "lark_md"
-                }
-        }, {
-                "actions": [{
-                        "tag": "button",
-                        "text": {
-                                "content": "\${2:进入系统查看}",
-                                "tag": "lark_md"
-                        },
-                        "url": "\${3:alarmUrl}",
-                        "type": "default",
-                        "value": {}
-                }],
-                "tag": "action"
-        }],
-        "header": {
-                "title": {
-                        "content": "\${4:Moon监控告警通知}",
-                        "tag": "plain_text"
-                }
+    // 注册JSON Schema
+    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+      validate: true,
+      schemas: [
+        {
+          uri: 'http://myserver/feishu-schema.json',
+          fileMatch: ['*'],
+          schema: feishuJsonSchema
         }
-    }
-}`
+      ],
+      enableSchemaRequest: false
+    })
 
-function feishuJsonTemplateProposals(range: monaco.IRange) {
-  return [
-    {
-      label: 'tplText',
-      kind: monaco.languages.CompletionItemKind.Snippet,
-      insertText: tplText,
-      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      range: range
-    },
-    {
-      label: 'tplMarkdown',
-      kind: monaco.languages.CompletionItemKind.Snippet,
-      insertText: tplMarkdown,
-      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      range: range
-    },
-    {
-      label: 'tplInteractive',
-      kind: monaco.languages.CompletionItemKind.Snippet,
-      insertText: tplInteractive,
-      insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-      range: range
-    }
-  ]
-}
-
-const provideCompletionItems = (model: monaco.editor.ITextModel, position: monaco.Position) => {
-  const extUntilPosition = model.getValueInRange({
-    startLineNumber: 1,
-    startColumn: 1,
-    endLineNumber: position.lineNumber,
-    endColumn: position.column
-  })
-
-  // 匹配json格式
-  const reg = /\{\s*|\s*\}/
-  const match = extUntilPosition.match(reg)
-  const word = model.getWordUntilPosition(position)
-  const range = {
-    startLineNumber: position.lineNumber,
-    endLineNumber: position.lineNumber,
-    startColumn: word.startColumn,
-    endColumn: word.endColumn
-  }
-  if (!match) {
-    return {
-      suggestions: feishuJsonTemplateProposals(range)
-    }
-  }
-
-  return {
-    suggestions: createDependencyProposals(range)
-  }
-}
-
-const modelUri = monaco.Uri.parse('./json/feishu.json')
-
-const model = monaco.editor.createModel('', FeishuTemplate, modelUri)
-
-const i18nJsonSchema = {
-  type: 'object',
-  properties: {
-    title: {
-      type: 'string'
-    },
-    content: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          tag: {
-            type: 'string'
-          },
-          text: {
-            type: 'string'
-          },
-          un_escape: {
-            type: 'string'
-          },
-          href: {
-            type: 'string'
-          },
-          user_id: {
-            type: 'string'
-          },
-          user_name: {
-            type: 'string'
-          },
-          image_key: {
-            type: 'string'
-          }
+    // 注册环境变量自动完成
+    monaco.languages.registerCompletionItemProvider('json', {
+      triggerCharacters: ['$', '{'],
+      provideCompletionItems: (model, position) => {
+        const word = model.getWordUntilPosition(position)
+        const range = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: word.endColumn
         }
-      }
-    }
-  }
-}
 
-const init = (editor: monaco.editor.IStandaloneCodeEditor, token: GlobalToken, theme?: ThemeType) => {
-  monaco.languages.setMonarchTokensProvider(FeishuTemplate, {
-    tokenizer: {
-      root: [[/\{\{[ ]*\.[ ]*[^}]*[ ]*\}\}/, 'keyword']]
-    }
-  })
+        // 获取当前行的完整内容
+        const lineContent = model.getLineContent(position.lineNumber)
 
-  monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-    validate: false,
-    schemas: [
-      {
-        uri: './json/feishu.json', // id of the first schema
-        fileMatch: [modelUri.toString()], // associate with our model
-        schema: {
-          type: 'object',
-          properties: {
-            msg_type: {
-              enum: ['text', 'post', 'image', 'share_chat', 'interactive']
-            },
-            content: {
-              type: 'object',
-              properties: {
-                text: {
-                  type: 'string'
-                },
-                share_chat_id: {
-                  type: 'string'
-                },
-                image_key: {
-                  type: 'string'
-                },
-                post: {
-                  type: 'object',
-                  properties: {
-                    zh_cn: {
-                      ...i18nJsonSchema
-                    },
-                    en_us: {
-                      ...i18nJsonSchema
-                    }
-                  }
-                }
-              }
-            },
-            card: {
-              type: 'object',
-              properties: {
-                elements: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      tag: {
-                        type: 'string',
-                        enum: ['div', 'at', 'text', 'a', 'img']
-                      },
-                      text: {
-                        type: 'object',
-                        properties: {
-                          content: {
-                            type: 'string'
-                          },
-                          tag: {
-                            type: 'string'
-                          }
-                        }
-                      },
-                      actions: {
-                        type: 'array',
-                        items: {
-                          type: 'object',
-                          properties: {
-                            tag: {
-                              type: 'string'
-                            },
-                            text: {
-                              type: 'object',
-                              properties: {
-                                content: {
-                                  type: 'string'
-                                },
-                                tag: {
-                                  type: 'string'
-                                }
-                              }
-                            },
-                            url: {
-                              type: 'string'
-                            },
-                            type: {
-                              type: 'string',
-                              enum: ['default']
-                            },
-                            value: {
-                              type: 'object'
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                header: {
-                  type: 'object',
-                  properties: {
-                    title: {
-                      type: 'object',
-                      properties: {
-                        content: {
-                          type: 'string'
-                        },
-                        tag: {
-                          type: 'string'
-                        }
-                      }
-                    }
-                  }
-                }
+        // 检查光标是否在字符串内
+        const isInString = (() => {
+          let inString = false
+          let quoteChar = ''
+          for (let i = 0; i < position.column - 1; i++) {
+            const char = lineContent[i]
+            if ((char === '"' || char === "'") && (i === 0 || lineContent[i - 1] !== '\\')) {
+              if (!inString) {
+                inString = true
+                quoteChar = char
+              } else if (char === quoteChar) {
+                inString = false
               }
             }
           }
+          return inString
+        })()
+
+        // 获取当前位置之前的文本
+        const textUntilPosition = model.getValueInRange({
+          startLineNumber: position.lineNumber,
+          startColumn: 1,
+          endLineNumber: position.lineNumber,
+          endColumn: position.column
+        })
+
+        // 只在字符串内提供环境变量提示
+        if (!isInString) {
+          return { suggestions: [] }
         }
+
+        if (textUntilPosition.endsWith('$')) {
+          return {
+            suggestions: [
+              {
+                label: '${...}',
+                kind: monaco.languages.CompletionItemKind.Snippet,
+                insertText: '${$1}',
+                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                range: range,
+                detail: '环境变量',
+                documentation: '插入环境变量占位符'
+              }
+            ]
+          }
+        }
+
+        // 检查是否在 ${ 后面
+        const envVarMatch = textUntilPosition.match(/\${([^}]*)$/)
+        if (envVarMatch) {
+          const envVars = [
+            'WEBHOOK_URL',
+            'API_KEY',
+            'BOT_NAME',
+            'ENVIRONMENT',
+            'APP_ID',
+            'APP_SECRET',
+            'MESSAGE_TEMPLATE',
+            'USER_ID',
+            'CHANNEL_ID',
+            'GROUP_ID'
+          ]
+
+          const typed = envVarMatch[1]
+          const filteredVars = envVars.filter((v) => v.toLowerCase().includes(typed.toLowerCase()))
+
+          return {
+            suggestions: filteredVars.map((envVar) => ({
+              label: envVar,
+              kind: monaco.languages.CompletionItemKind.Variable,
+              insertText: envVar + '}',
+              range: {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                startColumn: position.column - typed.length,
+                endColumn: position.column
+              },
+              detail: '环境变量',
+              documentation: `插入 ${envVar} 环境变量`
+            }))
+          }
+        }
+
+        return { suggestions: [] }
       }
-    ]
-  })
-
-  // Define a new theme that contains only rules that match this language
-  monaco.editor.defineTheme(FeishuTemplateTheme, defaultTheme(token, theme))
-
-  monaco.languages.registerCompletionItemProvider(FeishuTemplate, {
-    provideCompletionItems: provideCompletionItems
-  })
-
-  editor.onDidChangeModelContent(() => {
-    const position = editor.getPosition()
-    const model = editor.getModel()
-    if (!model) return
-    if (!position) return
-    const text = model?.getValueInRange({
-      startLineNumber: position.lineNumber,
-      startColumn: Math.max(1, position.column - 8),
-      endLineNumber: position.lineNumber,
-      endColumn: position.column
     })
-    // console.log('text', text)
-    if (text.endsWith('{{')) {
-      editor.executeEdits('', [
-        {
-          range: new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column),
-          text: '  }}',
-          forceMoveMarkers: true
-        }
-      ])
-
-      editor.setPosition({
-        lineNumber: position.lineNumber,
-        column: position.column + 1
-      })
-    }
-  })
-}
-
-export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = (props) => {
-  const { value, onChange, width = '100%', height = '100%' } = props
-
-  const { token } = useToken()
-  const { theme } = useContext(GlobalContext)
-
-  const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
-  const monacoEl = useRef(null)
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    setEditor((editor) => {
-      if (editor) {
-        editor.setValue(value || '')
-        return editor
-      }
-
-      const curr = monacoEl.current
-      if (!curr) {
-        return null
-      }
-      const e = monaco.editor.create(curr, {
-        model: model,
-        theme: FeishuTemplateTheme,
-        language: FeishuTemplate,
-        value: value,
-        // 展示行号和内容的边框
-        lineNumbersMinChars: 4,
-        minimap: {
-          // enabled: false
-          size: 'fit'
-        }
-      })
-      e.onDidChangeModelContent(() => {
-        onChange?.(e.getValue())
-      })
-      return e
-    })
-  }, [editor, monacoEl, onChange, theme, token, value])
-
-  useEffect(() => {
-    if (editor) {
-      init(editor, token, theme)
-    }
-  }, [editor, token, theme])
+  }
 
   return (
-    <div
-      style={{
-        width: width,
-        height: height,
-        borderColor: token.colorBorder
+    <Editor
+      height='30vh'
+      defaultLanguage='json'
+      value={value}
+      onChange={(value) => onChange?.(value || '')}
+      onMount={handleEditorDidMount}
+      options={{
+        minimap: { enabled: false },
+        fontSize: 14,
+        lineNumbers: 'on',
+        lineNumbersMinChars: 4,
+        roundedSelection: false,
+        scrollBeyondLastLine: false,
+        automaticLayout: true,
+        theme: theme === 'dark' ? 'vs-dark' : 'light',
+        snippetSuggestions: 'top',
+        suggestOnTriggerCharacters: true,
+        wordBasedSuggestions: 'off'
       }}
-      className='editorInput'
-      ref={monacoEl}
     />
   )
 }
