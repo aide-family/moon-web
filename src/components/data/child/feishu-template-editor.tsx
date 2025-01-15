@@ -28,13 +28,7 @@ export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = ({ valu
     monaco.editor.defineTheme('feishuTheme', {
       base: theme === 'dark' ? 'vs-dark' : 'vs',
       inherit: true,
-      rules: [
-        { token: 'struct', foreground: '#E708C2' },
-        { token: 'field', foreground: '#FF8216' },
-        { token: 'function', foreground: token.colorPrimary },
-        { token: 'keyword', foreground: token.colorSuccess },
-        { token: 'variable', foreground: token.colorError }
-      ],
+      rules: [],
       colors: {
         'editor.background': token.colorBgContainer,
         'scrollbarSlider.background': token.colorPrimary,

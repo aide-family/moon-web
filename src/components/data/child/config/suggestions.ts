@@ -13,7 +13,7 @@ export const keywordRegExpList: string[] = [
   '\\s+range(?=\\s)',
   '\\s+with(?=\\s)'
 ]
-export const structList: string[] = ['labels', 'value', 'eventAt', 'strategy', 'status']
+export const structList: string[] = ['labels', 'value', 'eventAt', 'strategy', 'status', 'annotations', 'level']
 export const labelsFieldList: string[] = ['instance', 'endpoint', 'app', '__name__', 'env']
 export const strategyFieldList: string[] = [
   'alert',
