@@ -1,6 +1,8 @@
 import { AlarmSendType } from '@/api/enum'
 import { createTemplate, getTemplate, updateTemplate, type CreateTemplateRequest } from '@/api/notify/template'
+import { dingTalkTemplates } from '@/components/data/child/config/ding-talk'
 import { feishuTemplates } from '@/components/data/child/config/feishu'
+import { DingTemplateEditor } from '@/components/data/child/ding-template-editor'
 import { FeishuTemplateEditor } from '@/components/data/child/feishu-template-editor'
 import { DataFrom } from '@/components/data/form'
 import { validateJson } from '@/utils/json'
@@ -60,12 +62,17 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
     if (sendTemplateId && open) {
       initSendTemplateDetail(sendTemplateId, true)
     }
-  }, [sendTemplateId, open, initSendTemplateDetail])
+    if (!open) {
+      form.resetFields()
+    }
+  }, [sendTemplateId, open, initSendTemplateDetail, form])
 
   const getCendTypeContent = (t: AlarmSendType) => {
     switch (t) {
       case AlarmSendType.AlarmSendTypeFeiShu:
         return <FeishuTemplateEditor />
+      case AlarmSendType.AlarmSendTypeDingTalk:
+        return <DingTemplateEditor />
       default:
         return <Input.TextArea rows={10} showCount placeholder='请输入模板内容' />
     }
@@ -76,6 +83,12 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
     switch (t) {
       case AlarmSendType.AlarmSendTypeFeiShu:
         options = feishuTemplates.map((item): { label: string; value: string } => ({
+          label: item.name,
+          value: JSON.stringify(item.template, null, 2)
+        }))
+        break
+      case AlarmSendType.AlarmSendTypeDingTalk:
+        options = dingTalkTemplates.map((item): { label: string; value: string } => ({
           label: item.name,
           value: JSON.stringify(item.template, null, 2)
         }))
