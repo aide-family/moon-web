@@ -146,7 +146,7 @@ const Template: React.FC = () => {
   return (
     <>
       <EditSendTemplateModal
-        width='50%'
+        width='80%'
         open={showModal}
         sendTemplateId={SendTemplateDetail?.id}
         onCancel={closeEditSendTemplateModal}

@@ -1,20 +1,50 @@
 import { GlobalContext } from '@/utils/context'
+import { validateJson } from '@/utils/json'
 import Editor, { Monaco } from '@monaco-editor/react'
-import React, { useContext, useRef } from 'react'
+import { theme as antTheme } from 'antd'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { feishuJsonSchema } from './config/feishu'
+import suggestions from './config/suggestions'
 
 export interface FeishuTemplateEditorProps {
   value?: string
   onChange?: (value: string) => void
 }
 
+const { useToken } = antTheme
+
+const language = 'json'
+
 export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = ({ value, onChange }) => {
   const { theme } = useContext(GlobalContext)
+  const { token } = useToken()
   const editorRef = useRef(null)
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleEditorDidMount = (editor: any, monaco: Monaco) => {
     editorRef.current = editor
+
+    // 自定义编辑器主题
+    monaco.editor.defineTheme('feishuTheme', {
+      base: theme === 'dark' ? 'vs-dark' : 'vs',
+      inherit: true,
+      rules: [
+        { token: 'struct', foreground: '#E708C2' },
+        { token: 'field', foreground: '#FF8216' },
+        { token: 'function', foreground: token.colorPrimary },
+        { token: 'keyword', foreground: token.colorSuccess },
+        { token: 'variable', foreground: token.colorError }
+      ],
+      colors: {
+        'editor.background': token.colorBgContainer,
+        'scrollbarSlider.background': token.colorPrimary,
+        'scrollbarSlider.hoverBackground': token.colorPrimary,
+        'scrollbarSlider.activeBackground': token.colorPrimary
+      }
+    })
+
+    // 设置主题
+    monaco.editor.setTheme('feishuTheme')
 
     // 注册JSON Schema
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
@@ -30,8 +60,8 @@ export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = ({ valu
     })
 
     // 注册环境变量自动完成
-    monaco.languages.registerCompletionItemProvider('json', {
-      triggerCharacters: ['$', '{'],
+    monaco.languages.registerCompletionItemProvider(language, {
+      triggerCharacters: ['.', '{', '$'],
       provideCompletionItems: (model, position) => {
         const word = model.getWordUntilPosition(position)
         const range = {
@@ -41,10 +71,8 @@ export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = ({ valu
           endColumn: word.endColumn
         }
 
-        // 获取当前行的完整内容
         const lineContent = model.getLineContent(position.lineNumber)
 
-        // 检查光标是否在字符串内
         const isInString = (() => {
           let inString = false
           let quoteChar = ''
@@ -62,7 +90,6 @@ export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = ({ valu
           return inString
         })()
 
-        // 获取当前位置之前的文本
         const textUntilPosition = model.getValueInRange({
           startLineNumber: position.lineNumber,
           startColumn: 1,
@@ -70,88 +97,89 @@ export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = ({ valu
           endColumn: position.column
         })
 
-        // 只在字符串内提供环境变量提示
         if (!isInString) {
           return { suggestions: [] }
         }
 
-        if (textUntilPosition.endsWith('$')) {
+        // 检查是否在 {{ 后面
+        if (textUntilPosition.endsWith('{{')) {
           return {
             suggestions: [
               {
-                label: '${...}',
+                label: '{{ .... }}',
                 kind: monaco.languages.CompletionItemKind.Snippet,
-                insertText: '${$1}',
+                insertText: ' .${1:value} }}',
                 insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                 range: range,
-                detail: '环境变量',
-                documentation: '插入环境变量占位符'
+                detail: '环境变量 (.value)',
+                documentation: '插入环境变量占位符，使用 .value 格式'
               }
             ]
           }
         }
 
-        // 检查是否在 ${ 后面
-        const envVarMatch = textUntilPosition.match(/\${([^}]*)$/)
-        if (envVarMatch) {
-          const envVars = [
-            'WEBHOOK_URL',
-            'API_KEY',
-            'BOT_NAME',
-            'ENVIRONMENT',
-            'APP_ID',
-            'APP_SECRET',
-            'MESSAGE_TEMPLATE',
-            'USER_ID',
-            'CHANNEL_ID',
-            'GROUP_ID'
-          ]
-
-          const typed = envVarMatch[1]
-          const filteredVars = envVars.filter((v) => v.toLowerCase().includes(typed.toLowerCase()))
-
-          return {
-            suggestions: filteredVars.map((envVar) => ({
-              label: envVar,
-              kind: monaco.languages.CompletionItemKind.Variable,
-              insertText: envVar + '}',
-              range: {
-                startLineNumber: position.lineNumber,
-                endLineNumber: position.lineNumber,
-                startColumn: position.column - typed.length,
-                endColumn: position.column
-              },
-              detail: '环境变量',
-              documentation: `插入 ${envVar} 环境变量`
-            }))
-          }
+        return {
+          suggestions: suggestions(monaco, range)
         }
-
-        return { suggestions: [] }
       }
     })
   }
 
+  const [validate, setValidate] = useState({ isValid: true, error: '' })
+
+  const handleValidate = useCallback(() => {
+    if (!value) {
+      setValidate({ isValid: true, error: '' })
+      return
+    }
+    const { isValid, error } = validateJson(value || '')
+    setValidate({ isValid, error: error || '' })
+  }, [value])
+
+  useEffect(() => {
+    handleValidate()
+  }, [handleValidate])
+
   return (
-    <Editor
-      height='30vh'
-      defaultLanguage='json'
-      value={value}
-      onChange={(value) => onChange?.(value || '')}
-      onMount={handleEditorDidMount}
-      options={{
-        minimap: { enabled: false },
-        fontSize: 14,
-        lineNumbers: 'on',
-        lineNumbersMinChars: 4,
-        roundedSelection: false,
-        scrollBeyondLastLine: false,
-        automaticLayout: true,
-        theme: theme === 'dark' ? 'vs-dark' : 'light',
-        snippetSuggestions: 'top',
-        suggestOnTriggerCharacters: true,
-        wordBasedSuggestions: 'off'
-      }}
-    />
+    <div className='group rounded-lg overflow-hidden transition-all duration-200'>
+      <div
+        className={`border border-gray-700 transition-colors duration-200 rounded-lg overflow-hidden ${
+          !validate.isValid ? 'border-red-500' : 'hover:border-purple-600 focus-within:border-purple-600'
+        }`}
+      >
+        <Editor
+          height='30vh'
+          defaultLanguage={language}
+          value={value}
+          onChange={(value) => onChange?.(value || '')}
+          onMount={handleEditorDidMount}
+          options={{
+            fontSize: 14,
+            lineNumbers: 'on',
+            roundedSelection: false,
+            scrollBeyondLastLine: false,
+            automaticLayout: true,
+            minimap: { enabled: true },
+            scrollbar: {
+              vertical: 'visible',
+              horizontal: 'visible',
+              useShadows: false,
+              verticalScrollbarSize: 4,
+              horizontalScrollbarSize: 4
+            },
+            padding: { top: 16, bottom: 16 },
+            snippetSuggestions: 'top',
+            suggestOnTriggerCharacters: true,
+            wordBasedSuggestions: 'off',
+            renderLineHighlight: 'all',
+            cursorBlinking: 'smooth',
+            cursorSmoothCaretAnimation: 'on'
+          }}
+        />
+      </div>
+      <div className='flex justify-start'>
+        {!validate.isValid && <div className='text-red-500'>{validate.error}</div>}
+      </div>
+    </div>
   )
 }

@@ -4,6 +4,15 @@ import type { editor as editorNameSpace } from 'monaco-editor'
 import type { languages, Position } from 'monaco-editor/esm/vs/editor/editor.api'
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
+import {
+  functionList,
+  functionRegExpList,
+  keywordList,
+  keywordRegExpList,
+  labelsFieldList,
+  strategyFieldList,
+  structList
+} from './config/suggestions'
 import './style.css'
 
 const { useToken } = theme
@@ -16,88 +25,6 @@ export interface AnnotationsEditorProps {
   disabled?: boolean
   labels?: string[]
 }
-
-const keywordList: string[] = ['if', 'else', 'else if', 'end', 'range', 'with']
-
-const keywordRegExpList: string[] = [
-  '{{',
-  '}}',
-  '\\|',
-  '\\(',
-  '\\)',
-  '\\s+if(?=\\s)',
-  '\\s+else(?=\\s)',
-  '\\s+else\\s+if(?=\\s)',
-  '\\s+end(?=\\s)',
-  '\\s+range(?=\\s)',
-  '\\s+with(?=\\s)'
-]
-const structList: string[] = ['labels', 'value', 'eventAt', 'strategy', 'status']
-const labelsFieldList: string[] = ['instance', 'endpoint', 'app', '__name__', 'env']
-const strategyFieldList: string[] = [
-  'alert',
-  'level',
-  'expr',
-  'duration',
-  'count',
-  'sustainType',
-  'condition',
-  'threshold',
-  'categories'
-]
-const functionList = [
-  'now',
-  'hasPrefix',
-  'hasSuffix',
-  'contains',
-  'trimSpace',
-  'trimPrefix',
-  'trimSuffix',
-  'toUpper',
-  'toLower',
-  'replace',
-  'split',
-  'print',
-  'printf',
-  'println',
-  'not',
-  'and',
-  'or',
-  'eq',
-  'ne',
-  'lt',
-  'le',
-  'gt',
-  'ge',
-  'len'
-]
-
-const functionRegExpList: string[] = [
-  '\\s+now(?=\\s)',
-  '\\s+hasPrefix(?=\\s)',
-  '\\s+hasSuffix(?=\\s)',
-  '\\s+contains(?=\\s)',
-  '\\s+trimSpace(?=\\s)',
-  '\\s+trimPrefix(?=\\s)',
-  '\\s+trimSuffix(?=\\s)',
-  '\\s+toUpper(?=\\s)',
-  '\\s+toLower(?=\\s)',
-  '\\s+replace(?=\\s)',
-  '\\s+split(?=\\s)',
-  '\\s+print(?=\\s)',
-  '\\s+printf(?=\\s)',
-  '\\s+println(?=\\s)',
-  '\\s+not(?=\\s)',
-  '\\s+and(?=\\s)',
-  '\\s+or(?=\\s)',
-  '\\s+eq(?=\\s)',
-  '\\s+ne(?=\\s)',
-  '\\s+lt(?=\\s)',
-  '\\s+le(?=\\s)',
-  '\\s+gt(?=\\s)',
-  '\\s+ge(?=\\s)',
-  '\\s+len(?=\\s)'
-]
 
 export const AnnotationsEditor: React.FC<AnnotationsEditorProps> = (props) => {
   const { onChange, value, language = 'gotemplate', height = 32 * 3, disabled, labels = labelsFieldList } = props

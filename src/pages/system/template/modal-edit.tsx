@@ -1,9 +1,11 @@
 import { AlarmSendType } from '@/api/enum'
-import { type CreateTemplateRequest, createTemplate, getTemplate, updateTemplate } from '@/api/notify/template'
+import { createTemplate, getTemplate, updateTemplate, type CreateTemplateRequest } from '@/api/notify/template'
+import { feishuTemplates } from '@/components/data/child/config/feishu'
 import { FeishuTemplateEditor } from '@/components/data/child/feishu-template-editor'
 import { DataFrom } from '@/components/data/form'
+import { validateJson } from '@/utils/json'
 import { useRequest } from 'ahooks'
-import { Form, Input, Modal, type ModalProps } from 'antd'
+import { Form, Input, message, Modal, Select, type ModalProps } from 'antd'
 import { useEffect } from 'react'
 import { editModalFormItems } from './options'
 
@@ -36,6 +38,11 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
 
   const handleOnOk = () => {
     form.validateFields().then((values) => {
+      const { isValid, error } = validateJson(values.content)
+      if (!isValid) {
+        message.error(`模板内容格式错误: ${error}`)
+        return
+      }
       Promise.all([
         sendTemplateId ? updateSendTemplate({ id: sendTemplateId, data: values }, true) : addSendTemplate(values, true)
       ]).then(() => {
@@ -64,6 +71,25 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
     }
   }
 
+  const getTemplateType = (t: AlarmSendType) => {
+    let options: { label: string; value: string }[] = []
+    switch (t) {
+      case AlarmSendType.AlarmSendTypeFeiShu:
+        options = feishuTemplates.map((item): { label: string; value: string } => ({
+          label: item.name,
+          value: JSON.stringify(item.template, null, 2)
+        }))
+        break
+    }
+    return (
+      <Select
+        placeholder='请选择模板类型'
+        options={options}
+        onChange={(value) => form.setFieldsValue({ content: value })}
+      />
+    )
+  }
+
   return (
     <>
       <Modal
@@ -78,9 +104,13 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
       >
         <DataFrom
           items={editModalFormItems}
-          props={{ form, layout: 'vertical' }}
+          props={{
+            form,
+            layout: 'vertical'
+          }}
           slot={{
-            content: getCendTypeContent(sendType)
+            content: getCendTypeContent(sendType),
+            templateType: getTemplateType(sendType)
           }}
         />
       </Modal>

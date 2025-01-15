@@ -17,7 +17,8 @@ import {
 } from 'antd'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import SyntaxHighlighter from 'react-syntax-highlighter'
-import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import atomOneDark from 'react-syntax-highlighter/dist/esm/styles/hljs/atom-one-dark'
+import atomOneLight from 'react-syntax-highlighter/dist/esm/styles/hljs/atom-one-light'
 
 export interface SendTemplateDetailModalProps extends ModalProps {
   sendTemplateId: number
@@ -102,7 +103,7 @@ export function SendTemplateDetailModal(props: SendTemplateDetailModalProps) {
                 whiteSpace: 'pre-wrap'
               }
             })}
-            style={sysTheme === 'dark' ? oneDark : oneLight}
+            style={sysTheme === 'dark' ? { ...atomOneDark } : { ...atomOneLight }}
             language='json'
           >
             {detail?.content}
