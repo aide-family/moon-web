@@ -14,14 +14,14 @@ import type { RangePickerProps } from 'antd/es/date-picker'
 import type { PasswordProps, TextAreaProps } from 'antd/es/input'
 import type { FC } from 'react'
 import { AnnotationsEditor, type AnnotationsEditorProps } from './annotation-editor'
-import { DingTemplateEditor, type DingTemplateEditorProps } from './ding-template-editor'
 import { EmailTemplateEditor, type EmailTemplateEditorProps } from './eamil-template-editor'
-import { FeishuTemplateEditor, type FeishuTemplateEditorProps } from './feishu-template-editor'
 import FetchSelect, { type FetchSelectProps } from './fetch-select'
 import { JsonInputEditor, type JsonInputEditorProps } from './json-input'
 import { JsonTemplateEditor, type JsonTemplateEditorProps } from './json-template-editor'
+import { DingTemplateEditor, type DingTemplateEditorProps } from './template-editor-ding'
+import { FeishuTemplateEditor, type FeishuTemplateEditorProps } from './template-editor-feishu'
+import { WechatTemplateEditor, type WechatTemplateEditorProps } from './template-editor-wechat'
 import { TimeUintInput, type TimeUintInputProps } from './time-value'
-import { WechatTemplateEditor, type WechatTemplateEditorProps } from './wechat-template-editor'
 const { Search } = Input
 
 export type DataInputProps = {

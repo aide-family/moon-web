@@ -1,19 +1,19 @@
-import { TimeUintInputProps } from './time-value'
-import { FetchSelectProps } from './fetch-select'
 import { AnnotationsEditorProps } from './annotation-editor'
-import { DingTemplateEditorProps } from './ding-template-editor'
 import { EmailTemplateEditorProps } from './eamil-template-editor'
-import { FeishuTemplateEditorProps } from './feishu-template-editor'
+import { FetchSelectProps } from './fetch-select'
 import { JsonTemplateEditorProps } from './json-template-editor'
-import { WechatTemplateEditorProps } from './wechat-template-editor'
+import { DingTemplateEditorProps } from './template-editor-ding'
+import { FeishuTemplateEditorProps } from './template-editor-feishu'
+import { WechatTemplateEditorProps } from './template-editor-wechat'
+import { TimeUintInputProps } from './time-value'
 
 export type {
-  TimeUintInputProps,
-  FetchSelectProps,
   AnnotationsEditorProps,
   DingTemplateEditorProps,
   EmailTemplateEditorProps,
   FeishuTemplateEditorProps,
+  FetchSelectProps,
   JsonTemplateEditorProps,
+  TimeUintInputProps,
   WechatTemplateEditorProps
 }

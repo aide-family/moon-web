@@ -3,19 +3,20 @@ import { validateJson } from '@/utils/json'
 import Editor, { Monaco } from '@monaco-editor/react'
 import { theme as antTheme } from 'antd'
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { dingTalkJsonSchema } from './config/ding-talk'
+import { feishuJsonSchema } from './config/feishu'
 import suggestions from './config/suggestions'
 
-export interface DingTemplateEditorProps {
+export interface FeishuTemplateEditorProps {
   value?: string
   onChange?: (value: string) => void
+  height?: string | number
 }
 
 const { useToken } = antTheme
 
 const language = 'json'
 
-export const DingTemplateEditor: React.FC<DingTemplateEditorProps> = ({ value, onChange }) => {
+export const FeishuTemplateEditor: React.FC<FeishuTemplateEditorProps> = ({ value, onChange, height = '40vh' }) => {
   const { theme } = useContext(GlobalContext)
   const { token } = useToken()
   const editorRef = useRef(null)
@@ -25,7 +26,7 @@ export const DingTemplateEditor: React.FC<DingTemplateEditorProps> = ({ value, o
     editorRef.current = editor
 
     // 自定义编辑器主题
-    monaco.editor.defineTheme('dingTalkTheme', {
+    monaco.editor.defineTheme('feishuTheme', {
       base: theme === 'dark' ? 'vs-dark' : 'vs',
       inherit: true,
       rules: [],
@@ -38,16 +39,16 @@ export const DingTemplateEditor: React.FC<DingTemplateEditorProps> = ({ value, o
     })
 
     // 设置主题
-    monaco.editor.setTheme('dingTalkTheme')
+    monaco.editor.setTheme('feishuTheme')
 
     // 注册JSON Schema
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
       validate: true,
       schemas: [
         {
-          uri: 'http://myserver/dingTalk-schema.json',
+          uri: 'http://myserver/feishu-schema.json',
           fileMatch: ['*'],
-          schema: dingTalkJsonSchema
+          schema: feishuJsonSchema
         }
       ],
       enableSchemaRequest: false
@@ -142,7 +143,7 @@ export const DingTemplateEditor: React.FC<DingTemplateEditorProps> = ({ value, o
         }`}
       >
         <Editor
-          height='30vh'
+          height={height}
           defaultLanguage={language}
           value={value}
           onChange={(value) => onChange?.(value || '')}
