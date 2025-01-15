@@ -4,7 +4,9 @@ import { dingTalkTemplates } from '@/components/data/child/config/ding-talk'
 import { feishuTemplates } from '@/components/data/child/config/feishu'
 import { wechatTemplates } from '@/components/data/child/config/wechat'
 import { DingTemplateEditor } from '@/components/data/child/template-editor-ding'
+import { EmailTemplateEditor } from '@/components/data/child/template-editor-eamil'
 import { FeishuTemplateEditor } from '@/components/data/child/template-editor-feishu'
+import { JsonTemplateEditor } from '@/components/data/child/template-editor-json'
 import { WechatTemplateEditor } from '@/components/data/child/template-editor-wechat'
 import { DataFrom } from '@/components/data/form'
 import { validateJson } from '@/utils/json'
@@ -42,10 +44,12 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
 
   const handleOnOk = () => {
     form.validateFields().then((values) => {
-      const { isValid, error } = validateJson(values.content)
-      if (!isValid) {
-        message.error(`模板内容格式错误: ${error}`)
-        return
+      if (sendType !== AlarmSendType.AlarmSendTypeEmail && sendType !== AlarmSendType.AlarmSendTypeCustom) {
+        const { isValid, error } = validateJson(values.content)
+        if (!isValid) {
+          message.error(`模板内容格式错误: ${error}`)
+          return
+        }
       }
       Promise.all([
         sendTemplateId ? updateSendTemplate({ id: sendTemplateId, data: values }, true) : addSendTemplate(values, true)
@@ -78,12 +82,19 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
         return <DingTemplateEditor height={height} />
       case AlarmSendType.AlarmSendTypeWeChat:
         return <WechatTemplateEditor height={height} />
+      case AlarmSendType.AlarmSendTypeCustom:
+        return <JsonTemplateEditor height={height} />
+      case AlarmSendType.AlarmSendTypeEmail:
+        return <EmailTemplateEditor height={height} />
       default:
         return <Input.TextArea rows={10} showCount placeholder='请输入模板内容' />
     }
   }
 
   const getTemplateType = (t: AlarmSendType) => {
+    form.setFieldsValue({
+      templateType: undefined
+    })
     let options: { label: string; value: string }[] = []
     switch (t) {
       case AlarmSendType.AlarmSendTypeFeiShu:
@@ -109,6 +120,7 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
       <Select
         placeholder='请选择模板类型'
         options={options}
+        disabled={!options.length}
         onChange={(value) => form.setFieldsValue({ content: value })}
       />
     )
@@ -119,6 +131,7 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
       <Modal
         {...rest}
         forceRender
+        centered
         title={`${sendTemplateId ? '编辑' : '新增'}通知模板`}
         open={open}
         onOk={handleOnOk}

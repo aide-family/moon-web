@@ -14,12 +14,11 @@ import type { RangePickerProps } from 'antd/es/date-picker'
 import type { PasswordProps, TextAreaProps } from 'antd/es/input'
 import type { FC } from 'react'
 import { AnnotationsEditor, type AnnotationsEditorProps } from './annotation-editor'
-import { EmailTemplateEditor, type EmailTemplateEditorProps } from './eamil-template-editor'
 import FetchSelect, { type FetchSelectProps } from './fetch-select'
-import { JsonInputEditor, type JsonInputEditorProps } from './json-input'
-import { JsonTemplateEditor, type JsonTemplateEditorProps } from './json-template-editor'
 import { DingTemplateEditor, type DingTemplateEditorProps } from './template-editor-ding'
+import { EmailTemplateEditor, type EmailTemplateEditorProps } from './template-editor-eamil'
 import { FeishuTemplateEditor, type FeishuTemplateEditorProps } from './template-editor-feishu'
+import { JsonTemplateEditor, type JsonTemplateEditorProps } from './template-editor-json'
 import { WechatTemplateEditor, type WechatTemplateEditorProps } from './template-editor-wechat'
 import { TimeUintInput, type TimeUintInputProps } from './time-value'
 const { Search } = Input
@@ -92,10 +91,6 @@ export type DataInputProps = {
   | {
       type: 'json-template-editor'
       props?: JsonTemplateEditorProps
-    }
-  | {
-      type: 'json-input'
-      props?: JsonInputEditorProps
     }
   | {
       type: 'button-input'
@@ -186,8 +181,6 @@ export const DataInput: FC<DataInputProps> = (props) => {
         return <DingTemplateEditor {...props.props} value={value} defaultValue={defaultValue} onChange={onChange} />
       case 'annotation-template-editor':
         return <AnnotationsEditor {...props.props} value={value} onChange={onChange} />
-      case 'json-input':
-        return <JsonInputEditor {...props.props} value={value} defaultValue={defaultValue} onChange={onChange} />
       case 'button-input':
         return <Search {...props.props} value={value} defaultValue={defaultValue} onChange={onChange} />
       default:

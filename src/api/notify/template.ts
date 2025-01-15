@@ -67,6 +67,8 @@ export type CreateTemplateRequest = {
   remark: string
   /** 模板状态 */
   status: Status
+  /** 模板类型 */
+  templateType?: string
 }
 
 /**

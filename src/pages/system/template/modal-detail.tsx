@@ -1,3 +1,4 @@
+import { AlarmSendType } from '@/api/enum'
 import { AlarmSendTypeData, StatusData } from '@/api/global'
 import type { SendTemplateItem } from '@/api/model-types'
 import { getTemplate } from '@/api/notify/template'
@@ -104,7 +105,7 @@ export function SendTemplateDetailModal(props: SendTemplateDetailModalProps) {
               }
             })}
             style={sysTheme === 'dark' ? { ...atomOneDark } : { ...atomOneLight }}
-            language='json'
+            language={detail.sendType === AlarmSendType.AlarmSendTypeEmail ? 'html' : 'json'}
           >
             {detail?.content}
           </SyntaxHighlighter>

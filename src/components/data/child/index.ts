@@ -1,9 +1,9 @@
 import { AnnotationsEditorProps } from './annotation-editor'
-import { EmailTemplateEditorProps } from './eamil-template-editor'
 import { FetchSelectProps } from './fetch-select'
-import { JsonTemplateEditorProps } from './json-template-editor'
 import { DingTemplateEditorProps } from './template-editor-ding'
+import { EmailTemplateEditorProps } from './template-editor-eamil'
 import { FeishuTemplateEditorProps } from './template-editor-feishu'
+import { JsonTemplateEditorProps } from './template-editor-json'
 import { WechatTemplateEditorProps } from './template-editor-wechat'
 import { TimeUintInputProps } from './time-value'
 

@@ -202,17 +202,32 @@ export const getColumnList = (props: NotifyTemplateColumnProps): ColumnsType<Sen
 }
 
 export const editModalFormItems: (DataFromItem | DataFromItem[])[] = [
-  {
-    name: 'name',
-    label: '名称',
-    type: 'input',
-    formProps: {
-      rules: [{ required: true, message: '请输入名称' }]
+  [
+    {
+      name: 'name',
+      label: '名称',
+      type: 'input',
+      formProps: {
+        rules: [{ required: true, message: '请输入名称' }]
+      },
+      props: {
+        placeholder: '请输入名称'
+      }
     },
-    props: {
-      placeholder: '请输入名称'
+    {
+      name: 'status',
+      label: '状态',
+      type: 'radio-group',
+      formProps: {
+        rules: [{ required: true, message: '请选择状态' }]
+      },
+      props: {
+        options: Object.entries(StatusData)
+          .filter(([key]) => +key !== Status.StatusAll)
+          .map(([key, value]) => ({ label: value.text, value: +key }))
+      }
     }
-  },
+  ],
   [
     {
       name: 'sendType',
@@ -237,17 +252,9 @@ export const editModalFormItems: (DataFromItem | DataFromItem[])[] = [
       }
     },
     {
-      name: 'status',
-      label: '状态',
-      type: 'radio-group',
-      formProps: {
-        rules: [{ required: true, message: '请选择状态' }]
-      },
-      props: {
-        options: Object.entries(StatusData)
-          .filter(([key]) => +key !== Status.StatusAll)
-          .map(([key, value]) => ({ label: value.text, value: +key }))
-      }
+      name: 'templateType',
+      label: '模板类型',
+      type: 'radio-group'
     }
   ],
   {
