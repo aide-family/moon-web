@@ -8,6 +8,7 @@ import { wechatJsonSchema } from './config/wechat'
 
 export interface WechatTemplateEditorProps {
   value?: string
+  defaultValue?: string
   onChange?: (value: string) => void
   height?: string | number
 }
@@ -16,7 +17,12 @@ const { useToken } = antTheme
 
 const language = 'json'
 
-export const WechatTemplateEditor: React.FC<WechatTemplateEditorProps> = ({ value, onChange, height = '40vh' }) => {
+export const WechatTemplateEditor: React.FC<WechatTemplateEditorProps> = ({
+  value,
+  defaultValue,
+  onChange,
+  height = '40vh'
+}) => {
   const { theme } = useContext(GlobalContext)
   const { token } = useToken()
   const editorRef = useRef(null)
@@ -146,6 +152,7 @@ export const WechatTemplateEditor: React.FC<WechatTemplateEditorProps> = ({ valu
           height={height}
           defaultLanguage={language}
           value={value}
+          defaultValue={defaultValue}
           onChange={(value) => onChange?.(value || '')}
           onMount={handleEditorDidMount}
           options={{

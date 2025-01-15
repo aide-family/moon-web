@@ -8,6 +8,7 @@ import suggestions from './config/suggestions'
 
 export interface DingTemplateEditorProps {
   value?: string
+  defaultValue?: string
   onChange?: (value: string) => void
   height?: string | number
 }
@@ -16,7 +17,12 @@ const { useToken } = antTheme
 
 const language = 'json'
 
-export const DingTemplateEditor: React.FC<DingTemplateEditorProps> = ({ value, onChange, height = '40vh' }) => {
+export const DingTemplateEditor: React.FC<DingTemplateEditorProps> = ({
+  value,
+  defaultValue,
+  onChange,
+  height = '40vh'
+}) => {
   const { theme } = useContext(GlobalContext)
   const { token } = useToken()
   const editorRef = useRef(null)
@@ -146,6 +152,7 @@ export const DingTemplateEditor: React.FC<DingTemplateEditorProps> = ({ value, o
           height={height}
           defaultLanguage={language}
           value={value}
+          defaultValue={defaultValue}
           onChange={(value) => onChange?.(value || '')}
           onMount={handleEditorDidMount}
           options={{
