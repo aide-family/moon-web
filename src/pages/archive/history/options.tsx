@@ -96,7 +96,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmHistory
       title: '摘要',
       dataIndex: 'summary',
       key: 'summary',
-      width: 400
+      ellipsis: true
     },
     {
       title: '操作',

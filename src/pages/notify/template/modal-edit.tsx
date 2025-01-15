@@ -59,7 +59,7 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
 
   useEffect(() => {
     if (sendTemplateId && open) {
-      initSendTemplateDetail(sendTemplateId, true)
+      initSendTemplateDetail(sendTemplateId)
     }
     if (!open) {
       form.resetFields()
