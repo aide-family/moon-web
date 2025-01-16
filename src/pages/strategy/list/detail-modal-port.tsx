@@ -1,10 +1,60 @@
 import { StatusData } from '@/api/global'
-import type { SelectItem, StrategyItem } from '@/api/model-types'
+import type { SelectItem, StrategyItem, StrategyPortLevelItem } from '@/api/model-types'
 import { getStrategy } from '@/api/strategy'
 import { useRequest } from 'ahooks'
 import { Badge, Descriptions, type DescriptionsProps, Modal, type ModalProps, Space, Table, Tag } from 'antd'
 import type React from 'react'
 import { useEffect, useState } from 'react'
+
+export interface StrategyLevelDetailPortProps {
+  levels: StrategyPortLevelItem[]
+}
+
+export const StrategyLevelDetailPort: React.FC<StrategyLevelDetailPortProps> = (props) => {
+  const { levels } = props
+  return (
+    <Table
+      className='w-full'
+      size='small'
+      rowKey={(recrd) => recrd?.level?.value}
+      columns={[
+        {
+          title: '告警等级',
+          dataIndex: 'level',
+          key: 'level',
+          render(value: SelectItem) {
+            return <Tag color={value?.extend?.color}>{value?.label || '-'}</Tag>
+          }
+        },
+        {
+          title: '端口',
+          dataIndex: 'port',
+          key: 'port',
+          render(value) {
+            return value || '-'
+          }
+        },
+        {
+          title: '端口状态',
+          dataIndex: 'threshold',
+          render(value) {
+            return value ? (
+              <Tag color='success' bordered={false}>
+                开启
+              </Tag>
+            ) : (
+              <Tag color='error' bordered={false}>
+                关闭
+              </Tag>
+            )
+          }
+        }
+      ]}
+      dataSource={levels}
+      pagination={false}
+    />
+  )
+}
 
 export interface StrategyDetailPortProps extends ModalProps {
   strategyId?: number
@@ -94,47 +144,7 @@ export const StrategyDetailPort: React.FC<StrategyDetailPortProps> = (props) => 
         key: 'levels',
         label: '告警级别',
         span: 12,
-        children: (
-          <Table
-            className='w-full'
-            size='small'
-            columns={[
-              {
-                title: '告警等级',
-                dataIndex: 'level',
-                key: 'level',
-                render(value: SelectItem) {
-                  return <Tag color={value?.extend?.color}>{value?.label || '-'}</Tag>
-                }
-              },
-              {
-                title: '端口',
-                dataIndex: 'port',
-                key: 'port',
-                render(value) {
-                  return value || '-'
-                }
-              },
-              {
-                title: '端口状态',
-                dataIndex: 'threshold',
-                render(value) {
-                  return value ? (
-                    <Tag color='success' bordered={false}>
-                      开启
-                    </Tag>
-                  ) : (
-                    <Tag color='error' bordered={false}>
-                      关闭
-                    </Tag>
-                  )
-                }
-              }
-            ]}
-            dataSource={levels}
-            pagination={false}
-          />
-        )
+        children: <StrategyLevelDetailPort levels={levels} />
       }
     ]
   }

@@ -1,11 +1,47 @@
 import type { Condition } from '@/api/enum'
 import { ConditionData, StatusData } from '@/api/global'
-import type { SelectItem, StrategyItem } from '@/api/model-types'
+import type { SelectItem, StrategyDomainLevelItem, StrategyItem } from '@/api/model-types'
 import { getStrategy } from '@/api/strategy'
 import { useRequest } from 'ahooks'
 import { Badge, Descriptions, type DescriptionsProps, Modal, type ModalProps, Space, Table, Tag } from 'antd'
 import type React from 'react'
 import { useEffect, useState } from 'react'
+
+export interface StrategyLevelDetailDomainProps {
+  levels: StrategyDomainLevelItem[]
+}
+
+export const StrategyLevelDetailDomain: React.FC<StrategyLevelDetailDomainProps> = (props) => {
+  const { levels } = props
+  return (
+    <Table
+      className='w-full'
+      size='small'
+      rowKey={(recrd) => recrd?.level?.value}
+      columns={[
+        {
+          title: '告警等级',
+          dataIndex: 'level',
+          key: 'level',
+          render(value: SelectItem) {
+            return <Tag color={value?.extend?.color}>{value?.label || '-'}</Tag>
+          }
+        },
+        {
+          title: '判断条件',
+          dataIndex: 'condition',
+          key: 'condition',
+          render(value: Condition) {
+            return ConditionData[value]
+          }
+        },
+        { title: '剩余过期时间(d)', dataIndex: 'threshold' }
+      ]}
+      dataSource={levels}
+      pagination={false}
+    />
+  )
+}
 
 export interface StrategyDetailDomainProps extends ModalProps {
   strategyId?: number
@@ -95,33 +131,7 @@ export const StrategyDetailDomain: React.FC<StrategyDetailDomainProps> = (props)
         key: 'levels',
         label: '告警级别',
         span: 12,
-        children: (
-          <Table
-            className='w-full'
-            size='small'
-            columns={[
-              {
-                title: '告警等级',
-                dataIndex: 'level',
-                key: 'level',
-                render(value: SelectItem) {
-                  return <Tag color={value?.extend?.color}>{value?.label || '-'}</Tag>
-                }
-              },
-              {
-                title: '判断条件',
-                dataIndex: 'condition',
-                key: 'condition',
-                render(value: Condition) {
-                  return ConditionData[value]
-                }
-              },
-              { title: '剩余过期时间(d)', dataIndex: 'threshold' }
-            ]}
-            dataSource={levels}
-            pagination={false}
-          />
-        )
+        children: <StrategyLevelDetailDomain levels={levels} />
       }
     ]
   }

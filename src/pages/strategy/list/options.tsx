@@ -259,7 +259,6 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<StrategyItem
       title: '策略类目',
       dataIndex: 'categories',
       key: 'categories',
-      width: 160,
       ellipsis: true,
       render: (categories: DictItem[]) => {
         return (

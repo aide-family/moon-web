@@ -41,7 +41,11 @@ const Banner: React.FC<BannerProps> = () => {
           <div key={index}>
             <div className='text-2xl pb-5 text-white'>{item.title}</div>
             <div className='text-white'>{item.content}</div>
-            <img src={item.src} alt={item.title} className='h-full w-full' />
+            <img
+              src={item.src}
+              alt={item.title}
+              className='h-full w-full pointer-events-none cursor-default select-none'
+            />
           </div>
         ))}
       </Carousel>

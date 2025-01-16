@@ -375,8 +375,8 @@ export enum StrategyType {
   /** HTTP */
   StrategyTypeHTTP = 5,
 
-  /** MQ */
-  StrategyTypeMQ = 6,
+  /** Event */
+  StrategyTypeEvent = 6,
 
   /** Log */
   StrategyTypeLog = 7

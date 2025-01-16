@@ -198,7 +198,7 @@ export default function EventEditModal(props: EventEditModalProps) {
     <Modal {...restProps} onOk={handleSubmit} loading={detailLoading} confirmLoading={loading}>
       <div className='max-h-[70vh] overflow-y-auto overflow-x-hidden'>
         <Form form={form} layout='vertical' autoComplete='off' disabled={loading}>
-          <Form.Item name='strategyType' initialValue={StrategyType.StrategyTypeMQ} className='hidden'>
+          <Form.Item name='strategyType' initialValue={StrategyType.StrategyTypeEvent} className='hidden'>
             <Input className='hidden' />
           </Form.Item>
           <Form.Item label='数据源' name='datasourceIds' rules={[{ required: true, message: '请选择数据源' }]}>

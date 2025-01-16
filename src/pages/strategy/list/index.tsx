@@ -163,7 +163,7 @@ const StrategyMetric: React.FC = () => {
       case StrategyType.StrategyTypeMetric:
         setOpenMetricDetailModal(true)
         break
-      case StrategyType.StrategyTypeMQ:
+      case StrategyType.StrategyTypeEvent:
         setOpenEventDetailModal(true)
         break
       case StrategyType.StrategyTypeDomainCertificate:
@@ -281,7 +281,7 @@ const StrategyMetric: React.FC = () => {
       case StrategyType.StrategyTypeMetric:
         handleOpenMetricEditModal(item)
         break
-      case StrategyType.StrategyTypeMQ:
+      case StrategyType.StrategyTypeEvent:
         handleOpenEventEditModal(item)
         break
       case StrategyType.StrategyTypeDomainCertificate:
@@ -376,7 +376,7 @@ const StrategyMetric: React.FC = () => {
       case StrategyType.StrategyTypeMetric:
         handleOpenMetricEditModal()
         break
-      case StrategyType.StrategyTypeMQ:
+      case StrategyType.StrategyTypeEvent:
         handleOpenEventEditModal()
         break
       case StrategyType.StrategyTypeDomainCertificate:

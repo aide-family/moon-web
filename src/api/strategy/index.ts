@@ -112,7 +112,7 @@ export type CreateStrategyRequest<T = { [key: string]: string }> = CreateStrateg
         strategyMetricLevels: CreateStrategyMetricLevelRequest[]
       }
     | {
-        strategyType: StrategyType.StrategyTypeMQ
+        strategyType: StrategyType.StrategyTypeEvent
         strategyEventLevels: CreateStrategyEventLevelRequest[]
       }
     | {
@@ -419,7 +419,7 @@ export const parseStrategyDetailToFormData = (detail: StrategyItem): CreateStrat
  */
 export const parseEventStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequestFormData => ({
   ...parseStrategyDetailToFormData(detail),
-  strategyType: StrategyType.StrategyTypeMQ,
+  strategyType: StrategyType.StrategyTypeEvent,
   labels: parseStrategyLabelsToFormData(detail.labels),
   strategyEventLevels: detail.eventLevels.map(
     (item): CreateStrategyEventLevelRequest => ({

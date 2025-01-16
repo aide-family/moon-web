@@ -41,7 +41,22 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<RealtimeAlar
         </Button>
       )
     },
-
+    {
+      key: ActionKey.MEDICAL_PACKAGE,
+      label: (
+        <Button size='small' type='link'>
+          医药包
+        </Button>
+      )
+    },
+    {
+      key: ActionKey.ALARM_INTERVENTION,
+      label: (
+        <Button size='small' type='link'>
+          告警介入
+        </Button>
+      )
+    },
     {
       key: ActionKey.DELETE,
       label: (
@@ -82,7 +97,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<RealtimeAlar
       title: '摘要',
       dataIndex: 'summary',
       key: 'summary',
-      width: 400
+      ellipsis: true
     },
     {
       title: '操作',

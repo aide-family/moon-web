@@ -1,27 +1,27 @@
-import { batchUpdateDictStatus, ListDictRequest } from '@/api/dict'
+import { batchUpdateDictStatus } from '@/api/dict'
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { AlarmHistoryItem, listHistory } from '@/api/realtime/history'
+import { AlarmHistoryItem, listHistory, ListHistoryRequest } from '@/api/realtime/history'
 import { ListStrategyGroupRequest } from '@/api/strategy'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
+import { useRequest } from 'ahooks'
 import { Button, message, Space, theme } from 'antd'
-import { debounce } from 'lodash'
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
+import ModalDetail from './modal-detail'
 import { formList, getColumnList } from './options'
 
 const { useToken } = theme
 
-const defaultSearchParams: ListDictRequest = {
+const defaultSearchParams: ListHistoryRequest = {
   pagination: {
     pageNum: 1,
     pageSize: 10
   },
   keyword: '',
-  status: Status.StatusAll
-  // teamId: ''
+  alarmStatuses: []
 }
 
 const Group: React.FC = () => {
@@ -29,37 +29,30 @@ const Group: React.FC = () => {
   const { isFullscreen } = useContext(GlobalContext)
 
   const [datasource, setDatasource] = useState<AlarmHistoryItem[]>([])
-  const [searchParams, setSearchParams] = useState<ListDictRequest>(defaultSearchParams)
-  const [loading, setLoading] = useState(false)
-  const [refresh, setRefresh] = useState(false)
+  const [searchParams, setSearchParams] = useState<ListHistoryRequest>(defaultSearchParams)
   const [total, setTotal] = useState(0)
+  const [detail, setDetail] = useState<AlarmHistoryItem>()
+  const [detailOpen, setDetailOpen] = useState(false)
 
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
 
+  const { run: initListHistory, loading } = useRequest(listHistory, {
+    manual: true,
+    onSuccess: (res) => {
+      setDatasource(res.list || [])
+      setTotal(res.pagination?.total || 0)
+    }
+  })
+
   const onRefresh = () => {
-    setRefresh(!refresh)
+    initListHistory(searchParams)
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = useCallback(
-    debounce(async (params) => {
-      setLoading(true)
-      listHistory(params)
-        .then(({ list, pagination }) => {
-          setDatasource(list || [])
-          setTotal(pagination?.total || 0)
-        })
-        .finally(() => setLoading(false))
-    }, 500),
-    []
-  )
-
   useEffect(() => {
-    fetchData(searchParams)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, searchParams, fetchData])
+    initListHistory(searchParams)
+  }, [searchParams, initListHistory])
 
   const onSearch = (formData: ListStrategyGroupRequest) => {
     setSearchParams({
@@ -88,6 +81,16 @@ const Group: React.FC = () => {
     setSearchParams(defaultSearchParams)
   }
 
+  const onDetail = (item: AlarmHistoryItem) => {
+    setDetail(item)
+    setDetailOpen(true)
+  }
+
+  const onCloseDetail = () => {
+    setDetailOpen(false)
+    setDetail(undefined)
+  }
+
   const onHandleMenuOnClick = (item: AlarmHistoryItem, key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
@@ -105,6 +108,7 @@ const Group: React.FC = () => {
       case ActionKey.OPERATION_LOG:
         break
       case ActionKey.DETAIL:
+        onDetail(item)
         break
     }
   }
@@ -117,6 +121,13 @@ const Group: React.FC = () => {
 
   return (
     <div className='p-3 flex flex-col gap-3'>
+      <ModalDetail
+        width='70%'
+        open={detailOpen}
+        onClose={onCloseDetail}
+        onCancel={onCloseDetail}
+        historyItem={detail}
+      />
       <div
         className='p-3'
         style={{

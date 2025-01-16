@@ -40,8 +40,16 @@ export const routers: RouteObject[] = [
         path: '/home/archive',
         children: [
           {
-            path: '/home/archive/history',
-            Component: lazy(() => import('@/pages/archive/history'))
+            path: '/home/archive/history-alert',
+            Component: lazy(() => import('@/pages/archive/history-alert'))
+          },
+          // {
+          //   path: '/home/archive/statistics-alert',
+          //   Component: lazy(() => import('@/pages/archive/alert-statistics'))
+          // },
+          {
+            path: '/home/archive/history-notify',
+            Component: lazy(() => import('@/pages/archive/history-notify'))
           }
         ]
       },

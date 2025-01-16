@@ -98,16 +98,16 @@ export const defaultMenuItems: ItemType[] = [
     children: [
       {
         label: '历史告警',
-        key: '/home/archive/history'
+        key: '/home/archive/history-alert'
+      },
+      {
+        label: '告警统计',
+        key: '/home/archive/statistics-alert'
+      },
+      {
+        label: '历史通知',
+        key: '/home/archive/history-notify'
       }
-      // {
-      //   label: '告警统计',
-      //   key: '/home/archive/statistics'
-      // },
-      // {
-      //   label: '历史通知',
-      //   key: '/home/archive/notice'
-      // }
     ]
   },
   {
@@ -292,13 +292,13 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   '/home/archive': {
     name: '告警归档'
   },
-  '/home/archive/history': {
+  '/home/archive/history-alert': {
     name: '历史告警'
   },
-  '/home/archive/statistics': {
+  '/home/archive/statistics-alert': {
     name: '告警统计'
   },
-  '/home/archive/notice': {
+  '/home/archive/history-notify': {
     name: '历史通知'
   },
   '/home/community': {

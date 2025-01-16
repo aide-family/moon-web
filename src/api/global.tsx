@@ -184,7 +184,7 @@ export const StrategyTypeData: Record<StrategyType, string> = {
   [StrategyType.StrategyTypeDomainPort]: '端口',
   [StrategyType.StrategyTypePing]: 'Ping',
   [StrategyType.StrategyTypeHTTP]: 'HTTP',
-  [StrategyType.StrategyTypeMQ]: '事件',
+  [StrategyType.StrategyTypeEvent]: '事件',
   [StrategyType.StrategyTypeLog]: '日志'
 }
 
@@ -215,7 +215,7 @@ export const StrategyTypeDataTag: Record<StrategyType, React.ReactNode> = {
       HTTP
     </Tag>
   ),
-  [StrategyType.StrategyTypeMQ]: (
+  [StrategyType.StrategyTypeEvent]: (
     <Tag bordered={false} color='cyan'>
       事件
     </Tag>
@@ -423,5 +423,9 @@ export enum ActionKey {
   /** 立即推送 */
   IMMEDIATELY_PUSH = '__immediately_push__',
   /** 图表 */
-  CHART = '__chart__'
+  CHART = '__chart__',
+  /** 医药包 */
+  MEDICAL_PACKAGE = '__medical_package__',
+  /** 告警介入 */
+  ALARM_INTERVENTION = '__alarm_intervention__'
 }

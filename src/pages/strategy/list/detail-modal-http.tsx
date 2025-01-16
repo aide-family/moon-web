@@ -1,4 +1,4 @@
-import type { HTTPMethod } from '@/api/enum'
+import { HTTPMethod } from '@/api/enum'
 import { ConditionData, HTTPMethodData, StatusCodeConditionData, StatusData } from '@/api/global'
 import type { SelectItem, StrategyHTTPLevelItem, StrategyItem } from '@/api/model-types'
 import { getStrategy } from '@/api/strategy'
@@ -6,6 +6,65 @@ import { useRequest } from 'ahooks'
 import { Badge, Descriptions, type DescriptionsProps, Modal, type ModalProps, Space, Table, Tag } from 'antd'
 import type React from 'react'
 import { useEffect, useState } from 'react'
+
+export interface StrategyLevelDetailHttpProps {
+  levels: StrategyHTTPLevelItem[]
+}
+
+export const StrategyLevelDetailHttp: React.FC<StrategyLevelDetailHttpProps> = (props) => {
+  const { levels } = props
+  return (
+    <Table
+      className='w-full'
+      size='small'
+      rowKey={(recrd) => recrd?.level?.value}
+      columns={[
+        {
+          title: '告警等级',
+          dataIndex: 'level',
+          key: 'level',
+          render(value: SelectItem) {
+            return <Tag color={value?.extend?.color}>{value?.label || '-'}</Tag>
+          }
+        },
+        {
+          title: '请求方式',
+          dataIndex: 'method',
+          key: 'method',
+          render(value: HTTPMethod) {
+            return HTTPMethodData[value]
+          }
+        },
+        {
+          title: '状态码',
+          dataIndex: 'statusCode',
+          render(statusCode, record: StrategyHTTPLevelItem) {
+            const { statusCodeCondition } = record
+            return (
+              <div className='flex items-center gap-2'>
+                {StatusCodeConditionData[statusCodeCondition]} {statusCode}
+              </div>
+            )
+          }
+        },
+        {
+          title: '响应时间(ms)',
+          dataIndex: 'responseTime',
+          render(value, record) {
+            const { responseTimeCondition } = record
+            return (
+              <div className='flex items-center gap-2'>
+                {ConditionData[responseTimeCondition]} {value}
+              </div>
+            )
+          }
+        }
+      ]}
+      dataSource={levels}
+      pagination={false}
+    />
+  )
+}
 
 export interface StrategyDetailHttpProps extends ModalProps {
   strategyId?: number
@@ -95,56 +154,7 @@ export const StrategyDetailHttp: React.FC<StrategyDetailHttpProps> = (props) => 
         key: 'levels',
         label: '告警级别',
         span: 12,
-        children: (
-          <Table
-            className='w-full'
-            size='small'
-            columns={[
-              {
-                title: '告警等级',
-                dataIndex: 'level',
-                key: 'level',
-                render(value: SelectItem) {
-                  return <Tag color={value?.extend?.color}>{value?.label || '-'}</Tag>
-                }
-              },
-              {
-                title: '请求方式',
-                dataIndex: 'method',
-                key: 'method',
-                render(value: HTTPMethod) {
-                  return HTTPMethodData[value]
-                }
-              },
-              {
-                title: '状态码',
-                dataIndex: 'statusCode',
-                render(statusCode, record: StrategyHTTPLevelItem) {
-                  const { statusCodeCondition } = record
-                  return (
-                    <div className='flex items-center gap-2'>
-                      {StatusCodeConditionData[statusCodeCondition]} {statusCode}
-                    </div>
-                  )
-                }
-              },
-              {
-                title: '响应时间(ms)',
-                dataIndex: 'responseTime',
-                render(value, record) {
-                  const { responseTimeCondition } = record
-                  return (
-                    <div className='flex items-center gap-2'>
-                      {ConditionData[responseTimeCondition]} {value}
-                    </div>
-                  )
-                }
-              }
-            ]}
-            dataSource={levels}
-            pagination={false}
-          />
-        )
+        children: <StrategyLevelDetailHttp levels={levels} />
       }
     ]
   }

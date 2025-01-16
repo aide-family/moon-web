@@ -17,7 +17,14 @@ const Error403: FC = () => {
       <Result
         status='error'
         title='无权限'
-        icon={<Image src={Error403SVG} preview={false} onDragStart={() => false} />}
+        icon={
+          <Image
+            src={Error403SVG}
+            preview={false}
+            onDragStart={() => false}
+            className='pointer-events-none cursor-default select-none'
+          />
+        }
         subTitle='对不起，您没有权限访问此页面。'
         extra={
           <Button type='primary' onClick={navigateToHome}>

@@ -86,7 +86,7 @@ export default function Subscribe() {
       case StrategyType.StrategyTypeMetric:
         setOpenMetricDetailModal(true)
         break
-      case StrategyType.StrategyTypeMQ:
+      case StrategyType.StrategyTypeEvent:
         setOpenEventDetailModal(true)
         break
       case StrategyType.StrategyTypeDomainCertificate:

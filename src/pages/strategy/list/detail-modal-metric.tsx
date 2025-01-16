@@ -1,11 +1,57 @@
-import type { Condition, SustainType } from '@/api/enum'
+import { Condition, SustainType } from '@/api/enum'
 import { ConditionData, StatusData, SustainTypeData } from '@/api/global'
-import type { SelectItem, StrategyItem } from '@/api/model-types'
+import type { SelectItem, StrategyItem, StrategyMetricLevelItem } from '@/api/model-types'
 import { getStrategy } from '@/api/strategy'
 import { useRequest } from 'ahooks'
 import { Badge, Descriptions, type DescriptionsProps, Modal, type ModalProps, Space, Table, Tag } from 'antd'
 import type React from 'react'
 import { useEffect, useState } from 'react'
+
+export interface StrategyLevelDetailMetricProps {
+  levels: StrategyMetricLevelItem[]
+}
+
+export const StrategyLevelDetailMetric: React.FC<StrategyLevelDetailMetricProps> = (props) => {
+  const { levels } = props
+  return (
+    <Table
+      className='w-full'
+      size='small'
+      rowKey={(recrd) => recrd?.level?.value}
+      columns={[
+        {
+          title: '告警等级',
+          dataIndex: 'level',
+          key: 'level',
+          render(value: SelectItem) {
+            return <Tag color={value?.extend?.color}>{value?.label || '-'}</Tag>
+          }
+        },
+        {
+          title: '判断条件',
+          dataIndex: 'condition',
+          key: 'condition',
+          render(value: Condition) {
+            return ConditionData[value]
+          }
+        },
+        { title: '阈值', dataIndex: 'threshold' },
+        {
+          title: '触发类型',
+          dataIndex: 'sustainType',
+          key: 'sustainType',
+          render(value: SustainType) {
+            return SustainTypeData[value]
+          }
+        },
+        { title: '持续时间(s)', dataIndex: 'duration' },
+        { title: '持续次数', dataIndex: 'count' }
+      ]}
+      dataSource={levels}
+      pagination={false}
+    />
+  )
+}
 
 export interface MetricDetailProps extends ModalProps {
   strategyId?: number
@@ -95,43 +141,7 @@ export const MetricDetail: React.FC<MetricDetailProps> = (props) => {
         key: 'levels',
         label: '告警级别',
         span: 12,
-        children: (
-          <Table
-            className='w-full'
-            size='small'
-            columns={[
-              {
-                title: '告警等级',
-                dataIndex: 'level',
-                key: 'level',
-                render(value: SelectItem) {
-                  return <Tag color={value?.extend?.color}>{value?.label || '-'}</Tag>
-                }
-              },
-              {
-                title: '判断条件',
-                dataIndex: 'condition',
-                key: 'condition',
-                render(value: Condition) {
-                  return ConditionData[value]
-                }
-              },
-              { title: '阈值', dataIndex: 'threshold' },
-              {
-                title: '触发类型',
-                dataIndex: 'sustainType',
-                key: 'sustainType',
-                render(value: SustainType) {
-                  return SustainTypeData[value]
-                }
-              },
-              { title: '持续时间(s)', dataIndex: 'duration' },
-              { title: '持续次数', dataIndex: 'count' }
-            ]}
-            dataSource={levels}
-            pagination={false}
-          />
-        )
+        children: <StrategyLevelDetailMetric levels={levels} />
       }
     ]
   }

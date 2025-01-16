@@ -94,7 +94,7 @@ export const getColumnList = (props: ColumnProps): ColumnsType<StrategySubscribe
         const { strategy } = record
         if (!strategy) return '-'
         const { datasource } = strategy
-        if (!datasource) return '-'
+        if (!datasource || datasource.length === 0) return '-'
         if (datasource.length === 1) {
           const { name } = datasource[0]
           return <div>{name}</div>

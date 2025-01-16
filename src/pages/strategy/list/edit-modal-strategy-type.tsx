@@ -24,7 +24,7 @@ const strategyGroups: StrategyTypeGroup[] = [
         icon: <Activity className='h-5 w-5' />
       },
       {
-        id: StrategyType.StrategyTypeMQ,
+        id: StrategyType.StrategyTypeEvent,
         name: '事件',
         icon: <Zap className='h-5 w-5' />
       },
