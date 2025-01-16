@@ -46,6 +46,14 @@ export const getColumnList = (props: ColumnProps): ColumnsType<StrategySubscribe
   const { onHandleMenuOnClick } = props
   const tableOperationItems: MoreMenuProps['items'] = [
     {
+      key: ActionKey.SUBSCRIBE,
+      label: (
+        <Button type='link' size='small'>
+          修改订阅
+        </Button>
+      )
+    },
+    {
       key: ActionKey.CANCEL_SUBSCRIBE,
       label: (
         <Button type='link' size='small' danger>

@@ -1,6 +1,6 @@
-import { NotifyType } from '@/api/enum'
+import { NotifyType, StrategyType } from '@/api/enum'
 import { ActionKey, defaultPaginationReq } from '@/api/global'
-import { StrategySubscribeItem } from '@/api/model-types'
+import { StrategyItem, StrategySubscribeItem } from '@/api/model-types'
 import { unSubscriber, userSubscriberList, UserSubscriberListRequest } from '@/api/subscriber'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table'
@@ -9,6 +9,12 @@ import { GlobalContext } from '@/utils/context'
 import { useRequest } from 'ahooks'
 import { Alert, Button, Checkbox, message, Modal, Space, theme } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
+import { StrategyDetailDomain } from '../list/detail-modal-domain'
+import { StrategyDetailEvent } from '../list/detail-modal-event'
+import { StrategyDetailHttp } from '../list/detail-modal-http'
+import { MetricDetail } from '../list/detail-modal-metric'
+import { StrategyDetailPort } from '../list/detail-modal-port'
+import { ModalSubscribe } from '../list/modal-subscribe'
 import { formList, getColumnList } from './options'
 
 const { useToken } = theme
@@ -25,6 +31,13 @@ export default function Subscribe() {
 
   const [datasource, setDatasource] = useState<StrategySubscribeItem[]>([])
   const [total, setTotal] = useState<number>(0)
+  const [detail, setDetail] = useState<StrategyItem>()
+  const [openSubscribeModal, setOpenSubscribeModal] = useState(false)
+  const [openMetricDetailModal, setOpenMetricDetailModal] = useState(false)
+  const [openEventDetailModal, setOpenEventDetailModal] = useState(false)
+  const [openDomainDetailModal, setOpenDomainDetailModal] = useState(false)
+  const [openPortDetailModal, setOpenPortDetailModal] = useState(false)
+  const [openHttpDetailModal, setOpenHttpDetailModal] = useState(false)
 
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
@@ -62,10 +75,45 @@ export default function Subscribe() {
     manual: true
   })
 
+  const handleOpenSubscribeModal = (item?: StrategyItem) => {
+    setDetail(item)
+    setOpenSubscribeModal(true)
+  }
+
+  const handleDetailModal = (item: StrategyItem) => {
+    setDetail(item)
+    switch (item.strategyType) {
+      case StrategyType.StrategyTypeMetric:
+        setOpenMetricDetailModal(true)
+        break
+      case StrategyType.StrategyTypeMQ:
+        setOpenEventDetailModal(true)
+        break
+      case StrategyType.StrategyTypeDomainCertificate:
+        setOpenDomainDetailModal(true)
+        break
+      case StrategyType.StrategyTypeDomainPort:
+        setOpenPortDetailModal(true)
+        break
+      case StrategyType.StrategyTypeHTTP:
+        setOpenHttpDetailModal(true)
+        break
+      default:
+        setOpenMetricDetailModal(true)
+        break
+    }
+  }
+
   const onHandleMenuOnClick = (item: StrategySubscribeItem, key: ActionKey) => {
     const { notifyType } = item
     const checkedList: NotifyType[] = []
     switch (key) {
+      case ActionKey.DETAIL:
+        handleDetailModal(item.strategy)
+        break
+      case ActionKey.SUBSCRIBE:
+        handleOpenSubscribeModal(item.strategy)
+        break
       case ActionKey.CANCEL_SUBSCRIBE:
         if (notifyType & NotifyType.NOTIFY_PHONE) {
           checkedList.push(NotifyType.NOTIFY_PHONE)
@@ -127,12 +175,74 @@ export default function Subscribe() {
     })
   }
 
+  const handleSubscribeOk = () => {
+    setOpenSubscribeModal(false)
+    setDetail(undefined)
+    onRefresh()
+  }
+
+  const handleCloseSubscribeModal = () => {
+    setOpenSubscribeModal(false)
+    setDetail(undefined)
+  }
+
+  const handleCloseDetailModal = () => {
+    setDetail(undefined)
+    setOpenMetricDetailModal(false)
+    setOpenEventDetailModal(false)
+    setOpenDomainDetailModal(false)
+    setOpenPortDetailModal(false)
+    setOpenHttpDetailModal(false)
+  }
+
   useEffect(() => {
     getDatasource(searchParams)
   }, [searchParams, getDatasource])
 
   return (
     <div className='h-full flex flex-col gap-3 p-3'>
+      <ModalSubscribe
+        title={`订阅【${detail?.name}】策略`}
+        open={openSubscribeModal}
+        item={detail}
+        onOk={handleSubscribeOk}
+        onCancel={handleCloseSubscribeModal}
+      />
+      <MetricDetail
+        title='Metric 策略详情'
+        width='60%'
+        strategyId={detail?.id}
+        open={openMetricDetailModal}
+        onCancel={handleCloseDetailModal}
+      />
+      <StrategyDetailEvent
+        title='事件监控策略详情'
+        width='60%'
+        strategyId={detail?.id}
+        open={openEventDetailModal}
+        onCancel={handleCloseDetailModal}
+      />
+      <StrategyDetailDomain
+        title='证书监控策略详情'
+        width='60%'
+        strategyId={detail?.id}
+        open={openDomainDetailModal}
+        onCancel={handleCloseDetailModal}
+      />
+      <StrategyDetailPort
+        title='端口监控策略详情'
+        width='60%'
+        strategyId={detail?.id}
+        open={openPortDetailModal}
+        onCancel={handleCloseDetailModal}
+      />
+      <StrategyDetailHttp
+        title='HTTP监控策略详情'
+        width='60%'
+        strategyId={detail?.id}
+        open={openHttpDetailModal}
+        onCancel={handleCloseDetailModal}
+      />
       <div
         style={{
           background: token.colorBgContainer,
