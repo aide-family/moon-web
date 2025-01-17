@@ -596,7 +596,11 @@ export interface RealtimeAlarmItem {
   startsAt: string
   endsAt: string
   status: AlertStatus
-  metricLevel: StrategyMetricLevelItem
+  metricLevel?: StrategyMetricLevelItem
+  portLevel?: StrategyPortLevelItem
+  domainLevel?: StrategyDomainLevelItem
+  httpLevel?: StrategyHTTPLevelItem
+  eventLevel?: StrategyEventLevelItem
   strategy: StrategyItem
   summary: string
   description: string

@@ -1,16 +1,38 @@
-import type { Condition, SustainType } from '@/api/enum'
-import { AlertStatusData, ConditionData, SustainTypeData } from '@/api/global'
+import { StrategyType } from '@/api/enum'
+import { AlertStatusData } from '@/api/global'
 import type { RealtimeAlarmItem } from '@/api/model-types'
 import { getAlarm } from '@/api/realtime/alarm'
+import { StrategyLevelDetailDomain } from '@/pages/strategy/list/detail-modal-domain'
+import { StrategyLevelDetailEvent } from '@/pages/strategy/list/detail-modal-event'
+import { StrategyLevelDetailHttp } from '@/pages/strategy/list/detail-modal-http'
+import { StrategyLevelDetailMetric } from '@/pages/strategy/list/detail-modal-metric'
+import { StrategyLevelDetailPort } from '@/pages/strategy/list/detail-modal-port'
 import { GlobalContext } from '@/utils/context'
 import { useRequest } from 'ahooks'
-import { Descriptions, type DescriptionsProps, Modal, type ModalProps, Table } from 'antd'
+import { Descriptions, type DescriptionsProps, Modal, type ModalProps } from 'antd'
 import type React from 'react'
 import { useContext, useEffect, useState } from 'react'
 import ReactJson from 'react-json-view'
 
 export interface ModalDetailProps extends ModalProps {
   realtimeId?: number
+}
+
+const getStrategyLevelDetail = (detail: RealtimeAlarmItem) => {
+  switch (detail?.strategy?.strategyType) {
+    case StrategyType.StrategyTypeMetric:
+      return <StrategyLevelDetailMetric levels={detail?.metricLevel ? [detail?.metricLevel] : []} />
+    case StrategyType.StrategyTypeDomainPort:
+      return <StrategyLevelDetailPort levels={detail?.portLevel ? [detail?.portLevel] : []} />
+    case StrategyType.StrategyTypeDomainCertificate:
+      return <StrategyLevelDetailDomain levels={detail?.domainLevel ? [detail?.domainLevel] : []} />
+    case StrategyType.StrategyTypeHTTP:
+      return <StrategyLevelDetailHttp levels={detail?.httpLevel ? [detail?.httpLevel] : []} />
+    case StrategyType.StrategyTypeEvent:
+      return <StrategyLevelDetailEvent levels={detail?.eventLevel ? [detail?.eventLevel] : []} />
+    default:
+      return <div>-</div>
+  }
 }
 
 export const ModalDetail: React.FC<ModalDetailProps> = (props) => {
@@ -78,43 +100,7 @@ export const ModalDetail: React.FC<ModalDetailProps> = (props) => {
       {
         key: 'detail_level',
         label: '详情级别',
-        children: (
-          <Table
-            style={{ width: '100%' }}
-            size='small'
-            columns={[
-              {
-                title: '告警等级',
-                dataIndex: 'level',
-                key: 'level',
-                render(value) {
-                  return value?.label || '-'
-                }
-              },
-              {
-                title: '判断条件',
-                dataIndex: 'condition',
-                key: 'condition',
-                render(value: Condition) {
-                  return ConditionData[value]
-                }
-              },
-              { title: '阈值', dataIndex: 'threshold' },
-              {
-                title: '触发类型',
-                dataIndex: 'sustainType',
-                key: 'sustainType',
-                render(value: SustainType) {
-                  return SustainTypeData[value]
-                }
-              },
-              { title: '持续时间(s)', dataIndex: 'duration' },
-              { title: '持续次数', dataIndex: 'count' }
-            ]}
-            dataSource={[detail?.metricLevel]}
-            pagination={false}
-          />
-        ),
+        children: getStrategyLevelDetail(detail),
         span: 6
       },
       {
