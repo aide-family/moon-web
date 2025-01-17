@@ -1,45 +1,39 @@
-import type { ListDictRequest } from '@/api/dict'
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
 import type { DashboardItem } from '@/api/model-types'
 import {
-  type CreateDashboardRequest,
+  ListDashboardRequest,
   batchUpdateDashboardStatus,
-  createDashboard,
   deleteDashboard,
-  listDashboard,
-  updateDashboard
+  listDashboard
 } from '@/api/realtime/dashboard'
-import type { ListStrategyGroupRequest } from '@/api/strategy'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { ExclamationCircleFilled } from '@ant-design/icons'
+import { useRequest } from 'ahooks'
 import { Button, Modal, Space, message, theme } from 'antd'
-import { debounce } from 'lodash'
 import type React from 'react'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { GroupEditModal } from './group-edit-modal'
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { GroupEditModal } from './modal-edit'
 import { formList, getColumnList } from './options'
 
 const { confirm } = Modal
 const { useToken } = theme
 
-const defaultSearchParams: ListDictRequest = {
+const defaultSearchParams: ListDashboardRequest = {
   pagination: {
     pageNum: 1,
-    pageSize: 10
-  },
-  keyword: '',
-  status: Status.StatusAll
+    pageSize: 50
+  }
 }
 
 const Group: React.FC = () => {
+  const navigate = useNavigate()
   const { token } = useToken()
   const [datasource, setDatasource] = useState<DashboardItem[]>([])
-  const [searchParams, setSearchParams] = useState<ListDictRequest>(defaultSearchParams)
-  const [loading, setLoading] = useState(false)
-  const [refresh, setRefresh] = useState(false)
+  const [searchParams, setSearchParams] = useState<ListDashboardRequest>(defaultSearchParams)
   const [total, setTotal] = useState(0)
   const [openGroupEditModal, setOpenGroupEditModal] = useState(false)
   const [editGroupId, setEditGroupId] = useState<number>()
@@ -66,45 +60,23 @@ const Group: React.FC = () => {
     setDisabledEditGroupModal(true)
   }
 
-  const onRefresh = () => {
-    setRefresh(!refresh)
-  }
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = useCallback(
-    debounce(async (params) => {
-      setLoading(true)
-      listDashboard(params)
-        .then(({ list, pagination }) => {
-          setDatasource(list || [])
-          setTotal(pagination?.total || 0)
-        })
-        .finally(() => setLoading(false))
-    }, 500),
-    []
-  )
-
-  const handleGroupEditModalSubmit = (data: CreateDashboardRequest) => {
-    const call = () => {
-      if (!editGroupId) {
-        return createDashboard(data)
-      }
-      return updateDashboard({ ...data, id: editGroupId })
+  const { run: fetchData, loading } = useRequest(listDashboard, {
+    manual: true,
+    onSuccess: (data) => {
+      setDatasource(data.list || [])
+      setTotal(data.pagination?.total || 0)
     }
-    return call().then(() => {
-      message.success(`${editGroupId ? '编辑' : '添加'}成功`)
-      handleCloseGroupEditModal()
-      onRefresh()
-    })
+  })
+
+  const onRefresh = () => {
+    fetchData(searchParams)
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     fetchData(searchParams)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, searchParams, fetchData])
+  }, [searchParams, fetchData])
 
-  const onSearch = (formData: ListStrategyGroupRequest) => {
+  const onSearch = (formData: ListDashboardRequest) => {
     setSearchParams({
       ...searchParams,
       ...formData,
@@ -159,6 +131,10 @@ const Group: React.FC = () => {
       case ActionKey.EDIT:
         handleEditModal(item.id)
         break
+      case ActionKey.CHART_MANAGE:
+        // 携带仪表盘 ID 跳转
+        navigate(`/home/team/dashboard/chart?id=${item.id}&title=${item.title}`)
+        break
       case ActionKey.DELETE:
         confirm({
           title: '请确认是否删除该仪表盘?',
@@ -178,6 +154,11 @@ const Group: React.FC = () => {
     }
   }
 
+  const handleEditModalOnOK = () => {
+    handleCloseGroupEditModal()
+    onRefresh()
+  }
+
   const columns = getColumnList({
     onHandleMenuOnClick,
     current: searchParams.pagination.pageNum,
@@ -191,9 +172,9 @@ const Group: React.FC = () => {
         className='min-w-[504px]'
         open={openGroupEditModal}
         onCancel={handleCloseGroupEditModal}
-        submit={handleGroupEditModalSubmit}
         groupId={editGroupId}
         disabled={disabledEditGroupModal}
+        onOk={handleEditModalOnOK}
       />
       <div
         style={{

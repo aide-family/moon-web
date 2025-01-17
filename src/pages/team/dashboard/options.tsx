@@ -67,18 +67,26 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<DashboardIte
           )
         },
     {
-      key: ActionKey.OPERATION_LOG,
-      label: (
-        <Button size='small' type='link'>
-          操作日志
-        </Button>
-      )
-    },
-    {
       key: ActionKey.EDIT,
       label: (
         <Button size='small' type='link'>
           编辑
+        </Button>
+      )
+    },
+    {
+      key: ActionKey.CHART_MANAGE,
+      label: (
+        <Button size='small' type='link'>
+          图表管理
+        </Button>
+      )
+    },
+    {
+      key: ActionKey.OPERATION_LOG,
+      label: (
+        <Button size='small' type='link'>
+          操作日志
         </Button>
       )
     },
@@ -116,7 +124,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<DashboardIte
       dataIndex: 'status',
       key: 'status',
       align: 'center',
-      width: 160,
+      width: 120,
       render: (status: Status) => {
         const { text, color } = StatusData[status]
         return <Badge color={color} text={text} />
@@ -126,7 +134,6 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<DashboardIte
       title: '描述',
       dataIndex: 'remark',
       key: 'remark',
-      width: 300,
       ellipsis: true,
       render: (text: string) => {
         return text || '-'
@@ -185,7 +192,9 @@ export const editModalFormItems = (colorType: ColorType): (DataFromItem | DataFr
       props: {
         placeholder: '请输入仪表盘名称'
       }
-    },
+    }
+  ],
+  [
     {
       name: 'color',
       label: '颜色',
@@ -193,6 +202,24 @@ export const editModalFormItems = (colorType: ColorType): (DataFromItem | DataFr
       props: {
         format: colorType,
         showText: true
+      }
+    },
+    {
+      name: 'status',
+      label: '状态',
+      type: 'radio-group',
+      formProps: {
+        rules: [{ required: true, message: '请选择状态' }]
+      },
+      props: {
+        options: Object.entries(StatusData)
+          .filter(([key]) => +key !== Status.StatusAll)
+          .map(([key, value]) => {
+            return {
+              label: value.text,
+              value: Number(key)
+            }
+          })
       }
     }
   ],

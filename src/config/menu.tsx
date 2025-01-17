@@ -134,11 +134,11 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: '团队配置',
         key: '/home/team/config'
+      },
+      {
+        label: '大盘管理',
+        key: '/home/team/dashboard'
       }
-      // {
-      //   label: '大盘管理',
-      //   key: '/home/team/dashboard'
-      // }
     ]
   },
   {
@@ -222,6 +222,9 @@ export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
   },
   '/home/team/dashboard': {
     name: '大盘管理'
+  },
+  '/home/team/dashboard/chart': {
+    name: '图表管理'
   },
   '/home/self': {
     name: '个人中心'

@@ -5,6 +5,7 @@ import React from 'react'
 import {
   AlarmSendType,
   AlertStatus,
+  ChartType,
   Condition,
   DatasourceType,
   DictType,
@@ -398,6 +399,13 @@ export const TimeEngineRuleTypeData: Record<TimeEngineRuleType, { label: string;
   }
 }
 
+export const ChartTypeData: Record<ChartType, string> = {
+  [ChartType.CHART_TYPE_UNKNOWN]: '全部',
+  [ChartType.CHART_TYPE_FULLSCREEN]: '全屏',
+  [ChartType.CHART_TYPE_ROW]: '整行',
+  [ChartType.CHART_TYPE_COL]: '单个'
+}
+
 // 操作
 export enum ActionKey {
   /** 详情 */
@@ -427,5 +435,7 @@ export enum ActionKey {
   /** 医药包 */
   MEDICAL_PACKAGE = '__medical_package__',
   /** 告警介入 */
-  ALARM_INTERVENTION = '__alarm_intervention__'
+  ALARM_INTERVENTION = '__alarm_intervention__',
+  /** 图表管理 */
+  CHART_MANAGE = '__chart_manage__'
 }
