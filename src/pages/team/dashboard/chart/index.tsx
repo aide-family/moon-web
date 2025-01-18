@@ -10,6 +10,7 @@ import { useSearchParams } from 'react-router-dom'
 import { formList } from '../options'
 import { ChartCard, SortType } from './card-chart'
 import { ModalEdit } from './modal-edit'
+import { ModalPreview } from './modal-preview'
 
 const { useToken } = theme
 const defaultSearchParams: ListChartRequest = {
@@ -47,6 +48,16 @@ export default function Chart() {
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource)
+
+  const [previewModalOpen, setPreviewModalOpen] = useState(false)
+
+  const handlePreviewModal = () => {
+    setPreviewModalOpen(true)
+  }
+
+  const handlePreviewModalClose = () => {
+    setPreviewModalOpen(false)
+  }
 
   const { runAsync: fetchData } = useRequest(listChart, {
     manual: true,
@@ -160,6 +171,14 @@ export default function Chart() {
 
   return (
     <div className='p-3 gap-3 flex flex-col'>
+      <ModalPreview
+        width='80%'
+        title={<div className='text-lg font-bold'>{dashboard.title}-预览</div>}
+        dashboardId={dashboard.id}
+        open={previewModalOpen}
+        onClose={handlePreviewModalClose}
+        centered
+      />
       <ModalEdit
         dashboardId={dashboard.id}
         chart={editModalData}
@@ -185,6 +204,9 @@ export default function Chart() {
         <div className='flex justify-between'>
           <div className='text-lg font-bold'>{dashboard.title}-图表列表</div>
           <Space size={8}>
+            <Button color='primary' variant='filled' onClick={handlePreviewModal}>
+              预览
+            </Button>
             <Button type='primary' onClick={() => handleEditModal()}>
               添加
             </Button>

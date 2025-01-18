@@ -100,6 +100,19 @@ const tableOperationItems = (record: ChartItem): MoreMenuProps['items'] => [
   }
 ]
 
+const getChartType = (chart: ChartItem) => {
+  switch (chart.chartType) {
+    case ChartType.CHART_TYPE_ROW:
+      return <Rows2 size={16} />
+    case ChartType.CHART_TYPE_COL:
+      return <Columns3 size={16} />
+    case ChartType.CHART_TYPE_FULLSCREEN:
+      return <PanelBottomDashed size={16} />
+    default:
+      return ''
+  }
+}
+
 export const ChartCard = (props: ChartCardProps) => {
   const { dashboardId, chart, handleEditModal, refreshChart, updateChartSort } = props
 
@@ -174,19 +187,6 @@ export const ChartCard = (props: ChartCardProps) => {
       case ActionKey.CHART_SORT_BOTTOM:
         updateChartSort({ id: chart.id, sort: 'bottom' })
         break
-    }
-  }
-
-  const getChartType = (chart: ChartItem) => {
-    switch (chart.chartType) {
-      case ChartType.CHART_TYPE_ROW:
-        return <Rows2 size={16} />
-      case ChartType.CHART_TYPE_COL:
-        return <Columns3 size={16} />
-      case ChartType.CHART_TYPE_FULLSCREEN:
-        return <PanelBottomDashed size={16} />
-      default:
-        return ''
     }
   }
 

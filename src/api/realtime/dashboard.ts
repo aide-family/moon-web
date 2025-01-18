@@ -36,7 +36,7 @@ export function deleteDashboard(params: DeleteDashboardRequest): Promise<null> {
  * @returns 获取大盘明细响应
  */
 export function getDashboard(params: GetDashboardRequest): Promise<GetDashboardReply> {
-  return request.GET<GetDashboardReply>(`/v1/admin/realtime/dashboard/get/${params.id}`)
+  return request.GET<GetDashboardReply>(`/v1/admin/realtime/dashboard/get/${params.id}`, params)
 }
 
 /**
@@ -168,6 +168,8 @@ export interface DeleteDashboardRequest {
 export interface GetDashboardRequest {
   /** 仪表板 ID */
   id: number
+  /** 是否获取图表 */
+  charts?: boolean
 }
 
 /** 获取仪表板响应 */
