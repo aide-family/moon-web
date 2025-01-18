@@ -437,5 +437,13 @@ export enum ActionKey {
   /** 告警介入 */
   ALARM_INTERVENTION = '__alarm_intervention__',
   /** 图表管理 */
-  CHART_MANAGE = '__chart_manage__'
+  CHART_MANAGE = '__chart_manage__',
+  /** 图表排序-上移 */
+  CHART_SORT_UP = '__chart_sort_up__',
+  /** 图表排序-下移 */
+  CHART_SORT_DOWN = '__chart_sort_down__',
+  /** 图表排序-置顶 */
+  CHART_SORT_TOP = '__chart_sort_top__',
+  /** 图表排序-置底 */
+  CHART_SORT_BOTTOM = '__chart_sort_bottom__'
 }

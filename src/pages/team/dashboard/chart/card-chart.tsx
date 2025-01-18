@@ -1,13 +1,15 @@
 import { ChartType, Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
 import { ChartItem } from '@/api/model-types'
-import { batchUpdateChartStatus } from '@/api/realtime/dashboard'
+import { batchUpdateChartStatus, deleteChart } from '@/api/realtime/dashboard'
 import MoreMenu, { MoreMenuProps } from '@/components/moreMenu'
 import { useRequest } from 'ahooks'
 import { Badge, Button, Card, CardProps, message, Space } from 'antd'
 import { Columns3, Ellipsis, Expand, Fullscreen, PanelBottomDashed, Rows2 } from 'lucide-react'
 import { useState } from 'react'
 import { ModalChart } from './modal-chart'
+
+export type SortType = 'up' | 'down' | 'top' | 'bottom'
 
 export interface ChartCardProps extends CardProps {
   /** 仪表板 ID */
@@ -18,6 +20,8 @@ export interface ChartCardProps extends CardProps {
   handleEditModal: (data?: ChartItem) => void
   /** 刷新图表 */
   refreshChart: () => void
+  /** 更新图表排序 */
+  updateChartSort: (data: { id: number; sort: SortType }) => void
 }
 
 const tableOperationItems = (record: ChartItem): MoreMenuProps['items'] => [
@@ -47,6 +51,38 @@ const tableOperationItems = (record: ChartItem): MoreMenuProps['items'] => [
     )
   },
   {
+    key: ActionKey.CHART_SORT_UP,
+    label: (
+      <Button size='small' type='link'>
+        上移
+      </Button>
+    )
+  },
+  {
+    key: ActionKey.CHART_SORT_DOWN,
+    label: (
+      <Button size='small' type='link'>
+        下移
+      </Button>
+    )
+  },
+  {
+    key: ActionKey.CHART_SORT_TOP,
+    label: (
+      <Button size='small' type='link'>
+        置顶
+      </Button>
+    )
+  },
+  {
+    key: ActionKey.CHART_SORT_BOTTOM,
+    label: (
+      <Button size='small' type='link'>
+        置底
+      </Button>
+    )
+  },
+  {
     key: ActionKey.OPERATION_LOG,
     label: (
       <Button size='small' type='link'>
@@ -65,7 +101,7 @@ const tableOperationItems = (record: ChartItem): MoreMenuProps['items'] => [
 ]
 
 export const ChartCard = (props: ChartCardProps) => {
-  const { dashboardId, chart, handleEditModal, refreshChart } = props
+  const { dashboardId, chart, handleEditModal, refreshChart, updateChartSort } = props
 
   const [chartModalOpen, setChartModalOpen] = useState(false)
 
@@ -94,6 +130,14 @@ export const ChartCard = (props: ChartCardProps) => {
     }
   })
 
+  const { run: runDeleteChart } = useRequest(deleteChart, {
+    manual: true,
+    onSuccess: () => {
+      message.success('删除图表成功')
+      refreshChart()
+    }
+  })
+
   const onHandleMenuOnClick = (key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
@@ -116,6 +160,19 @@ export const ChartCard = (props: ChartCardProps) => {
       case ActionKey.OPERATION_LOG:
         break
       case ActionKey.DELETE:
+        runDeleteChart({ dashboardId, id: chart.id })
+        break
+      case ActionKey.CHART_SORT_UP:
+        updateChartSort({ id: chart.id, sort: 'up' })
+        break
+      case ActionKey.CHART_SORT_DOWN:
+        updateChartSort({ id: chart.id, sort: 'down' })
+        break
+      case ActionKey.CHART_SORT_TOP:
+        updateChartSort({ id: chart.id, sort: 'top' })
+        break
+      case ActionKey.CHART_SORT_BOTTOM:
+        updateChartSort({ id: chart.id, sort: 'bottom' })
         break
     }
   }

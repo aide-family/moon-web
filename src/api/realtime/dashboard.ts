@@ -120,6 +120,14 @@ export function batchUpdateChartStatus(params: BatchUpdateChartStatusRequest): P
   return request.PUT<null>(`/v1/admin/realtime/dashboard/${params.dashboardId}/chart/batch/update/status`, params)
 }
 
+/** 批量更新图表排序
+ * @param params 批量更新图表排序请求参数
+ * @returns 批量更新图表排序响应
+ */
+export function batchUpdateChartSort(params: BatchUpdateChartSortRequest): Promise<null> {
+  return request.PUT<null>(`/v1/admin/realtime/dashboard/${params.dashboardId}/chart/batch/update/sort`, params)
+}
+
 /** 批量修改仪表板状态请求参数 */
 export interface BatchUpdateDashboardStatusRequest {
   /** 仪表板 ID 列表 */
@@ -278,4 +286,12 @@ export interface BatchUpdateChartStatusRequest {
   ids: number[]
   /** 状态 */
   status: Status
+}
+
+/** 批量更新图表排序请求参数 */
+export interface BatchUpdateChartSortRequest {
+  /** 仪表板 ID */
+  dashboardId: number
+  /** 图表 ID 列表 */
+  ids: number[]
 }

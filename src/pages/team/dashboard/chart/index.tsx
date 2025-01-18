@@ -1,14 +1,14 @@
 import { Status } from '@/api/enum'
 import { ChartItem, DashboardItem } from '@/api/model-types'
-import { listChart, ListChartRequest } from '@/api/realtime/dashboard'
+import { batchUpdateChartSort, listChart, ListChartRequest } from '@/api/realtime/dashboard'
 import SearchBox from '@/components/data/search-box'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { useRequest } from 'ahooks'
-import { Button, Space, theme } from 'antd'
+import { Button, message, Space, theme } from 'antd'
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { formList } from '../options'
-import { ChartCard } from './card-chart'
+import { ChartCard, SortType } from './card-chart'
 import { ModalEdit } from './modal-edit'
 
 const { useToken } = theme
@@ -93,6 +93,48 @@ export default function Chart() {
     onRefresh()
   }
 
+  const { run: runUpdateChartSort } = useRequest(batchUpdateChartSort, {
+    manual: true,
+    onSuccess: () => {
+      message.success('更新图表排序成功')
+      onRefresh()
+    }
+  })
+
+  const handleUpdateChartSort = (data: { id: number; sort: SortType }) => {
+    const ids = datasource.map((item) => item.id)
+    const index = ids.indexOf(data.id)
+    const prevIndex = index - 1
+    const nextIndex = index + 1
+    switch (data.sort) {
+      case 'up':
+        ids.splice(index, 1)
+        if (prevIndex >= 0) {
+          ids.splice(prevIndex, 0, data.id)
+        } else {
+          ids.unshift(data.id)
+        }
+        break
+      case 'down':
+        ids.splice(index, 1)
+        if (nextIndex < ids.length) {
+          ids.splice(nextIndex, 0, data.id)
+        } else {
+          ids.push(data.id)
+        }
+        break
+      case 'top':
+        ids.splice(index, 1)
+        ids.unshift(data.id)
+        break
+      case 'bottom':
+        ids.splice(index, 1)
+        ids.push(data.id)
+        break
+    }
+    runUpdateChartSort({ dashboardId: dashboard.id, ids })
+  }
+
   useEffect(() => {
     const dashboardId = routerSearchParams.get('id')
     const dashboardName = routerSearchParams.get('title')
@@ -164,6 +206,7 @@ export default function Chart() {
                   chart={item}
                   handleEditModal={handleEditModal}
                   refreshChart={onRefresh}
+                  updateChartSort={handleUpdateChartSort}
                 />
               </div>
             )
