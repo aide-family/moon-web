@@ -159,7 +159,12 @@ export default function Chart() {
           {datasource.map((item) => {
             return (
               <div key={item.id} className='w-[400px]'>
-                <ChartCard chart={item} handleEditModal={handleEditModal} />
+                <ChartCard
+                  dashboardId={dashboard.id}
+                  chart={item}
+                  handleEditModal={handleEditModal}
+                  refreshChart={onRefresh}
+                />
               </div>
             )
           })}

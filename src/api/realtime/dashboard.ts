@@ -111,6 +111,15 @@ export function batchUpdateDashboardStatus(params: BatchUpdateDashboardStatusReq
   return request.POST<null>('/v1/admin/realtime/dashboard/batch/update/status', params)
 }
 
+/**
+ * 批量修改图表状态
+ * @param params 批量修改图表状态请求参数
+ * @returns 批量修改图表状态响应
+ */
+export function batchUpdateChartStatus(params: BatchUpdateChartStatusRequest): Promise<null> {
+  return request.PUT<null>(`/v1/admin/realtime/dashboard/${params.dashboardId}/chart/batch/update/status`, params)
+}
+
 /** 批量修改仪表板状态请求参数 */
 export interface BatchUpdateDashboardStatusRequest {
   /** 仪表板 ID 列表 */
@@ -259,4 +268,14 @@ export interface ListChartReply {
   list: ChartItem[]
   /** 分页响应 */
   pagination: PaginationReply
+}
+
+/** 批量修改图表状态请求参数 */
+export interface BatchUpdateChartStatusRequest {
+  /** 仪表板 ID */
+  dashboardId: number
+  /** 图表 ID 列表 */
+  ids: number[]
+  /** 状态 */
+  status: Status
 }

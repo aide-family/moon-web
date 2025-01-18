@@ -1,15 +1,23 @@
-import { Status } from '@/api/enum'
+import { ChartType, Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
 import { ChartItem } from '@/api/model-types'
+import { batchUpdateChartStatus } from '@/api/realtime/dashboard'
 import MoreMenu, { MoreMenuProps } from '@/components/moreMenu'
-import { Button, Card, CardProps, Space } from 'antd'
-import { Ellipsis, Expand, Fullscreen } from 'lucide-react'
+import { useRequest } from 'ahooks'
+import { Badge, Button, Card, CardProps, message, Space } from 'antd'
+import { Columns3, Ellipsis, Expand, Fullscreen, PanelBottomDashed, Rows2 } from 'lucide-react'
 import { useState } from 'react'
 import { ModalChart } from './modal-chart'
 
 export interface ChartCardProps extends CardProps {
+  /** 仪表板 ID */
+  dashboardId: number
+  /** 图表 */
   chart: ChartItem
+  /** 编辑图表 */
   handleEditModal: (data?: ChartItem) => void
+  /** 刷新图表 */
+  refreshChart: () => void
 }
 
 const tableOperationItems = (record: ChartItem): MoreMenuProps['items'] => [
@@ -57,7 +65,7 @@ const tableOperationItems = (record: ChartItem): MoreMenuProps['items'] => [
 ]
 
 export const ChartCard = (props: ChartCardProps) => {
-  const { chart, handleEditModal } = props
+  const { dashboardId, chart, handleEditModal, refreshChart } = props
 
   const [chartModalOpen, setChartModalOpen] = useState(false)
 
@@ -78,11 +86,29 @@ export const ChartCard = (props: ChartCardProps) => {
     }
   }
 
+  const { run: runBatchUpdateChartStatus } = useRequest(batchUpdateChartStatus, {
+    manual: true,
+    onSuccess: () => {
+      message.success('修改状态成功')
+      refreshChart()
+    }
+  })
+
   const onHandleMenuOnClick = (key: ActionKey) => {
     switch (key) {
       case ActionKey.ENABLE:
+        runBatchUpdateChartStatus({
+          dashboardId,
+          ids: [chart.id],
+          status: Status.StatusEnable
+        })
         break
       case ActionKey.DISABLE:
+        runBatchUpdateChartStatus({
+          dashboardId,
+          ids: [chart.id],
+          status: Status.StatusDisable
+        })
         break
       case ActionKey.EDIT:
         handleEditModal(chart)
@@ -93,11 +119,31 @@ export const ChartCard = (props: ChartCardProps) => {
         break
     }
   }
+
+  const getChartType = (chart: ChartItem) => {
+    switch (chart.chartType) {
+      case ChartType.CHART_TYPE_ROW:
+        return <Rows2 size={16} />
+      case ChartType.CHART_TYPE_COL:
+        return <Columns3 size={16} />
+      case ChartType.CHART_TYPE_FULLSCREEN:
+        return <PanelBottomDashed size={16} />
+      default:
+        return ''
+    }
+  }
+
   return (
     <>
       <ModalChart chart={chart} open={chartModalOpen} onCancel={closeChartModal} title={chart.title} />
       <Card
-        title={chart.title}
+        title={
+          <div className='flex items-center gap-2'>
+            {getChartType(chart)}
+            <Badge color={chart.status === Status.StatusEnable ? 'green' : 'red'} />
+            <div>{chart.title}</div>
+          </div>
+        }
         className='cursor-pointer hover:shadow-md hover:shadow-gray-300/50 transition-all duration-300'
         extra={
           <Space size={20}>

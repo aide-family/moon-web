@@ -219,6 +219,12 @@ const PromQLInput: React.FC<PromQLInputProps> = (props) => {
           }
         })
       )
+      const view2 = new EditorView({
+        state: startState
+        // parent: containerRef.current as any,
+      })
+
+      viewRef.current = view2
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
