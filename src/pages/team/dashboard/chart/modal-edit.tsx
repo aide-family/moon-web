@@ -56,7 +56,7 @@ export const ModalEdit = (props: ModalEditProps) => {
       const params = {
         ...rest,
         dashboardId,
-        width: width,
+        width: width ? `${Math.floor(width)}` : undefined,
         height: height
       }
       if (detail?.id) {

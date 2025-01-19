@@ -190,21 +190,10 @@ export default function Chart() {
         onCancel={handleEditModalClose}
         onOk={handleEditModalOk}
       />
-      <div
-        style={{
-          background: token.colorBgContainer,
-          borderRadius: token.borderRadius
-        }}
-      >
+      <div style={{ background: token.colorBgContainer, borderRadius: token.borderRadius }}>
         <SearchBox ref={searchRef} formList={formList} onSearch={onSearch} onReset={onReset} />
       </div>
-      <div
-        className='p-3'
-        style={{
-          background: token.colorBgContainer,
-          borderRadius: token.borderRadius
-        }}
-      >
+      <div className='p-3' style={{ background: token.colorBgContainer, borderRadius: token.borderRadius }}>
         <div className='flex justify-between'>
           <div className='text-lg font-bold'>{dashboard.title}-图表列表</div>
           <Space size={8}>

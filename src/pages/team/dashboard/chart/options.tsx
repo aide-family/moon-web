@@ -55,6 +55,13 @@ export const editChartItems = (): (DataFromItem | DataFromItem[])[] => [
       type: 'input',
       props: {
         placeholder: '请输入宽度'
+      },
+      formProps: {
+        tooltip: '格扇布局，0-24之间的整数',
+        rules: [
+          { max: 24, message: '最大值为24', type: 'number', transform: (value) => +value },
+          { min: 0, message: '最小值为0', type: 'number', transform: (value) => +value }
+        ]
       }
     },
     {

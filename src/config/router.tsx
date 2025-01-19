@@ -33,6 +33,10 @@ export const routers: RouteObject[] = [
           {
             path: '/home/realtime/dashboard',
             Component: lazy(() => import('@/pages/realtime/dashboard'))
+          },
+          {
+            path: '/home/realtime/monitor',
+            Component: lazy(() => import('@/pages/realtime/monitor'))
           }
         ]
       },

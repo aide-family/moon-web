@@ -210,13 +210,7 @@ const Group: React.FC = () => {
       >
         <SearchBox ref={searchRef} formList={formList} onSearch={onSearch} onReset={onReset} />
       </div>
-      <div
-        className='p-3'
-        style={{
-          background: token.colorBgContainer,
-          borderRadius: token.borderRadius
-        }}
-      >
+      <div className='p-3' style={{ background: token.colorBgContainer, borderRadius: token.borderRadius }}>
         <div className='flex justify-between items-center'>
           <div className='text-lg font-bold'>实时告警列表</div>
           <Space size={8}>

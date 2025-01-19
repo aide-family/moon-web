@@ -128,6 +128,23 @@ export function batchUpdateChartSort(params: BatchUpdateChartSortRequest): Promi
   return request.PUT<null>(`/v1/admin/realtime/dashboard/${params.dashboardId}/chart/batch/update/sort`, params)
 }
 
+/**
+ * 获取个人仪表板列表
+ * @returns 获取个人仪表板列表响应
+ */
+export function listMyDashboard(): Promise<ListMyDashboardReply> {
+  return request.GET<ListMyDashboardReply>('/v1/admin/realtime/self/dashboard/list')
+}
+
+/**
+ * 更新个人仪表板
+ * @param params 更新个人仪表板请求参数
+ * @returns 更新个人仪表板响应
+ */
+export function updateMyDashboard(params: UpdateMyDashboardRequest): Promise<null> {
+  return request.PUT<null>('/v1/admin/realtime/self/dashboard/update', params)
+}
+
 /** 批量修改仪表板状态请求参数 */
 export interface BatchUpdateDashboardStatusRequest {
   /** 仪表板 ID 列表 */
@@ -170,6 +187,8 @@ export interface GetDashboardRequest {
   id: number
   /** 是否获取图表 */
   charts?: boolean
+  /** 是否获取我的仪表板 */
+  myDashboard?: boolean
 }
 
 /** 获取仪表板响应 */
@@ -291,5 +310,17 @@ export interface BatchUpdateChartSortRequest {
   /** 仪表板 ID */
   dashboardId: number
   /** 图表 ID 列表 */
+  ids: number[]
+}
+
+/** 获取个人仪表板列表响应 */
+export interface ListMyDashboardReply {
+  /** 仪表板列表 */
+  list: DashboardItem[]
+}
+
+/** 更新个人仪表板请求参数 */
+export interface UpdateMyDashboardRequest {
+  /** 仪表板 ID 列表 */
   ids: number[]
 }
