@@ -1,11 +1,11 @@
-import { ChartType, Status } from '@/api/enum'
+import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
 import { ChartItem } from '@/api/model-types'
 import { batchUpdateChartStatus, deleteChart } from '@/api/realtime/dashboard'
 import MoreMenu, { MoreMenuProps } from '@/components/moreMenu'
 import { useRequest } from 'ahooks'
 import { Badge, Button, Card, CardProps, message, Space } from 'antd'
-import { Columns3, Ellipsis, Expand, Fullscreen, PanelBottomDashed, Rows2 } from 'lucide-react'
+import { Ellipsis, Expand, Fullscreen, PanelBottomDashed } from 'lucide-react'
 import { useState } from 'react'
 import { ModalChart } from './modal-chart'
 
@@ -100,19 +100,6 @@ const tableOperationItems = (record: ChartItem): MoreMenuProps['items'] => [
   }
 ]
 
-const getChartType = (chart: ChartItem) => {
-  switch (chart.chartType) {
-    case ChartType.CHART_TYPE_ROW:
-      return <Rows2 size={16} />
-    case ChartType.CHART_TYPE_COL:
-      return <Columns3 size={16} />
-    case ChartType.CHART_TYPE_FULLSCREEN:
-      return <PanelBottomDashed size={16} />
-    default:
-      return ''
-  }
-}
-
 export const ChartCard = (props: ChartCardProps) => {
   const { dashboardId, chart, handleEditModal, refreshChart, updateChartSort } = props
 
@@ -196,7 +183,7 @@ export const ChartCard = (props: ChartCardProps) => {
       <Card
         title={
           <div className='flex items-center gap-2'>
-            {getChartType(chart)}
+            <PanelBottomDashed size={16} />
             <Badge color={chart.status === Status.StatusEnable ? 'green' : 'red'} />
             <div>{chart.title}</div>
           </div>

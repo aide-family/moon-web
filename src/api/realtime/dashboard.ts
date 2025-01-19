@@ -1,4 +1,4 @@
-import { ChartType, Status } from '../enum'
+import { Status } from '../enum'
 import { PaginationReply, PaginationReq } from '../global'
 import { ChartItem, DashboardItem, SelectItem } from '../model-types'
 import request from '../request'
@@ -216,8 +216,6 @@ export interface CreateChartRequest {
   remark: string
   /** 图表 URL */
   url: string
-  /** 图表类型 */
-  chartType: ChartType
   /** 状态 */
   status: Status
   /** 宽度 */
@@ -268,8 +266,6 @@ export interface ListChartRequest {
   keyword?: string
   /** 状态 */
   status?: Status
-  /** 图表类型列表 */
-  chartTypes?: ChartType[]
 }
 
 /** 获取图表列表响应 */

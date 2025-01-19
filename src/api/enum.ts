@@ -268,21 +268,6 @@ export enum TemplateSourceType {
   TemplateSourceTypeTeam = 2
 }
 
-/** 图表类型 */
-export enum ChartType {
-  /** UNKNOWN 未知, 用于默认值 */
-  CHART_TYPE_UNKNOWN = 0,
-
-  /** 全屏 */
-  CHART_TYPE_FULLSCREEN = 1,
-
-  /** 整行 */
-  CHART_TYPE_ROW = 2,
-
-  /** 单个 */
-  CHART_TYPE_COL = 3
-}
-
 /** 告警状态 */
 export enum AlertStatus {
   /** UNKNOWN 未知 */

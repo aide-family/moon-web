@@ -1,50 +1,19 @@
-import { ChartType, Status } from '@/api/enum'
-import { ChartTypeData, StatusData } from '@/api/global'
+import { Status } from '@/api/enum'
+import { StatusData } from '@/api/global'
 import { DataFromItem } from '@/components/data/form'
 import { Badge } from 'antd'
 
 export const editChartItems = (): (DataFromItem | DataFromItem[])[] => [
-  {
-    label: '标题',
-    name: 'title',
-    type: 'input',
-    formProps: {
-      rules: [{ required: true, message: '请输入标题' }]
-    },
-    props: {
-      placeholder: '请输入标题'
-    }
-  },
-  {
-    label: '图表链接',
-    name: 'url',
-    type: 'input',
-    formProps: {
-      rules: [
-        { required: true, message: '请输入图表链接' },
-        { type: 'url', message: '请输入正确的图表链接' }
-      ]
-    },
-    props: {
-      placeholder: '请输入图表链接'
-    }
-  },
   [
     {
-      label: '图表类型',
-      name: 'chartType',
-      type: 'select',
+      label: '标题',
+      name: 'title',
+      type: 'input',
       formProps: {
-        rules: [{ required: true, message: '请选择图表类型' }]
+        rules: [{ required: true, message: '请输入标题' }]
       },
       props: {
-        placeholder: '请选择图表类型',
-        options: Object.entries(ChartTypeData)
-          .filter(([key]) => +key !== ChartType.CHART_TYPE_UNKNOWN)
-          .map(([key, value]) => ({
-            label: value,
-            value: +key
-          }))
+        placeholder: '请输入标题'
       }
     },
     {
@@ -64,15 +33,28 @@ export const editChartItems = (): (DataFromItem | DataFromItem[])[] => [
       }
     }
   ],
+  {
+    label: '图表链接',
+    name: 'url',
+    type: 'input',
+    formProps: {
+      rules: [
+        { required: true, message: '请输入图表链接' },
+        { type: 'url', message: '请输入正确的图表链接' }
+      ]
+    },
+    props: {
+      placeholder: '请输入图表链接'
+    }
+  },
+
   [
     {
       label: '宽度',
       name: 'width',
       type: 'input',
       props: {
-        placeholder: '请输入宽度',
-        suffix: 'px',
-        type: 'number'
+        placeholder: '请输入宽度'
       }
     },
     {
@@ -80,9 +62,7 @@ export const editChartItems = (): (DataFromItem | DataFromItem[])[] => [
       name: 'height',
       type: 'input',
       props: {
-        placeholder: '请输入高度',
-        suffix: 'px',
-        type: 'number'
+        placeholder: '请输入高度'
       }
     }
   ],

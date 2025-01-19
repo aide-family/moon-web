@@ -172,7 +172,7 @@ export default function Chart() {
   return (
     <div className='p-3 gap-3 flex flex-col'>
       <ModalPreview
-        width='80%'
+        width='80vw'
         title={<div className='text-lg font-bold'>{dashboard.title}-预览</div>}
         dashboardId={dashboard.id}
         open={previewModalOpen}

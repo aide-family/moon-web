@@ -5,7 +5,6 @@ import React from 'react'
 import {
   AlarmSendType,
   AlertStatus,
-  ChartType,
   Condition,
   DatasourceType,
   DictType,
@@ -397,13 +396,6 @@ export const TimeEngineRuleTypeData: Record<TimeEngineRuleType, { label: string;
     label: '月份',
     icon: <Calendar1 className='h-5 w-5' />
   }
-}
-
-export const ChartTypeData: Record<ChartType, string> = {
-  [ChartType.CHART_TYPE_UNKNOWN]: '全部',
-  [ChartType.CHART_TYPE_FULLSCREEN]: '全屏',
-  [ChartType.CHART_TYPE_ROW]: '整行',
-  [ChartType.CHART_TYPE_COL]: '单个'
 }
 
 // 操作

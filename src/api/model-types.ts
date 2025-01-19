@@ -1,7 +1,6 @@
 import type {
   AlarmSendType,
   AlertStatus,
-  ChartType,
   Condition,
   DatasourceType,
   DictType,
@@ -571,8 +570,6 @@ export interface ChartItem {
   url: string
   /** 图表状态 */
   status: Status
-  /** 图表类型 */
-  chartType: ChartType
   /** 宽度 */
   width: string
   /** 高度 */

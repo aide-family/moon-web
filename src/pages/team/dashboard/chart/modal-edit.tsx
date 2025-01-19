@@ -56,8 +56,8 @@ export const ModalEdit = (props: ModalEditProps) => {
       const params = {
         ...rest,
         dashboardId,
-        width: `${width}px`,
-        height: `${height}px`
+        width: width,
+        height: height
       }
       if (detail && detail.id) {
         editChart({ chart: params, id: detail.id, dashboardId })

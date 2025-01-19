@@ -1,4 +1,4 @@
-import { DashboardItem } from '@/api/model-types'
+import { ChartItem, DashboardItem } from '@/api/model-types'
 import { getDashboard } from '@/api/realtime/dashboard'
 import { useRequest } from 'ahooks'
 import { Card, Modal, ModalProps } from 'antd'
@@ -7,6 +7,20 @@ import { useEffect, useState } from 'react'
 export interface ModalPreviewProps extends ModalProps {
   dashboardId: number
   onClose: () => void
+}
+
+const PreviewCard = ({ chart }: { chart: ChartItem }) => {
+  let width: number | string = 400
+  let height: number | string = 300
+
+  chart.width && (width = `calc(${chart.width} - 12px)`)
+  chart.height && (height = chart.height)
+
+  return (
+    <Card title={chart.title} size='small' style={{ width: width, height: height, overflow: 'hidden' }}>
+      <iframe src={chart.url} width='100%' height={height} />
+    </Card>
+  )
 }
 
 export const ModalPreview: React.FC<ModalPreviewProps> = (props) => {
@@ -28,18 +42,17 @@ export const ModalPreview: React.FC<ModalPreviewProps> = (props) => {
   }, [open, runGetDashboard])
 
   return (
-    <Modal {...rest} onCancel={onClose} onClose={onClose} footer={null} open={open} loading={loading}>
-      <div className='h-[80vh] flex flex-col gap-3 overflow-y-auto'>
-        {dashboard?.charts?.map((chart) => (
-          <Card
-            title={chart.title}
-            className='cursor-pointer hover:shadow-md hover:shadow-gray-300/50 transition-all duration-300'
-          >
-            <div className='overflow-hidden h-[200px] w-full' id={`chart-iframe-${chart.id}`}>
-              <iframe src={chart.url} width='100%' height='100%' className='overflow-hidden' />
-            </div>
-          </Card>
-        ))}
+    <Modal
+      {...rest}
+      onCancel={onClose}
+      onClose={onClose}
+      footer={null}
+      open={open}
+      loading={loading}
+      className='h-[80vh]'
+    >
+      <div className='flex gap-3 flex-wrap overflow-y-auto h-[80vh] '>
+        {dashboard?.charts?.map((chart) => <PreviewCard key={chart.id} chart={chart} />)}
       </div>
     </Modal>
   )
