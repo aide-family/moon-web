@@ -1,6 +1,6 @@
-import { AlertStatus } from '../enum'
-import { PaginationReply, PaginationReq } from '../global'
-import {
+import type { AlertStatus } from '../enum'
+import type { PaginationReply, PaginationReq } from '../global'
+import type {
   DatasourceItem,
   StrategyDomainLevelItem,
   StrategyEventLevelItem,

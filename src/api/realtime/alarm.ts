@@ -1,6 +1,6 @@
-import { AlertStatus } from '../enum'
-import { PaginationReply, PaginationReq } from '../global'
-import { RealtimeAlarmItem } from '../model-types'
+import type { AlertStatus } from '../enum'
+import type { PaginationReply, PaginationReq } from '../global'
+import type { RealtimeAlarmItem } from '../model-types'
 import request from '../request'
 
 /**

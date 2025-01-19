@@ -2,7 +2,7 @@ import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
 import type { DashboardItem } from '@/api/model-types'
 import {
-  ListDashboardRequest,
+  type ListDashboardRequest,
   batchUpdateDashboardStatus,
   deleteDashboard,
   listDashboard

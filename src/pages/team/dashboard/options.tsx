@@ -30,10 +30,7 @@ export const formList: SearchFormItem[] = [
         placeholder: '状态',
         allowClear: true,
         options: Object.entries(StatusData).map(([key, value]) => {
-          return {
-            label: value.text,
-            value: Number(key)
-          }
+          return { label: <Badge {...value} />, value: Number(key) }
         })
       }
     }

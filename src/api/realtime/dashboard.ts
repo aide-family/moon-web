@@ -1,6 +1,6 @@
-import { Status } from '../enum'
-import { PaginationReply, PaginationReq } from '../global'
-import { ChartItem, DashboardItem, SelectItem } from '../model-types'
+import type { Status } from '../enum'
+import type { PaginationReply, PaginationReq } from '../global'
+import type { ChartItem, DashboardItem, SelectItem } from '../model-types'
 import request from '../request'
 
 /**

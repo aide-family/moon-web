@@ -1,14 +1,14 @@
 import { Status } from '@/api/enum'
-import { ChartItem, DashboardItem } from '@/api/model-types'
-import { batchUpdateChartSort, listChart, ListChartRequest } from '@/api/realtime/dashboard'
+import type { ChartItem, DashboardItem } from '@/api/model-types'
+import { type ListChartRequest, batchUpdateChartSort, listChart } from '@/api/realtime/dashboard'
 import SearchBox from '@/components/data/search-box'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { useRequest } from 'ahooks'
-import { Button, message, Space, theme } from 'antd'
+import { Button, Space, message, theme } from 'antd'
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { formList } from '../options'
-import { ChartCard, SortType } from './card-chart'
+import { ChartCard, type SortType } from './card-chart'
 import { ModalEdit } from './modal-edit'
 import { ModalPreview } from './modal-preview'
 
@@ -150,7 +150,11 @@ export default function Chart() {
     const dashboardId = routerSearchParams.get('id')
     const dashboardName = routerSearchParams.get('title')
     if (dashboardId && dashboardName) {
-      setDashboard((prev) => ({ ...prev, id: Number(dashboardId), title: dashboardName }))
+      setDashboard((prev) => ({
+        ...prev,
+        id: Number(dashboardId),
+        title: dashboardName
+      }))
     }
   }, [routerSearchParams])
 

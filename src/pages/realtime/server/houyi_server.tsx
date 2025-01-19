@@ -1,5 +1,5 @@
 import type { ServerItem } from '@/api/model-types'
-import { getHouyiServer } from '@/api/realtime/server'
+import { getHouyiServer } from '@/api/realtime/moon-server'
 import { useRequest } from 'ahooks'
 import { Button, Card, Col, Empty, Row, Spin } from 'antd'
 import React, { useCallback, useEffect } from 'react'

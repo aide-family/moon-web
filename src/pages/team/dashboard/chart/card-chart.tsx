@@ -1,10 +1,10 @@
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
-import { ChartItem } from '@/api/model-types'
+import type { ChartItem } from '@/api/model-types'
 import { batchUpdateChartStatus, deleteChart } from '@/api/realtime/dashboard'
-import MoreMenu, { MoreMenuProps } from '@/components/moreMenu'
+import MoreMenu, { type MoreMenuProps } from '@/components/moreMenu'
 import { useRequest } from 'ahooks'
-import { Badge, Button, Card, CardProps, message, Space } from 'antd'
+import { Badge, Button, Card, type CardProps, Space, message } from 'antd'
 import { Ellipsis, Expand, Fullscreen, PanelBottomDashed } from 'lucide-react'
 import { useState } from 'react'
 import { ModalChart } from './modal-chart'
@@ -208,7 +208,7 @@ export const ChartCard = (props: ChartCardProps) => {
         }
       >
         <div className='overflow-hidden h-[200px] w-full' id={`chart-iframe-${chart.id}`}>
-          <iframe src={chart.url} width='100%' height='100%' className='overflow-hidden' />
+          <iframe src={chart.url} width='100%' height='100%' className='overflow-hidden' title={chart.title} />
         </div>
       </Card>
     </>

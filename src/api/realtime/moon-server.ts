@@ -1,4 +1,4 @@
-import { ServerItem } from '../model-types'
+import type { ServerItem } from '../model-types'
 import request from '../request'
 
 /**
@@ -7,9 +7,8 @@ import request from '../request'
  * @returns 获取服务数量响应
  */
 export function getHouyiServer(params: GetHouyiServerRequest): Promise<GetServerReply> {
-    return request.GET<GetServerReply>(`/v1/server/list?type=${params.type}`)
+  return request.GET<GetServerReply>(`/v1/server/list?type=${params.type}`)
 }
-
 
 /**
  * 获取rabbit服务列表
@@ -17,20 +16,18 @@ export function getHouyiServer(params: GetHouyiServerRequest): Promise<GetServer
  * @returns 获取服务数量响应
  */
 export function getRabbitServer(params: GetRabbitServerRequest): Promise<GetServerReply> {
-    return request.GET<GetServerReply>(`/v1/server/list?type=${params.type}`)
+  return request.GET<GetServerReply>(`/v1/server/list?type=${params.type}`)
 }
-
 
 // 以下类型定义基于 proto 文件
 export interface GetHouyiServerRequest {
-    type: 'houyi'
+  type: 'houyi'
 }
 
 export interface GetRabbitServerRequest {
-    type: 'rabbit'
+  type: 'rabbit'
 }
 
 export interface GetServerReply {
-    list: ServerItem[]
+  list: ServerItem[]
 }
-

@@ -1,8 +1,8 @@
-import { ChartItem } from '@/api/model-types'
+import type { ChartItem } from '@/api/model-types'
 import { createChart, getChart, updateChart } from '@/api/realtime/dashboard'
 import { DataFrom } from '@/components/data/form'
 import { useRequest } from 'ahooks'
-import { Form, message, Modal, ModalProps } from 'antd'
+import { Form, Modal, type ModalProps, message } from 'antd'
 import { useEffect, useState } from 'react'
 import { editChartItems } from './options'
 
@@ -59,7 +59,7 @@ export const ModalEdit = (props: ModalEditProps) => {
         width: width,
         height: height
       }
-      if (detail && detail.id) {
+      if (detail?.id) {
         editChart({ chart: params, id: detail.id, dashboardId })
       } else {
         addChart({ ...params, dashboardId })

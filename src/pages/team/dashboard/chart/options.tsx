@@ -1,6 +1,6 @@
 import { Status } from '@/api/enum'
 import { StatusData } from '@/api/global'
-import { DataFromItem } from '@/components/data/form'
+import type { DataFromItem } from '@/components/data/form'
 import { Badge } from 'antd'
 
 export const editChartItems = (): (DataFromItem | DataFromItem[])[] => [

@@ -1,7 +1,7 @@
-import { ChartItem, DashboardItem } from '@/api/model-types'
+import type { ChartItem, DashboardItem } from '@/api/model-types'
 import { getDashboard } from '@/api/realtime/dashboard'
 import { useRequest } from 'ahooks'
-import { Card, Modal, ModalProps } from 'antd'
+import { Card, Modal, type ModalProps } from 'antd'
 import { useEffect, useState } from 'react'
 
 export interface ModalPreviewProps extends ModalProps {
@@ -13,12 +13,16 @@ const PreviewCard = ({ chart }: { chart: ChartItem }) => {
   let width: number | string = 400
   let height: number | string = 300
 
-  chart.width && (width = `calc(${chart.width} - 12px)`)
-  chart.height && (height = chart.height)
+  if (chart.width) {
+    width = `calc(${chart.width} - 12px)`
+  }
+  if (chart.height) {
+    height = chart.height
+  }
 
   return (
     <Card title={chart.title} size='small' style={{ width: width, height: height, overflow: 'hidden' }}>
-      <iframe src={chart.url} width='100%' height={height} />
+      <iframe src={chart.url} width='100%' height={height} title={chart.title} />
     </Card>
   )
 }
