@@ -44,6 +44,20 @@ const { useToken } = antTheme
 
 const gap = 10000
 
+const ComparisonIcon = ({ value = '0', title = '比前日' }: { value?: string; title?: string }) => {
+  if (+value > 0)
+    return (
+      <div className='text-red-400'>
+        <ArrowUpOutlined /> {value} {title}
+      </div>
+    )
+  return (
+    <div className='text-green-400'>
+      <ArrowDownOutlined /> {value} {title}
+    </div>
+  )
+}
+
 const Dashboard: React.FC = () => {
   const { token } = useToken()
 
@@ -302,9 +316,7 @@ const Dashboard: React.FC = () => {
                 <Row align='middle' gutter={16}>
                   <Col span={24}>
                     <div style={{ fontSize: 28, fontWeight: 'bold' }}>{alarmStatistics?.total}</div>
-                    <div className='text-red-400'>
-                      <ArrowUpOutlined /> {alarmStatistics?.totalComparison} 比前日
-                    </div>
+                    <ComparisonIcon value={alarmStatistics?.totalComparison} />
                   </Col>
                 </Row>
               </div>
@@ -315,9 +327,7 @@ const Dashboard: React.FC = () => {
                 <Row align='middle' gutter={16}>
                   <Col span={24}>
                     <div style={{ fontSize: 28, fontWeight: 'bold' }}>{alarmStatistics?.ongoing}</div>
-                    <div className='text-red-400'>
-                      <ArrowUpOutlined /> {alarmStatistics?.ongoingComparison} 比前日
-                    </div>
+                    <ComparisonIcon value={alarmStatistics?.ongoingComparison} />
                   </Col>
                 </Row>
               </div>
@@ -328,9 +338,7 @@ const Dashboard: React.FC = () => {
                 <Row align='middle' gutter={16}>
                   <Col span={24}>
                     <div style={{ fontSize: 28, fontWeight: 'bold' }}>{alarmStatistics?.highestPriority}</div>
-                    <div className='text-green-400'>
-                      <ArrowDownOutlined /> {alarmStatistics?.highestPriorityComparison} 比前日
-                    </div>
+                    <ComparisonIcon value={alarmStatistics?.highestPriorityComparison} />
                   </Col>
                 </Row>
               </div>
@@ -348,9 +356,7 @@ const Dashboard: React.FC = () => {
                 <Row align='middle' gutter={16}>
                   <Col span={24}>
                     <div style={{ fontSize: 28, fontWeight: 'bold' }}>{notificationStatistics?.total}</div>
-                    <div className='text-green-400'>
-                      <ArrowDownOutlined /> {notificationStatistics?.totalComparison} 比前日
-                    </div>
+                    <ComparisonIcon value={notificationStatistics?.totalComparison} />
                   </Col>
                 </Row>
               </div>
@@ -361,9 +367,7 @@ const Dashboard: React.FC = () => {
                 <Row align='middle' gutter={16}>
                   <Col span={24}>
                     <div style={{ fontSize: 28, fontWeight: 'bold' }}>{notificationStatistics?.failed}</div>
-                    <div className='text-red-400'>
-                      <ArrowUpOutlined /> {notificationStatistics?.failedComparison} 比前日
-                    </div>
+                    <ComparisonIcon value={notificationStatistics?.failedComparison} />
                   </Col>
                 </Row>
               </div>
@@ -382,9 +386,7 @@ const Dashboard: React.FC = () => {
                   <Col span={24} className='flex flex-col justify-between'>
                     <div>
                       <div style={{ fontSize: 28, fontWeight: 'bold' }}>{todayStatistics?.total}</div>
-                      <div className='text-red-400'>
-                        <ArrowUpOutlined /> {todayStatistics?.totalComparison} 比前日
-                      </div>
+                      <ComparisonIcon value={todayStatistics?.totalComparison} />
                     </div>
                   </Col>
                 </Row>
@@ -397,9 +399,7 @@ const Dashboard: React.FC = () => {
                   <Col span={24} className='flex flex-col justify-between'>
                     <div>
                       <div style={{ fontSize: 28, fontWeight: 'bold' }}>{todayStatistics?.failed}</div>
-                      <div className='text-green-400'>
-                        <ArrowDownOutlined /> {todayStatistics?.failedComparison} 比前日
-                      </div>
+                      <ComparisonIcon value={todayStatistics?.failedComparison} />
                     </div>
                   </Col>
                 </Row>

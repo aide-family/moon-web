@@ -66,13 +66,13 @@ export interface AlarmStatisticsResponse {
   /** 图表数据 */
   chartData: number[]
   // 总数环比
-  totalComparison: number
+  totalComparison: string
   // 正在告警环比
-  ongoingComparison: number
+  ongoingComparison: string
   // 已恢复环比
-  recoveredComparison: number
+  recoveredComparison: string
   // 最高优先级告警环比
-  highestPriorityComparison: number
+  highestPriorityComparison: string
 }
 
 /** 通知统计请求 */
@@ -106,9 +106,9 @@ export interface NotificationStatisticsResponse {
   // 通知类型
   notifyTypes: NotifyTypeItem[]
   // 总数环比
-  totalComparison: number
+  totalComparison: string
   // 通知失败总数环比
-  failedComparison: number
+  failedComparison: string
 }
 
 /** 最新告警事件请求 */
