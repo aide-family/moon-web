@@ -2,7 +2,7 @@ import type { DashboardItem } from '@/api/model-types'
 import { getDashboard, listMyDashboard } from '@/api/realtime/dashboard'
 import { PreviewCard } from '@/pages/team/dashboard/chart/modal-preview'
 import { useRequest } from 'ahooks'
-import { Button, Row, Space, Tabs, theme } from 'antd'
+import { Badge, Button, Row, Space, Tabs, theme } from 'antd'
 import { useEffect, useRef, useState } from 'react'
 import ModalAppendDashboard from './modal-append-dashboard'
 
@@ -15,14 +15,14 @@ export default function Monitor() {
   const [appendDashboardModal, setAppendDashboardModal] = useState<boolean>(false)
   const ADivRef = useRef<HTMLDivElement>(null)
 
-  const { run: runGetDashboard } = useRequest(getDashboard, {
+  const { run: runGetDashboard, loading: loadingGetDashboard } = useRequest(getDashboard, {
     manual: true,
     onSuccess: (data) => {
       setDashboard(data.detail)
     }
   })
 
-  const { run: fetchMyDashboard } = useRequest(listMyDashboard, {
+  const { run: fetchMyDashboard, loading: loadingFetchMyDashboard } = useRequest(listMyDashboard, {
     manual: true,
     onSuccess: (data) => {
       setMonitorDashboard(data.list || [])
@@ -70,20 +70,29 @@ export default function Monitor() {
             <Button type='primary' onClick={() => handleEditModal()}>
               添加
             </Button>
-            <Button color='default' variant='filled' onClick={onRefresh}>
+            <Button
+              color='default'
+              variant='filled'
+              onClick={onRefresh}
+              loading={loadingFetchMyDashboard || loadingGetDashboard}
+            >
               刷新
             </Button>
           </Space>
         </div>
-        <Tabs
-          items={monitorDashboard.map((item) => ({
-            label: item.title,
-            key: `${item.id}`
-          }))}
-          onTabClick={(key) => {
-            runGetDashboard({ id: Number(key), charts: true })
-          }}
-        />
+        {monitorDashboard.length > 0 && (
+          <Tabs
+            className='p-0'
+            items={monitorDashboard.map((item) => ({
+              label: <Badge text={item.title} color={item.color} />,
+              key: `${item.id}`,
+              children: null
+            }))}
+            onTabClick={(key) => {
+              runGetDashboard({ id: Number(key), charts: true })
+            }}
+          />
+        )}
       </div>
       {!!dashboard && (
         <div

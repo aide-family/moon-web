@@ -13,16 +13,16 @@ export const defaultMenuItems: ItemType[] = [
         key: '/home/realtime/alarm'
       },
       {
-        label: '服务监控',
-        key: '/home/realtime/server'
-      },
-      {
         label: '数据大盘',
         key: '/home/realtime/dashboard'
       },
       {
         label: '监控大盘',
         key: '/home/realtime/monitor'
+      },
+      {
+        label: '服务监控',
+        key: '/home/realtime/server'
       }
     ]
   },
@@ -120,28 +120,28 @@ export const defaultMenuItems: ItemType[] = [
     icon: <TeamOutlined />,
     children: [
       {
-        label: '团队成员',
-        key: '/home/team/members'
+        label: '大盘管理',
+        key: '/home/team/dashboard'
       },
       {
-        label: '字典管理',
-        key: '/home/team/dict'
+        label: '团队成员',
+        key: '/home/team/members'
       },
       {
         label: '角色管理',
         key: '/home/team/role'
       },
       {
-        label: '资源管理',
-        key: '/home/team/resource'
-      },
-      {
         label: '团队配置',
         key: '/home/team/config'
       },
       {
-        label: '大盘管理',
-        key: '/home/team/dashboard'
+        label: '字典管理',
+        key: '/home/team/dict'
+      },
+      {
+        label: '资源管理',
+        key: '/home/team/resource'
       }
     ]
   },
