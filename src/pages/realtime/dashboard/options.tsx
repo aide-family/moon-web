@@ -1,12 +1,14 @@
+import { UserItem } from '@/api/model-types'
+import { InterventionEventItem } from '@/api/realtime/statistics'
+import { Avatar } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
-import type { InterveneData } from '.'
 
-export const interveneColumns: ColumnsType<InterveneData> = [
+export const interveneColumns: ColumnsType<InterventionEventItem> = [
   {
     title: '介入时间',
-    dataIndex: 'intervene_time',
-    key: 'intervene_time',
+    dataIndex: 'handledAt',
+    key: 'handledAt',
     width: 120,
     render: (text: string) => {
       return dayjs(text).fromNow()
@@ -14,10 +16,21 @@ export const interveneColumns: ColumnsType<InterveneData> = [
   },
   {
     title: '处理人',
-    dataIndex: 'intervene_user',
-    key: 'intervene_user',
+    dataIndex: 'handler',
+    key: 'handler',
     width: 100,
-    fixed: 'left'
+    fixed: 'left',
+    render: (user?: UserItem) => {
+      if (!user) return '-'
+      return (
+        <div className='flex items-center gap-2'>
+          <Avatar src={user.avatar} size={20}>
+            {(user.name || user.nickname).charAt(0).toUpperCase()}
+          </Avatar>
+          <div>{user.name || user.nickname}</div>
+        </div>
+      )
+    }
   },
   {
     title: '告警级别',
@@ -27,15 +40,15 @@ export const interveneColumns: ColumnsType<InterveneData> = [
     width: 100
   },
   {
-    title: '告警事件',
-    dataIndex: 'event',
-    key: 'event',
+    title: '告警摘要',
+    dataIndex: 'summary',
+    key: 'summary',
     ellipsis: true
   },
   {
     title: '告警时间',
-    dataIndex: 'time',
-    key: 'time',
+    dataIndex: 'eventTime',
+    key: 'eventTime',
     width: 120
   }
 ]

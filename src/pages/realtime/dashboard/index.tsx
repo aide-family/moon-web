@@ -1,14 +1,25 @@
+import {
+  AlarmStatisticsResponse,
+  getAlarmStatistics,
+  getLatestAlarmEvents,
+  getLatestInterventionEvents,
+  getNotificationStatistics,
+  getStrategyAlarmTopN,
+  LatestAlarmEventsResponse,
+  LatestInterventionEventsResponse,
+  NotificationStatisticsResponse,
+  StrategyAlarmTopNResponse
+} from '@/api/realtime/statistics'
 import { GlobalContext } from '@/utils/context'
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons'
 import { Chart } from '@antv/g2'
-import { Card, Col, List, Row, Table, theme as antTheme } from 'antd'
+import { useRequest } from 'ahooks'
+import { theme as antTheme, Card, Col, List, Row, Table } from 'antd'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn' // 导入中文语言包
 import relativeTime from 'dayjs/plugin/relativeTime'
 import type React from 'react'
 import { useContext, useEffect, useRef, useState } from 'react'
-import data from './data.json'
-import intervenes from './intervene.json'
 import { interveneColumns } from './options'
 // 设置 dayjs 的语言为中文
 dayjs.locale('zh-cn')
@@ -31,6 +42,8 @@ export interface InterveneData {
 
 const { useToken } = antTheme
 
+const gap = 10000
+
 const Dashboard: React.FC = () => {
   const { token } = useToken()
 
@@ -40,22 +53,118 @@ const Dashboard: React.FC = () => {
   const notifyChartRef = useRef<HTMLDivElement | null>(null)
   const todayChartRef = useRef<HTMLDivElement | null>(null)
   const top10ChartRef = useRef<HTMLDivElement | null>(null)
-  const [dataSource, setDataSource] = useState<AlarmData[]>([])
+
   const [nowTime, setNowTime] = useState<string>(dayjs().format('YYYY-MM-DD HH:mm:ss'))
 
-  const fetchAlarmData = async () => {
-    setDataSource(data)
-  }
+  const [alarmStatistics, setAlarmStatistics] = useState<AlarmStatisticsResponse>()
+  const [notificationStatistics, setNotificationStatistics] = useState<NotificationStatisticsResponse>()
+  const [todayStatistics, setTodayStatistics] = useState<NotificationStatisticsResponse>()
+  const [latestAlarmEvents, setLatestAlarmEvents] = useState<LatestAlarmEventsResponse>()
+  const [strategyAlarmTopN, setStrategyAlarmTopN] = useState<StrategyAlarmTopNResponse>()
+  const [latestInterventionEvents, setLatestInterventionEvents] = useState<LatestInterventionEventsResponse>()
+
+  const { run: fetchGetAlarmStatistics } = useRequest(getAlarmStatistics, {
+    manual: true,
+    onSuccess: (res) => {
+      setAlarmStatistics(res)
+    }
+  })
+
+  const { run: fetchGetNotificationStatistics } = useRequest(getNotificationStatistics, {
+    manual: true,
+    onSuccess: (res) => {
+      setNotificationStatistics(res)
+    }
+  })
+
+  const { run: fetchGetTodayStatistics } = useRequest(getNotificationStatistics, {
+    manual: true,
+    onSuccess: (res) => {
+      setTodayStatistics(res)
+    }
+  })
+
+  const { run: fetchGetLatestAlarmEvents } = useRequest(getLatestAlarmEvents, {
+    manual: true,
+    onSuccess: (res) => {
+      setLatestAlarmEvents(res)
+    }
+  })
+
+  const { run: fetchGetStrategyAlarmTopN } = useRequest(getStrategyAlarmTopN, {
+    manual: true,
+    onSuccess: (res) => {
+      setStrategyAlarmTopN(res)
+    }
+  })
+
+  const { run: fetchGetLatestInterventionEvents } = useRequest(getLatestInterventionEvents, {
+    manual: true,
+    onSuccess: (res) => {
+      setLatestInterventionEvents(res)
+    }
+  })
 
   useEffect(() => {
-    fetchAlarmData()
+    fetchGetAlarmStatistics({})
     const interval = setInterval(() => {
-      setNowTime(dayjs().format('YYYY-MM-DD HH:mm:ss'))
-    }, 1000)
+      fetchGetAlarmStatistics({})
+    }, gap)
     return () => {
       clearInterval(interval)
     }
-  })
+  }, [fetchGetAlarmStatistics])
+
+  useEffect(() => {
+    fetchGetNotificationStatistics({})
+    fetchGetTodayStatistics({})
+    const interval = setInterval(() => {
+      fetchGetNotificationStatistics({})
+      fetchGetTodayStatistics({})
+    }, gap)
+    return () => {
+      clearInterval(interval)
+    }
+  }, [fetchGetNotificationStatistics, fetchGetTodayStatistics])
+
+  useEffect(() => {
+    fetchGetLatestAlarmEvents({ limit: 50 })
+    const interval = setInterval(() => {
+      fetchGetLatestAlarmEvents({ limit: 50 })
+    }, gap)
+    return () => {
+      clearInterval(interval)
+    }
+  }, [fetchGetLatestAlarmEvents])
+
+  useEffect(() => {
+    fetchGetStrategyAlarmTopN({ limit: 10 })
+    const interval = setInterval(() => {
+      fetchGetStrategyAlarmTopN({ limit: 10 })
+    }, gap)
+    return () => {
+      clearInterval(interval)
+    }
+  }, [fetchGetStrategyAlarmTopN])
+
+  useEffect(() => {
+    fetchGetLatestInterventionEvents({ limit: 50 })
+    const interval = setInterval(() => {
+      fetchGetLatestInterventionEvents({ limit: 50 })
+    }, gap)
+    return () => {
+      clearInterval(interval)
+    }
+  }, [fetchGetLatestInterventionEvents])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNowTime(dayjs().format('YYYY-MM-DD HH:mm:ss'))
+    }, gap)
+    return () => {
+      clearInterval(interval)
+    }
+  }, [])
 
   useEffect(() => {
     if (!alarmChartRef.current) {
@@ -66,9 +175,7 @@ const Dashboard: React.FC = () => {
       autoFit: true,
       height: 50
     })
-    alarmChart.data([
-      264, 417, 438, 887, 309, 397, 550, 575, 563, 430, 525, 592, 492, 467, 513, 546, 983, 340, 539, 243, 226, 192
-    ])
+    alarmChart.data(alarmStatistics?.chartData || [])
     if (theme === 'dark') {
       alarmChart.theme({ type: 'classicDark' })
     }
@@ -87,13 +194,13 @@ const Dashboard: React.FC = () => {
     return () => {
       alarmChart.destroy()
     }
-  }, [theme])
+  }, [theme, alarmStatistics])
 
   useEffect(() => {
     if (!notifyChartRef.current) {
       return
     }
-    const data = [235, 213, 222, 411, 235, 213, 222, 411, 235, 213, 222, 411, 235, 213, 222, 411]
+
     const notifyChart = new Chart({
       container: notifyChartRef.current,
       autoFit: true,
@@ -102,7 +209,7 @@ const Dashboard: React.FC = () => {
     if (theme === 'dark') {
       notifyChart.theme({ type: 'classicDark' })
     }
-    notifyChart.data(data)
+    notifyChart.data(notificationStatistics?.chartData || [])
     notifyChart
       .area()
       .encode('x', (_: unknown, idx: number) => idx)
@@ -118,15 +225,13 @@ const Dashboard: React.FC = () => {
     return () => {
       notifyChart.destroy()
     }
-  }, [theme])
+  }, [theme, notificationStatistics])
 
   useEffect(() => {
     if (!todayChartRef.current) {
       return
     }
-    const data = [
-      264, 417, 438, 887, 309, 397, 550, 575, 563, 430, 525, 592, 492, 467, 513, 546, 983, 340, 539, 243, 226, 192
-    ]
+
     const todayChart = new Chart({
       container: todayChartRef.current,
       autoFit: true,
@@ -136,7 +241,7 @@ const Dashboard: React.FC = () => {
       todayChart.theme({ type: 'classicDark' })
     }
 
-    todayChart.data(data)
+    todayChart.data(latestAlarmEvents?.events || [])
 
     todayChart
       .interval()
@@ -153,7 +258,7 @@ const Dashboard: React.FC = () => {
     return () => {
       todayChart.destroy()
     }
-  }, [theme])
+  }, [theme, latestAlarmEvents])
 
   useEffect(() => {
     if (!top10ChartRef.current) {
@@ -168,24 +273,13 @@ const Dashboard: React.FC = () => {
     if (theme === 'dark') {
       top5Chart.theme({ type: 'classicDark' })
     }
-    top5Chart.data([
-      { strategy: '1', name: '策略1', count: 60 },
-      { strategy: '2', name: '策略2', count: 50 },
-      { strategy: '3', name: '策略3', count: 40 },
-      { strategy: '4', name: '策略4', count: 30 },
-      { strategy: '5', name: '策略5', count: 20 },
-      { strategy: '6', name: '策略6', count: 10 },
-      { strategy: '7', name: '策略7', count: 9 },
-      { strategy: '8', name: '策略8', count: 8 },
-      { strategy: '9', name: '策略9', count: 7 },
-      { strategy: '10', name: '策略10', count: 6 }
-    ])
+    top5Chart.data(strategyAlarmTopN?.topN || [])
     top5Chart
       .interval()
       .coordinate({ transform: [{ type: 'transpose' }] })
-      .encode('x', 'name')
-      .encode('y', 'count')
-      .encode('color', 'name')
+      .encode('x', 'strategyName')
+      .encode('y', 'total')
+      .encode('color', 'strategyName')
       // 重命名y轴
       .axis('y', { labelFormatter: (d: number) => `${d} 次` })
     top5Chart.render()
@@ -193,7 +287,7 @@ const Dashboard: React.FC = () => {
     return () => {
       top5Chart.destroy()
     }
-  }, [theme])
+  }, [theme, strategyAlarmTopN])
 
   return (
     <div className='flex flex-col gap-3 p-3 overflow-y-auto'>
@@ -207,9 +301,9 @@ const Dashboard: React.FC = () => {
                 </div>
                 <Row align='middle' gutter={16}>
                   <Col span={24}>
-                    <div style={{ fontSize: 28, fontWeight: 'bold' }}>2,1123</div>
+                    <div style={{ fontSize: 28, fontWeight: 'bold' }}>{alarmStatistics?.total}</div>
                     <div className='text-red-400'>
-                      <ArrowUpOutlined /> +25% 比前日
+                      <ArrowUpOutlined /> {alarmStatistics?.totalComparison} 比前日
                     </div>
                   </Col>
                 </Row>
@@ -220,9 +314,9 @@ const Dashboard: React.FC = () => {
                 </div>
                 <Row align='middle' gutter={16}>
                   <Col span={24}>
-                    <div style={{ fontSize: 28, fontWeight: 'bold' }}>120</div>
+                    <div style={{ fontSize: 28, fontWeight: 'bold' }}>{alarmStatistics?.ongoing}</div>
                     <div className='text-red-400'>
-                      <ArrowUpOutlined /> +2% 比前日
+                      <ArrowUpOutlined /> {alarmStatistics?.ongoingComparison} 比前日
                     </div>
                   </Col>
                 </Row>
@@ -233,9 +327,9 @@ const Dashboard: React.FC = () => {
                 </div>
                 <Row align='middle' gutter={16}>
                   <Col span={24}>
-                    <div style={{ fontSize: 28, fontWeight: 'bold' }}>1123</div>
+                    <div style={{ fontSize: 28, fontWeight: 'bold' }}>{alarmStatistics?.highestPriority}</div>
                     <div className='text-green-400'>
-                      <ArrowDownOutlined /> -11% 比前日
+                      <ArrowDownOutlined /> {alarmStatistics?.highestPriorityComparison} 比前日
                     </div>
                   </Col>
                 </Row>
@@ -253,9 +347,9 @@ const Dashboard: React.FC = () => {
                 </div>
                 <Row align='middle' gutter={16}>
                   <Col span={24}>
-                    <div style={{ fontSize: 28, fontWeight: 'bold' }}>32</div>
+                    <div style={{ fontSize: 28, fontWeight: 'bold' }}>{notificationStatistics?.total}</div>
                     <div className='text-green-400'>
-                      <ArrowDownOutlined /> -25% 比前日
+                      <ArrowDownOutlined /> {notificationStatistics?.totalComparison} 比前日
                     </div>
                   </Col>
                 </Row>
@@ -266,9 +360,9 @@ const Dashboard: React.FC = () => {
                 </div>
                 <Row align='middle' gutter={16}>
                   <Col span={24}>
-                    <div style={{ fontSize: 28, fontWeight: 'bold' }}>12</div>
+                    <div style={{ fontSize: 28, fontWeight: 'bold' }}>{notificationStatistics?.failed}</div>
                     <div className='text-red-400'>
-                      <ArrowUpOutlined /> +5% 比前日
+                      <ArrowUpOutlined /> {notificationStatistics?.failedComparison} 比前日
                     </div>
                   </Col>
                 </Row>
@@ -287,9 +381,9 @@ const Dashboard: React.FC = () => {
                 <Row align='middle' gutter={16}>
                   <Col span={24} className='flex flex-col justify-between'>
                     <div>
-                      <div style={{ fontSize: 28, fontWeight: 'bold' }}>32</div>
+                      <div style={{ fontSize: 28, fontWeight: 'bold' }}>{todayStatistics?.total}</div>
                       <div className='text-red-400'>
-                        <ArrowUpOutlined /> +25% 比前日
+                        <ArrowUpOutlined /> {todayStatistics?.totalComparison} 比前日
                       </div>
                     </div>
                   </Col>
@@ -302,9 +396,9 @@ const Dashboard: React.FC = () => {
                 <Row align='middle' gutter={16}>
                   <Col span={24} className='flex flex-col justify-between'>
                     <div>
-                      <div style={{ fontSize: 28, fontWeight: 'bold' }}>0</div>
+                      <div style={{ fontSize: 28, fontWeight: 'bold' }}>{todayStatistics?.failed}</div>
                       <div className='text-green-400'>
-                        <ArrowDownOutlined /> -100% 比前日
+                        <ArrowDownOutlined /> {todayStatistics?.failedComparison} 比前日
                       </div>
                     </div>
                   </Col>
@@ -335,14 +429,14 @@ const Dashboard: React.FC = () => {
           >
             <List
               className='h-[400px] overflow-auto'
-              dataSource={dataSource}
+              dataSource={latestAlarmEvents?.events || []}
               renderItem={(item) => (
                 <List.Item className='flex justify-between'>
                   <div className='flex flex-col gap-1'>
                     <div className='text-sm font-bold text-ellipsis' style={{ color: token.colorText }}>
                       {item.summary}
                     </div>
-                    <div className='text-xs text-gray-500'>{dayjs(item.time).fromNow()}</div>
+                    <div className='text-xs text-gray-500'>{dayjs(item.eventTime).fromNow()}</div>
                   </div>
                   <div>{item.level}</div>
                 </List.Item>
@@ -355,7 +449,7 @@ const Dashboard: React.FC = () => {
         <Col span={24}>
           <Card title='告警介入列表' bordered={false} className='h-full'>
             <Table
-              dataSource={intervenes}
+              dataSource={latestInterventionEvents?.events || []}
               size='small'
               columns={interveneColumns}
               scroll={{ y: 400 }}
