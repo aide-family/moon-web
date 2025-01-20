@@ -1,8 +1,9 @@
 import { IconFont } from '@/components/icon'
-import { BadgeProps, Tag } from 'antd'
+import { BadgeProps, Button, Tag } from 'antd'
 import { Calendar1, CalendarRange, Hourglass, SunMoon } from 'lucide-react'
 import React from 'react'
 import {
+  AlarmInterventionAction,
   AlarmSendType,
   AlertStatus,
   Condition,
@@ -428,6 +429,10 @@ export enum ActionKey {
   MEDICAL_PACKAGE = '__medical_package__',
   /** 告警介入 */
   ALARM_INTERVENTION = '__alarm_intervention__',
+  /** 告警抑制 */
+  ALARM_SILENCE = '__alarm_silence__',
+  /** 告警升级 */
+  ALARM_UPGRADE = '__alarm_upgrade__',
   /** 图表管理 */
   CHART_MANAGE = '__chart_manage__',
   /** 图表排序-上移 */
@@ -438,4 +443,42 @@ export enum ActionKey {
   CHART_SORT_TOP = '__chart_sort_top__',
   /** 图表排序-置底 */
   CHART_SORT_BOTTOM = '__chart_sort_bottom__'
+}
+
+export const AlarmInterventionActionData: Record<
+  AlarmInterventionAction,
+  { key: ActionKey; label: string | React.ReactNode }
+> = {
+  [AlarmInterventionAction.Mark]: {
+    key: ActionKey.ALARM_INTERVENTION,
+    label: (
+      <Button size='small' type='link'>
+        介入
+      </Button>
+    )
+  },
+  [AlarmInterventionAction.Silence]: {
+    key: ActionKey.ALARM_SILENCE,
+    label: (
+      <Button size='small' type='link'>
+        抑制
+      </Button>
+    )
+  },
+  [AlarmInterventionAction.Upgrade]: {
+    key: ActionKey.ALARM_UPGRADE,
+    label: (
+      <Button size='small' type='link'>
+        升级
+      </Button>
+    )
+  },
+  [AlarmInterventionAction.Delete]: {
+    key: ActionKey.DELETE,
+    label: (
+      <Button size='small' type='link' danger>
+        删除
+      </Button>
+    )
+  }
 }

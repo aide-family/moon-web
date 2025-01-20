@@ -1,6 +1,6 @@
 import { dictSelectList } from '@/api/dict'
 import { DictType } from '@/api/enum'
-import { ActionKey } from '@/api/global'
+import { ActionKey, AlarmInterventionActionData } from '@/api/global'
 import type { RealtimeAlarmItem, StrategyMetricLevelItem } from '@/api/model-types'
 import type { DataFromItem } from '@/components/data/form'
 import type { SearchFormItem } from '@/components/data/search-box'
@@ -49,22 +49,10 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<RealtimeAlar
         </Button>
       )
     },
-    {
-      key: ActionKey.ALARM_INTERVENTION,
-      label: (
-        <Button size='small' type='link'>
-          告警介入
-        </Button>
-      )
-    },
-    {
-      key: ActionKey.DELETE,
-      label: (
-        <Button type='link' size='small' danger disabled>
-          删除
-        </Button>
-      )
-    }
+    ...Object.entries(AlarmInterventionActionData).map(([, value]) => ({
+      key: value.key,
+      label: value.label
+    }))
   ]
 
   return [

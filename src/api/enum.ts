@@ -471,3 +471,18 @@ export enum TimeEngineRuleType {
   /** 月份 */
   TimeEngineRuleTypeMonths = 4
 }
+
+/** 告警介入动作 */
+export enum AlarmInterventionAction {
+  /** 介入 */
+  Mark = 1,
+
+  /** 删除 */
+  Delete = 2,
+
+  /** 抑制 */
+  Silence = 3,
+
+  /** 升级 */
+  Upgrade = 4
+}

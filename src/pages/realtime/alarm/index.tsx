@@ -1,6 +1,7 @@
+import { AlarmInterventionAction } from '@/api/enum'
 import { ActionKey } from '@/api/global'
 import type { RealtimeAlarmItem, SelfAlarmPageItem } from '@/api/model-types'
-import { type ListAlarmRequest, listAlarm } from '@/api/realtime/alarm'
+import { type ListAlarmRequest, alarmIntervention, listAlarm } from '@/api/realtime/alarm'
 import { listAlarmPage } from '@/api/realtime/alarm_page_self'
 import type { ListStrategyGroupRequest } from '@/api/strategy'
 import SearchBox from '@/components/data/search-box'
@@ -131,20 +132,49 @@ const Group: React.FC = () => {
     })
   }
 
+  const { run: runAlarmIntervention } = useRequest(alarmIntervention, {
+    manual: true,
+    onSuccess: () => {
+      onRefresh()
+    }
+  })
+
   const onHandleMenuOnClick = (item: RealtimeAlarmItem, key: ActionKey) => {
     switch (key) {
-      case ActionKey.ENABLE:
-        break
-      case ActionKey.DISABLE:
-        break
       case ActionKey.OPERATION_LOG:
         break
       case ActionKey.DETAIL:
         handleOpenDetail(item.id)
         break
-      case ActionKey.EDIT:
-        break
       case ActionKey.DELETE:
+        runAlarmIntervention({
+          id: item.id,
+          action: AlarmInterventionAction.Delete,
+          fingerprint: item.fingerprint
+        })
+        break
+      case ActionKey.ALARM_SILENCE:
+        runAlarmIntervention({
+          id: item.id,
+          action: AlarmInterventionAction.Silence,
+          fingerprint: item.fingerprint
+        })
+        break
+      case ActionKey.ALARM_UPGRADE:
+        runAlarmIntervention({
+          id: item.id,
+          action: AlarmInterventionAction.Upgrade,
+          fingerprint: item.fingerprint
+        })
+        break
+      case ActionKey.ALARM_INTERVENTION:
+        runAlarmIntervention({
+          id: item.id,
+          action: AlarmInterventionAction.Mark,
+          fingerprint: item.fingerprint
+        })
+        break
+      case ActionKey.MEDICAL_PACKAGE:
         break
       case ActionKey.CHART:
         handleOpenChart(item.id)
