@@ -9,6 +9,14 @@ import { useRequest } from 'ahooks'
 import { Avatar, Col, Dropdown, Row, Space, message } from 'antd'
 import React, { useCallback, useContext, useEffect } from 'react'
 
+function getTeamInfo() {
+  const teamInfo = localStorage.getItem('teamInfo')
+  if (teamInfo) {
+    return JSON.parse(teamInfo)
+  }
+  return {}
+}
+
 export const TeamMenu: React.FC = () => {
   const createTeamContext = useCreateTeamModal()
   const { teamInfo, setTeamInfo, setUserInfo, refreshMyTeamList } = useContext(GlobalContext)
@@ -24,7 +32,7 @@ export const TeamMenu: React.FC = () => {
 
   const handleRefreshToken = useCallback(
     (team?: TeamItem) => {
-      if (!team || !team.id) return
+      if (!team?.id) return
       initRefreshToken({ teamID: team.id })
     },
     [initRefreshToken]
@@ -38,14 +46,14 @@ export const TeamMenu: React.FC = () => {
         message.warning('当前没有团队信息, 部分功能无法使用，你需要创建团队或者加入团队')
         return
       }
+      const localTeamInfo = getTeamInfo()
       const exist = list.some((item) => {
-        if (item.id === teamInfo?.id) {
-          setTeamInfo?.(item)
+        if (item.id === localTeamInfo?.id) {
+          setTeamInfo?.({ ...item })
           return true
         }
       })
       if (!exist) {
-        handleRefreshToken(list?.[0])
         setTeamInfo?.(list?.[0])
       }
     }
