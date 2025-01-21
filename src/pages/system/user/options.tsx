@@ -88,6 +88,14 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<UserItem> =>
           设置角色
         </Button>
       )
+    },
+    {
+      key: ActionKey.RESET_PASSWORD,
+      label: (
+        <Button type='link' size='small'>
+          重置密码
+        </Button>
+      )
     }
   ]
 

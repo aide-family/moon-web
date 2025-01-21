@@ -1,7 +1,7 @@
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
 import type { UserItem } from '@/api/model-types'
-import { type ListUserRequest, batchUpdateUserStatus, listUser } from '@/api/user'
+import { batchUpdateUserStatus, listUser, resetUserPassword, type ListUserRequest } from '@/api/user'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table/index'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
@@ -44,6 +44,14 @@ const User: React.FC = () => {
     onSuccess: (data) => {
       setDatasource(data.list || [])
       setTotal(data.pagination?.total || 0)
+    }
+  })
+
+  const { run: onResetUserPassword } = useRequest(resetUserPassword, {
+    manual: true,
+    onSuccess: () => {
+      message.success('重置密码成功, 邮件已发送')
+      onRefresh()
     }
   })
 
@@ -134,6 +142,9 @@ const User: React.FC = () => {
         break
       case ActionKey.DETAIL:
         onOpenDetail(item.id)
+        break
+      case ActionKey.RESET_PASSWORD:
+        onResetUserPassword({ id: item.id })
         break
     }
   }

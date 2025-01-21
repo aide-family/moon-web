@@ -419,6 +419,8 @@ export enum ActionKey {
   DISABLE = '__disable__',
   /** 设置角色 */
   UPDATE_ROLE = '__update_role__',
+  /** 重置密码 */
+  RESET_PASSWORD = '__reset_password__',
   /** 操作日志 */
   OPERATION_LOG = '__operation_log__',
   /** 立即推送 */
