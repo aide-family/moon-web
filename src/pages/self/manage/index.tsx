@@ -11,8 +11,8 @@ import {
   updateUserPhone
 } from '@/api/user'
 import { DataFrom, type DataFromItem } from '@/components/data/form'
-import { AesEncrypt } from '@/utils/aes'
 import { GlobalContext } from '@/utils/context'
+import { hashMd5 } from '@/utils/hash'
 import { EditOutlined } from '@ant-design/icons'
 import type { DescriptionsProps } from 'antd'
 import { Avatar, Button, Card, Descriptions, Form, Modal, Space, message, theme } from 'antd'
@@ -41,6 +41,7 @@ const SelfManage: React.FC<SelfManageProps> = (props) => {
   const showUpdateModal = (type: 'phone' | 'email' | 'avatar') => {
     let options: (DataFromItem | DataFromItem[])[]
     let title: string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let update: (params: any) => Promise<null>
 
     switch (type) {
@@ -131,8 +132,8 @@ const SelfManage: React.FC<SelfManageProps> = (props) => {
 
   const updatePassword = (val: ResetUserPasswordBySelfRequest) => {
     const params: ResetUserPasswordBySelfRequest = {
-      oldPassword: AesEncrypt(val.oldPassword),
-      newPassword: AesEncrypt(val.newPassword)
+      oldPassword: hashMd5(val.oldPassword),
+      newPassword: hashMd5(val.newPassword)
     }
     resetUserPasswordBySelf(params).then(() => {
       message.success('修改密码成功')

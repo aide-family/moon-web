@@ -87,7 +87,8 @@ export const passwordOptions: (DataFromItem | DataFromItem[])[] = [
     name: 'oldPassword',
     type: 'password',
     props: {
-      placeholder: '请输入旧密码'
+      placeholder: '请输入旧密码',
+      autoComplete: 'off'
     },
     formProps: {
       rules: [
@@ -101,7 +102,8 @@ export const passwordOptions: (DataFromItem | DataFromItem[])[] = [
     name: 'newPassword',
     type: 'password',
     props: {
-      placeholder: '请输入新密码'
+      placeholder: '请输入新密码',
+      autoComplete: 'off'
     },
     formProps: {
       rules: [

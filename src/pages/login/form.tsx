@@ -105,10 +105,7 @@ const LoginForm: FC = () => {
   useEffect(() => {
     if (cookie.load('account')) {
       const account: LoginRequest = cookie.load('account')
-      form.setFieldsValue({
-        username: account.username,
-        password: account.password
-      })
+      form.setFieldsValue({ username: account.username, password: account.password })
     }
     // 获取验证码
     handleCaptcha()

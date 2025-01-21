@@ -32,7 +32,7 @@ export const MyTeam: React.FC<MyTeamProps> = (props) => {
           <Card key={`${id}`}>
             <Skeleton loading={initMyTeamsLoading} avatar active>
               <Meta
-                avatar={<Avatar src={logo}>{name?.at(0)?.toUpperCase()}</Avatar>}
+                avatar={<Avatar src={logo.trim()}>{name?.at(0)?.toUpperCase()}</Avatar>}
                 title={name}
                 description={remark || '-'}
               />
