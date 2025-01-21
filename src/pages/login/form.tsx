@@ -38,8 +38,9 @@ const { useToken } = theme
 
 const LoginForm: FC = () => {
   const navigate = useNavigate()
+  const { localURL } = useContext(GlobalContext)
   if (isLogin()) {
-    navigate('/')
+    navigate(localURL || '/')
   }
 
   const { token } = useToken()
@@ -55,7 +56,7 @@ const LoginForm: FC = () => {
       .then((res) => {
         setToken(res.token)
         setUserInfo?.(res.user)
-        navigate(res.redirect || '/')
+        navigate(localURL || '/')
       })
       .catch((e: ErrorResponse) => {
         setErr(e)
@@ -68,31 +69,20 @@ const LoginForm: FC = () => {
       return
     }
     if (cookie.load('remeber')) {
-      cookie.save('account', values, {
-        path: '/',
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-      })
+      cookie.save('account', values, { path: '/', expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) })
     } else {
       cookie.remove('account')
     }
     handleLogin({
       username: values.username,
       password: hashMd5(values.password),
-      captcha: {
-        code: values.code,
-        id: captcha?.id
-      },
-      redirect: '/'
+      captcha: { code: values.code, id: captcha?.id },
+      redirect: localURL || '/'
     })
   }
 
   const handleCaptcha = () => {
-    getCaptcha({
-      captchaType: CaptchaType.CaptchaTypeImage,
-      width: 100,
-      height: 40,
-      theme: 'dark'
-    }).then((res) => {
+    getCaptcha({ captchaType: CaptchaType.CaptchaTypeImage, width: 100, height: 40, theme: 'dark' }).then((res) => {
       setCaptcha(res)
     })
   }
@@ -100,10 +90,7 @@ const LoginForm: FC = () => {
   const handlRemember = (checked: boolean | null) => {
     setRemeber(checked ?? false)
     if (checked) {
-      cookie.save('remeber', 'true', {
-        path: '/',
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-      })
+      cookie.save('remeber', 'true', { path: '/', expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) })
       return
     }
     cookie.remove('remeber')

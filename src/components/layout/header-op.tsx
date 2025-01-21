@@ -5,7 +5,8 @@ import { GlobalContext } from '@/utils/context'
 import { GithubOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
 import { Avatar, Button, Dropdown, type MenuProps, theme } from 'antd'
 import type React from 'react'
-import { useContext } from 'react'
+import { useContext, useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import MoonChat from '../chat/moon-chat'
 import { Docusaurus } from '../icon'
 import { ButtonFullScreen } from './button-full-screen'
@@ -19,9 +20,17 @@ export const giteeURL = 'https://gitee.com/aide-cloud/moon'
 const { useToken } = theme
 
 export const HeaderOp: React.FC = () => {
+  // 获取当前路由
+  const location = useLocation()
   const { token } = useToken()
-  const { theme, setTheme, userInfo } = useContext(GlobalContext)
+  const { theme, setTheme, userInfo, setLocalURL } = useContext(GlobalContext)
   const { setOpen } = useCreateTeamModal()
+  const [logoutURL, setLogoutURL] = useState<string>('')
+
+  useEffect(() => {
+    setLogoutURL(location.pathname)
+  }, [location.pathname, setLogoutURL])
+
   const dropdownItems: MenuProps['items'] = [
     {
       label: userInfo?.name,
@@ -61,7 +70,10 @@ export const HeaderOp: React.FC = () => {
           label: '退出登录',
           danger: true,
           onClick: () => {
-            logout().then(() => removeToken())
+            logout().then(() => {
+              setLocalURL?.(logoutURL)
+              removeToken()
+            })
           }
         }
       ]

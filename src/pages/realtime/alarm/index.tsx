@@ -85,7 +85,7 @@ const Group: React.FC = () => {
       if (list.length > 0) {
         setMyPages(list || [])
         const findPageID = list?.find((item) => item.id === alarmPageID)?.id
-        if (!findPageID) {
+        if (!findPageID && alarmPageID !== -1) {
           setAlarmPageID(list?.[0]?.id || -1)
         }
       }

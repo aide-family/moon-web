@@ -34,9 +34,10 @@ function App() {
   const [userInfo, setUserInfo] = useStorage<UserItem>('userInfo', getUserInfo())
   const [teamInfo, setTeamInfo, removeTeamInfo] = useStorage<TeamItem>('teamInfo', undefined)
   const [refreshMyTeamList, setRefreshMyTeamList] = useState<boolean>(false)
-  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [localURL, setLocalURL] = useStorage<string>('localURL', localStorage.getItem('localURL') || '/')
   const [showLevelColor, setShowLevelColor] = useStorage<boolean>('showLevelColor', false)
   const [contentHeight, setContentHeight] = useState(0)
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
   const contextValue: GlobalContextType = {
     theme: theme,
@@ -62,7 +63,9 @@ function App() {
     showLevelColor: showLevelColor,
     setShowLevelColor: setShowLevelColor,
     contentHeight: contentHeight,
-    setContentHeight: setContentHeight
+    setContentHeight: setContentHeight,
+    localURL: localURL,
+    setLocalURL: setLocalURL
   }
 
   return (

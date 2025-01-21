@@ -33,6 +33,8 @@ export type GlobalContextType = {
   setShowLevelColor?: (showLevelColor: boolean) => void
   contentHeight?: number
   setContentHeight?: (contentHeight: number) => void
+  localURL?: string
+  setLocalURL?: (localURL: string) => void
 }
 
 export const GlobalContext = createContext<GlobalContextType>({
