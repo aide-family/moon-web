@@ -117,7 +117,7 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmNoticeG
       dataIndex: 'status',
       key: 'status',
       align: 'center',
-      width: 160,
+      width: 120,
       render: (status: Status) => {
         const { text, color } = StatusData[status]
         return <Badge color={color} text={text} />
@@ -127,7 +127,6 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<AlarmNoticeG
       title: '描述',
       dataIndex: 'remark',
       key: 'remark',
-      width: 300,
       ellipsis: true,
       render: (text: string) => {
         return text || '-'

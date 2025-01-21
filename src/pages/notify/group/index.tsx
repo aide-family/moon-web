@@ -111,7 +111,7 @@ const Group: React.FC = () => {
     switch (key) {
       case ActionKey.ENABLE:
         updateAlarmGroupStatus({
-          id: item.id,
+          ids: [item.id],
           status: Status.StatusEnable
         }).then(() => {
           message.success('更改状态成功')
@@ -120,7 +120,7 @@ const Group: React.FC = () => {
         break
       case ActionKey.DISABLE:
         updateAlarmGroupStatus({
-          id: item.id,
+          ids: [item.id],
           status: Status.StatusDisable
         }).then(() => {
           message.success('更改状态成功')

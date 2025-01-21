@@ -123,7 +123,7 @@ export interface DeleteAlarmGroupRequest {
 export interface DeleteAlarmGroupReply {}
 
 export interface UpdateAlarmGroupStatusRequest {
-  id: number
+  ids: number[]
   status: number
 }
 export interface UpdateAlarmGroupStatusReply {}
