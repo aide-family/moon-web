@@ -304,7 +304,7 @@ export function getStrategyGroup(params: GetStrategyGroupRequest) {
  * @returns UpdateStrategyGroupReply
  */
 export function updateStrategyGroup(params: UpdateStrategyGroupRequest) {
-  return request.PUT(`/v1/group/strategy/${params.id}`, params.update)
+  return request.PUT(`/v1/group/strategy/${params.id}`, params)
 }
 
 /**
