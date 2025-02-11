@@ -67,7 +67,10 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
 
   useEffect(() => {
     if (open && grounpDetail) {
-      form?.setFieldsValue(grounpDetail)
+      form?.setFieldsValue({
+        ...grounpDetail,
+        categoriesIds: grounpDetail.categories?.map((item) => item.id) || []
+      })
       return
     }
     form?.resetFields()

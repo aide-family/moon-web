@@ -343,7 +343,7 @@ const StrategyMetric: React.FC = () => {
         break
       case ActionKey.DELETE:
         confirm({
-          title: '请确认是否删除该策略组?',
+          title: '请确认是否删除该策略?',
           icon: <ExclamationCircleFilled />,
           content: '此操作不可逆',
           onOk() {
@@ -520,7 +520,7 @@ const StrategyMetric: React.FC = () => {
         }}
       >
         <div className='flex justify-between items-center'>
-          <div className='font-bold text-lg'>策略组</div>
+          <div className='font-bold text-lg'>策略列表</div>
           <Space size={8}>
             <Button type='primary' onClick={handleOpenStrategyTypeModal}>
               添加
