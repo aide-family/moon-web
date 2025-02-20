@@ -25,6 +25,9 @@ export default function LayoutFooter() {
       <div className='flex items-center gap-2 text-sm'>
         <CopyrightOutlined />
         {window.location.host}
+        <a href='https://beian.miit.gov.cn/' target='_blank' rel='noreferrer' className='text-blue-600'>
+          黔ICP备2023006024号
+        </a>
       </div>
       {actionList.map((item, index) => (
         <a
@@ -34,7 +37,7 @@ export default function LayoutFooter() {
           key={`${index}-${item.url}`}
           rel='noreferrer'
         >
-          <img src={item.img} alt='' />
+          {!!item.img && <img src={item.img} alt='' />}
         </a>
       ))}
     </div>
