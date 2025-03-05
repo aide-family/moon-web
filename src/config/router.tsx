@@ -133,6 +133,10 @@ export const routers: RouteObject[] = [
           {
             path: '/home/datasource/event',
             Component: lazy(() => import('@/pages/datasource/event'))
+          },
+          {
+            path: '/home/datasource/log',
+            Component: lazy(() => import('@/pages/datasource/log'))
           }
         ]
       },

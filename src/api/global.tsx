@@ -139,7 +139,10 @@ export const StorageTypeData: Record<StorageType, string> = {
   [StorageType.StorageTypeKafka]: 'Kafka',
   [StorageType.StorageTypeRocketmq]: 'Rocketmq',
   [StorageType.StorageTypeRabbitmq]: 'Rabbitmq',
-  [StorageType.StorageTypeMQTT]: 'MQTT'
+  [StorageType.StorageTypeMQTT]: 'MQTT',
+  [StorageType.StorageTypeElasticsearch]: 'Elasticsearch',
+  [StorageType.StorageTypeLoki]: 'Loki',
+  [StorageType.StorageAliYunSLS]: 'AliYunSLS'
 }
 
 export const ConditionData: Record<Condition, string> = {

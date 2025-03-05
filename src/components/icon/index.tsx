@@ -148,6 +148,60 @@ export function VictoriaMetrics(props: JSX.IntrinsicAttributes & SVGProps<SVGSVG
   )
 }
 
+export function Elasticsearch(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+  const { width = 24, height = 24, ...rest } = props
+  return (
+    <svg
+      {...rest}
+      role='img'
+      viewBox='0 0 24 24'
+      xmlns='http://www.w3.org/2000/svg'
+      width={width}
+      height={height}
+      fill='currentColor'
+    >
+      <title>Elasticsearch</title>
+      <path d='M13.394 0C8.683 0 4.609 2.716 2.644 6.667h15.641a4.77 4.77 0 0 0 3.073-1.11c.446-.375.864-.785 1.247-1.243l.001-.002A11.974 11.974 0 0 0 13.394 0zM1.804 8.889a12.009 12.009 0 0 0 0 6.222h14.7a3.111 3.111 0 1 0 0-6.222zm.84 8.444C4.61 21.283 8.684 24 13.395 24c3.701 0 7.011-1.677 9.212-4.312l-.001-.002a9.958 9.958 0 0 0-1.247-1.243 4.77 4.77 0 0 0-3.073-1.11z' />
+    </svg>
+  )
+}
+
+export function Loki(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+  const { width = 24, height = 24, ...rest } = props
+  return (
+    <svg
+      {...rest}
+      role='img'
+      viewBox='0 0 24 24'
+      xmlns='http://www.w3.org/2000/svg'
+      width={width}
+      height={height}
+      fill='currentColor'
+    >
+      <title>Loki</title>
+      <path d='M24 5.098a1.35 1.35 0 0 1-1.35 1.35 1.35 1.35 0 0 1-1.352-1.35 1.35 1.35 0 0 1 1.351-1.351A1.35 1.35 0 0 1 24 5.097zM16.549 18.31a2.289 2.289 0 0 1-2.322-2.322H12.2c0 2.449 1.9 4.264 4.306 4.264s4.348-1.857 4.348-4.264H18.87c-.043 1.351-1.056 2.322-2.322 2.322zm5.108-2.828h1.984V7.377h-1.984zM0 15.483h1.984V4H0v11.483zm7.135-8.359c-2.449 0-4.307 1.858-4.307 4.264a4.27 4.27 0 0 0 4.307 4.306c2.406 0 4.306-1.858 4.306-4.264S9.583 7.124 7.135 7.124zm0 6.628c-1.31 0-2.322-1.013-2.322-2.364a2.289 2.289 0 0 1 2.322-2.322 2.289 2.289 0 0 1 2.321 2.322c0 1.309-.97 2.364-2.321 2.364zm13.635-4.77V7.377h-2.828c-.464-.21-.929-.253-1.393-.253-2.449 0-4.348 1.858-4.348 4.306 0 2.449 1.9 4.264 4.306 4.264s4.306-1.858 4.306-4.264c0-.844-.254-1.604-.676-2.195zm-4.221 4.77c-1.309 0-2.322-1.013-2.322-2.364a2.289 2.289 0 0 1 2.322-2.322 2.289 2.289 0 0 1 2.322 2.322c0 1.309-1.056 2.364-2.322 2.364Z' />
+    </svg>
+  )
+}
+
+export function AliYunSLS(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+  const { width = 24, height = 24, ...rest } = props
+  return (
+    <svg
+      {...rest}
+      role='img'
+      viewBox='0 0 24 24'
+      xmlns='http://www.w3.org/2000/svg'
+      width={width}
+      height={height}
+      fill='currentColor'
+    >
+      <title>Loki</title>
+      <path d='M3.996 4.517h5.291L8.01 6.324 4.153 7.506a1.668 1.668 0 0 0-1.165 1.601v5.786a1.668 1.668 0 0 0 1.165 1.6l3.857 1.183 1.277 1.807H3.996A3.996 3.996 0 0 1 0 15.487V8.513a3.996 3.996 0 0 1 3.996-3.996m16.008 0h-5.291l1.277 1.807 3.857 1.182c.715.227 1.17.889 1.165 1.601v5.786a1.668 1.668 0 0 1-1.165 1.6l-3.857 1.183-1.277 1.807h5.291A3.996 3.996 0 0 0 24 15.487V8.513a3.996 3.996 0 0 0-3.996-3.996m-4.007 8.345H8.002v-1.804h7.995Z' />
+    </svg>
+  )
+}
+
 export function Docusaurus() {
   return <IconFont type='icon-api' />
 }

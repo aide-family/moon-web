@@ -138,6 +138,15 @@ export enum StorageType {
   /** VictoriaMetrics */
   StorageTypeVictoriaMetrics = 2,
 
+  /** StorageTypeElasticsearch */
+  StorageTypeElasticsearch = 3,
+
+  /** StorageTypeLoki */
+  StorageTypeLoki = 4,
+
+  /** StorageAliYunSLS */
+  StorageAliYunSLS = 5,
+
   /** Kafka */
   StorageTypeKafka = 10,
 
