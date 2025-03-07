@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   type Condition,
   type DatasourceType,
@@ -108,25 +109,29 @@ export type CreateStrategyBaseRequest<T = { [key: string]: string }> = {
 export type CreateStrategyRequest<T = { [key: string]: string }> = CreateStrategyBaseRequest<T> &
   (
     | {
-        strategyType: StrategyType.StrategyTypeMetric
-        strategyMetricLevels: CreateStrategyMetricLevelRequest[]
-      }
+      strategyType: StrategyType.StrategyTypeMetric
+      strategyMetricLevels: CreateStrategyMetricLevelRequest[]
+    }
     | {
-        strategyType: StrategyType.StrategyTypeEvent
-        strategyEventLevels: CreateStrategyEventLevelRequest[]
-      }
+      strategyType: StrategyType.StrategyTypeEvent
+      strategyEventLevels: CreateStrategyEventLevelRequest[]
+    }
     | {
-        strategyType: StrategyType.StrategyTypeDomainCertificate
-        strategyDomainLevels: CreateStrategyDomainLevelRequest[]
-      }
+      strategyType: StrategyType.StrategyTypeDomainCertificate
+      strategyDomainLevels: CreateStrategyDomainLevelRequest[]
+    }
     | {
-        strategyType: StrategyType.StrategyTypeDomainPort
-        strategyPortLevels: CreateStrategyPortLevelRequest[]
-      }
+      strategyType: StrategyType.StrategyTypeDomainPort
+      strategyPortLevels: CreateStrategyPortLevelRequest[]
+    }
     | {
-        strategyType: StrategyType.StrategyTypeHTTP
-        strategyHTTPLevels: CreateStrategyHTTPLevelRequest[]
-      }
+      strategyType: StrategyType.StrategyTypeHTTP
+      strategyHTTPLevels: CreateStrategyHTTPLevelRequest[]
+    }
+    | {
+      strategyType: StrategyType.StrategyTypeLog
+      strategyLogLevels: CreateStrategyLogLevelRequest[]
+    }
   )
 
 /** 创建策略表单数据 */
@@ -245,6 +250,19 @@ export interface CreateStrategyPortLevelRequest {
   threshold: number
   /** 端口 */
   port: number
+}
+/** 创建策略log等级请求 */
+export interface CreateStrategyLogLevelRequest {
+  /** 策略等级ID */
+  levelId: number
+  /** 告警页面ID */
+  alarmPageIds: number[]
+  /** 告警组ID */
+  alarmGroupIds: number[]
+  /** 策略标签 */
+  labelNotices: CreateStrategyLabelNoticeRequest[]
+  /** 日志数量 */
+  count: number
 }
 
 export interface CopyStrategyRequest {
@@ -516,6 +534,30 @@ export const parsePortStrategyDetailToFormData = (detail: StrategyItem): CreateS
       })),
       port: item.port,
       threshold: +item.threshold
+    })
+  )
+})
+
+/**
+ * 将端口策略详情转换为表单数据
+ * @param detail 端口策略详情
+ * @returns 表单数据
+ */
+export const parseLogStrategyDetailToFormData = (detail: StrategyItem): CreateStrategyRequestFormData => ({
+  ...parseStrategyDetailToFormData(detail),
+  strategyType: StrategyType.StrategyTypeLog,
+  labels: parseStrategyLabelsToFormData(detail.labels),
+  strategyLogLevels: detail.logLevels.map(
+    (item): CreateStrategyLogLevelRequest => ({
+      levelId: item.level?.value,
+      alarmPageIds: item.alarmPages.map((item) => item.value),
+      alarmGroupIds: item.alarmGroups.map((item) => item.id),
+      labelNotices: item.labelNotices.map((item) => ({
+        name: item.name,
+        value: item.value,
+        alarmGroupIds: item.alarmGroups.map((item) => item.id)
+      })),
+      count: item.count
     })
   )
 })

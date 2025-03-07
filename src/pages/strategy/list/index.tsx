@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Status, StrategyType } from '@/api/enum'
 import { ActionKey, StrategyTypeData } from '@/api/global'
 import type { StrategyItem } from '@/api/model-types'
@@ -21,11 +22,13 @@ import StrategyCharts from './charts-modal-metric'
 import { StrategyDetailDomain } from './detail-modal-domain'
 import { StrategyDetailEvent } from './detail-modal-event'
 import { StrategyDetailHttp } from './detail-modal-http'
+import { StrategyDetailLog } from './detail-modal-log'
 import { MetricDetail } from './detail-modal-metric'
 import { StrategyDetailPort } from './detail-modal-port'
 import { DomainEditModal } from './edit-modal-domain'
 import EventEditModal from './edit-modal-event'
 import { HTTPEditModal } from './edit-modal-http'
+import { LogEditModal } from './edit-modal-log'
 import MetricEditModal from './edit-modal-metric'
 import { PortEditModal } from './edit-modal-port'
 import StrategyTypeModal from './edit-modal-strategy-type'
@@ -57,12 +60,14 @@ const StrategyMetric: React.FC = () => {
   const [openDomainEditModal, setOpenDomainEditModal] = useState(false)
   const [openPortEditModal, setOpenPortEditModal] = useState(false)
   const [openHttpEditModal, setOpenHttpEditModal] = useState(false)
+  const [openLogEditModal, setOpenLogEditModal] = useState(false)
 
   const [openMetricDetailModal, setOpenMetricDetailModal] = useState(false)
   const [openEventDetailModal, setOpenEventDetailModal] = useState(false)
   const [openDomainDetailModal, setOpenDomainDetailModal] = useState(false)
   const [openPortDetailModal, setOpenPortDetailModal] = useState(false)
   const [openHttpDetailModal, setOpenHttpDetailModal] = useState(false)
+  const [openLogDetailModal, setOpenLogDetailModal] = useState(false)
 
   const [openSubscribeModal, setOpenSubscribeModal] = useState(false)
   const [openSubscriberModal, setOpenSubscriberModal] = useState(false)
@@ -99,6 +104,11 @@ const StrategyMetric: React.FC = () => {
   const handleOpenHttpEditModal = (item?: StrategyItem) => {
     setDetail(item)
     setOpenHttpEditModal(true)
+  }
+
+  const handleOpenLogEditModal = (item?: StrategyItem) => {
+    setDetail(item)
+    setOpenLogEditModal(true)
   }
 
   const handleOpenSubscribeModal = (item?: StrategyItem) => {
@@ -141,6 +151,12 @@ const StrategyMetric: React.FC = () => {
     onRefresh()
   }
 
+  const handleLogEditOk = () => {
+    setOpenLogEditModal(false)
+    setDetail(undefined)
+    onRefresh()
+  }
+
   const handleSubscribeOk = () => {
     setOpenSubscribeModal(false)
     setDetail(undefined)
@@ -175,6 +191,9 @@ const StrategyMetric: React.FC = () => {
       case StrategyType.StrategyTypeHTTP:
         setOpenHttpDetailModal(true)
         break
+      case StrategyType.StrategyTypeLog:
+        setOpenLogDetailModal(true)
+        break
       default:
         setOpenMetricDetailModal(true)
         break
@@ -188,6 +207,7 @@ const StrategyMetric: React.FC = () => {
     setOpenDomainDetailModal(false)
     setOpenPortDetailModal(false)
     setOpenHttpDetailModal(false)
+    setOpenLogDetailModal(false)
   }
 
   const handleCloseMetricEditModal = () => {
@@ -212,6 +232,11 @@ const StrategyMetric: React.FC = () => {
 
   const handleCloseHttpEditModal = () => {
     setOpenHttpEditModal(false)
+    setDetail(undefined)
+  }
+
+  const handleCloseLogEditModal = () => {
+    setOpenLogEditModal(false)
     setDetail(undefined)
   }
 
@@ -292,6 +317,9 @@ const StrategyMetric: React.FC = () => {
         break
       case StrategyType.StrategyTypeHTTP:
         handleOpenHttpEditModal(item)
+        break
+      case StrategyType.StrategyTypeLog:
+        handleOpenLogEditModal(item)
         break
       default:
         message.warning(`${StrategyTypeData[item.strategyType]}未开通`)
@@ -388,6 +416,9 @@ const StrategyMetric: React.FC = () => {
       case StrategyType.StrategyTypeHTTP:
         handleOpenHttpEditModal()
         break
+      case StrategyType.StrategyTypeLog:
+        handleOpenLogEditModal()
+        break
       default:
         message.warning(`${StrategyTypeData[type]}未开通`)
         break
@@ -462,6 +493,14 @@ const StrategyMetric: React.FC = () => {
         onCancel={handleCloseHttpEditModal}
         onOk={handleHttpEditOk}
       />
+      <LogEditModal
+        title='Log策略编辑'
+        width='60%'
+        strategyDetail={detail}
+        open={openLogEditModal}
+        onCancel={handleCloseLogEditModal}
+        onOk={handleLogEditOk}
+      />
       <StrategyCharts
         title='策略图表'
         width='60%'
@@ -504,6 +543,12 @@ const StrategyMetric: React.FC = () => {
         open={openHttpDetailModal}
         onCancel={handleCloseDetailModal}
       />
+      <StrategyDetailLog
+        title='Log监控策略详情'
+        width='60%'
+        strategyId={detail?.id}
+        open={openLogDetailModal}
+        onCancel={handleCloseDetailModal} />
       <div
         style={{
           background: token.colorBgContainer,
