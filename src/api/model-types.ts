@@ -360,6 +360,20 @@ export interface StrategyPortLevelItem {
   port: number
 }
 
+/** 日志策略等级项 */
+export interface StrategyLogLevelItem {
+  /** 告警等级明细 */
+  level: SelectItem
+  /** 告警页面 */
+  alarmPages: SelectItem[]
+  /** 告警组 */
+  alarmGroups: AlarmNoticeGroupItem[]
+  /** 策略Labels */
+  labelNotices: LabelNoticeItem[]
+  /** 日志总数 */
+  count: number
+}
+
 /** http策略等级项 */
 export interface StrategyHTTPLevelItem {
   /** 告警等级明细 */
@@ -404,6 +418,8 @@ export interface StrategyItem {
   portLevels: StrategyPortLevelItem[]
   /** http策略 */
   httpLevels: StrategyHTTPLevelItem[]
+  /** log策略 */
+  logLevels: StrategyLogLevelItem[]
   /** 策略标签 */
   labels: { [key: string]: string }
   /** 策略注解 */
@@ -598,6 +614,7 @@ export interface RealtimeAlarmItem {
   domainLevel?: StrategyDomainLevelItem
   httpLevel?: StrategyHTTPLevelItem
   eventLevel?: StrategyEventLevelItem
+  logLevel?: StrategyLogLevelItem
   strategy: StrategyItem
   summary: string
   description: string

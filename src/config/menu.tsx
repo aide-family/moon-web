@@ -38,11 +38,11 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: 'Event',
         key: '/home/datasource/event'
+      },
+      {
+        label: 'Log',
+        key: '/home/datasource/log'
       }
-      // {
-      //   label: 'Log',
-      //   key: '/home/datasource/log'
-      // },
       // {
       //   label: 'Trace',
       //   key: '/home/datasource/trace'
