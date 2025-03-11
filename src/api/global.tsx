@@ -447,7 +447,9 @@ export enum ActionKey {
   /** 图表排序-置顶 */
   CHART_SORT_TOP = '__chart_sort_top__',
   /** 图表排序-置底 */
-  CHART_SORT_BOTTOM = '__chart_sort_bottom__'
+  CHART_SORT_BOTTOM = '__chart_sort_bottom__',
+  /** 同步 */
+  SYNC = '__sync__'
 }
 
 export const AlarmInterventionActionData: Record<

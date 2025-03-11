@@ -1,7 +1,7 @@
 import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
 import type { TeamItem } from '@/api/model-types'
-import { type ListTeamRequest, listTeam, updateTeamStatus } from '@/api/team'
+import { type ListTeamRequest, listTeam, syncTeam, updateTeamStatus } from '@/api/team'
 import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
@@ -37,6 +37,13 @@ export default function Team() {
     onSuccess: (data) => {
       setTeamList(data.list)
       setTotal(data.pagination.total)
+    }
+  })
+
+  const { run: syncTeamInfo, loading: syncTeamInfoLoading } = useRequest(syncTeam, {
+    manual: true,
+    onSuccess: () => {
+      message.success('同步中， 请稍后')
     }
   })
 
@@ -99,6 +106,9 @@ export default function Team() {
       case ActionKey.DETAIL:
         handleOpenDetailModal(item.id)
         break
+      case ActionKey.SYNC:
+        syncTeamInfo({ teamIds: [item.id] })
+        break
     }
   }
 
@@ -149,7 +159,7 @@ export default function Team() {
             rowKey={(record) => record.id}
             dataSource={teamList}
             total={total}
-            loading={loading}
+            loading={loading || syncTeamInfoLoading}
             columns={columns}
             handleTurnPage={handleTurnPage}
             pageSize={searchParams.pagination.pageSize}

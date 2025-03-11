@@ -165,6 +165,15 @@ export function updateTeamConfig(params: TeamConfigItem): Promise<null> {
   return request.PUT('/v1/team/set/config', params)
 }
 
+/**
+ * 同步团队基础信息
+ * @method: put /v1/team/sync
+ * @param {SyncTeamRequest} params
+ */
+export function syncTeam(params: SyncTeamRequest): Promise<null> {
+  return request.PUT('/v1/team/sync', params)
+}
+
 // 示例类型定义
 export interface CreateTeamRequest {
   name: string
@@ -274,4 +283,8 @@ export interface GetTeamMemberDetailRequest {
 
 export interface GetTeamMemberDetailReply {
   detail: TeamMemberItem
+}
+
+export interface SyncTeamRequest {
+  teamIds: number[]
 }
