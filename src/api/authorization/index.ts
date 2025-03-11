@@ -182,6 +182,10 @@ export interface RefreshTokenReply {
    * 团队ID
    */
   teamID?: number
+  /**
+   * 团队成员ID
+   */
+  teamMemberID: number
 }
 
 /**
