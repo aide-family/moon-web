@@ -45,6 +45,7 @@ export function CreateTeamModalProvider({ children }: CreateTeamModalProps) {
           form.resetFields()
           detail && setTeamInfo?.(detail)
           setOpen(false)
+          window.location.reload()
         })
         .catch((err: ErrorResponse) => {
           message.error(err?.message)

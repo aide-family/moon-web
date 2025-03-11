@@ -1,5 +1,3 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { message, notification } from 'antd'
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 import { TeamItem } from './model-types'
@@ -14,8 +12,8 @@ const local192 = 'http://192.168.10.68:5174'
 export const hostMap: { [key: string]: string } = {
   [local5174]: 'http://192.168.10.2:8000',
   [local192]: 'http://192.168.10.2:8000',
-  [localhost]: 'http://localhost:8001',
-  [local127]: 'http://localhost:8001'
+  [localhost]: 'http://localhost:8000',
+  [local127]: 'http://localhost:8000'
 }
 
 export const baseURL = hostMap[host] || `${host}/api`
@@ -39,6 +37,7 @@ request.interceptors.response.use(
     return response.data
   },
   (error: AxiosError<ErrorResponse>) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let resp: any = error.response
     if (!resp || !resp?.data) {
       resp = {}
@@ -95,21 +94,20 @@ export const isLogin = () => {
 
 export type NullObject = Record<string, never>
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const GET = async <T>(url: string, params?: any, config?: AxiosRequestConfig) => {
-  return request.get<NullObject, T>(url, { params, ...config })
+const GET = async <T, R>(url: string, params?: T, config?: AxiosRequestConfig) => {
+  return request.get<NullObject, R>(url, { params, ...config })
 }
 
-const POST = async <T>(url: string, data?: any, config?: AxiosRequestConfig) => {
-  return request.post<NullObject, T>(url, data, config)
+const POST = async <T, R>(url: string, data?: T, config?: AxiosRequestConfig) => {
+  return request.post<NullObject, R>(url, data, config)
 }
 
-const PUT = async <T>(url: string, data?: any, config?: AxiosRequestConfig) => {
-  return request.put<NullObject, T>(url, data, config)
+const PUT = async <T, R>(url: string, data?: T, config?: AxiosRequestConfig) => {
+  return request.put<NullObject, R>(url, data, config)
 }
 
-const DELETE = async <T>(url: string, data?: any, config?: AxiosRequestConfig) => {
-  return request.delete<NullObject, T>(url, { data, ...config })
+const DELETE = async <T, R>(url: string, data?: T, config?: AxiosRequestConfig) => {
+  return request.delete<NullObject, R>(url, { data, ...config })
 }
 
 export default {
