@@ -19,14 +19,15 @@ function getTeamInfo() {
 
 export const TeamMenu: React.FC = () => {
   const createTeamContext = useCreateTeamModal()
-  const { teamInfo, setTeamInfo, setUserInfo, refreshMyTeamList } = useContext(GlobalContext)
+  const { teamInfo, setTeamInfo, setUserInfo, refreshMyTeamList, setTeamMemberID } = useContext(GlobalContext)
   const [teamList, setTeamList] = React.useState<TeamItem[]>([])
 
   const { run: initRefreshToken } = useRequest(refreshToken, {
     manual: true,
-    onSuccess: ({ token, user }) => {
+    onSuccess: ({ token, user, teamMemberID }) => {
       setToken(token)
       setUserInfo?.(user)
+      setTeamMemberID?.(teamMemberID)
     }
   })
 

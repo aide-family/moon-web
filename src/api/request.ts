@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { message, notification } from 'antd'
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
+import { TeamItem } from './model-types'
 
 const host = window.location.origin
 
@@ -58,12 +59,22 @@ request.interceptors.request.use(
   (config) => {
     const token = getToken()
     config.headers['Authorization'] = `Bearer ${token}`
+    config.headers['X-Team-ID'] = getTeamInfo()?.id
+    config.headers['X-Team-Member-ID'] = getTeamMemberID()
     return config
   },
   (error) => {
     return Promise.reject(error)
   }
 )
+
+export const getTeamInfo = (): TeamItem => {
+  return JSON.parse(localStorage.getItem('teamInfo') || '{"id":0}')
+}
+
+export const getTeamMemberID = () => {
+  return +(localStorage.getItem('teamMemberID') || '0')
+}
 
 export const setToken = (token: string) => {
   sessionStorage.setItem('token', token)
@@ -163,7 +174,7 @@ const errorHandle = (err: ErrorResponse) => {
 export const buildHeader = (isSystem?: boolean) => {
   return {
     headers: {
-      'Source-Type': isSystem ? 'System' : 'Team'
+      'X-Source-Type': isSystem ? 'System' : 'Team'
     }
   }
 }

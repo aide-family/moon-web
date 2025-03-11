@@ -33,6 +33,7 @@ function App() {
   const [collapsed, setCollapsed] = useStorage<boolean>('collapsed', false)
   const [userInfo, setUserInfo] = useStorage<UserItem>('userInfo', getUserInfo())
   const [teamInfo, setTeamInfo, removeTeamInfo] = useStorage<TeamItem>('teamInfo', undefined)
+  const [teamMemberID, setTeamMemberID, removeTeamMemberID] = useStorage<number>('teamMemberID', 0)
   const [refreshMyTeamList, setRefreshMyTeamList] = useState<boolean>(false)
   const [localURL, setLocalURL] = useStorage<string>('localURL', localStorage.getItem('localURL') || '/')
   const [showLevelColor, setShowLevelColor] = useStorage<boolean>('showLevelColor', false)
@@ -56,6 +57,9 @@ function App() {
     teamInfo: teamInfo,
     setTeamInfo: setTeamInfo,
     removeTeamInfo: removeTeamInfo,
+    teamMemberID: teamMemberID,
+    setTeamMemberID: setTeamMemberID,
+    removeTeamMemberID: removeTeamMemberID,
     refreshMyTeamList: refreshMyTeamList,
     setRefreshMyTeamList: () => setRefreshMyTeamList(!refreshMyTeamList),
     isFullscreen: isFullscreen,
