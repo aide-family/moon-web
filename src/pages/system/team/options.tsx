@@ -63,7 +63,15 @@ export const getColumnList = (props: GroupColumnProps): ColumnsType<TeamItem> =>
               禁用
             </Button>
           )
-        }
+        },
+    {
+      key: ActionKey.SYNC,
+      label: (
+        <Button type='link' size='small'>
+          同步
+        </Button>
+      )
+    }
   ]
 
   return [
