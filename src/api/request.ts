@@ -94,19 +94,23 @@ export const isLogin = () => {
 
 export type NullObject = Record<string, never>
 
-const GET = async <T, R>(url: string, params?: T, config?: AxiosRequestConfig) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const GET = async <R>(url: string, params?: any, config?: AxiosRequestConfig) => {
   return request.get<NullObject, R>(url, { params, ...config })
 }
 
-const POST = async <T, R>(url: string, data?: T, config?: AxiosRequestConfig) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const POST = async <R>(url: string, data?: any, config?: AxiosRequestConfig) => {
   return request.post<NullObject, R>(url, data, config)
 }
 
-const PUT = async <T, R>(url: string, data?: T, config?: AxiosRequestConfig) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const PUT = async <R>(url: string, data?: any, config?: AxiosRequestConfig) => {
   return request.put<NullObject, R>(url, data, config)
 }
 
-const DELETE = async <T, R>(url: string, data?: T, config?: AxiosRequestConfig) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const DELETE = async <R>(url: string, data?: any, config?: AxiosRequestConfig) => {
   return request.delete<NullObject, R>(url, { data, ...config })
 }
 
@@ -137,6 +141,7 @@ const errorHandle = (err: ErrorResponse) => {
     switch (err.code) {
       case 400:
         // 表单告警
+        message.error(msg || '表单数据错误')
         break
       case 401:
         if (msg === 'JWT token is missing') {
@@ -157,7 +162,8 @@ const errorHandle = (err: ErrorResponse) => {
         break
       default:
         notification.warning({
-          message: err?.message || '请求失败'
+          message: err?.message || '请求失败',
+          placement: 'bottomRight'
         })
         break
     }
