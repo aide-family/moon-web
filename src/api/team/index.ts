@@ -171,7 +171,7 @@ export function updateTeamConfig(params: TeamConfigItem): Promise<null> {
  * @param {SyncTeamRequest} params
  */
 export function syncTeam(params: SyncTeamRequest): Promise<null> {
-  return request.PUT('/v1/team/sync', params)
+  return request.PUT('/v1/team/sync/basic', params)
 }
 
 // 示例类型定义
