@@ -12,7 +12,7 @@ const local192 = 'http://192.168.10.68:5174'
 export const hostMap: { [key: string]: string } = {
   [local5174]: 'http://192.168.10.2:8000',
   [local192]: 'http://192.168.10.2:8000',
-  [localhost]: 'http://localhost:8000',
+  [localhost]: 'https://moon.aide-cloud.cn/api',
   [local127]: 'http://localhost:8000'
 }
 

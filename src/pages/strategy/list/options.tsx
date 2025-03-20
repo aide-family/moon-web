@@ -56,22 +56,22 @@ export const formList: SearchFormItem[] = [
       }
     }
   },
-  {
-    name: 'teamId',
-    label: '策略组',
-    dataProps: {
-      type: 'select-fetch',
-      itemProps: {
-        selectProps: {
-          placeholder: '请选择策略组',
-          mode: 'multiple',
-          maxTagCount: 'responsive'
-        },
-        handleFetch: getStrategyGroups,
-        defaultOptions: []
-      }
-    }
-  },
+  // {
+  //   name: 'teamId',
+  //   label: '策略组',
+  //   dataProps: {
+  //     type: 'select-fetch',
+  //     itemProps: {
+  //       selectProps: {
+  //         placeholder: '请选择策略组',
+  //         mode: 'multiple',
+  //         maxTagCount: 'responsive'
+  //       },
+  //       handleFetch: getStrategyGroups,
+  //       defaultOptions: []
+  //     }
+  //   }
+  // },
   {
     name: 'strategyTypes',
     label: '策略类型',

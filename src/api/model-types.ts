@@ -469,7 +469,7 @@ export interface StrategyGroupItem {
   /** 策略组说明信息 */
   remark: string
   /** 策略组创建人 */
-  creator: string
+  creator: UserItem
   /** 创建者ID */
   creatorId: number
   /** 策略列表 */

@@ -1,336 +1,103 @@
-/* eslint-disable prettier/prettier */
-import { Status, StrategyType } from '@/api/enum'
-import { ActionKey, StrategyTypeData } from '@/api/global'
-import type { StrategyItem } from '@/api/model-types'
+import { Status } from '@/api/enum'
+import { ActionKey } from '@/api/global'
+import { StrategyGroupItem } from '@/api/model-types'
 import {
-  type ListStrategyRequest,
-  deleteStrategy,
-  listStrategy,
-  pushStrategy,
-  updateStrategyStatus
+  ListStrategyGroupRequest,
+  deleteStrategyGroup,
+  listStrategyGroup,
+  updateStrategyGroupStatus,
+  type ListStrategyRequest
 } from '@/api/strategy'
-import SearchBox from '@/components/data/search-box'
-import AutoTable from '@/components/table/index'
-import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
-import { GlobalContext } from '@/utils/context'
-import { ExclamationCircleFilled } from '@ant-design/icons'
-import { Button, Modal, Space, message, theme } from 'antd'
-import { debounce } from 'lodash'
+import { ExclamationCircleFilled, MoreOutlined } from '@ant-design/icons'
+import { useRequest } from 'ahooks'
+import { Badge, Button, Dropdown, Input, MenuProps, Modal, Spin, message, theme } from 'antd'
 import type React from 'react'
-import { useCallback, useContext, useEffect, useRef, useState } from 'react'
-import StrategyCharts from './charts-modal-metric'
-import { StrategyDetailDomain } from './detail-modal-domain'
-import { StrategyDetailEvent } from './detail-modal-event'
-import { StrategyDetailHttp } from './detail-modal-http'
-import { StrategyDetailLog } from './detail-modal-log'
-import { MetricDetail } from './detail-modal-metric'
-import { StrategyDetailPort } from './detail-modal-port'
-import { DomainEditModal } from './edit-modal-domain'
-import EventEditModal from './edit-modal-event'
-import { HTTPEditModal } from './edit-modal-http'
-import { LogEditModal } from './edit-modal-log'
-import MetricEditModal from './edit-modal-metric'
-import { PortEditModal } from './edit-modal-port'
-import StrategyTypeModal from './edit-modal-strategy-type'
-import { ModalSubscribe } from './modal-subscribe'
-import ModalSubscriber from './modal-subscriber'
-import { formList, getColumnList } from './options'
+import { useEffect, useRef, useState } from 'react'
+import { GroupEditModal } from '../group/group-edit-modal'
+import StrategyList from './strategy-list'
 
 const { confirm } = Modal
-const { useToken } = theme
 
 const defaultSearchParams: ListStrategyRequest = {
+  keyword: '',
   pagination: {
     pageNum: 1,
-    pageSize: 50
+    pageSize: 20
   }
 }
 
 const StrategyMetric: React.FC = () => {
-  const { token } = useToken()
-  const { isFullscreen } = useContext(GlobalContext)
-
-  const [datasource, setDatasource] = useState<StrategyItem[]>([])
-  const [searchParams, setSearchParams] = useState<ListStrategyRequest>(defaultSearchParams)
-  const [loading, setLoading] = useState(false)
-  const [refresh, setRefresh] = useState(false)
+  const [strategyGroups, setStrategyGroups] = useState<StrategyGroupItem[]>([])
+  const [selectedGroups, setSelectedGroups] = useState<number[]>([]) // 存储选中的策略组
+  const { token } = theme.useToken() // 获取主题变量
+  const [searchParams, setSearchParams] = useState<ListStrategyGroupRequest>(defaultSearchParams)
   const [total, setTotal] = useState(0)
-  const [openMetricEditModal, setOpenMetricEditModal] = useState(false)
-  const [openEventEditModal, setOpenEventEditModal] = useState(false)
-  const [openDomainEditModal, setOpenDomainEditModal] = useState(false)
-  const [openPortEditModal, setOpenPortEditModal] = useState(false)
-  const [openHttpEditModal, setOpenHttpEditModal] = useState(false)
-  const [openLogEditModal, setOpenLogEditModal] = useState(false)
+  const listRef = useRef<HTMLDivElement>(null) // 列表容器的引用
+  const [openGroupEditModal, setOpenGroupEditModal] = useState(false) // 编辑策略组模态框的显示状态
+  const [editGroupId, setEditGroupId] = useState<number>() // 模态框策略组Id
+  const [disabledEditGroupModal, setDisabledEditGroupModal] = useState(false) // 编辑模态框是否禁用
 
-  const [openMetricDetailModal, setOpenMetricDetailModal] = useState(false)
-  const [openEventDetailModal, setOpenEventDetailModal] = useState(false)
-  const [openDomainDetailModal, setOpenDomainDetailModal] = useState(false)
-  const [openPortDetailModal, setOpenPortDetailModal] = useState(false)
-  const [openHttpDetailModal, setOpenHttpDetailModal] = useState(false)
-  const [openLogDetailModal, setOpenLogDetailModal] = useState(false)
-
-  const [openSubscribeModal, setOpenSubscribeModal] = useState(false)
-  const [openSubscriberModal, setOpenSubscriberModal] = useState(false)
-
-  const [detail, setDetail] = useState<StrategyItem>()
-
-  const [openChartModal, setOpenChartModal] = useState(false)
-  const [openStrategyTypeModal, setOpenStrategyTypeModal] = useState(false)
-
-  const searchRef = useRef<HTMLDivElement>(null)
-  const ADivRef = useRef<HTMLDivElement>(null)
-  const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
-
-  const handleOpenMetricEditModal = (item?: StrategyItem) => {
-    setDetail(item)
-    setOpenMetricEditModal(true)
-  }
-
-  const handleOpenEventEditModal = (item?: StrategyItem) => {
-    setDetail(item)
-    setOpenEventEditModal(true)
-  }
-
-  const handleOpenDomainEditModal = (item?: StrategyItem) => {
-    setDetail(item)
-    setOpenDomainEditModal(true)
-  }
-
-  const handleOpenPortEditModal = (item?: StrategyItem) => {
-    setDetail(item)
-    setOpenPortEditModal(true)
-  }
-
-  const handleOpenHttpEditModal = (item?: StrategyItem) => {
-    setDetail(item)
-    setOpenHttpEditModal(true)
-  }
-
-  const handleOpenLogEditModal = (item?: StrategyItem) => {
-    setDetail(item)
-    setOpenLogEditModal(true)
-  }
-
-  const handleOpenSubscribeModal = (item?: StrategyItem) => {
-    setDetail(item)
-    setOpenSubscribeModal(true)
-  }
-
-  const handleOpenSubscriberModal = (item?: StrategyItem) => {
-    setDetail(item)
-    setOpenSubscriberModal(true)
-  }
-
-  const handleMetricEditOk = () => {
-    setOpenMetricEditModal(false)
-    setDetail(undefined)
-    onRefresh()
-  }
-
-  const handleDomainEditOk = () => {
-    setOpenDomainEditModal(false)
-    setDetail(undefined)
-    onRefresh()
-  }
-
-  const handlePortEditOk = () => {
-    setOpenPortEditModal(false)
-    setDetail(undefined)
-    onRefresh()
-  }
-
-  const handleEventEditOk = () => {
-    setOpenEventEditModal(false)
-    setDetail(undefined)
-    onRefresh()
-  }
-
-  const handleHttpEditOk = () => {
-    setOpenHttpEditModal(false)
-    setDetail(undefined)
-    onRefresh()
-  }
-
-  const handleLogEditOk = () => {
-    setOpenLogEditModal(false)
-    setDetail(undefined)
-    onRefresh()
-  }
-
-  const handleSubscribeOk = () => {
-    setOpenSubscribeModal(false)
-    setDetail(undefined)
-    onRefresh()
-  }
-
-  const handleCloseSubscribeModal = () => {
-    setOpenSubscribeModal(false)
-    setDetail(undefined)
-  }
-
-  const handleCloseSubscriberModal = () => {
-    setOpenSubscriberModal(false)
-    setDetail(undefined)
-  }
-
-  const handleDetailModal = (item: StrategyItem) => {
-    setDetail(item)
-    switch (item.strategyType) {
-      case StrategyType.StrategyTypeMetric:
-        setOpenMetricDetailModal(true)
-        break
-      case StrategyType.StrategyTypeEvent:
-        setOpenEventDetailModal(true)
-        break
-      case StrategyType.StrategyTypeDomainCertificate:
-        setOpenDomainDetailModal(true)
-        break
-      case StrategyType.StrategyTypeDomainPort:
-        setOpenPortDetailModal(true)
-        break
-      case StrategyType.StrategyTypeHTTP:
-        setOpenHttpDetailModal(true)
-        break
-      case StrategyType.StrategyTypeLog:
-        setOpenLogDetailModal(true)
-        break
-      default:
-        setOpenMetricDetailModal(true)
-        break
+  // 处理策略组点击事件
+  const handleGroupClick = (item: StrategyGroupItem) => {
+    if (selectedGroups.includes(item.id)) {
+      // 如果已选中，则取消选中
+      setSelectedGroups(selectedGroups.filter((group) => group !== item.id))
+    } else {
+      // 如果未选中，则添加到选中列表
+      setSelectedGroups([...selectedGroups, item.id])
     }
   }
 
-  const handleCloseDetailModal = () => {
-    setDetail(undefined)
-    setOpenMetricDetailModal(false)
-    setOpenEventDetailModal(false)
-    setOpenDomainDetailModal(false)
-    setOpenPortDetailModal(false)
-    setOpenHttpDetailModal(false)
-    setOpenLogDetailModal(false)
+  const { run: fetchData, loading: loading } = useRequest(listStrategyGroup, {
+    manual: true,
+    onSuccess: (res) => {
+      setStrategyGroups(res.list || [])
+      setTotal(res.pagination?.total || 0)
+    }
+  })
+  // 处理搜索事件
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onPressEnter = (e: any) => {
+    setSearchParams({
+      ...searchParams,
+      keyword: e.target.value
+    })
+  }
+  //关闭编辑页面
+  const handleCloseGroupEditModal = () => {
+    setOpenGroupEditModal(false)
+    setEditGroupId(0)
+    setDisabledEditGroupModal(false)
   }
 
-  const handleCloseMetricEditModal = () => {
-    setOpenMetricEditModal(false)
-    setDetail(undefined)
+  // 编辑策略组
+  const handleEditModal = (editId?: number) => {
+    setEditGroupId(editId)
+    setOpenGroupEditModal(true)
   }
 
-  const handleCloseEventEditModal = () => {
-    setOpenEventEditModal(false)
-    setDetail(undefined)
+  // 打开详情页面
+  const handleOpenDetailModal = (groupId: number) => {
+    setEditGroupId(groupId)
+    setOpenGroupEditModal(true)
+    setDisabledEditGroupModal(true)
   }
 
-  const handleCloseDomainEditModal = () => {
-    setOpenDomainEditModal(false)
-    setDetail(undefined)
+  // 确定后关闭编辑页面
+  const handleOnOKGroupEditModal = () => {
+    handleCloseGroupEditModal()
   }
-
-  const handleClosePortEditModal = () => {
-    setOpenPortEditModal(false)
-    setDetail(undefined)
-  }
-
-  const handleCloseHttpEditModal = () => {
-    setOpenHttpEditModal(false)
-    setDetail(undefined)
-  }
-
-  const handleCloseLogEditModal = () => {
-    setOpenLogEditModal(false)
-    setDetail(undefined)
-  }
-
+  // 刷新列表
   const onRefresh = () => {
-    setRefresh(!refresh)
-  }
-
-  const handleOpenChartModal = (item: StrategyItem) => {
-    setOpenChartModal(true)
-    setDetail(item)
-  }
-
-  const handleCloseChartModal = () => {
-    setOpenChartModal(false)
-    setDetail(undefined)
-  }
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchData = useCallback(
-    debounce(async (params) => {
-      setLoading(true)
-      try {
-        const { list, pagination } = await listStrategy(params)
-        setDatasource(list || [])
-        setTotal(pagination?.total || 0)
-      } finally {
-        setLoading(false)
-      }
-    }, 500),
-    []
-  )
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
     fetchData(searchParams)
-  }, [refresh, searchParams, fetchData])
-
-  const onSearch = (formData: ListStrategyRequest) => {
-    setSearchParams({
-      ...searchParams,
-      ...formData,
-      pagination: {
-        pageNum: 1,
-        pageSize: searchParams?.pagination?.pageSize
-      }
-    })
   }
 
-  // 切换分页
-  const handleTurnPage = (page: number, pageSize: number) => {
-    setSearchParams({
-      ...searchParams,
-      pagination: {
-        pageNum: page,
-        pageSize: pageSize
-      }
-    })
-  }
-
-  // 重置
-  const onReset = () => {
-    setSearchParams(defaultSearchParams)
-  }
-
-  const handleOpenEditModal = (item: StrategyItem) => {
-    switch (item.strategyType) {
-      case StrategyType.StrategyTypeMetric:
-        handleOpenMetricEditModal(item)
-        break
-      case StrategyType.StrategyTypeEvent:
-        handleOpenEventEditModal(item)
-        break
-      case StrategyType.StrategyTypeDomainCertificate:
-        handleOpenDomainEditModal(item)
-        break
-      case StrategyType.StrategyTypeDomainPort:
-        handleOpenPortEditModal(item)
-        break
-      case StrategyType.StrategyTypeHTTP:
-        handleOpenHttpEditModal(item)
-        break
-      case StrategyType.StrategyTypeLog:
-        handleOpenLogEditModal(item)
-        break
-      default:
-        message.warning(`${StrategyTypeData[item.strategyType]}未开通`)
-        break
-    }
-  }
-
-  const onHandleMenuOnClick = (item: StrategyItem, key: ActionKey) => {
+  // 策略组操作菜单点击事件
+  const onHandleMenuOnClick = (item: StrategyGroupItem, key: ActionKey) => {
+    console.log(item, key)
     switch (key) {
       case ActionKey.ENABLE:
-        updateStrategyStatus({
+        updateStrategyGroupStatus({
           ids: [item.id],
           status: Status.StatusEnable
         }).then(() => {
@@ -339,7 +106,7 @@ const StrategyMetric: React.FC = () => {
         })
         break
       case ActionKey.DISABLE:
-        updateStrategyStatus({
+        updateStrategyGroupStatus({
           ids: [item.id],
           status: Status.StatusDisable
         }).then(() => {
@@ -350,32 +117,18 @@ const StrategyMetric: React.FC = () => {
       case ActionKey.OPERATION_LOG:
         break
       case ActionKey.DETAIL:
-        handleDetailModal(item)
+        handleOpenDetailModal(item.id)
         break
       case ActionKey.EDIT:
-        handleOpenEditModal(item)
-        break
-      case ActionKey.CHART:
-        handleOpenChartModal(item)
-        break
-      case ActionKey.IMMEDIATELY_PUSH:
-        pushStrategy(item.id)
-          .then(() => message.success('推送成功'))
-          .catch(() => message.error('推送失败'))
-        break
-      case ActionKey.SUBSCRIBE:
-        handleOpenSubscribeModal(item)
-        break
-      case ActionKey.SUBSCRIBER:
-        handleOpenSubscriberModal(item)
+        handleEditModal(item.id)
         break
       case ActionKey.DELETE:
         confirm({
-          title: '请确认是否删除该策略?',
+          title: '请确认是否删除该策略组?',
           icon: <ExclamationCircleFilled />,
           content: '此操作不可逆',
           onOk() {
-            deleteStrategy({ id: item.id }).then(() => {
+            deleteStrategyGroup({ id: item.id }).then(() => {
               message.success('删除成功')
               onRefresh()
             })
@@ -386,217 +139,162 @@ const StrategyMetric: React.FC = () => {
         })
         break
     }
-  }
+  } // 策略组操作菜单
 
-  const columns = getColumnList({
-    onHandleMenuOnClick,
-    current: searchParams.pagination.pageNum,
-    pageSize: searchParams.pagination.pageSize
-  })
+  const tableOperationItems = (record: StrategyGroupItem): MenuProps['items'] => [
+    record.status === Status.StatusDisable
+      ? {
+          key: ActionKey.ENABLE,
+          label: (
+            <Button type='link' size='small'>
+              启用
+            </Button>
+          )
+        }
+      : {
+          key: ActionKey.DISABLE,
+          label: (
+            <Button type='link' size='small' danger>
+              禁用
+            </Button>
+          )
+        },
+    {
+      key: ActionKey.DETAIL,
+      label: (
+        <Button size='small' type='link' onClick={() => onHandleMenuOnClick(record, ActionKey.DETAIL)}>
+          详情
+        </Button>
+      )
+    },
 
-  const handleOpenStrategyTypeModal = () => {
-    setOpenStrategyTypeModal(true)
-  }
-
-  const handleStrategyTypeSubmit = (type: StrategyType) => {
-    setOpenStrategyTypeModal(false)
-    switch (type) {
-      case StrategyType.StrategyTypeMetric:
-        handleOpenMetricEditModal()
-        break
-      case StrategyType.StrategyTypeEvent:
-        handleOpenEventEditModal()
-        break
-      case StrategyType.StrategyTypeDomainCertificate:
-        handleOpenDomainEditModal()
-        break
-      case StrategyType.StrategyTypeDomainPort:
-        handleOpenPortEditModal()
-        break
-      case StrategyType.StrategyTypeHTTP:
-        handleOpenHttpEditModal()
-        break
-      case StrategyType.StrategyTypeLog:
-        handleOpenLogEditModal()
-        break
-      default:
-        message.warning(`${StrategyTypeData[type]}未开通`)
-        break
+    {
+      key: ActionKey.EDIT,
+      label: (
+        <Button size='small' type='link'>
+          编辑
+        </Button>
+      )
+    },
+    {
+      key: ActionKey.DELETE,
+      label: (
+        <Button type='link' size='small' danger>
+          删除
+        </Button>
+      )
     }
-  }
+  ] // 监听滚动事件
 
-  const handleStrategyTypeCancel = () => {
-    setOpenStrategyTypeModal(false)
-  }
+  useEffect(() => {
+    const listElement = listRef.current
+    const handleScroll = () => {
+      if (listElement && !loading) {
+        const { scrollTop, scrollHeight, clientHeight } = listElement // 判断是否滚动到底部
+        if (scrollTop + clientHeight >= scrollHeight - 10) {
+          // 加载下一页
+          setSearchParams({
+            ...searchParams,
+            pagination: { pageNum: searchParams.pagination.pageNum + 1, pageSize: searchParams.pagination.pageSize }
+          })
+        }
+      }
+    }
+
+    if (listElement) {
+      listElement.addEventListener('scroll', handleScroll)
+    }
+
+    return () => {
+      if (listElement) {
+        listElement.removeEventListener('scroll', handleScroll)
+      }
+    }
+  }, [loading]) // 初始化加载数据
+
+  useEffect(() => {
+    fetchData(searchParams)
+  }, [searchParams, fetchData])
 
   return (
-    <div className='h-full flex flex-col gap-3 p-3'>
-      <ModalSubscriber
-        title={`【${detail?.name}】策略订阅者`}
-        width='60%'
-        open={openSubscriberModal}
-        onClose={handleCloseSubscriberModal}
-        strategyId={detail?.id}
+    <div className='flex gap-3 p-3 w-full h-full '>
+      <GroupEditModal
+        title={editGroupId ? (disabledEditGroupModal ? '分组详情' : '编辑分组') : '新建分组'}
+        width='40%'
+        style={{ minWidth: 504 }}
+        open={openGroupEditModal}
+        onCancel={handleCloseGroupEditModal}
+        onOk={handleOnOKGroupEditModal}
+        groupId={editGroupId}
+        disabled={disabledEditGroupModal}
       />
-      <ModalSubscribe
-        title={`订阅【${detail?.name}】策略`}
-        // width='60%'
-        open={openSubscribeModal}
-        item={detail}
-        onOk={handleSubscribeOk}
-        onCancel={handleCloseSubscribeModal}
-      />
-      <StrategyTypeModal
-        width='780px'
-        title='选择策略类型'
-        open={openStrategyTypeModal}
-        onSubmit={handleStrategyTypeSubmit}
-        onCancel={handleStrategyTypeCancel}
-      />
-      <MetricEditModal
-        title='指标策略编辑'
-        width='60%'
-        strategyDetail={detail}
-        open={openMetricEditModal}
-        onCancel={handleCloseMetricEditModal}
-        onOk={handleMetricEditOk}
-      />
-      <DomainEditModal
-        title='证书策略编辑'
-        width='60%'
-        strategyDetail={detail}
-        open={openDomainEditModal}
-        onCancel={handleCloseDomainEditModal}
-        onOk={handleDomainEditOk}
-      />
-      <PortEditModal
-        title='端口策略编辑'
-        width='60%'
-        strategyDetail={detail}
-        open={openPortEditModal}
-        onCancel={handleClosePortEditModal}
-        onOk={handlePortEditOk}
-      />
-      <EventEditModal
-        title='事件策略编辑'
-        width='60%'
-        eventStrategyDetail={detail}
-        open={openEventEditModal}
-        onCancel={handleCloseEventEditModal}
-        onOk={handleEventEditOk}
-      />
-      <HTTPEditModal
-        title='HTTP策略编辑'
-        width='60%'
-        strategyDetail={detail}
-        open={openHttpEditModal}
-        onCancel={handleCloseHttpEditModal}
-        onOk={handleHttpEditOk}
-      />
-      <LogEditModal
-        title='Log策略编辑'
-        width='60%'
-        strategyDetail={detail}
-        open={openLogEditModal}
-        onCancel={handleCloseLogEditModal}
-        onOk={handleLogEditOk}
-      />
-      <StrategyCharts
-        title='策略图表'
-        width='60%'
-        strategyID={detail?.id}
-        open={openChartModal}
-        onCancel={handleCloseChartModal}
-      />
-      <MetricDetail
-        title='Metric 策略详情'
-        width='60%'
-        strategyId={detail?.id}
-        open={openMetricDetailModal}
-        onCancel={handleCloseDetailModal}
-      />
-      <StrategyDetailEvent
-        title='事件监控策略详情'
-        width='60%'
-        strategyId={detail?.id}
-        open={openEventDetailModal}
-        onCancel={handleCloseDetailModal}
-      />
-      <StrategyDetailDomain
-        title='证书监控策略详情'
-        width='60%'
-        strategyId={detail?.id}
-        open={openDomainDetailModal}
-        onCancel={handleCloseDetailModal}
-      />
-      <StrategyDetailPort
-        title='端口监控策略详情'
-        width='60%'
-        strategyId={detail?.id}
-        open={openPortDetailModal}
-        onCancel={handleCloseDetailModal}
-      />
-      <StrategyDetailHttp
-        title='HTTP监控策略详情'
-        width='60%'
-        strategyId={detail?.id}
-        open={openHttpDetailModal}
-        onCancel={handleCloseDetailModal}
-      />
-      <StrategyDetailLog
-        title='Log监控策略详情'
-        width='60%'
-        strategyId={detail?.id}
-        open={openLogDetailModal}
-        onCancel={handleCloseDetailModal} />
       <div
-        style={{
-          background: token.colorBgContainer,
-          borderRadius: token.borderRadius
-        }}
+        className='w-[19.4%]  p-3'
+        style={{ backgroundColor: token.colorBgContainer, borderRadius: token.borderRadius }}
       >
-        <SearchBox ref={searchRef} formList={formList} onSearch={onSearch} onReset={onReset} />
+        <div className='flex gap-2 mb-2'>
+          <Input placeholder='搜索策略组' className='flex-1' onPressEnter={onPressEnter} />
+          <Button type='primary' onClick={() => handleEditModal()}>
+            添加
+          </Button>
+        </div>
+        <div className='flex justify-between items-center mb-2 h-8'>
+          <div className='text-sm text-gray-500'>
+            共<span style={{ color: token.colorPrimary }}>{total}</span>个策略组 已选中
+            <span style={{ color: token.colorPrimary }}>{selectedGroups.length}</span>
+          </div>
+          {selectedGroups.length > 0 && (
+            <Button type='link' onClick={() => setSelectedGroups([])}>
+              清空
+            </Button>
+          )}
+        </div>
+        <div className=' space-y-1 h-[90%] overflow-y-auto ' ref={listRef}>
+          {strategyGroups.map((item: StrategyGroupItem) => (
+            <div
+              className='flex gap-1 w-full text-left p-2 rounded cursor-pointer text-sm items-center'
+              style={{
+                backgroundColor: selectedGroups.includes(item.id)
+                  ? token.colorPrimaryBg
+                  : token.colorBgContainerDisabled,
+                color: selectedGroups.includes(item.id) ? token.colorPrimary : token.colorText
+              }}
+              onClick={() => handleGroupClick(item)}
+            >
+              <Badge status={item.status === Status.StatusEnable ? 'success' : 'error'} />
+              <div>
+                [<span className='text-green-500'>{item.enableStrategyCount}</span>/
+                <span className='text-red-500'>{item.strategyCount}</span>]
+              </div>
+              <div className='flex-1 overflow-hidden whitespace-nowrap overflow-ellipsis'>{item.name}</div>
+              <Dropdown
+                menu={{
+                  items: tableOperationItems(item),
+                  onClick: ({ key }) => {
+                    onHandleMenuOnClick(item, key as ActionKey)
+                  }
+                }}
+                trigger={['click']}
+              >
+                <div
+                  className='ml-auto text-lg '
+                  onClick={(e) => e.stopPropagation()}
+                  style={{ color: token.colorPrimary }}
+                >
+                  <MoreOutlined />
+                </div>
+              </Dropdown>
+            </div>
+          ))}
+          {loading && (
+            <div style={{ textAlign: 'center', marginTop: '10px' }}>
+              <Spin />
+            </div>
+          )}
+        </div>
       </div>
-      <div
-        className='p-3'
-        style={{
-          background: token.colorBgContainer,
-          borderRadius: token.borderRadius
-        }}
-      >
-        <div className='flex justify-between items-center'>
-          <div className='font-bold text-lg'>策略列表</div>
-          <Space size={8}>
-            <Button type='primary' onClick={handleOpenStrategyTypeModal}>
-              添加
-            </Button>
-            <Button color='default' variant='filled' onClick={onRefresh}>
-              刷新
-            </Button>
-          </Space>
-        </div>
-        <div className='mt-3' ref={ADivRef}>
-          <AutoTable
-            rowKey={(record) => record.id}
-            dataSource={datasource}
-            total={total}
-            loading={loading}
-            columns={columns}
-            handleTurnPage={handleTurnPage}
-            pageSize={searchParams.pagination.pageSize}
-            pageNum={searchParams.pagination.pageNum}
-            showSizeChanger={true}
-            style={{
-              background: token.colorBgContainer,
-              borderRadius: token.borderRadius
-            }}
-            scroll={{
-              y: `calc(100vh - 170px  - ${AutoTableHeight}px)`,
-              x: 1000
-            }}
-            size='middle'
-          />
-        </div>
+      <div className='w-[80%] ' style={{ backgroundColor: token.colorBgContainer, borderRadius: token.borderRadius }}>
+        <StrategyList selectedGroups={selectedGroups} />
       </div>
     </div>
   )

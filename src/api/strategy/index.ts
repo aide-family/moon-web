@@ -109,29 +109,29 @@ export type CreateStrategyBaseRequest<T = { [key: string]: string }> = {
 export type CreateStrategyRequest<T = { [key: string]: string }> = CreateStrategyBaseRequest<T> &
   (
     | {
-      strategyType: StrategyType.StrategyTypeMetric
-      strategyMetricLevels: CreateStrategyMetricLevelRequest[]
-    }
+        strategyType: StrategyType.StrategyTypeMetric
+        strategyMetricLevels: CreateStrategyMetricLevelRequest[]
+      }
     | {
-      strategyType: StrategyType.StrategyTypeEvent
-      strategyEventLevels: CreateStrategyEventLevelRequest[]
-    }
+        strategyType: StrategyType.StrategyTypeEvent
+        strategyEventLevels: CreateStrategyEventLevelRequest[]
+      }
     | {
-      strategyType: StrategyType.StrategyTypeDomainCertificate
-      strategyDomainLevels: CreateStrategyDomainLevelRequest[]
-    }
+        strategyType: StrategyType.StrategyTypeDomainCertificate
+        strategyDomainLevels: CreateStrategyDomainLevelRequest[]
+      }
     | {
-      strategyType: StrategyType.StrategyTypeDomainPort
-      strategyPortLevels: CreateStrategyPortLevelRequest[]
-    }
+        strategyType: StrategyType.StrategyTypeDomainPort
+        strategyPortLevels: CreateStrategyPortLevelRequest[]
+      }
     | {
-      strategyType: StrategyType.StrategyTypeHTTP
-      strategyHTTPLevels: CreateStrategyHTTPLevelRequest[]
-    }
+        strategyType: StrategyType.StrategyTypeHTTP
+        strategyHTTPLevels: CreateStrategyHTTPLevelRequest[]
+      }
     | {
-      strategyType: StrategyType.StrategyTypeLog
-      strategyLogLevels: CreateStrategyLogLevelRequest[]
-    }
+        strategyType: StrategyType.StrategyTypeLog
+        strategyLogLevels: CreateStrategyLogLevelRequest[]
+      }
   )
 
 /** 创建策略表单数据 */
@@ -159,6 +159,7 @@ export interface ListStrategyRequest {
   keyword?: string
   status?: Status
   datasourceType?: DatasourceType
+  groupIds?: number[]
 }
 
 export interface ListStrategyReply {
