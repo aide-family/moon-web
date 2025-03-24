@@ -4,6 +4,7 @@ import { DataSourceTypeData, StatusData, StorageTypeData } from '@/api/global'
 import type { DatasourceItem } from '@/api/model-types'
 import { DataFrom, type DataFromItem } from '@/components/data/form'
 import { GlobalContext } from '@/utils/context'
+import { useRequest } from 'ahooks'
 import {
   theme as AntdTheme,
   Button,
@@ -16,7 +17,7 @@ import {
   Tag,
   message
 } from 'antd'
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import ReactJson from 'react-json-view'
 import {
   basicFormOptions,
@@ -49,7 +50,6 @@ const formOptions = (t: StorageType, saslEnable?: 'true' | 'false') => {
   return []
 }
 
-let timer: NodeJS.Timeout | null = null
 export const EditModal: React.FC<EditModalProps> = (props) => {
   const { datasourceId, onFinish: finish, onClose, ...rest } = props
   const { theme } = useContext(GlobalContext)
@@ -60,7 +60,6 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
   const saslEnable = Form.useWatch('saslEnable', datasourceForm)
 
   const [current, setCurrent] = useState(0)
-  const [loading, setLoading] = useState(false)
   const [options, setOptions] = useState<(DataFromItem | DataFromItem[])[]>([])
   const [editDatasource, setEditDatasource] = useState<DatasourceItem>({
     datasourceType: DatasourceType.DatasourceTypeEvent
@@ -69,6 +68,13 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
   const [datasourceType, setDatasourceType] = useState<StorageType>(StorageType.StorageTypeUnknown)
   const [datasourceDetail, setDatasourceDetail] = useState<DatasourceItem>()
 
+  const { run: fetchDatasourceDetail, loading } = useRequest(getDatasource, {
+    manual: true,
+    onSuccess: (res) => {
+      setDatasourceDetail(res.detail)
+    }
+  })
+
   const init = () => {
     setEditDatasource({
       datasourceType: DatasourceType.DatasourceTypeEvent
@@ -76,24 +82,9 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
     setCurrent(0)
     setOptions(formOptions(datasourceType, saslEnable))
     setDatasourceType(StorageType.StorageTypeUnknown)
-    setLoading(false)
     basicForm.resetFields()
     datasourceForm.resetFields()
   }
-
-  const fetchDatasourceDetail = useCallback(async () => {
-    if (!datasourceId) return
-    setLoading(true)
-    if (timer) {
-      clearTimeout(timer)
-    }
-    timer = setTimeout(() => {
-      getDatasource({ id: datasourceId }).then(({ detail }) => {
-        setDatasourceDetail(detail)
-        setLoading(false)
-      })
-    }, 500)
-  }, [datasourceId])
 
   const next = () => {
     // 表单校验
@@ -167,8 +158,8 @@ export const EditModal: React.FC<EditModalProps> = (props) => {
   }, [datasourceType, saslEnable])
 
   useEffect(() => {
-    fetchDatasourceDetail()
-  }, [fetchDatasourceDetail])
+    datasourceId && fetchDatasourceDetail({ id: datasourceId })
+  }, [fetchDatasourceDetail, datasourceId])
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {

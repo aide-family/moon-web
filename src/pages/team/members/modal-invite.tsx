@@ -1,5 +1,6 @@
 import { type InviteUserRequest, inviteUser } from '@/api/team/invite'
 import { DataFrom } from '@/components/data/form'
+import { handleFormError } from '@/utils'
 import { useRequest } from 'ahooks'
 import { Form, Modal, message } from 'antd'
 import type React from 'react'
@@ -21,6 +22,9 @@ export const Invite: React.FC<InviteProps> = (props) => {
     onSuccess: () => {
       message.info('邀请发送成功')
       setOpen?.(false)
+    },
+    onError: (err) => {
+      handleFormError(form, err)
     }
   })
 

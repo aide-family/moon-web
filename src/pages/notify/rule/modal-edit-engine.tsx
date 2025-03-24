@@ -2,7 +2,10 @@ import { Status } from '@/api/enum'
 import { defaultPaginationReq } from '@/api/global'
 import { TimeEngineItem } from '@/api/model-types'
 import { createTimeEngine, CreateTimeEngineRequest, getTimeEngine, updateTimeEngine } from '@/api/notify/time-engine'
+import { ErrorResponse } from '@/api/request'
 import { useTimeEngineRuleList } from '@/hooks/select'
+import { handleFormError } from '@/utils'
+import { useRequest } from 'ahooks'
 import { Form, Input, Modal, Select } from 'antd'
 import { useEffect, useState } from 'react'
 
@@ -13,7 +16,6 @@ export interface EditModalProps {
   onCancel?: () => void
 }
 
-let timer: NodeJS.Timeout | null = null
 export function EngineEditModal(props: EditModalProps) {
   const { open, engineId: Id, onOk, onCancel } = props
 
@@ -39,6 +41,9 @@ export function EngineEditModal(props: EditModalProps) {
             init()
             onOk?.(values)
           })
+          .catch((err: ErrorResponse) => {
+            handleFormError(form, err)
+          })
           .finally(() => {
             setLoading(false)
           })
@@ -47,6 +52,9 @@ export function EngineEditModal(props: EditModalProps) {
           .then(() => {
             init()
             onOk?.(values)
+          })
+          .catch((err: ErrorResponse) => {
+            handleFormError(form, err)
           })
           .finally(() => {
             setLoading(false)
@@ -59,20 +67,12 @@ export function EngineEditModal(props: EditModalProps) {
     onCancel?.()
   }
 
-  const handleGetDetail = () => {
-    if (!Id) {
-      return
+  const { run: handleGetDetail } = useRequest((id: number) => getTimeEngine(id), {
+    manual: true, // 手动触发请求
+    onSuccess: (res) => {
+      setDetail(res.detail)
     }
-    if (timer) {
-      clearTimeout(timer)
-    }
-
-    timer = setTimeout(() => {
-      getTimeEngine(Id).then((res) => {
-        setDetail(res.detail)
-      })
-    }, 200)
-  }
+  })
 
   useEffect(() => {
     if (detail) {
@@ -90,7 +90,7 @@ export function EngineEditModal(props: EditModalProps) {
   useEffect(() => {
     init()
     if (Id && open) {
-      handleGetDetail()
+      handleGetDetail(Id)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [Id, open])

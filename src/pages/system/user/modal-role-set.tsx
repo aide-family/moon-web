@@ -2,6 +2,7 @@ import { Role } from '@/api/enum'
 import { RoleData } from '@/api/global'
 import type { UserItem } from '@/api/model-types'
 import { type UpdateUserRoleRequest, updateUserRole } from '@/api/user'
+import { handleFormError } from '@/utils'
 import { useRequest } from 'ahooks'
 import { Alert, Form, Modal, type ModalProps, Select } from 'antd'
 
@@ -19,9 +20,13 @@ export const ModalRoleSet: React.FC<ModalRoleSetProps> = (props) => {
 
   const onSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     form.validateFields().then((values) => {
-      setUserRole({ id: detail.id, role: +values.role }).then(() => {
-        onOk?.(e)
-      })
+      setUserRole({ id: detail.id, role: +values.role })
+        .then(() => {
+          onOk?.(e)
+        })
+        .catch((err) => {
+          handleFormError(form, err)
+        })
     })
   }
 

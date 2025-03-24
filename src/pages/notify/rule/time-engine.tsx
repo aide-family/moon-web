@@ -14,6 +14,7 @@ import AutoTable from '@/components/table'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
 import { QuestionCircleOutlined, SwapOutlined } from '@ant-design/icons'
+import { useRequest } from 'ahooks'
 import { Button, Space, theme, Tooltip } from 'antd'
 import { EngineDetailModal } from './modal-detail-engine'
 import { EngineEditModal } from './modal-edit-engine'
@@ -25,14 +26,12 @@ export interface TimeEngineProps {
 
 const { useToken } = theme
 
-let timer: NodeJS.Timeout | null = null
 const TimeEngine: React.FC<TimeEngineProps> = ({ switchTimeEngine }) => {
   const { token } = useToken()
   const { isFullscreen } = useContext(GlobalContext)
 
   const [datasource, setDatasource] = useState<TimeEngineItem[]>([])
   const [total, setTotal] = useState(0)
-  const [loading, setLoading] = useState(false)
   const [searchParams, setSearchParams] = useState({
     keyword: '',
     pagination: {
@@ -66,22 +65,13 @@ const TimeEngine: React.FC<TimeEngineProps> = ({ switchTimeEngine }) => {
     })
   }
 
-  const handleGetList = () => {
-    if (timer) {
-      clearTimeout(timer)
+  const { run: handleGetList, loading } = useRequest((params: ListTimeEngineRequest) => listTimeEngine(params), {
+    manual: true, // 手动触发请求
+    onSuccess: (res) => {
+      setDatasource(res?.list || [])
+      setTotal(res?.pagination?.total || 0)
     }
-    timer = setTimeout(() => {
-      setLoading(true)
-      listTimeEngine(searchParams)
-        .then((res) => {
-          setDatasource(res?.list || [])
-          setTotal(res?.pagination?.total)
-        })
-        .finally(() => {
-          setLoading(false)
-        })
-    }, 200)
-  }
+  })
 
   const onReset = () => {}
 
@@ -149,9 +139,8 @@ const TimeEngine: React.FC<TimeEngineProps> = ({ switchTimeEngine }) => {
   })
 
   useEffect(() => {
-    handleGetList()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, refresh])
+    handleGetList(searchParams)
+  }, [searchParams, refresh, handleGetList])
 
   return (
     <>

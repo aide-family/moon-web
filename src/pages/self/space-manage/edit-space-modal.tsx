@@ -1,8 +1,9 @@
 import { StatusData } from '@/api/global'
 import type { TeamItem } from '@/api/model-types'
-import type { ErrorResponse } from '@/api/request'
+import { ErrorResponse } from '@/api/request'
 import { type CreateTeamReply, type CreateTeamRequest, createTeam, getTeam, updateTeam } from '@/api/team'
-import { DataFrom, type DataFromItem, type ValidateType } from '@/components/data/form'
+import { DataFrom, type DataFromItem } from '@/components/data/form'
+import { handleFormError } from '@/utils'
 import { useRequest } from 'ahooks'
 import { Modal, type ModalProps } from 'antd'
 import { useForm } from 'antd/es/form/Form'
@@ -83,7 +84,6 @@ export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
   const { spaceId, open, onOk, onCancel } = props
   const [form] = useForm<CreateTeamRequest>()
   const [detail, setDetail] = React.useState<TeamItem>()
-  const [validates, setValidates] = React.useState<Record<string, ValidateType>>()
 
   const { run: initTeamDetail, loading: initTeamDetailLoading } = useRequest(getTeam, {
     manual: true,
@@ -115,18 +115,10 @@ export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
       save(values)
         .then(() => {
           form.resetFields()
-          setValidates(undefined)
           onOk?.(e)
         })
         .catch((err: ErrorResponse) => {
-          Object.keys(err.metadata).map((key) => {
-            setValidates({
-              [key]: {
-                validateStatus: 'error',
-                help: err.metadata[key]
-              }
-            })
-          })
+          handleFormError(form, err)
         })
       return values
     })
@@ -134,7 +126,6 @@ export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     form.resetFields()
-    setValidates(undefined)
     onCancel?.(e)
   }
 
@@ -152,7 +143,7 @@ export const EditSpaceModal: React.FC<EditSpaceModalProps> = (props) => {
       onCancel={handleCancel}
       confirmLoading={addTeamLoading || editTeamLoading}
     >
-      <DataFrom items={items} props={{ layout: 'vertical', form }} validates={validates} />
+      <DataFrom items={items} props={{ layout: 'vertical', form }} />
     </Modal>
   )
 }

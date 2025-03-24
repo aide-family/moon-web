@@ -8,7 +8,7 @@ import {
   updateStrategyGroupStatus,
   type ListStrategyRequest
 } from '@/api/strategy'
-import { ExclamationCircleFilled, MoreOutlined } from '@ant-design/icons'
+import { ExclamationCircleFilled, MoreOutlined, PlusOutlined } from '@ant-design/icons'
 import { useRequest } from 'ahooks'
 import { Badge, Button, Dropdown, Input, MenuProps, Modal, Spin, message, theme } from 'antd'
 import type React from 'react'
@@ -51,7 +51,16 @@ const StrategyMetric: React.FC = () => {
   const { run: fetchData, loading: loading } = useRequest(listStrategyGroup, {
     manual: true,
     onSuccess: (res) => {
-      setStrategyGroups(res.list || [])
+      // 保留之前选中的策略组
+      const newStrategyGroups = res.list || []
+      setStrategyGroups(newStrategyGroups)
+
+      // 过滤掉已经不存在的策略组
+      const updatedSelectedGroups = selectedGroups.filter((groupId) =>
+        newStrategyGroups.some((group) => group.id === groupId)
+      )
+      setSelectedGroups(updatedSelectedGroups)
+
       setTotal(res.pagination?.total || 0)
     }
   })
@@ -90,6 +99,7 @@ const StrategyMetric: React.FC = () => {
   // 刷新列表
   const onRefresh = () => {
     fetchData(searchParams)
+    console.log(selectedGroups, 'sel刷新列表ectedGroups')
   }
 
   // 策略组操作菜单点击事件
@@ -102,6 +112,7 @@ const StrategyMetric: React.FC = () => {
           status: Status.StatusEnable
         }).then(() => {
           message.success('更改状态成功')
+          console.log('状态更新成功，重新获取数据')
           onRefresh()
         })
         break
@@ -111,6 +122,7 @@ const StrategyMetric: React.FC = () => {
           status: Status.StatusDisable
         }).then(() => {
           message.success('更改状态成功')
+          console.log('状态更新成功，重新获取数据')
           onRefresh()
         })
         break
@@ -184,8 +196,9 @@ const StrategyMetric: React.FC = () => {
         </Button>
       )
     }
-  ] // 监听滚动事件
+  ]
 
+  // 监听滚动事件
   useEffect(() => {
     const listElement = listRef.current
     const handleScroll = () => {
@@ -214,6 +227,7 @@ const StrategyMetric: React.FC = () => {
 
   useEffect(() => {
     fetchData(searchParams)
+    console.log(searchParams, 'searchParams')
   }, [searchParams, fetchData])
 
   return (
@@ -229,14 +243,12 @@ const StrategyMetric: React.FC = () => {
         disabled={disabledEditGroupModal}
       />
       <div
-        className='w-[19.4%]  p-3'
-        style={{ backgroundColor: token.colorBgContainer, borderRadius: token.borderRadius }}
+        className='w-[19%] p-3'
+        style={{ backgroundColor: token.colorBgContainer, borderRadius: token.borderRadius, minWidth: '240px' }}
       >
         <div className='flex gap-2 mb-2'>
           <Input placeholder='搜索策略组' className='flex-1' onPressEnter={onPressEnter} />
-          <Button type='primary' onClick={() => handleEditModal()}>
-            添加
-          </Button>
+          <Button type='primary' onClick={() => handleEditModal()} icon={<PlusOutlined />}></Button>
         </div>
         <div className='flex justify-between items-center mb-2 h-8'>
           <div className='text-sm text-gray-500'>
@@ -252,21 +264,23 @@ const StrategyMetric: React.FC = () => {
         <div className=' space-y-1 h-[90%] overflow-y-auto ' ref={listRef}>
           {strategyGroups.map((item: StrategyGroupItem) => (
             <div
-              className='flex gap-1 w-full text-left p-2 rounded cursor-pointer text-sm items-center'
+              key={item.id}
+              className='flex gap-1 text-left p-2 rounded cursor-pointer text-sm items-center '
               style={{
                 backgroundColor: selectedGroups.includes(item.id)
                   ? token.colorPrimaryBg
                   : token.colorBgContainerDisabled,
                 color: selectedGroups.includes(item.id) ? token.colorPrimary : token.colorText
               }}
-              onClick={() => handleGroupClick(item)}
             >
-              <Badge status={item.status === Status.StatusEnable ? 'success' : 'error'} />
-              <div>
-                [<span className='text-green-500'>{item.enableStrategyCount}</span>/
-                <span className='text-red-500'>{item.strategyCount}</span>]
+              <div className='flex gap-2 flex-1' onClick={() => handleGroupClick(item)}>
+                <Badge status={item.status === Status.StatusEnable ? 'success' : 'error'} />
+                <div>
+                  [<span className='text-green-500'>{item.enableStrategyCount}</span>/
+                  <span className='text-red-500'>{item.strategyCount}</span>]
+                </div>
+                <div className='w-[60%] overflow-hidden whitespace-nowrap overflow-ellipsis'>{item.name}</div>
               </div>
-              <div className='flex-1 overflow-hidden whitespace-nowrap overflow-ellipsis'>{item.name}</div>
               <Dropdown
                 menu={{
                   items: tableOperationItems(item),

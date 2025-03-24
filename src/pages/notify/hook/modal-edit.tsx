@@ -2,6 +2,9 @@ import { HookApp } from '@/api/enum'
 import { HookAppData } from '@/api/global'
 import { AlarmHookItem } from '@/api/model-types'
 import { createHook, getHook, updateHook } from '@/api/notify/hook'
+import { ErrorResponse } from '@/api/request'
+import { handleFormError } from '@/utils'
+import { useRequest } from 'ahooks'
 import { Avatar, Form, Input, Modal, Select, Space } from 'antd'
 import { useEffect, useState } from 'react'
 
@@ -12,7 +15,6 @@ export interface EditHookModalProps {
   onCancel?: () => void
 }
 
-let timer: NodeJS.Timeout | null = null
 export function EditHookModal(props: EditHookModalProps) {
   const { open, hookId, onOk, onCancel } = props
 
@@ -29,6 +31,9 @@ export function EditHookModal(props: EditHookModalProps) {
             form.resetFields()
             onOk?.(values)
           })
+          .catch((err: ErrorResponse) => {
+            handleFormError(form, err)
+          })
           .finally(() => {
             setLoading(false)
           })
@@ -37,6 +42,9 @@ export function EditHookModal(props: EditHookModalProps) {
           .then(() => {
             form.resetFields()
             onOk?.(values)
+          })
+          .catch((err: ErrorResponse) => {
+            handleFormError(form, err)
           })
           .finally(() => {
             setLoading(false)
@@ -49,20 +57,12 @@ export function EditHookModal(props: EditHookModalProps) {
     onCancel?.()
   }
 
-  const handleGetHookDetail = () => {
-    if (!hookId) {
-      return
+  const { run: handleGetHookDetail } = useRequest((id: number) => getHook({ id }), {
+    manual: true, // 手动触发请求
+    onSuccess: (res) => {
+      setDetail(res.detail)
     }
-    if (timer) {
-      clearTimeout(timer)
-    }
-
-    timer = setTimeout(() => {
-      getHook({ id: hookId }).then((res) => {
-        setDetail(res.detail)
-      })
-    }, 200)
-  }
+  })
 
   useEffect(() => {
     if (detail) {
@@ -81,10 +81,9 @@ export function EditHookModal(props: EditHookModalProps) {
 
   useEffect(() => {
     if (hookId && open) {
-      handleGetHookDetail()
+      handleGetHookDetail(hookId)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hookId, open])
+  }, [hookId, open, handleGetHookDetail])
 
   return (
     <>

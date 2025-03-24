@@ -1,5 +1,6 @@
 import { listAlarmPage, updateAlarmPage } from '@/api/realtime/alarm_page_self'
 import { DataFrom } from '@/components/data/form'
+import { handleFormError } from '@/utils'
 import { GlobalContext } from '@/utils/context'
 import { useRequest } from 'ahooks'
 import { Form, Modal } from 'antd'
@@ -28,7 +29,10 @@ export const ModalAddPages: React.FC<ModalAddPagesProps> = (props) => {
 
   const { run: editAlarmPage, loading: editAlarmPageLoading } = useRequest(updateAlarmPage, {
     manual: true,
-    onSuccess: onSubmit
+    onSuccess: onSubmit,
+    onError: (err) => {
+      handleFormError(form, err)
+    }
   })
 
   const handleSubmit = () => {

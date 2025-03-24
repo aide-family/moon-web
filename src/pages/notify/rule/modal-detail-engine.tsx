@@ -1,6 +1,7 @@
 import { StatusData } from '@/api/global'
 import { TimeEngineItem } from '@/api/model-types'
 import { getTimeEngine } from '@/api/notify/time-engine'
+import { useRequest } from 'ahooks'
 import { Avatar, Badge, Descriptions, DescriptionsProps, Modal, Space, Tag, Tooltip } from 'antd'
 import { useEffect, useState } from 'react'
 
@@ -11,24 +12,16 @@ export interface EngineDetailModalProps {
   onOk?: () => void
 }
 
-let timer: NodeJS.Timeout | null = null
 export function EngineDetailModal(props: EngineDetailModalProps) {
   const { Id, open, onCancel, onOk } = props
 
   const [detail, setDetail] = useState<TimeEngineItem>()
-  const getEngineDetail = () => {
-    if (!Id) {
-      return
+  const { run: getEngineDetail } = useRequest((id: number) => getTimeEngine(id), {
+    manual: true, // 手动触发请求
+    onSuccess: (res) => {
+      setDetail(res.detail)
     }
-    if (timer) {
-      clearTimeout(timer)
-    }
-    timer = setTimeout(() => {
-      getTimeEngine(Id).then((res) => {
-        setDetail(res.detail)
-      })
-    }, 400)
-  }
+  })
 
   const items: DescriptionsProps['items'] = [
     {
@@ -88,7 +81,7 @@ export function EngineDetailModal(props: EngineDetailModalProps) {
 
   useEffect(() => {
     if (Id && open) {
-      getEngineDetail()
+      getEngineDetail(Id)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [Id, open])

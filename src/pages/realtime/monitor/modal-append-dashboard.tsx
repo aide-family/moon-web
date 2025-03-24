@@ -1,6 +1,7 @@
 import type { DashboardItem, SelectItem } from '@/api/model-types'
 import { listDashboardSelect, listMyDashboard, updateMyDashboard } from '@/api/realtime/dashboard'
 import { DataFrom } from '@/components/data/form'
+import { handleFormError } from '@/utils'
 import { useRequest } from 'ahooks'
 import { Form, Modal, type ModalProps } from 'antd'
 import { useEffect, useState } from 'react'
@@ -35,6 +36,9 @@ export default function ModalAppendDashboard(props: ModalAppendDashboardProps) {
     manual: true,
     onSuccess: () => {
       onOk()
+    },
+    onError: (err) => {
+      handleFormError(form, err)
     }
   })
 

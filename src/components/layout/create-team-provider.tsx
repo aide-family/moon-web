@@ -1,6 +1,7 @@
 import { Status } from '@/api/enum'
 import type { ErrorResponse } from '@/api/request'
 import { type CreateTeamRequest, createTeam } from '@/api/team'
+import { handleFormError } from '@/utils'
 import { GlobalContext } from '@/utils/context'
 import { Form, Input, Modal, message } from 'antd'
 import { createContext, useContext, useState } from 'react'
@@ -48,7 +49,7 @@ export function CreateTeamModalProvider({ children }: CreateTeamModalProps) {
           window.location.reload()
         })
         .catch((err: ErrorResponse) => {
-          message.error(err?.message)
+          handleFormError(form, err)
         })
         .finally(() => {
           setLoading(false)

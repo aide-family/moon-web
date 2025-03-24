@@ -8,6 +8,7 @@ import SearchBox from '@/components/data/search-box'
 import AutoTable from '@/components/table'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
+import { useRequest } from 'ahooks'
 import { Button, Space, theme } from 'antd'
 import { HookDetailModal } from './modal-detail'
 import { EditHookModal } from './modal-edit'
@@ -17,14 +18,12 @@ export interface HookProps {}
 
 const { useToken } = theme
 
-let timer: NodeJS.Timeout | null = null
 const Hook: React.FC<HookProps> = () => {
   const { token } = useToken()
   const { isFullscreen } = useContext(GlobalContext)
 
   const [datasource, setDatasource] = useState<AlarmHookItem[]>([])
   const [total, setTotal] = useState(0)
-  const [loading, setLoading] = useState(false)
   const [searchParams, setSearchParams] = useState({
     keyword: '',
     pagination: {
@@ -58,22 +57,13 @@ const Hook: React.FC<HookProps> = () => {
     })
   }
 
-  const handleGetHookList = () => {
-    if (timer) {
-      clearTimeout(timer)
+  const { run: handleGetHookList, loading } = useRequest((params: ListHookRequest) => listHook(params), {
+    manual: true, // 手动触发请求
+    onSuccess: (res) => {
+      setDatasource(res?.list || [])
+      setTotal(res?.pagination?.total || 0)
     }
-    timer = setTimeout(() => {
-      setLoading(true)
-      listHook(searchParams)
-        .then((res) => {
-          setDatasource(res?.list || [])
-          setTotal(res?.pagination?.total)
-        })
-        .finally(() => {
-          setLoading(false)
-        })
-    }, 200)
-  }
+  })
 
   const onReset = () => {}
 
@@ -142,9 +132,8 @@ const Hook: React.FC<HookProps> = () => {
   })
 
   useEffect(() => {
-    handleGetHookList()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, refresh])
+    handleGetHookList(searchParams)
+  }, [searchParams, refresh, handleGetHookList])
 
   return (
     <>

@@ -3,13 +3,13 @@ import { DatasourceType } from '@/api/enum'
 import { defaultPaginationReq } from '@/api/global'
 import { DatasourceItem } from '@/api/model-types'
 import useStorage from '@/hooks/storage'
+import { useRequest } from 'ahooks'
 import { Button, Empty, Input, Menu, Tabs, TabsProps, theme } from 'antd'
 import { useEffect, useState } from 'react'
 import Topics from '../metric/topics'
 import { Basics } from './basics'
 import { EditModal } from './edit-modal'
 
-let timer: NodeJS.Timeout | null = null
 export default function Event() {
   const [open, setOpen] = useState(false)
   const { token } = theme.useToken()
@@ -47,25 +47,26 @@ export default function Event() {
     }
   ]
 
-  const handleDatasourceSearch = (value?: string) => {
-    if (timer) {
-      clearTimeout(timer)
-    }
-    timer = setTimeout(() => {
+  // 搜索数据源
+  const { run: handleDatasourceSearch } = useRequest(
+    (value?: string) =>
       listDatasource({
         pagination: defaultPaginationReq,
         keyword: value,
         datasourceType: DatasourceType.DatasourceTypeEvent
-      }).then(({ list }) => {
+      }),
+    {
+      manual: true, // 手动触发请求
+      onSuccess: ({ list }) => {
         setDatasource(list)
         if (!datasourceDetail && list.length > 0) {
           setDatasourceDetail(list[0])
         } else {
           setDatasourceDetail(list.find((item) => item.id === datasourceDetail?.id))
         }
-      })
-    }, 500)
-  }
+      }
+    }
+  )
 
   const handleDatasourceChange = (id: number) => {
     setDatasourceDetail(datasource?.find((item) => item.id === id))

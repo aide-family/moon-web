@@ -2,6 +2,7 @@ import { HookApp } from '@/api/enum'
 import { HookAppData, StatusData } from '@/api/global'
 import { AlarmHookItem } from '@/api/model-types'
 import { getHook } from '@/api/notify/hook'
+import { useRequest } from 'ahooks'
 import { Avatar, Badge, Descriptions, DescriptionsProps, Modal, Space, Tooltip } from 'antd'
 import { useEffect, useState } from 'react'
 
@@ -12,24 +13,16 @@ export interface HookDetailModalProps {
   onOk?: () => void
 }
 
-let timer: NodeJS.Timeout | null = null
 export function HookDetailModal(props: HookDetailModalProps) {
   const { hookId, open, onCancel, onOk } = props
 
   const [detail, setDetail] = useState<AlarmHookItem>()
-  const getHookDetail = () => {
-    if (!hookId) {
-      return
+  const { run: getHookDetail } = useRequest((id: number) => getHook({ id }), {
+    manual: true, // 手动触发请求
+    onSuccess: (res) => {
+      setDetail(res.detail)
     }
-    if (timer) {
-      clearTimeout(timer)
-    }
-    timer = setTimeout(() => {
-      getHook({ id: hookId }).then((res) => {
-        setDetail(res.detail)
-      })
-    }, 400)
-  }
+  })
 
   const items: DescriptionsProps['items'] = [
     {
@@ -98,10 +91,9 @@ export function HookDetailModal(props: HookDetailModalProps) {
 
   useEffect(() => {
     if (hookId && open) {
-      getHookDetail()
+      getHookDetail(hookId)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hookId, open])
+  }, [hookId, open, getHookDetail])
 
   return (
     <>

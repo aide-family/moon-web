@@ -433,8 +433,7 @@ const StrategyList = (props: StrategyListProps) => {
   }
 
   useEffect(() => {
-    console.log(selectedGroups, 'selectedGroups')
-    setSearchParams({ ...searchParams, groupIds: selectedGroups })
+    setSearchParams((s) => ({ ...s, groupIds: selectedGroups }))
   }, [selectedGroups])
 
   return (

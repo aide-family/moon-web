@@ -1,5 +1,6 @@
 import { AlarmSendType } from '@/api/enum'
 import { createTemplate, getTemplate, updateTemplate, type CreateTemplateRequest } from '@/api/notify/template'
+import { ErrorResponse } from '@/api/request'
 import { dingTalkTemplates } from '@/components/data/child/config/ding-talk'
 import { feishuTemplates } from '@/components/data/child/config/feishu'
 import { wechatTemplates } from '@/components/data/child/config/wechat'
@@ -9,6 +10,7 @@ import { FeishuTemplateEditor } from '@/components/data/child/template-editor-fe
 import { JsonTemplateEditor } from '@/components/data/child/template-editor-json'
 import { WechatTemplateEditor } from '@/components/data/child/template-editor-wechat'
 import { DataFrom } from '@/components/data/form'
+import { handleFormError } from '@/utils'
 import { useRequest } from 'ahooks'
 import { Form, Input, Modal, Select, type ModalProps } from 'antd'
 import { useEffect } from 'react'
@@ -43,12 +45,14 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
 
   const handleOnOk = () => {
     form.validateFields().then((values) => {
-      Promise.all([
-        sendTemplateId ? updateSendTemplate({ id: sendTemplateId, data: values }) : addSendTemplate(values)
-      ]).then(() => {
-        form.resetFields()
-        onOk?.()
-      })
+      Promise.all([sendTemplateId ? updateSendTemplate({ id: sendTemplateId, data: values }) : addSendTemplate(values)])
+        .then(() => {
+          form.resetFields()
+          onOk?.()
+        })
+        .catch((err: ErrorResponse) => {
+          handleFormError(form, err)
+        })
     })
   }
 

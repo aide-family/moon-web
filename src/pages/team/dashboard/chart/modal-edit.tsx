@@ -1,6 +1,7 @@
 import type { ChartItem } from '@/api/model-types'
 import { createChart, getChart, updateChart } from '@/api/realtime/dashboard'
 import { DataFrom } from '@/components/data/form'
+import { handleFormError } from '@/utils'
 import { useRequest } from 'ahooks'
 import { Form, Modal, type ModalProps, message } from 'antd'
 import { useEffect, useState } from 'react'
@@ -36,6 +37,9 @@ export const ModalEdit = (props: ModalEditProps) => {
     onSuccess: () => {
       onOk()
       message.success('添加成功')
+    },
+    onError: (err) => {
+      handleFormError(form, err)
     }
   })
   const { run: editChart, loading: editChartLoading } = useRequest(updateChart, {
@@ -43,6 +47,9 @@ export const ModalEdit = (props: ModalEditProps) => {
     onSuccess: () => {
       onOk()
       message.success('编辑成功')
+    },
+    onError: (err) => {
+      handleFormError(form, err)
     }
   })
 

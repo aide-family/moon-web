@@ -2,6 +2,7 @@ import { TimeEngineRuleType } from '@/api/enum'
 import { StatusData, TimeEngineRuleTypeData } from '@/api/global'
 import { TimeEngineRuleItem } from '@/api/model-types'
 import { getTimeEngineRule } from '@/api/notify/rule'
+import { useRequest } from 'ahooks'
 import { Avatar, Badge, Descriptions, DescriptionsProps, Modal, Space, Tag, Tooltip } from 'antd'
 import { useEffect, useState } from 'react'
 import { dayOptions, hourOptions, monthOptions, weekOptions } from './options'
@@ -57,24 +58,16 @@ export interface RuleDetailModalProps {
   onOk?: () => void
 }
 
-let timer: NodeJS.Timeout | null = null
 export function RuleDetailModal(props: RuleDetailModalProps) {
   const { ruleId, open, onCancel, onOk } = props
 
   const [detail, setDetail] = useState<TimeEngineRuleItem>()
-  const getRuleDetail = () => {
-    if (!ruleId) {
-      return
+  const { run: getRuleDetail } = useRequest((id: number) => getTimeEngineRule(id), {
+    manual: true, // 手动触发请求
+    onSuccess: (res) => {
+      setDetail(res.detail)
     }
-    if (timer) {
-      clearTimeout(timer)
-    }
-    timer = setTimeout(() => {
-      getTimeEngineRule(ruleId).then((res) => {
-        setDetail(res.detail)
-      })
-    }, 400)
-  }
+  })
 
   const items: DescriptionsProps['items'] = [
     {
@@ -142,7 +135,7 @@ export function RuleDetailModal(props: RuleDetailModalProps) {
 
   useEffect(() => {
     if (ruleId && open) {
-      getRuleDetail()
+      getRuleDetail(ruleId)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ruleId, open])

@@ -1,6 +1,7 @@
 import { NotifyType } from '@/api/enum'
 import { StrategyItem } from '@/api/model-types'
 import { userSubscriberStrategy } from '@/api/subscriber'
+import { handleFormError } from '@/utils'
 import { useRequest } from 'ahooks'
 import { Checkbox, Form, Modal, ModalProps, Typography } from 'antd'
 import { useEffect } from 'react'
@@ -27,10 +28,14 @@ export const ModalSubscribe = (props: ModalSubscribeProps) => {
       subscribeStrategy({
         strategyId: item?.id,
         notifyType: values.notifyTypes.reduce((prev, curr) => prev | curr, 0)
-      }).then(() => {
-        form.resetFields()
-        onOk?.()
       })
+        .then(() => {
+          form.resetFields()
+          onOk?.()
+        })
+        .catch((err) => {
+          handleFormError(form, err)
+        })
     })
   }
 

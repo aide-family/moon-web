@@ -14,6 +14,7 @@ import AutoTable from '@/components/table'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { GlobalContext } from '@/utils/context'
 import { QuestionCircleOutlined, SwapOutlined } from '@ant-design/icons'
+import { useRequest } from 'ahooks'
 import { Button, Space, theme, Tooltip } from 'antd'
 import { RuleDetailModal } from './modal-detail-rule'
 import { EditRuleModal } from './modal-edit-rule'
@@ -25,14 +26,12 @@ export interface TimeRuleProps {
 
 const { useToken } = theme
 
-let timer: NodeJS.Timeout | null = null
 const TimeRule: React.FC<TimeRuleProps> = ({ switchTimeEngine }) => {
   const { token } = useToken()
   const { isFullscreen } = useContext(GlobalContext)
 
   const [datasource, setDatasource] = useState<TimeEngineRuleItem[]>([])
   const [total, setTotal] = useState(0)
-  const [loading, setLoading] = useState(false)
   const [searchParams, setSearchParams] = useState({
     keyword: '',
     pagination: {
@@ -49,6 +48,13 @@ const TimeRule: React.FC<TimeRuleProps> = ({ switchTimeEngine }) => {
   const ADivRef = useRef<HTMLDivElement>(null)
   const AutoTableHeight = useContainerHeightTop(ADivRef, datasource, isFullscreen)
 
+  const { run: handleGetRuleList, loading: loading } = useRequest(listTimeEngineRule, {
+    manual: true,
+    onSuccess: (res) => {
+      setDatasource(res?.list || [])
+      setTotal(res?.pagination?.total)
+    }
+  })
   const onOpenDetailModal = (item: TimeEngineRuleItem) => {
     setRuleDetail(item)
     setOpenDetailModal(true)
@@ -64,23 +70,6 @@ const TimeRule: React.FC<TimeRuleProps> = ({ switchTimeEngine }) => {
       ...searchParams,
       ...values
     })
-  }
-
-  const handleGetRuleList = () => {
-    if (timer) {
-      clearTimeout(timer)
-    }
-    timer = setTimeout(() => {
-      setLoading(true)
-      listTimeEngineRule(searchParams)
-        .then((res) => {
-          setDatasource(res?.list || [])
-          setTotal(res?.pagination?.total)
-        })
-        .finally(() => {
-          setLoading(false)
-        })
-    }, 200)
   }
 
   const onReset = () => {}
@@ -149,7 +138,7 @@ const TimeRule: React.FC<TimeRuleProps> = ({ switchTimeEngine }) => {
   })
 
   useEffect(() => {
-    handleGetRuleList()
+    handleGetRuleList(searchParams)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, refresh])
 

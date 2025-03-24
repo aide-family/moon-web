@@ -9,6 +9,7 @@ import { FeishuTemplateEditor } from '@/components/data/child/template-editor-fe
 import { JsonTemplateEditor } from '@/components/data/child/template-editor-json'
 import { WechatTemplateEditor } from '@/components/data/child/template-editor-wechat'
 import { DataFrom } from '@/components/data/form'
+import { handleFormError } from '@/utils'
 import { validateJson } from '@/utils/json'
 import { useRequest } from 'ahooks'
 import { Form, Input, message, Modal, Select, type ModalProps } from 'antd'
@@ -53,10 +54,14 @@ export function EditSendTemplateModal(props: EditSendTemplateModalProps) {
       }
       Promise.all([
         sendTemplateId ? updateSendTemplate({ id: sendTemplateId, data: values }, true) : addSendTemplate(values, true)
-      ]).then(() => {
-        form.resetFields()
-        onOk?.()
-      })
+      ])
+        .then(() => {
+          form.resetFields()
+          onOk?.()
+        })
+        .catch((err) => {
+          handleFormError(form, err)
+        })
     })
   }
 
