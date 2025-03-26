@@ -142,6 +142,10 @@ export const defaultMenuItems: ItemType[] = [
       {
         label: '资源管理',
         key: '/home/team/resource'
+      },
+      {
+        label: '日志审计',
+        key: '/home/team/log-audit'
       }
     ]
   },

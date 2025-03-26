@@ -14,6 +14,8 @@ import {
   Gender,
   HookApp,
   HTTPMethod,
+  LogActionType,
+  LogModuleType,
   MetricType,
   ModuleType,
   MQCondition,
@@ -347,7 +349,7 @@ export const ModuleTypeData: Record<ModuleType, string> = {
   [ModuleType.ModelTypeUser]: '用户管理模块',
   [ModuleType.ModelTypeDict]: '字典管理模块',
   [ModuleType.ModelTypeConfig]: '配置管理模块',
-  [ModuleType.ModelTypeLog]: '日子管理模块',
+  [ModuleType.ModelTypeLog]: '日志管理模块',
   [ModuleType.ModelTypeJob]: '任务管理模块',
   [ModuleType.ModelTypeNotify]: '通知管理模块',
   [ModuleType.ModelTypeSystem]: '系统管理模块',
@@ -488,4 +490,15 @@ export const AlarmInterventionActionData: Record<
       </Button>
     )
   }
+}
+
+export const LogModuleTypeData: Record<LogModuleType, string> = {
+  [LogModuleType.DICT]: '字典'
+}
+
+export const LogActionTypeData: Record<LogActionType, string> = {
+  [LogActionType.ADD]: '新增',
+  [LogActionType.DELETE]: '删除',
+  [LogActionType.MODIFY]: '修改',
+  [LogActionType.MODIFY_STATUS]: '修改状态'
 }

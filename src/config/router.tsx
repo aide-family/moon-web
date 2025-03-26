@@ -119,6 +119,10 @@ export const routers: RouteObject[] = [
           {
             path: '/home/team/config',
             Component: lazy(() => import('@/pages/team/config'))
+          },
+          {
+            path: '/home/team/log-audit',
+            Component: lazy(() => import('@/pages/team/log-audit'))
           }
         ]
       },

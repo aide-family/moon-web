@@ -495,3 +495,18 @@ export enum AlarmInterventionAction {
   /** 升级 */
   Upgrade = 4
 }
+
+export enum LogModuleType {
+  /* 字典 */
+  DICT = 0
+}
+export enum LogActionType {
+  /* 新增 */
+  ADD = 0,
+  /* 修改 */
+  MODIFY = 1,
+  /* 删除 */
+  DELETE = 2,
+  /* 修改状态 */
+  MODIFY_STATUS = 3
+}
