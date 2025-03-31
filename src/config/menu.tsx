@@ -54,10 +54,10 @@ export const defaultMenuItems: ItemType[] = [
     key: '/home/strategy',
     icon: <IconFont type='icon-tongzhimoban' />,
     children: [
-      {
-        label: '策略组',
-        key: '/home/strategy/group'
-      },
+      // {
+      //   label: '策略组',
+      //   key: '/home/strategy/group'
+      // },
       {
         label: '策略列表',
         key: '/home/strategy/list'
@@ -143,10 +143,10 @@ export const defaultMenuItems: ItemType[] = [
         label: '资源管理',
         key: '/home/team/resource'
       },
-      {
-        label: '日志审计',
-        key: '/home/team/log-audit'
-      }
+      // {
+      //   label: '日志审计',
+      //   key: '/home/team/log-audit'
+      // }
     ]
   },
   {
