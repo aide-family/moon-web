@@ -32,7 +32,18 @@ function App() {
   const [size, setSize] = useStorage<SpaceSize>('size', 'middle')
   const [collapsed, setCollapsed] = useStorage<boolean>('collapsed', false)
   const [userInfo, setUserInfo] = useStorage<UserItem>('userInfo', getUserInfo())
-  const [teamInfo, setTeamInfo, removeTeamInfo] = useStorage<TeamItem>('teamInfo', undefined)
+  const [teamInfo, setTeamInfo, removeTeamInfo] = useStorage<TeamItem>('teamInfo', {
+    admins: [],
+    createdAt: "",
+    creator: undefined,
+    id: 0,
+    leader: undefined,
+    logo: "",
+    name: "",
+    remark: "",
+    status: 0,
+    updatedAt: ""
+  })
   const [teamMemberID, setTeamMemberID, removeTeamMemberID] = useStorage<number>('teamMemberID', 0)
   const [refreshMyTeamList, setRefreshMyTeamList] = useState<boolean>(false)
   const [localURL, setLocalURL] = useStorage<string>('localURL', localStorage.getItem('localURL') || '/')
