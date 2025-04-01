@@ -95,6 +95,7 @@ const StrategyMetric: React.FC = () => {
   // 确定后关闭编辑页面
   const handleOnOKGroupEditModal = () => {
     handleCloseGroupEditModal()
+    onRefresh()
   }
   // 刷新列表
   const onRefresh = () => {
