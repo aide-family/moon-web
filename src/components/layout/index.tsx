@@ -1,10 +1,14 @@
+import { MenuTree } from '@/api/menu'
 import { isLogin, setToken } from '@/api/request'
 import { useContainerHeight } from '@/hooks/useContainerHeightTop'
+import { getTreeMenu } from '@/mocks'
 import { GlobalContext } from '@/utils/context'
 import { Layout, Menu, Spin, theme } from 'antd'
+import { ItemType } from 'antd/lib/menu/interface'
 import type React from 'react'
 import { Suspense, useContext, useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { renderIcon } from '../icon'
 import { CreateTeamModalProvider } from './create-team-provider'
 import LayoutFooter from './footer'
 import { HeaderOp } from './header-op'
@@ -42,7 +46,7 @@ const MoonLayout: React.FC = () => {
   }
 
   const { token } = useToken()
-  const { menuItems, collapsed, setContentHeight } = useContext(GlobalContext)
+  const { menuItems, collapsed, setContentHeight, setMenuItems } = useContext(GlobalContext)
 
   const [openKeys, setOpenKeys] = useState<string[]>([])
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
@@ -88,6 +92,29 @@ const MoonLayout: React.FC = () => {
     setOpenKeys([...keys, `/${openKey.join('/')}`])
     setLocationPath(location.pathname)
   }, [location.pathname])
+
+  // 转换菜单树
+  const transformMenuTree = (menuTree: MenuTree[]): ItemType[] => {
+    return menuTree.map((item) => {
+      const menuItem: ItemType = {
+        key: item.path,
+        label: item.name,
+        icon: renderIcon(item.icon),
+        children: item.children ? transformMenuTree(item.children) : undefined
+      }
+
+      return menuItem
+    })
+  }
+
+  useEffect(() => {
+    // 获取菜单
+    getTreeMenu({}).then((res) => {
+      console.log('res', res)
+      const menuTree = transformMenuTree(res.menuTree) as ItemType[]
+      setMenuItems && setMenuItems(menuTree)
+    })
+  }, [])
 
   return (
     <>

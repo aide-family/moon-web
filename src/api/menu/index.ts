@@ -22,6 +22,15 @@ export function batchCreateMenu(params: BatchCreateMenuRequest): Promise<BatchCr
 }
 
 /**
+ * 创建菜单
+ * @param params 创建菜单请求参数
+ * @returns 批量创建菜单响应
+ */
+export function createMenu(params: CreateMenuRequest): Promise<BatchCreateMenuReply> {
+  return request.POST<CreateMenuReply>('/v1/menu/create', params)
+}
+
+/**
  * 更新菜单
  * @param params 更新菜单请求参数
  * @returns 更新菜单响应
@@ -82,13 +91,16 @@ export interface TreeMenuReply {
   menuTree: MenuTree[]
 }
 
-export interface MenuTree {}
+export interface MenuTree extends MenuItem {
+  children?: MenuTree[]
+}
 
 export interface BatchCreateMenuRequest {
   menus: CreateMenuRequest[]
 }
 
 export interface BatchCreateMenuReply {}
+export interface CreateMenuReply {}
 
 export interface CreateMenuRequest {
   name: string

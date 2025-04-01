@@ -406,6 +406,8 @@ export const TimeEngineRuleTypeData: Record<TimeEngineRuleType, { label: string;
 
 // 操作
 export enum ActionKey {
+  /** 新增 */
+  ADD = '__add__',
   /** 详情 */
   DETAIL = '__detail__',
   /** 编辑 */

@@ -17,6 +17,7 @@ export type GlobalContextType = {
   setSize?: (size: SpaceSize) => void
   title?: string
   menuItems?: ItemType[]
+  setMenuItems?: (menuItems: ItemType[]) => void
   breadcrumbNameMap?: Record<string, BreadcrumbNameType>
   collapsed?: boolean
   setCollapsed?: (collapsed: boolean) => void

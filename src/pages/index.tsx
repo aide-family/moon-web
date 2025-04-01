@@ -1,10 +1,11 @@
 import type { TeamItem, UserItem } from '@/api/model-types'
 import '@/assets/styles/index.scss'
-import { breadcrumbNameMap, defaultMenuItems } from '@/config/menu'
+import { breadcrumbNameMap } from '@/config/menu'
 import { routers } from '@/config/router'
 import useStorage from '@/hooks/storage'
 import { GlobalContext, type GlobalContextType, type LangType, type ThemeType, getUseTheme } from '@/utils/context'
 import { ConfigProvider, theme } from 'antd'
+import type { ItemType } from 'antd/es/menu/interface'
 import type { SpaceSize } from 'antd/es/space'
 import zhCN from 'antd/locale/zh_CN'
 import { Suspense, useState } from 'react'
@@ -34,15 +35,15 @@ function App() {
   const [userInfo, setUserInfo] = useStorage<UserItem>('userInfo', getUserInfo())
   const [teamInfo, setTeamInfo, removeTeamInfo] = useStorage<TeamItem>('teamInfo', {
     admins: [],
-    createdAt: "",
+    createdAt: '',
     creator: undefined,
     id: 0,
     leader: undefined,
-    logo: "",
-    name: "",
-    remark: "",
+    logo: '',
+    name: '',
+    remark: '',
     status: 0,
-    updatedAt: ""
+    updatedAt: ''
   })
   const [teamMemberID, setTeamMemberID, removeTeamMemberID] = useStorage<number>('teamMemberID', 0)
   const [refreshMyTeamList, setRefreshMyTeamList] = useState<boolean>(false)
@@ -50,6 +51,7 @@ function App() {
   const [showLevelColor, setShowLevelColor] = useStorage<boolean>('showLevelColor', false)
   const [contentHeight, setContentHeight] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [menuItems, setMenuItems] = useState<ItemType[]>([])
 
   const contextValue: GlobalContextType = {
     theme: theme,
@@ -59,7 +61,8 @@ function App() {
     size: size,
     setSize: setSize,
     title: 'Moon 监控',
-    menuItems: defaultMenuItems,
+    menuItems: menuItems,
+    setMenuItems: setMenuItems,
     collapsed: collapsed,
     setCollapsed: setCollapsed,
     breadcrumbNameMap: breadcrumbNameMap,

@@ -1,5 +1,6 @@
+import * as Icons from '@ant-design/icons'
 import { createFromIconfontCN } from '@ant-design/icons'
-import { SVGProps } from 'react'
+import React, { SVGProps } from 'react'
 
 export const IconFont = createFromIconfontCN({
   scriptUrl: ['//at.alicdn.com/t/c/font_4237227_916dcaxfh0g.js']
@@ -204,4 +205,46 @@ export function AliYunSLS(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElemen
 
 export function Docusaurus() {
   return <IconFont type='icon-api' />
+}
+
+export interface IconfontProps {
+  icon: keyof typeof Icons // 限制 icon 必须是 @ant-design/icons 中的有效键
+}
+
+export const Icon: React.FC<IconfontProps> = ({ icon }) => {
+  const IconComponent = Icons[icon] as React.ElementType
+
+  if (!IconComponent) {
+    return null // 如果找不到对应的图标，返回 null 或默认图标
+  }
+
+  return <IconComponent />
+}
+
+/**
+ * 根据 icon 值渲染对应的图标
+ * @param icon 图标值
+ * @returns ReactNode
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const renderIcon = (icon: any): React.ReactNode => {
+  if (!icon) {
+    return null
+  }
+  // 判断是否是 iconfont
+  else if (icon.startsWith('icon-')) {
+    return <IconFont type={icon} />
+  }
+  // 判断是否是图片
+  else if (icon.startsWith('http')) {
+    return <img src={icon} alt={icon} width={30} height={30} />
+  }
+  // 判断是否是组件
+  else if (icon.startsWith('@/')) {
+    return <span>{icon}</span>
+  }
+  // 默认使用 antd 图标
+  else {
+    return <Icon icon={icon} />
+  }
 }

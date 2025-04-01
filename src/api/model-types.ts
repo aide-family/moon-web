@@ -121,7 +121,7 @@ export interface MenuItem {
   /** 菜单层级 */
   level: number
   /** 菜单类型 */
-  type: MenuType
+  menuType: MenuType
   /** 组件路径 */
   component: string
   /** 权限 */
