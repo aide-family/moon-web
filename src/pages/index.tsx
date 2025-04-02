@@ -3,7 +3,14 @@ import '@/assets/styles/index.scss'
 import { breadcrumbNameMap } from '@/config/menu'
 import { routers } from '@/config/router'
 import useStorage from '@/hooks/storage'
-import { GlobalContext, type GlobalContextType, type LangType, type ThemeType, getUseTheme } from '@/utils/context'
+import {
+  GlobalContext,
+  type GlobalContextType,
+  type LangType,
+  PermissionType,
+  type ThemeType,
+  getUseTheme
+} from '@/utils/context'
 import { ConfigProvider, theme } from 'antd'
 import type { ItemType } from 'antd/es/menu/interface'
 import type { SpaceSize } from 'antd/es/space'
@@ -52,6 +59,10 @@ function App() {
   const [contentHeight, setContentHeight] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [menuItems, setMenuItems] = useState<ItemType[]>([])
+  const [authData, setAuthData] = useState<{ permissions: PermissionType[]; isAuthenticated: boolean }>({
+    permissions: ['add'],
+    isAuthenticated: false
+  })
 
   const contextValue: GlobalContextType = {
     theme: theme,
@@ -83,7 +94,9 @@ function App() {
     contentHeight: contentHeight,
     setContentHeight: setContentHeight,
     localURL: localURL,
-    setLocalURL: setLocalURL
+    setLocalURL: setLocalURL,
+    authData: authData,
+    setAuthData: setAuthData
   }
 
   return (

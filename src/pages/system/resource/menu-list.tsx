@@ -2,6 +2,7 @@ import { Status } from '@/api/enum'
 import { ActionKey } from '@/api/global'
 import type { MenuItem } from '@/api/model-types'
 import { type ListResourceRequest, batchUpdateResourceStatus } from '@/api/resource'
+import AuthButton from '@/components/authButton'
 import SearchBox from '@/components/data/search-box'
 import { useContainerHeightTop } from '@/hooks/useContainerHeightTop'
 import { getTreeMenu } from '@/mocks'
@@ -144,6 +145,7 @@ const MenuList: React.FC<MenuListProps> = ({ switchMenuList }) => {
         action={menuAction}
         width={'60%'}
       />
+
       <div
         style={{
           background: token.colorBgContainer,
@@ -173,9 +175,11 @@ const MenuList: React.FC<MenuListProps> = ({ switchMenuList }) => {
             </div>
           </div>
           <Space size={8}>
-            <Button color='primary' variant='filled' onClick={() => setOpenMenuEditModal(true)}>
-              新增
-            </Button>
+            <AuthButton requiredPermissions={['edit', 'add']}>
+              <Button color='primary' variant='filled' onClick={() => setOpenMenuEditModal(true)}>
+                新增
+              </Button>
+            </AuthButton>
             <Button color='default' variant='filled' onClick={onRefresh}>
               刷新
             </Button>

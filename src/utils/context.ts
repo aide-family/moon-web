@@ -7,6 +7,7 @@ import { createContext } from 'react'
 
 export type ThemeType = 'light' | 'dark'
 export type LangType = 'zh-CN' | 'en-US'
+export type PermissionType = string
 
 export type GlobalContextType = {
   theme?: ThemeType
@@ -39,6 +40,11 @@ export type GlobalContextType = {
   setContentHeight?: (contentHeight: number) => void
   localURL?: string
   setLocalURL?: (localURL: string) => void
+  authData?: {
+    permissions: PermissionType[]
+    isAuthenticated: boolean
+  }
+  setAuthData?: (authData: { permissions: PermissionType[]; isAuthenticated: boolean }) => void
 }
 
 export const GlobalContext = createContext<GlobalContextType>({
