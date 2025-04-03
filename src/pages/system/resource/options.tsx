@@ -1,4 +1,5 @@
-import { Status } from '@/api/enum'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { MenuType, Status } from '@/api/enum'
 import { ActionKey, StatusData } from '@/api/global'
 import type { MenuItem, ResourceItem } from '@/api/model-types'
 import type { DataFromItem } from '@/components/data/form'
@@ -302,78 +303,106 @@ export const getMenuColumnList = (props: MenuColumnProps): ColumnsType<MenuItem>
   ]
 }
 
-export const menuEditModalFormItems: (DataFromItem | DataFromItem[])[] = [
-  {
-    name: 'name',
-    label: '菜单名称',
-    type: 'input',
-    formProps: {
-      rules: [{ required: true, message: '请输入菜单名称' }]
+export const menuEditModalFormItems = (formData: any) => {
+  return [
+    {
+      name: 'menuType',
+      label: '菜单类型',
+      type: 'radio-group',
+      props: {
+        placeholder: '请选择菜单类型',
+        options: [
+          {
+            label: '菜单',
+            value: MenuType.MenuTypeMenu
+          },
+          {
+            label: '按钮',
+            value: MenuType.MenuTypeButton
+          }
+        ]
+      },
+      formProps: {
+        rules: [{ required: true, message: '请选择菜单类型' }]
+      }
     },
-    props: {
-      placeholder: '请输入菜单名称'
-    }
-  },
-  {
-    name: 'path',
-    label: '路径',
-    type: 'input',
-    formProps: {
-      rules: [{ required: true, message: '请输入路径' }]
+    {
+      name: 'name',
+      label: '菜单名称',
+      type: 'input',
+      formProps: {
+        hidden: formData?.menuType === MenuType.MenuTypeButton,
+        rules: [formData?.menuType === MenuType.MenuTypeMenu && { required: true, message: '请输入菜单名称' }]
+      },
+      props: {
+        placeholder: '请输入菜单名称'
+      }
     },
-    props: {
-      placeholder: '请输入路径'
-    }
-  },
-  {
-    name: 'status',
-    label: '状态',
-    type: 'select',
-    formProps: {
-      rules: [{ required: true, message: '请选择状态' }]
+    {
+      name: 'path',
+      label: '路径',
+      type: 'input',
+      formProps: {
+        hidden: formData?.menuType === MenuType.MenuTypeButton,
+        rules: [formData?.menuType === MenuType.MenuTypeMenu && { required: true, message: '请输入路径' }]
+      },
+      props: {
+        placeholder: '请输入路径'
+      }
     },
-    props: {
-      placeholder: '请选择状态',
-      options: [
-        {
-          label: '启用',
-          value: Status.StatusEnable
-        },
-        {
-          label: '禁用',
-          value: Status.StatusDisable
-        }
-      ]
-    }
-  },
-  {
-    name: 'icon',
-    label: '图标',
-    type: 'input',
-    props: {
-      placeholder: '请输入图标'
-    }
-  },
-  {
-    name: 'component',
-    label: '组件',
-    type: 'input',
-    formProps: {
-      rules: [{ required: true, message: '请输入组件' }]
+    {
+      name: 'status',
+      label: '状态',
+      type: 'select',
+      formProps: {
+        rules: [{ required: true, message: '请选择状态' }]
+      },
+      props: {
+        placeholder: '请选择状态',
+        options: [
+          {
+            label: '启用',
+            value: Status.StatusEnable
+          },
+          {
+            label: '禁用',
+            value: Status.StatusDisable
+          }
+        ]
+      }
     },
-    props: {
-      placeholder: '请输入组件'
-    }
-  },
-  {
-    name: 'permission',
-    label: '权限',
-    type: 'input',
-    formProps: {
-      rules: [{ required: true, message: '请输入权限' }]
+    {
+      name: 'icon',
+      label: '图标',
+      type: 'input',
+      formProps: {
+        hidden: formData?.menuType === MenuType.MenuTypeButton
+      },
+      props: {
+        placeholder: '请输入图标'
+      }
     },
-    props: {
-      placeholder: '请输入权限'
+    {
+      name: 'component',
+      label: '组件',
+      type: 'input',
+      formProps: {
+        hidden: formData?.menuType === MenuType.MenuTypeButton
+      },
+      props: {
+        placeholder: '请输入组件'
+      }
+    },
+    {
+      name: 'permission',
+      label: '权限',
+      type: 'input',
+      formProps: {
+        rules: [{ required: true, message: '请输入权限' }]
+      },
+      props: {
+        placeholder: '请输入权限'
+      }
     }
-  }
-]
+  ] as (DataFromItem | DataFromItem[])[]
+}

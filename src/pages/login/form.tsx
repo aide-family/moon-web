@@ -9,13 +9,16 @@ import {
 import { CaptchaType } from '@/api/enum'
 import { type ErrorResponse, isLogin, setToken } from '@/api/request'
 import { Gitee, Github } from '@/components/icon'
+import { defaultRouters } from '@/config/router'
+import { getTreeMenu } from '@/mocks'
+import { transformRoutersTree } from '@/utils'
 import { GlobalContext } from '@/utils/context'
 import { hashMd5 } from '@/utils/hash'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
 import { Button, Checkbox, Divider, Flex, Form, Input, theme } from 'antd'
 import { type FC, useContext, useEffect, useState } from 'react'
 import cookie from 'react-cookies'
-import { useNavigate } from 'react-router-dom'
+import { createHashRouter, Navigate, RouteObject, useNavigate } from 'react-router-dom'
 
 export type LoginParams = {
   username: string
@@ -45,13 +48,37 @@ const LoginForm: FC = () => {
 
   const { token } = useToken()
   const [form] = Form.useForm<formData>()
-  const { setUserInfo } = useContext(GlobalContext)
+  const { setUserInfo, setMenuItems, setRouters } = useContext(GlobalContext)
   const [captcha, setCaptcha] = useState<CaptchaReply>()
   const [remeber, setRemeber] = useState<boolean>(!!cookie.load('remeber'))
   const [err, setErr] = useState<ErrorResponse>()
   const [oauthList, setOAuthList] = useState<OAuthItem[]>([])
 
   const handleLogin = (loginParams: LoginRequest) => {
+    setToken(
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoyLCJpc3MiOiJtb29uLXBhbGFjZSIsImV4cCI6MTc0MzY5NDM0NX0.LGVJpMGxolSfBqp7jXZiKSO1ax_Lvz9Ma0or20oFnNg'
+    )
+    getTreeMenu({}).then((res) => {
+      console.log('res', res)
+      const routersTree = defaultRouters.map((item) => {
+        if (item.path === '/') {
+          item.children = [
+            ...transformRoutersTree(res.menuTree),
+            {
+              path: '/',
+              // 重定向/home
+              element: <Navigate to='/realtime/alarm' replace={true} />
+            }
+          ] as RouteObject[]
+        }
+        return item
+      })
+      const newRouters = createHashRouter(routersTree)
+      setRouters?.(newRouters)
+      // const menuTree = transformMenuTree(res.menuTree) as ItemType[]
+      setMenuItems?.(res.menuTree)
+      navigate(localURL || '/')
+    })
     login(loginParams)
       .then((res) => {
         setToken(res.token)

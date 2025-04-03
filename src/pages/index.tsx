@@ -1,8 +1,10 @@
-import type { TeamItem, UserItem } from '@/api/model-types'
+import type { MenuTree, TeamItem, UserItem } from '@/api/model-types'
+import { isLogin } from '@/api/request'
 import '@/assets/styles/index.scss'
 import { breadcrumbNameMap } from '@/config/menu'
-import { routers } from '@/config/router'
+import { defaultRouters } from '@/config/router'
 import useStorage from '@/hooks/storage'
+import { transformRoutersTree } from '@/utils'
 import {
   GlobalContext,
   type GlobalContextType,
@@ -11,12 +13,12 @@ import {
   type ThemeType,
   getUseTheme
 } from '@/utils/context'
+import type { Router } from '@remix-run/router'
 import { ConfigProvider, theme } from 'antd'
-import type { ItemType } from 'antd/es/menu/interface'
 import type { SpaceSize } from 'antd/es/space'
 import zhCN from 'antd/locale/zh_CN'
-import { Suspense, useState } from 'react'
-import { RouterProvider, createHashRouter } from 'react-router-dom'
+import { Suspense, useEffect, useState } from 'react'
+import { Navigate, RouteObject, RouterProvider, createHashRouter } from 'react-router-dom'
 
 const { useToken } = theme
 
@@ -58,12 +60,56 @@ function App() {
   const [showLevelColor, setShowLevelColor] = useStorage<boolean>('showLevelColor', false)
   const [contentHeight, setContentHeight] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const [menuItems, setMenuItems] = useState<ItemType[]>([])
+  const [menuItems, setMenuItems] = useStorage<MenuTree[]>(
+    'menuItems',
+    JSON.parse(localStorage.getItem('menuItems') || '[]')
+  )
   const [authData, setAuthData] = useState<{ permissions: PermissionType[]; isAuthenticated: boolean }>({
     permissions: ['add'],
     isAuthenticated: false
   })
+  const [routers, setRouters] = useState<Router>(createHashRouter(defaultRouters))
 
+  useEffect(() => {
+    console.log('routers====', defaultRouters)
+
+    if (menuItems?.length && isLogin()) {
+      const routersTree = defaultRouters.map((item) => {
+        if (item.path === '/') {
+          item.children = [
+            ...transformRoutersTree(menuItems),
+            {
+              path: '/',
+              element: <Navigate to='/realtime/alarm' replace={true} />
+            }
+          ] as RouteObject[]
+        }
+        return item
+      })
+      setRouters(createHashRouter(routersTree))
+    } else {
+      setRouters(createHashRouter(defaultRouters))
+    }
+  }, [])
+  const handleRouter = () => {
+    if (menuItems?.length && isLogin()) {
+      const routersTree = defaultRouters.map((item) => {
+        if (item.path === '/') {
+          item.children = [
+            ...transformRoutersTree(menuItems),
+            {
+              path: '/',
+              element: <Navigate to='/realtime/alarm' replace={true} />
+            }
+          ] as RouteObject[]
+        }
+        return item
+      })
+      return createHashRouter(routersTree)
+    } else {
+      return createHashRouter(defaultRouters)
+    }
+  }
   const contextValue: GlobalContextType = {
     theme: theme,
     setTheme: setTheme,
@@ -96,7 +142,9 @@ function App() {
     localURL: localURL,
     setLocalURL: setLocalURL,
     authData: authData,
-    setAuthData: setAuthData
+    setAuthData: setAuthData,
+    routers: routers,
+    setRouters: setRouters
   }
 
   return (
@@ -115,7 +163,7 @@ function App() {
       >
         <GlobalContext.Provider value={contextValue}>
           <Suspense fallback={null}>
-            <RouterProvider router={createHashRouter(routers)} />
+            <RouterProvider router={handleRouter()} />
           </Suspense>
         </GlobalContext.Provider>
       </ConfigProvider>

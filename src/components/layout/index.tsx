@@ -1,7 +1,6 @@
 import { MenuTree } from '@/api/menu'
 import { isLogin, setToken } from '@/api/request'
 import { useContainerHeight } from '@/hooks/useContainerHeightTop'
-import { getTreeMenu } from '@/mocks'
 import { GlobalContext } from '@/utils/context'
 import { Layout, Menu, Spin, theme } from 'antd'
 import { ItemType } from 'antd/lib/menu/interface'
@@ -46,7 +45,7 @@ const MoonLayout: React.FC = () => {
   }
 
   const { token } = useToken()
-  const { menuItems, collapsed, setContentHeight, setMenuItems } = useContext(GlobalContext)
+  const { menuItems, collapsed, setContentHeight } = useContext(GlobalContext)
 
   const [openKeys, setOpenKeys] = useState<string[]>([])
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
@@ -94,11 +93,14 @@ const MoonLayout: React.FC = () => {
   }, [location.pathname])
 
   // 转换菜单树
-  const transformMenuTree = (menuTree: MenuTree[]): ItemType[] => {
+  const transformMenuTree = (menuTree: MenuTree[] | undefined): ItemType[] => {
+    if (!menuTree) {
+      return []
+    }
     return menuTree.map((item) => {
       const menuItem: ItemType = {
-        key: item.path,
-        label: item.name,
+        key: item.key,
+        label: item.label,
         icon: renderIcon(item.icon),
         children: item.children ? transformMenuTree(item.children) : undefined
       }
@@ -106,15 +108,6 @@ const MoonLayout: React.FC = () => {
       return menuItem
     })
   }
-
-  useEffect(() => {
-    // 获取菜单
-    getTreeMenu({}).then((res) => {
-      console.log('res', res)
-      const menuTree = transformMenuTree(res.menuTree) as ItemType[]
-      setMenuItems && setMenuItems(menuTree)
-    })
-  }, [])
 
   return (
     <>
@@ -126,7 +119,7 @@ const MoonLayout: React.FC = () => {
             </div>
             <Menu
               mode='inline'
-              items={menuItems}
+              items={transformMenuTree(menuItems)}
               style={{ borderInlineEnd: 'none' }}
               className='h-full overflow-auto'
               openKeys={collapsed ? [] : openKeys}

@@ -2,7 +2,7 @@ import { MenuType } from '@/api/enum'
 import { ActionKey } from '@/api/global'
 import { createMenu, updateMenu } from '@/api/menu'
 import { MenuItem } from '@/api/model-types'
-import { DataFrom } from '@/components/data/form'
+import { DataFrom, DataFromItem } from '@/components/data/form'
 import { getMenu } from '@/mocks'
 import { useRequest } from 'ahooks'
 import { Form, Modal, type ModalProps } from 'antd'
@@ -22,6 +22,8 @@ const MenuEditModal: React.FC<MenuEditModalProps> = (props) => {
   const { open, onCancel, menuId, title, disabled, onOk, action } = props
   const [form] = Form.useForm()
   const [menuDetail, setMenuDetail] = useState<MenuItem>()
+  const [formItems, setFormItems] = useState<(DataFromItem | DataFromItem[])[]>([])
+  const menuTypeValue = Form.useWatch('menuType', form)
 
   const { run: initMenuDetail, loading: initMenuDetailLoading } = useRequest(getMenu, {
     manual: true,
@@ -36,7 +38,7 @@ const MenuEditModal: React.FC<MenuEditModalProps> = (props) => {
       // 在这里根据 menuId 发起请求获取菜单详情数据
       initMenuDetail({ id: menuId })
     }
-  }, [menuId, form])
+  }, [menuId, form, open, action, initMenuDetail])
 
   useEffect(() => {
     if (open && form && menuDetail) {
@@ -45,7 +47,11 @@ const MenuEditModal: React.FC<MenuEditModalProps> = (props) => {
     }
     form?.resetFields()
   }, [menuDetail, open, form])
-
+  useEffect(() => {
+    if (open && form) {
+      setFormItems(menuEditModalFormItems(form.getFieldsValue()))
+    }
+  }, [menuTypeValue, form, open])
   const handleOnCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     onCancel?.(e)
     form?.resetFields()
@@ -76,10 +82,8 @@ const MenuEditModal: React.FC<MenuEditModalProps> = (props) => {
       if (action === ActionKey.ADD) {
         if (menuId) {
           formValues.parentId = menuId
-          formValues.MenuType = MenuType.MenuTypeMenu
         } else {
           formValues.parentId = 0
-          formValues.MenuType = MenuType.MenuTypeDir
         }
         const data: MenuItem = {
           ...formValues
@@ -96,6 +100,7 @@ const MenuEditModal: React.FC<MenuEditModalProps> = (props) => {
       }
     })
   }
+
   return (
     <Modal
       {...props}
@@ -106,12 +111,15 @@ const MenuEditModal: React.FC<MenuEditModalProps> = (props) => {
       confirmLoading={updateMenuDetailLoading || createMenuDetailLoading}
     >
       <DataFrom
-        items={menuEditModalFormItems}
+        items={formItems}
         props={{
           form,
           layout: 'vertical',
           autoComplete: 'off',
-          disabled: disabled || initMenuDetailLoading
+          disabled: disabled || initMenuDetailLoading,
+          initialValues: {
+            menuType: MenuType.MenuTypeMenu
+          }
         }}
       />
     </Modal>

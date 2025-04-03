@@ -14,6 +14,7 @@ import type React from 'react'
 import { useContext, useEffect, useRef, useState } from 'react'
 import MenuEditModal from './menu-edit-modal'
 import { formList, getMenuColumnList } from './options'
+import { permission } from './permission'
 
 const { useToken } = theme
 
@@ -39,6 +40,7 @@ const MenuList: React.FC<MenuListProps> = ({ switchMenuList }) => {
   const [editMenuId, setEditMenuId] = useState<number>()
   const [disabledEditMenuModal, setDisabledEditMenuModal] = useState(false)
   const [menuAction, setMenuAction] = useState<ActionKey>(ActionKey.ADD)
+  const [menuTitle, setMenuTitle] = useState('新增菜单')
 
   const searchRef = useRef<HTMLDivElement>(null)
   const ADivRef = useRef<HTMLDivElement>(null)
@@ -97,12 +99,14 @@ const MenuList: React.FC<MenuListProps> = ({ switchMenuList }) => {
         setEditMenuId(item.id)
         setMenuAction(key)
         setDisabledEditMenuModal(false)
+        setMenuTitle('新增菜单')
         break
       case ActionKey.EDIT:
         setOpenMenuEditModal(true)
         handleOpenDetailModal(item.id)
         setMenuAction(key)
         setDisabledEditMenuModal(false)
+        setMenuTitle('编辑菜单')
         break
       case ActionKey.ENABLE:
         batchUpdateResourceStatus({ ids: [item.id], status: Status.StatusEnable }, true).then(() => {
@@ -120,6 +124,7 @@ const MenuList: React.FC<MenuListProps> = ({ switchMenuList }) => {
         break
       case ActionKey.DETAIL:
         handleOpenDetailModal(item.id)
+        setMenuTitle('菜单详情')
         break
     }
   }
@@ -137,6 +142,7 @@ const MenuList: React.FC<MenuListProps> = ({ switchMenuList }) => {
     <div className='p-3 gap-3 flex flex-col'>
       <MenuEditModal
         key={editMenuId}
+        title={menuTitle}
         open={openMenuEditModal}
         onCancel={handleCloseMenuEditModal}
         onOk={handleOKMenuEditModal}
@@ -175,14 +181,16 @@ const MenuList: React.FC<MenuListProps> = ({ switchMenuList }) => {
             </div>
           </div>
           <Space size={8}>
-            <AuthButton requiredPermissions={['edit', 'add']}>
+            <AuthButton requiredPermissions={permission.menu.add}>
               <Button color='primary' variant='filled' onClick={() => setOpenMenuEditModal(true)}>
                 新增
               </Button>
             </AuthButton>
-            <Button color='default' variant='filled' onClick={onRefresh}>
-              刷新
-            </Button>
+            <AuthButton requiredPermissions={permission.menu.query}>
+              <Button color='default' variant='filled' onClick={onRefresh}>
+                刷新
+              </Button>
+            </AuthButton>
           </Space>
         </div>
         <div className='mt-4' ref={ADivRef}>

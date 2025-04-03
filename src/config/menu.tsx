@@ -207,136 +207,167 @@ export const defaultMenuItems: ItemType[] = [
 export type BreadcrumbNameType = {
   name: string
   disabled?: boolean
+  path?: () => Promise<{ default: React.ComponentType }>
 }
 
 export const breadcrumbNameMap: Record<string, BreadcrumbNameType> = {
-  '/home': {
+  '/': {
     name: '首页'
   },
-  '/home/team': {
+  '/team': {
     name: '团队管理'
   },
-  '/home/team/members': {
-    name: '团队成员'
+  '/team/members': {
+    name: '团队成员',
+    path: () => import('@/pages/team/members')
   },
-  '/home/team/dict': {
-    name: '字典管理'
+  '/team/dict': {
+    name: '字典管理',
+    path: () => import('@/pages/team/dict')
   },
-  '/home/team/role': {
-    name: '角色管理'
+  '/team/role': {
+    name: '角色管理',
+    path: () => import('@/pages/team/role')
   },
-  '/home/team/resource': {
-    name: '资源管理'
+  '/team/resource': {
+    name: '资源管理',
+    path: () => import('@/pages/team/members')
   },
-  '/home/team/dashboard': {
-    name: '大盘管理'
+  '/team/dashboard': {
+    name: '大盘管理',
+    path: () => import('@/pages/team/dashboard')
   },
-  '/home/team/dashboard/chart': {
+  '/team/dashboard/chart': {
     name: '图表管理'
   },
-  '/home/self': {
+  '/self': {
     name: '个人中心'
   },
-  '/home/self/space-manage': {
-    name: '我的团队'
+  '/self/space-manage': {
+    name: '我的团队',
+    path: () => import('@/pages/self/space-manage')
   },
-  '/home/self/manage': {
-    name: '个人设置'
+  '/self/manage': {
+    name: '个人设置',
+    path: () => import('@/pages/self/manage')
   },
-  '/home/realtime': {
+  '/realtime': {
     name: '实时监控'
   },
-  '/home/realtime/dashboard': {
-    name: '数据大盘'
+  '/realtime/dashboard': {
+    name: '数据大盘',
+    path: () => import('@/pages/realtime/dashboard')
   },
-  '/home/realtime/alarm': {
-    name: '实时告警'
+  '/realtime/alarm': {
+    name: '实时告警',
+    path: () => import('@/pages/realtime/alarm')
   },
-  '/home/realtime/server': {
-    name: '服务监控'
+  '/realtime/server': {
+    name: '服务监控',
+    path: () => import('@/pages/realtime/server')
   },
-  '/home/realtime/monitor': {
-    name: '监控大盘'
+  '/realtime/monitor': {
+    name: '监控大盘',
+    path: () => import('@/pages/realtime/monitor')
   },
-  '/home/datasource': {
+  '/datasource': {
     name: '数据源'
   },
-  '/home/datasource/metric': {
-    name: 'Metric'
+  '/datasource/metric': {
+    name: 'Metric',
+    path: () => import('@/pages/datasource/metric')
   },
-  '/home/datasource/event': {
-    name: 'Event'
+  '/datasource/event': {
+    name: 'Event',
+    path: () => import('@/pages/datasource/event')
   },
-  '/home/datasource/log': {
-    name: 'Log'
+  '/datasource/log': {
+    name: 'Log',
+    path: () => import('@/pages/datasource/log')
   },
-  '/home/datasource/trace': {
+  '/datasource/trace': {
     name: 'Trace'
+    // path: () => import('@/pages/datasource/trace')
   },
-  '/home/strategy': {
+  '/strategy': {
     name: '策略管理'
   },
-  '/home/strategy/group': {
-    name: '策略组'
+  '/strategy/group': {
+    name: '策略组',
+    path: () => import('@/pages/strategy/group')
   },
-  '/home/strategy/list': {
-    name: '策略列表'
+  '/strategy/list': {
+    name: '策略列表',
+    path: () => import('@/pages/strategy/list')
   },
-  '/home/strategy/subscribe': {
-    name: '我的订阅'
+  '/strategy/subscribe': {
+    name: '我的订阅',
+    path: () => import('@/pages/strategy/subscribe')
   },
-  '/home/notify': {
+  '/notify': {
     name: '告警通知'
   },
-  '/home/notify/group': {
-    name: '告警组'
+  '/notify/group': {
+    name: '告警组',
+    path: () => import('@/pages/notify/group')
   },
-  '/home/notify/hook': {
-    name: 'Hook'
+  '/notify/hook': {
+    name: 'Hook',
+    path: () => import('@/pages/notify/hook')
   },
-  '/home/notify/rule': {
-    name: '时间引擎'
+  '/notify/rule': {
+    name: '时间引擎',
+    path: () => import('@/pages/notify/rule')
   },
-  '/home/notify/record': {
-    name: '告警记录'
+  '/notify/record': {
+    name: '告警记录',
+    path: () => import('@/pages/team/members')
   },
-  '/home/notify/template': {
-    name: '通知模板'
+  '/notify/template': {
+    name: '通知模板',
+    path: () => import('@/pages/notify/template')
   },
-  '/home/archive': {
+  '/archive': {
     name: '告警归档'
   },
-  '/home/archive/history-alert': {
-    name: '历史告警'
+  '/archive/history-alert': {
+    name: '历史告警',
+    path: () => import('@/pages/archive/history-alert')
   },
-  '/home/archive/statistics-alert': {
+  '/archive/statistics-alert': {
     name: '告警统计'
   },
-  '/home/archive/history-notify': {
-    name: '历史通知'
+  '/archive/history-notify': {
+    name: '历史通知',
+    path: () => import('@/pages/archive/history-notify')
   },
-  '/home/community': {
+  '/community': {
     name: 'Moon社区'
   },
-  '/home/community/strategy-template': {
-    name: '策略仓库'
+  '/community/strategy-template': {
+    name: '策略仓库',
+    path: () => import('@/pages/community/strategy-template')
   },
-  '/home/community/discussion': {
+  '/community/discussion': {
     name: '讨论'
   },
-  '/home/system': {
+  '/system': {
     name: '系统管理'
   },
-  '/home/system/user': {
-    name: '用户管理'
+  '/system/user': {
+    name: '用户管理',
+    path: () => import('@/pages/system/user')
   },
-  '/home/system/resource': {
-    name: '资源管理'
+  '/system/resource': {
+    name: '资源管理',
+    path: () => import('@/pages/system/resource')
   },
-  '/home/system/team': {
-    name: '团队管理'
+  '/system/team': {
+    name: '团队管理',
+    path: () => import('@/pages/system/team')
   },
-  '/home/system/template': {
-    name: '通知模板'
+  '/system/template': {
+    name: '通知模板',
+    path: () => import('@/pages/system/template')
   }
 }

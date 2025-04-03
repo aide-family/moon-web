@@ -218,3 +218,33 @@ export const routers: RouteObject[] = [
     element: <Error403 />
   }
 ]
+export const defaultRouters: RouteObject[] = [
+  {
+    path: '/login',
+    Component: lazy(() => import('@/pages/login'))
+  },
+  {
+    path: '/oauth/register/email',
+    Component: lazy(() => import('@/pages/login/oauth/email'))
+  },
+
+  {
+    path: '/',
+    Component: lazy(() => import('@/components/layout')),
+    children: []
+  },
+  {
+    path: '/register',
+    Component: lazy(() => import('@/pages/login/register/register'))
+  },
+  // {
+  //   path: '/',
+  //   // 重定向/home
+  //   element: <Navigate to='/login' replace={true} />
+  // },
+  {
+    // 403
+    path: '*',
+    element: <Error403 />
+  }
+]

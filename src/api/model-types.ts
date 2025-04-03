@@ -105,9 +105,9 @@ export interface MenuItem {
   /** 菜单ID */
   id: number
   /** 菜单名称 */
-  name: string
+  label: string
   /** 菜单路径 */
-  path: string
+  key: string
   /** 菜单图标 */
   icon: string
   /** 菜单状态 */

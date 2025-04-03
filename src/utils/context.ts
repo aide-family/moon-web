@@ -1,7 +1,7 @@
-import type { TeamItem, UserItem } from '@/api/model-types'
+import type { MenuTree, TeamItem, UserItem } from '@/api/model-types'
 import type { BreadcrumbNameType } from '@/config/menu'
+import type { Router } from '@remix-run/router'
 import { theme } from 'antd'
-import type { ItemType } from 'antd/es/menu/interface'
 import type { SpaceSize } from 'antd/es/space'
 import { createContext } from 'react'
 
@@ -17,8 +17,8 @@ export type GlobalContextType = {
   size?: SpaceSize
   setSize?: (size: SpaceSize) => void
   title?: string
-  menuItems?: ItemType[]
-  setMenuItems?: (menuItems: ItemType[]) => void
+  menuItems?: MenuTree[]
+  setMenuItems?: (menuItems: MenuTree[]) => void
   breadcrumbNameMap?: Record<string, BreadcrumbNameType>
   collapsed?: boolean
   setCollapsed?: (collapsed: boolean) => void
@@ -45,6 +45,8 @@ export type GlobalContextType = {
     isAuthenticated: boolean
   }
   setAuthData?: (authData: { permissions: PermissionType[]; isAuthenticated: boolean }) => void
+  routers?: Router
+  setRouters?: React.Dispatch<React.SetStateAction<Router>>
 }
 
 export const GlobalContext = createContext<GlobalContextType>({
