@@ -89,7 +89,8 @@ export default function Register() {
         window.location.href = `${window.location.origin}?token=${token}`
       })
       .catch((err: ErrorResponse) => {
-        setError(err?.metadata?.['code'] || err?.message || '验证码不正确，请重新输入')
+        setError(err?.message || '验证码不正确，请重新输入')
+        setSuccess('')
       })
       .finally(() => setIsLoading(false))
   }
@@ -125,7 +126,7 @@ export default function Register() {
         style={{ boxShadow: token.boxShadow, borderRadius: token.borderRadiusLG, borderColor: token.colorBorder }}
       >
         <h1 className='text-2xl'>邮箱注册</h1>
-        {error && step == 1 && <Alert message={error} type='error' showIcon />}
+        {error !== '' && <Alert message={error} type='error' showIcon />}
         {success && <Alert message={success} type='success' showIcon />}
         {step === 1 && (
           <DataFrom
