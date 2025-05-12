@@ -20,7 +20,7 @@ export const baseURL = hostMap[host] || `${host}/api`
 
 const request = axios.create({
   baseURL: baseURL,
-  timeout: 10000
+  timeout: 50000
 })
 
 export type ErrorResponse = {
