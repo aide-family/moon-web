@@ -181,15 +181,19 @@ const SelfManage: React.FC<SelfManageProps> = (props) => {
     <div className='h-full flex flex-col gap-3 p-3' style={{ background: token.colorBgLayout }}>
       <Card style={{ background: token.colorBgContainer }}>
         <div className='p-5 flex justify-between items-center gap-14'>
-          <div className='relative backdrop-blur-sm'>
-            <Avatar className='w-[120px] h-[120px]' src={userDetail.avatar}></Avatar>
-            <div className='absolute inset-0 flex justify-center items-center text-white bg-black/50 opacity-0 transition-opacity duration-slow rounded-full text-2xl cursor-pointer'>
-              <EditOutlined onClick={() => showUpdateModal('avatar')} />
+          <div className='relative backdrop-blur-sm group'>
+            <Avatar className='w-[80px] h-[80px]' src={userDetail.avatar}></Avatar>
+            <div className='absolute inset-0 flex justify-center items-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full cursor-pointer'>
+              <EditOutlined
+                  className='text-xl text-white/70' // 调整图标颜色透明度
+                  onClick={() => showUpdateModal('avatar')}
+              />
             </div>
           </div>
           <Descriptions className='flex-1' column={2} items={items} />
         </div>
       </Card>
+
       <Card className='flex-1' style={{ background: token.colorBgContainer }}>
         <div>
           <Space size={8}>
