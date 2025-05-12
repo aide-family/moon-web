@@ -8,12 +8,12 @@ import {
 } from '@/api/authorization'
 import { CaptchaType } from '@/api/enum'
 import { type ErrorResponse, isLogin, setToken } from '@/api/request'
-import { Gitee, Github } from '@/components/icon'
+import { Gitee, Github, IconFont } from '@/components/icon'
 import { GlobalContext } from '@/utils/context'
 import { hashMd5 } from '@/utils/hash'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
 import { Button, Checkbox, Divider, Flex, Form, Input, theme } from 'antd'
-import { type FC, useContext, useEffect, useState } from 'react'
+import React, { type FC, useContext, useEffect, useState } from 'react'
 import cookie from 'react-cookies'
 import { useNavigate } from 'react-router-dom'
 
@@ -30,8 +30,9 @@ type formData = {
 }
 
 const iconMap: Record<string, React.ReactNode> = {
-  github: <Github />,
-  gitee: <Gitee />
+    github: <Github/>,
+    gitee: <Gitee/>,
+    feishu: <IconFont type='icon-feishu'/>
 }
 
 const { useToken } = theme
