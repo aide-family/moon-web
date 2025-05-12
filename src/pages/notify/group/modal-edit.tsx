@@ -37,6 +37,14 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
     onSuccess: () => {
       message.success('新建告警组成功')
       onOk?.()
+    },
+    onError: (error) => {
+      const errorMsg = error?.metadata?.['noticeMember[0].notifyType'];
+      if (errorMsg) {
+        message.error(errorMsg.trim());
+      } else {
+        message.error('新建告警组失败');
+      }
     }
   })
 
@@ -45,6 +53,14 @@ export const GroupEditModal: React.FC<GroupEditModalProps> = (props) => {
     onSuccess: () => {
       message.success('编辑告警组成功')
       onOk?.()
+    },
+    onError: (error) => {
+      const errorMsg = error?.metadata?.['update.noticeMember[0].notifyType'];
+      if (errorMsg) {
+        message.error(errorMsg.trim());
+      } else {
+        message.error('编辑告警组失败');
+      }
     }
   })
 
