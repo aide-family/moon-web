@@ -30,7 +30,7 @@ export default function EmailVerification() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [email, setEmail] = useState('')
-  const [oauthID, setOauth] = useState(0)
+  const [oauthID, setOauth] = useState('')
 
   const search = window.location.search
   const searchOAuthID = new URLSearchParams(search).get('oauth_id')
@@ -98,7 +98,7 @@ export default function EmailVerification() {
 
   useEffect(() => {
     if (searchOAuthID) {
-      setOauth(parseInt(searchOAuthID))
+      setOauth(searchOAuthID)
     }
   }, [searchOAuthID])
 
