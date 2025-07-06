@@ -1,5 +1,4 @@
 import { CaptchaReply, getCaptcha, registerWithEmail, verifyEmail } from '@/api/authorization'
-import { CaptchaType } from '@/api/enum'
 import { ErrorResponse, setToken } from '@/api/request'
 import { DataFrom } from '@/components/data/form'
 import { githubURL } from '@/components/layout/header-op'
@@ -37,12 +36,7 @@ export default function Register() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const generateCaptcha = useCallback(
     debounce(async () => {
-      getCaptcha({
-        captchaType: CaptchaType.CaptchaTypeImage,
-        width: 100,
-        height: 40,
-        theme: 'dark'
-      }).then((res) => {
+      getCaptcha().then((res) => {
         setCaptcha(res)
       })
     }, 500),
@@ -55,8 +49,8 @@ export default function Register() {
     verifyEmail({
       email: value.email,
       captcha: {
-        id: captcha?.id || '',
-        code: value.code
+        captchaId: captcha?.captchaId || '',
+        dots: value.code // 使用dots字段存储验证码
       }
     })
       .then(() => {
@@ -161,7 +155,7 @@ export default function Register() {
                   placeholder='验证码'
                   suffix={
                     <img
-                      src={captcha?.captcha}
+                      src={captcha?.masterImageBase64}
                       alt='点击获取'
                       className='w-full h-[40px] text-xl aspect-[80/28] object-cover flex-shrink-0 bg-white rounded-md cursor-pointer'
                       style={{ borderRadius: token.borderRadius }}

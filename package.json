@@ -28,6 +28,7 @@
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.11",
     "diff": "^7.0.0",
+    "go-captcha-react": "1.0.4",
     "lucide-react": "^0.468.0",
     "mockjs": "^1.1.0",
     "monaco-editor": "^0.48.0",

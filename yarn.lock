@@ -4014,6 +4014,13 @@ globjoin@^0.1.4:
   resolved "https://mirrors.cloud.tencent.com/npm/globjoin/-/globjoin-0.1.4.tgz#2f4494ac8919e3767c5cbb691e9f463324285d43"
   integrity sha512-xYfnw62CKG8nLkZBfWbhWwDw02CHty86jfPcc2cr3ZfeuK9ysoVPPEUxf21bAD/rWAgk52SuBrLJlefNy8mvFg==
 
+go-captcha-react@1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/go-captcha-react/-/go-captcha-react-1.0.4.tgz#6ae7bae4e1f81dbf83ce4727ba6558e4c6336b07"
+  integrity sha512-1pNUoFqU5bt+tAVwqENTT86c5ih3Usppz7oFo2CPcO13o/Pwj60crudwtYdo8BUOghkYvHGL8gNEMMJFNhO0gQ==
+  dependencies:
+    classnames "^2.5.1"
+
 gonzales-pe@^4.2.3:
   version "4.3.0"
   resolved "https://mirrors.cloud.tencent.com/npm/gonzales-pe/-/gonzales-pe-4.3.0.tgz#fe9dec5f3c557eead09ff868c65826be54d067b3"

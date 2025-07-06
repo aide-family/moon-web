@@ -1,4 +1,3 @@
-import { CaptchaType } from '../enum'
 import { TeamMemberItem, UserItem } from '../model-types'
 import request from '../request'
 
@@ -31,11 +30,10 @@ export function refreshToken(params: RefreshTokenRequest): Promise<RefreshTokenR
 
 /**
  * 获取验证码
- * @param {CaptchaReq} params
  * @returns {Promise<CaptchaReply>}
  */
-export function getCaptcha(params: CaptchaReq): Promise<CaptchaReply> {
-  return request.POST<CaptchaReply>('/v1/authorization/captcha', params)
+export function getCaptcha(): Promise<CaptchaReply> {
+  return request.GET<CaptchaReply>('/api/auth/captcha')
 }
 
 /**
@@ -144,7 +142,7 @@ export interface LoginReply {
 /**
  * 登出请求
  */
-export interface LogoutRequest {}
+export interface LogoutRequest { }
 
 /**
  * 登出响应
@@ -189,40 +187,67 @@ export interface RefreshTokenReply {
 }
 
 /**
- * 验证码请求
- */
-export interface CaptchaReq {
-  /**
-   * 验证码类型, 0 图片验证码, 1 音频验证码
-   */
-  captchaType: CaptchaType
-  /**
-   * 主题
-   */
-  theme?: string
-  /**
-   * 图片类型宽高，不传为默认值
-   */
-  width?: number
-  height?: number
-}
-
-/**
  * 验证码响应
  */
 export interface CaptchaReply {
   /**
-   * 验证码 base64 信息
+   * 验证码ID
    */
-  captcha: string
+  captchaId: string
   /**
-   * 验证码类型, 0 图片验证码, 1 音频验证码
+   * 主图片base64
    */
-  captcha_type: CaptchaType
+  masterImageBase64: string
   /**
-   * 验证码标识
+   * 过期时间（秒）
    */
-  id: string
+  expiredSeconds: number
+  /**
+   * 缩略图base64
+   */
+  thumbImageBase64: string
+  /**
+   * 缩略图大小
+   */
+  thumbSize: number
+  /**
+   * 瓦片宽度
+   */
+  tileWidth: number
+  /**
+   * 瓦片高度
+   */
+  tileHeight: number
+  /**
+   * 验证码类型 1:点击 2:滑动 3:旋转
+   */
+  captchaType: 1 | 2 | 3
+}
+
+/**
+ * 验证码校验数据
+ */
+export interface CaptchaVerifyData {
+  /**
+   * 验证码ID
+   */
+  captchaId: string
+  /**
+   * 旋转角度（旋转验证码）
+   */
+  angle?: number
+  /**
+   * X坐标（滑动验证码）
+   */
+  sx?: number
+  /**
+   * Y坐标（滑动验证码）
+   */
+  sy?: number
+  /**
+   * 点击点数据（点击验证码）
+   */
+  dots?: string
 }
 
 /**
@@ -230,13 +255,25 @@ export interface CaptchaReply {
  */
 export interface AuthCaptcha {
   /**
-   * 验证码
+   * 验证码ID
    */
-  code: string
+  captchaId: string
   /**
-   * ID
+   * 旋转角度（旋转验证码）
    */
-  id: string
+  angle?: number
+  /**
+   * X坐标（滑动验证码）
+   */
+  sx?: number
+  /**
+   * Y坐标（滑动验证码）
+   */
+  sy?: number
+  /**
+   * 点击点数据（点击验证码）
+   */
+  dots?: string
 }
 
 /**
@@ -266,7 +303,7 @@ export interface CheckPermissionReply {
 /**
  * 校验 token 请求
  */
-export interface CheckTokenRequest {}
+export interface CheckTokenRequest { }
 
 /**
  * 校验 token 响应

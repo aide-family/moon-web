@@ -1,18 +1,16 @@
 import {
-  type CaptchaReply,
   type LoginRequest,
   type OAuthItem,
-  getCaptcha,
   getOAuthList,
   login
 } from '@/api/authorization'
-import { CaptchaType } from '@/api/enum'
 import { type ErrorResponse, isLogin, setToken } from '@/api/request'
+import { SmartCaptcha } from '@/components/captcha'
 import { Gitee, Github, IconFont } from '@/components/icon'
 import { GlobalContext } from '@/utils/context'
 import { hashMd5 } from '@/utils/hash'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
-import { Button, Checkbox, Divider, Flex, Form, Input, theme } from 'antd'
+import { Button, Checkbox, Divider, Flex, Form, Input, message, theme } from 'antd'
 import React, { type FC, useContext, useEffect, useState } from 'react'
 import cookie from 'react-cookies'
 import { useNavigate } from 'react-router-dom'
@@ -20,19 +18,17 @@ import { useNavigate } from 'react-router-dom'
 export type LoginParams = {
   username: string
   password: string
-  code: string
 }
 
 type formData = {
   username: string
   password: string
-  code: string
 }
 
 const iconMap: Record<string, React.ReactNode> = {
-    github: <Github/>,
-    gitee: <Gitee/>,
-    feishu: <IconFont type='icon-feishu'/>
+  github: <Github />,
+  gitee: <Gitee />,
+  feishu: <IconFont type='icon-feishu' />
 }
 
 const { useToken } = theme
@@ -47,7 +43,8 @@ const LoginForm: FC = () => {
   const { token } = useToken()
   const [form] = Form.useForm<formData>()
   const { setUserInfo } = useContext(GlobalContext)
-  const [captcha, setCaptcha] = useState<CaptchaReply>()
+  const [captchaData, setCaptchaData] = useState<any>(null)
+  const [captchaVisible, setCaptchaVisible] = useState(false)
   const [remeber, setRemeber] = useState<boolean>(!!cookie.load('remeber'))
   const [err, setErr] = useState<ErrorResponse>()
   const [oauthList, setOAuthList] = useState<OAuthItem[]>([])
@@ -61,12 +58,14 @@ const LoginForm: FC = () => {
       })
       .catch((e: ErrorResponse) => {
         setErr(e)
-        handleCaptcha()
+        // 登录失败时清空验证码数据，需要重新验证
+        setCaptchaData(null)
       })
   }
 
   const onFinish = (values: formData) => {
-    if (!captcha) {
+    if (!captchaData) {
+      message.error('请先完成验证码验证')
       return
     }
     if (cookie.load('remeber')) {
@@ -77,15 +76,19 @@ const LoginForm: FC = () => {
     handleLogin({
       username: values.username,
       password: hashMd5(values.password),
-      captcha: { code: values.code, id: captcha?.id },
+      captcha: captchaData,
       redirect: localURL || '/'
     })
   }
 
-  const handleCaptcha = () => {
-    getCaptcha({ captchaType: CaptchaType.CaptchaTypeImage, width: 100, height: 40, theme: 'dark' }).then((res) => {
-      setCaptcha(res)
-    })
+  const handleCaptchaSuccess = (data: any) => {
+    setCaptchaData(data)
+    setCaptchaVisible(false)
+    message.success('验证码验证成功')
+  }
+
+  const handleCaptchaError = (error: string) => {
+    message.error(`验证码验证失败: ${error}`)
   }
 
   const handlRemember = (checked: boolean | null) => {
@@ -108,8 +111,6 @@ const LoginForm: FC = () => {
       const account: LoginRequest = cookie.load('account')
       form.setFieldsValue({ username: account.username, password: account.password })
     }
-    // 获取验证码
-    handleCaptcha()
     handleOAuthList()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -157,25 +158,18 @@ const LoginForm: FC = () => {
           />
         </Form.Item>
         <Form.Item
-          name='code'
-          rules={[{ required: true, message: '请输入验证码' }]}
-          validateStatus={err?.metadata?.['code'] ? 'error' : 'success'}
-          help={err?.metadata?.['code']}
+          rules={[{ required: true, message: '请完成验证码验证' }]}
+          validateStatus={err?.metadata?.['captcha'] ? 'error' : 'success'}
+          help={err?.metadata?.['captcha']}
         >
-          <div className='flex gap-2'>
-            <Input
-              placeholder='验证码'
-              suffix={
-                <img
-                  src={captcha?.captcha}
-                  alt='点击获取'
-                  className='w-full h-[40px] text-xl aspect-[80/28] object-cover flex-shrink-0 bg-white rounded-md cursor-pointer'
-                  style={{ borderRadius: token.borderRadius }}
-                  onClick={handleCaptcha}
-                />
-              }
-            />
-          </div>
+          <Button
+            type={captchaData ? 'default' : 'primary'}
+            onClick={() => setCaptchaVisible(true)}
+            className='w-full'
+            style={{ height: '40px' }}
+          >
+            {captchaData ? '已验证 ✓' : '点击验证码'}
+          </Button>
         </Form.Item>
         <Flex justify='space-between' align='center' className='pb-2 w-full'>
           <Checkbox checked={remeber} onChange={(e) => handlRemember(e.target.checked)}>
@@ -186,7 +180,12 @@ const LoginForm: FC = () => {
           </Button>
         </Flex>
         <Form.Item>
-          <Button type='primary' htmlType='submit' className='w-full'>
+          <Button
+            type='primary'
+            htmlType='submit'
+            className='w-full'
+            disabled={!captchaData}
+          >
             登录
           </Button>
         </Form.Item>
@@ -220,6 +219,13 @@ const LoginForm: FC = () => {
           ))}
         </div>
       </Form>
+
+      <SmartCaptcha
+        visible={captchaVisible}
+        onSuccess={handleCaptchaSuccess}
+        onError={handleCaptchaError}
+        onClose={() => setCaptchaVisible(false)}
+      />
     </div>
   )
 }
