@@ -1,4 +1,3 @@
-import { CaptchaType } from '../enum'
 import { TeamMemberItem, UserItem } from '../model-types'
 import request from '../request'
 
@@ -34,8 +33,8 @@ export function refreshToken(params: RefreshTokenRequest): Promise<RefreshTokenR
  * @param {CaptchaReq} params
  * @returns {Promise<CaptchaReply>}
  */
-export function getCaptcha(params: CaptchaReq): Promise<CaptchaReply> {
-  return request.POST<CaptchaReply>('/v1/authorization/captcha', params)
+export function getCaptcha(): Promise<CaptchaReply> {
+  return request.GET<CaptchaReply>('/api/auth/captcha')
 }
 
 /**
@@ -63,7 +62,7 @@ export function checkToken(params: CheckTokenRequest): Promise<CheckTokenReply> 
  * @returns {Promise<VerifyEmailReply>}
  */
 export function verifyEmail(params: VerifyEmailRepquest): Promise<void> {
-  return request.POST('/v1/authorization/verify_email', params)
+  return request.POST('/api/auth/verify/email', params)
 }
 
 /**
@@ -73,7 +72,7 @@ export function verifyEmail(params: VerifyEmailRepquest): Promise<void> {
  * @returns {Promise<SetEmailReply>}
  */
 export function setEmailWithLogin(params: SetEmailRequest): Promise<RefreshTokenReply> {
-  return request.POST('/v1/authorization/set_email', params)
+  return request.POST('/api/auth/oauth2/login/email', params)
 }
 
 /**
@@ -82,7 +81,7 @@ export function setEmailWithLogin(params: SetEmailRequest): Promise<RefreshToken
  * @returns {Promise<OAuthListReply>}
  */
 export function getOAuthList(): Promise<OAuthListReply> {
-  return request.GET<OAuthListReply>('/v1/authorization/oauths')
+  return request.POST<OAuthListReply>('/api/auth/oauth2/list', {})
 }
 
 /**
@@ -189,40 +188,12 @@ export interface RefreshTokenReply {
 }
 
 /**
- * 验证码请求
- */
-export interface CaptchaReq {
-  /**
-   * 验证码类型, 0 图片验证码, 1 音频验证码
-   */
-  captchaType: CaptchaType
-  /**
-   * 主题
-   */
-  theme?: string
-  /**
-   * 图片类型宽高，不传为默认值
-   */
-  width?: number
-  height?: number
-}
-
-/**
  * 验证码响应
  */
 export interface CaptchaReply {
-  /**
-   * 验证码 base64 信息
-   */
-  captcha: string
-  /**
-   * 验证码类型, 0 图片验证码, 1 音频验证码
-   */
-  captcha_type: CaptchaType
-  /**
-   * 验证码标识
-   */
-  id: string
+  captchaId: string
+  captchaImg: string
+  expired_seconds: number
 }
 
 /**
@@ -232,11 +203,11 @@ export interface AuthCaptcha {
   /**
    * 验证码
    */
-  code: string
+  answer: string
   /**
    * ID
    */
-  id: string
+  captchaId: string
 }
 
 /**
@@ -316,6 +287,7 @@ export interface SetEmailRequest {
    * Token
    */
   token: string
+  app: number
 }
 
 /**
@@ -325,7 +297,7 @@ export interface OAuthListReply {
   /**
    * oauth 列表
    */
-  list: OAuthItem[]
+  items: OAuthItem[]
 }
 
 /**

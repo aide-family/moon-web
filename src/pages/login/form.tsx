@@ -6,7 +6,6 @@ import {
   getOAuthList,
   login
 } from '@/api/authorization'
-import { CaptchaType } from '@/api/enum'
 import { type ErrorResponse, isLogin, setToken } from '@/api/request'
 import { Gitee, Github } from '@/components/icon'
 import { defaultRouters } from '@/config/router'
@@ -103,13 +102,13 @@ const LoginForm: FC = () => {
     handleLogin({
       username: values.username,
       password: hashMd5(values.password),
-      captcha: { code: values.code, id: captcha?.id },
+      captcha: { answer: values.code, captchaId: captcha?.captchaId },
       redirect: localURL || '/'
     })
   }
 
   const handleCaptcha = () => {
-    getCaptcha({ captchaType: CaptchaType.CaptchaTypeImage, width: 100, height: 40, theme: 'dark' }).then((res) => {
+    getCaptcha().then((res) => {
       setCaptcha(res)
     })
   }
@@ -125,7 +124,7 @@ const LoginForm: FC = () => {
 
   const handleOAuthList = () => {
     getOAuthList().then((res) => {
-      setOAuthList(res.list || [])
+      setOAuthList(res.items || [])
     })
   }
 
@@ -193,7 +192,7 @@ const LoginForm: FC = () => {
               placeholder='验证码'
               suffix={
                 <img
-                  src={captcha?.captcha}
+                  src={captcha?.captchaImg}
                   alt='点击获取'
                   className='w-full h-[40px] text-xl aspect-[80/28] object-cover flex-shrink-0 bg-white rounded-md cursor-pointer'
                   style={{ borderRadius: token.borderRadius }}
