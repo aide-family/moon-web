@@ -3,5 +3,15 @@
 @source "../**/*.{js,ts,jsx,tsx,html}";
 
 .test1{
-    font-size: 32px;
+    font-size: 24px;
+}
+#root{
+    width: 100vw;
+    height: 100vh;
+    font-size: 16px;
+}
+
+/* 确保关闭状态的父菜单在子菜单被选中时也保持高亮 */
+.ant-menu-dark .ant-menu-submenu:not(.ant-menu-submenu-open).ant-menu-submenu-selected > .ant-menu-submenu-title {
+    background-color: var(--ant-menu-dark-item-selected-bg) !important;
 }
