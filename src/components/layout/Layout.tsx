@@ -137,7 +137,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
       </Sider>
       <Layout>
         <Header style={{ padding: 0, background: colorBgContainer }}>
-          <div className='flex items-center'>
+          <div className='flex items-center h-full'>
             <Button
               type="text"
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
