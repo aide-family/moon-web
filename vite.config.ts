@@ -1,23 +1,80 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
+import tailwindcss from '@tailwindcss/vite'
+
+// 定义所有应用
+const apps = ['template', 'test']
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  optimizeDeps: {
-    exclude: ['lucide-react'],
-  },
-  server: {
-    proxy: {
-      // Forward API calls to backend to avoid CORS in development
-      '/v1': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
+export default defineConfig(({ mode }) => {
+  // 获取应用名称，支持通过环境变量指定
+  const appName = process.env.APP_NAME
+  const env = loadEnv(mode, process.cwd())
+  const appUrls = {
+    template: {
+      v1: env.VITE_V1_TEMPLATE_API || '',
+      health: env.VITE_HEALTH_TEMPLATE_API || '',
+    },
+    test: {
+      v1: env.VITE_V1_TEST_API || '',
+      health: env.VITE_HEALTH_TEST_API || '',
+    },
+  }
+  const v1ApiUrl = appName ? appUrls[appName as keyof typeof appUrls]?.v1 : ''
+  const healthApiUrl = appName
+    ? appUrls[appName as keyof typeof appUrls]?.health
+    : ''
+  // 如果指定了应用名称，只构建该应用
+  if (appName && apps.includes(appName)) {
+    const appHtmlPath = path.resolve(
+      __dirname,
+      `src/apps/${appName}/index.html`
+    )
+    const appRoot = path.resolve(__dirname, `src/apps/${appName}`)
+    const srcRoot = path.resolve(__dirname, './src')
+
+    return {
+      // 在开发模式下，将 root 设置为应用目录，这样 Vite 只会处理该应用的 HTML
+      root: appRoot,
+      plugins: [react(), tailwindcss()],
+      resolve: {
+        alias: {
+          // 保持 @ 指向 src 目录，这样应用代码中的 @/ 别名仍然可以正常工作
+          '@': srcRoot,
+        },
       },
-      '/health': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
+      optimizeDeps: {
+        exclude: ['lucide-react'],
+      },
+      build: {
+        rollupOptions: {
+          input: appHtmlPath,
+        },
+        outDir: path.resolve(__dirname, `dist/${appName}`),
+      },
+      server: {
+        proxy: {
+          '/v1': {
+            target: v1ApiUrl,
+            changeOrigin: true,
+          },
+          '/health': {
+            target: healthApiUrl,
+            changeOrigin: true,
+          },
+        },
+      },
+    }
+  }
+
+  // 统一构建所有应用
+  return {
+    plugins: [react(), tailwindcss()],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
       },
     },
-  },
+  }
 })
