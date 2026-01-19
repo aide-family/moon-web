@@ -4,7 +4,14 @@ import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 
 // 定义所有应用
-const apps = ['template', 'test']
+const apps = ['main', 'template', 'test']
+
+// 应用端口配置
+const appPorts = {
+  main: 5172,
+  template: 5173,
+  test: 5174,
+}
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -46,6 +53,7 @@ export default defineConfig(({ mode }) => {
       },
       optimizeDeps: {
         exclude: ['lucide-react'],
+        include: ['@ant-design/icons', 'antd', 'react', 'react-dom', 'react-router-dom'],
       },
       build: {
         rollupOptions: {
@@ -54,6 +62,13 @@ export default defineConfig(({ mode }) => {
         outDir: path.resolve(__dirname, `dist/${appName}`),
       },
       server: {
+        port: appPorts[appName as keyof typeof appPorts] || 5172,
+        cors: true,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
         proxy: {
           '/v1': {
             target: v1ApiUrl,

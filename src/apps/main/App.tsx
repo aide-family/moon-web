@@ -1,0 +1,176 @@
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
+import { ConfigProvider } from 'antd'
+import zhCN from 'antd/locale/zh_CN'
+import { useEffect, useRef } from 'react'
+import microApp from '@micro-zoe/micro-app'
+import LayoutComponent, { type MenuItem } from '@/components/layout/Layout'
+import { UserOutlined, AppstoreOutlined } from '@ant-design/icons'
+
+// 初始化 micro-app
+// 对于 Vite 开发环境，需要禁用沙箱以支持 ES 模块
+microApp.start({
+  // 生命周期钩子
+  lifeCycles: {
+    created(e) {
+      console.log('子应用 created', e)
+    },
+    beforemount(e) {
+      console.log('子应用 beforemount', e)
+    },
+    mounted(e) {
+      console.log('子应用 mounted', e)
+    },
+    unmount(e) {
+      console.log('子应用 unmount', e)
+    },
+    error(e) {
+      console.error('子应用 error', e)
+    },
+  },
+})
+
+// 菜单配置
+const menuItems: MenuItem[] = [
+  {
+    key: 'template',
+    icon: <AppstoreOutlined />,
+    label: '模板应用',
+    path: '/template',
+  },
+  {
+    key: 'test',
+    icon: <UserOutlined />,
+    label: '测试应用',
+    path: '/test',
+  },
+]
+
+// 子应用配置
+const subAppConfig = {
+  template: {
+    name: 'template',
+    url: import.meta.env.DEV 
+      ? 'http://localhost:5173' // 开发环境
+      : '/template', // 生产环境
+  },
+  test: {
+    name: 'test',
+    url: import.meta.env.DEV 
+      ? 'http://localhost:5174' // 开发环境
+      : '/test', // 生产环境
+  },
+}
+
+// 子应用容器组件
+function SubAppContainer({ appName }: { appName: 'template' | 'test' }) {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const microAppRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const config = subAppConfig[appName]
+    
+    // 监听子应用发送的数据
+    const handleData = (data: { type?: string; data?: { app?: string; path?: string }; pathname?: string; [key: string]: unknown }) => {
+      if (data.type === 'navigate' && data.data) {
+        // 处理子应用之间的跳转
+        const targetApp = data.data.app
+        const targetPath = data.data.path || '/'
+        if (targetApp) {
+          navigate(`/${targetApp}${targetPath}`)
+        }
+      } else if (data.type === 'route-change') {
+        // 处理子应用内部路由变化
+        const subPath = data.pathname || '/'
+        const currentSubPath = location.pathname.replace(`/${appName}`, '') || '/'
+        if (subPath !== currentSubPath) {
+          navigate(`/${appName}${subPath}`)
+        }
+      }
+    }
+
+    // 使用 micro-app 的数据通信
+    microApp.setData(config.name, {
+      basePath: `/${appName}`,
+      currentPath: location.pathname.replace(`/${appName}`, '') || '/',
+    })
+
+    // 监听数据变化
+    const dataListener = (data: { type?: string; data?: { app?: string; path?: string }; pathname?: string; [key: string]: unknown }) => {
+      handleData(data)
+    }
+
+    microApp.addDataListener(config.name, dataListener)
+
+    return () => {
+      microApp.removeDataListener(config.name, dataListener)
+    }
+  }, [appName, navigate, location.pathname])
+
+  // 向子应用传递当前路由和 baseroute
+  useEffect(() => {
+    const config = subAppConfig[appName]
+    const subPath = location.pathname.replace(`/${appName}`, '') || '/'
+    
+    // 设置 baseroute 到 window，以便子应用可以获取
+    if (typeof window !== 'undefined') {
+      const win = window as Window & { __MICRO_APP_BASE_ROUTE__?: string }
+      win.__MICRO_APP_BASE_ROUTE__ = `/${appName}`
+    }
+    
+    microApp.setData(config.name, { 
+      basePath: `/${appName}`,
+      baseroute: `/${appName}`,
+      currentPath: subPath,
+    })
+  }, [location.pathname, appName])
+
+  const config = subAppConfig[appName]
+
+  return (
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - micro-app 是自定义元素
+    <micro-app
+      ref={microAppRef}
+      name={config.name}
+      url={config.url}
+      baseroute={`/${appName}`}
+      disable-scopecss={false}
+      disable-sandbox={true}
+      iframe={import.meta.env.DEV}
+    />
+  )
+}
+
+function App() {
+  const headerContent = (
+    <div className='flex items-center'>
+      <h2 className='text-2xl font-bold'>主应用</h2>
+    </div>
+  )
+
+  return (
+    <ConfigProvider
+      locale={zhCN}
+      theme={{
+        token: { colorPrimary: '#6c34e6' },
+      }}
+    >
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={<LayoutComponent menuItems={menuItems} header={headerContent} />}
+          >
+            <Route index element={<Navigate to="/template" replace />} />
+            <Route path="/template/*" element={<SubAppContainer appName="template" />} />
+            <Route path="/test/*" element={<SubAppContainer appName="test" />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ConfigProvider>
+  )
+}
+
+export default App
+
