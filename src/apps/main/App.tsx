@@ -2,32 +2,11 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from
 import { ConfigProvider } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import { useEffect, useRef } from 'react'
-import microApp from '@micro-zoe/micro-app'
 import LayoutComponent, { type MenuItem } from '@/components/layout/Layout'
 import { UserOutlined, AppstoreOutlined } from '@ant-design/icons'
+import microApp from '@micro-zoe/micro-app'
 
-// 初始化 micro-app
-// 对于 Vite 开发环境，需要禁用沙箱以支持 ES 模块
-microApp.start({
-  // 生命周期钩子
-  lifeCycles: {
-    created(e) {
-      console.log('子应用 created', e)
-    },
-    beforemount(e) {
-      console.log('子应用 beforemount', e)
-    },
-    mounted(e) {
-      console.log('子应用 mounted', e)
-    },
-    unmount(e) {
-      console.log('子应用 unmount', e)
-    },
-    error(e) {
-      console.error('子应用 error', e)
-    },
-  },
-})
+
 
 // 菜单配置
 const menuItems: MenuItem[] = [
@@ -50,7 +29,7 @@ const subAppConfig = {
   template: {
     name: 'template',
     url: import.meta.env.DEV 
-      ? 'http://localhost:5173' // 开发环境
+      ? 'http://localhost:5173/' // 开发环境
       : '/template', // 生产环境
   },
   test: {
@@ -128,17 +107,16 @@ function SubAppContainer({ appName }: { appName: 'template' | 'test' }) {
   const config = subAppConfig[appName]
 
   return (
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore - micro-app 是自定义元素
-    <micro-app
-      ref={microAppRef}
-      name={config.name}
-      url={config.url}
-      baseroute={`/${appName}`}
-      disable-scopecss={false}
-      disable-sandbox={true}
-      iframe={import.meta.env.DEV}
-    />
+    <div>
+      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+      {/* @ts-ignore - micro-app 是自定义元素 */}
+      <micro-app
+        ref={microAppRef}
+        name={config.name}
+        url={config.url}
+        iframe
+      />
+    </div>
   )
 }
 

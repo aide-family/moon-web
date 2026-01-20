@@ -11,7 +11,8 @@ body {
     margin: 0;
     padding: 0;
     font-size: 16px;
-    width: 1920px;
+    /* width: 1920px; */
+    width: 100%;
     height: 100%;
     font-size: 16px;
 }
@@ -25,4 +26,20 @@ body {
 /* 确保关闭状态的父菜单在子菜单被选中时也保持高亮 */
 .ant-menu-dark .ant-menu-submenu:not(.ant-menu-submenu-open).ant-menu-submenu-selected > .ant-menu-submenu-title {
     background-color: var(--ant-menu-dark-item-selected-bg) !important;
+}
+
+/* micro-app 元素样式 */
+micro-app {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 500px;
+}
+
+/* micro-app 在 iframe 模式下的样式 */
+micro-app iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
 }

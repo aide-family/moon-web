@@ -68,7 +68,7 @@ function App() {
             </Button>
           </div>
           <Routes>
-            <Route index element={<Navigate to='/template' replace />} />
+            <Route index element={<Navigate to='/template1' replace />} />
             <Route path='/template1' element={<Template1 />} />
             <Route path='/template2' element={<Template2 />} />
           </Routes>

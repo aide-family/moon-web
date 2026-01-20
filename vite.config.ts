@@ -53,7 +53,7 @@ export default defineConfig(({ mode }) => {
       },
       optimizeDeps: {
         exclude: ['lucide-react'],
-        include: ['@ant-design/icons', 'antd', 'react', 'react-dom', 'react-router-dom'],
+        include: ['@ant-design/icons', 'antd', 'react', 'react-dom', 'react-router-dom', '@micro-zoe/micro-app'],
       },
       build: {
         rollupOptions: {
