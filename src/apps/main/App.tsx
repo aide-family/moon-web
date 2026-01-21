@@ -1,84 +1,25 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { ConfigProvider } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
-import { useEffect, useRef } from 'react'
-import LayoutComponent, { type MenuItem } from '@/components/layout/Layout'
-import { UserOutlined, AppstoreOutlined } from '@ant-design/icons'
+import { useEffect, useRef, useMemo } from 'react'
+import React from 'react'
+import LayoutComponent from '@/components/layout/Layout'
 import microApp from '@micro-zoe/micro-app'
+import { 
+  appConfig, 
+  convertToMenuItems, 
+  getAllSubAppConfigs, 
+  getDefaultPath
+} from './config'
 
+// 从配置生成菜单项
+const menuItems = convertToMenuItems(appConfig)
 
+// 获取所有子应用配置
+const subAppConfigMap = getAllSubAppConfigs(appConfig)
 
-// 菜单配置
-const menuItems: MenuItem[] = [
-  {
-    key: 'template',
-    icon: <AppstoreOutlined />,
-    label: '模板应用',
-    path: '/template',
-    children: [
-      {
-        key: 'template1',
-        icon: <AppstoreOutlined />,
-        label: '模板应用1',
-        path: '/template/template1',
-      },
-      {
-        key: 'template2',
-        icon: <AppstoreOutlined />,
-        label: '模板应用2',
-        path: '/template/template2',
-      },
-    ],
-  },
-  {
-    key: 'test',
-    icon: <UserOutlined />,
-    label: '测试应用',
-    path: '/test',
-    children: [
-      {
-        key: 'test1',
-        icon: <UserOutlined />,
-        label: '测试应用1',
-        path: '/test/test1',
-      },
-      {
-        key: 'test2',
-        icon: <UserOutlined />,
-        label: '测试应用2',
-        path: '/test/test2',
-      },
-    ],
-  },
-]
-
-// 子应用配置
-const subAppConfig = {
-  template1: {
-    name: 'template1',
-    url: import.meta.env.DEV 
-      ? 'http://localhost:5173/template1' // 开发环境
-      : 'http://localhost:4173/template1', // 生产环境
-  },
-  template2: {
-    name: 'template2',
-    url: import.meta.env.DEV 
-      ? 'http://localhost:5173/template2' // 开发环境
-      : 'http://localhost:4173/template2', // 生产环境
-  },
-  test2: {
-    name: 'test2',
-    url: import.meta.env.DEV 
-      ? 'http://localhost:5174/test2' // 开发环境
-      : 'http://localhost:4174/test2', // 生产环境
-  },
-  test1: {
-    name: 'test1',
-    url: import.meta.env.DEV 
-      ? 'http://localhost:5174/test1' // 开发环境
-      : 'http://localhost:4174/test1', // 生产环境
-  },
-}
+// 获取默认路径
+const defaultPath = getDefaultPath(appConfig)
 
 // 子应用容器组件
 function SubAppContainer({ appName }: { appName: string}) {
@@ -86,9 +27,17 @@ function SubAppContainer({ appName }: { appName: string}) {
   const location = useLocation()
   const microAppRef = useRef<HTMLElement>(null)
 
+  // 从配置中获取子应用配置
+  const config = subAppConfigMap[appName]
+  
+  // 根据环境获取 URL
+  const url = config ? (import.meta.env.DEV ? config.devUrl : config.prodUrl) : ''
+
   useEffect(() => {
-    const config = subAppConfig[appName as keyof typeof subAppConfig]
-    
+    // 如果配置不存在，直接返回
+    if (!config) {
+      return
+    }
     // 监听子应用发送的数据
     const handleData = (data: { type?: string; data?: { app?: string; path?: string }; pathname?: string; [key: string]: unknown }) => {
       if (data.type === 'navigate' && data.data) {
@@ -101,17 +50,17 @@ function SubAppContainer({ appName }: { appName: string}) {
       } else if (data.type === 'route-change') {
         // 处理子应用内部路由变化
         const subPath = data.pathname || '/'
-        const currentSubPath = location.pathname.replace(`/${appName}`, '') || '/'
+        const currentSubPath = location.pathname.replace(config.path, '') || '/'
         if (subPath !== currentSubPath) {
-          navigate(`/${appName}${subPath}`)
+          navigate(`${config.path}${subPath}`)
         }
       }
     }
 
     // 使用 micro-app 的数据通信
     microApp.setData(config.name, {
-      basePath: `/${appName}`,
-      currentPath: location.pathname.replace(`/${appName}`, '') || '/',
+      basePath: config.path,
+      currentPath: location.pathname.replace(config.path, '') || '/',
     })
 
     // 监听数据变化
@@ -122,29 +71,37 @@ function SubAppContainer({ appName }: { appName: string}) {
     microApp.addDataListener(config.name, dataListener)
 
     return () => {
-      microApp.removeDataListener(config.name, dataListener)
+      if (config) {
+        microApp.removeDataListener(config.name, dataListener)
+      }
     }
-  }, [appName, navigate, location.pathname])
+  }, [config, navigate, location.pathname])
 
   // 向子应用传递当前路由和 baseroute
   useEffect(() => {
-    const config = subAppConfig[appName as keyof typeof subAppConfig]
-    const subPath = location.pathname.replace(`/${appName}`, '') || '/'
+    if (!config) {
+      return
+    }
+    
+    const subPath = location.pathname.replace(config.path, '') || '/'
     
     // 设置 baseroute 到 window，以便子应用可以获取
     if (typeof window !== 'undefined') {
       const win = window as Window & { __MICRO_APP_BASE_ROUTE__?: string }
-      win.__MICRO_APP_BASE_ROUTE__ = `/${appName}`
+      win.__MICRO_APP_BASE_ROUTE__ = config.path
     }
     
     microApp.setData(config.name, { 
-      basePath: `/${appName}`,
-      baseroute: `/${appName}`,
+      basePath: config.path,
+      baseroute: config.path,
       currentPath: subPath,
     })
-  }, [location.pathname, appName])
+  }, [location.pathname, config])
 
-  const config = subAppConfig[appName as keyof typeof subAppConfig]
+  // 如果配置不存在，返回错误提示
+  if (!config) {
+    return <div>子应用配置不存在: {appName}</div>
+  }
 
   return (
     <div>
@@ -153,11 +110,76 @@ function SubAppContainer({ appName }: { appName: string}) {
       <micro-app
         ref={microAppRef}
         name={config.name}
-        url={config.url}
+        url={url}
         iframe
       />
     </div>
   )
+}
+
+/**
+ * 占位页面组件（用于没有子应用的菜单项）
+ */
+function PlaceholderPage({ label, path }: { label: string; path: string }) {
+  return (
+    <div className="flex items-center justify-center h-full min-h-[400px]">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold mb-4">{label}</h2>
+        <p className="text-gray-500">路径: {path}</p>
+        <p className="text-gray-400 mt-2">该菜单项暂未配置子应用</p>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * 递归生成路由
+ */
+function generateRoutes(config: typeof appConfig): React.ReactNode[] {
+  const routes: React.ReactNode[] = []
+  
+  function traverse(items: typeof appConfig) {
+    for (const item of items) {
+      // 如果有路径，生成路由
+      if (item.path) {
+        if (item.subApp) {
+          // 有子应用配置，使用 SubAppContainer
+          routes.push(
+            <Route 
+              key={item.subApp.name} 
+              path={item.path} 
+              element={<SubAppContainer appName={item.subApp.name} />} 
+            />
+          )
+        } else if (item.element) {
+          // 直接指定了 element，使用指定的组件
+          routes.push(
+            <Route 
+              key={item.key} 
+              path={item.path} 
+              element={item.element} 
+            />
+          )
+        } else if (!item.children) {
+          // 没有子应用配置、没有 element 且没有子菜单，使用占位页面
+          routes.push(
+            <Route 
+              key={item.key} 
+              path={item.path} 
+              element={<PlaceholderPage label={item.label} path={item.path} />} 
+            />
+          )
+        }
+      }
+      // 递归处理子菜单
+      if (item.children) {
+        traverse(item.children)
+      }
+    }
+  }
+  
+  traverse(config)
+  return routes
 }
 
 function App() {
@@ -166,6 +188,9 @@ function App() {
       <h2 className='text-2xl font-bold'>主应用</h2>
     </div>
   )
+
+  // 动态生成路由
+  const routes = useMemo(() => generateRoutes(appConfig), [])
 
   return (
     <ConfigProvider
@@ -180,11 +205,8 @@ function App() {
             path="/"
             element={<LayoutComponent menuItems={menuItems} header={headerContent} />}
           >
-            <Route index element={<Navigate to="/template" replace />} />
-            <Route path="/template/template1" element={<SubAppContainer appName="template1" />} />
-            <Route path="/template/template2" element={<SubAppContainer appName="template2" />} />
-            <Route path="/test/test1" element={<SubAppContainer appName="test1" />} />
-            <Route path="/test/test2" element={<SubAppContainer appName="test2" />} />
+            <Route index element={<Navigate to={defaultPath} replace />} />
+            {routes}
           </Route>
         </Routes>
       </BrowserRouter>
