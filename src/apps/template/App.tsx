@@ -1,44 +1,38 @@
-import { BrowserRouter, Routes, Route, Link, useNavigate, useLocation, Navigate } from 'react-router-dom'
-import { ConfigProvider, Button } from 'antd'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { ConfigProvider } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
-import { useEffect } from 'react'
+import { UserOutlined, VideoCameraOutlined } from '@ant-design/icons'
 import Template1 from '@/pages/template/template1'
 import Template2 from '@/pages/template/template2'
-import { navigateToSubApp, listenToMainApp, removeMainAppListener, getBaseRoute } from '@/utils/microApp'
+import LayoutComponent, { type MenuItem } from '@/components/layout/Layout'
 
-// 路由同步组件
-function RouteSync() {
-  const navigate = useNavigate()
-  const location = useLocation()
+// 菜单配置（支持多级菜单）
+const menuItems: MenuItem[] = [
+  {
+    key: '1',
+    icon: <UserOutlined />,
+    label: 'Template1',
+    path: '/template1',
+  },
+  {
+    key: '2',
+    icon: <VideoCameraOutlined />,
+    label: 'Template2',
+    path: '/template2',
+  },
+]
 
-  useEffect(() => {
-    // 监听主应用的路由变化
-    const handleData = (data: any) => {
-      if (data.currentPath && data.currentPath !== location.pathname) {
-        navigate(data.currentPath)
-      }
-    }
 
-    listenToMainApp(handleData)
-
-    // 通知主应用路由变化
-    if (window.microApp) {
-      window.microApp.dispatch({
-        type: 'route-change',
-        pathname: location.pathname,
-      })
-    }
-
-    return () => {
-      removeMainAppListener(handleData)
-    }
-  }, [navigate, location.pathname])
-
-  return null
-}
 
 function App() {
-  const baseRoute = getBaseRoute()
+  // 头部组件示例
+  const headerContent = (
+    <div className='flex items-center justify-between w-full'>
+      <h2 className='text-2xl font-bold'>模板应用</h2>
+      <div>
+      </div>
+    </div>
+  )
 
   return (
     <ConfigProvider
@@ -47,32 +41,17 @@ function App() {
         token: { colorPrimary: '#6c34e6' },
       }}
     >
-      <BrowserRouter basename={baseRoute}>
-        <RouteSync />
-        <div style={{ padding: '20px' }}>
-          <div style={{ marginBottom: '20px' }}>
-            <Link to='/template1' style={{ marginRight: '10px' }}>Template1</Link>
-            <Link to='/template2' style={{ marginRight: '10px' }}>Template2</Link>
-            <Button 
-              type="link" 
-              onClick={() => navigateToSubApp('test', '/test1')}
-              style={{ marginRight: '10px' }}
-            >
-              跳转到测试应用 - Test1
-            </Button>
-            <Button 
-              type="link" 
-              onClick={() => navigateToSubApp('test', '/test2')}
-            >
-              跳转到测试应用 - Test2
-            </Button>
-          </div>
-          <Routes>
-            <Route index element={<Navigate to='/template1' replace />} />
-            <Route path='/template1' element={<Template1 />} />
-            <Route path='/template2' element={<Template2 />} />
-          </Routes>
-        </div>
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={<LayoutComponent menuItems={menuItems} header={headerContent} />}
+          >
+            <Route index element={<Navigate to="/template1" replace />} />
+            <Route path="/template1" element={<Template1 />} />
+            <Route path="/template2" element={<Template2 />} />
+          </Route>
+        </Routes>
       </BrowserRouter>
     </ConfigProvider>
   )
