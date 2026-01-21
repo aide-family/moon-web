@@ -14,10 +14,10 @@
     "build:template": "cross-env APP_NAME=template vite build",
     "build:test": "cross-env APP_NAME=test vite build",
     "lint": "eslint .",
-    "preview": "vite preview --outDir dist/main && vite preview --outDir dist/template && vite preview --outDir dist/test",
-    "preview:main": "vite preview --outDir dist/main",
-    "preview:template": "vite preview --outDir dist/template",
-    "preview:test": "vite preview --outDir dist/test",
+    "preview": "concurrently \"pnpm run preview:main\" \"pnpm run preview:template\" \"pnpm run preview:test\"",
+    "preview:main": "vite preview --outDir dist/main --port 4172",
+    "preview:template": "vite preview --outDir dist/template --port 4173",
+    "preview:test": "vite preview --outDir dist/test --port 4174",
     "typecheck": "tsc --noEmit -p tsconfig.app.json"
   },
   "dependencies": {

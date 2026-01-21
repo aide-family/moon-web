@@ -1,10 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { ConfigProvider } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import { UserOutlined, VideoCameraOutlined } from '@ant-design/icons'
 import Template1 from '@/pages/template/template1'
 import Template2 from '@/pages/template/template2'
 import LayoutComponent, { type MenuItem } from '@/components/layout/Layout'
+import { isInMicroApp } from '@/utils'
 
 // 菜单配置（支持多级菜单）
 const menuItems: MenuItem[] = [
@@ -25,6 +26,9 @@ const menuItems: MenuItem[] = [
 
 
 function App() {
+  // 检测是否在微服务环境中
+  const inMicroApp = isInMicroApp()
+  
   // 头部组件示例
   const headerContent = (
     <div className='flex items-center justify-between w-full'>
@@ -45,7 +49,7 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={<LayoutComponent menuItems={menuItems} header={headerContent} />}
+            element={ inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} header={headerContent} />}
           >
             <Route index element={<Navigate to="/template1" replace />} />
             <Route path="/template1" element={<Template1 />} />

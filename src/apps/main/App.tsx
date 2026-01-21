@@ -15,6 +15,20 @@ const menuItems: MenuItem[] = [
     icon: <AppstoreOutlined />,
     label: '模板应用',
     path: '/template',
+    children: [
+      {
+        key: 'template1',
+        icon: <AppstoreOutlined />,
+        label: '模板应用1',
+        path: '/template/template1',
+      },
+      {
+        key: 'template2',
+        icon: <AppstoreOutlined />,
+        label: '模板应用2',
+        path: '/template/template2',
+      },
+    ],
   },
   {
     key: 'test',
@@ -40,23 +54,29 @@ const menuItems: MenuItem[] = [
 
 // 子应用配置
 const subAppConfig = {
-  template: {
-    name: 'template',
+  template1: {
+    name: 'template1',
     url: import.meta.env.DEV 
-      ? 'http://localhost:5173/' // 开发环境
-      : '/template', // 生产环境
+      ? 'http://localhost:5173/template1' // 开发环境
+      : 'http://localhost:4173/template1', // 生产环境
+  },
+  template2: {
+    name: 'template2',
+    url: import.meta.env.DEV 
+      ? 'http://localhost:5173/template2' // 开发环境
+      : 'http://localhost:4173/template2', // 生产环境
   },
   test2: {
     name: 'test2',
     url: import.meta.env.DEV 
       ? 'http://localhost:5174/test2' // 开发环境
-      : '/test/test2', // 生产环境
+      : 'http://localhost:4174/test2', // 生产环境
   },
   test1: {
     name: 'test1',
     url: import.meta.env.DEV 
       ? 'http://localhost:5174/test1' // 开发环境
-      : '/test/test1', // 生产环境
+      : 'http://localhost:4174/test1', // 生产环境
   },
 }
 
@@ -161,7 +181,8 @@ function App() {
             element={<LayoutComponent menuItems={menuItems} header={headerContent} />}
           >
             <Route index element={<Navigate to="/template" replace />} />
-            <Route path="/template/*" element={<SubAppContainer appName="template" />} />
+            <Route path="/template/template1" element={<SubAppContainer appName="template1" />} />
+            <Route path="/template/template2" element={<SubAppContainer appName="template2" />} />
             <Route path="/test/test1" element={<SubAppContainer appName="test1" />} />
             <Route path="/test/test2" element={<SubAppContainer appName="test2" />} />
           </Route>
