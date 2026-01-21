@@ -21,6 +21,20 @@ const menuItems: MenuItem[] = [
     icon: <UserOutlined />,
     label: '测试应用',
     path: '/test',
+    children: [
+      {
+        key: 'test1',
+        icon: <UserOutlined />,
+        label: '测试应用1',
+        path: '/test/test1',
+      },
+      {
+        key: 'test2',
+        icon: <UserOutlined />,
+        label: '测试应用2',
+        path: '/test/test2',
+      },
+    ],
   },
 ]
 
@@ -32,22 +46,28 @@ const subAppConfig = {
       ? 'http://localhost:5173/' // 开发环境
       : '/template', // 生产环境
   },
-  test: {
-    name: 'test',
+  test2: {
+    name: 'test2',
     url: import.meta.env.DEV 
-      ? 'http://localhost:5174' // 开发环境
-      : '/test', // 生产环境
+      ? 'http://localhost:5174/test2' // 开发环境
+      : '/test/test2', // 生产环境
+  },
+  test1: {
+    name: 'test1',
+    url: import.meta.env.DEV 
+      ? 'http://localhost:5174/test1' // 开发环境
+      : '/test/test1', // 生产环境
   },
 }
 
 // 子应用容器组件
-function SubAppContainer({ appName }: { appName: 'template' | 'test' }) {
+function SubAppContainer({ appName }: { appName: string}) {
   const navigate = useNavigate()
   const location = useLocation()
   const microAppRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
-    const config = subAppConfig[appName]
+    const config = subAppConfig[appName as keyof typeof subAppConfig]
     
     // 监听子应用发送的数据
     const handleData = (data: { type?: string; data?: { app?: string; path?: string }; pathname?: string; [key: string]: unknown }) => {
@@ -88,7 +108,7 @@ function SubAppContainer({ appName }: { appName: 'template' | 'test' }) {
 
   // 向子应用传递当前路由和 baseroute
   useEffect(() => {
-    const config = subAppConfig[appName]
+    const config = subAppConfig[appName as keyof typeof subAppConfig]
     const subPath = location.pathname.replace(`/${appName}`, '') || '/'
     
     // 设置 baseroute 到 window，以便子应用可以获取
@@ -104,7 +124,7 @@ function SubAppContainer({ appName }: { appName: 'template' | 'test' }) {
     })
   }, [location.pathname, appName])
 
-  const config = subAppConfig[appName]
+  const config = subAppConfig[appName as keyof typeof subAppConfig]
 
   return (
     <div>
@@ -142,7 +162,8 @@ function App() {
           >
             <Route index element={<Navigate to="/template" replace />} />
             <Route path="/template/*" element={<SubAppContainer appName="template" />} />
-            <Route path="/test/*" element={<SubAppContainer appName="test" />} />
+            <Route path="/test/test1" element={<SubAppContainer appName="test1" />} />
+            <Route path="/test/test2" element={<SubAppContainer appName="test2" />} />
           </Route>
         </Routes>
       </BrowserRouter>
