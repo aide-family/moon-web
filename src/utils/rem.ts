@@ -53,42 +53,57 @@ export function initRem(config: RemConfig = {}) {
 
   // ========== Ant Design 样式转换相关 ==========
   const convertedTags = new WeakSet<HTMLStyleElement>()
+  let originalCreateElement: typeof document.createElement | null = null
+  let styleProxyInstalled = false
+
+  // 转换样式内容（如果包含 antd 样式）
+  const convertStyleContent = (content: string): string => {
+    if (!content || !content.includes('px')) {
+      return content
+    }
+
+    // 只处理 Ant Design 的样式
+    if (!content.includes('.ant-') && !content.includes('ant-')) {
+      return content
+    }
+
+    return convertPxToRem(content, BASE_FONT_SIZE)
+  }
 
   // 转换单个 style 标签的内容
   const convertStyleTag = (styleTag: HTMLStyleElement, force = false) => {
     if (!styleTag.textContent) return
 
-    // 如果已经转换过且不是强制转换，则跳过
+    // 如果已经转换过且不是强制转换，则检查是否需要重新转换
     if (!force && convertedTags.has(styleTag)) {
-      // 检查内容是否被 Ant Design 更新了
+      // 检查内容是否被 Ant Design 更新了（重新注入了 px 单位）
       if (styleTag.textContent.includes('px')) {
+        // 如果包含 px，说明样式被更新了，需要重新转换
         convertedTags.delete(styleTag)
       } else {
+        // 如果已经是 rem 单位，跳过
         return
       }
     }
 
     const originalContent = styleTag.textContent
-
-    // 检查是否包含 px
-    if (!originalContent.includes('px')) {
-      convertedTags.add(styleTag)
-      return
-    }
-
-    // 转换 px 为 rem（使用固定的 16px 基准）
-    const convertedContent = convertPxToRem(originalContent, BASE_FONT_SIZE)
+    const convertedContent = convertStyleContent(originalContent)
 
     // 只有当内容发生变化时才更新，避免无限循环
     if (convertedContent !== originalContent) {
-      // 使用 requestAnimationFrame 确保在合适的时机更新
-      requestAnimationFrame(() => {
-        // 再次检查内容是否还是原来的（防止被 Ant Design 更新）
-        if (styleTag.textContent === originalContent || styleTag.textContent?.includes('px')) {
+      try {
+        // 使用 Object.defineProperty 直接设置，避免触发 setter
+        const descriptor = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent')
+        if (descriptor && descriptor.set) {
+          descriptor.set.call(styleTag, convertedContent)
+        } else {
           styleTag.textContent = convertedContent
-          convertedTags.add(styleTag)
         }
-      })
+        convertedTags.add(styleTag)
+      } catch (e) {
+        // 如果更新失败（可能样式标签被移除），忽略错误
+        console.warn('Failed to convert style tag:', e)
+      }
     } else {
       convertedTags.add(styleTag)
     }
@@ -129,54 +144,123 @@ export function initRem(config: RemConfig = {}) {
     }, 100)
   }
 
-  // ========== MutationObserver 监听 DOM 变化 ==========
+  // ========== 使用 Proxy 拦截样式注入 ==========
   let observer: MutationObserver | null = null
+  let checkInterval: ReturnType<typeof setInterval> | null = null
 
-  if (convertAntd) {
-    observer = new MutationObserver((mutations) => {
-      let shouldConvert = false
+  if (convertAntd && !styleProxyInstalled) {
+    styleProxyInstalled = true
 
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList') {
-          mutation.addedNodes.forEach((node) => {
-            if (
-              node.nodeType === Node.ELEMENT_NODE &&
-              (node as HTMLElement).tagName === 'STYLE'
-            ) {
-              shouldConvert = true
-              // 立即转换新添加的 style 标签
-              convertStyleTag(node as HTMLStyleElement)
+    // 拦截 document.createElement，拦截 style 标签的创建
+    originalCreateElement = document.createElement.bind(document)
+    document.createElement = function (
+      tagName: string,
+      options?: ElementCreationOptions
+    ): HTMLElement {
+      const element = originalCreateElement!(tagName, options)
+
+      // 如果是 style 标签，拦截 textContent 和 innerHTML 的设置
+      if (tagName.toLowerCase() === 'style') {
+        const styleElement = element as HTMLStyleElement
+
+        // 保存原始描述符
+        const originalTextContentDescriptor = Object.getOwnPropertyDescriptor(
+          Node.prototype,
+          'textContent'
+        )
+        const originalInnerHTMLDescriptor = Object.getOwnPropertyDescriptor(
+          Element.prototype,
+          'innerHTML'
+        )
+
+        // 拦截 textContent
+        Object.defineProperty(styleElement, 'textContent', {
+          get() {
+            return originalTextContentDescriptor?.get?.call(this) || ''
+          },
+          set(value: string) {
+            // 在设置时就立即转换
+            const converted = convertStyleContent(value || '')
+            // 调用原始的 setter，传入转换后的值
+            if (originalTextContentDescriptor?.set) {
+              originalTextContentDescriptor.set.call(this, converted)
             }
-          })
-        } else if (mutation.type === 'characterData') {
+            convertedTags.add(styleElement)
+          },
+          configurable: true,
+          enumerable: true,
+        })
+
+        // 拦截 innerHTML（某些库可能使用 innerHTML）
+        Object.defineProperty(styleElement, 'innerHTML', {
+          get() {
+            return originalInnerHTMLDescriptor?.get?.call(this) || ''
+          },
+          set(value: string) {
+            const converted = convertStyleContent(value || '')
+            if (originalInnerHTMLDescriptor?.set) {
+              originalInnerHTMLDescriptor.set.call(this, converted)
+            }
+            convertedTags.add(styleElement)
+          },
+          configurable: true,
+          enumerable: true,
+        })
+      }
+
+      return element
+    }
+
+    // MutationObserver 作为备用方案，处理动态修改的情况
+    observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'characterData') {
           const target = mutation.target
           if (
             target.nodeType === Node.TEXT_NODE &&
             target.parentNode &&
             (target.parentNode as HTMLElement).tagName === 'STYLE'
           ) {
-            shouldConvert = true
             // 如果内容被更新，移除标记以便重新转换
             const styleTag = target.parentNode as HTMLStyleElement
             convertedTags.delete(styleTag)
+            convertStyleTag(styleTag)
           }
         }
       })
-
-      if (shouldConvert) {
-        // 延迟执行，确保样式已完全注入
-        setTimeout(convertAllStyleTags, 10)
-      }
     })
 
-    // 开始观察
+    // 开始观察 document.head 和 document.body
     observer.observe(document.head, {
-      childList: true,
-      subtree: false,
       characterData: true,
-      attributes: true,
-      attributeFilter: ['textContent'],
+      characterDataOldValue: true,
+      subtree: true,
     })
+
+    const observeBody = () => {
+      if (document.body) {
+        observer?.observe(document.body, {
+          characterData: true,
+          characterDataOldValue: true,
+          subtree: true,
+        })
+      }
+    }
+
+    if (document.body) {
+      observeBody()
+    } else {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', observeBody)
+      } else {
+        setTimeout(observeBody, 0)
+      }
+    }
+
+    // 定期检查作为最后的保障
+    checkInterval = setInterval(() => {
+      convertAllStyleTags()
+    }, 1000) // 降低频率到 1 秒，因为 Proxy 已经拦截了大部分情况
   }
 
   // ========== 初始化 ==========
@@ -190,12 +274,22 @@ export function initRem(config: RemConfig = {}) {
 
   // 初始转换 Ant Design 样式
   if (convertAntd) {
+    // 立即执行一次转换
+    convertAllStyleTags()
+    
+    // 在 DOM 加载完成后再次转换
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(convertAllStyleTags, 100)
+        // 多次延迟转换，确保 antd 样式已完全注入
+        setTimeout(convertAllStyleTags, 50)
+        setTimeout(convertAllStyleTags, 200)
+        setTimeout(convertAllStyleTags, 500)
       })
     } else {
-      setTimeout(convertAllStyleTags, 100)
+      // 如果 DOM 已经加载完成，也进行多次延迟转换
+      setTimeout(convertAllStyleTags, 50)
+      setTimeout(convertAllStyleTags, 200)
+      setTimeout(convertAllStyleTags, 500)
     }
   }
 
@@ -212,6 +306,17 @@ export function initRem(config: RemConfig = {}) {
     // 清理 MutationObserver
     if (observer) {
       observer.disconnect()
+    }
+
+    // 清理定期检查
+    if (checkInterval) {
+      clearInterval(checkInterval)
+    }
+
+    // 恢复原始的 createElement（如果需要）
+    if (originalCreateElement && styleProxyInstalled) {
+      document.createElement = originalCreateElement
+      styleProxyInstalled = false
     }
   }
 }
