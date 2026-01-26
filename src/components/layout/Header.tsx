@@ -1,11 +1,14 @@
 // 头部组件
 import React, { useState, useEffect, useRef } from 'react';
-import { Select, Avatar, Dropdown, message } from 'antd';
+import { Select, Avatar, Dropdown, message, Switch } from 'antd';
 import type { MenuProps } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, SunOutlined, MoonOutlined } from '@ant-design/icons';
 import { getNamespaceList, type NamespaceItemSelect } from '@/api/namespace/index';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const Header: React.FC = () => {
+  // 主题管理
+  const { themeMode, toggleTheme } = useTheme();
 
   // 命名空间管理
   const [namespace, setNamespace] = useState<string>(() => {
@@ -107,6 +110,17 @@ const Header: React.FC = () => {
 
   return (
     <div className='flex items-center gap-4 mr-4 h-5'>
+      {/* 主题切换 */}
+      <div className='flex items-center gap-2'>
+        <SunOutlined className={themeMode === 'light' ? 'text-yellow-500' : 'text-gray-400'} />
+        <Switch
+          checked={themeMode === 'dark'}
+          onChange={toggleTheme}
+          checkedChildren={<MoonOutlined />}
+          unCheckedChildren={<SunOutlined />}
+        />
+      </div>
+      {/* 命名空间选择 */}
       <Select
         value={namespace}
         onChange={handleNamespaceChange}

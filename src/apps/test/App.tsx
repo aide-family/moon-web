@@ -6,6 +6,7 @@ import Test1 from '@/pages/test/test1'
 import Test2 from '@/pages/test/test2'
 import LayoutComponent, { type MenuItem } from '@/components/layout/Layout'
 import { isInMicroApp } from '@/utils'
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
 
 // 菜单配置（支持多级菜单）
 const menuItems: MenuItem[] = [
@@ -23,7 +24,8 @@ const menuItems: MenuItem[] = [
   },
 ]
 
-function App() {
+function AppContent() {
+  const { themeConfig } = useTheme();
   // 检测是否在微服务环境中
   const inMicroApp = isInMicroApp()
   
@@ -39,9 +41,7 @@ function App() {
   return (
     <ConfigProvider
       locale={zhCN}
-      theme={{
-        token: { colorPrimary: '#6c34e6' },
-      }}
+      theme={themeConfig}
     >
       <BrowserRouter>
         <Routes>
@@ -56,6 +56,14 @@ function App() {
         </Routes>
       </BrowserRouter>
     </ConfigProvider>
+  )
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   )
 }
 

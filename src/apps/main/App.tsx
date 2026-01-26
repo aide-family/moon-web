@@ -5,6 +5,7 @@ import { useEffect, useRef, useMemo } from 'react'
 import React from 'react'
 import LayoutComponent from '@/components/layout/Layout'
 import microApp from '@micro-zoe/micro-app'
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
 import { 
   appConfig, 
   convertToMenuItems, 
@@ -182,7 +183,8 @@ function generateRoutes(config: typeof appConfig): React.ReactNode[] {
   return routes
 }
 
-function App() {
+function AppContent() {
+  const { themeConfig } = useTheme();
   const headerContent = (
     <div className='flex items-center'>
       <h2 className='text-2xl font-bold'>主应用</h2>
@@ -195,9 +197,7 @@ function App() {
   return (
     <ConfigProvider
       locale={zhCN}
-      theme={{
-        token: { colorPrimary: '#6c34e6' },
-      }}
+      theme={themeConfig}
     >
       <BrowserRouter>
         <Routes>
@@ -211,6 +211,14 @@ function App() {
         </Routes>
       </BrowserRouter>
     </ConfigProvider>
+  )
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   )
 }
 
