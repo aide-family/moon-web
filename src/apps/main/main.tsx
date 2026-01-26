@@ -16,7 +16,7 @@ if (!(window as Window & { __MICRO_APP_STARTED__?: boolean }).__MICRO_APP_STARTE
 initRem({
   baseWidth: 1920, // 设计稿基准宽度
   minFontSize: 10, // 最小字体大小
-  maxFontSize: 64, // 最大字体大小
+  maxFontSize: 16, // 最大字体大小
   resize: true, // 窗口大小改变时重新计算
 })
 
