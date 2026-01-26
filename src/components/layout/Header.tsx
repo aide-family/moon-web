@@ -112,7 +112,6 @@ const Header: React.FC = () => {
     <div className='flex items-center gap-4 mr-4 h-5'>
       {/* 主题切换 */}
       <div className='flex items-center gap-2'>
-        <SunOutlined className={themeMode === 'light' ? 'text-yellow-500' : 'text-gray-400'} />
         <Switch
           checked={themeMode === 'dark'}
           onChange={toggleTheme}

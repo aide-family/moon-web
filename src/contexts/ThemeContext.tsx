@@ -46,6 +46,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
+  // 根据主题模式设置 data-theme 属性，用于 CSS 样式
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', themeMode);
+    return () => {
+      document.documentElement.removeAttribute('data-theme');
+    };
+  }, [themeMode]);
+
   // 切换主题
   const toggleTheme = () => {
     const newTheme: ThemeMode = themeMode === 'light' ? 'dark' : 'light';
