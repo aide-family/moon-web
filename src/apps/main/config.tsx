@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
-import { UserOutlined, AppstoreOutlined, SettingOutlined } from '@ant-design/icons'
+import { UserOutlined, AppstoreOutlined, SettingOutlined, DatabaseOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
+import NamespaceList from '@/pages/main/namespaces'
 
 /**
  * 子应用配置
@@ -103,6 +104,13 @@ export const appConfig: AppConfigItem[] = [
         },
       },
     ],
+  },
+  {
+    key: 'namespaces',
+    icon: <DatabaseOutlined />,
+    label: '命名空间',
+    path: '/namespaces',
+    element: <NamespaceList />,
   },
   {
     key: 'settings',

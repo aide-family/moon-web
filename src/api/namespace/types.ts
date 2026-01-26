@@ -31,3 +31,35 @@ export interface NamespaceSelectParams {
   lastUID?: string
   status?: number
 }
+
+/**
+ * 命名空间项
+ */
+export interface NamespaceItem {
+  uid: string
+  name: string
+  createdAt: string
+  updatedAt: string
+  status: number
+  metadata?: Record<string, unknown>
+}
+
+/**
+ * 命名空间列表响应
+ */
+export interface NamespaceListResponse {
+  total: string
+  page: number
+  pageSize: number
+  items: NamespaceItem[]
+}
+
+/**
+ * 命名空间列表请求参数
+ */
+export interface NamespaceListParams {
+  page?: number
+  pageSize?: number
+  keyword?: string
+  status?: number
+}
