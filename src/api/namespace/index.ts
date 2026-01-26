@@ -4,7 +4,15 @@
  */
 
 import { http } from '../index'
-import type { NamespaceSelectResponse, NamespaceSelectParams, NamespaceListResponse, NamespaceListParams } from './types'
+import type { 
+  NamespaceSelectResponse, 
+  NamespaceSelectParams, 
+  NamespaceListResponse, 
+  NamespaceListParams,
+  NamespaceItem,
+  CreateNamespaceParams,
+  UpdateNamespaceParams
+} from './types'
 
 /**
  * 获取命名空间选择列表（用于下拉选择）
@@ -24,6 +32,53 @@ export const getNamespaceTableList = (params?: NamespaceListParams): Promise<Nam
   return http.get<NamespaceListResponse>('/namespaces', params as unknown as Record<string, unknown>)
 }
 
+/**
+ * 获取命名空间详情
+ * @param uid 命名空间 UID
+ * @returns 命名空间详情
+ */
+export const getNamespaceDetail = (uid: string): Promise<NamespaceItem> => {
+  return http.get<NamespaceItem>(`/namespace/${uid}`)
+}
+
+/**
+ * 创建命名空间
+ * @param params 创建参数
+ * @returns 创建的命名空间
+ */
+export const createNamespace = (params?: CreateNamespaceParams): Promise<NamespaceItem> => {
+  return http.post<NamespaceItem>('/namespace', params as Record<string, unknown>)
+}
+
+/**
+ * 更新命名空间
+ * @param uid 命名空间 UID
+ * @param params 更新参数
+ * @returns 更新后的命名空间
+ */
+export const updateNamespace = (uid: string, params?: UpdateNamespaceParams): Promise<NamespaceItem> => {
+  return http.put<NamespaceItem>(`/namespace/${uid}`, params as Record<string, unknown>)
+}
+
+/**
+ * 删除命名空间
+ * @param uid 命名空间 UID
+ * @returns 删除结果
+ */
+export const deleteNamespace = (uid: string): Promise<void> => {
+  return http.delete<void>(`/namespace/${uid}`)
+}
+
+/**
+ * 更新命名空间状态
+ * @param uid 命名空间 UID
+ * @param status 状态值
+ * @returns 更新后的命名空间
+ */
+export const updateNamespaceStatus = (uid: string, status: number): Promise<NamespaceItem> => {
+  return http.put<NamespaceItem>(`/namespace/${uid}/status`, { status } as Record<string, unknown>)
+}
+
 // 导出类型
 export type { 
   NamespaceItemSelect, 
@@ -31,5 +86,7 @@ export type {
   NamespaceSelectParams,
   NamespaceItem,
   NamespaceListResponse,
-  NamespaceListParams
+  NamespaceListParams,
+  CreateNamespaceParams,
+  UpdateNamespaceParams
 } from './types'

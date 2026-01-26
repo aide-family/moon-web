@@ -63,3 +63,20 @@ export interface NamespaceListParams {
   keyword?: string
   status?: number
 }
+
+/**
+ * 创建命名空间请求参数
+ */
+export interface CreateNamespaceParams {
+  name?: string
+  metadata?: Record<string, unknown>
+}
+
+/**
+ * 更新命名空间请求参数
+ */
+export interface UpdateNamespaceParams {
+  uid?: string
+  name?: string
+  metadata?: Record<string, unknown>
+}

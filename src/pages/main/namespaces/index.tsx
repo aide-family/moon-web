@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Table, Input, Radio, Button, Space } from 'antd'
+import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import { SearchOutlined, ReloadOutlined, PlusOutlined, ExportOutlined } from '@ant-design/icons'
-import { type NamespaceItem, type NamespaceListParams } from '@/api/namespace/index'
+import type { MenuProps } from 'antd'
+import { SearchOutlined, ReloadOutlined, PlusOutlined, ExportOutlined, MoreOutlined } from '@ant-design/icons'
+import { type NamespaceItem, type NamespaceListParams, deleteNamespace, updateNamespaceStatus } from '@/api/namespace/index'
 // import { getNamespaceTableList } from '@/api/namespace/index' // 真实API调用，需要时取消注释
 import dayjs from 'dayjs'
+import DetailForm from './components/DetailForm'
+import DetailView from './components/DetailView'
 
 // 生成模拟数据
 const generateMockData = (): NamespaceItem[] => {
@@ -35,6 +38,7 @@ const generateMockData = (): NamespaceItem[] => {
 }
 
 const NamespaceList: React.FC = () => {
+  const { modal } = App.useApp()
   const [loading, setLoading] = useState(false)
   const [dataSource, setDataSource] = useState<NamespaceItem[]>([])
   const [pagination, setPagination] = useState({
@@ -49,6 +53,11 @@ const NamespaceList: React.FC = () => {
   const [tableHeight, setTableHeight] = useState<number>(0)
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const tableWrapperRef = useRef<HTMLDivElement>(null)
+  const [detailFormOpen, setDetailFormOpen] = useState(false)
+  const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>('create')
+  const [editingData, setEditingData] = useState<NamespaceItem | null>(null)
+  const [detailViewOpen, setDetailViewOpen] = useState(false)
+  const [viewingData, setViewingData] = useState<NamespaceItem | null>(null)
 
   // 获取数据（使用模拟数据）
   const fetchData = async (page?: number, pageSize?: number) => {
@@ -169,7 +178,7 @@ const NamespaceList: React.FC = () => {
           2: { text: '禁用', color: 'error' },
         }
         const statusInfo = statusMap[status] || statusMap[0]
-        return <span style={{ color: statusInfo.color }}>{statusInfo.text}</span>
+        return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>
       },
     },
     {
@@ -186,12 +195,145 @@ const NamespaceList: React.FC = () => {
       width: 180,
       render: (text: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
     },
+    {
+      title: '操作',
+      key: 'action',
+      width: 120,
+      fixed: 'right',
+      render: (_, record) => {
+        const handleStatusClick = () => {
+          // 使用 modal.confirm 自动继承主题配置
+          modal.confirm({
+            title: `确定要${record.status === 1 ? '禁用' : '启用'}吗？`,
+            content: `${record.status === 1 ? '禁用' : '启用'}命名空间 "${record.name}"`,
+            onOk: () => handleStatusChange(record, record.status === 1 ? 2 : 1),
+            okText: '确定',
+            cancelText: '取消',
+          })
+        }
+
+        const menuItems: MenuProps['items'] = [
+          {
+            key: 'detail',
+            label: '详情',
+            onClick: () => handleViewDetail(record),
+          },
+          {
+            key: 'edit',
+            label: '编辑',
+            onClick: () => handleEdit(record),
+          },
+          {
+            key: 'status',
+            label: record.status === 1 ? '禁用' : '启用',
+            onClick: handleStatusClick,
+          },
+        ]
+
+        return (
+          <Space size="small">
+            <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+              <Button type="link" size="small" icon={<MoreOutlined />}>
+                更多
+              </Button>
+            </Dropdown>
+            <Button
+              type="link"
+              danger
+              size="small"
+              onClick={() => {
+                modal.confirm({
+                  title: '确定要删除吗？',
+                  content: `删除命名空间 "${record.name}"`,
+                  onOk: () => handleDelete(record),
+                  okText: '确定',
+                  cancelText: '取消',
+                })
+              }}
+            >
+              删除
+            </Button>
+          </Space>
+        )
+      },
+    },
   ]
 
   // 处理新增
   const handleAdd = () => {
-    // TODO: 实现新增功能
-    console.log('新增命名空间')
+    setDetailFormMode('create')
+    setEditingData(null)
+    setDetailFormOpen(true)
+  }
+
+  // 处理查看详情
+  const handleViewDetail = (record: NamespaceItem) => {
+    setViewingData(record)
+    setDetailViewOpen(true)
+  }
+
+  // 处理编辑
+  const handleEdit = (record: NamespaceItem) => {
+    setDetailFormMode('edit')
+    setEditingData(record)
+    setDetailFormOpen(true)
+  }
+
+  // 从详情页跳转到编辑
+  const handleEditFromDetail = (data: NamespaceItem) => {
+    setDetailViewOpen(false)
+    setDetailFormMode('edit')
+    setEditingData(data)
+    setDetailFormOpen(true)
+  }
+
+  // 处理删除
+  const handleDelete = async (record: NamespaceItem) => {
+    try {
+      // TODO: 接口通后取消注释
+      // await deleteNamespace(record.uid)
+      console.log('删除命名空间:', record.uid)
+      message.success('删除成功')
+      fetchData()
+    } catch (error) {
+      console.error('删除失败:', error)
+      // 错误信息已由 API 拦截器处理
+    }
+  }
+
+  // 处理修改状态
+  const handleStatusChange = async (record: NamespaceItem, newStatus: number) => {
+    try {
+      // TODO: 接口通后取消注释
+      // await updateNamespaceStatus(record.uid, newStatus)
+      console.log('修改状态:', record.uid, newStatus)
+      message.success('状态修改成功')
+      fetchData()
+      // 如果详情页打开，需要更新详情页数据
+      if (detailViewOpen && viewingData && viewingData.uid === record.uid) {
+        const updatedData = dataSource.find(item => item.uid === record.uid)
+        if (updatedData) {
+          setViewingData({ ...updatedData, status: newStatus })
+        }
+      }
+    } catch (error) {
+      console.error('修改状态失败:', error)
+      // 错误信息已由 API 拦截器处理
+    }
+  }
+
+  // 处理详情表单成功回调
+  const handleDetailFormSuccess = () => {
+    // 刷新列表
+    fetchData()
+    // 如果详情页打开，需要更新详情页数据
+    if (detailViewOpen && viewingData) {
+      // 从表格数据中查找对应的数据并更新
+      const updatedData = dataSource.find(item => item.uid === viewingData.uid)
+      if (updatedData) {
+        setViewingData(updatedData)
+      }
+    }
   }
 
   // 处理导出
@@ -240,6 +382,10 @@ const NamespaceList: React.FC = () => {
         }
         
         // 计算表格可用的滚动高度 = 容器高度 - 表头高度 - 分页器高度 - 表格主体 padding
+        console.log('containerHeight', containerHeight)
+        console.log('theadHeight', theadHeight)
+        console.log('paginationHeight', paginationHeight)
+        console.log('tableBodyPadding', tableBodyPadding)
         const calculatedHeight = containerHeight - theadHeight - paginationHeight - tableBodyPadding
         setTableHeight(Math.max(calculatedHeight, 200)) // 最小高度200px
       }
@@ -345,8 +491,28 @@ const NamespaceList: React.FC = () => {
           />
         </div>
       </div>
+      <DetailForm
+        open={detailFormOpen}
+        mode={detailFormMode}
+        initialData={editingData}
+        onCancel={() => setDetailFormOpen(false)}
+        onSuccess={handleDetailFormSuccess}
+      />
+      <DetailView
+        open={detailViewOpen}
+        data={viewingData}
+        onCancel={() => setDetailViewOpen(false)}
+        onEdit={handleEditFromDetail}
+      />
     </div>
   )
 }
 
-export default NamespaceList
+// 使用 App.useApp() 需要包裹在 App 组件中
+export default function NamespaceListWrapper() {
+  return (
+    <App className='h-full'>
+      <NamespaceList />
+    </App>
+  )
+}
