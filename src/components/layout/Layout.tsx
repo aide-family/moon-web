@@ -3,9 +3,10 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from '@ant-design/icons';
-import { Button, Layout, Menu, theme } from 'antd';
+import { Layout, Menu, Breadcrumb, theme } from 'antd';
 import type { MenuProps } from 'antd';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import HeaderComponent from './Header';
 
 const { Header, Sider, Content } = Layout;
 
@@ -71,6 +72,23 @@ const getParentKeys = (items: MenuItem[], targetKey: string, parentKeys: string[
   return [];
 };
 
+// 递归获取面包屑路径
+const getBreadcrumbItems = (items: MenuItem[], targetPath: string, parents: MenuItem[] = []): MenuItem[] => {
+  for (const item of items) {
+    const currentPath = [...parents, item];
+    if (item.path === targetPath) {
+      return currentPath;
+    }
+    if (item.children) {
+      const found = getBreadcrumbItems(item.children, targetPath, currentPath);
+      if (found.length > 0) {
+        return found;
+      }
+    }
+  }
+  return [];
+};
+
 const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
@@ -121,6 +139,12 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
 
   const menuItemsData: MenuProps['items'] = convertMenuItems(menuItems);
 
+  // 生成面包屑数据
+  const breadcrumbItems = getBreadcrumbItems(menuItems, location.pathname);
+  const breadcrumbData = breadcrumbItems.map((item) => ({
+    title: <span>{item.label}</span>,
+  }));
+
   return (
     <Layout className="h-full w-full">
       <Sider trigger={null} collapsible collapsed={collapsed}>
@@ -137,25 +161,24 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
       </Sider>
       <Layout>
         <Header style={{ padding: 0, background: colorBgContainer }}>
-          <div className='flex items-center h-full'>
-            <Button
-              type="text"
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
-              style={{
-                fontSize: '16px',
-                width: 64,
-                height: 64,
-              }}
-            />
-            {header && <div className='flex-1'>{header}</div>}
+          <div className='flex items-center  ml-4 gap-4'>
+            <div onClick={() => setCollapsed(!collapsed)} className='cursor-pointer'>
+              {collapsed ? <i className='text-base'><MenuUnfoldOutlined /></i> : <i className='text-base'><MenuFoldOutlined /></i>}
+            </div>
+            <div className='flex-1 h-full flex items-center'>
+              {header}
+            </div>
+            <HeaderComponent />
           </div>
         </Header>
+          {breadcrumbData.length > 0 && (
+            <div className='mt-4 ml-4'>
+              <Breadcrumb items={breadcrumbData}/>
+            </div>
+          )}
         <Content
+          className='p-4 h-full m-4'
           style={{
-            margin: '24px 16px',
-            padding: 24,
-            minHeight: 280,
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
           }}
