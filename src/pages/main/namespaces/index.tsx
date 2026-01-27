@@ -290,7 +290,7 @@ const NamespaceList: React.FC = () => {
       // TODO: 接口通后取消注释
       // await deleteNamespace(record.uid)
       console.log('删除命名空间:', record.uid)
-      message.success(t('namespace.message.delete.success'))
+      message.success(t('message.delete.success'))
       fetchData()
     } catch (error) {
       console.error('删除失败:', error)
@@ -304,7 +304,7 @@ const NamespaceList: React.FC = () => {
       // TODO: 接口通后取消注释
       // await updateNamespaceStatus(record.uid, newStatus)
       console.log('修改状态:', record.uid, newStatus)
-      message.success(t('namespace.message.status.success'))
+      message.success(t('message.update.success'))
       fetchData()
       // 如果详情页打开，需要更新详情页数据
       if (detailViewOpen && viewingData && viewingData.uid === record.uid) {
@@ -379,10 +379,6 @@ const NamespaceList: React.FC = () => {
         }
         
         // 计算表格可用的滚动高度 = 容器高度 - 表头高度 - 分页器高度 - 表格主体 padding
-        console.log('containerHeight', containerHeight)
-        console.log('theadHeight', theadHeight)
-        console.log('paginationHeight', paginationHeight)
-        console.log('tableBodyPadding', tableBodyPadding)
         const calculatedHeight = containerHeight - theadHeight - paginationHeight - tableBodyPadding
         setTableHeight(Math.max(calculatedHeight, 200)) // 最小高度200px
       }

@@ -43,12 +43,11 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
           metadata = JSON.parse(values.metadata.trim())
           // 确保解析后是对象
           if (typeof metadata !== 'object' || metadata === null || Array.isArray(metadata)) {
-            message.error(t('namespace.form.metadata.invalid'))
+            message.error(t('message.error'))
             setLoading(false)
             return
           }
         } catch (error) {
-          message.error(t('namespace.form.metadata.invalid'))
           setLoading(false)
           return
         }
@@ -62,7 +61,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         // TODO: 接口通后取消注释
         // await createNamespace(params)
         console.log('创建命名空间:', params)
-        message.success(t('namespace.message.create.success'))
+        message.success(t('message.create.success'))
       } else if (mode === 'edit' && initialData) {
         const params: UpdateNamespaceParams = {
           name: values.name,
@@ -71,7 +70,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         // TODO: 接口通后取消注释
         // await updateNamespace(initialData.uid, params)
         console.log('更新命名空间:', initialData.uid, params)
-        message.success(t('namespace.message.update.success'))
+        message.success(t('message.update.success'))
       }
 
       onSuccess()

@@ -31,11 +31,6 @@ export const zhCN = {
   'namespace.detail.createdAt': '创建时间',
   'namespace.detail.updatedAt': '更新时间',
   'namespace.detail.metadata': '元数据',
-  // 消息提示
-  'namespace.message.delete.success': '删除成功',
-  'namespace.message.status.success': '状态修改成功',
-  'namespace.message.create.success': '创建命名空间成功',
-  'namespace.message.update.success': '更新命名空间成功',
 } as const;
 
 export const enUS = {
@@ -68,9 +63,4 @@ export const enUS = {
   'namespace.detail.createdAt': 'Created At',
   'namespace.detail.updatedAt': 'Updated At',
   'namespace.detail.metadata': 'Metadata',
-  // Message
-  'namespace.message.delete.success': 'Deleted successfully',
-  'namespace.message.status.success': 'Status updated successfully',
-  'namespace.message.create.success': 'Namespace created successfully',
-  'namespace.message.update.success': 'Namespace updated successfully',
 } as const;
