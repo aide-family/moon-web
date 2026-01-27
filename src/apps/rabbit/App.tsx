@@ -1,27 +1,34 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { ConfigProvider } from 'antd'
-import { UserOutlined, VideoCameraOutlined } from '@ant-design/icons'
+import { UserOutlined, FileTextOutlined } from '@ant-design/icons'
 import Rabbit1 from '@/pages/rabbit/rabbit1'
+import TemplateManagement from '@/pages/rabbit/templates'
 import LayoutComponent, { type MenuItem } from '@/components/layout/Layout'
 import { isInMicroApp } from '@/utils'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
 
-// 菜单配置（支持多级菜单）
-const menuItems: MenuItem[] = [
-  {
-    key: '1',
-    icon: <UserOutlined />,
-    label: 'Rabbit1',
-    path: '/rabbit1',
-  },
-]
-
 function AppContent() {
   const { themeConfig } = useTheme();
-  const { antdLocale } = useLocale();
+  const { antdLocale, t } = useLocale();
   // 检测是否在微服务环境中
   const inMicroApp = isInMicroApp()
+  
+  // 菜单配置（支持多级菜单）
+  const menuItems: MenuItem[] = [
+    {
+      key: '1',
+      icon: <UserOutlined />,
+      label: 'Rabbit1',
+      path: '/rabbit1',
+    },
+    {
+      key: '2',
+      icon: <FileTextOutlined />,
+      label: t('rabbit.templates.title'),
+      path: '/templates',
+    },
+  ]
   
   // 头部组件示例
   const headerContent = (
@@ -45,6 +52,7 @@ function AppContent() {
           >
             <Route index element={<Navigate to="/rabbit1" replace />} />
             <Route path="/rabbit1" element={<Rabbit1 />} />
+            <Route path="/templates" element={<TemplateManagement />} />
           </Route>
         </Routes>
       </BrowserRouter>

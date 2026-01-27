@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { UserOutlined, AppstoreOutlined, SettingOutlined, DatabaseOutlined } from '@ant-design/icons'
+import { UserOutlined, AppstoreOutlined, SettingOutlined, DatabaseOutlined, FileTextOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
 import NamespaceList from '@/pages/main/namespaces'
 import type { LocaleType } from '@/contexts/LocaleContext'
@@ -90,6 +90,18 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
           devUrl: 'http://localhost:5175/rabbit1',
           prodUrl: 'http://localhost:4175/rabbit1',
           path: '/rabbit/rabbit1',
+        },
+      },
+      {
+        key: 'rabbit-templates',
+        icon: <FileTextOutlined />,
+        label: t('menu.rabbitTemplates'),
+        path: '/rabbit/templates',
+        subApp: {
+          name: 'rabbit-templates',
+          devUrl: 'http://localhost:5175/templates',
+          prodUrl: 'http://localhost:4175/templates',
+          path: '/rabbit/templates',
         },
       },
     ],
