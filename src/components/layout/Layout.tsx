@@ -8,7 +8,7 @@ import type { MenuProps } from 'antd';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import HeaderComponent from './Header';
 
-const { Header, Sider, Content } = Layout;
+const { Header, Sider, Content, Footer } = Layout;
 
 export interface MenuItem {
   key: string;
@@ -148,7 +148,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
   return (
     <Layout className="h-full w-full">
       <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div className="logo h-10 w-full bg-red-500 " />
+        <div className="logo h-16 w-full text-center flex items-center justify-center text-white bg-blue-400" >LOGO</div>
         <Menu
           theme="dark"
           mode="inline"
@@ -160,7 +160,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }}>
+        <Header className='h-16' style={{ padding: 0, background: colorBgContainer }}>
           <div className='flex items-center  ml-4 gap-4'>
             <div onClick={() => setCollapsed(!collapsed)} className='cursor-pointer'>
               {collapsed ? <i className='text-base'><MenuUnfoldOutlined /></i> : <i className='text-base'><MenuFoldOutlined /></i>}
@@ -178,14 +178,21 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
         </Header>
 
         <Content
-          className='p-4 h-full m-4'
+          className='p-4 m-4'
           style={{
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
+            overflow: 'auto',
           }}
         >
           <Outlet />
         </Content>
+        <Footer className='h-12 flex items-center justify-center' style={{background: colorBgContainer}}>
+          <div className='flex items-center justify-center gap-2 text-sm text-gray-500'>
+            <div>Copyright© {new Date().getFullYear()} MOON监控系统</div>
+            <div>贵公网安备52011502009111号 | 黔ICP备19012566号-8</div>
+          </div>
+        </Footer>
       </Layout>
     </Layout>
   );
