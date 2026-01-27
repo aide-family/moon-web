@@ -1,14 +1,14 @@
 // 头部组件
 import React, { useState, useEffect, useRef } from 'react';
-import { Select, Avatar, Dropdown, message, Switch } from 'antd';
+import { Select, Avatar, Dropdown, message } from 'antd';
 import type { MenuProps } from 'antd';
-import { UserOutlined, SunOutlined, MoonOutlined } from '@ant-design/icons';
+import { UserOutlined, SunOutlined, MoonOutlined, DesktopOutlined, BgColorsOutlined } from '@ant-design/icons';
 import { getNamespaceList, type NamespaceItemSelect } from '@/api/namespace/index';
 import { useTheme } from '@/contexts/ThemeContext';
 
 const Header: React.FC = () => {
   // 主题管理
-  const { themeMode, toggleTheme } = useTheme();
+  const { themeMode, setThemeMode } = useTheme();
 
   // 命名空间管理
   const [namespace, setNamespace] = useState<string>(() => {
@@ -98,6 +98,38 @@ const Header: React.FC = () => {
     window.location.href = '/login';
   };
 
+  // 处理主题切换
+  const handleThemeChange = (mode: 'light' | 'dark' | 'system') => {
+    setThemeMode(mode);
+  };
+
+  // 主题下拉菜单项
+  const themeMenuItems: MenuProps['items'] = [
+    {
+      key: 'light',
+      label: '亮色主题',
+      icon: <SunOutlined />,
+      onClick: () => handleThemeChange('light'),
+    },
+    {
+      key: 'dark',
+      label: '暗色主题',
+      icon: <MoonOutlined />,
+      onClick: () => handleThemeChange('dark'),
+    },
+    {
+      key: 'system',
+      label: '跟随系统',
+      icon: <DesktopOutlined />,
+      onClick: () => handleThemeChange('system'),
+    },
+  ];
+
+  // 根据当前主题模式获取图标（使用 BgColorsOutlined 作为主图标，参考 Ant Design 官网）
+  const getThemeIcon = () => {
+    return <BgColorsOutlined />;
+  };
+
   // 用户下拉菜单项
   const userMenuItems: MenuProps['items'] = [
     {
@@ -111,14 +143,17 @@ const Header: React.FC = () => {
   return (
     <div className='flex items-center gap-4 mr-4 h-5'>
       {/* 主题切换 */}
-      <div className='flex items-center gap-2'>
-        <Switch
-          checked={themeMode === 'dark'}
-          onChange={toggleTheme}
-          checkedChildren={<MoonOutlined />}
-          unCheckedChildren={<SunOutlined />}
-        />
-      </div>
+      <Dropdown 
+        menu={{ 
+          items: themeMenuItems,
+          selectedKeys: [themeMode]
+        }} 
+        trigger={['click']}
+      >
+        <div className='flex h-8 items-center justify-center w-8 cursor-pointer hover:opacity-80'>
+          {getThemeIcon()}
+        </div>
+      </Dropdown>
       {/* 命名空间选择 */}
       <Select
         value={namespace}
