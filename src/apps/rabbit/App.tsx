@@ -1,9 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { ConfigProvider } from 'antd'
-import { UserOutlined, FileTextOutlined } from '@ant-design/icons'
+import { UserOutlined, FileTextOutlined, ApiOutlined } from '@ant-design/icons'
 import Rabbit1 from '@/pages/rabbit/rabbit1'
 import TemplateManagement from '@/pages/rabbit/templates'
 import EmailManagement from '@/pages/rabbit/emails'
+import WebhookManagement from '@/pages/rabbit/webhooks'
 import LayoutComponent, { type MenuItem } from '@/components/layout/Layout'
 import { isInMicroApp } from '@/utils'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
@@ -28,6 +29,12 @@ function AppContent() {
       icon: <FileTextOutlined />,
       label: t('rabbit.templates.title'),
       path: '/templates',
+    },
+    {
+      key: '3',
+      icon: <ApiOutlined />,
+      label: t('rabbit.webhooks.title'),
+      path: '/webhooks',
     },
   ]
   
@@ -55,6 +62,7 @@ function AppContent() {
             <Route path="/rabbit1" element={<Rabbit1 />} />
             <Route path="/templates" element={<TemplateManagement />} />
             <Route path="/emails" element={<EmailManagement />} />
+            <Route path="/webhooks" element={<WebhookManagement />} />
           </Route>
         </Routes>
       </BrowserRouter>

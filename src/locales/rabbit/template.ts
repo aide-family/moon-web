@@ -2,6 +2,8 @@
 // 中英文翻译写在一个文件中，便于管理和维护
 
 export const zhCN = {
+  // 菜单标题
+  'rabbit.templates.title': '模板管理',
   // 表格相关（模板模块特定）
   'template.table.uid': 'UID',
   'template.table.name': '名称',
@@ -49,6 +51,8 @@ export const zhCN = {
 } as const;
 
 export const enUS = {
+  // Menu title
+  'rabbit.templates.title': 'Template Management',
   // Table related (Template module specific)
   'template.table.uid': 'UID',
   'template.table.name': 'Name',

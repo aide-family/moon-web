@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { UserOutlined, AppstoreOutlined, SettingOutlined, DatabaseOutlined, FileTextOutlined, MailOutlined } from '@ant-design/icons'
+import { UserOutlined, AppstoreOutlined, SettingOutlined, DatabaseOutlined, FileTextOutlined, MailOutlined, ApiOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
 import NamespaceList from '@/pages/main/namespaces'
 
@@ -115,6 +115,18 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
           path: '/rabbit/emails',
         },
       },
+      {
+        key: 'rabbit-webhooks',
+        icon: <ApiOutlined />,
+        label: t('menu.rabbitWebhooks'),
+        path: '/rabbit/webhooks',
+        subApp: {
+          name: 'rabbit-webhooks',
+          devUrl: 'http://localhost:5175/webhooks',
+          prodUrl: 'http://localhost:4175/webhooks',
+          path: '/rabbit/webhooks',
+        },
+      }
     ],
   },
   {
