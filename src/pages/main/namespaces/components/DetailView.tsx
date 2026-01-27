@@ -33,15 +33,15 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
 
   return (
     <Modal
-      title={t('modal.detail.title')}
+      title={t('namespace.modal.detail.title')}
       open={open}
       onCancel={onCancel}
       footer={
         <Space>
-          <Button onClick={onCancel}>{t('modal.close')}</Button>
+          <Button onClick={onCancel}>{t('common.close')}</Button>
           {data && onEdit && (
             <Button type="primary" onClick={handleEdit}>
-              {t('table.edit')}
+              {t('common.edit')}
             </Button>
           )}
         </Space>
@@ -51,21 +51,21 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
     >
       {data ? (
         <Descriptions column={1} bordered>
-          <Descriptions.Item label={t('detail.uid')}>{data.uid}</Descriptions.Item>
-          <Descriptions.Item label={t('detail.name')}>{data.name || '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('detail.status')}>
+          <Descriptions.Item label={t('namespace.detail.uid')}>{data.uid}</Descriptions.Item>
+          <Descriptions.Item label={t('namespace.detail.name')}>{data.name || '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('table.status')}>
             <Tag color={getStatusInfo(data.status).color}>
               {getStatusInfo(data.status).text}
             </Tag>
           </Descriptions.Item>
-          <Descriptions.Item label={t('detail.createdAt')}>
+          <Descriptions.Item label={t('namespace.detail.createdAt')}>
             {data.createdAt ? dayjs(data.createdAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
           </Descriptions.Item>
-          <Descriptions.Item label={t('detail.updatedAt')}>
+          <Descriptions.Item label={t('namespace.detail.updatedAt')}>
             {data.updatedAt ? dayjs(data.updatedAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
           </Descriptions.Item>
           {data.metadata && Object.keys(data.metadata).length > 0 && (
-            <Descriptions.Item label={t('detail.metadata')}>
+            <Descriptions.Item label={t('namespace.detail.metadata')}>
               <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                 {JSON.stringify(data.metadata, null, 2)}
               </pre>
@@ -73,7 +73,7 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
           )}
         </Descriptions>
       ) : (
-        <div style={{ textAlign: 'center', padding: '40px 0' }}>{t('detail.noData')}</div>
+        <div style={{ textAlign: 'center', padding: '40px 0' }}>{t('common.noData')}</div>
       )}
     </Modal>
   )

@@ -156,13 +156,13 @@ const NamespaceList: React.FC = () => {
   // 表格列定义
   const columns: ColumnsType<NamespaceItem> = [
     {
-      title: t('table.uid'),
+      title: t('namespace.table.uid'),
       dataIndex: 'uid',
       key: 'uid',
       width: 200,
     },
     {
-      title: t('table.name'),
+      title: t('namespace.table.name'),
       dataIndex: 'name',
       key: 'name',
       width: 200,
@@ -183,14 +183,14 @@ const NamespaceList: React.FC = () => {
       },
     },
     {
-      title: t('table.createdAt'),
+      title: t('namespace.table.createdAt'),
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 180,
       render: (text: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
     },
     {
-      title: t('table.updatedAt'),
+      title: t('namespace.table.updatedAt'),
       dataIndex: 'updatedAt',
       key: 'updatedAt',
       width: 180,
@@ -205,18 +205,18 @@ const NamespaceList: React.FC = () => {
         const handleStatusClick = () => {
           const action = record.status === 1 ? t('table.disable') : t('table.enable')
           modal.confirm({
-            title: t('confirm.status.title', { action }),
-            content: t('confirm.status.content', { action, name: record.name }),
+            title: t('namespace.confirm.status.title', { action }),
+            content: t('namespace.confirm.status.content', { action, name: record.name }),
             onOk: () => handleStatusChange(record, record.status === 1 ? 2 : 1),
-            okText: t('confirm.ok'),
-            cancelText: t('confirm.cancel'),
+            okText: t('common.ok'),
+            cancelText: t('common.cancel'),
           })
         }
 
         const menuItems: MenuProps['items'] = [
           {
             key: 'edit',
-            label: t('table.edit'),
+            label: t('common.edit'),
             onClick: () => handleEdit(record),
           },
           {
@@ -226,15 +226,15 @@ const NamespaceList: React.FC = () => {
           },
           {
             key: 'delete',
-            label: t('table.delete'),
+            label: t('common.delete'),
             danger: true,
             onClick: () => {
               modal.confirm({
-                title: t('confirm.delete.title'),
-                content: t('confirm.delete.content', { name: record.name }),
+                title: t('namespace.confirm.delete.title'),
+                content: t('namespace.confirm.delete.content', { name: record.name }),
+                okText: t('common.ok'),
+                cancelText: t('common.cancel'),
                 onOk: () => handleDelete(record),
-                okText: t('confirm.ok'),
-                cancelText: t('confirm.cancel'),
               })
             },
           },
@@ -243,11 +243,11 @@ const NamespaceList: React.FC = () => {
         return (
           <Space size="small">
             <Button type="link" size="small" onClick={() => handleViewDetail(record)}>
-              {t('table.detail')}
+              {t('common.detail')}
             </Button>
             <Dropdown menu={{ items: menuItems }} trigger={['click']}>
               <Button type="link" size="small">
-                {t('table.more')}
+                {t('common.more')}
               </Button>
             </Dropdown>
           </Space>
@@ -290,7 +290,7 @@ const NamespaceList: React.FC = () => {
       // TODO: 接口通后取消注释
       // await deleteNamespace(record.uid)
       console.log('删除命名空间:', record.uid)
-      message.success(t('message.delete.success'))
+      message.success(t('namespace.message.delete.success'))
       fetchData()
     } catch (error) {
       console.error('删除失败:', error)
@@ -304,7 +304,7 @@ const NamespaceList: React.FC = () => {
       // TODO: 接口通后取消注释
       // await updateNamespaceStatus(record.uid, newStatus)
       console.log('修改状态:', record.uid, newStatus)
-      message.success(t('message.status.success'))
+      message.success(t('namespace.message.status.success'))
       fetchData()
       // 如果详情页打开，需要更新详情页数据
       if (detailViewOpen && viewingData && viewingData.uid === record.uid) {
@@ -452,18 +452,18 @@ const NamespaceList: React.FC = () => {
             <Radio.Button value={2}>{t('table.search.disabled')}</Radio.Button>
           </Radio.Group>
           <Button onClick={handleSearch} type="primary">
-            {t('table.search.button')}
+            {t('common.search')}
           </Button>
           <Button onClick={handleReset}>
-            {t('table.reset')}
+            {t('common.reset')}
           </Button>
         </Space>
         <Space>
           <Button type="primary" onClick={handleAdd}>
-            {t('table.add')}
+            {t('common.add')}
           </Button>
           <Button onClick={handleExport}>
-            {t('table.export')}
+            {t('common.export')}
           </Button>
         </Space>
       </div>

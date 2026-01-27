@@ -43,12 +43,12 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
           metadata = JSON.parse(values.metadata.trim())
           // 确保解析后是对象
           if (typeof metadata !== 'object' || metadata === null || Array.isArray(metadata)) {
-            message.error(t('form.metadata.invalid'))
+            message.error(t('namespace.form.metadata.invalid'))
             setLoading(false)
             return
           }
         } catch (error) {
-          message.error(t('form.metadata.invalid'))
+          message.error(t('namespace.form.metadata.invalid'))
           setLoading(false)
           return
         }
@@ -62,7 +62,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         // TODO: 接口通后取消注释
         // await createNamespace(params)
         console.log('创建命名空间:', params)
-        message.success(t('message.create.success'))
+        message.success(t('namespace.message.create.success'))
       } else if (mode === 'edit' && initialData) {
         const params: UpdateNamespaceParams = {
           name: values.name,
@@ -71,7 +71,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         // TODO: 接口通后取消注释
         // await updateNamespace(initialData.uid, params)
         console.log('更新命名空间:', initialData.uid, params)
-        message.success(t('message.update.success'))
+        message.success(t('namespace.message.update.success'))
       }
 
       onSuccess()
@@ -92,13 +92,13 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
 
   return (
     <Modal
-      title={mode === 'create' ? t('modal.create.title') : t('modal.edit.title')}
+      title={mode === 'create' ? t('namespace.modal.create.title') : t('namespace.modal.edit.title')}
       open={open}
       onOk={handleSubmit}
       onCancel={handleCancel}
       confirmLoading={loading}
-      okText={t('modal.ok')}
-      cancelText={t('modal.cancel')}
+      okText={t('common.ok')}
+      cancelText={t('common.cancel')}
       width={600}
       destroyOnClose
     >
@@ -108,25 +108,25 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         autoComplete="off"
       >
         <Form.Item
-          label={t('form.name.label')}
+          label={t('namespace.form.name.label')}
           name="name"
           rules={[
             {
               required: true,
-              message: t('form.name.required'),
+              message: t('namespace.form.name.required'),
             },
             {
               max: 100,
-              message: t('form.name.maxLength'),
+              message: t('namespace.form.name.maxLength'),
             },
           ]}
         >
-          <Input placeholder={t('form.name.placeholder')} />
+          <Input placeholder={t('namespace.form.name.placeholder')} />
         </Form.Item>
         <Form.Item
-          label={t('form.metadata.label')}
+          label={t('namespace.form.metadata.label')}
           name="metadata"
-          help={t('form.metadata.help')}
+          help={t('namespace.form.metadata.help')}
           rules={[
             {
               validator: (_, value) => {
@@ -136,18 +136,18 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
                 try {
                   const parsed = JSON.parse(value.trim())
                   if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-                    return Promise.reject(new Error(t('form.metadata.invalid')))
+                    return Promise.reject(new Error(t('namespace.form.metadata.invalid')))
                   }
                   return Promise.resolve()
                 } catch {
-                  return Promise.reject(new Error(t('form.metadata.invalid')))
+                  return Promise.reject(new Error(t('namespace.form.metadata.invalid')))
                 }
               },
             },
           ]}
         >
           <Input.TextArea
-            placeholder={t('form.metadata.placeholder')}
+            placeholder={t('namespace.form.metadata.placeholder')}
             rows={6}
             style={{ fontFamily: 'monospace' }}
           />

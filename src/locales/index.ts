@@ -1,6 +1,17 @@
-import zhCN from './zh-CN';
-import enUS from './en-US';
+import { zhCN as commonZh, enUS as commonEn } from './common';
+import { zhCN as namespacesZh, enUS as namespacesEn } from './namespaces';
 import type { LocaleType } from '@/contexts/LocaleContext';
+
+// 合并所有模块的翻译资源
+const mergeResources = (...modules: Array<Record<string, string>>): Record<string, string> => {
+  return Object.assign({}, ...modules);
+};
+
+// 中文资源（合并所有模块）
+const zhCN = mergeResources(commonZh, namespacesZh);
+
+// 英文资源（合并所有模块）
+const enUS = mergeResources(commonEn, namespacesEn);
 
 // 语言资源映射
 export const resources: Record<LocaleType, Record<string, string>> = {
@@ -8,6 +19,8 @@ export const resources: Record<LocaleType, Record<string, string>> = {
   'en-US': enUS,
 };
 
-// 导出所有语言资源
+// 导出所有语言资源（兼容旧版本）
 export { default as zhCN } from './zh-CN';
 export { default as enUS } from './en-US';
+export { zhCN as commonZh, enUS as commonEn } from './common';
+export { zhCN as namespacesZh, enUS as namespacesEn } from './namespaces';
