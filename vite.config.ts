@@ -4,12 +4,11 @@ import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 
 // 定义所有应用
-const apps = ['main', 'template', 'test', 'rabbit']
+const apps = ['main', 'test', 'rabbit']
 
 // 应用端口配置
 const appPorts = {
   main: 5172,
-  template: 5173,
   test: 5174,
   rabbit: 5175,
 }
@@ -20,10 +19,6 @@ export default defineConfig(({ mode }) => {
   const appName = process.env.APP_NAME
   const env = loadEnv(mode, process.cwd())
   const appUrls = {
-    template: {
-      v1: env.VITE_V1_TEMPLATE_API || '',
-      health: env.VITE_HEALTH_TEMPLATE_API || '',
-    },
     test: {
       v1: env.VITE_V1_TEST_API || '',
       health: env.VITE_HEALTH_TEST_API || '',

@@ -43,38 +43,6 @@ export interface AppConfigItem {
  */
 export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
   {
-    key: 'template',
-    icon: <AppstoreOutlined />,
-    label: t('menu.template'),
-    path: '/template',
-    children: [
-      {
-        key: 'template1',
-        icon: <AppstoreOutlined />,
-        label: t('menu.template1'),
-        path: '/template/template1',
-        subApp: {
-          name: 'template1',
-          devUrl: 'http://localhost:5173/template1',
-          prodUrl: 'http://localhost:4173/template1',
-          path: '/template/template1',
-        },
-      },
-      {
-        key: 'template2',
-        icon: <AppstoreOutlined />,
-        label: t('menu.template2'),
-        path: '/template/template2',
-        subApp: {
-          name: 'template2',
-          devUrl: 'http://localhost:5173/template2',
-          prodUrl: 'http://localhost:4173/template2',
-          path: '/template/template2',
-        },
-      },
-    ],
-  },
-  {
     key: 'test',
     icon: <UserOutlined />,
     label: t('menu.test'),

@@ -16,9 +16,6 @@ export const zhCN = {
   'language.zh': '中文',
   'language.en': 'English',
   // 菜单相关
-  'menu.template': '模板应用',
-  'menu.template1': '模板应用1',
-  'menu.template2': '模板应用2',
   'menu.test': '测试应用',
   'menu.test1': '测试应用1',
   'menu.test2': '测试应用2',
@@ -83,9 +80,6 @@ export const enUS = {
   'language.zh': '中文',
   'language.en': 'English',
   // Menu related
-  'menu.template': 'Template App',
-  'menu.template1': 'Template App 1',
-  'menu.template2': 'Template App 2',
   'menu.test': 'Test App',
   'menu.test1': 'Test App 1',
   'menu.test2': 'Test App 2',
