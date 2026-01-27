@@ -1,6 +1,5 @@
 import React from 'react'
 import { Modal, Descriptions, Tag, Button, Space } from 'antd'
-import { EditOutlined } from '@ant-design/icons'
 import type { NamespaceItem } from '@/api/namespace/index'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -41,7 +40,7 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
         <Space>
           <Button onClick={onCancel}>{t('modal.close')}</Button>
           {data && onEdit && (
-            <Button type="primary" icon={<EditOutlined />} onClick={handleEdit}>
+            <Button type="primary" onClick={handleEdit}>
               {t('table.edit')}
             </Button>
           )}

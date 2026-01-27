@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
-import { SearchOutlined, ReloadOutlined, PlusOutlined, ExportOutlined } from '@ant-design/icons'
 import { type NamespaceItem, type NamespaceListParams } from '@/api/namespace/index'
 // import { getNamespaceTableList } from '@/api/namespace/index' // 真实API调用，需要时取消注释
 import dayjs from 'dayjs'
@@ -452,18 +451,18 @@ const NamespaceList: React.FC = () => {
             <Radio.Button value={1}>{t('table.search.enabled')}</Radio.Button>
             <Radio.Button value={2}>{t('table.search.disabled')}</Radio.Button>
           </Radio.Group>
-          <Button icon={<SearchOutlined />} onClick={handleSearch} type="primary">
+          <Button onClick={handleSearch} type="primary">
             {t('table.search.button')}
           </Button>
-          <Button icon={<ReloadOutlined />} onClick={handleReset}>
+          <Button onClick={handleReset}>
             {t('table.reset')}
           </Button>
         </Space>
         <Space>
-          <Button icon={<PlusOutlined />} type="primary" onClick={handleAdd}>
+          <Button type="primary" onClick={handleAdd}>
             {t('table.add')}
           </Button>
-          <Button icon={<ExportOutlined />} onClick={handleExport}>
+          <Button onClick={handleExport}>
             {t('table.export')}
           </Button>
         </Space>
