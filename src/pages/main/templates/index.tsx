@@ -1,64 +1,87 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App } from 'antd'
+import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App, Select } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
-import { type NamespaceItem, type NamespaceListParams } from '@/api/namespace/index'
-// import { getNamespaceTableList } from '@/api/namespace/index' // 真实API调用，需要时取消注释
+import { type TemplateItem, type TemplateListParams } from '@/api/template/index'
+// import { getTemplateTableList } from '@/api/template/index' // 真实API调用，需要时取消注释
 import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
-import DetailView from './components/DetailView'
+import DetailView from './components/DetailView.tsx'
 import { useLocale } from '@/contexts/LocaleContext'
+import { getAppOptions, getAppLabel } from './constants'
 
 // 生成模拟数据
-const generateMockData = (): NamespaceItem[] => {
-  const mockData: NamespaceItem[] = []
-  const names = ['生产环境', '测试环境', '开发环境', '预发布环境', '演示环境', '沙箱环境', 'UAT环境', 'SIT环境', '生产备份', '测试备份']
+const generateMockData = (): TemplateItem[] => {
+  const mockData: TemplateItem[] = []
+  const names = ['邮件通知模板', '短信验证码模板', 'Webhook通知模板', '告警模板', '欢迎邮件模板', '密码重置模板', '订单确认模板', '系统通知模板', '营销邮件模板', '活动邀请模板']
   const statuses = [1, 1, 1, 2, 1, 2, 1, 1, 2, 1] // 混合启用和禁用状态
+  const apps = ['qq', 'feishu', 'wechat', 'dingtalk', 'email', 'sms', 'webhook', 'qq', 'feishu', 'wechat']
   
   for (let i = 0; i < 50; i++) {
     const nameIndex = i % names.length
     const status = statuses[nameIndex] || (i % 3 === 0 ? 1 : i % 3 === 1 ? 2 : 1)
+    const app = apps[nameIndex] || apps[i % apps.length]
     const createdAt = dayjs().subtract(Math.floor(Math.random() * 365), 'day').subtract(Math.floor(Math.random() * 24), 'hour')
     const updatedAt = createdAt.add(Math.floor(Math.random() * 30), 'day')
     
+    // 生成不同类型的 jsonData
+    let jsonData = '{}'
+    if (i % 3 === 0) {
+      // Email 模板
+      jsonData = JSON.stringify({
+        subject: '邮件主题',
+        body: '邮件内容',
+        content_type: 'text/html',
+        headers: { 'X-Custom-Header': ['value1'] }
+      })
+    } else if (i % 3 === 1) {
+      // SMS 模板
+      jsonData = JSON.stringify({
+        content: '短信内容',
+        params: { code: '123456' }
+      })
+    } else {
+      // Webhook 模板
+      jsonData = JSON.stringify({})
+    }
+    
     mockData.push({
-      uid: `ns-${String(i + 1).padStart(6, '0')}`,
+      uid: `tpl-${String(i + 1).padStart(6, '0')}`,
       name: `${names[nameIndex]}${i >= names.length ? `-${Math.floor(i / names.length) + 1}` : ''}`,
+      app,
+      jsonData,
       status,
       createdAt: createdAt.toISOString(),
       updatedAt: updatedAt.toISOString(),
-      metadata: {
-        description: `这是${names[nameIndex]}的命名空间`,
-        owner: `user-${Math.floor(Math.random() * 10) + 1}`,
-      },
     })
   }
   
   return mockData
 }
 
-const NamespaceList: React.FC = () => {
+const TemplateListContent: React.FC = () => {
   const { modal } = App.useApp()
   const { t } = useLocale()
   const [loading, setLoading] = useState(false)
-  const [dataSource, setDataSource] = useState<NamespaceItem[]>([])
+  const [dataSource, setDataSource] = useState<TemplateItem[]>([])
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
     total: 0,
   })
-  const [searchParams, setSearchParams] = useState<NamespaceListParams>({
+  const [searchParams, setSearchParams] = useState<TemplateListParams>({
     keyword: '',
     status: undefined,
+    app: undefined,
   })
   const [tableHeight, setTableHeight] = useState<number>(0)
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const tableWrapperRef = useRef<HTMLDivElement>(null)
   const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>('create')
-  const [editingData, setEditingData] = useState<NamespaceItem | null>(null)
+  const [editingData, setEditingData] = useState<TemplateItem | null>(null)
   const [detailViewOpen, setDetailViewOpen] = useState(false)
-  const [viewingData, setViewingData] = useState<NamespaceItem | null>(null)
+  const [viewingData, setViewingData] = useState<TemplateItem | null>(null)
 
   // 获取数据（使用模拟数据）
   const fetchData = async (page?: number, pageSize?: number) => {
@@ -88,6 +111,11 @@ const NamespaceList: React.FC = () => {
         allData = allData.filter(item => item.status === searchParams.status)
       }
       
+      // 应用过滤
+      if (searchParams.app !== undefined) {
+        allData = allData.filter(item => item.app === searchParams.app)
+      }
+      
       // 分页处理
       const total = allData.length
       const start = (currentPage - 1) * currentPageSize
@@ -104,13 +132,14 @@ const NamespaceList: React.FC = () => {
       
       // 如果需要使用真实API，取消下面的注释并注释掉上面的模拟数据逻辑
       /*
-      const params: NamespaceListParams = {
+      const params: TemplateListParams = {
         page: pagination.current,
         pageSize: pagination.pageSize,
         keyword: searchParams.keyword || undefined,
         status: searchParams.status,
+        app: searchParams.app,
       }
-      const response = await getNamespaceTableList(params)
+      const response = await getTemplateTableList(params)
       if (response) {
         setDataSource(response.items || [])
         setPagination(prev => ({
@@ -120,7 +149,7 @@ const NamespaceList: React.FC = () => {
       }
       */
     } catch (error) {
-      console.error('获取命名空间列表失败:', error)
+      console.error('获取模板列表失败:', error)
     } finally {
       setLoading(false)
     }
@@ -137,6 +166,7 @@ const NamespaceList: React.FC = () => {
     setSearchParams({
       keyword: '',
       status: undefined,
+      app: undefined,
     })
     setPagination({
       current: 1,
@@ -154,18 +184,25 @@ const NamespaceList: React.FC = () => {
   }
 
   // 表格列定义
-  const columns: ColumnsType<NamespaceItem> = [
+  const columns: ColumnsType<TemplateItem> = [
     {
-      title: t('namespace.table.uid'),
+      title: t('template.table.uid'),
       dataIndex: 'uid',
       key: 'uid',
       minWidth: 60,
     },
     {
-      title: t('namespace.table.name'),
+      title: t('template.table.name'),
       dataIndex: 'name',
       key: 'name',
       minWidth: 120,
+    },
+    {
+      title: t('template.table.app'),
+      dataIndex: 'app',
+      key: 'app',
+      minWidth: 60,
+      render: (app: string) => getAppLabel(app, t),
     },
     {
       title: t('table.status'),
@@ -183,14 +220,14 @@ const NamespaceList: React.FC = () => {
       },
     },
     {
-      title: t('namespace.table.createdAt'),
+      title: t('template.table.createdAt'),
       dataIndex: 'createdAt',
       key: 'createdAt',
       minWidth: 100,
       render: (text: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
     },
     {
-      title: t('namespace.table.updatedAt'),
+      title: t('template.table.updatedAt'),
       dataIndex: 'updatedAt',
       key: 'updatedAt',
       minWidth: 100,
@@ -199,17 +236,27 @@ const NamespaceList: React.FC = () => {
     {
       title: t('table.action'),
       key: 'action',
-      width: 120,
       fixed: 'right',
+      width: 120,
       render: (_, record) => {
         const handleStatusClick = () => {
           const action = record.status === 1 ? t('table.disable') : t('table.enable')
           modal.confirm({
-            title: t('namespace.confirm.status.title', { action }),
-            content: t('namespace.confirm.status.content', { action, name: record.name }),
+            title: t('template.confirm.status.title', { action }),
+            content: t('template.confirm.status.content', { action, name: record.name }),
             onOk: () => handleStatusChange(record, record.status === 1 ? 2 : 1),
             okText: t('common.ok'),
             cancelText: t('common.cancel'),
+          })
+        }
+
+        const handleDeleteClick = () => {
+          modal.confirm({
+            title: t('template.confirm.delete.title'),
+            content: t('template.confirm.delete.content', { name: record.name }),
+            okText: t('common.ok'),
+            cancelText: t('common.cancel'),
+            onOk: () => handleDelete(record),
           })
         }
 
@@ -228,15 +275,7 @@ const NamespaceList: React.FC = () => {
             key: 'delete',
             label: t('common.delete'),
             danger: true,
-            onClick: () => {
-              modal.confirm({
-                title: t('namespace.confirm.delete.title'),
-                content: t('namespace.confirm.delete.content', { name: record.name }),
-                okText: t('common.ok'),
-                cancelText: t('common.cancel'),
-                onOk: () => handleDelete(record),
-              })
-            },
+            onClick: handleDeleteClick,
           },
         ]
 
@@ -264,20 +303,20 @@ const NamespaceList: React.FC = () => {
   }
 
   // 处理查看详情
-  const handleViewDetail = (record: NamespaceItem) => {
+  const handleViewDetail = (record: TemplateItem) => {
     setViewingData(record)
     setDetailViewOpen(true)
   }
 
   // 处理编辑
-  const handleEdit = (record: NamespaceItem) => {
+  const handleEdit = (record: TemplateItem) => {
     setDetailFormMode('edit')
     setEditingData(record)
     setDetailFormOpen(true)
   }
 
   // 从详情页跳转到编辑
-  const handleEditFromDetail = (data: NamespaceItem) => {
+  const handleEditFromDetail = (data: TemplateItem) => {
     setDetailViewOpen(false)
     setDetailFormMode('edit')
     setEditingData(data)
@@ -285,11 +324,11 @@ const NamespaceList: React.FC = () => {
   }
 
   // 处理删除
-  const handleDelete = async (record: NamespaceItem) => {
+  const handleDelete = async (record: TemplateItem) => {
     try {
       // TODO: 接口通后取消注释
-      // await deleteNamespace(record.uid)
-      console.log('删除命名空间:', record.uid)
+      // await deleteTemplate(record.uid)
+      console.log('删除模板:', record.uid)
       message.success(t('message.delete.success'))
       fetchData()
     } catch (error) {
@@ -299,19 +338,16 @@ const NamespaceList: React.FC = () => {
   }
 
   // 处理修改状态
-  const handleStatusChange = async (record: NamespaceItem, newStatus: number) => {
+  const handleStatusChange = async (record: TemplateItem, newStatus: number) => {
     try {
       // TODO: 接口通后取消注释
-      // await updateNamespaceStatus(record.uid, newStatus)
+      // await updateTemplateStatus(record.uid, newStatus)
       console.log('修改状态:', record.uid, newStatus)
       message.success(t('message.update.success'))
       fetchData()
       // 如果详情页打开，需要更新详情页数据
-      if (detailViewOpen && viewingData && viewingData.uid === record.uid) {
-        const updatedData = dataSource.find(item => item.uid === record.uid)
-        if (updatedData) {
-          setViewingData({ ...updatedData, status: newStatus })
-        }
+      if (viewingData && viewingData.uid === record.uid) {
+        setViewingData({ ...viewingData, status: newStatus })
       }
     } catch (error) {
       console.error('修改状态失败:', error)
@@ -319,64 +355,33 @@ const NamespaceList: React.FC = () => {
     }
   }
 
-  // 处理详情表单成功回调
-  const handleDetailFormSuccess = () => {
-    // 刷新列表
-    fetchData()
-    // 如果详情页打开，需要更新详情页数据
-    if (detailViewOpen && viewingData) {
-      // 从表格数据中查找对应的数据并更新
-      const updatedData = dataSource.find(item => item.uid === viewingData.uid)
-      if (updatedData) {
-        setViewingData(updatedData)
-      }
-    }
-  }
-
   // 处理导出
   const handleExport = () => {
-    // TODO: 实现导出功能
-    console.log('导出命名空间')
+    message.info(t('common.export'))
   }
 
-  // 计算表格高度（自动获取分页器高度、表头高度和 margin）
+  // 处理表单成功
+  const handleFormSuccess = () => {
+    fetchData()
+  }
+
+  // 初始化加载数据
   useEffect(() => {
-    const updateTableHeight = () => {
+    fetchData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // 计算表格高度
+  useEffect(() => {
+    const calculateTableHeight = () => {
       if (tableContainerRef.current && tableWrapperRef.current) {
         const containerHeight = tableContainerRef.current.clientHeight
+        const thead = tableWrapperRef.current.querySelector('.ant-table-thead')
+        const pagination = tableWrapperRef.current.querySelector('.ant-pagination')
         
-        // 查找表头元素（Ant Design Table 的表头）
-        const theadElement = tableWrapperRef.current.querySelector('.ant-table-thead')
-        let theadHeight = 0
-        if (theadElement) {
-          const theadRect = theadElement.getBoundingClientRect()
-          const theadStyle = window.getComputedStyle(theadElement)
-          const theadMarginBottom = parseFloat(theadStyle.marginBottom) || 0
-          theadHeight = theadRect.height + theadMarginBottom
-        }
-        
-        // 查找分页器元素（Ant Design Table 的分页器）
-        const paginationElement = tableWrapperRef.current.querySelector('.ant-pagination')
-        let paginationHeight = 0
-        
-        if (paginationElement) {
-          // 获取分页器的实际高度（包括 margin）
-          const paginationRect = paginationElement.getBoundingClientRect()
-          const paginationStyle = window.getComputedStyle(paginationElement)
-          const marginTop = parseFloat(paginationStyle.marginTop) || 0
-          const marginBottom = parseFloat(paginationStyle.marginBottom) || 0
-          paginationHeight = paginationRect.height + marginTop + marginBottom
-        }
-        
-        // 查找表格主体容器，获取其 padding
-        const tableBodyElement = tableWrapperRef.current.querySelector('.ant-table-body')
-        let tableBodyPadding = 0
-        if (tableBodyElement) {
-          const bodyStyle = window.getComputedStyle(tableBodyElement)
-          const paddingTop = parseFloat(bodyStyle.paddingTop) || 0
-          const paddingBottom = parseFloat(bodyStyle.paddingBottom) || 0
-          tableBodyPadding = paddingTop + paddingBottom
-        }
+        const theadHeight = thead ? (thead as HTMLElement).offsetHeight : 0
+        const paginationHeight = pagination ? (pagination as HTMLElement).offsetHeight : 0
+        const tableBodyPadding = 16 * 2 // 上下各16px
         
         // 计算表格可用的滚动高度 = 容器高度 - 表头高度 - 分页器高度 - 表格主体 padding
         const calculatedHeight = containerHeight - theadHeight - paginationHeight - tableBodyPadding
@@ -384,59 +389,24 @@ const NamespaceList: React.FC = () => {
       }
     }
 
-    // 初始计算（延迟一下确保 DOM 已渲染）
-    const timer = setTimeout(updateTableHeight, 100)
-
-    // 使用 ResizeObserver 监听容器大小变化
-    let resizeObserver: ResizeObserver | null = null
-    if (tableContainerRef.current) {
-      resizeObserver = new ResizeObserver(() => {
-        // 延迟一下，确保分页器已渲染
-        setTimeout(updateTableHeight, 0)
-      })
-      resizeObserver.observe(tableContainerRef.current)
-    }
-
-    // 使用 MutationObserver 监听分页器变化（比如分页器显示/隐藏、内容变化）
-    let mutationObserver: MutationObserver | null = null
-    if (tableWrapperRef.current) {
-      mutationObserver = new MutationObserver(() => {
-        setTimeout(updateTableHeight, 0)
-      })
-      mutationObserver.observe(tableWrapperRef.current, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['style', 'class'],
-      })
-    }
-
-    // 监听窗口大小变化
-    window.addEventListener('resize', updateTableHeight)
-
+    calculateTableHeight()
+    window.addEventListener('resize', calculateTableHeight)
     return () => {
-      clearTimeout(timer)
-      if (resizeObserver) {
-        resizeObserver.disconnect()
-      }
-      if (mutationObserver) {
-        mutationObserver.disconnect()
-      }
-      window.removeEventListener('resize', updateTableHeight)
+      window.removeEventListener('resize', calculateTableHeight)
     }
-  }, [dataSource, pagination]) // 当数据或分页变化时重新计算
+  }, [dataSource])
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="mb-4 flex justify-between items-start shrink-0">
+    <div className="flex flex-col h-full">
+      {/* 搜索和操作栏 */}
+      <div className="flex items-center justify-between mb-4 shrink-0">
         <Space size="middle" wrap>
           <Input
             placeholder={t('table.search.placeholder')}
-            allowClear
-            className='w-50'
             value={searchParams.keyword}
             onChange={(e) => setSearchParams(prev => ({ ...prev, keyword: e.target.value }))}
             onPressEnter={handleSearch}
+            className='w-50'
           />
           <Radio.Group
             value={searchParams.status}
@@ -447,6 +417,14 @@ const NamespaceList: React.FC = () => {
             <Radio.Button value={1}>{t('table.search.enabled')}</Radio.Button>
             <Radio.Button value={2}>{t('table.search.disabled')}</Radio.Button>
           </Radio.Group>
+          <Select
+            placeholder={t('template.search.app.placeholder')}
+            value={searchParams.app}
+            onChange={(value) => setSearchParams(prev => ({ ...prev, app: value || undefined }))}
+            className='w-30'
+            allowClear
+            options={getAppOptions(t)}
+          />
           <Button onClick={handleSearch} type="primary">
             {t('common.search')}
           </Button>
@@ -470,31 +448,42 @@ const NamespaceList: React.FC = () => {
             dataSource={dataSource}
             rowKey="uid"
             loading={loading}
-            size="small"
-            scroll={{ y: tableHeight, x: 'max-content' }}
             pagination={{
               current: pagination.current,
               pageSize: pagination.pageSize,
               total: pagination.total,
               showSizeChanger: true,
+              showQuickJumper: true,
               showTotal: (total) => t('table.total', { total }),
               onChange: handleTableChange,
               onShowSizeChange: handleTableChange,
             }}
+            scroll={{ y: tableHeight, x: 'max-content' }}
+            size="middle"
           />
         </div>
       </div>
+
+      {/* 详情表单弹窗 */}
       <DetailForm
         open={detailFormOpen}
         mode={detailFormMode}
         initialData={editingData}
-        onCancel={() => setDetailFormOpen(false)}
-        onSuccess={handleDetailFormSuccess}
+        onCancel={() => {
+          setDetailFormOpen(false)
+          setEditingData(null)
+        }}
+        onSuccess={handleFormSuccess}
       />
+
+      {/* 详情查看弹窗 */}
       <DetailView
         open={detailViewOpen}
         data={viewingData}
-        onCancel={() => setDetailViewOpen(false)}
+        onCancel={() => {
+          setDetailViewOpen(false)
+          setViewingData(null)
+        }}
         onEdit={handleEditFromDetail}
       />
     </div>
@@ -502,10 +491,10 @@ const NamespaceList: React.FC = () => {
 }
 
 // 使用 App.useApp() 需要包裹在 App 组件中
-export default function NamespaceListWrapper() {
+export default function TemplateList() {
   return (
     <App className='h-full'>
-      <NamespaceList />
+      <TemplateListContent />
     </App>
   )
 }
