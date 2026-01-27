@@ -73,6 +73,10 @@ export default {
   'form.name.placeholder': '请输入命名空间名称',
   'form.name.maxLength': '名称长度不能超过100个字符',
   'form.name.required': '请输入名称',
+  'form.metadata.label': '元数据',
+  'form.metadata.placeholder': '请输入JSON格式的元数据，例如：{"description": "描述信息", "owner": "所有者"}',
+  'form.metadata.invalid': '请输入有效的JSON格式',
+  'form.metadata.help': '元数据为JSON格式，可以为空',
   // 详情相关
   'detail.uid': 'UID',
   'detail.name': '名称',

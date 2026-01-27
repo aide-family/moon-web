@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
-import { SearchOutlined, ReloadOutlined, PlusOutlined, ExportOutlined, MoreOutlined } from '@ant-design/icons'
-import { type NamespaceItem, type NamespaceListParams, deleteNamespace, updateNamespaceStatus } from '@/api/namespace/index'
+import { SearchOutlined, ReloadOutlined, PlusOutlined, ExportOutlined } from '@ant-design/icons'
+import { type NamespaceItem, type NamespaceListParams } from '@/api/namespace/index'
 // import { getNamespaceTableList } from '@/api/namespace/index' // 真实API调用，需要时取消注释
 import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
@@ -200,7 +200,7 @@ const NamespaceList: React.FC = () => {
     {
       title: t('table.action'),
       key: 'action',
-      width: 120,
+      width: 180,
       fixed: 'right',
       render: (_, record) => {
         const handleStatusClick = () => {
@@ -216,11 +216,6 @@ const NamespaceList: React.FC = () => {
 
         const menuItems: MenuProps['items'] = [
           {
-            key: 'detail',
-            label: t('table.detail'),
-            onClick: () => handleViewDetail(record),
-          },
-          {
             key: 'edit',
             label: t('table.edit'),
             onClick: () => handleEdit(record),
@@ -230,31 +225,32 @@ const NamespaceList: React.FC = () => {
             label: record.status === 1 ? t('table.disable') : t('table.enable'),
             onClick: handleStatusClick,
           },
+          {
+            key: 'delete',
+            label: t('table.delete'),
+            danger: true,
+            onClick: () => {
+              modal.confirm({
+                title: t('confirm.delete.title'),
+                content: t('confirm.delete.content', { name: record.name }),
+                onOk: () => handleDelete(record),
+                okText: t('confirm.ok'),
+                cancelText: t('confirm.cancel'),
+              })
+            },
+          },
         ]
 
         return (
           <Space size="small">
+            <Button type="link" size="small" onClick={() => handleViewDetail(record)}>
+              {t('table.detail')}
+            </Button>
             <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-              <Button type="link" size="small" icon={<MoreOutlined />}>
+              <Button type="link" size="small">
                 {t('table.more')}
               </Button>
             </Dropdown>
-            <Button
-              type="link"
-              danger
-              size="small"
-              onClick={() => {
-                modal.confirm({
-                  title: t('confirm.delete.title'),
-                  content: t('confirm.delete.content', { name: record.name }),
-                  onOk: () => handleDelete(record),
-                  okText: t('confirm.ok'),
-                  cancelText: t('confirm.cancel'),
-                })
-              }}
-            >
-              {t('table.delete')}
-            </Button>
           </Space>
         )
       },

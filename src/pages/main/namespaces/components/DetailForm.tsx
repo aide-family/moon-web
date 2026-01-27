@@ -22,6 +22,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
     if (open && mode === 'edit' && initialData) {
       form.setFieldsValue({
         name: initialData.name,
+        metadata: initialData.metadata ? JSON.stringify(initialData.metadata, null, 2) : '',
       })
     } else if (open && mode === 'create') {
       // 新增模式，重置表单
@@ -35,9 +36,28 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
       const values = await form.validateFields()
       setLoading(true)
 
+      // 解析元数据
+      let metadata: Record<string, unknown> | undefined = undefined
+      if (values.metadata && values.metadata.trim()) {
+        try {
+          metadata = JSON.parse(values.metadata.trim())
+          // 确保解析后是对象
+          if (typeof metadata !== 'object' || metadata === null || Array.isArray(metadata)) {
+            message.error(t('form.metadata.invalid'))
+            setLoading(false)
+            return
+          }
+        } catch (error) {
+          message.error(t('form.metadata.invalid'))
+          setLoading(false)
+          return
+        }
+      }
+
       if (mode === 'create') {
         const params: CreateNamespaceParams = {
           name: values.name,
+          metadata,
         }
         // TODO: 接口通后取消注释
         // await createNamespace(params)
@@ -46,6 +66,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
       } else if (mode === 'edit' && initialData) {
         const params: UpdateNamespaceParams = {
           name: values.name,
+          metadata,
         }
         // TODO: 接口通后取消注释
         // await updateNamespace(initialData.uid, params)
@@ -101,6 +122,35 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
           ]}
         >
           <Input placeholder={t('form.name.placeholder')} />
+        </Form.Item>
+        <Form.Item
+          label={t('form.metadata.label')}
+          name="metadata"
+          help={t('form.metadata.help')}
+          rules={[
+            {
+              validator: (_, value) => {
+                if (!value || !value.trim()) {
+                  return Promise.resolve()
+                }
+                try {
+                  const parsed = JSON.parse(value.trim())
+                  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+                    return Promise.reject(new Error(t('form.metadata.invalid')))
+                  }
+                  return Promise.resolve()
+                } catch {
+                  return Promise.reject(new Error(t('form.metadata.invalid')))
+                }
+              },
+            },
+          ]}
+        >
+          <Input.TextArea
+            placeholder={t('form.metadata.placeholder')}
+            rows={6}
+            style={{ fontFamily: 'monospace' }}
+          />
         </Form.Item>
       </Form>
     </Modal>

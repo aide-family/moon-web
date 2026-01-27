@@ -73,6 +73,10 @@ export default {
   'form.name.placeholder': 'Please enter namespace name',
   'form.name.maxLength': 'Name cannot exceed 100 characters',
   'form.name.required': 'Please enter name',
+  'form.metadata.label': 'Metadata',
+  'form.metadata.placeholder': 'Please enter metadata in JSON format, e.g.: {"description": "Description", "owner": "Owner"}',
+  'form.metadata.invalid': 'Please enter valid JSON format',
+  'form.metadata.help': 'Metadata is in JSON format and can be empty',
   // Detail related
   'detail.uid': 'UID',
   'detail.name': 'Name',
