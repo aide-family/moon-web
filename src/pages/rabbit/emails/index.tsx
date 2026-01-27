@@ -370,7 +370,7 @@ const EmailListContent: React.FC = () => {
         
         // 计算表格可用的滚动高度 = 容器高度 - 表头高度 - 分页器高度 - 表格主体 padding
         const calculatedHeight = containerHeight - theadHeight - paginationHeight - tableBodyPadding
-        setTableHeight(Math.max(calculatedHeight, 200)) // 最小高度200px
+        setTableHeight(Math.max(calculatedHeight, 100)) // 最小高度100px
       }
     }
 
@@ -418,7 +418,7 @@ const EmailListContent: React.FC = () => {
           </Button>
         </Space>
       </div>
-      <div ref={tableContainerRef} className="flex-1 flex flex-col" style={{ minHeight: 0 }}>
+      <div ref={tableContainerRef} className="flex-1 flex overflow-hidden flex-col" style={{ minHeight: 0 }}>
         <div ref={tableWrapperRef} className="h-full flex flex-col">
           <Table
             columns={columns}

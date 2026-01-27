@@ -117,7 +117,7 @@ function SubAppContainer({
   }
 
   return (
-    <div>
+    <div className="h-full w-full">
       {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
       {/* @ts-ignore - micro-app 是自定义元素 */}
       <micro-app
