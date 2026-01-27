@@ -1,55 +1,35 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App, Select } from 'antd'
+import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
-import { type TemplateItem, type TemplateListParams } from '@/api/template/index'
-// import { getTemplateTableList } from '@/api/template/index' // 真实API调用，需要时取消注释
+import { type EmailItem, type EmailListParams } from '@/api/email/index'
+// import { getEmailTableList } from '@/api/email/index' // 真实API调用，需要时取消注释
 import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
-import DetailView from './components/DetailView.tsx'
+import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
-import { getAppOptions, getAppLabel } from './constants'
 
 // 生成模拟数据
-const generateMockData = (): TemplateItem[] => {
-  const mockData: TemplateItem[] = []
-  const names = ['邮件通知模板', '短信验证码模板', 'Webhook通知模板', '告警模板', '欢迎邮件模板', '密码重置模板', '订单确认模板', '系统通知模板', '营销邮件模板', '活动邀请模板']
+const generateMockData = (): EmailItem[] => {
+  const mockData: EmailItem[] = []
+  const names = ['生产环境邮件配置', '测试环境邮件配置', '开发环境邮件配置', '预发布环境邮件配置', '演示环境邮件配置', '沙箱环境邮件配置', 'UAT环境邮件配置', 'SIT环境邮件配置', '生产备份邮件配置', '测试备份邮件配置']
   const statuses = [1, 1, 1, 2, 1, 2, 1, 1, 2, 1] // 混合启用和禁用状态
-  const apps = ['qq', 'feishu', 'wechat', 'dingtalk', 'email', 'sms', 'webhook', 'qq', 'feishu', 'wechat']
+  const hosts = ['smtp.example.com', 'smtp.test.com', 'smtp.dev.com', 'smtp.staging.com', 'smtp.demo.com', 'smtp.sandbox.com', 'smtp.uat.com', 'smtp.sit.com', 'smtp.prod-backup.com', 'smtp.test-backup.com']
+  const ports = [25, 587, 465, 25, 587, 465, 25, 587, 465, 25]
   
   for (let i = 0; i < 50; i++) {
     const nameIndex = i % names.length
     const status = statuses[nameIndex] || (i % 3 === 0 ? 1 : i % 3 === 1 ? 2 : 1)
-    const app = apps[nameIndex] || apps[i % apps.length]
     const createdAt = dayjs().subtract(Math.floor(Math.random() * 365), 'day').subtract(Math.floor(Math.random() * 24), 'hour')
     const updatedAt = createdAt.add(Math.floor(Math.random() * 30), 'day')
     
-    // 生成不同类型的 jsonData
-    let jsonData = '{}'
-    if (i % 3 === 0) {
-      // Email 模板
-      jsonData = JSON.stringify({
-        subject: '邮件主题',
-        body: '邮件内容',
-        content_type: 'text/html',
-        headers: { 'X-Custom-Header': ['value1'] }
-      })
-    } else if (i % 3 === 1) {
-      // SMS 模板
-      jsonData = JSON.stringify({
-        content: '短信内容',
-        params: { code: '123456' }
-      })
-    } else {
-      // Webhook 模板
-      jsonData = JSON.stringify({})
-    }
-    
     mockData.push({
-      uid: `tpl-${String(i + 1).padStart(6, '0')}`,
+      uid: `email-${String(i + 1).padStart(6, '0')}`,
       name: `${names[nameIndex]}${i >= names.length ? `-${Math.floor(i / names.length) + 1}` : ''}`,
-      app,
-      jsonData,
+      host: hosts[nameIndex] || hosts[i % hosts.length],
+      port: ports[nameIndex] || ports[i % ports.length],
+      username: `user${i + 1}@example.com`,
+      password: '******',
       status,
       createdAt: createdAt.toISOString(),
       updatedAt: updatedAt.toISOString(),
@@ -59,29 +39,28 @@ const generateMockData = (): TemplateItem[] => {
   return mockData
 }
 
-const TemplateListContent: React.FC = () => {
+const EmailListContent: React.FC = () => {
   const { modal } = App.useApp()
   const { t } = useLocale()
   const [loading, setLoading] = useState(false)
-  const [dataSource, setDataSource] = useState<TemplateItem[]>([])
+  const [dataSource, setDataSource] = useState<EmailItem[]>([])
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
     total: 0,
   })
-  const [searchParams, setSearchParams] = useState<TemplateListParams>({
+  const [searchParams, setSearchParams] = useState<EmailListParams>({
     keyword: '',
     status: undefined,
-    app: undefined,
   })
   const [tableHeight, setTableHeight] = useState<number>(0)
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const tableWrapperRef = useRef<HTMLDivElement>(null)
   const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>('create')
-  const [editingData, setEditingData] = useState<TemplateItem | null>(null)
+  const [editingData, setEditingData] = useState<EmailItem | null>(null)
   const [detailViewOpen, setDetailViewOpen] = useState(false)
-  const [viewingData, setViewingData] = useState<TemplateItem | null>(null)
+  const [viewingData, setViewingData] = useState<EmailItem | null>(null)
 
   // 获取数据（使用模拟数据）
   const fetchData = async (page?: number, pageSize?: number) => {
@@ -102,18 +81,15 @@ const TemplateListContent: React.FC = () => {
         const keyword = searchParams.keyword.toLowerCase()
         allData = allData.filter(item => 
           item.name.toLowerCase().includes(keyword) || 
-          item.uid.toLowerCase().includes(keyword)
+          item.uid.toLowerCase().includes(keyword) ||
+          item.host.toLowerCase().includes(keyword) ||
+          item.username.toLowerCase().includes(keyword)
         )
       }
       
       // 状态过滤
       if (searchParams.status !== undefined) {
         allData = allData.filter(item => item.status === searchParams.status)
-      }
-      
-      // 应用过滤
-      if (searchParams.app !== undefined) {
-        allData = allData.filter(item => item.app === searchParams.app)
       }
       
       // 分页处理
@@ -132,14 +108,13 @@ const TemplateListContent: React.FC = () => {
       
       // 如果需要使用真实API，取消下面的注释并注释掉上面的模拟数据逻辑
       /*
-      const params: TemplateListParams = {
+      const params: EmailListParams = {
         page: pagination.current,
         pageSize: pagination.pageSize,
         keyword: searchParams.keyword || undefined,
         status: searchParams.status,
-        app: searchParams.app,
       }
-      const response = await getTemplateTableList(params)
+      const response = await getEmailTableList(params)
       if (response) {
         setDataSource(response.items || [])
         setPagination(prev => ({
@@ -149,7 +124,7 @@ const TemplateListContent: React.FC = () => {
       }
       */
     } catch (error) {
-      console.error('获取模板列表失败:', error)
+      console.error('获取邮件配置列表失败:', error)
     } finally {
       setLoading(false)
     }
@@ -166,7 +141,6 @@ const TemplateListContent: React.FC = () => {
     setSearchParams({
       keyword: '',
       status: undefined,
-      app: undefined,
     })
     setPagination({
       current: 1,
@@ -184,25 +158,36 @@ const TemplateListContent: React.FC = () => {
   }
 
   // 表格列定义
-  const columns: ColumnsType<TemplateItem> = [
+  const columns: ColumnsType<EmailItem> = [
     {
-      title: t('template.table.uid'),
+      title: t('email.table.uid'),
       dataIndex: 'uid',
       key: 'uid',
       minWidth: 60,
     },
     {
-      title: t('template.table.name'),
+      title: t('email.table.name'),
       dataIndex: 'name',
       key: 'name',
       minWidth: 120,
     },
     {
-      title: t('template.table.app'),
-      dataIndex: 'app',
-      key: 'app',
+      title: t('email.table.host'),
+      dataIndex: 'host',
+      key: 'host',
       minWidth: 60,
-      render: (app: string) => getAppLabel(app, t),
+    },
+    {
+      title: t('email.table.port'),
+      dataIndex: 'port',
+      key: 'port',
+      minWidth: 120,
+    },
+    {
+      title: t('email.table.username'),
+      dataIndex: 'username',
+      key: 'username',
+      minWidth: 120,
     },
     {
       title: t('table.status'),
@@ -220,14 +205,14 @@ const TemplateListContent: React.FC = () => {
       },
     },
     {
-      title: t('template.table.createdAt'),
+      title: t('email.table.createdAt'),
       dataIndex: 'createdAt',
       key: 'createdAt',
       minWidth: 100,
       render: (text: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
     },
     {
-      title: t('template.table.updatedAt'),
+      title: t('email.table.updatedAt'),
       dataIndex: 'updatedAt',
       key: 'updatedAt',
       minWidth: 100,
@@ -236,14 +221,14 @@ const TemplateListContent: React.FC = () => {
     {
       title: t('table.action'),
       key: 'action',
-      fixed: 'right',
       width: 120,
+      fixed: 'right',
       render: (_, record) => {
         const handleStatusClick = () => {
           const action = record.status === 1 ? t('table.disable') : t('table.enable')
           modal.confirm({
-            title: t('template.confirm.status.title', { action }),
-            content: t('template.confirm.status.content', { action, name: record.name }),
+            title: t('email.confirm.status.title', { action }),
+            content: t('email.confirm.status.content', { action, name: record.name }),
             onOk: () => handleStatusChange(record, record.status === 1 ? 2 : 1),
             okText: t('common.ok'),
             cancelText: t('common.cancel'),
@@ -252,8 +237,8 @@ const TemplateListContent: React.FC = () => {
 
         const handleDeleteClick = () => {
           modal.confirm({
-            title: t('template.confirm.delete.title'),
-            content: t('template.confirm.delete.content', { name: record.name }),
+            title: t('email.confirm.delete.title'),
+            content: t('email.confirm.delete.content', { name: record.name }),
             okText: t('common.ok'),
             cancelText: t('common.cancel'),
             onOk: () => handleDelete(record),
@@ -303,20 +288,20 @@ const TemplateListContent: React.FC = () => {
   }
 
   // 处理查看详情
-  const handleViewDetail = (record: TemplateItem) => {
+  const handleViewDetail = (record: EmailItem) => {
     setViewingData(record)
     setDetailViewOpen(true)
   }
 
   // 处理编辑
-  const handleEdit = (record: TemplateItem) => {
+  const handleEdit = (record: EmailItem) => {
     setDetailFormMode('edit')
     setEditingData(record)
     setDetailFormOpen(true)
   }
 
   // 从详情页跳转到编辑
-  const handleEditFromDetail = (data: TemplateItem) => {
+  const handleEditFromDetail = (data: EmailItem) => {
     setDetailViewOpen(false)
     setDetailFormMode('edit')
     setEditingData(data)
@@ -324,11 +309,11 @@ const TemplateListContent: React.FC = () => {
   }
 
   // 处理删除
-  const handleDelete = async (record: TemplateItem) => {
+  const handleDelete = async (record: EmailItem) => {
     try {
       // TODO: 接口通后取消注释
-      // await deleteTemplate(record.uid)
-      console.log('删除模板:', record.uid)
+      // await deleteEmail(record.uid)
+      console.log('删除邮件配置:', record.uid)
       message.success(t('message.delete.success'))
       fetchData()
     } catch (error) {
@@ -338,10 +323,10 @@ const TemplateListContent: React.FC = () => {
   }
 
   // 处理修改状态
-  const handleStatusChange = async (record: TemplateItem, newStatus: number) => {
+  const handleStatusChange = async (record: EmailItem, newStatus: number) => {
     try {
       // TODO: 接口通后取消注释
-      // await updateTemplateStatus(record.uid, newStatus)
+      // await updateEmailStatus(record.uid, newStatus)
       console.log('修改状态:', record.uid, newStatus)
       message.success(t('message.update.success'))
       fetchData()
@@ -417,14 +402,6 @@ const TemplateListContent: React.FC = () => {
             <Radio.Button value={1}>{t('table.search.enabled')}</Radio.Button>
             <Radio.Button value={2}>{t('table.search.disabled')}</Radio.Button>
           </Radio.Group>
-          <Select
-            placeholder={t('template.search.app.placeholder')}
-            value={searchParams.app}
-            onChange={(value) => setSearchParams(prev => ({ ...prev, app: value || undefined }))}
-            className='w-30'
-            allowClear
-            options={getAppOptions(t)}
-          />
           <Button onClick={handleSearch} type="primary">
             {t('common.search')}
           </Button>
@@ -491,10 +468,10 @@ const TemplateListContent: React.FC = () => {
 }
 
 // 使用 App.useApp() 需要包裹在 App 组件中
-export default function TemplateList() {
+export default function EmailList() {
   return (
     <App className='h-full'>
-      <TemplateListContent />
+      <EmailListContent />
     </App>
   )
 }

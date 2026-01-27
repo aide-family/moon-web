@@ -1,6 +1,7 @@
 import { zhCN as commonZh, enUS as commonEn } from './common';
 import { zhCN as namespacesZh, enUS as namespacesEn } from './namespaces';
-import { zhCN as rabbitZh, enUS as rabbitEn } from './rabbit';
+import { zhCN as rabbitZh, enUS as rabbitEn } from './rabbit/template';
+import { zhCN as emailZh, enUS as emailEn } from './rabbit/email';
 import type { LocaleType } from '@/contexts/LocaleContext';
 
 // 合并所有模块的翻译资源
@@ -9,10 +10,10 @@ const mergeResources = (...modules: Array<Record<string, string>>): Record<strin
 };
 
 // 中文资源（合并所有模块）
-const zhCN = mergeResources(commonZh, namespacesZh, rabbitZh);
+const zhCN = mergeResources(commonZh, namespacesZh, rabbitZh, emailZh);
 
 // 英文资源（合并所有模块）
-const enUS = mergeResources(commonEn, namespacesEn, rabbitEn);
+const enUS = mergeResources(commonEn, namespacesEn, rabbitEn, emailEn);
 
 // 语言资源映射
 export const resources: Record<LocaleType, Record<string, string>> = {
@@ -25,4 +26,5 @@ export { default as zhCN } from './zh-CN';
 export { default as enUS } from './en-US';
 export { zhCN as commonZh, enUS as commonEn } from './common';
 export { zhCN as namespacesZh, enUS as namespacesEn } from './namespaces';
-export { zhCN as rabbitZh, enUS as rabbitEn } from './rabbit';
+export { zhCN as rabbitZh, enUS as rabbitEn } from './rabbit/template';
+export { zhCN as emailZh, enUS as emailEn } from './rabbit/email';

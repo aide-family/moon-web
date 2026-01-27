@@ -1,9 +1,7 @@
 import { ReactNode } from 'react'
-import { UserOutlined, AppstoreOutlined, SettingOutlined, DatabaseOutlined, FileTextOutlined } from '@ant-design/icons'
+import { UserOutlined, AppstoreOutlined, SettingOutlined, DatabaseOutlined, FileTextOutlined, MailOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
 import NamespaceList from '@/pages/main/namespaces'
-import TemplateList from '@/pages/main/templates'
-import type { LocaleType } from '@/contexts/LocaleContext'
 
 /**
  * 子应用配置
@@ -98,7 +96,24 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         icon: <FileTextOutlined />,
         label: t('menu.rabbitTemplates'),
         path: '/rabbit/templates',
-        element: <TemplateList />,
+        subApp: {
+          name: 'rabbit-templates',
+          devUrl: 'http://localhost:5175/templates',
+          prodUrl: 'http://localhost:4175/templates',
+          path: '/rabbit/templates',
+        },
+      },
+      {
+        key: 'rabbit-emails',
+        icon: <MailOutlined />,
+        label: t('menu.rabbitEmails'),
+        path: '/rabbit/emails',
+        subApp: {
+          name: 'rabbit-emails',
+          devUrl: 'http://localhost:5175/emails',
+          prodUrl: 'http://localhost:4175/emails',
+          path: '/rabbit/emails',
+        },
       },
     ],
   },

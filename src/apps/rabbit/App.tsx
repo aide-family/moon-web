@@ -3,6 +3,7 @@ import { ConfigProvider } from 'antd'
 import { UserOutlined, FileTextOutlined } from '@ant-design/icons'
 import Rabbit1 from '@/pages/rabbit/rabbit1'
 import TemplateManagement from '@/pages/rabbit/templates'
+import EmailManagement from '@/pages/rabbit/emails'
 import LayoutComponent, { type MenuItem } from '@/components/layout/Layout'
 import { isInMicroApp } from '@/utils'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
@@ -53,6 +54,7 @@ function AppContent() {
             <Route index element={<Navigate to="/rabbit1" replace />} />
             <Route path="/rabbit1" element={<Rabbit1 />} />
             <Route path="/templates" element={<TemplateManagement />} />
+            <Route path="/emails" element={<EmailManagement />} />
           </Route>
         </Routes>
       </BrowserRouter>

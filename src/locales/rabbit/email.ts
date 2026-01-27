@@ -1,0 +1,96 @@
+// 邮件管理翻译
+// 中英文翻译写在一个文件中，便于管理和维护
+
+export const zhCN = {
+  // 表格相关（邮件模块特定）
+  'email.table.uid': 'UID',
+  'email.table.name': '名称',
+  'email.table.host': '主机',
+  'email.table.port': '端口',
+  'email.table.username': '用户名',
+  'email.table.createdAt': '创建时间',
+  'email.table.updatedAt': '更新时间',
+  // 确认对话框
+  'email.confirm.delete.title': '确定要删除吗？',
+  'email.confirm.delete.content': '删除邮件配置 "{name}"',
+  'email.confirm.status.title': '确定要{action}吗？',
+  'email.confirm.status.content': '{action}邮件配置 "{name}"',
+  // 弹窗相关
+  'email.modal.create.title': '新增邮件配置',
+  'email.modal.edit.title': '编辑邮件配置',
+  'email.modal.detail.title': '邮件配置详情',
+  // 表单相关
+  'email.form.name.label': '名称',
+  'email.form.name.placeholder': '请输入邮件配置名称',
+  'email.form.name.maxLength': '名称长度不能超过100个字符',
+  'email.form.name.required': '请输入名称',
+  'email.form.host.label': '主机',
+  'email.form.host.placeholder': '请输入SMTP主机地址，例如：smtp.example.com',
+  'email.form.host.required': '请输入主机地址',
+  'email.form.port.label': '端口',
+  'email.form.port.placeholder': '请输入端口号',
+  'email.form.port.required': '请输入端口号',
+  'email.form.port.range': '端口号必须在1-65535之间',
+  'email.form.username.label': '用户名',
+  'email.form.username.placeholder': '请输入SMTP用户名',
+  'email.form.username.required': '请输入用户名',
+  'email.form.password.label': '密码',
+  'email.form.password.placeholder': '请输入SMTP密码',
+  'email.form.password.required': '请输入密码',
+  // 详情相关
+  'email.detail.uid': 'UID',
+  'email.detail.name': '名称',
+  'email.detail.host': '主机',
+  'email.detail.port': '端口',
+  'email.detail.username': '用户名',
+  'email.detail.password': '密码',
+  'email.detail.createdAt': '创建时间',
+  'email.detail.updatedAt': '更新时间',
+} as const;
+
+export const enUS = {
+  // Table related (Email module specific)
+  'email.table.uid': 'UID',
+  'email.table.name': 'Name',
+  'email.table.host': 'Host',
+  'email.table.port': 'Port',
+  'email.table.username': 'Username',
+  'email.table.createdAt': 'Created At',
+  'email.table.updatedAt': 'Updated At',
+  // Confirm dialog
+  'email.confirm.delete.title': 'Are you sure to delete?',
+  'email.confirm.delete.content': 'Delete email config "{name}"',
+  'email.confirm.status.title': 'Are you sure to {action}?',
+  'email.confirm.status.content': '{action} email config "{name}"',
+  // Modal related
+  'email.modal.create.title': 'Create Email Config',
+  'email.modal.edit.title': 'Edit Email Config',
+  'email.modal.detail.title': 'Email Config Detail',
+  // Form related
+  'email.form.name.label': 'Name',
+  'email.form.name.placeholder': 'Please enter email config name',
+  'email.form.name.maxLength': 'Name cannot exceed 100 characters',
+  'email.form.name.required': 'Please enter name',
+  'email.form.host.label': 'Host',
+  'email.form.host.placeholder': 'Please enter SMTP host address, e.g.: smtp.example.com',
+  'email.form.host.required': 'Please enter host address',
+  'email.form.port.label': 'Port',
+  'email.form.port.placeholder': 'Please enter port number',
+  'email.form.port.required': 'Please enter port number',
+  'email.form.port.range': 'Port number must be between 1-65535',
+  'email.form.username.label': 'Username',
+  'email.form.username.placeholder': 'Please enter SMTP username',
+  'email.form.username.required': 'Please enter username',
+  'email.form.password.label': 'Password',
+  'email.form.password.placeholder': 'Please enter SMTP password',
+  'email.form.password.required': 'Please enter password',
+  // Detail related
+  'email.detail.uid': 'UID',
+  'email.detail.name': 'Name',
+  'email.detail.host': 'Host',
+  'email.detail.port': 'Port',
+  'email.detail.username': 'Username',
+  'email.detail.password': 'Password',
+  'email.detail.createdAt': 'Created At',
+  'email.detail.updatedAt': 'Updated At',
+} as const;
