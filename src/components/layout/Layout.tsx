@@ -165,17 +165,18 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
             <div onClick={() => setCollapsed(!collapsed)} className='cursor-pointer'>
               {collapsed ? <i className='text-base'><MenuUnfoldOutlined /></i> : <i className='text-base'><MenuFoldOutlined /></i>}
             </div>
+            {breadcrumbData.length > 0 && (
+              <div >
+                <Breadcrumb items={breadcrumbData} />
+              </div>
+            )}
             <div className='flex-1 h-full flex items-center'>
               {header}
             </div>
             <HeaderComponent />
           </div>
         </Header>
-          {breadcrumbData.length > 0 && (
-            <div className='mt-4 ml-4'>
-              <Breadcrumb items={breadcrumbData}/>
-            </div>
-          )}
+
         <Content
           className='p-4 h-full m-4'
           style={{

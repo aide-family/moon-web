@@ -185,11 +185,7 @@ function generateRoutes(config: typeof appConfig): React.ReactNode[] {
 
 function AppContent() {
   const { themeConfig } = useTheme();
-  const headerContent = (
-    <div className='flex items-center'>
-      <h2 className='text-2xl font-bold'>主应用</h2>
-    </div>
-  )
+
 
   // 动态生成路由
   const routes = useMemo(() => generateRoutes(appConfig), [])
@@ -203,7 +199,7 @@ function AppContent() {
         <Routes>
           <Route
             path="/"
-            element={<LayoutComponent menuItems={menuItems} header={headerContent} />}
+            element={<LayoutComponent menuItems={menuItems} />}
           >
             <Route index element={<Navigate to={defaultPath} replace />} />
             {routes}

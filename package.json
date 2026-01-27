@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "clean": "rm -rf node_modules/.vite",
+    "clean": "node -e \"require('fs').rmSync('node_modules/.vite',{recursive:true,force:true})\"",
     "dev": "concurrently \"npm run dev:main\" \"npm run dev:template\" \"npm run dev:test\"",
     "dev:main": "cross-env APP_NAME=main vite",
     "dev:template": "cross-env APP_NAME=template vite",
