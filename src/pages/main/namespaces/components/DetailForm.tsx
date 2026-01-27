@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Modal, Form, Input, message } from 'antd'
 import type { CreateNamespaceParams, UpdateNamespaceParams, NamespaceItem } from '@/api/namespace/index'
 import { createNamespace, updateNamespace } from '@/api/namespace/index'
+import { useLocale } from '@/contexts/LocaleContext'
 
 interface DetailFormProps {
   open: boolean
@@ -12,6 +13,7 @@ interface DetailFormProps {
 }
 
 const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCancel, onSuccess }) => {
+  const { t } = useLocale()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
 
@@ -40,7 +42,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         // TODO: 接口通后取消注释
         // await createNamespace(params)
         console.log('创建命名空间:', params)
-        message.success('创建命名空间成功')
+        message.success(t('message.create.success'))
       } else if (mode === 'edit' && initialData) {
         const params: UpdateNamespaceParams = {
           name: values.name,
@@ -48,7 +50,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         // TODO: 接口通后取消注释
         // await updateNamespace(initialData.uid, params)
         console.log('更新命名空间:', initialData.uid, params)
-        message.success('更新命名空间成功')
+        message.success(t('message.update.success'))
       }
 
       onSuccess()
@@ -69,11 +71,13 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
 
   return (
     <Modal
-      title={mode === 'create' ? '新增命名空间' : '编辑命名空间'}
+      title={mode === 'create' ? t('modal.create.title') : t('modal.edit.title')}
       open={open}
       onOk={handleSubmit}
       onCancel={handleCancel}
       confirmLoading={loading}
+      okText={t('modal.ok')}
+      cancelText={t('modal.cancel')}
       width={600}
       destroyOnClose
     >
@@ -83,16 +87,20 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         autoComplete="off"
       >
         <Form.Item
-          label="名称"
+          label={t('form.name.label')}
           name="name"
           rules={[
             {
+              required: true,
+              message: t('form.name.required'),
+            },
+            {
               max: 100,
-              message: '名称长度不能超过100个字符',
+              message: t('form.name.maxLength'),
             },
           ]}
         >
-          <Input placeholder="请输入命名空间名称" />
+          <Input placeholder={t('form.name.placeholder')} />
         </Form.Item>
       </Form>
     </Modal>

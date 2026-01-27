@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { ConfigProvider } from 'antd'
-import zhCN from 'antd/locale/zh_CN'
 import { UserOutlined, VideoCameraOutlined } from '@ant-design/icons'
 import Test1 from '@/pages/test/test1'
 import Test2 from '@/pages/test/test2'
 import LayoutComponent, { type MenuItem } from '@/components/layout/Layout'
 import { isInMicroApp } from '@/utils'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
+import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
 
 // 菜单配置（支持多级菜单）
 const menuItems: MenuItem[] = [
@@ -26,6 +26,7 @@ const menuItems: MenuItem[] = [
 
 function AppContent() {
   const { themeConfig } = useTheme();
+  const { antdLocale } = useLocale();
   // 检测是否在微服务环境中
   const inMicroApp = isInMicroApp()
   
@@ -40,7 +41,7 @@ function AppContent() {
 
   return (
     <ConfigProvider
-      locale={zhCN}
+      locale={antdLocale}
       theme={themeConfig}
     >
       <BrowserRouter>
@@ -61,9 +62,11 @@ function AppContent() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
+    <LocaleProvider>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
+    </LocaleProvider>
   )
 }
 

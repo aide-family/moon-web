@@ -7,6 +7,7 @@ import { Layout, Menu, Breadcrumb, theme } from 'antd';
 import type { MenuProps } from 'antd';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import HeaderComponent from './Header';
+import { useLocale } from '@/contexts/LocaleContext';
 
 const { Header, Sider, Content, Footer } = Layout;
 
@@ -93,6 +94,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLocale();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -189,8 +191,8 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
         </Content>
         <Footer className='h-12 flex items-center justify-center' style={{background: colorBgContainer}}>
           <div className='flex items-center justify-center gap-2 text-sm text-gray-500'>
-            <div>Copyright© {new Date().getFullYear()} MOON监控系统</div>
-            <div>贵公网安备52011502009111号 | 黔ICP备19012566号-8</div>
+            <div>{t('footer.copyright', { year: new Date().getFullYear() })}</div>
+            <div>{t('footer.icp')}</div>
           </div>
         </Footer>
       </Layout>

@@ -8,6 +8,7 @@ import { type NamespaceItem, type NamespaceListParams, deleteNamespace, updateNa
 import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
+import { useLocale } from '@/contexts/LocaleContext'
 
 // 生成模拟数据
 const generateMockData = (): NamespaceItem[] => {
@@ -39,6 +40,7 @@ const generateMockData = (): NamespaceItem[] => {
 
 const NamespaceList: React.FC = () => {
   const { modal } = App.useApp()
+  const { t } = useLocale()
   const [loading, setLoading] = useState(false)
   const [dataSource, setDataSource] = useState<NamespaceItem[]>([])
   const [pagination, setPagination] = useState({
@@ -155,77 +157,77 @@ const NamespaceList: React.FC = () => {
   // 表格列定义
   const columns: ColumnsType<NamespaceItem> = [
     {
-      title: 'UID',
+      title: t('table.uid'),
       dataIndex: 'uid',
       key: 'uid',
       width: 200,
     },
     {
-      title: '名称',
+      title: t('table.name'),
       dataIndex: 'name',
       key: 'name',
       width: 200,
     },
     {
-      title: '状态',
+      title: t('table.status'),
       dataIndex: 'status',
       key: 'status',
       width: 100,
       render: (status: number) => {
         const statusMap: Record<number, { text: string; color: string }> = {
-          0: { text: '未知', color: 'default' },
-          1: { text: '启用', color: 'success' },
-          2: { text: '禁用', color: 'error' },
+          0: { text: t('table.unknown'), color: 'default' },
+          1: { text: t('table.enable'), color: 'success' },
+          2: { text: t('table.disable'), color: 'error' },
         }
         const statusInfo = statusMap[status] || statusMap[0]
         return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>
       },
     },
     {
-      title: '创建时间',
+      title: t('table.createdAt'),
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 180,
       render: (text: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
     },
     {
-      title: '更新时间',
+      title: t('table.updatedAt'),
       dataIndex: 'updatedAt',
       key: 'updatedAt',
       width: 180,
       render: (text: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
     },
     {
-      title: '操作',
+      title: t('table.action'),
       key: 'action',
       width: 120,
       fixed: 'right',
       render: (_, record) => {
         const handleStatusClick = () => {
-          // 使用 modal.confirm 自动继承主题配置
+          const action = record.status === 1 ? t('table.disable') : t('table.enable')
           modal.confirm({
-            title: `确定要${record.status === 1 ? '禁用' : '启用'}吗？`,
-            content: `${record.status === 1 ? '禁用' : '启用'}命名空间 "${record.name}"`,
+            title: t('confirm.status.title', { action }),
+            content: t('confirm.status.content', { action, name: record.name }),
             onOk: () => handleStatusChange(record, record.status === 1 ? 2 : 1),
-            okText: '确定',
-            cancelText: '取消',
+            okText: t('confirm.ok'),
+            cancelText: t('confirm.cancel'),
           })
         }
 
         const menuItems: MenuProps['items'] = [
           {
             key: 'detail',
-            label: '详情',
+            label: t('table.detail'),
             onClick: () => handleViewDetail(record),
           },
           {
             key: 'edit',
-            label: '编辑',
+            label: t('table.edit'),
             onClick: () => handleEdit(record),
           },
           {
             key: 'status',
-            label: record.status === 1 ? '禁用' : '启用',
+            label: record.status === 1 ? t('table.disable') : t('table.enable'),
             onClick: handleStatusClick,
           },
         ]
@@ -234,7 +236,7 @@ const NamespaceList: React.FC = () => {
           <Space size="small">
             <Dropdown menu={{ items: menuItems }} trigger={['click']}>
               <Button type="link" size="small" icon={<MoreOutlined />}>
-                更多
+                {t('table.more')}
               </Button>
             </Dropdown>
             <Button
@@ -243,15 +245,15 @@ const NamespaceList: React.FC = () => {
               size="small"
               onClick={() => {
                 modal.confirm({
-                  title: '确定要删除吗？',
-                  content: `删除命名空间 "${record.name}"`,
+                  title: t('confirm.delete.title'),
+                  content: t('confirm.delete.content', { name: record.name }),
                   onOk: () => handleDelete(record),
-                  okText: '确定',
-                  cancelText: '取消',
+                  okText: t('confirm.ok'),
+                  cancelText: t('confirm.cancel'),
                 })
               }}
             >
-              删除
+              {t('table.delete')}
             </Button>
           </Space>
         )
@@ -293,7 +295,7 @@ const NamespaceList: React.FC = () => {
       // TODO: 接口通后取消注释
       // await deleteNamespace(record.uid)
       console.log('删除命名空间:', record.uid)
-      message.success('删除成功')
+      message.success(t('message.delete.success'))
       fetchData()
     } catch (error) {
       console.error('删除失败:', error)
@@ -307,7 +309,7 @@ const NamespaceList: React.FC = () => {
       // TODO: 接口通后取消注释
       // await updateNamespaceStatus(record.uid, newStatus)
       console.log('修改状态:', record.uid, newStatus)
-      message.success('状态修改成功')
+      message.success(t('message.status.success'))
       fetchData()
       // 如果详情页打开，需要更新详情页数据
       if (detailViewOpen && viewingData && viewingData.uid === record.uid) {
@@ -438,7 +440,7 @@ const NamespaceList: React.FC = () => {
       <div className="mb-4 flex justify-between items-start shrink-0">
         <Space size="middle" wrap>
           <Input
-            placeholder="请输入关键字"
+            placeholder={t('table.search.placeholder')}
             allowClear
             className='w-50'
             value={searchParams.keyword}
@@ -450,23 +452,23 @@ const NamespaceList: React.FC = () => {
             onChange={(e) => setSearchParams(prev => ({ ...prev, status: e.target.value }))}
             buttonStyle="solid"
           >
-            <Radio.Button value={undefined}>全部</Radio.Button>
-            <Radio.Button value={1}>启用</Radio.Button>
-            <Radio.Button value={2}>禁用</Radio.Button>
+            <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
+            <Radio.Button value={1}>{t('table.search.enabled')}</Radio.Button>
+            <Radio.Button value={2}>{t('table.search.disabled')}</Radio.Button>
           </Radio.Group>
           <Button icon={<SearchOutlined />} onClick={handleSearch} type="primary">
-            搜索
+            {t('table.search.button')}
           </Button>
           <Button icon={<ReloadOutlined />} onClick={handleReset}>
-            重置
+            {t('table.reset')}
           </Button>
         </Space>
         <Space>
           <Button icon={<PlusOutlined />} type="primary" onClick={handleAdd}>
-            新增
+            {t('table.add')}
           </Button>
           <Button icon={<ExportOutlined />} onClick={handleExport}>
-            导出
+            {t('table.export')}
           </Button>
         </Space>
       </div>
@@ -484,7 +486,7 @@ const NamespaceList: React.FC = () => {
               pageSize: pagination.pageSize,
               total: pagination.total,
               showSizeChanger: true,
-              showTotal: (total) => `共 ${total} 条`,
+              showTotal: (total) => t('table.total', { total }),
               onChange: handleTableChange,
               onShowSizeChange: handleTableChange,
             }}

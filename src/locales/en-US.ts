@@ -1,0 +1,87 @@
+// English language resources
+export default {
+  // Theme related
+  'theme.light': 'Light Theme',
+  'theme.dark': 'Dark Theme',
+  'theme.system': 'Follow System',
+  // User related
+  'user.logout': 'Logout',
+  'user.defaultName': 'User',
+  'logout.success': 'Logged out successfully',
+  // Namespace related
+  'namespace.select': 'Select Namespace',
+  // Language related
+  'language.zh': '中文',
+  'language.en': 'English',
+  // Menu related
+  'menu.template': 'Template App',
+  'menu.template1': 'Template App 1',
+  'menu.template2': 'Template App 2',
+  'menu.test': 'Test App',
+  'menu.test1': 'Test App 1',
+  'menu.test2': 'Test App 2',
+  'menu.namespaces': 'Namespaces',
+  'menu.settings': 'Settings',
+  'menu.settings1': 'Settings 1',
+  'menu.settings2': 'Settings 2',
+  // Table related
+  'table.uid': 'UID',
+  'table.name': 'Name',
+  'table.status': 'Status',
+  'table.createdAt': 'Created At',
+  'table.updatedAt': 'Updated At',
+  'table.action': 'Action',
+  'table.more': 'More',
+  'table.detail': 'Detail',
+  'table.edit': 'Edit',
+  'table.delete': 'Delete',
+  'table.enable': 'Enable',
+  'table.disable': 'Disable',
+  'table.unknown': 'Unknown',
+  'table.search.placeholder': 'Please enter keyword',
+  'table.search.all': 'All',
+  'table.search.enabled': 'Enabled',
+  'table.search.disabled': 'Disabled',
+  'table.search.button': 'Search',
+  'table.reset': 'Reset',
+  'table.add': 'Add',
+  'table.export': 'Export',
+  'table.total': 'Total {total} items',
+  // Confirm dialog
+  'confirm.delete.title': 'Are you sure to delete?',
+  'confirm.delete.content': 'Delete namespace "{name}"',
+  'confirm.status.title': 'Are you sure to {action}?',
+  'confirm.status.content': '{action} namespace "{name}"',
+  'confirm.ok': 'OK',
+  'confirm.cancel': 'Cancel',
+  // Message
+  'message.delete.success': 'Deleted successfully',
+  'message.status.success': 'Status updated successfully',
+  // Footer
+  'footer.copyright': 'Copyright© {year} MOON Monitoring System',
+  'footer.icp': 'Gui Gong Network Security 52011502009111 | Qian ICP No. 19012566-8',
+  // Modal related
+  'modal.create.title': 'Create Namespace',
+  'modal.edit.title': 'Edit Namespace',
+  'modal.detail.title': 'Namespace Detail',
+  'modal.close': 'Close',
+  'modal.cancel': 'Cancel',
+  'modal.ok': 'OK',
+  'modal.submit': 'Submit',
+  // Form related
+  'form.name.label': 'Name',
+  'form.name.placeholder': 'Please enter namespace name',
+  'form.name.maxLength': 'Name cannot exceed 100 characters',
+  'form.name.required': 'Please enter name',
+  // Detail related
+  'detail.uid': 'UID',
+  'detail.name': 'Name',
+  'detail.status': 'Status',
+  'detail.createdAt': 'Created At',
+  'detail.updatedAt': 'Updated At',
+  'detail.metadata': 'Metadata',
+  'detail.noData': 'No Data',
+  // Message
+  'message.create.success': 'Namespace created successfully',
+  'message.update.success': 'Namespace updated successfully',
+} as const;

@@ -2,13 +2,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Select, Avatar, Dropdown, message } from 'antd';
 import type { MenuProps } from 'antd';
-import { UserOutlined, SunOutlined, MoonOutlined, DesktopOutlined, BgColorsOutlined } from '@ant-design/icons';
+import { UserOutlined, SunOutlined, MoonOutlined, DesktopOutlined, BgColorsOutlined, GlobalOutlined } from '@ant-design/icons';
 import { getNamespaceList, type NamespaceItemSelect } from '@/api/namespace/index';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useLocale } from '@/contexts/LocaleContext';
 
 const Header: React.FC = () => {
   // 主题管理
   const { themeMode, setThemeMode } = useTheme();
+  // 国际化管理
+  const { locale, setLocale, t } = useLocale();
 
   // 命名空间管理
   const [namespace, setNamespace] = useState<string>(() => {
@@ -23,18 +26,26 @@ const Header: React.FC = () => {
   const hasFetchedRef = useRef(false);
 
   // 用户信息（可以从 API 或 context 获取）
-  const [userInfo] = useState<{ name: string; avatar?: string }>(() => {
+  const [userInfo, setUserInfo] = useState<{ name: string; avatar?: string }>(() => {
     // 可以从 localStorage 或 API 获取用户信息
     const storedUser = localStorage.getItem('userInfo');
     if (storedUser) {
       try {
         return JSON.parse(storedUser);
       } catch {
-        return { name: '用户' };
+        return { name: '用户' }; // 使用硬编码的默认值，后续会通过 useEffect 更新
       }
     }
-    return { name: '用户' };
+    return { name: '用户' }; // 使用硬编码的默认值，后续会通过 useEffect 更新
   });
+
+  // 当语言切换时更新用户默认名称
+  useEffect(() => {
+    const storedUser = localStorage.getItem('userInfo');
+    if (!storedUser) {
+      setUserInfo({ name: t('user.defaultName') });
+    }
+  }, [locale, t]);
 
   // 获取命名空间列表
   useEffect(() => {
@@ -92,10 +103,15 @@ const Header: React.FC = () => {
     // 清除用户信息
     localStorage.removeItem('userInfo');
     // 提示信息
-    message.success('已退出登录');
+    message.success(t('logout.success'));
     // 跳转到登录页（如果有）或刷新页面
     // navigate('/login');
     window.location.href = '/login';
+  };
+
+  // 处理语言切换
+  const handleLocaleChange = (newLocale: 'zh-CN' | 'en-US') => {
+    setLocale(newLocale);
   };
 
   // 处理主题切换
@@ -107,21 +123,35 @@ const Header: React.FC = () => {
   const themeMenuItems: MenuProps['items'] = [
     {
       key: 'light',
-      label: '亮色主题',
+      label: t('theme.light'),
       icon: <SunOutlined />,
       onClick: () => handleThemeChange('light'),
     },
     {
       key: 'dark',
-      label: '暗色主题',
+      label: t('theme.dark'),
       icon: <MoonOutlined />,
       onClick: () => handleThemeChange('dark'),
     },
     {
       key: 'system',
-      label: '跟随系统',
+      label: t('theme.system'),
       icon: <DesktopOutlined />,
       onClick: () => handleThemeChange('system'),
+    },
+  ];
+
+  // 语言下拉菜单项
+  const localeMenuItems: MenuProps['items'] = [
+    {
+      key: 'zh-CN',
+      label: t('language.zh'),
+      onClick: () => handleLocaleChange('zh-CN'),
+    },
+    {
+      key: 'en-US',
+      label: t('language.en'),
+      onClick: () => handleLocaleChange('en-US'),
     },
   ];
 
@@ -134,7 +164,7 @@ const Header: React.FC = () => {
   const userMenuItems: MenuProps['items'] = [
     {
       key: 'logout',
-      label: '退出登录',
+      label: t('user.logout'),
     //   icon: <LogoutOutlined />,
       onClick: handleLogout,
     },
@@ -154,6 +184,18 @@ const Header: React.FC = () => {
           {getThemeIcon()}
         </div>
       </Dropdown>
+      {/* 语言切换 */}
+      <Dropdown 
+        menu={{ 
+          items: localeMenuItems,
+          selectedKeys: [locale]
+        }} 
+        trigger={['click']}
+      >
+        <div className='flex h-8 items-center justify-center w-8 cursor-pointer hover:opacity-80'>
+          <GlobalOutlined />
+        </div>
+      </Dropdown>
       {/* 命名空间选择 */}
       <Select
         value={namespace}
@@ -161,7 +203,7 @@ const Header: React.FC = () => {
         options={namespaceOptions}
         className='w-30'
         loading={loading}
-        placeholder="选择命名空间"
+        placeholder={t('namespace.select')}
       />
       <Dropdown 
         menu={{ items: userMenuItems }} 

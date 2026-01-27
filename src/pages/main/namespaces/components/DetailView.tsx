@@ -3,6 +3,7 @@ import { Modal, Descriptions, Tag, Button, Space } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 import type { NamespaceItem } from '@/api/namespace/index'
 import dayjs from 'dayjs'
+import { useLocale } from '@/contexts/LocaleContext'
 
 interface DetailViewProps {
   open: boolean
@@ -12,6 +13,7 @@ interface DetailViewProps {
 }
 
 const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit }) => {
+  const { t } = useLocale()
 
   // 处理编辑
   const handleEdit = () => {
@@ -23,24 +25,24 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
   // 状态映射
   const getStatusInfo = (status: number) => {
     const statusMap: Record<number, { text: string; color: string }> = {
-      0: { text: '未知', color: 'default' },
-      1: { text: '启用', color: 'success' },
-      2: { text: '禁用', color: 'error' },
+      0: { text: t('table.unknown'), color: 'default' },
+      1: { text: t('table.enable'), color: 'success' },
+      2: { text: t('table.disable'), color: 'error' },
     }
     return statusMap[status] || statusMap[0]
   }
 
   return (
     <Modal
-      title="命名空间详情"
+      title={t('modal.detail.title')}
       open={open}
       onCancel={onCancel}
       footer={
         <Space>
-          <Button onClick={onCancel}>关闭</Button>
+          <Button onClick={onCancel}>{t('modal.close')}</Button>
           {data && onEdit && (
             <Button type="primary" icon={<EditOutlined />} onClick={handleEdit}>
-              编辑
+              {t('table.edit')}
             </Button>
           )}
         </Space>
@@ -50,21 +52,21 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
     >
       {data ? (
         <Descriptions column={1} bordered>
-          <Descriptions.Item label="UID">{data.uid}</Descriptions.Item>
-          <Descriptions.Item label="名称">{data.name || '-'}</Descriptions.Item>
-          <Descriptions.Item label="状态">
+          <Descriptions.Item label={t('detail.uid')}>{data.uid}</Descriptions.Item>
+          <Descriptions.Item label={t('detail.name')}>{data.name || '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('detail.status')}>
             <Tag color={getStatusInfo(data.status).color}>
               {getStatusInfo(data.status).text}
             </Tag>
           </Descriptions.Item>
-          <Descriptions.Item label="创建时间">
+          <Descriptions.Item label={t('detail.createdAt')}>
             {data.createdAt ? dayjs(data.createdAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
           </Descriptions.Item>
-          <Descriptions.Item label="更新时间">
+          <Descriptions.Item label={t('detail.updatedAt')}>
             {data.updatedAt ? dayjs(data.updatedAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
           </Descriptions.Item>
           {data.metadata && Object.keys(data.metadata).length > 0 && (
-            <Descriptions.Item label="元数据">
+            <Descriptions.Item label={t('detail.metadata')}>
               <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                 {JSON.stringify(data.metadata, null, 2)}
               </pre>
@@ -72,7 +74,7 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
           )}
         </Descriptions>
       ) : (
-        <div style={{ textAlign: 'center', padding: '40px 0' }}>暂无数据</div>
+        <div style={{ textAlign: 'center', padding: '40px 0' }}>{t('detail.noData')}</div>
       )}
     </Modal>
   )

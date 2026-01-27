@@ -1,29 +1,26 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { ConfigProvider } from 'antd'
-import zhCN from 'antd/locale/zh_CN'
 import { useEffect, useRef, useMemo } from 'react'
 import React from 'react'
 import LayoutComponent from '@/components/layout/Layout'
 import microApp from '@micro-zoe/micro-app'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
+import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
 import { 
-  appConfig, 
+  getAppConfig, 
   convertToMenuItems, 
   getAllSubAppConfigs, 
   getDefaultPath
 } from './config'
 
-// 从配置生成菜单项
-const menuItems = convertToMenuItems(appConfig)
-
-// 获取所有子应用配置
-const subAppConfigMap = getAllSubAppConfigs(appConfig)
-
-// 获取默认路径
-const defaultPath = getDefaultPath(appConfig)
-
 // 子应用容器组件
-function SubAppContainer({ appName }: { appName: string}) {
+function SubAppContainer({ 
+  appName, 
+  subAppConfigMap 
+}: { 
+  appName: string
+  subAppConfigMap: Record<string, { name: string; devUrl: string; prodUrl: string; path: string }>
+}) {
   const navigate = useNavigate()
   const location = useLocation()
   const microAppRef = useRef<HTMLElement>(null)
@@ -136,10 +133,20 @@ function PlaceholderPage({ label, path }: { label: string; path: string }) {
 /**
  * 递归生成路由
  */
-function generateRoutes(config: typeof appConfig): React.ReactNode[] {
+function generateRoutes(
+  config: Array<{
+    key: string
+    label: string
+    path?: string
+    subApp?: { name: string; devUrl: string; prodUrl: string; path: string }
+    element?: React.ReactNode
+    children?: Array<any>
+  }>,
+  subAppConfigMap: Record<string, { name: string; devUrl: string; prodUrl: string; path: string }>
+): React.ReactNode[] {
   const routes: React.ReactNode[] = []
   
-  function traverse(items: typeof appConfig) {
+  function traverse(items: typeof config) {
     for (const item of items) {
       // 如果有路径，生成路由
       if (item.path) {
@@ -149,7 +156,7 @@ function generateRoutes(config: typeof appConfig): React.ReactNode[] {
             <Route 
               key={item.subApp.name} 
               path={item.path} 
-              element={<SubAppContainer appName={item.subApp.name} />} 
+              element={<SubAppContainer appName={item.subApp.name} subAppConfigMap={subAppConfigMap} />} 
             />
           )
         } else if (item.element) {
@@ -185,14 +192,26 @@ function generateRoutes(config: typeof appConfig): React.ReactNode[] {
 
 function AppContent() {
   const { themeConfig } = useTheme();
+  const { antdLocale, t } = useLocale();
 
+  // 获取应用配置（支持国际化）
+  const appConfig = useMemo(() => getAppConfig(t), [t]);
+  
+  // 从配置生成菜单项
+  const menuItems = useMemo(() => convertToMenuItems(appConfig), [appConfig]);
+
+  // 获取所有子应用配置
+  const subAppConfigMap = useMemo(() => getAllSubAppConfigs(appConfig), [appConfig]);
+
+  // 获取默认路径
+  const defaultPath = useMemo(() => getDefaultPath(appConfig), [appConfig]);
 
   // 动态生成路由
-  const routes = useMemo(() => generateRoutes(appConfig), [])
+  const routes = useMemo(() => generateRoutes(appConfig, subAppConfigMap), [appConfig, subAppConfigMap])
 
   return (
     <ConfigProvider
-      locale={zhCN}
+      locale={antdLocale}
       theme={themeConfig}
     >
       <BrowserRouter>
@@ -212,9 +231,11 @@ function AppContent() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
+    <LocaleProvider>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
+    </LocaleProvider>
   )
 }
 

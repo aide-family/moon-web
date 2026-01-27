@@ -2,6 +2,7 @@ import { ReactNode } from 'react'
 import { UserOutlined, AppstoreOutlined, SettingOutlined, DatabaseOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
 import NamespaceList from '@/pages/main/namespaces'
+import type { LocaleType } from '@/contexts/LocaleContext'
 
 /**
  * 子应用配置
@@ -38,19 +39,19 @@ export interface AppConfigItem {
 }
 
 /**
- * 应用配置列表
+ * 获取应用配置（支持国际化）
  */
-export const appConfig: AppConfigItem[] = [
+export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
   {
     key: 'template',
     icon: <AppstoreOutlined />,
-    label: '模板应用',
+    label: t('menu.template'),
     path: '/template',
     children: [
       {
         key: 'template1',
         icon: <AppstoreOutlined />,
-        label: '模板应用1',
+        label: t('menu.template1'),
         path: '/template/template1',
         subApp: {
           name: 'template1',
@@ -62,7 +63,7 @@ export const appConfig: AppConfigItem[] = [
       {
         key: 'template2',
         icon: <AppstoreOutlined />,
-        label: '模板应用2',
+        label: t('menu.template2'),
         path: '/template/template2',
         subApp: {
           name: 'template2',
@@ -76,13 +77,13 @@ export const appConfig: AppConfigItem[] = [
   {
     key: 'test',
     icon: <UserOutlined />,
-    label: '测试应用',
+    label: t('menu.test'),
     path: '/test',
     children: [
       {
         key: 'test1',
         icon: <UserOutlined />,
-        label: '测试应用1',
+        label: t('menu.test1'),
         path: '/test/test1',
         subApp: {
           name: 'test1',
@@ -94,7 +95,7 @@ export const appConfig: AppConfigItem[] = [
       {
         key: 'test2',
         icon: <UserOutlined />,
-        label: '测试应用2',
+        label: t('menu.test2'),
         path: '/test/test2',
         subApp: {
           name: 'test2',
@@ -108,29 +109,29 @@ export const appConfig: AppConfigItem[] = [
   {
     key: 'namespaces',
     icon: <DatabaseOutlined />,
-    label: '命名空间',
+    label: t('menu.namespaces'),
     path: '/namespaces',
     element: <NamespaceList />,
   },
   {
     key: 'settings',
     icon: <SettingOutlined />,
-    label: '设置',
+    label: t('menu.settings'),
     path: '/settings',
     children: [
       {
         key: 'settings1',
         icon: <SettingOutlined />,
-        label: '设置1',
+        label: t('menu.settings1'),
         path: '/settings/settings1',
-        element: <div>设置1</div>,
+        element: <div>{t('menu.settings1')}</div>,
       },
       {
         key: 'settings2',
         icon: <SettingOutlined />,
-        label: '设置2',
+        label: t('menu.settings2'),
         path: '/settings/settings2',
-        element: <div>设置2</div>,
+        element: <div>{t('menu.settings2')}</div>,
       },
     ],
   },
