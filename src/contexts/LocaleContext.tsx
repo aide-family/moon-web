@@ -1,8 +1,9 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import zhCN from 'antd/locale/zh_CN';
 import enUS from 'antd/locale/en_US';
 import type { Locale } from 'antd/es/locale';
 import { resources } from '@/locales';
+import { isInMicroApp } from '@/utils';
 
 export type LocaleType = 'zh-CN' | 'en-US';
 
@@ -31,12 +32,81 @@ const getDefaultLocale = (): LocaleType => {
   return 'en-US';
 };
 
+// 从主应用获取语言（微前端环境）
+const getLocaleFromMainApp = (): LocaleType | null => {
+  if (!isInMicroApp()) {
+    return null;
+  }
+  
+  try {
+    // 尝试从 microApp 获取数据
+    const win = window as Window & { 
+      microApp?: {
+        getData?: () => { locale?: LocaleType; [key: string]: unknown }
+      }
+    }
+    
+    if (win.microApp?.getData) {
+      const data = win.microApp.getData()
+      if (data && typeof data === 'object' && 'locale' in data) {
+        const locale = data.locale
+        if (locale === 'zh-CN' || locale === 'en-US') {
+          return locale
+        }
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to get locale from main app:', error)
+  }
+  
+  return null
+}
+
 interface LocaleProviderProps {
   children: ReactNode;
 }
 
 export const LocaleProvider: React.FC<LocaleProviderProps> = ({ children }) => {
-  const [locale, setLocaleState] = useState<LocaleType>(getDefaultLocale);
+  // 初始化语言：优先从主应用获取，否则使用默认值
+  const initialLocale = getLocaleFromMainApp() || getDefaultLocale()
+  const [locale, setLocaleState] = useState<LocaleType>(initialLocale);
+
+  // 在微前端环境中监听主应用的语言变化
+  useEffect(() => {
+    if (!isInMicroApp()) {
+      return
+    }
+
+    try {
+      const win = window as Window & { 
+        microApp?: {
+          addDataListener?: (callback: (data: { locale?: LocaleType; [key: string]: unknown }) => void) => void
+        }
+      }
+      
+      if (win.microApp?.addDataListener) {
+        const dataListener = (data: { locale?: LocaleType; [key: string]: unknown }) => {
+          if (data && typeof data === 'object' && 'locale' in data) {
+            const newLocale = data.locale
+            if (newLocale === 'zh-CN' || newLocale === 'en-US') {
+              setLocaleState(newLocale)
+              // 同步到 localStorage
+              localStorage.setItem(LOCALE_STORAGE_KEY, newLocale)
+            }
+          }
+        }
+        
+        win.microApp.addDataListener(dataListener)
+        
+        // 清理函数
+        return () => {
+          // micro-app 可能没有 removeDataListener，这里先不处理
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to setup locale listener from main app:', error)
+    }
+  }, [])
 
   // 设置语言
   const setLocale = (newLocale: LocaleType) => {
