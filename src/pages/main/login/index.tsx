@@ -1,7 +1,14 @@
 import React, { useState } from 'react'
-import { Carousel, Tabs, Form, Input, Button, message } from 'antd'
+import { Carousel, Tabs, Form, Input, Button, message, Modal } from 'antd'
 import type { TabsProps } from 'antd'
-import { MailOutlined, LockOutlined, SafetyCertificateOutlined } from '@ant-design/icons'
+import {
+  MailOutlined,
+  LockOutlined,
+  WechatOutlined,
+  QqOutlined,
+  GithubOutlined,
+  GoogleOutlined,
+} from '@ant-design/icons'
 import { useLocale } from '@/contexts/LocaleContext'
 import GraphicCaptcha from './components/GraphicCaptcha'
 
@@ -25,12 +32,12 @@ const INTRO_SLIDES = [
   },
 ]
 
-// 其他登录方式（平台 logo 用图标或文字表示）
+// 其他登录方式（平台图标）
 const OTHER_LOGIN_OPTIONS = [
-  { key: 'wechat', labelKey: 'login.other.wechat', icon: '微信' },
-  { key: 'qq', labelKey: 'login.other.qq', icon: 'QQ' },
-  { key: 'github', labelKey: 'login.other.github', icon: 'GitHub' },
-  { key: 'google', labelKey: 'login.other.google', icon: 'G' },
+  { key: 'wechat', labelKey: 'login.other.wechat', Icon: WechatOutlined },
+  { key: 'qq', labelKey: 'login.other.qq', Icon: QqOutlined },
+  { key: 'github', labelKey: 'login.other.github', Icon: GithubOutlined },
+  { key: 'google', labelKey: 'login.other.google', Icon: GoogleOutlined },
 ]
 
 export default function LoginPage() {
@@ -39,17 +46,13 @@ export default function LoginPage() {
   const [registerForm] = Form.useForm()
   const [activeTab, setActiveTab] = useState<string>('login')
   const [loginType, setLoginType] = useState<'password' | 'code'>('password')
-  const [captchaCode, setCaptchaCode] = useState('')
   const [sendingCode, setSendingCode] = useState(false)
   const [codeCountdown, setCodeCountdown] = useState(0)
+  const [captchaModalOpen, setCaptchaModalOpen] = useState(false)
+  const [modalCaptchaCode, setModalCaptchaCode] = useState('')
+  const [modalCaptchaInput, setModalCaptchaInput] = useState('')
 
   const onLoginFinish = (values: Record<string, string>) => {
-    if (loginType === 'code') {
-      if (!values.graphicCaptcha || values.graphicCaptcha.toUpperCase() !== captchaCode.toUpperCase()) {
-        message.error(t('login.captchaError'))
-        return
-      }
-    }
     message.info(t('login.submitHint'))
     console.log('Login', values)
   }
@@ -59,16 +62,27 @@ export default function LoginPage() {
     console.log('Register', values)
   }
 
-  const handleSendCode = async () => {
-    const graphicCaptcha = loginForm.getFieldValue('graphicCaptcha')
-    if (!graphicCaptcha) {
+  const handleOpenCaptchaModal = async () => {
+    try {
+      await loginForm.validateFields(['email'])
+    } catch {
+      return
+    }
+    setModalCaptchaInput('')
+    setCaptchaModalOpen(true)
+  }
+
+  const handleCaptchaModalConfirm = () => {
+    if (!modalCaptchaInput.trim()) {
       message.warning(t('login.enterCaptchaFirst'))
       return
     }
-    if (graphicCaptcha.toUpperCase() !== captchaCode.toUpperCase()) {
+    if (modalCaptchaInput.toUpperCase() !== modalCaptchaCode.toUpperCase()) {
       message.error(t('login.captchaError'))
       return
     }
+    setCaptchaModalOpen(false)
+    setModalCaptchaInput('')
     setSendingCode(true)
     setCodeCountdown(60)
     message.success(t('login.codeSent'))
@@ -82,6 +96,11 @@ export default function LoginPage() {
         return c - 1
       })
     }, 1000)
+  }
+
+  const handleCaptchaModalCancel = () => {
+    setCaptchaModalOpen(false)
+    setModalCaptchaInput('')
   }
 
   const loginFormContent = (
@@ -110,34 +129,17 @@ export default function LoginPage() {
           <Input.Password prefix={<LockOutlined className="text-gray-400" />} placeholder={t('login.passwordPlaceholder')} />
         </Form.Item>
       ) : (
-        <>
-          <Form.Item
-            label={t('login.graphicCaptchaLabel')}
-            name="graphicCaptcha"
-            rules={[{ required: true, message: t('login.graphicCaptchaRequired') }]}
-          >
-            <div className="flex gap-2 items-center">
-              <Input
-                prefix={<SafetyCertificateOutlined className="text-gray-400" />}
-                placeholder={t('login.graphicCaptchaPlaceholder')}
-                maxLength={4}
-                className="flex-1"
-              />
-              <GraphicCaptcha onRefresh={setCaptchaCode} />
-            </div>
-          </Form.Item>
-          <Form.Item
-            name="emailCode"
-            rules={[{ required: true, message: t('login.emailCodeRequired') }]}
-          >
-            <div className="flex gap-2">
-              <Input placeholder={t('login.emailCodePlaceholder')} className="flex-1" />
-              <Button type="primary" onClick={handleSendCode} disabled={sendingCode}>
-                {sendingCode ? `${codeCountdown}s` : t('login.sendCode')}
-              </Button>
-            </div>
-          </Form.Item>
-        </>
+        <Form.Item
+          name="emailCode"
+          rules={[{ required: true, message: t('login.emailCodeRequired') }]}
+        >
+          <div className="flex gap-2">
+            <Input placeholder={t('login.emailCodePlaceholder')} className="flex-1" />
+            <Button type="primary" onClick={handleOpenCaptchaModal} disabled={sendingCode}>
+              {sendingCode ? `${codeCountdown}s` : t('login.sendCode')}
+            </Button>
+          </div>
+        </Form.Item>
       )}
 
       <div className="flex justify-between text-sm mb-2">
@@ -248,20 +250,49 @@ export default function LoginPage() {
             className="login-tabs"
           />
 
+          {/* 图形验证码弹窗：获取邮箱验证码前先验证 */}
+          <Modal
+            title={t('login.captchaModalTitle')}
+            open={captchaModalOpen}
+            onCancel={handleCaptchaModalCancel}
+            onOk={handleCaptchaModalConfirm}
+            okText={t('login.captchaModalConfirm')}
+            cancelText={t('common.cancel')}
+            destroyOnClose
+          >
+            <div className="py-4">
+              <div className="mb-4 flex items-center gap-2">
+                <Input
+                  value={modalCaptchaInput}
+                  onChange={(e) => setModalCaptchaInput(e.target.value.slice(0, 4).toUpperCase())}
+                  placeholder={t('login.graphicCaptchaPlaceholder')}
+                  maxLength={4}
+                  size="large"
+                  className="flex-1"
+                />
+                <GraphicCaptcha onRefresh={setModalCaptchaCode} />
+              </div>
+              <p className="text-gray-500 text-sm">{t('login.graphicCaptchaLabel')}</p>
+            </div>
+          </Modal>
+
           {/* 其他登录方式 */}
           <div className="mt-8 pt-6 border-t border-gray-100">
             <p className="text-center text-gray-500 text-sm mb-4">{t('login.otherWays')}</p>
             <div className="flex justify-center gap-4">
-              {OTHER_LOGIN_OPTIONS.map((opt) => (
-                <button
-                  key={opt.key}
-                  type="button"
-                  className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:border-primary hover:text-primary hover:bg-primary/5 transition-colors"
-                  title={t(opt.labelKey)}
-                >
-                  <span className="text-base font-medium">{opt.icon}</span>
-                </button>
-              ))}
+              {OTHER_LOGIN_OPTIONS.map((opt) => {
+                const Icon = opt.Icon
+                return (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:border-primary hover:text-primary hover:bg-primary/5 transition-colors"
+                    title={t(opt.labelKey)}
+                  >
+                    <Icon className="text-xl" />
+                  </button>
+                )
+              })}
             </div>
           </div>
         </div>
