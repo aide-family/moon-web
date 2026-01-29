@@ -7,6 +7,7 @@
 
 import { http } from '../index'
 import type {
+  SendEmailParams,
   SendEmailWithTemplateParams,
   SendWebhookParams,
   SendWebhookWithTemplateParams,
@@ -16,10 +17,10 @@ import type {
 /**
  * Sender_SendEmail
  * POST /v1/sender/email/{uid}
- * Path: uid (string, 必需)
+ * Path: uid (string, 必需)；Body(application/json, 必需): uid, subject, body, contentType?, to?, cc?, headers?
  */
-export function sendEmail(uid: string): Promise<unknown> {
-  return http.post<unknown>(`/v1/sender/email/${uid}`)
+export function sendEmail(uid: string, params: SendEmailParams): Promise<unknown> {
+  return http.post<unknown>(`/v1/sender/email/${uid}`, params as Record<string, unknown>)
 }
 
 /**
@@ -65,6 +66,7 @@ export function sendWebhookWithTemplate(
 }
 
 export type {
+  SendEmailParams,
   SendEmailWithTemplateParams,
   SendWebhookParams,
   SendWebhookWithTemplateParams,

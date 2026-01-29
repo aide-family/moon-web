@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Card, Form, Input, Button, Segmented, message as antdMessage, App } from 'antd'
+import { useState, useEffect } from 'react'
+import { Card, Form, Input, Button, Segmented, Select, message as antdMessage, App } from 'antd'
 import {
   sendEmail,
   sendEmailWithTemplate,
@@ -7,6 +7,8 @@ import {
   sendWebhook,
   sendWebhookWithTemplate,
 } from '@/api/sender'
+import { getTemplateSelectList } from '@/api/template'
+import type { TemplateItemSelect } from '@/api/template'
 import { useLocale } from '@/contexts/LocaleContext'
 
 type SendType = 'email' | 'emailTemplate' | 'message' | 'webhook' | 'webhookTemplate'
@@ -24,6 +26,18 @@ export default function SenderManagement() {
   const [form] = Form.useForm()
   const [sendType, setSendType] = useState<SendType>('email')
   const [submitting, setSubmitting] = useState(false)
+  const [templateOptions, setTemplateOptions] = useState<TemplateItemSelect[]>([])
+  const [templateLoading, setTemplateLoading] = useState(false)
+
+  const needTemplate = sendType === 'emailTemplate' || sendType === 'webhookTemplate'
+  useEffect(() => {
+    if (!needTemplate) return
+    setTemplateLoading(true)
+    getTemplateSelectList({ limit: 200 })
+      .then(res => setTemplateOptions(res.items ?? []))
+      .catch(() => setTemplateOptions([]))
+      .finally(() => setTemplateLoading(false))
+  }, [needTemplate])
 
   const handleSubmit = async () => {
     try {
@@ -35,9 +49,30 @@ export default function SenderManagement() {
       }
       setSubmitting(true)
       switch (sendType) {
-        case 'email':
-          await sendEmail(uid)
+        case 'email': {
+          const toStr = values.to?.trim()
+          const ccStr = values.cc?.trim()
+          let headers: Record<string, string> | undefined
+          if (values.headers?.trim()) {
+            try {
+              headers = JSON.parse(values.headers.trim()) as Record<string, string>
+            } catch {
+              antdMessage.warning(t('sender.form.headersPlaceholder'))
+              setSubmitting(false)
+              return
+            }
+          }
+          await sendEmail(uid, {
+            uid,
+            subject: values.subject?.trim() ?? '',
+            body: values.body?.trim() ?? '',
+            contentType: values.contentType?.trim(),
+            to: toStr ? toStr.split(',').map((s: string) => s.trim()).filter(Boolean) : undefined,
+            cc: ccStr ? ccStr.split(',').map((s: string) => s.trim()).filter(Boolean) : undefined,
+            headers,
+          })
           break
+        }
         case 'emailTemplate': {
           const toStr = values.to?.trim()
           const ccStr = values.cc?.trim()
@@ -77,7 +112,7 @@ export default function SenderManagement() {
     }
   }
 
-  const needTemplate = sendType === 'emailTemplate' || sendType === 'webhookTemplate'
+  const needEmailBody = sendType === 'email'
   const needToCc = sendType === 'emailTemplate'
   const needData = sendType === 'webhook'
 
@@ -106,10 +141,63 @@ export default function SenderManagement() {
               <Input placeholder={t('sender.form.uidPlaceholder')} allowClear />
             </Form.Item>
 
+            {needEmailBody && (
+              <>
+                <Form.Item
+                  name="subject"
+                  label={t('sender.form.subject')}
+                  rules={[{ required: true, message: t('sender.form.subjectPlaceholder') }]}
+                >
+                  <Input placeholder={t('sender.form.subjectPlaceholder')} allowClear />
+                </Form.Item>
+                <Form.Item
+                  name="body"
+                  label={t('sender.form.body')}
+                  rules={[{ required: true, message: t('sender.form.bodyPlaceholder') }]}
+                >
+                  <Input.TextArea
+                    placeholder={t('sender.form.bodyPlaceholder')}
+                    rows={4}
+                    allowClear
+                  />
+                </Form.Item>
+                <Form.Item name="contentType" label={t('sender.form.contentType')}>
+                  <Input placeholder={t('sender.form.contentTypePlaceholder')} allowClear />
+                </Form.Item>
+                <Form.Item name="to" label={t('sender.form.to')}>
+                  <Input placeholder={t('sender.form.toPlaceholder')} allowClear />
+                </Form.Item>
+                <Form.Item name="cc" label={t('sender.form.cc')}>
+                  <Input placeholder={t('sender.form.ccPlaceholder')} allowClear />
+                </Form.Item>
+                <Form.Item name="headers" label={t('sender.form.headers')}>
+                  <Input.TextArea
+                    placeholder={t('sender.form.headersPlaceholder')}
+                    rows={2}
+                    allowClear
+                  />
+                </Form.Item>
+              </>
+            )}
+
             {needTemplate && (
               <>
                 <Form.Item name="templateUID" label={t('sender.form.templateUID')}>
-                  <Input placeholder={t('sender.form.templateUIDPlaceholder')} allowClear />
+                  <Select
+                    placeholder={t('sender.form.templateUIDPlaceholder')}
+                    allowClear
+                    showSearch
+                    optionFilterProp="label"
+                    loading={templateLoading}
+                    options={templateOptions
+                      .filter(item => item.value != null)
+                      .map(item => ({
+                        value: item.value!,
+                        label: item.label ?? item.value,
+                        disabled: item.disabled,
+                        title: item.tooltip,
+                      }))}
+                  />
                 </Form.Item>
                 <Form.Item name="jsonData" label={t('sender.form.jsonData')}>
                   <Input.TextArea

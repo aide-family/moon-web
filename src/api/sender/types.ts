@@ -4,6 +4,17 @@
  * Sender_SendMessage、Sender_SendWebhook、Sender_SendWebhookWithTemplate
  */
 
+/** 发送邮件 Body 参数（Sender_SendEmail） */
+export interface SendEmailParams {
+  uid: string
+  subject: string
+  body: string
+  contentType?: string
+  to?: string[]
+  cc?: string[]
+  headers?: Record<string, string>
+}
+
 /** 发送邮件（模板）Body 参数 */
 export interface SendEmailWithTemplateParams {
   uid?: string

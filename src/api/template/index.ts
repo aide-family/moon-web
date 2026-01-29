@@ -10,7 +10,9 @@ import type {
   TemplateItem,
   CreateTemplateParams,
   UpdateTemplateParams,
-  UpdateTemplateStatusParams
+  UpdateTemplateStatusParams,
+  TemplateSelectParams,
+  TemplateSelectResponse,
 } from './types'
 
 /**
@@ -69,6 +71,19 @@ export const updateTemplateStatus = (uid: string, status: number): Promise<Templ
   return http.put<TemplateItem>(`/v1/template/${uid}/status`, { status } as Record<string, unknown>)
 }
 
+/**
+ * 模板下拉列表（Template_SelectTemplate）
+ * GET /v1/templates/select，用于下拉选择
+ */
+export const getTemplateSelectList = (
+  params?: TemplateSelectParams
+): Promise<TemplateSelectResponse> => {
+  return http.get<TemplateSelectResponse>(
+    '/v1/templates/select',
+    params as unknown as Record<string, unknown>
+  )
+}
+
 // 导出类型
 export type { 
   TemplateItem,
@@ -76,5 +91,8 @@ export type {
   TemplateListParams,
   CreateTemplateParams,
   UpdateTemplateParams,
-  UpdateTemplateStatusParams
+  UpdateTemplateStatusParams,
+  TemplateItemSelect,
+  TemplateSelectParams,
+  TemplateSelectResponse,
 } from './types'

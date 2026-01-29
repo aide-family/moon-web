@@ -61,3 +61,34 @@ export interface UpdateTemplateParams {
 export interface UpdateTemplateStatusParams {
   status: number
 }
+
+/**
+ * 模板下拉项（Template_SelectTemplate 返回项）
+ */
+export interface TemplateItemSelect {
+  value?: string
+  label?: string
+  disabled?: boolean
+  tooltip?: string
+  total?: string
+  lastUID?: string
+  hasMore?: boolean
+}
+
+/**
+ * 模板下拉查询参数
+ */
+export interface TemplateSelectParams {
+  app?: number
+  keyword?: string
+  limit?: number
+  lastUID?: string
+  status?: number
+}
+
+/**
+ * 模板下拉响应
+ */
+export interface TemplateSelectResponse {
+  items?: TemplateItemSelect[]
+}
