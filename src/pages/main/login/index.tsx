@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { Carousel, Tabs, Form, Input, Button, message, Modal } from 'antd'
-import type { TabsProps } from 'antd'
+import { Carousel, Tabs, Form, Input, Button, message, Modal, Dropdown } from 'antd'
+import type { TabsProps, MenuProps } from 'antd'
 import {
   MailOutlined,
   LockOutlined,
@@ -8,8 +8,14 @@ import {
   QqOutlined,
   GithubOutlined,
   GoogleOutlined,
+  SunOutlined,
+  MoonOutlined,
+  DesktopOutlined,
+  BgColorsOutlined,
+  GlobalOutlined,
 } from '@ant-design/icons'
 import { useLocale } from '@/contexts/LocaleContext'
+import { useTheme } from '@/contexts/ThemeContext'
 import GraphicCaptcha from './components/GraphicCaptcha'
 
 
@@ -41,7 +47,9 @@ const OTHER_LOGIN_OPTIONS = [
 ]
 
 export default function LoginPage() {
-  const { t } = useLocale()
+  const { t, locale, setLocale } = useLocale()
+  const { themeMode, setThemeMode, actualThemeMode } = useTheme()
+  const isDark = actualThemeMode === 'dark'
   const [loginForm] = Form.useForm()
   const [registerForm] = Form.useForm()
   const [activeTab, setActiveTab] = useState<string>('login')
@@ -102,6 +110,16 @@ export default function LoginPage() {
     setCaptchaModalOpen(false)
     setModalCaptchaInput('')
   }
+
+  const themeMenuItems: MenuProps['items'] = [
+    { key: 'light', label: t('theme.light'), icon: <SunOutlined />, onClick: () => setThemeMode('light') },
+    { key: 'dark', label: t('theme.dark'), icon: <MoonOutlined />, onClick: () => setThemeMode('dark') },
+    { key: 'system', label: t('theme.system'), icon: <DesktopOutlined />, onClick: () => setThemeMode('system') },
+  ]
+  const localeMenuItems: MenuProps['items'] = [
+    { key: 'zh-CN', label: t('language.zh'), onClick: () => setLocale('zh-CN') },
+    { key: 'en-US', label: t('language.en'), onClick: () => setLocale('en-US') },
+  ]
 
   const loginFormContent = (
     <Form
@@ -211,7 +229,31 @@ export default function LoginPage() {
   ]
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div
+      className={`min-h-screen flex relative ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}
+    >
+      {/* 右上角：语言切换、主题切换 */}
+      <div className="fixed top-4 right-4 z-10 flex items-center gap-2">
+        <Dropdown menu={{ items: themeMenuItems, selectedKeys: [themeMode] }} trigger={['click']}>
+          <button
+            type="button"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white/90 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800/90 dark:hover:bg-gray-700"
+            title={t('theme.light')}
+          >
+            <BgColorsOutlined className="text-lg" />
+          </button>
+        </Dropdown>
+        <Dropdown menu={{ items: localeMenuItems, selectedKeys: [locale] }} trigger={['click']}>
+          <button
+            type="button"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white/90 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800/90 dark:hover:bg-gray-700"
+            title={t('language.zh')}
+          >
+            <GlobalOutlined className="text-lg" />
+          </button>
+        </Dropdown>
+      </div>
+
       {/* 左侧：简介轮播。不用 w-0/min-h-0，避免整列宽度或高度被压成 0 */}
       <div className="hidden lg:block lg:w-[55%] lg:min-h-screen lg:shrink-0">
         <div className="h-full min-h-screen w-full">
@@ -235,11 +277,17 @@ export default function LoginPage() {
 
       {/* 右侧：操作表单 */}
       <div className="flex-1 min-w-0 flex flex-col justify-center px-8 py-12 sm:px-16">
-        <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8">
-          <h1 className="text-2xl font-semibold text-center text-gray-800 mb-2">
+        <div
+          className={`w-full max-w-md mx-auto rounded-2xl shadow-lg p-8 ${isDark ? 'bg-gray-800' : 'bg-white'}`}
+        >
+          <h1
+            className={`text-2xl font-semibold text-center mb-2 ${isDark ? 'text-gray-100' : 'text-gray-800'}`}
+          >
             {activeTab === 'login' ? t('login.welcomeBack') : t('login.createAccount')}
           </h1>
-          <p className="text-center text-gray-500 text-sm mb-6">
+          <p
+            className={`text-center text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
+          >
             {activeTab === 'login' ? t('login.welcomeSub') : t('login.registerSub')}
           </p>
 
@@ -277,8 +325,14 @@ export default function LoginPage() {
           </Modal>
 
           {/* 其他登录方式 */}
-          <div className="mt-8 pt-6 border-t border-gray-100">
-            <p className="text-center text-gray-500 text-sm mb-4">{t('login.otherWays')}</p>
+          <div
+            className={`mt-8 pt-6 border-t ${isDark ? 'border-gray-600' : 'border-gray-100'}`}
+          >
+            <p
+              className={`text-center text-sm mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
+            >
+              {t('login.otherWays')}
+            </p>
             <div className="flex justify-center gap-4">
               {OTHER_LOGIN_OPTIONS.map((opt) => {
                 const Icon = opt.Icon
@@ -286,7 +340,11 @@ export default function LoginPage() {
                   <button
                     key={opt.key}
                     type="button"
-                    className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:border-primary hover:text-primary hover:bg-primary/5 transition-colors"
+                    className={`w-12 h-12 rounded-full border flex items-center justify-center transition-colors hover:border-primary hover:text-primary hover:bg-primary/5 ${
+                      isDark
+                        ? 'border-gray-600 text-gray-400'
+                        : 'border-gray-200 text-gray-600'
+                    }`}
                     title={t(opt.labelKey)}
                   >
                     <Icon className="text-xl" />
