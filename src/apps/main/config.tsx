@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { UserOutlined, AppstoreOutlined, SettingOutlined, DatabaseOutlined, FileTextOutlined, MailOutlined, ApiOutlined } from '@ant-design/icons'
+import { UserOutlined, AppstoreOutlined, SettingOutlined, DatabaseOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
 import NamespaceList from '@/pages/main/namespaces'
 
@@ -125,6 +125,30 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
           devUrl: 'http://localhost:5175/webhooks',
           prodUrl: 'http://localhost:4175/webhooks',
           path: '/rabbit/webhooks',
+        },
+      },
+      {
+        key: 'rabbit-messages',
+        icon: <MessageOutlined />,
+        label: t('menu.rabbitMessages'),
+        path: '/rabbit/messages',
+        subApp: {
+          name: 'rabbit-messages',
+          devUrl: 'http://localhost:5175/messages',
+          prodUrl: 'http://localhost:4175/messages',
+          path: '/rabbit/messages',
+        },
+      },
+      {
+        key: 'rabbit-sender',
+        icon: <SendOutlined />,
+        label: t('menu.rabbitSender'),
+        path: '/rabbit/sender',
+        subApp: {
+          name: 'rabbit-sender',
+          devUrl: 'http://localhost:5175/sender',
+          prodUrl: 'http://localhost:4175/sender',
+          path: '/rabbit/sender',
         },
       }
     ],

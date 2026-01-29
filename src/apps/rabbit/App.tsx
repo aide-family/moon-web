@@ -1,10 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { ConfigProvider } from 'antd'
-import { UserOutlined, FileTextOutlined, ApiOutlined } from '@ant-design/icons'
+import { UserOutlined, FileTextOutlined, ApiOutlined, MessageOutlined, SendOutlined } from '@ant-design/icons'
 import Rabbit1 from '@/pages/rabbit/rabbit1'
 import TemplateManagement from '@/pages/rabbit/templates'
 import EmailManagement from '@/pages/rabbit/emails'
 import WebhookManagement from '@/pages/rabbit/webhooks'
+import MessageManagement from '@/pages/rabbit/messages'
+import SenderManagement from '@/pages/rabbit/sender'
 import LayoutComponent, { type MenuItem } from '@/components/layout/Layout'
 import { isInMicroApp } from '@/utils'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
@@ -36,6 +38,18 @@ function AppContent() {
       label: t('rabbit.webhooks.title'),
       path: '/webhooks',
     },
+    {
+      key: '4',
+      icon: <MessageOutlined />,
+      label: t('rabbit.messages.title'),
+      path: '/messages',
+    },
+    {
+      key: '5',
+      icon: <SendOutlined />,
+      label: t('rabbit.sender.title'),
+      path: '/sender',
+    },
   ]
   
   // 头部组件示例
@@ -63,6 +77,8 @@ function AppContent() {
             <Route path="/templates" element={<TemplateManagement />} />
             <Route path="/emails" element={<EmailManagement />} />
             <Route path="/webhooks" element={<WebhookManagement />} />
+            <Route path="/messages" element={<MessageManagement />} />
+            <Route path="/sender" element={<SenderManagement />} />
           </Route>
         </Routes>
       </BrowserRouter>
