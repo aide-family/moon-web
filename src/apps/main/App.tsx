@@ -3,6 +3,7 @@ import { ConfigProvider } from 'antd'
 import { useEffect, useRef, useMemo } from 'react'
 import React from 'react'
 import LayoutComponent from '@/components/layout/Layout'
+import LoginPage from '@/pages/main/login'
 import microApp from '@micro-zoe/micro-app'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
@@ -231,6 +232,7 @@ function AppContent() {
     >
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<LoginPage />} />
           <Route
             path="/"
             element={<LayoutComponent menuItems={menuItems} />}
