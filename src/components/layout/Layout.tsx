@@ -3,13 +3,14 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from '@ant-design/icons';
-import { Layout, Menu, Breadcrumb, theme } from 'antd';
+import { Layout, Menu, Breadcrumb, theme, Grid } from 'antd';
 import type { MenuProps } from 'antd';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import HeaderComponent from './Header';
 import { useLocale } from '@/contexts/LocaleContext';
 
 const { Header, Sider, Content, Footer } = Layout;
+const { useBreakpoint } = Grid;
 
 export interface MenuItem {
   key: string;
@@ -90,14 +91,31 @@ const getBreadcrumbItems = (items: MenuItem[], targetPath: string, parents: Menu
   return [];
 };
 
+// Ant Design lg 断点为 1024px
+const LG_BREAKPOINT = 1024;
+
 const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const screens = useBreakpoint();
+  const isDesktop = screens.lg === true; // lg 及以上为桌面，以下为平板/手机
+  // 大屏默认展开、小屏默认收起（用 window 初始化避免 useBreakpoint 首帧为空对象）
+  const [collapsed, setCollapsed] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < LG_BREAKPOINT : true
+  );
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useLocale();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  // 随断点同步：大屏默认展开，平板/手机默认收起
+  useEffect(() => {
+    if (isDesktop) {
+      setCollapsed(false);
+    } else {
+      setCollapsed(true);
+    }
+  }, [isDesktop]);
 
   // 根据当前路径设置选中的菜单项
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
@@ -149,30 +167,49 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
 
   return (
     <Layout className="h-full w-full">
-      <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div className="logo h-16 w-full text-center flex items-center justify-center text-white bg-blue-400" >LOGO</div>
+      <Sider
+        trigger={null}
+        collapsible
+        collapsed={collapsed}
+        breakpoint="lg"
+        collapsedWidth={isDesktop ? 80 : 0}
+        onBreakpoint={(broken) => {
+          if (broken) setCollapsed(true);
+        }}
+      >
+        <div className="logo h-16 w-full text-center flex items-center justify-center text-white bg-blue-400 shrink-0">LOGO</div>
         <Menu
           theme="dark"
           mode="inline"
           selectedKeys={selectedKeys}
           openKeys={openKeys}
           items={menuItemsData}
-          onClick={handleMenuClick}
+          onClick={(e) => {
+            handleMenuClick(e);
+            if (!isDesktop) setCollapsed(true);
+          }}
           onOpenChange={handleOpenChange}
         />
       </Sider>
       <Layout>
-        <Header className='h-16' style={{ padding: 0, background: colorBgContainer }}>
-          <div className='flex items-center  ml-4 gap-4'>
-            <div onClick={() => setCollapsed(!collapsed)} className='cursor-pointer'>
-              {collapsed ? <i className='text-base'><MenuUnfoldOutlined /></i> : <i className='text-base'><MenuFoldOutlined /></i>}
+        <Header className="h-14 md:h-16" style={{ padding: 0, background: colorBgContainer }}>
+          <div className="flex items-center ml-2 md:ml-4 gap-2 md:gap-4 flex-wrap min-w-0">
+            <div
+              onClick={() => setCollapsed(!collapsed)}
+              className="cursor-pointer shrink-0 p-2 -ml-1"
+              aria-label={collapsed ? '展开菜单' : '收起菜单'}
+            >
+              {collapsed ? <MenuUnfoldOutlined className="text-base" /> : <MenuFoldOutlined className="text-base" />}
             </div>
             {breadcrumbData.length > 0 && (
-              <div >
-                <Breadcrumb items={breadcrumbData} />
+              <div className="min-w-0 overflow-hidden">
+                <Breadcrumb
+                  items={breadcrumbData}
+                  className="text-xs md:text-sm"
+                />
               </div>
             )}
-            <div className='flex-1 h-full flex items-center'>
+            <div className="flex-1 min-w-0 h-full flex items-center">
               {header}
             </div>
             <HeaderComponent />
@@ -180,7 +217,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
         </Header>
 
         <Content
-          className='p-4 m-4'
+          className="p-2 m-2 md:p-4 md:m-4"
           style={{
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
@@ -189,8 +226,8 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
         >
           <Outlet />
         </Content>
-        <Footer className='h-12 flex items-center justify-center' style={{background: colorBgContainer}}>
-          <div className='flex items-center justify-center gap-2 text-sm text-gray-500'>
+        <Footer className="h-10 md:h-12 flex items-center justify-center px-2" style={{ background: colorBgContainer }}>
+          <div className="flex items-center justify-center gap-1 md:gap-2 text-xs md:text-sm text-gray-500 flex-wrap">
             <div>{t('footer.copyright', { year: new Date().getFullYear() })}</div>
             <div>{t('footer.icp')}</div>
           </div>

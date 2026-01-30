@@ -6,21 +6,45 @@
     font-size: 24px;
 }
 
+/* 平板、手机适配：禁止 iOS 自动放大字体 */
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
 html,
 body {
     margin: 0;
     padding: 0;
     font-size: 16px;
-    /* width: 1920px; */
     width: 100%;
     height: 100%;
-    font-size: 16px;
+    /* 安全区域：适配刘海屏、底部横条 */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    box-sizing: border-box;
 }
 
- #root {
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+#root {
     width: 100%;
     height: 100%;
 }
+
+/* 响应式断点参考（与 Tailwind / Ant Design 一致）：
+   xs: <576px  手机竖屏
+   sm: ≥576px  手机横屏/小屏
+   md: ≥768px  平板竖屏
+   lg: ≥1024px 平板横屏/小桌面
+   xl: ≥1280px 桌面
+*/
 
 
 /* 确保关闭状态的父菜单在子菜单被选中时也保持高亮 */

@@ -433,7 +433,7 @@ const NamespaceList: React.FC = () => {
           <Input
             placeholder={t('table.search.placeholder')}
             allowClear
-            className='w-50'
+            className="w-full min-w-[120px] sm:w-48 md:w-52"
             value={searchParams.keyword}
             onChange={(e) => setSearchParams(prev => ({ ...prev, keyword: e.target.value }))}
             onPressEnter={handleSearch}

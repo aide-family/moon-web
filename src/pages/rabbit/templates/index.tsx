@@ -406,7 +406,7 @@ const TemplateListContent: React.FC = () => {
             value={searchParams.keyword}
             onChange={(e) => setSearchParams(prev => ({ ...prev, keyword: e.target.value }))}
             onPressEnter={handleSearch}
-            className='w-50'
+            className="w-full min-w-[120px] sm:w-48 md:w-52"
           />
           <Radio.Group
             value={searchParams.status}

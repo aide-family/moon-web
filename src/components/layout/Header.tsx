@@ -171,51 +171,50 @@ const Header: React.FC = () => {
   ];
 
   return (
-    <div className='flex items-center gap-4 mr-4 h-5'>
+    <div className="flex items-center gap-2 sm:gap-4 mr-2 md:mr-4 h-8 shrink-0 flex-wrap justify-end">
       {/* 主题切换 */}
-      <Dropdown 
-        menu={{ 
+      <Dropdown
+        menu={{
           items: themeMenuItems,
-          selectedKeys: [themeMode]
-        }} 
+          selectedKeys: [themeMode],
+        }}
         trigger={['click']}
       >
-        <div className='flex h-8 items-center justify-center w-8 cursor-pointer hover:opacity-80'>
+        <div className="flex h-8 w-8 min-w-8 items-center justify-center cursor-pointer hover:opacity-80">
           {getThemeIcon()}
         </div>
       </Dropdown>
       {/* 语言切换 */}
-      <Dropdown 
-        menu={{ 
+      <Dropdown
+        menu={{
           items: localeMenuItems,
-          selectedKeys: [locale]
-        }} 
+          selectedKeys: [locale],
+        }}
         trigger={['click']}
       >
-        <div className='flex h-8 items-center justify-center w-8 cursor-pointer hover:opacity-80'>
+        <div className="flex h-8 w-8 min-w-8 items-center justify-center cursor-pointer hover:opacity-80">
           <GlobalOutlined />
         </div>
       </Dropdown>
-      {/* 命名空间选择 */}
+      {/* 命名空间选择：小屏缩小宽度 */}
       <Select
         value={namespace}
         onChange={handleNamespaceChange}
         options={namespaceOptions}
-        className='w-30'
+        className="w-20 sm:w-28 md:w-32"
         loading={loading}
         placeholder={t('namespace.select')}
+        size="small"
+        popupMatchSelectWidth={false}
       />
-      <Dropdown 
-        menu={{ items: userMenuItems }} 
-        trigger={['click']}
-      >
-        <div className='flex h-8 items-center gap-2 cursor-pointer'>
-          <Avatar 
-            size="small" 
-            icon={<UserOutlined />} 
+      <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
+        <div className="flex h-8 items-center gap-1.5 cursor-pointer min-w-0">
+          <Avatar
+            size="small"
+            icon={<UserOutlined />}
             src={userInfo.avatar}
           />
-          <span>{userInfo.name}</span>
+          <span className="hidden sm:inline truncate max-w-[80px] md:max-w-[120px]">{userInfo.name}</span>
         </div>
       </Dropdown>
     </div>

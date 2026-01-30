@@ -38,7 +38,6 @@ export function initRem(config: RemConfig = {}) {
    */
   const setRem = () => {
     const clientWidth = document.documentElement.clientWidth || window.innerWidth
-    console.log(clientWidth)
     // 计算缩放比例
     const scale = clientWidth / baseWidth
     // 计算 font-size（基准为 16px）
