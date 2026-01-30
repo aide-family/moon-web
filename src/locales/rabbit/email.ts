@@ -3,7 +3,7 @@
 
 export const zhCN = {
   // 表格相关（邮件模块特定）
-  'email.table.uid': 'UID',
+  'email.table.uid': '配置ID',
   'email.table.name': '名称',
   'email.table.host': '主机',
   'email.table.port': '端口',
@@ -38,7 +38,7 @@ export const zhCN = {
   'email.form.password.placeholder': '请输入SMTP密码',
   'email.form.password.required': '请输入密码',
   // 详情相关
-  'email.detail.uid': 'UID',
+  'email.detail.uid': '配置ID',
   'email.detail.name': '名称',
   'email.detail.host': '主机',
   'email.detail.port': '端口',
@@ -50,7 +50,7 @@ export const zhCN = {
 
 export const enUS = {
   // Table related (Email module specific)
-  'email.table.uid': 'UID',
+  'email.table.uid': 'Config ID',
   'email.table.name': 'Name',
   'email.table.host': 'Host',
   'email.table.port': 'Port',
@@ -85,7 +85,7 @@ export const enUS = {
   'email.form.password.placeholder': 'Please enter SMTP password',
   'email.form.password.required': 'Please enter password',
   // Detail related
-  'email.detail.uid': 'UID',
+  'email.detail.uid': 'Config ID',
   'email.detail.name': 'Name',
   'email.detail.host': 'Host',
   'email.detail.port': 'Port',

@@ -5,7 +5,7 @@ export const zhCN = {
   // 菜单标题
   'rabbit.templates.title': '模板管理',
   // 表格相关（模板模块特定）
-  'template.table.uid': 'UID',
+  'template.table.uid': '模板ID',
   'template.table.name': '名称',
   'template.table.app': '应用',
   'template.table.createdAt': '创建时间',
@@ -32,7 +32,7 @@ export const zhCN = {
   'template.form.jsonData.invalid': '请输入有效的JSON格式',
   'template.form.jsonData.help': 'JSON数据为JSON格式，可以为空。支持邮件、短信、Webhook等不同类型的模板数据结构',
   // 详情相关
-  'template.detail.uid': 'UID',
+  'template.detail.uid': '模板ID',
   'template.detail.name': '名称',
   'template.detail.app': '应用',
   'template.detail.createdAt': '创建时间',
@@ -54,7 +54,7 @@ export const enUS = {
   // Menu title
   'rabbit.templates.title': 'Template Management',
   // Table related (Template module specific)
-  'template.table.uid': 'UID',
+  'template.table.uid': 'Template ID',
   'template.table.name': 'Name',
   'template.table.app': 'App',
   'template.table.createdAt': 'Created At',
@@ -81,7 +81,7 @@ export const enUS = {
   'template.form.jsonData.invalid': 'Please enter valid JSON format',
   'template.form.jsonData.help': 'JSON data is in JSON format and can be empty. Supports different template data structures for Email, SMS, Webhook, etc.',
   // Detail related
-  'template.detail.uid': 'UID',
+  'template.detail.uid': 'Template ID',
   'template.detail.name': 'Name',
   'template.detail.app': 'App',
   'template.detail.createdAt': 'Created At',

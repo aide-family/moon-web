@@ -3,7 +3,7 @@
 
 export const zhCN = {
   // 表格相关（命名空间模块特定）
-  'namespace.table.uid': 'UID',
+  'namespace.table.uid': '命名空间ID',
   'namespace.table.name': '名称',
   'namespace.table.createdAt': '创建时间',
   'namespace.table.updatedAt': '更新时间',
@@ -26,7 +26,7 @@ export const zhCN = {
   'namespace.form.metadata.invalid': '请输入有效的JSON格式',
   'namespace.form.metadata.help': '元数据为JSON格式，可以为空',
   // 详情相关
-  'namespace.detail.uid': 'UID',
+  'namespace.detail.uid': '命名空间ID',
   'namespace.detail.name': '名称',
   'namespace.detail.createdAt': '创建时间',
   'namespace.detail.updatedAt': '更新时间',
@@ -35,7 +35,7 @@ export const zhCN = {
 
 export const enUS = {
   // Table related (Namespace module specific)
-  'namespace.table.uid': 'UID',
+  'namespace.table.uid': 'Namespace ID',
   'namespace.table.name': 'Name',
   'namespace.table.createdAt': 'Created At',
   'namespace.table.updatedAt': 'Updated At',
@@ -58,7 +58,7 @@ export const enUS = {
   'namespace.form.metadata.invalid': 'Please enter valid JSON format',
   'namespace.form.metadata.help': 'Metadata is in JSON format and can be empty',
   // Detail related
-  'namespace.detail.uid': 'UID',
+  'namespace.detail.uid': 'Namespace ID',
   'namespace.detail.name': 'Name',
   'namespace.detail.createdAt': 'Created At',
   'namespace.detail.updatedAt': 'Updated At',

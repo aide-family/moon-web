@@ -5,7 +5,7 @@ export const zhCN = {
   // 菜单标题
   'rabbit.webhooks.title': 'Webhook管理',
   // 表格相关（Webhook模块特定）
-  'webhook.table.uid': 'UID',
+  'webhook.table.uid': '配置ID',
   'webhook.table.name': '名称',
   'webhook.table.app': '应用',
   'webhook.table.url': 'URL',
@@ -44,7 +44,7 @@ export const zhCN = {
   'webhook.form.headers.invalid': '请输入有效的JSON格式',
   'webhook.form.headers.help': '请求头为JSON格式，可以为空。例如：{"Content-Type": "application/json", "X-Custom-Header": "value"}',
   // 详情相关
-  'webhook.detail.uid': 'UID',
+  'webhook.detail.uid': '配置ID',
   'webhook.detail.name': '名称',
   'webhook.detail.app': '应用',
   'webhook.detail.url': 'URL',
@@ -77,7 +77,7 @@ export const enUS = {
   // Menu title
   'rabbit.webhooks.title': 'Webhook Management',
   // Table related (Webhook module specific)
-  'webhook.table.uid': 'UID',
+  'webhook.table.uid': 'Config ID',
   'webhook.table.name': 'Name',
   'webhook.table.app': 'App',
   'webhook.table.url': 'URL',
@@ -116,7 +116,7 @@ export const enUS = {
   'webhook.form.headers.invalid': 'Please enter valid JSON format',
   'webhook.form.headers.help': 'Headers are in JSON format and can be empty. E.g.: {"Content-Type": "application/json", "X-Custom-Header": "value"}',
   // Detail related
-  'webhook.detail.uid': 'UID',
+  'webhook.detail.uid': 'Config ID',
   'webhook.detail.name': 'Name',
   'webhook.detail.app': 'App',
   'webhook.detail.url': 'URL',

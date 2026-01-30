@@ -3,7 +3,7 @@
 
 export const zhCN = {
   'rabbit.messages.title': '消息管理',
-  'messageLog.table.uid': 'UID',
+  'messageLog.table.uid': '消息ID',
   'messageLog.table.type': '类型',
   'messageLog.table.status': '状态',
   'messageLog.table.sendAt': '发送时间',
@@ -14,7 +14,7 @@ export const zhCN = {
   'messageLog.table.createdAt': '创建时间',
   'messageLog.table.updatedAt': '更新时间',
   'messageLog.detail.title': '消息详情',
-  'messageLog.detail.uid': 'UID',
+  'messageLog.detail.uid': '消息ID',
   'messageLog.detail.type': '类型',
   'messageLog.detail.status': '状态',
   'messageLog.detail.sendAt': '发送时间',
@@ -42,7 +42,7 @@ export const zhCN = {
 
 export const enUS = {
   'rabbit.messages.title': 'Message Management',
-  'messageLog.table.uid': 'UID',
+  'messageLog.table.uid': 'Message ID',
   'messageLog.table.type': 'Type',
   'messageLog.table.status': 'Status',
   'messageLog.table.sendAt': 'Send At',
@@ -53,7 +53,7 @@ export const enUS = {
   'messageLog.table.createdAt': 'Created At',
   'messageLog.table.updatedAt': 'Updated At',
   'messageLog.detail.title': 'Message Detail',
-  'messageLog.detail.uid': 'UID',
+  'messageLog.detail.uid': 'Message ID',
   'messageLog.detail.type': 'Type',
   'messageLog.detail.status': 'Status',
   'messageLog.detail.sendAt': 'Send At',
