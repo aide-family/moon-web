@@ -21,7 +21,7 @@ const Header: React.FC = () => {
   // 命名空间选项列表
   const [namespaceOptions, setNamespaceOptions] = useState<NamespaceItemSelect[]>([]);
   const [loading, setLoading] = useState(false);
-  
+
   // 用于防止重复请求
   const hasFetchedRef = useRef(false);
 
@@ -165,37 +165,13 @@ const Header: React.FC = () => {
     {
       key: 'logout',
       label: t('user.logout'),
-    //   icon: <LogoutOutlined />,
+      //   icon: <LogoutOutlined />,
       onClick: handleLogout,
     },
   ];
 
   return (
     <div className="flex items-center gap-2 sm:gap-4 mr-2 md:mr-4 h-8 shrink-0 flex-wrap justify-end">
-      {/* 主题切换 */}
-      <Dropdown
-        menu={{
-          items: themeMenuItems,
-          selectedKeys: [themeMode],
-        }}
-        trigger={['click']}
-      >
-        <div className="flex h-8 w-8 min-w-8 items-center justify-center cursor-pointer hover:opacity-80">
-          {getThemeIcon()}
-        </div>
-      </Dropdown>
-      {/* 语言切换 */}
-      <Dropdown
-        menu={{
-          items: localeMenuItems,
-          selectedKeys: [locale],
-        }}
-        trigger={['click']}
-      >
-        <div className="flex h-8 w-8 min-w-8 items-center justify-center cursor-pointer hover:opacity-80">
-          <GlobalOutlined />
-        </div>
-      </Dropdown>
       {/* 命名空间选择：小屏缩小宽度 */}
       <Select
         value={namespace}
@@ -207,6 +183,33 @@ const Header: React.FC = () => {
         size="small"
         popupMatchSelectWidth={false}
       />
+      <div className="flex items-center">
+
+        {/* 主题切换 */}
+        <Dropdown
+          menu={{
+            items: themeMenuItems,
+            selectedKeys: [themeMode],
+          }}
+          trigger={['click']}
+        >
+          <div className="flex h-8 w-8 min-w-8 items-center justify-center cursor-pointer hover:opacity-80">
+            {getThemeIcon()}
+          </div>
+        </Dropdown>
+        {/* 语言切换 */}
+        <Dropdown
+          menu={{
+            items: localeMenuItems,
+            selectedKeys: [locale],
+          }}
+          trigger={['click']}
+        >
+          <div className="flex h-8 w-8 min-w-8 items-center justify-center cursor-pointer hover:opacity-80">
+            <GlobalOutlined />
+          </div>
+        </Dropdown>
+      </div>
       <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
         <div className="flex h-8 items-center gap-1.5 cursor-pointer min-w-0">
           <Avatar
