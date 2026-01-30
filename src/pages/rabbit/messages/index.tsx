@@ -29,7 +29,7 @@ const { RangePicker } = DatePicker
 const USE_MOCK_DATA = true
 
 function generateMockData(): MessageLogItem[] {
-  const statuses = [0, 1, 1, 2, 1, 3, 0, 2, 1, 1]
+  const statuses = [0, 1, 1, 2, 1, 3, 0, 2, 1, 4, 4, 1]
   const types = [0, 1, 2, 0, 1, 0, 2, 1, 0, 1]
   const messages = [
     '订单支付成功通知',
@@ -72,6 +72,7 @@ function getStatusLabel(status: number | undefined, t: (key: string) => string):
     1: t('messageLog.status.sent'),
     2: t('messageLog.status.failed'),
     3: t('messageLog.status.cancelled'),
+    4: t('messageLog.status.sending'),
   }
   return map[status] ?? t('messageLog.status.unknown')
 }
@@ -83,6 +84,7 @@ function getStatusColor(status: number | undefined): string {
     1: 'success',
     2: 'error',
     3: 'default',
+    4: 'processing',
   }
   return map[status] ?? 'default'
 }
@@ -371,6 +373,7 @@ export default function MessageManagement() {
               onChange={v => setSearchParams(prev => ({ ...prev, status: v }))}
               options={[
                 { value: 0, label: t('messageLog.status.pending') },
+                { value: 4, label: t('messageLog.status.sending') },
                 { value: 1, label: t('messageLog.status.sent') },
                 { value: 2, label: t('messageLog.status.failed') },
                 { value: 3, label: t('messageLog.status.cancelled') },

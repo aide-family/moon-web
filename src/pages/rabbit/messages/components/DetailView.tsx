@@ -18,6 +18,7 @@ function getStatusLabel(status: number | undefined, t: (key: string) => string):
     1: t('messageLog.status.sent'),
     2: t('messageLog.status.failed'),
     3: t('messageLog.status.cancelled'),
+    4: t('messageLog.status.sending'),
   }
   return map[status] ?? t('messageLog.status.unknown')
 }
@@ -29,6 +30,7 @@ function getStatusColor(status: number | undefined): string {
     1: 'success',
     2: 'error',
     3: 'default',
+    4: 'processing',
   }
   return map[status] ?? 'default'
 }
