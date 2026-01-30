@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { ThemeConfig, theme } from 'antd';
+import { isInMicroApp } from '@/utils';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 type ActualThemeMode = 'light' | 'dark';
@@ -24,8 +25,32 @@ const getSystemTheme = (): ActualThemeMode => {
   return 'light';
 };
 
-// 获取默认主题（从localStorage或系统偏好）
+// 从主应用获取主题（微前端环境）
+const getThemeFromMainApp = (): ThemeMode | null => {
+  if (!isInMicroApp()) {
+    return null;
+  }
+  try {
+    const win = window as Window & {
+      microApp?: { getData?: () => { theme?: ThemeMode; themeMode?: ThemeMode; [key: string]: unknown } };
+    };
+    if (win.microApp?.getData) {
+      const data = win.microApp.getData();
+      const mode = (data?.theme ?? data?.themeMode) as ThemeMode | undefined;
+      if (mode === 'light' || mode === 'dark' || mode === 'system') {
+        return mode;
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+};
+
+// 获取默认主题（从主应用 > localStorage > 系统偏好）
 const getDefaultTheme = (): ThemeMode => {
+  const fromMain = getThemeFromMainApp();
+  if (fromMain) return fromMain;
   const stored = localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode;
   if (stored === 'light' || stored === 'dark' || stored === 'system') {
     return stored;
@@ -82,6 +107,32 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       document.documentElement.removeAttribute('data-theme');
     };
   }, [actualThemeMode]);
+
+  // 微前端：监听主应用下发的主题，无需刷新即可切换
+  useEffect(() => {
+    if (!isInMicroApp()) return;
+    try {
+      const win = window as Window & {
+        microApp?: {
+          addDataListener?: (callback: (data: { theme?: ThemeMode; themeMode?: ThemeMode; [key: string]: unknown }) => void) => void;
+        };
+      };
+      if (!win.microApp?.addDataListener) return;
+      const dataListener = (data: { theme?: ThemeMode; themeMode?: ThemeMode; [key: string]: unknown }) => {
+        const mode = (data?.theme ?? data?.themeMode) as ThemeMode | undefined;
+        if (mode === 'light' || mode === 'dark' || mode === 'system') {
+          setThemeModeState(mode);
+          localStorage.setItem(THEME_STORAGE_KEY, mode);
+        }
+      };
+      win.microApp.addDataListener(dataListener);
+      return () => {
+        (win.microApp as { removeDataListener?: (cb: (data: unknown) => void) => void })?.removeDataListener?.(dataListener);
+      };
+    } catch {
+      // ignore
+    }
+  }, []);
 
   // 设置主题模式
   const setThemeMode = (mode: ThemeMode) => {

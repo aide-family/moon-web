@@ -26,6 +26,7 @@ function SubAppContainer({
   const location = useLocation()
   const microAppRef = useRef<HTMLElement>(null)
   const { locale } = useLocale()
+  const { themeMode } = useTheme()
 
   // 从配置中获取子应用配置
   const config = subAppConfigMap[appName]
@@ -57,11 +58,12 @@ function SubAppContainer({
       }
     }
 
-    // 使用 micro-app 的数据通信（包含初始语言信息）
+    // 使用 micro-app 的数据通信（包含初始语言、主题）
     microApp.setData(config.name, {
       basePath: config.path,
       currentPath: location.pathname.replace(config.path, '') || '/',
       locale,
+      theme: themeMode,
     })
 
     // 监听数据变化
@@ -76,7 +78,7 @@ function SubAppContainer({
         microApp.removeDataListener(config.name, dataListener)
       }
     }
-  }, [config, navigate, location.pathname, locale])
+  }, [config, navigate, location.pathname, locale, themeMode])
 
   // 向子应用传递当前路由和 baseroute
   useEffect(() => {
@@ -92,25 +94,25 @@ function SubAppContainer({
       win.__MICRO_APP_BASE_ROUTE__ = config.path
     }
     
-    microApp.setData(config.name, { 
+    microApp.setData(config.name, {
       basePath: config.path,
       baseroute: config.path,
       currentPath: subPath,
       locale,
+      theme: themeMode,
     })
-  }, [location.pathname, config, locale])
+  }, [location.pathname, config, locale, themeMode])
 
-  // 向子应用传递语言信息（当语言变化时，确保立即更新）
+  // 向子应用传递语言、主题（变化时立即更新，子应用无需刷新）
   useEffect(() => {
     if (!config) {
       return
     }
-    
-    // 直接更新 locale，micro-app 会自动合并数据
-    microApp.setData(config.name, { 
+    microApp.setData(config.name, {
       locale,
+      theme: themeMode,
     })
-  }, [locale, config])
+  }, [locale, themeMode, config])
 
   // 如果配置不存在，返回错误提示
   if (!config) {
