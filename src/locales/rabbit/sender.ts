@@ -2,7 +2,7 @@
 // 中英文写在一个文件中，便于维护
 
 export const zhCN = {
-  'rabbit.sender.title': '消息发送',
+  'rabbit.sender.title': '发送消息',
   'sender.sendType': '发送方式',
   'sender.type.email': '发送邮件',
   'sender.type.emailTemplate': '邮件（模板）',
@@ -35,7 +35,7 @@ export const zhCN = {
 }
 
 export const enUS = {
-  'rabbit.sender.title': 'Message Send',
+  'rabbit.sender.title': 'Send Message',
   'sender.sendType': 'Send Type',
   'sender.type.email': 'Send Email',
   'sender.type.emailTemplate': 'Email (Template)',

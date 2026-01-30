@@ -2,7 +2,7 @@
 // 中英文写在一个文件中，便于维护
 
 export const zhCN = {
-  'rabbit.messages.title': '消息管理',
+  'rabbit.messages.title': '消息日志',
   'messageLog.table.uid': '消息ID',
   'messageLog.table.type': '类型',
   'messageLog.table.status': '状态',
@@ -38,10 +38,12 @@ export const zhCN = {
   'messageLog.status.failed': '失败',
   'messageLog.status.cancelled': '已取消',
   'messageLog.status.unknown': '未知',
+  'messageLog.retryBadge': '重试 {n} 次',
+  'messageLog.errorLabel': '错误',
 }
 
 export const enUS = {
-  'rabbit.messages.title': 'Message Management',
+  'rabbit.messages.title': 'Message Log',
   'messageLog.table.uid': 'Message ID',
   'messageLog.table.type': 'Type',
   'messageLog.table.status': 'Status',
@@ -77,4 +79,6 @@ export const enUS = {
   'messageLog.status.failed': 'Failed',
   'messageLog.status.cancelled': 'Cancelled',
   'messageLog.status.unknown': 'Unknown',
+  'messageLog.retryBadge': 'Retry {n}',
+  'messageLog.errorLabel': 'Error',
 }

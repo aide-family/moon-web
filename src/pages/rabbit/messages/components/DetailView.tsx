@@ -73,9 +73,6 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, loading, onCancel }
           <Descriptions.Item label={t('messageLog.detail.lastError')}>
             {data.lastError ?? '-'}
           </Descriptions.Item>
-          <Descriptions.Item label={t('messageLog.detail.createdAt')}>
-            {data.createdAt ? dayjs(data.createdAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
-          </Descriptions.Item>
           <Descriptions.Item label={t('messageLog.detail.updatedAt')}>
             {data.updatedAt ? dayjs(data.updatedAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
           </Descriptions.Item>

@@ -8,6 +8,7 @@ import {
   Select,
   DatePicker,
   App,
+  Tooltip,
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
@@ -291,53 +292,47 @@ export default function MessageManagement() {
       dataIndex: 'message',
       key: 'message',
       ellipsis: true,
-      render: (text: string) => text ?? '-',
-    },
-    { title: t('messageLog.table.retryTotal'), dataIndex: 'retryTotal', key: 'retryTotal', width: 90 },
-    {
-      title: t('messageLog.table.lastError'),
-      dataIndex: 'lastError',
-      key: 'lastError',
-      width: 120,
-      ellipsis: true,
-      render: (text: string) => text ?? '-',
-    },
-    {
-      title: t('messageLog.table.createdAt'),
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      width: 160,
-      render: (text: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
+      render: (text: string, record: MessageLogItem) => (
+        <Space size={4} wrap direction="horizontal" align="start">
+          {(record.retryTotal != null && record.retryTotal > 0) && (
+            <Tag color="orange">{t('messageLog.retryBadge', { n: record.retryTotal })}</Tag>
+          )}
+          {record.lastError && (
+            <Tooltip title={record.lastError}>
+              <Tag color="red">{t('messageLog.errorLabel')}</Tag>
+            </Tooltip>
+          )}
+          <span>{text ?? '-'}</span>
+        </Space>
+      ),
     },
     {
       title: t('table.action'),
       key: 'action',
       width: 180,
       fixed: 'right',
-      render: (_, record) => (
-        <Space size="small">
-          <Button type="link" size="small" onClick={() => handleViewDetail(record)}>
-            {t('common.detail')}
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => handleRetry(record)}
-            disabled={record.status === 3}
-          >
-            {t('messageLog.action.retry')}
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            danger
-            onClick={() => handleCancel(record)}
-            disabled={record.status === 3}
-          >
-            {t('messageLog.action.cancel')}
-          </Button>
-        </Space>
-      ),
+      render: (_, record) => {
+        const status = record.status
+        const showRetry = status === 2 // 失败：仅重试
+        const showCancel = status === 0 // 待发送：仅取消；已发送、已取消不展示
+        return (
+          <Space size="small">
+            <Button type="link" size="small" onClick={() => handleViewDetail(record)}>
+              {t('common.detail')}
+            </Button>
+            {showRetry && (
+              <Button type="link" size="small" onClick={() => handleRetry(record)}>
+                {t('messageLog.action.retry')}
+              </Button>
+            )}
+            {showCancel && (
+              <Button type="link" size="small" danger onClick={() => handleCancel(record)}>
+                {t('messageLog.action.cancel')}
+              </Button>
+            )}
+          </Space>
+        )
+      },
     },
   ]
 
