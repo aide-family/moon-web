@@ -3,6 +3,15 @@
  */
 
 /**
+ * 全局状态枚举
+ */
+export enum GlobalStatus {
+  UNKNOWN = 'GlobalStatus_UNKNOWN',
+  ENABLED = 'ENABLED',
+  DISABLED = 'DISABLED',
+}
+
+/**
  * 命名空间选择项
  */
 export interface NamespaceItemSelect {
@@ -29,7 +38,7 @@ export interface NamespaceSelectParams {
   keyword?: string
   limit?: number
   lastUID?: string
-  status?: number
+  status?: GlobalStatus | string
 }
 
 /**
@@ -40,7 +49,7 @@ export interface NamespaceItem {
   name: string
   createdAt: string
   updatedAt: string
-  status: number
+  status: GlobalStatus | string
   metadata?: Record<string, unknown>
 }
 
@@ -61,7 +70,7 @@ export interface NamespaceListParams {
   page?: number
   pageSize?: number
   keyword?: string
-  status?: number
+  status?: GlobalStatus | string
 }
 
 /**

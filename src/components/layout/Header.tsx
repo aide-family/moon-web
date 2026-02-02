@@ -58,7 +58,7 @@ const Header: React.FC = () => {
     const fetchNamespaceList = async () => {
       setLoading(true);
       try {
-        const response = await getNamespaceList();
+        const response = await getNamespaceList({limit: 100});
         if (response?.items) {
           setNamespaceOptions(response.items);
           // 如果当前选中的命名空间不在列表中，且列表不为空，则选择第一个
@@ -68,7 +68,7 @@ const Header: React.FC = () => {
             if (!exists && !currentNamespace) {
               const firstNamespace = response.items[0].value;
               setNamespace(firstNamespace);
-              localStorage.setItem('namespace', firstNamespace);
+              localStorage.setItem('namespace', response.items[0].label);
             }
           }
         }
@@ -88,9 +88,9 @@ const Header: React.FC = () => {
   }, []);
 
   // 处理命名空间切换
-  const handleNamespaceChange = (value: string) => {
+  const handleNamespaceChange = (value: string, option: NamespaceItemSelect) => {
     setNamespace(value);
-    localStorage.setItem('namespace', value);
+    localStorage.setItem('namespace', option.label);
     // 可以触发页面刷新或重新加载数据
     window.location.reload();
   };
@@ -175,7 +175,7 @@ const Header: React.FC = () => {
       {/* 命名空间选择：小屏缩小宽度 */}
       <Select
         value={namespace}
-        onChange={handleNamespaceChange}
+        onChange={(value, option) => handleNamespaceChange(value, option as NamespaceItemSelect)}
         options={namespaceOptions}
         className="w-20 sm:w-28 md:w-32"
         loading={loading}

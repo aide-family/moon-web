@@ -2,40 +2,11 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
-import { type NamespaceItem, type NamespaceListParams } from '@/api/namespace/index'
-// import { getNamespaceTableList } from '@/api/namespace/index' // 真实API调用，需要时取消注释
+import { type NamespaceItem, type NamespaceListParams, getNamespaceTableList, deleteNamespace, updateNamespaceStatus, GlobalStatus } from '@/api/namespace/index'
 import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
-
-// 生成模拟数据
-const generateMockData = (): NamespaceItem[] => {
-  const mockData: NamespaceItem[] = []
-  const names = ['生产环境', '测试环境', '开发环境', '预发布环境', '演示环境', '沙箱环境', 'UAT环境', 'SIT环境', '生产备份', '测试备份']
-  const statuses = [1, 1, 1, 2, 1, 2, 1, 1, 2, 1] // 混合启用和禁用状态
-  
-  for (let i = 0; i < 50; i++) {
-    const nameIndex = i % names.length
-    const status = statuses[nameIndex] || (i % 3 === 0 ? 1 : i % 3 === 1 ? 2 : 1)
-    const createdAt = dayjs().subtract(Math.floor(Math.random() * 365), 'day').subtract(Math.floor(Math.random() * 24), 'hour')
-    const updatedAt = createdAt.add(Math.floor(Math.random() * 30), 'day')
-    
-    mockData.push({
-      uid: `ns-${String(i + 1).padStart(6, '0')}`,
-      name: `${names[nameIndex]}${i >= names.length ? `-${Math.floor(i / names.length) + 1}` : ''}`,
-      status,
-      createdAt: createdAt.toISOString(),
-      updatedAt: updatedAt.toISOString(),
-      metadata: {
-        description: `这是${names[nameIndex]}的命名空间`,
-        owner: `user-${Math.floor(Math.random() * 10) + 1}`,
-      },
-    })
-  }
-  
-  return mockData
-}
 
 const NamespaceList: React.FC = () => {
   const { modal } = App.useApp()
@@ -60,53 +31,17 @@ const NamespaceList: React.FC = () => {
   const [detailViewOpen, setDetailViewOpen] = useState(false)
   const [viewingData, setViewingData] = useState<NamespaceItem | null>(null)
 
-  // 获取数据（使用模拟数据）
+  // 获取数据
   const fetchData = async (page?: number, pageSize?: number) => {
     setLoading(true)
     try {
-      // 模拟网络延迟
-      await new Promise(resolve => setTimeout(resolve, 300))
-      
       // 使用传入的参数或当前 state 的值
       const currentPage = page ?? pagination.current
       const currentPageSize = pageSize ?? pagination.pageSize
       
-      // 生成所有模拟数据
-      let allData = generateMockData()
-      
-      // 关键字过滤
-      if (searchParams.keyword) {
-        const keyword = searchParams.keyword.toLowerCase()
-        allData = allData.filter(item => 
-          item.name.toLowerCase().includes(keyword) || 
-          item.uid.toLowerCase().includes(keyword)
-        )
-      }
-      
-      // 状态过滤
-      if (searchParams.status !== undefined) {
-        allData = allData.filter(item => item.status === searchParams.status)
-      }
-      
-      // 分页处理
-      const total = allData.length
-      const start = (currentPage - 1) * currentPageSize
-      const end = start + currentPageSize
-      const paginatedData = allData.slice(start, end)
-      
-      setDataSource(paginatedData)
-      setPagination(prev => ({
-        ...prev,
-        current: currentPage,
-        pageSize: currentPageSize,
-        total,
-      }))
-      
-      // 如果需要使用真实API，取消下面的注释并注释掉上面的模拟数据逻辑
-      /*
       const params: NamespaceListParams = {
-        page: pagination.current,
-        pageSize: pagination.pageSize,
+        page: currentPage,
+        pageSize: currentPageSize,
         keyword: searchParams.keyword || undefined,
         status: searchParams.status,
       }
@@ -115,10 +50,11 @@ const NamespaceList: React.FC = () => {
         setDataSource(response.items || [])
         setPagination(prev => ({
           ...prev,
+          current: currentPage,
+          pageSize: currentPageSize,
           total: parseInt(response.total || '0', 10),
         }))
       }
-      */
     } catch (error) {
       console.error('获取命名空间列表失败:', error)
     } finally {
@@ -172,13 +108,13 @@ const NamespaceList: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       minWidth: 60,
-      render: (status: number) => {
-        const statusMap: Record<number, { text: string; color: string }> = {
-          0: { text: t('table.unknown'), color: 'default' },
-          1: { text: t('table.enable'), color: 'success' },
-          2: { text: t('table.disable'), color: 'error' },
+      render: (status: string) => {
+        const statusMap: Record<string, { text: string; color: string }> = {
+          [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
+          [GlobalStatus.ENABLED]: { text: t('table.enable'), color: 'success' },
+          [GlobalStatus.DISABLED]: { text: t('table.disable'), color: 'error' },
         }
-        const statusInfo = statusMap[status] || statusMap[0]
+        const statusInfo = statusMap[status] || statusMap[GlobalStatus.UNKNOWN]
         return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>
       },
     },
@@ -203,16 +139,18 @@ const NamespaceList: React.FC = () => {
       fixed: 'right',
       render: (_, record) => {
         const handleStatusClick = () => {
-          const action = record.status === 1 ? t('table.disable') : t('table.enable')
+          const isEnabled = record.status === GlobalStatus.ENABLED
+          const action = isEnabled ? t('table.disable') : t('table.enable')
           modal.confirm({
             title: t('namespace.confirm.status.title', { action }),
             content: t('namespace.confirm.status.content', { action, name: record.name }),
-            onOk: () => handleStatusChange(record, record.status === 1 ? 2 : 1),
+            onOk: () => handleStatusChange(record, isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED),
             okText: t('common.ok'),
             cancelText: t('common.cancel'),
           })
         }
 
+        const isEnabled = record.status === GlobalStatus.ENABLED
         const menuItems: MenuProps['items'] = [
           {
             key: 'edit',
@@ -221,7 +159,7 @@ const NamespaceList: React.FC = () => {
           },
           {
             key: 'status',
-            label: record.status === 1 ? t('table.disable') : t('table.enable'),
+            label: isEnabled ? t('table.disable') : t('table.enable'),
             onClick: handleStatusClick,
           },
           {
@@ -287,9 +225,7 @@ const NamespaceList: React.FC = () => {
   // 处理删除
   const handleDelete = async (record: NamespaceItem) => {
     try {
-      // TODO: 接口通后取消注释
-      // await deleteNamespace(record.uid)
-      console.log('删除命名空间:', record.uid)
+      await deleteNamespace(record.uid)
       message.success(t('message.delete.success'))
       fetchData()
     } catch (error) {
@@ -299,11 +235,9 @@ const NamespaceList: React.FC = () => {
   }
 
   // 处理修改状态
-  const handleStatusChange = async (record: NamespaceItem, newStatus: number) => {
+  const handleStatusChange = async (record: NamespaceItem, newStatus: GlobalStatus | string) => {
     try {
-      // TODO: 接口通后取消注释
-      // await updateNamespaceStatus(record.uid, newStatus)
-      console.log('修改状态:', record.uid, newStatus)
+      await updateNamespaceStatus(record.uid, newStatus)
       message.success(t('message.update.success'))
       fetchData()
       // 如果详情页打开，需要更新详情页数据
@@ -338,6 +272,12 @@ const NamespaceList: React.FC = () => {
     // TODO: 实现导出功能
     console.log('导出命名空间')
   }
+
+  // 初始化数据加载
+  useEffect(() => {
+    fetchData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.status]) // 只在组件挂载时执行一次
 
   // 计算表格高度（自动获取分页器高度、表头高度和 margin）
   useEffect(() => {
@@ -444,8 +384,8 @@ const NamespaceList: React.FC = () => {
             buttonStyle="solid"
           >
             <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
-            <Radio.Button value={1}>{t('table.search.enabled')}</Radio.Button>
-            <Radio.Button value={2}>{t('table.search.disabled')}</Radio.Button>
+            <Radio.Button value={GlobalStatus.ENABLED}>{t('table.search.enabled')}</Radio.Button>
+            <Radio.Button value={GlobalStatus.DISABLED}>{t('table.search.disabled')}</Radio.Button>
           </Radio.Group>
           <Button onClick={handleSearch} type="primary">
             {t('common.search')}

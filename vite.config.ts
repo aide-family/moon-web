@@ -27,6 +27,10 @@ export default defineConfig(({ mode }) => {
       v1: env.VITE_V1_RABBIT_API || '',
       health: env.VITE_HEALTH_RABBIT_API || '',
     },
+    main: {
+      v1: env.VITE_V1_MAIN_API || '',
+      health: env.VITE_HEALTH_MAIN_API || '',
+    },
   }
   const v1ApiUrl = appName ? appUrls[appName as keyof typeof appUrls]?.v1 : ''
   const healthApiUrl = appName

@@ -11,7 +11,8 @@ import type {
   NamespaceListParams,
   NamespaceItem,
   CreateNamespaceParams,
-  UpdateNamespaceParams
+  UpdateNamespaceParams,
+  GlobalStatus
 } from './types'
 
 /**
@@ -75,11 +76,11 @@ export const deleteNamespace = (uid: string): Promise<void> => {
  * @param status 状态值
  * @returns 更新后的命名空间
  */
-export const updateNamespaceStatus = (uid: string, status: number): Promise<NamespaceItem> => {
+export const updateNamespaceStatus = (uid: string, status: GlobalStatus | string): Promise<NamespaceItem> => {
   return http.put<NamespaceItem>(`/namespace/${uid}/status`, { status } as Record<string, unknown>)
 }
 
-// 导出类型
+// 导出类型和枚举
 export type { 
   NamespaceItemSelect, 
   NamespaceSelectResponse, 
@@ -90,3 +91,5 @@ export type {
   CreateNamespaceParams,
   UpdateNamespaceParams
 } from './types'
+
+export { GlobalStatus } from './types'

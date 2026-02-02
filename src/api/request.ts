@@ -33,9 +33,8 @@ request.interceptors.request.use(
     // 添加 token（如果存在）
     const token =
       localStorage.getItem('token') ||
-      sessionStorage.getItem('token') ||
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyMDA4ODk1ODE3OTAzMjc2MDMyIiwidXNlcm5hbWUiOiJsaWVyLmxvY2FsIiwiaXNzIjoicmFiYml0LXRlc3QiLCJleHAiOjE3OTkzMjkwNjF9.ZGm8W3DWSQAIcWHXaE32GQjaTA0vO8w18LOPxP1uxXQ'
-    const namespace = localStorage.getItem('namespace') || 'test'
+      sessionStorage.getItem('token') ||'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIyMDE3MzkwODkxNzczOTk3MDU2IiwidXNlcm5hbWUiOiJsaWVyLmxvY2FsIiwiaXNzIjoicmFiYml0LXRlc3QiLCJleHAiOjE4MDEzNTQ0NDR9.QWyZDHeHrOHYmGKzwInMFyCbsshhwOhyIQPvy1aF-98'
+    const namespace = localStorage.getItem('namespace') || 'default'
     if (token && !config.skipAuth) {
       config.headers.Authorization = `Bearer ${token}`
       config.headers['X-Namespace'] = namespace

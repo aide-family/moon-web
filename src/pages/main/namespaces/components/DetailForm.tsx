@@ -58,18 +58,14 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
           name: values.name,
           metadata,
         }
-        // TODO: 接口通后取消注释
-        // await createNamespace(params)
-        console.log('创建命名空间:', params)
+        await createNamespace(params)
         message.success(t('message.create.success'))
       } else if (mode === 'edit' && initialData) {
         const params: UpdateNamespaceParams = {
           name: values.name,
           metadata,
         }
-        // TODO: 接口通后取消注释
-        // await updateNamespace(initialData.uid, params)
-        console.log('更新命名空间:', initialData.uid, params)
+        await updateNamespace(initialData.uid, params)
         message.success(t('message.update.success'))
       }
 
