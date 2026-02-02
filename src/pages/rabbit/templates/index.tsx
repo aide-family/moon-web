@@ -2,62 +2,12 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App, Select } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
-import { type TemplateItem, type TemplateListParams } from '@/api/template/index'
-// import { getTemplateTableList } from '@/api/template/index' // 真实API调用，需要时取消注释
+import { type TemplateItem, type TemplateListParams, getTemplateTableList, deleteTemplate, updateTemplateStatus, GlobalStatus } from '@/api/template/index'
 import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView.tsx'
 import { useLocale } from '@/contexts/LocaleContext'
 import { getAppOptions, getAppLabel } from './constants'
-
-// 生成模拟数据
-const generateMockData = (): TemplateItem[] => {
-  const mockData: TemplateItem[] = []
-  const names = ['邮件通知模板', '短信验证码模板', 'Webhook通知模板', '告警模板', '欢迎邮件模板', '密码重置模板', '订单确认模板', '系统通知模板', '营销邮件模板', '活动邀请模板']
-  const statuses = [1, 1, 1, 2, 1, 2, 1, 1, 2, 1] // 混合启用和禁用状态
-  const apps = ['qq', 'feishu', 'wechat', 'dingtalk', 'email', 'sms', 'webhook', 'qq', 'feishu', 'wechat']
-  
-  for (let i = 0; i < 50; i++) {
-    const nameIndex = i % names.length
-    const status = statuses[nameIndex] || (i % 3 === 0 ? 1 : i % 3 === 1 ? 2 : 1)
-    const app = apps[nameIndex] || apps[i % apps.length]
-    const createdAt = dayjs().subtract(Math.floor(Math.random() * 365), 'day').subtract(Math.floor(Math.random() * 24), 'hour')
-    const updatedAt = createdAt.add(Math.floor(Math.random() * 30), 'day')
-    
-    // 生成不同类型的 jsonData
-    let jsonData = '{}'
-    if (i % 3 === 0) {
-      // Email 模板
-      jsonData = JSON.stringify({
-        subject: '邮件主题',
-        body: '邮件内容',
-        content_type: 'text/html',
-        headers: { 'X-Custom-Header': ['value1'] }
-      })
-    } else if (i % 3 === 1) {
-      // SMS 模板
-      jsonData = JSON.stringify({
-        content: '短信内容',
-        params: { code: '123456' }
-      })
-    } else {
-      // Webhook 模板
-      jsonData = JSON.stringify({})
-    }
-    
-    mockData.push({
-      uid: `tpl-${String(i + 1).padStart(6, '0')}`,
-      name: `${names[nameIndex]}${i >= names.length ? `-${Math.floor(i / names.length) + 1}` : ''}`,
-      app,
-      jsonData,
-      status,
-      createdAt: createdAt.toISOString(),
-      updatedAt: updatedAt.toISOString(),
-    })
-  }
-  
-  return mockData
-}
 
 const TemplateListContent: React.FC = () => {
   const { modal } = App.useApp()
@@ -83,58 +33,17 @@ const TemplateListContent: React.FC = () => {
   const [detailViewOpen, setDetailViewOpen] = useState(false)
   const [viewingData, setViewingData] = useState<TemplateItem | null>(null)
 
-  // 获取数据（使用模拟数据）
+  // 获取数据
   const fetchData = async (page?: number, pageSize?: number) => {
     setLoading(true)
     try {
-      // 模拟网络延迟
-      await new Promise(resolve => setTimeout(resolve, 300))
-      
       // 使用传入的参数或当前 state 的值
       const currentPage = page ?? pagination.current
       const currentPageSize = pageSize ?? pagination.pageSize
       
-      // 生成所有模拟数据
-      let allData = generateMockData()
-      
-      // 关键字过滤
-      if (searchParams.keyword) {
-        const keyword = searchParams.keyword.toLowerCase()
-        allData = allData.filter(item => 
-          item.name.toLowerCase().includes(keyword) || 
-          item.uid.toLowerCase().includes(keyword)
-        )
-      }
-      
-      // 状态过滤
-      if (searchParams.status !== undefined) {
-        allData = allData.filter(item => item.status === searchParams.status)
-      }
-      
-      // 应用过滤
-      if (searchParams.app !== undefined) {
-        allData = allData.filter(item => item.app === searchParams.app)
-      }
-      
-      // 分页处理
-      const total = allData.length
-      const start = (currentPage - 1) * currentPageSize
-      const end = start + currentPageSize
-      const paginatedData = allData.slice(start, end)
-      
-      setDataSource(paginatedData)
-      setPagination(prev => ({
-        ...prev,
-        current: currentPage,
-        pageSize: currentPageSize,
-        total,
-      }))
-      
-      // 如果需要使用真实API，取消下面的注释并注释掉上面的模拟数据逻辑
-      /*
       const params: TemplateListParams = {
-        page: pagination.current,
-        pageSize: pagination.pageSize,
+        page: currentPage,
+        pageSize: currentPageSize,
         keyword: searchParams.keyword || undefined,
         status: searchParams.status,
         app: searchParams.app,
@@ -144,10 +53,11 @@ const TemplateListContent: React.FC = () => {
         setDataSource(response.items || [])
         setPagination(prev => ({
           ...prev,
+          current: currentPage,
+          pageSize: currentPageSize,
           total: parseInt(response.total || '0', 10),
         }))
       }
-      */
     } catch (error) {
       console.error('获取模板列表失败:', error)
     } finally {
@@ -209,13 +119,13 @@ const TemplateListContent: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       minWidth: 60,
-      render: (status: number) => {
-        const statusMap: Record<number, { text: string; color: string }> = {
-          0: { text: t('table.unknown'), color: 'default' },
-          1: { text: t('table.enable'), color: 'success' },
-          2: { text: t('table.disable'), color: 'error' },
+      render: (status: string) => {
+        const statusMap: Record<string, { text: string; color: string }> = {
+          [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
+          [GlobalStatus.ENABLED]: { text: t('table.enable'), color: 'success' },
+          [GlobalStatus.DISABLED]: { text: t('table.disable'), color: 'error' },
         }
-        const statusInfo = statusMap[status] || statusMap[0]
+        const statusInfo = statusMap[status] || statusMap[GlobalStatus.UNKNOWN]
         return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>
       },
     },
@@ -240,11 +150,12 @@ const TemplateListContent: React.FC = () => {
       width: 120,
       render: (_, record) => {
         const handleStatusClick = () => {
-          const action = record.status === 1 ? t('table.disable') : t('table.enable')
+          const isEnabled = record.status === GlobalStatus.ENABLED
+          const action = isEnabled ? t('table.disable') : t('table.enable')
           modal.confirm({
             title: t('template.confirm.status.title', { action }),
             content: t('template.confirm.status.content', { action, name: record.name }),
-            onOk: () => handleStatusChange(record, record.status === 1 ? 2 : 1),
+            onOk: () => handleStatusChange(record, isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED),
             okText: t('common.ok'),
             cancelText: t('common.cancel'),
           })
@@ -260,6 +171,7 @@ const TemplateListContent: React.FC = () => {
           })
         }
 
+        const isEnabled = record.status === GlobalStatus.ENABLED
         const menuItems: MenuProps['items'] = [
           {
             key: 'edit',
@@ -268,7 +180,7 @@ const TemplateListContent: React.FC = () => {
           },
           {
             key: 'status',
-            label: record.status === 1 ? t('table.disable') : t('table.enable'),
+            label: isEnabled ? t('table.disable') : t('table.enable'),
             onClick: handleStatusClick,
           },
           {
@@ -326,9 +238,7 @@ const TemplateListContent: React.FC = () => {
   // 处理删除
   const handleDelete = async (record: TemplateItem) => {
     try {
-      // TODO: 接口通后取消注释
-      // await deleteTemplate(record.uid)
-      console.log('删除模板:', record.uid)
+      await deleteTemplate(record.uid)
       message.success(t('message.delete.success'))
       fetchData()
     } catch (error) {
@@ -338,11 +248,9 @@ const TemplateListContent: React.FC = () => {
   }
 
   // 处理修改状态
-  const handleStatusChange = async (record: TemplateItem, newStatus: number) => {
+  const handleStatusChange = async (record: TemplateItem, newStatus: GlobalStatus | string) => {
     try {
-      // TODO: 接口通后取消注释
-      // await updateTemplateStatus(record.uid, newStatus)
-      console.log('修改状态:', record.uid, newStatus)
+      await updateTemplateStatus(record.uid, newStatus)
       message.success(t('message.update.success'))
       fetchData()
       // 如果详情页打开，需要更新详情页数据
@@ -365,11 +273,11 @@ const TemplateListContent: React.FC = () => {
     fetchData()
   }
 
-  // 初始化加载数据
+  // 初始化加载数据和监听搜索参数变化
   useEffect(() => {
     fetchData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [searchParams.status, searchParams.app])
 
   // 计算表格高度
   useEffect(() => {
@@ -410,17 +318,23 @@ const TemplateListContent: React.FC = () => {
           />
           <Radio.Group
             value={searchParams.status}
-            onChange={(e) => setSearchParams(prev => ({ ...prev, status: e.target.value }))}
+            onChange={(e) => {
+              setSearchParams(prev => ({ ...prev, status: e.target.value }))
+              setPagination(prev => ({ ...prev, current: 1 }))
+            }}
             buttonStyle="solid"
           >
             <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
-            <Radio.Button value={1}>{t('table.search.enabled')}</Radio.Button>
-            <Radio.Button value={2}>{t('table.search.disabled')}</Radio.Button>
+            <Radio.Button value={GlobalStatus.ENABLED}>{t('table.search.enabled')}</Radio.Button>
+            <Radio.Button value={GlobalStatus.DISABLED}>{t('table.search.disabled')}</Radio.Button>
           </Radio.Group>
           <Select
             placeholder={t('template.search.app.placeholder')}
             value={searchParams.app}
-            onChange={(value) => setSearchParams(prev => ({ ...prev, app: value || undefined }))}
+            onChange={(value) => {
+              setSearchParams(prev => ({ ...prev, app: value || undefined }))
+              setPagination(prev => ({ ...prev, current: 1 }))
+            }}
             className='w-30'
             allowClear
             options={getAppOptions(t)}

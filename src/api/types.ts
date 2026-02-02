@@ -26,3 +26,12 @@ export interface RequestConfig {
   showLoading?: boolean // 是否显示加载状态
   skipAuth?: boolean // 是否跳过认证
 }
+
+/**
+ * 全局状态枚举
+ */
+export enum GlobalStatus {
+  UNKNOWN = 'GlobalStatus_UNKNOWN',
+  ENABLED = 'ENABLED',
+  DISABLED = 'DISABLED',
+}

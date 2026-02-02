@@ -10,10 +10,10 @@ import type {
   TemplateItem,
   CreateTemplateParams,
   UpdateTemplateParams,
-  UpdateTemplateStatusParams,
   TemplateSelectParams,
   TemplateSelectResponse,
 } from './types'
+import { GlobalStatus } from '../types'
 
 /**
  * 获取模板列表（用于表格展示）
@@ -21,7 +21,7 @@ import type {
  * @returns 模板列表
  */
 export const getTemplateTableList = (params?: TemplateListParams): Promise<TemplateListResponse> => {
-  return http.get<TemplateListResponse>('/v1/templates', params as unknown as Record<string, unknown>)
+  return http.get<TemplateListResponse>('/templates', params as unknown as Record<string, unknown>)
 }
 
 /**
@@ -30,7 +30,7 @@ export const getTemplateTableList = (params?: TemplateListParams): Promise<Templ
  * @returns 模板详情
  */
 export const getTemplateDetail = (uid: string): Promise<TemplateItem> => {
-  return http.get<TemplateItem>(`/v1/template/${uid}`)
+  return http.get<TemplateItem>(`/template/${uid}`)
 }
 
 /**
@@ -39,7 +39,7 @@ export const getTemplateDetail = (uid: string): Promise<TemplateItem> => {
  * @returns 创建的模板
  */
 export const createTemplate = (params?: CreateTemplateParams): Promise<TemplateItem> => {
-  return http.post<TemplateItem>('/v1/template', params as Record<string, unknown>)
+  return http.post<TemplateItem>('/template', params as Record<string, unknown>)
 }
 
 /**
@@ -49,7 +49,7 @@ export const createTemplate = (params?: CreateTemplateParams): Promise<TemplateI
  * @returns 更新后的模板
  */
 export const updateTemplate = (uid: string, params?: UpdateTemplateParams): Promise<TemplateItem> => {
-  return http.put<TemplateItem>(`/v1/template/${uid}`, params as Record<string, unknown>)
+  return http.put<TemplateItem>(`/template/${uid}`, params as Record<string, unknown>)
 }
 
 /**
@@ -58,7 +58,7 @@ export const updateTemplate = (uid: string, params?: UpdateTemplateParams): Prom
  * @returns 删除结果
  */
 export const deleteTemplate = (uid: string): Promise<void> => {
-  return http.delete<void>(`/v1/template/${uid}`)
+  return http.delete<void>(`/template/${uid}`)
 }
 
 /**
@@ -67,19 +67,19 @@ export const deleteTemplate = (uid: string): Promise<void> => {
  * @param status 状态值
  * @returns 更新后的模板
  */
-export const updateTemplateStatus = (uid: string, status: number): Promise<TemplateItem> => {
-  return http.put<TemplateItem>(`/v1/template/${uid}/status`, { status } as Record<string, unknown>)
+export const updateTemplateStatus = (uid: string, status: GlobalStatus | string): Promise<TemplateItem> => {
+  return http.put<TemplateItem>(`/template/${uid}/status`, { status } as Record<string, unknown>)
 }
 
 /**
  * 模板下拉列表（Template_SelectTemplate）
- * GET /v1/templates/select，用于下拉选择
+ * GET /templates/select，用于下拉选择
  */
 export const getTemplateSelectList = (
   params?: TemplateSelectParams
 ): Promise<TemplateSelectResponse> => {
   return http.get<TemplateSelectResponse>(
-    '/v1/templates/select',
+    '/templates/select',
     params as unknown as Record<string, unknown>
   )
 }
@@ -96,3 +96,6 @@ export type {
   TemplateSelectParams,
   TemplateSelectResponse,
 } from './types'
+
+// 导出公共枚举
+export { GlobalStatus } from '../types'

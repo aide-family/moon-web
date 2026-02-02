@@ -80,7 +80,7 @@ export const updateNamespaceStatus = (uid: string, status: GlobalStatus | string
   return http.put<NamespaceItem>(`/namespace/${uid}/status`, { status } as Record<string, unknown>)
 }
 
-// 导出类型和枚举
+// 导出类型
 export type { 
   NamespaceItemSelect, 
   NamespaceSelectResponse, 
@@ -92,4 +92,5 @@ export type {
   UpdateNamespaceParams
 } from './types'
 
-export { GlobalStatus } from './types'
+// 导出公共枚举
+export { GlobalStatus } from '../types'

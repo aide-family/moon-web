@@ -2,14 +2,7 @@
  * 命名空间相关类型定义
  */
 
-/**
- * 全局状态枚举
- */
-export enum GlobalStatus {
-  UNKNOWN = 'GlobalStatus_UNKNOWN',
-  ENABLED = 'ENABLED',
-  DISABLED = 'DISABLED',
-}
+import { GlobalStatus } from '../types'
 
 /**
  * 命名空间选择项

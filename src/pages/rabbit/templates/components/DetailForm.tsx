@@ -63,9 +63,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
           app: values.app,
           jsonData,
         }
-        // TODO: 接口通后取消注释
-        // await createTemplate(params)
-        console.log('创建模板:', params)
+        await createTemplate(params)
         message.success(t('message.create.success'))
       } else if (mode === 'edit' && initialData) {
         const params: UpdateTemplateParams = {
@@ -73,9 +71,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
           app: values.app,
           jsonData,
         }
-        // TODO: 接口通后取消注释
-        // await updateTemplate(initialData.uid, params)
-        console.log('更新模板:', initialData.uid, params)
+        await updateTemplate(initialData.uid, params)
         message.success(t('message.update.success'))
       }
 

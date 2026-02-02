@@ -2,6 +2,8 @@
  * 模板相关类型定义
  */
 
+import { GlobalStatus } from '../types'
+
 /**
  * 模板项
  */
@@ -12,7 +14,7 @@ export interface TemplateItem {
   jsonData: string
   createdAt: string
   updatedAt: string
-  status: number
+  status: GlobalStatus | string
 }
 
 /**
@@ -32,7 +34,7 @@ export interface TemplateListParams {
   page?: number
   pageSize?: number
   keyword?: string
-  status?: number
+  status?: GlobalStatus | string
   app?: string
 }
 
@@ -59,7 +61,7 @@ export interface UpdateTemplateParams {
  * 更新模板状态请求参数
  */
 export interface UpdateTemplateStatusParams {
-  status: number
+  status: GlobalStatus | string
 }
 
 /**
@@ -83,7 +85,7 @@ export interface TemplateSelectParams {
   keyword?: string
   limit?: number
   lastUID?: string
-  status?: number
+  status?: GlobalStatus | string
 }
 
 /**

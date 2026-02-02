@@ -1,6 +1,7 @@
 import React from 'react'
 import { Modal, Descriptions, Tag, Button, Space } from 'antd'
 import type { TemplateItem } from '@/api/template/index'
+import { GlobalStatus } from '@/api/template/index'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
 import { getAppLabel } from '../constants'
@@ -23,13 +24,13 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
   }
 
   // 状态映射
-  const getStatusInfo = (status: number) => {
-    const statusMap: Record<number, { text: string; color: string }> = {
-      0: { text: t('table.unknown'), color: 'default' },
-      1: { text: t('table.enable'), color: 'success' },
-      2: { text: t('table.disable'), color: 'error' },
+  const getStatusInfo = (status: string) => {
+    const statusMap: Record<string, { text: string; color: string }> = {
+      [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
+      [GlobalStatus.ENABLED]: { text: t('table.enable'), color: 'success' },
+      [GlobalStatus.DISABLED]: { text: t('table.disable'), color: 'error' },
     }
-    return statusMap[status] || statusMap[0]
+    return statusMap[status] || statusMap[GlobalStatus.UNKNOWN]
   }
 
   // 解析并格式化 jsonData
