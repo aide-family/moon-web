@@ -19,7 +19,7 @@ import type {
  * @returns 邮件配置列表
  */
 export const getEmailTableList = (params?: EmailListParams): Promise<EmailListResponse> => {
-  return http.get<EmailListResponse>('/v1/emails', params as unknown as Record<string, unknown>)
+  return http.get<EmailListResponse>('/email/configs', params as unknown as Record<string, unknown>)
 }
 
 /**
@@ -28,7 +28,7 @@ export const getEmailTableList = (params?: EmailListParams): Promise<EmailListRe
  * @returns 邮件配置详情
  */
 export const getEmailDetail = (uid: string): Promise<EmailItem> => {
-  return http.get<EmailItem>(`/v1/email/${uid}`)
+  return http.get<EmailItem>(`/email/${uid}`)
 }
 
 /**
@@ -37,7 +37,7 @@ export const getEmailDetail = (uid: string): Promise<EmailItem> => {
  * @returns 创建的邮件配置
  */
 export const createEmail = (params?: CreateEmailParams): Promise<EmailItem> => {
-  return http.post<EmailItem>('/v1/email/config', params as Record<string, unknown>)
+  return http.post<EmailItem>('/email/config', params as Record<string, unknown>)
 }
 
 /**
@@ -47,7 +47,7 @@ export const createEmail = (params?: CreateEmailParams): Promise<EmailItem> => {
  * @returns 更新后的邮件配置
  */
 export const updateEmail = (uid: string, params?: UpdateEmailParams): Promise<EmailItem> => {
-  return http.put<EmailItem>(`/v1/email/${uid}`, params as Record<string, unknown>)
+  return http.put<EmailItem>(`/email/${uid}`, params as Record<string, unknown>)
 }
 
 /**
@@ -56,7 +56,7 @@ export const updateEmail = (uid: string, params?: UpdateEmailParams): Promise<Em
  * @returns 删除结果
  */
 export const deleteEmail = (uid: string): Promise<void> => {
-  return http.delete<void>(`/v1/email/${uid}`)
+  return http.delete<void>(`/email/${uid}`)
 }
 
 /**
@@ -66,7 +66,7 @@ export const deleteEmail = (uid: string): Promise<void> => {
  * @returns 更新后的邮件配置
  */
 export const updateEmailStatus = (uid: string, status: number): Promise<EmailItem> => {
-  return http.put<EmailItem>(`/v1/email/${uid}/status`, { status } as Record<string, unknown>)
+  return http.put<EmailItem>(`/email/${uid}/status`, { status } as Record<string, unknown>)
 }
 
 // 导出类型

@@ -19,7 +19,7 @@ import type {
  * @returns Webhook 列表
  */
 export const getWebhookTableList = (params?: WebhookListParams): Promise<WebhookListResponse> => {
-  return http.get<WebhookListResponse>('/v1/webhook/configs', params as unknown as Record<string, unknown>)
+  return http.get<WebhookListResponse>('/webhook/configs', params as unknown as Record<string, unknown>)
 }
 
 /**
@@ -28,7 +28,7 @@ export const getWebhookTableList = (params?: WebhookListParams): Promise<Webhook
  * @returns Webhook 详情
  */
 export const getWebhookDetail = (uid: string): Promise<WebhookItem> => {
-  return http.get<WebhookItem>(`/v1/webhook/config/${uid}`)
+  return http.get<WebhookItem>(`/webhook/config/${uid}`)
 }
 
 /**
@@ -37,7 +37,7 @@ export const getWebhookDetail = (uid: string): Promise<WebhookItem> => {
  * @returns 创建的 Webhook
  */
 export const createWebhook = (params?: CreateWebhookParams): Promise<WebhookItem> => {
-  return http.post<WebhookItem>('/v1/webhook/config', params as Record<string, unknown>)
+  return http.post<WebhookItem>('/webhook/config', params as Record<string, unknown>)
 }
 
 /**
@@ -47,7 +47,7 @@ export const createWebhook = (params?: CreateWebhookParams): Promise<WebhookItem
  * @returns 更新后的 Webhook
  */
 export const updateWebhook = (uid: string, params?: UpdateWebhookParams): Promise<WebhookItem> => {
-  return http.put<WebhookItem>(`/v1/webhook/config/${uid}`, params as Record<string, unknown>)
+  return http.put<WebhookItem>(`/webhook/config/${uid}`, params as Record<string, unknown>)
 }
 
 /**
@@ -56,7 +56,7 @@ export const updateWebhook = (uid: string, params?: UpdateWebhookParams): Promis
  * @returns 删除结果
  */
 export const deleteWebhook = (uid: string): Promise<void> => {
-  return http.delete<void>(`/v1/webhook/config/${uid}`)
+  return http.delete<void>(`/webhook/config/${uid}`)
 }
 
 /**
@@ -66,7 +66,7 @@ export const deleteWebhook = (uid: string): Promise<void> => {
  * @returns 更新后的 Webhook
  */
 export const updateWebhookStatus = (uid: string, status: number): Promise<WebhookItem> => {
-  return http.put<WebhookItem>(`/v1/webhook/config/${uid}/status`, { status } as Record<string, unknown>)
+  return http.put<WebhookItem>(`/webhook/config/${uid}/status`, { status } as Record<string, unknown>)
 }
 
 // 导出类型

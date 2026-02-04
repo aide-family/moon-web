@@ -16,53 +16,53 @@ import type {
 
 /**
  * Sender_SendEmail
- * POST /v1/sender/email/{uid}
+ * POST /sender/email/{uid}
  * Path: uid (string, 必需)；Body(application/json, 必需): uid, subject, body, contentType?, to?, cc?, headers?
  */
 export function sendEmail(uid: string, params: SendEmailParams): Promise<unknown> {
-  return http.post<unknown>(`/v1/sender/email/${uid}`, params as Record<string, unknown>)
+  return http.post<unknown>(`/sender/email/${uid}`, params as Record<string, unknown>)
 }
 
 /**
  * Sender_SendEmailWithTemplate
- * POST /v1/sender/email/{uid}/template
+ * POST /sender/email/{uid}/template
  * Path: uid (string)；Body(application/json): uid?, templateUID?, jsonData?, to?, cc?
  */
 export function sendEmailWithTemplate(
   uid: string,
   params?: SendEmailWithTemplateParams
 ): Promise<unknown> {
-  return http.post<unknown>(`/v1/sender/email/${uid}/template`, params as Record<string, unknown>)
+  return http.post<unknown>(`/sender/email/${uid}/template`, params as Record<string, unknown>)
 }
 
 /**
  * Sender_SendMessage
- * POST /v1/sender/message
+ * POST /sender/message
  * Body(application/json, 必需): uid 等
  */
 export function sendMessage(params: SendMessageParams): Promise<unknown> {
-  return http.post<unknown>('/v1/sender/message', params as Record<string, unknown>)
+  return http.post<unknown>('/sender/message', params as Record<string, unknown>)
 }
 
 /**
  * Sender_SendWebhook
- * POST /v1/sender/webhook/{uid}
+ * POST /sender/webhook/{uid}
  * Path: uid (string)；Body(application/json, 必需): uid?, data?
  */
 export function sendWebhook(uid: string, params?: SendWebhookParams): Promise<unknown> {
-  return http.post<unknown>(`/v1/sender/webhook/${uid}`, params as Record<string, unknown>)
+  return http.post<unknown>(`/sender/webhook/${uid}`, params as Record<string, unknown>)
 }
 
 /**
  * Sender_SendWebhookWithTemplate
- * POST /v1/sender/webhook/{uid}/template
+ * POST /sender/webhook/{uid}/template
  * Path: uid (string)；Body(application/json, 必需): uid?, templateUID?, jsonData?
  */
 export function sendWebhookWithTemplate(
   uid: string,
   params?: SendWebhookWithTemplateParams
 ): Promise<unknown> {
-  return http.post<unknown>(`/v1/sender/webhook/${uid}/template`, params as Record<string, unknown>)
+  return http.post<unknown>(`/sender/webhook/${uid}/template`, params as Record<string, unknown>)
 }
 
 export type {

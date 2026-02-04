@@ -14,48 +14,48 @@ import type {
 
 /**
  * MessageLog_GetMessageLog
- * GET /v1/message-log/{uid}
+ * GET /message-log/{uid}
  */
 export function getMessageLog(uid: string): Promise<MessageLogItem> {
-  return http.get<MessageLogItem>(`/v1/message-log/${uid}`)
+  return http.get<MessageLogItem>(`/message-log/${uid}`)
 }
 
 /**
  * MessageLog_ListMessageLog
- * GET /v1/message-logs
+ * GET /message-logs
  * Query: page, pageSize, status, type, startAtUnix, endAtUnix
  */
 export function listMessageLogs(
   params?: ListMessageLogsParams
 ): Promise<ListMessageLogsResponse> {
   return http.get<ListMessageLogsResponse>(
-    '/v1/message-logs',
+    '/message-logs',
     params as unknown as Record<string, unknown>
   )
 }
 
 /**
  * MessageLog_CancelMessage
- * PUT /v1/message-log/{uid}/cancel
+ * PUT /message-log/{uid}/cancel
  * Body(application/json): uid 可选
  */
 export function cancelMessage(
   uid: string,
   body?: { uid?: string }
 ): Promise<unknown> {
-  return http.put<unknown>(`/v1/message-log/${uid}/cancel`, body as Record<string, unknown>)
+  return http.put<unknown>(`/message-log/${uid}/cancel`, body as Record<string, unknown>)
 }
 
 /**
  * MessageLog_RetryMessage
- * PUT /v1/message-log/{uid}/retry
+ * PUT /message-log/{uid}/retry
  * Body(application/json): uid 可选
  */
 export function retryMessage(
   uid: string,
   body?: { uid?: string }
 ): Promise<unknown> {
-  return http.put<unknown>(`/v1/message-log/${uid}/retry`, body as Record<string, unknown>)
+  return http.put<unknown>(`/message-log/${uid}/retry`, body as Record<string, unknown>)
 }
 
 export type { MessageLogItem, ListMessageLogsParams, ListMessageLogsResponse } from './types'

@@ -2,42 +2,17 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
-import { type EmailItem, type EmailListParams } from '@/api/email/index'
-// import { getEmailTableList } from '@/api/email/index' // 真实API调用，需要时取消注释
+import {
+  type EmailItem,
+  type EmailListParams,
+  getEmailTableList,
+  deleteEmail,
+  updateEmailStatus,
+} from '@/api/email/index'
 import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
-
-// 生成模拟数据
-const generateMockData = (): EmailItem[] => {
-  const mockData: EmailItem[] = []
-  const names = ['生产环境邮件配置', '测试环境邮件配置', '开发环境邮件配置', '预发布环境邮件配置', '演示环境邮件配置', '沙箱环境邮件配置', 'UAT环境邮件配置', 'SIT环境邮件配置', '生产备份邮件配置', '测试备份邮件配置']
-  const statuses = [1, 1, 1, 2, 1, 2, 1, 1, 2, 1] // 混合启用和禁用状态
-  const hosts = ['smtp.example.com', 'smtp.test.com', 'smtp.dev.com', 'smtp.staging.com', 'smtp.demo.com', 'smtp.sandbox.com', 'smtp.uat.com', 'smtp.sit.com', 'smtp.prod-backup.com', 'smtp.test-backup.com']
-  const ports = [25, 587, 465, 25, 587, 465, 25, 587, 465, 25]
-  
-  for (let i = 0; i < 50; i++) {
-    const nameIndex = i % names.length
-    const status = statuses[nameIndex] || (i % 3 === 0 ? 1 : i % 3 === 1 ? 2 : 1)
-    const createdAt = dayjs().subtract(Math.floor(Math.random() * 365), 'day').subtract(Math.floor(Math.random() * 24), 'hour')
-    const updatedAt = createdAt.add(Math.floor(Math.random() * 30), 'day')
-    
-    mockData.push({
-      uid: `email-${String(i + 1).padStart(6, '0')}`,
-      name: `${names[nameIndex]}${i >= names.length ? `-${Math.floor(i / names.length) + 1}` : ''}`,
-      host: hosts[nameIndex] || hosts[i % hosts.length],
-      port: ports[nameIndex] || ports[i % ports.length],
-      username: `user${i + 1}@example.com`,
-      password: '******',
-      status,
-      createdAt: createdAt.toISOString(),
-      updatedAt: updatedAt.toISOString(),
-    })
-  }
-  
-  return mockData
-}
 
 const EmailListContent: React.FC = () => {
   const { modal } = App.useApp()
@@ -62,67 +37,26 @@ const EmailListContent: React.FC = () => {
   const [detailViewOpen, setDetailViewOpen] = useState(false)
   const [viewingData, setViewingData] = useState<EmailItem | null>(null)
 
-  // 获取数据（使用模拟数据）
+  // 获取数据（真实接口）
   const fetchData = async (page?: number, pageSize?: number) => {
     setLoading(true)
     try {
-      // 模拟网络延迟
-      await new Promise(resolve => setTimeout(resolve, 300))
-      
-      // 使用传入的参数或当前 state 的值
       const currentPage = page ?? pagination.current
       const currentPageSize = pageSize ?? pagination.pageSize
-      
-      // 生成所有模拟数据
-      let allData = generateMockData()
-      
-      // 关键字过滤
-      if (searchParams.keyword) {
-        const keyword = searchParams.keyword.toLowerCase()
-        allData = allData.filter(item => 
-          item.name.toLowerCase().includes(keyword) || 
-          item.uid.toLowerCase().includes(keyword) ||
-          item.host.toLowerCase().includes(keyword) ||
-          item.username.toLowerCase().includes(keyword)
-        )
-      }
-      
-      // 状态过滤
-      if (searchParams.status !== undefined) {
-        allData = allData.filter(item => item.status === searchParams.status)
-      }
-      
-      // 分页处理
-      const total = allData.length
-      const start = (currentPage - 1) * currentPageSize
-      const end = start + currentPageSize
-      const paginatedData = allData.slice(start, end)
-      
-      setDataSource(paginatedData)
-      setPagination(prev => ({
-        ...prev,
-        current: currentPage,
-        pageSize: currentPageSize,
-        total,
-      }))
-      
-      // 如果需要使用真实API，取消下面的注释并注释掉上面的模拟数据逻辑
-      /*
       const params: EmailListParams = {
-        page: pagination.current,
-        pageSize: pagination.pageSize,
+        page: currentPage,
+        pageSize: currentPageSize,
         keyword: searchParams.keyword || undefined,
         status: searchParams.status,
       }
       const response = await getEmailTableList(params)
-      if (response) {
-        setDataSource(response.items || [])
-        setPagination(prev => ({
-          ...prev,
-          total: parseInt(response.total || '0', 10),
-        }))
-      }
-      */
+      setDataSource(response?.items ?? [])
+      setPagination(prev => ({
+        ...prev,
+        current: currentPage,
+        pageSize: currentPageSize,
+        total: parseInt(String(response?.total ?? 0), 10),
+      }))
     } catch (error) {
       console.error('获取邮件配置列表失败:', error)
     } finally {
@@ -311,32 +245,25 @@ const EmailListContent: React.FC = () => {
   // 处理删除
   const handleDelete = async (record: EmailItem) => {
     try {
-      // TODO: 接口通后取消注释
-      // await deleteEmail(record.uid)
-      console.log('删除邮件配置:', record.uid)
+      await deleteEmail(record.uid)
       message.success(t('message.delete.success'))
       fetchData()
     } catch (error) {
       console.error('删除失败:', error)
-      // 错误信息已由 API 拦截器处理
     }
   }
 
   // 处理修改状态
   const handleStatusChange = async (record: EmailItem, newStatus: number) => {
     try {
-      // TODO: 接口通后取消注释
-      // await updateEmailStatus(record.uid, newStatus)
-      console.log('修改状态:', record.uid, newStatus)
+      await updateEmailStatus(record.uid, newStatus)
       message.success(t('message.update.success'))
       fetchData()
-      // 如果详情页打开，需要更新详情页数据
       if (viewingData && viewingData.uid === record.uid) {
         setViewingData({ ...viewingData, status: newStatus })
       }
     } catch (error) {
       console.error('修改状态失败:', error)
-      // 错误信息已由 API 拦截器处理
     }
   }
 
@@ -354,7 +281,7 @@ const EmailListContent: React.FC = () => {
   useEffect(() => {
     fetchData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [searchParams.status])
 
   // 计算表格高度
   useEffect(() => {
