@@ -3,4 +3,5 @@
  */
 export { default as request, http } from './request'
 export type { ApiResponse, PaginatedResponse, RequestConfig } from './types'
+export { GlobalStatus } from './types'
 export * from './namespace/index'

@@ -35,7 +35,8 @@ export interface WebhookListParams {
   page?: number
   pageSize?: number
   keyword?: string
-  status?: number
+  /** 状态筛选，支持全局状态 GlobalStatus（ENABLED/DISABLED）或数字 1/2 */
+  status?: number | string
   app?: number
 }
 

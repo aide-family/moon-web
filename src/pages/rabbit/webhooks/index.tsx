@@ -9,11 +9,19 @@ import {
   deleteWebhook,
   updateWebhookStatus,
 } from '@/api/webhook/index'
+import { GlobalStatus } from '@/api'
 import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
 import { getAppOptions, getAppLabel, getMethodLabel } from './constants'
+
+// 将接口返回的 status（数字或字符串）转为 GlobalStatus，用于展示与筛选
+const normalizeStatus = (status: number | string | undefined): GlobalStatus | string => {
+  if (status === 1 || status === GlobalStatus.ENABLED) return GlobalStatus.ENABLED
+  if (status === 2 || status === GlobalStatus.DISABLED) return GlobalStatus.DISABLED
+  return GlobalStatus.UNKNOWN
+}
 
 const WebhookListContent: React.FC = () => {
   const { modal } = App.useApp()
@@ -135,13 +143,13 @@ const WebhookListContent: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       minWidth: 60,
-      render: (status: number) => {
-        const statusMap: Record<number, { text: string; color: string }> = {
-          0: { text: t('table.unknown'), color: 'default' },
-          1: { text: t('table.enable'), color: 'success' },
-          2: { text: t('table.disable'), color: 'error' },
+      render: (status: number | string) => {
+        const statusMap: Record<string, { text: string; color: string }> = {
+          [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
+          [GlobalStatus.ENABLED]: { text: t('table.enable'), color: 'success' },
+          [GlobalStatus.DISABLED]: { text: t('table.disable'), color: 'error' },
         }
-        const statusInfo = statusMap[status] || statusMap[0]
+        const statusInfo = statusMap[normalizeStatus(status)] || statusMap[GlobalStatus.UNKNOWN]
         return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>
       },
     },
@@ -165,12 +173,13 @@ const WebhookListContent: React.FC = () => {
       width: 120,
       fixed: 'right',
       render: (_, record) => {
+        const isEnabled = normalizeStatus(record.status) === GlobalStatus.ENABLED
         const handleStatusClick = () => {
-          const action = record.status === 1 ? t('table.disable') : t('table.enable')
+          const action = isEnabled ? t('table.disable') : t('table.enable')
           modal.confirm({
             title: t('webhook.confirm.status.title', { action }),
             content: t('webhook.confirm.status.content', { action, name: record.name }),
-            onOk: () => handleStatusChange(record, record.status === 1 ? 2 : 1),
+            onOk: () => handleStatusChange(record, isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED),
             okText: t('common.ok'),
             cancelText: t('common.cancel'),
           })
@@ -194,7 +203,7 @@ const WebhookListContent: React.FC = () => {
           },
           {
             key: 'status',
-            label: record.status === 1 ? t('table.disable') : t('table.enable'),
+            label: isEnabled ? t('table.disable') : t('table.enable'),
             onClick: handleStatusClick,
           },
           {
@@ -261,7 +270,7 @@ const WebhookListContent: React.FC = () => {
   }
 
   // 处理修改状态
-  const handleStatusChange = async (record: WebhookItem, newStatus: number) => {
+  const handleStatusChange = async (record: WebhookItem, newStatus: GlobalStatus | string) => {
     try {
       await updateWebhookStatus(record.uid, newStatus)
       message.success(t('message.update.success'))
@@ -333,8 +342,8 @@ const WebhookListContent: React.FC = () => {
             buttonStyle="solid"
           >
             <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
-            <Radio.Button value={1}>{t('table.search.enabled')}</Radio.Button>
-            <Radio.Button value={2}>{t('table.search.disabled')}</Radio.Button>
+            <Radio.Button value={GlobalStatus.ENABLED}>{t('table.search.enabled')}</Radio.Button>
+            <Radio.Button value={GlobalStatus.DISABLED}>{t('table.search.disabled')}</Radio.Button>
           </Radio.Group>
           <Select
             placeholder={t('webhook.search.app.placeholder')}

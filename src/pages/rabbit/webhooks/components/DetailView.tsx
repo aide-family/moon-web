@@ -1,9 +1,16 @@
 import React from 'react'
 import { Modal, Descriptions, Tag, Button, Space } from 'antd'
 import type { WebhookItem } from '@/api/webhook/index'
+import { GlobalStatus } from '@/api'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
 import { getAppLabel, getMethodLabel } from '../constants'
+
+const normalizeStatus = (status: number | string | undefined): GlobalStatus | string => {
+  if (status === 1 || status === GlobalStatus.ENABLED) return GlobalStatus.ENABLED
+  if (status === 2 || status === GlobalStatus.DISABLED) return GlobalStatus.DISABLED
+  return GlobalStatus.UNKNOWN
+}
 
 interface DetailViewProps {
   open: boolean
@@ -22,14 +29,14 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
     }
   }
 
-  // 状态映射
-  const getStatusInfo = (status: number) => {
-    const statusMap: Record<number, { text: string; color: string }> = {
-      0: { text: t('table.unknown'), color: 'default' },
-      1: { text: t('table.enable'), color: 'success' },
-      2: { text: t('table.disable'), color: 'error' },
+  // 状态映射（与全局 GlobalStatus 一致）
+  const getStatusInfo = (status: number | string) => {
+    const statusMap: Record<string, { text: string; color: string }> = {
+      [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
+      [GlobalStatus.ENABLED]: { text: t('table.enable'), color: 'success' },
+      [GlobalStatus.DISABLED]: { text: t('table.disable'), color: 'error' },
     }
-    return statusMap[status] || statusMap[0]
+    return statusMap[normalizeStatus(status)] || statusMap[GlobalStatus.UNKNOWN]
   }
 
   // 格式化 headers

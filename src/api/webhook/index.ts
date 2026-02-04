@@ -9,8 +9,7 @@ import type {
   WebhookListParams,
   WebhookItem,
   CreateWebhookParams,
-  UpdateWebhookParams,
-  UpdateWebhookStatusParams
+  UpdateWebhookParams
 } from './types'
 
 /**
@@ -62,10 +61,10 @@ export const deleteWebhook = (uid: string): Promise<void> => {
 /**
  * 更新 Webhook 状态
  * @param uid Webhook UID
- * @param status 状态值
+ * @param status 状态值（全局状态 GlobalStatus.ENABLED/DISABLED 或数字 1/2）
  * @returns 更新后的 Webhook
  */
-export const updateWebhookStatus = (uid: string, status: number): Promise<WebhookItem> => {
+export const updateWebhookStatus = (uid: string, status: number | string): Promise<WebhookItem> => {
   return http.put<WebhookItem>(`/webhook/config/${uid}/status`, { status } as Record<string, unknown>)
 }
 
