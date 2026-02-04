@@ -47,7 +47,7 @@ export const createEmail = (params?: CreateEmailParams): Promise<EmailItem> => {
  * @returns 更新后的邮件配置
  */
 export const updateEmail = (uid: string, params?: UpdateEmailParams): Promise<EmailItem> => {
-  return http.put<EmailItem>(`/email/${uid}`, params as Record<string, unknown>)
+  return http.put<EmailItem>(`/email/config/${uid}`, params as Record<string, unknown>)
 }
 
 /**
@@ -56,7 +56,7 @@ export const updateEmail = (uid: string, params?: UpdateEmailParams): Promise<Em
  * @returns 删除结果
  */
 export const deleteEmail = (uid: string): Promise<void> => {
-  return http.delete<void>(`/email/${uid}`)
+  return http.delete<void>(`/email/config/${uid}`)
 }
 
 /**
@@ -66,7 +66,7 @@ export const deleteEmail = (uid: string): Promise<void> => {
  * @returns 更新后的邮件配置
  */
 export const updateEmailStatus = (uid: string, status: number): Promise<EmailItem> => {
-  return http.put<EmailItem>(`/email/${uid}/status`, { status } as Record<string, unknown>)
+  return http.put<EmailItem>(`/email/config/${uid}/status`, { status } as Record<string, unknown>)
 }
 
 // 导出类型

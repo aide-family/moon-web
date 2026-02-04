@@ -13,6 +13,7 @@ import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
+import { GlobalStatus } from '@/api'
 
 const EmailListContent: React.FC = () => {
   const { modal } = App.useApp()
@@ -158,12 +159,13 @@ const EmailListContent: React.FC = () => {
       width: 120,
       fixed: 'right',
       render: (_, record) => {
+        const isEnabled = record.status === GlobalStatus.ENABLED
         const handleStatusClick = () => {
-          const action = record.status === 1 ? t('table.disable') : t('table.enable')
+          const action = isEnabled ? t('table.disable') : t('table.enable')
           modal.confirm({
             title: t('email.confirm.status.title', { action }),
             content: t('email.confirm.status.content', { action, name: record.name }),
-            onOk: () => handleStatusChange(record, record.status === 1 ? 2 : 1),
+            onOk: () => handleStatusChange(record, isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED),
             okText: t('common.ok'),
             cancelText: t('common.cancel'),
           })
@@ -187,7 +189,7 @@ const EmailListContent: React.FC = () => {
           },
           {
             key: 'status',
-            label: record.status === 1 ? t('table.disable') : t('table.enable'),
+            label: isEnabled ? t('table.disable') : t('table.enable'),
             onClick: handleStatusClick,
           },
           {

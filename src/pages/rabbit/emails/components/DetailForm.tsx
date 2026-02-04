@@ -47,9 +47,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
           username: values.username,
           password: values.password,
         }
-        // TODO: 接口通后取消注释
-        // await createEmail(params)
-        console.log('创建邮件配置:', params)
+        await createEmail(params)
         message.success(t('message.create.success'))
       } else if (mode === 'edit' && initialData) {
         const params: UpdateEmailParams = {
@@ -57,11 +55,11 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
           host: values.host,
           port: values.port,
           username: values.username,
-          password: values.password,
         }
-        // TODO: 接口通后取消注释
-        // await updateEmail(initialData.uid, params)
-        console.log('更新邮件配置:', initialData.uid, params)
+        if (values.password) {
+          params.password = values.password
+        }
+        await updateEmail(initialData.uid, params)
         message.success(t('message.update.success'))
       }
 
@@ -166,7 +164,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
           name="password"
           rules={[
             {
-              required: true,
+              required: mode === 'create',
               message: t('email.form.password.required'),
             },
           ]}
