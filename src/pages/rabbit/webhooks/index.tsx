@@ -2,58 +2,18 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App, Select } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
-import { type WebhookItem, type WebhookListParams } from '@/api/webhook/index'
-// import { getWebhookTableList, deleteWebhook, updateWebhookStatus } from '@/api/webhook/index' // 真实API调用，需要时取消注释
+import {
+  type WebhookItem,
+  type WebhookListParams,
+  getWebhookTableList,
+  deleteWebhook,
+  updateWebhookStatus,
+} from '@/api/webhook/index'
 import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
-import { getAppOptions, getAppLabel, getMethodOptions, getMethodLabel } from './constants'
-
-// 生成模拟数据
-const generateMockData = (): WebhookItem[] => {
-  const mockData: WebhookItem[] = []
-  const names = ['订单通知Webhook', '支付回调Webhook', '用户注册Webhook', '系统告警Webhook', '数据同步Webhook', '消息推送Webhook', '日志上报Webhook', '监控告警Webhook', '备份完成Webhook', '任务完成Webhook']
-  const statuses = [1, 1, 1, 2, 1, 2, 1, 1, 2, 1] // 混合启用和禁用状态
-  const apps = [1, 2, 3, 4, 5, 6, 7, 1, 2, 3]
-  const methods = [1, 2, 2, 2, 1, 2, 2, 2, 2, 2] // GET, POST 等
-  const urls = [
-    'https://api.example.com/webhook/order',
-    'https://api.example.com/webhook/payment',
-    'https://api.example.com/webhook/register',
-    'https://api.example.com/webhook/alert',
-    'https://api.example.com/webhook/sync',
-    'https://api.example.com/webhook/push',
-    'https://api.example.com/webhook/log',
-    'https://api.example.com/webhook/monitor',
-    'https://api.example.com/webhook/backup',
-    'https://api.example.com/webhook/task',
-  ]
-  
-  for (let i = 0; i < 50; i++) {
-    const nameIndex = i % names.length
-    const status = statuses[nameIndex] || (i % 3 === 0 ? 1 : i % 3 === 1 ? 2 : 1)
-    const app = apps[nameIndex] || apps[i % apps.length]
-    const method = methods[nameIndex] || methods[i % methods.length]
-    const createdAt = dayjs().subtract(Math.floor(Math.random() * 365), 'day').subtract(Math.floor(Math.random() * 24), 'hour')
-    const updatedAt = createdAt.add(Math.floor(Math.random() * 30), 'day')
-    
-    mockData.push({
-      uid: `wh-${String(i + 1).padStart(6, '0')}`,
-      name: `${names[nameIndex]}${i >= names.length ? `-${Math.floor(i / names.length) + 1}` : ''}`,
-      app,
-      url: urls[nameIndex] || urls[i % urls.length],
-      method,
-      secret: '******',
-      headers: i % 2 === 0 ? { 'Content-Type': 'application/json', 'X-Custom-Header': 'value' } : undefined,
-      status,
-      createdAt: createdAt.toISOString(),
-      updatedAt: updatedAt.toISOString(),
-    })
-  }
-  
-  return mockData
-}
+import { getAppOptions, getAppLabel, getMethodLabel } from './constants'
 
 const WebhookListContent: React.FC = () => {
   const { modal } = App.useApp()
@@ -79,72 +39,27 @@ const WebhookListContent: React.FC = () => {
   const [detailViewOpen, setDetailViewOpen] = useState(false)
   const [viewingData, setViewingData] = useState<WebhookItem | null>(null)
 
-  // 获取数据（使用模拟数据）
+  // 获取数据（真实接口）
   const fetchData = async (page?: number, pageSize?: number) => {
     setLoading(true)
     try {
-      // 模拟网络延迟
-      await new Promise(resolve => setTimeout(resolve, 300))
-      
-      // 使用传入的参数或当前 state 的值
       const currentPage = page ?? pagination.current
       const currentPageSize = pageSize ?? pagination.pageSize
-      
-      // 生成所有模拟数据
-      let allData = generateMockData()
-      
-      // 关键字过滤
-      if (searchParams.keyword) {
-        const keyword = searchParams.keyword.toLowerCase()
-        allData = allData.filter(item => 
-          item.name.toLowerCase().includes(keyword) || 
-          item.uid.toLowerCase().includes(keyword) ||
-          item.url.toLowerCase().includes(keyword)
-        )
-      }
-      
-      // 状态过滤
-      if (searchParams.status !== undefined) {
-        allData = allData.filter(item => item.status === searchParams.status)
-      }
-      
-      // 应用过滤
-      if (searchParams.app !== undefined) {
-        allData = allData.filter(item => item.app === searchParams.app)
-      }
-      
-      // 分页处理
-      const total = allData.length
-      const start = (currentPage - 1) * currentPageSize
-      const end = start + currentPageSize
-      const paginatedData = allData.slice(start, end)
-      
-      setDataSource(paginatedData)
-      setPagination(prev => ({
-        ...prev,
-        current: currentPage,
-        pageSize: currentPageSize,
-        total,
-      }))
-      
-      // 如果需要使用真实API，取消下面的注释并注释掉上面的模拟数据逻辑
-      /*
       const params: WebhookListParams = {
-        page: pagination.current,
-        pageSize: pagination.pageSize,
+        page: currentPage,
+        pageSize: currentPageSize,
         keyword: searchParams.keyword || undefined,
         status: searchParams.status,
         app: searchParams.app,
       }
       const response = await getWebhookTableList(params)
-      if (response) {
-        setDataSource(response.items || [])
-        setPagination(prev => ({
-          ...prev,
-          total: parseInt(response.total || '0', 10),
-        }))
-      }
-      */
+      setDataSource(response?.items ?? [])
+      setPagination(prev => ({
+        ...prev,
+        current: currentPage,
+        pageSize: currentPageSize,
+        total: parseInt(String(response?.total ?? 0), 10),
+      }))
     } catch (error) {
       console.error('获取Webhook列表失败:', error)
     } finally {
@@ -337,32 +252,25 @@ const WebhookListContent: React.FC = () => {
   // 处理删除
   const handleDelete = async (record: WebhookItem) => {
     try {
-      // TODO: 接口通后取消注释
-      // await deleteWebhook(record.uid)
-      console.log('删除Webhook:', record.uid)
+      await deleteWebhook(record.uid)
       message.success(t('message.delete.success'))
       fetchData()
     } catch (error) {
       console.error('删除失败:', error)
-      // 错误信息已由 API 拦截器处理
     }
   }
 
   // 处理修改状态
   const handleStatusChange = async (record: WebhookItem, newStatus: number) => {
     try {
-      // TODO: 接口通后取消注释
-      // await updateWebhookStatus(record.uid, newStatus)
-      console.log('修改状态:', record.uid, newStatus)
+      await updateWebhookStatus(record.uid, newStatus)
       message.success(t('message.update.success'))
       fetchData()
-      // 如果详情页打开，需要更新详情页数据
       if (viewingData && viewingData.uid === record.uid) {
         setViewingData({ ...viewingData, status: newStatus })
       }
     } catch (error) {
       console.error('修改状态失败:', error)
-      // 错误信息已由 API 拦截器处理
     }
   }
 

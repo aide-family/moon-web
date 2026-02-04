@@ -78,9 +78,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
           secret: values.secret,
           headers,
         }
-        // TODO: 接口通后取消注释
-        // await createWebhook(params)
-        console.log('创建Webhook:', params)
+        await createWebhook(params)
         message.success(t('message.create.success'))
       } else if (mode === 'edit' && initialData) {
         const params: UpdateWebhookParams = {
@@ -88,12 +86,12 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
           app: values.app,
           url: values.url,
           method: values.method,
-          secret: values.secret,
           headers,
         }
-        // TODO: 接口通后取消注释
-        // await updateWebhook(initialData.uid, params)
-        console.log('更新Webhook:', initialData.uid, params)
+        if (values.secret) {
+          params.secret = values.secret
+        }
+        await updateWebhook(initialData.uid, params)
         message.success(t('message.update.success'))
       }
 
@@ -199,7 +197,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
           name="secret"
           rules={[
             {
-              required: true,
+              required: mode === 'create',
               message: t('webhook.form.secret.required'),
             },
           ]}

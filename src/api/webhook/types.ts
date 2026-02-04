@@ -35,6 +35,7 @@ export interface WebhookListParams {
   page?: number
   pageSize?: number
   keyword?: string
+  status?: number
   app?: number
 }
 
