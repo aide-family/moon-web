@@ -17,7 +17,8 @@ export interface WebhookItem {
   headers?: Record<string, string>
   createdAt: string
   updatedAt: string
-  status: number
+  /** 状态（全局 GlobalStatus 字符串或接口返回的数字） */
+  status: number | string
 }
 
 /**

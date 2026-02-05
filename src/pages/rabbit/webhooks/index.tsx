@@ -297,7 +297,7 @@ const WebhookListContent: React.FC = () => {
   useEffect(() => {
     fetchData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [searchParams.status, searchParams.app])
 
   // 计算表格高度
   useEffect(() => {
@@ -347,11 +347,14 @@ const WebhookListContent: React.FC = () => {
           </Radio.Group>
           <Select
             placeholder={t('webhook.search.app.placeholder')}
-            value={searchParams.app}
-            onChange={(value) => setSearchParams(prev => ({ ...prev, app: value || undefined }))}
+            value={searchParams.app ?? ''}
+            onChange={(value) => setSearchParams(prev => ({ ...prev, app: value === '' ? undefined : value }))}
             className='w-30'
             allowClear
-            options={getAppOptions(t)}
+            options={[
+              { label: t('table.search.all'), value: '' },
+              ...getAppOptions(t),
+            ]}
           />
           <Button onClick={handleSearch} type="primary">
             {t('common.search')}
