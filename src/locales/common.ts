@@ -62,6 +62,14 @@ export const zhCN = {
   'table.search.enabled': '启用',
   'table.search.disabled': '禁用',
   'table.total': '共 {total} 条',
+  // 消息类型（MessageType 枚举，模板管理 / 消息日志共用）
+  'messageType.UNKNOWN': '未知',
+  'messageType.EMAIL': '邮件',
+  'messageType.SMS_ALICLOUD': '短信',
+  'messageType.WEBHOOK_OTHER': '其他',
+  'messageType.WEBHOOK_DINGTALK': '钉钉',
+  'messageType.WEBHOOK_WECHAT': '微信',
+  'messageType.WEBHOOK_FEISHU': '飞书',
   // 通用消息
   'message.success': '操作成功',
   'message.error': '操作失败',
@@ -172,6 +180,14 @@ export const enUS = {
   'table.search.enabled': 'Enabled',
   'table.search.disabled': 'Disabled',
   'table.total': 'Total {total} items',
+  // Message type (MessageType enum, shared by template & message log)
+  'messageType.UNKNOWN': 'Unknown',
+  'messageType.EMAIL': 'Email',
+  'messageType.SMS_ALICLOUD': 'SMS',
+  'messageType.WEBHOOK_OTHER': 'Other',
+  'messageType.WEBHOOK_DINGTALK': 'DingTalk',
+  'messageType.WEBHOOK_WECHAT': 'WeChat',
+  'messageType.WEBHOOK_FEISHU': 'Feishu',
   // Common messages
   'message.success': 'Operation successful',
   'message.error': 'Operation failed',

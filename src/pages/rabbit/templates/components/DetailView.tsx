@@ -4,7 +4,7 @@ import type { TemplateItem } from '@/api/template/index'
 import { GlobalStatus } from '@/api/template/index'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
-import { getAppLabel } from '../constants'
+import { getMessageTypeLabel } from '../constants'
 
 interface DetailViewProps {
   open: boolean
@@ -66,7 +66,7 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
         <Descriptions column={1} bordered>
           <Descriptions.Item label={t('template.detail.uid')}>{data.uid}</Descriptions.Item>
           <Descriptions.Item label={t('template.detail.name')}>{data.name || '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('template.detail.app')}>{data.app ? getAppLabel(data.app, t) : '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('template.detail.app')}>{getMessageTypeLabel(data.messageType, t)}</Descriptions.Item>
           <Descriptions.Item label={t('table.status')}>
             <Tag color={getStatusInfo(data.status).color}>
               {getStatusInfo(data.status).text}

@@ -2,7 +2,7 @@
  * 模板相关类型定义
  */
 
-import { GlobalStatus } from '../types'
+import { GlobalStatus, MessageType } from '../types'
 
 /**
  * 模板项
@@ -10,7 +10,7 @@ import { GlobalStatus } from '../types'
 export interface TemplateItem {
   uid: string
   name: string
-  app: string
+  messageType: MessageType | string
   jsonData: string
   createdAt: string
   updatedAt: string
@@ -35,7 +35,7 @@ export interface TemplateListParams {
   pageSize?: number
   keyword?: string
   status?: GlobalStatus | string
-  app?: string
+  messageType?: MessageType | string
 }
 
 /**
@@ -43,7 +43,7 @@ export interface TemplateListParams {
  */
 export interface CreateTemplateParams {
   name?: string
-  app?: string
+  messageType?: MessageType | string
   jsonData?: string
 }
 
@@ -53,7 +53,7 @@ export interface CreateTemplateParams {
 export interface UpdateTemplateParams {
   uid?: string
   name?: string
-  app?: string
+  messageType?: MessageType | string
   jsonData?: string
 }
 
@@ -81,7 +81,7 @@ export interface TemplateItemSelect {
  * 模板下拉查询参数
  */
 export interface TemplateSelectParams {
-  app?: number
+  messageType?: MessageType | string
   keyword?: string
   limit?: number
   lastUID?: string

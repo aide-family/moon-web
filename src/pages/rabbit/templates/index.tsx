@@ -7,7 +7,7 @@ import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView.tsx'
 import { useLocale } from '@/contexts/LocaleContext'
-import { getAppOptions, getAppLabel } from './constants'
+import { getMessageTypeOptions, getMessageTypeLabel } from './constants'
 
 const TemplateListContent: React.FC = () => {
   const { modal } = App.useApp()
@@ -22,7 +22,7 @@ const TemplateListContent: React.FC = () => {
   const [searchParams, setSearchParams] = useState<TemplateListParams>({
     keyword: '',
     status: undefined,
-    app: undefined,
+    messageType: undefined,
   })
   const [tableHeight, setTableHeight] = useState<number>(0)
   const tableContainerRef = useRef<HTMLDivElement>(null)
@@ -46,7 +46,7 @@ const TemplateListContent: React.FC = () => {
         pageSize: currentPageSize,
         keyword: searchParams.keyword || undefined,
         status: searchParams.status,
-        app: searchParams.app,
+        messageType: searchParams.messageType,
       }
       const response = await getTemplateTableList(params)
       if (response) {
@@ -76,7 +76,7 @@ const TemplateListContent: React.FC = () => {
     setSearchParams({
       keyword: '',
       status: undefined,
-      app: undefined,
+      messageType: undefined,
     })
     setPagination({
       current: 1,
@@ -109,10 +109,10 @@ const TemplateListContent: React.FC = () => {
     },
     {
       title: t('template.table.app'),
-      dataIndex: 'app',
-      key: 'app',
+      dataIndex: 'messageType',
+      key: 'messageType',
       minWidth: 60,
-      render: (app: string) => getAppLabel(app, t),
+      render: (messageType: string) => getMessageTypeLabel(messageType, t),
     },
     {
       title: t('table.status'),
@@ -277,7 +277,7 @@ const TemplateListContent: React.FC = () => {
   useEffect(() => {
     fetchData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams.status, searchParams.app])
+  }, [searchParams.status, searchParams.messageType])
 
   // 计算表格高度
   useEffect(() => {
@@ -330,14 +330,16 @@ const TemplateListContent: React.FC = () => {
           </Radio.Group>
           <Select
             placeholder={t('template.search.app.placeholder')}
-            value={searchParams.app}
+            value={searchParams.messageType ?? ''}
             onChange={(value) => {
-              setSearchParams(prev => ({ ...prev, app: value || undefined }))
+              setSearchParams(prev => ({ ...prev, messageType: value === '' ? undefined : value }))
               setPagination(prev => ({ ...prev, current: 1 }))
             }}
             className='w-30'
-            allowClear
-            options={getAppOptions(t)}
+            options={[
+              { label: t('table.search.all'), value: '' },
+              ...getMessageTypeOptions(t),
+            ]}
           />
           <Button onClick={handleSearch} type="primary">
             {t('common.search')}

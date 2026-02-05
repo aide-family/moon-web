@@ -23,7 +23,7 @@ export function getMessageLog(uid: string): Promise<MessageLogItem> {
 /**
  * MessageLog_ListMessageLog
  * GET /message-logs
- * Query: page, pageSize, status, type, startAtUnix, endAtUnix
+ * Query: page, pageSize, status, messageType, startAtUnix, endAtUnix
  */
 export function listMessageLogs(
   params?: ListMessageLogsParams

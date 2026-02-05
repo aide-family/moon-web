@@ -7,7 +7,7 @@
 /** 单条消息日志（接口返回项） */
 export interface MessageLogItem {
   uid?: string
-  type?: number
+  messageType?: number
   status?: number
   sendAt?: string
   message?: string
@@ -23,7 +23,7 @@ export interface ListMessageLogsParams {
   page?: number
   pageSize?: number
   status?: number
-  type?: number
+  messageType?: number
   startAtUnix?: string
   endAtUnix?: string
 }

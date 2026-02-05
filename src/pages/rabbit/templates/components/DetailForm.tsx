@@ -3,7 +3,7 @@ import { Modal, Form, Input, Select, message } from 'antd'
 import type { CreateTemplateParams, UpdateTemplateParams, TemplateItem } from '@/api/template/index'
 import { createTemplate, updateTemplate } from '@/api/template/index'
 import { useLocale } from '@/contexts/LocaleContext'
-import { getAppOptions } from '../constants'
+import { getMessageTypeOptions } from '../constants'
 
 interface DetailFormProps {
   open: boolean
@@ -23,7 +23,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
     if (open && mode === 'edit' && initialData) {
       form.setFieldsValue({
         name: initialData.name,
-        app: initialData.app,
+        messageType: initialData.messageType,
         jsonData: initialData.jsonData ? JSON.stringify(JSON.parse(initialData.jsonData), null, 2) : '',
       })
     } else if (open && mode === 'create') {
@@ -60,7 +60,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
       if (mode === 'create') {
         const params: CreateTemplateParams = {
           name: values.name,
-          app: values.app,
+          messageType: values.messageType,
           jsonData,
         }
         await createTemplate(params)
@@ -68,7 +68,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
       } else if (mode === 'edit' && initialData) {
         const params: UpdateTemplateParams = {
           name: values.name,
-          app: values.app,
+          messageType: values.messageType,
           jsonData,
         }
         await updateTemplate(initialData.uid, params)
@@ -126,7 +126,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         </Form.Item>
         <Form.Item
           label={t('template.form.app.label')}
-          name="app"
+          name="messageType"
           rules={[
             {
               required: true,
@@ -137,7 +137,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
           <Select
             placeholder={t('template.form.app.placeholder')}
             style={{ width: '100%' }}
-            options={getAppOptions(t)}
+            options={getMessageTypeOptions(t)}
           />
         </Form.Item>
         <Form.Item

@@ -66,9 +66,10 @@ function getStatusColor(status: number | undefined): string {
 }
 
 function getTypeLabel(type: number | undefined, t: (key: string) => string): string {
-  if (type === undefined) return t('messageLog.type.MessageType_UNKNOWN')
+  if (type === undefined) return t('messageType.UNKNOWN')
   const key = TYPE_NUMBER_TO_KEY[type]
-  return key ? t(`messageLog.type.${key}`) : String(type)
+  const i18nKey = key === 'MessageType_UNKNOWN' ? 'UNKNOWN' : key
+  return key ? t(`messageType.${i18nKey}`) : String(type)
 }
 
 export default function MessageManagement() {
@@ -83,7 +84,7 @@ export default function MessageManagement() {
   })
   const [searchParams, setSearchParams] = useState<{
     status?: number
-    type?: number
+    messageType?: number
     startAtUnix?: string
     endAtUnix?: string
   }>(() => {
@@ -110,7 +111,7 @@ export default function MessageManagement() {
         page: currentPage,
         pageSize: currentPageSize,
         status: searchParams.status,
-        type: searchParams.type,
+        messageType: searchParams.messageType,
         startAtUnix: searchParams.startAtUnix,
         endAtUnix: searchParams.endAtUnix,
       }
@@ -135,7 +136,12 @@ export default function MessageManagement() {
   }
 
   const handleReset = () => {
-    setSearchParams({})
+    const end = dayjs().endOf('day')
+    const start = dayjs().subtract(7, 'day').startOf('day')
+    setSearchParams({
+      startAtUnix: String(start.unix()),
+      endAtUnix: String(end.unix()),
+    })
     setPagination({ current: 1, pageSize: 10, total: 0 })
     fetchData()
   }
@@ -223,10 +229,10 @@ export default function MessageManagement() {
     { title: t('messageLog.table.uid'), dataIndex: 'uid', key: 'uid', width: 140, ellipsis: true },
     {
       title: t('messageLog.table.type'),
-      dataIndex: 'type',
-      key: 'type',
+      dataIndex: 'messageType',
+      key: 'messageType',
       width: 120,
-      render: (type: number | undefined) => getTypeLabel(type, t),
+      render: (messageType: number | undefined) => getTypeLabel(messageType, t),
     },
     {
       title: t('messageLog.table.status'),
@@ -296,7 +302,7 @@ export default function MessageManagement() {
   useEffect(() => {
     fetchData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [searchParams.status, searchParams.messageType])
 
   useEffect(() => {
     const calc = () => {
@@ -321,12 +327,12 @@ export default function MessageManagement() {
           <Space size="middle" wrap>
             <span>{t('messageLog.search.status')}:</span>
             <Select
-              placeholder={t('table.search.all')}
-              allowClear
+              placeholder={t('messageLog.search.status')}
               style={{ width: 120 }}
-              value={searchParams.status}
-              onChange={v => setSearchParams(prev => ({ ...prev, status: v }))}
+              value={searchParams.status ?? ''}
+              onChange={v => setSearchParams(prev => ({ ...prev, status: v === '' ? undefined : (v as number) }))}
               options={[
+                { label: t('table.search.all'), value: '' },
                 { value: 1, label: t('messageLog.status.pending') },
                 { value: 2, label: t('messageLog.status.sending') },
                 { value: 3, label: t('messageLog.status.sent') },
@@ -336,18 +342,18 @@ export default function MessageManagement() {
             />
             <span>{t('messageLog.search.type')}:</span>
             <Select
-              placeholder={t('table.search.all')}
-              allowClear
+              placeholder={t('messageLog.search.type')}
               style={{ width: 160 }}
-              value={searchParams.type}
-              onChange={v => setSearchParams(prev => ({ ...prev, type: v }))}
+              value={searchParams.messageType ?? ''}
+              onChange={v => setSearchParams(prev => ({ ...prev, messageType: v === '' ? undefined : (v as number) }))}
               options={[
-                { value: 1, label: t('messageLog.type.EMAIL') },
-                { value: 1000, label: t('messageLog.type.SMS_ALICLOUD') },
-                { value: 2000, label: t('messageLog.type.WEBHOOK_OTHER') },
-                { value: 2001, label: t('messageLog.type.WEBHOOK_DINGTALK') },
-                { value: 2002, label: t('messageLog.type.WEBHOOK_WECHAT') },
-                { value: 2003, label: t('messageLog.type.WEBHOOK_FEISHU') },
+                { label: t('table.search.all'), value: '' },
+                { value: 1, label: t('messageType.EMAIL') },
+                { value: 1000, label: t('messageType.SMS_ALICLOUD') },
+                { value: 2000, label: t('messageType.WEBHOOK_OTHER') },
+                { value: 2001, label: t('messageType.WEBHOOK_DINGTALK') },
+                { value: 2002, label: t('messageType.WEBHOOK_WECHAT') },
+                { value: 2003, label: t('messageType.WEBHOOK_FEISHU') },
               ]}
             />
             <span>{t('messageLog.search.timeRange')}:</span>

@@ -52,9 +52,10 @@ function getStatusColor(status: number | undefined): string {
 }
 
 function getTypeLabel(type: number | undefined, t: (key: string) => string): string {
-  if (type === undefined) return t('messageLog.type.MessageType_UNKNOWN')
+  if (type === undefined) return t('messageType.UNKNOWN')
   const key = TYPE_NUMBER_TO_KEY[type]
-  return key ? t(`messageLog.type.${key}`) : String(type)
+  const i18nKey = key === 'MessageType_UNKNOWN' ? 'UNKNOWN' : key
+  return key ? t(`messageType.${i18nKey}`) : String(type)
 }
 
 const DetailView: React.FC<DetailViewProps> = ({ open, data, loading, onCancel }) => {
@@ -76,7 +77,7 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, loading, onCancel }
       ) : data ? (
         <Descriptions column={1} bordered size="small">
           <Descriptions.Item label={t('messageLog.detail.uid')}>{data.uid ?? '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('messageLog.detail.type')}>{getTypeLabel(data.type, t)}</Descriptions.Item>
+          <Descriptions.Item label={t('messageLog.detail.type')}>{getTypeLabel(data.messageType, t)}</Descriptions.Item>
           <Descriptions.Item label={t('messageLog.detail.status')}>
             <Tag color={getStatusColor(data.status)}>
               {getStatusLabel(data.status, t)}

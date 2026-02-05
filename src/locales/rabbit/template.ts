@@ -40,14 +40,6 @@ export const zhCN = {
   'template.detail.jsonData': 'JSON数据',
   // 搜索相关
   'template.search.app.placeholder': '应用',
-  // 应用名称
-  'template.app.qq': 'QQ',
-  'template.app.feishu': '飞书',
-  'template.app.wechat': '微信',
-  'template.app.dingtalk': '钉钉',
-  'template.app.email': '邮件',
-  'template.app.sms': '短信',
-  'template.app.webhook': 'Webhook',
 } as const;
 
 export const enUS = {
@@ -89,12 +81,4 @@ export const enUS = {
   'template.detail.jsonData': 'JSON Data',
   // Search related
   'template.search.app.placeholder': 'App',
-  // App names
-  'template.app.qq': 'QQ',
-  'template.app.feishu': 'Feishu',
-  'template.app.wechat': 'WeChat',
-  'template.app.dingtalk': 'DingTalk',
-  'template.app.email': 'Email',
-  'template.app.sms': 'SMS',
-  'template.app.webhook': 'Webhook',
 } as const;
