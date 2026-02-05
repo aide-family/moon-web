@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   Table,
   Button,
@@ -25,68 +25,50 @@ import { useLocale } from '@/contexts/LocaleContext'
 
 const { RangePicker } = DatePicker
 
-// 模拟数据（接口通后可关闭，改用下方真实 API）
-const USE_MOCK_DATA = true
+/** proto MessageStatus 数字 -> i18n key 后缀 */
+const STATUS_NUMBER_TO_KEY: Record<number, string> = {
+  0: 'MessageStatus_UNKNOWN',
+  1: 'pending',   // PENDING
+  2: 'sending',   // SENDING
+  3: 'sent',      // SENT
+  4: 'failed',    // FAILED
+  5: 'cancelled', // CANCELLED
+}
 
-function generateMockData(): MessageLogItem[] {
-  const statuses = [0, 1, 1, 2, 1, 3, 0, 2, 1, 4, 4, 1]
-  const types = [0, 1, 2, 0, 1, 0, 2, 1, 0, 1]
-  const messages = [
-    '订单支付成功通知',
-    '验证码已发送',
-    '系统告警：CPU 使用率过高',
-    '工单状态更新',
-    '邮件发送失败重试',
-    'Webhook 回调成功',
-    '定时任务执行完成',
-    '用户注册欢迎信',
-    '密码重置链接已发送',
-    '库存不足提醒',
-  ]
-  const errors = ['', '', 'Connection timeout', '', 'SMTP 550', '', 'DNS lookup failed', '', '', 'Rate limit exceeded']
-  const list: MessageLogItem[] = []
-  for (let i = 0; i < 50; i++) {
-    const sendAt = dayjs().subtract(i % 30, 'day').subtract(i % 24, 'hour')
-    const createdAt = sendAt.subtract(1, 'minute')
-    const updatedAt = sendAt.add(i % 5, 'minute')
-    list.push({
-      uid: `msg-${String(i + 1).padStart(6, '0')}`,
-      type: types[i % types.length],
-      status: statuses[i % statuses.length],
-      sendAt: sendAt.toISOString(),
-      message: messages[i % messages.length],
-      config: `{"channel":"email","template":"tpl-${(i % 3) + 1}"}`,
-      retryTotal: i % 4,
-      lastError: errors[i % errors.length] || undefined,
-      createdAt: createdAt.toISOString(),
-      updatedAt: updatedAt.toISOString(),
-    })
-  }
-  return list
+/** proto MessageType 数字 -> i18n key 后缀 */
+const TYPE_NUMBER_TO_KEY: Record<number, string> = {
+  0: 'MessageType_UNKNOWN',
+  1: 'EMAIL',
+  1000: 'SMS_ALICLOUD',
+  2000: 'WEBHOOK_OTHER',
+  2001: 'WEBHOOK_DINGTALK',
+  2002: 'WEBHOOK_WECHAT',
+  2003: 'WEBHOOK_FEISHU',
 }
 
 function getStatusLabel(status: number | undefined, t: (key: string) => string): string {
   if (status === undefined) return t('messageLog.status.unknown')
-  const map: Record<number, string> = {
-    0: t('messageLog.status.pending'),
-    1: t('messageLog.status.sent'),
-    2: t('messageLog.status.failed'),
-    3: t('messageLog.status.cancelled'),
-    4: t('messageLog.status.sending'),
-  }
-  return map[status] ?? t('messageLog.status.unknown')
+  const key = STATUS_NUMBER_TO_KEY[status]
+  return key ? t(`messageLog.status.${key}`) : t('messageLog.status.unknown')
 }
 
 function getStatusColor(status: number | undefined): string {
   if (status === undefined) return 'default'
   const map: Record<number, string> = {
-    0: 'processing',
-    1: 'success',
-    2: 'error',
-    3: 'default',
-    4: 'processing',
+    0: 'default',     // UNKNOWN
+    1: 'processing',  // PENDING
+    2: 'processing',  // SENDING
+    3: 'success',     // SENT
+    4: 'error',       // FAILED
+    5: 'default',     // CANCELLED
   }
   return map[status] ?? 'default'
+}
+
+function getTypeLabel(type: number | undefined, t: (key: string) => string): string {
+  if (type === undefined) return t('messageLog.type.MessageType_UNKNOWN')
+  const key = TYPE_NUMBER_TO_KEY[type]
+  return key ? t(`messageLog.type.${key}`) : String(type)
 }
 
 export default function MessageManagement() {
@@ -104,7 +86,14 @@ export default function MessageManagement() {
     type?: number
     startAtUnix?: string
     endAtUnix?: string
-  }>({})
+  }>(() => {
+    const end = dayjs().endOf('day')
+    const start = dayjs().subtract(7, 'day').startOf('day')
+    return {
+      startAtUnix: String(start.unix()),
+      endAtUnix: String(end.unix()),
+    }
+  })
   const [tableHeight, setTableHeight] = useState(0)
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const tableWrapperRef = useRef<HTMLDivElement>(null)
@@ -117,36 +106,6 @@ export default function MessageManagement() {
     try {
       const currentPage = page ?? pagination.current
       const currentPageSize = pageSize ?? pagination.pageSize
-
-      if (USE_MOCK_DATA) {
-        await new Promise(resolve => setTimeout(resolve, 300))
-        let allData = generateMockData()
-        if (searchParams.status !== undefined) {
-          allData = allData.filter(item => item.status === searchParams.status)
-        }
-        if (searchParams.type !== undefined) {
-          allData = allData.filter(item => item.type === searchParams.type)
-        }
-        if (searchParams.startAtUnix && searchParams.endAtUnix) {
-          const rangeStart = Number(searchParams.startAtUnix)
-          const rangeEnd = Number(searchParams.endAtUnix)
-          allData = allData.filter(item => {
-            const ts = item.sendAt ? dayjs(item.sendAt).unix() : 0
-            return ts >= rangeStart && ts <= rangeEnd
-          })
-        }
-        const total = allData.length
-        const sliceStart = (currentPage - 1) * currentPageSize
-        const paginatedData = allData.slice(sliceStart, sliceStart + currentPageSize)
-        setDataSource(paginatedData)
-        setPagination(prev => ({
-          ...prev,
-          current: currentPage,
-          pageSize: currentPageSize,
-          total,
-        }))
-      } else {
-
       const params: ListMessageLogsParams = {
         page: currentPage,
         pageSize: currentPageSize,
@@ -161,9 +120,8 @@ export default function MessageManagement() {
         ...prev,
         current: currentPage,
         pageSize: currentPageSize,
-        total: parseInt(res.total ?? '0', 10),
+        total: parseInt(String(res.total ?? 0), 10),
       }))
-      }
     } catch (error) {
       console.error('获取消息日志列表失败:', error)
     } finally {
@@ -192,11 +150,6 @@ export default function MessageManagement() {
     setDetailOpen(true)
     setDetailData(null)
     setDetailLoading(true)
-    if (USE_MOCK_DATA) {
-      setDetailData(record)
-      setDetailLoading(false)
-      return
-    }
     try {
       const data = await getMessageLog(uid)
       setDetailData(data)
@@ -218,11 +171,6 @@ export default function MessageManagement() {
       cancelText: t('common.cancel'),
       onOk: async () => {
         try {
-          if (USE_MOCK_DATA) {
-            antdMessage.success(t('message.update.success'))
-            fetchData()
-            return
-          }
           await cancelMessage(uid)
           antdMessage.success(t('message.update.success'))
           fetchData()
@@ -243,11 +191,6 @@ export default function MessageManagement() {
       cancelText: t('common.cancel'),
       onOk: async () => {
         try {
-          if (USE_MOCK_DATA) {
-            antdMessage.success(t('message.update.success'))
-            fetchData()
-            return
-          }
           await retryMessage(uid)
           antdMessage.success(t('message.update.success'))
           fetchData()
@@ -259,20 +202,28 @@ export default function MessageManagement() {
   }
 
   const handleTimeRangeChange = (dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null) => {
-    if (!dates || !dates[0] || !dates[1]) {
+    const start = dates?.[0]
+    const end = dates?.[1]
+    if (!start || !end) {
       setSearchParams(prev => ({ ...prev, startAtUnix: undefined, endAtUnix: undefined }))
       return
     }
     setSearchParams(prev => ({
       ...prev,
-      startAtUnix: String(dates[0].unix()),
-      endAtUnix: String(dates[1].unix()),
+      startAtUnix: String(start.unix()),
+      endAtUnix: String(end.unix()),
     }))
   }
 
   const columns: ColumnsType<MessageLogItem> = [
     { title: t('messageLog.table.uid'), dataIndex: 'uid', key: 'uid', width: 140, ellipsis: true },
-    { title: t('messageLog.table.type'), dataIndex: 'type', key: 'type', width: 80 },
+    {
+      title: t('messageLog.table.type'),
+      dataIndex: 'type',
+      key: 'type',
+      width: 120,
+      render: (type: number | undefined) => getTypeLabel(type, t),
+    },
     {
       title: t('messageLog.table.status'),
       dataIndex: 'status',
@@ -315,8 +266,8 @@ export default function MessageManagement() {
       fixed: 'right',
       render: (_, record) => {
         const status = record.status
-        const showRetry = status === 2 // 失败：仅重试
-        const showCancel = status === 0 // 待发送：仅取消；已发送、已取消不展示
+        const showRetry = status === 4 // FAILED：仅重试
+        const showCancel = status === 1 // PENDING：仅取消
         return (
           <Space size="small">
             <Button type="link" size="small" onClick={() => handleViewDetail(record)}>
@@ -372,29 +323,36 @@ export default function MessageManagement() {
               value={searchParams.status}
               onChange={v => setSearchParams(prev => ({ ...prev, status: v }))}
               options={[
-                { value: 0, label: t('messageLog.status.pending') },
-                { value: 4, label: t('messageLog.status.sending') },
-                { value: 1, label: t('messageLog.status.sent') },
-                { value: 2, label: t('messageLog.status.failed') },
-                { value: 3, label: t('messageLog.status.cancelled') },
+                { value: 1, label: t('messageLog.status.pending') },
+                { value: 2, label: t('messageLog.status.sending') },
+                { value: 3, label: t('messageLog.status.sent') },
+                { value: 4, label: t('messageLog.status.failed') },
+                { value: 5, label: t('messageLog.status.cancelled') },
               ]}
             />
             <span>{t('messageLog.search.type')}:</span>
             <Select
               placeholder={t('table.search.all')}
               allowClear
-              style={{ width: 120 }}
+              style={{ width: 160 }}
               value={searchParams.type}
               onChange={v => setSearchParams(prev => ({ ...prev, type: v }))}
               options={[
-                { value: 0, label: '0' },
-                { value: 1, label: '1' },
-                { value: 2, label: '2' },
+                { value: 1, label: t('messageLog.type.EMAIL') },
+                { value: 1000, label: t('messageLog.type.SMS_ALICLOUD') },
+                { value: 2000, label: t('messageLog.type.WEBHOOK_OTHER') },
+                { value: 2001, label: t('messageLog.type.WEBHOOK_DINGTALK') },
+                { value: 2002, label: t('messageLog.type.WEBHOOK_WECHAT') },
+                { value: 2003, label: t('messageLog.type.WEBHOOK_FEISHU') },
               ]}
             />
             <span>{t('messageLog.search.timeRange')}:</span>
             <RangePicker
               showTime
+              value={[
+                searchParams.startAtUnix ? dayjs.unix(Number(searchParams.startAtUnix)) : null,
+                searchParams.endAtUnix ? dayjs.unix(Number(searchParams.endAtUnix)) : null,
+              ]}
               onChange={handleTimeRangeChange}
               style={{ width: 360 }}
             />

@@ -60,3 +60,30 @@ export enum HTTPMethod {
   DELETE = 'DELETE',
   PATCH = 'PATCH',
 }
+
+/**
+ * 消息状态枚举（与 proto rabbit/enum MessageStatus 一致）
+ * @see rabbit/proto/rabbit/enum/enum.proto
+ */
+export enum MessageStatus {
+  MessageStatus_UNKNOWN = 'MessageStatus_UNKNOWN',
+  PENDING = 'PENDING',
+  SENDING = 'SENDING',
+  SENT = 'SENT',
+  FAILED = 'FAILED',
+  CANCELLED = 'CANCELLED',
+}
+
+/**
+ * 消息类型枚举（与 proto rabbit/enum MessageType 一致）
+ * @see rabbit/proto/rabbit/enum/enum.proto
+ */
+export enum MessageType {
+  MessageType_UNKNOWN = 'MessageType_UNKNOWN',
+  EMAIL = 'EMAIL',
+  SMS_ALICLOUD = 'SMS_ALICLOUD',
+  WEBHOOK_OTHER = 'WEBHOOK_OTHER',
+  WEBHOOK_DINGTALK = 'WEBHOOK_DINGTALK',
+  WEBHOOK_WECHAT = 'WEBHOOK_WECHAT',
+  WEBHOOK_FEISHU = 'WEBHOOK_FEISHU',
+}
