@@ -65,3 +65,33 @@ export interface UpdateEmailParams {
 export interface UpdateEmailStatusParams {
   status: number
 }
+
+/**
+ * 邮件配置下拉项（Email_SelectEmailConfig 返回项）
+ */
+export interface EmailItemSelect {
+  value?: string
+  label?: string
+  disabled?: boolean
+  tooltip?: string
+  total?: string
+  lastUID?: string
+  hasMore?: boolean
+}
+
+/**
+ * 邮件配置下拉查询参数（GET /email/configs/select）
+ */
+export interface EmailConfigSelectParams {
+  keyword?: string
+  limit?: number
+  lastUID?: string
+  status?: number
+}
+
+/**
+ * 邮件配置下拉响应
+ */
+export interface EmailConfigSelectResponse {
+  items?: EmailItemSelect[]
+}

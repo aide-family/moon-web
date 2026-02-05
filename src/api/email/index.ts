@@ -10,7 +10,9 @@ import type {
   EmailItem,
   CreateEmailParams,
   UpdateEmailParams,
-  UpdateEmailStatusParams
+  UpdateEmailStatusParams,
+  EmailConfigSelectParams,
+  EmailConfigSelectResponse,
 } from './types'
 
 /**
@@ -69,6 +71,19 @@ export const updateEmailStatus = (uid: string, status: number): Promise<EmailIte
   return http.put<EmailItem>(`/email/config/${uid}/status`, { status } as Record<string, unknown>)
 }
 
+/**
+ * 邮件配置下拉列表（Email_SelectEmailConfig）
+ * GET /email/configs/select，用于下拉选择，支持 keyword/limit/lastUID/status
+ */
+export const getEmailConfigSelectList = (
+  params?: EmailConfigSelectParams
+): Promise<EmailConfigSelectResponse> => {
+  return http.get<EmailConfigSelectResponse>(
+    '/email/configs/select',
+    params as unknown as Record<string, unknown>
+  )
+}
+
 // 导出类型
 export type { 
   EmailItem,
@@ -76,5 +91,8 @@ export type {
   EmailListParams,
   CreateEmailParams,
   UpdateEmailParams,
-  UpdateEmailStatusParams
+  UpdateEmailStatusParams,
+  EmailItemSelect,
+  EmailConfigSelectParams,
+  EmailConfigSelectResponse,
 } from './types'

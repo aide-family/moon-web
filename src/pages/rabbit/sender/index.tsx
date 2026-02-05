@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react'
-import { Card, Form, Input, Button, Select, message as antdMessage, App } from 'antd'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { Card, Form, Input, Button, Select, AutoComplete, message as antdMessage, App } from 'antd'
 import {
   sendEmail,
   sendEmailWithTemplate,
   sendWebhook,
   sendWebhookWithTemplate,
 } from '@/api/sender'
+import { getEmailConfigSelectList } from '@/api/email'
+import type { EmailItemSelect } from '@/api/email'
 import { getTemplateSelectList } from '@/api/template'
 import type { TemplateItemSelect } from '@/api/template'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -26,8 +28,21 @@ export default function SenderManagement() {
   const [submitting, setSubmitting] = useState(false)
   const [templateOptions, setTemplateOptions] = useState<TemplateItemSelect[]>([])
   const [templateLoading, setTemplateLoading] = useState(false)
+  const [emailConfigOptions, setEmailConfigOptions] = useState<EmailItemSelect[]>([])
+  const [emailConfigLoading, setEmailConfigLoading] = useState(false)
+  const [emailConfigKeyword, setEmailConfigKeyword] = useState('')
+  const emailConfigSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const needTemplate = sendType === 'emailTemplate' || sendType === 'webhookTemplate'
+  const needEmailConfig = sendType === 'email' || sendType === 'emailTemplate'
+
+  const handleEmailConfigSearch = useCallback((value: string) => {
+    if (emailConfigSearchTimerRef.current) clearTimeout(emailConfigSearchTimerRef.current)
+    emailConfigSearchTimerRef.current = setTimeout(() => {
+      setEmailConfigKeyword(value)
+    }, 300)
+  }, [])
+
   useEffect(() => {
     if (!needTemplate) return
     setTemplateLoading(true)
@@ -36,6 +51,19 @@ export default function SenderManagement() {
       .catch(() => setTemplateOptions([]))
       .finally(() => setTemplateLoading(false))
   }, [needTemplate])
+
+  const fetchEmailConfigOptions = useCallback((keyword?: string) => {
+    setEmailConfigLoading(true)
+    getEmailConfigSelectList({ keyword: keyword?.trim() || undefined, limit: 100 })
+      .then(res => setEmailConfigOptions(res.items ?? []))
+      .catch(() => setEmailConfigOptions([]))
+      .finally(() => setEmailConfigLoading(false))
+  }, [])
+
+  useEffect(() => {
+    if (!needEmailConfig) return
+    fetchEmailConfigOptions(emailConfigKeyword)
+  }, [needEmailConfig, emailConfigKeyword, fetchEmailConfigOptions])
 
   const handleSubmit = async () => {
     try {
@@ -112,10 +140,10 @@ export default function SenderManagement() {
   const needData = sendType === 'webhook'
 
   return (
-    <App className="h-full">
-      <div className="flex h-full gap-4">
+    <App className="h-full min-h-0 flex flex-col">
+      <div className="flex flex-1 min-h-0 gap-4">
         {/* 左侧：发送方式 */}
-        <Card className="w-48 shrink-0" title={t('sender.sendType')}>
+        <Card className="w-48 shrink-0 overflow-auto" title={t('sender.sendType')}>
           <div className="flex flex-col gap-1">
             {SEND_TYPES.map(({ value, labelKey }) => (
               <button
@@ -136,14 +164,32 @@ export default function SenderManagement() {
         </Card>
 
         {/* 右侧：表单 */}
-        <Card className="flex-1 min-w-0">
+        <Card className="flex-1 min-w-0 min-h-0 overflow-auto">
           <Form form={form} layout="vertical" onFinish={handleSubmit}>
             <Form.Item
               name="uid"
               label={t('sender.form.uid')}
               rules={[{ required: true, message: t('sender.form.uidPlaceholder') }]}
             >
-              <Input placeholder={t('sender.form.uidPlaceholder')} allowClear />
+              {needEmailConfig ? (
+                <Select
+                  placeholder={t('sender.form.uidPlaceholder')}
+                  allowClear
+                  showSearch
+                  filterOption={false}
+                  loading={emailConfigLoading}
+                  onSearch={handleEmailConfigSearch}
+                  options={emailConfigOptions
+                    .filter(item => (item.value ?? (item as unknown as { uid?: string }).uid) != null)
+                    .map(item => {
+                      const value = item.value ?? (item as unknown as { uid?: string }).uid ?? ''
+                      const label = item.label ?? (item as unknown as { name?: string }).name ?? value
+                      return { value, label, disabled: item.disabled, title: item.tooltip }
+                    })}
+                />
+              ) : (
+                <Input placeholder={t('sender.form.uidPlaceholder')} allowClear />
+              )}
             </Form.Item>
 
             {needEmailBody && (
@@ -167,7 +213,14 @@ export default function SenderManagement() {
                   />
                 </Form.Item>
                 <Form.Item name="contentType" label={t('sender.form.contentType')}>
-                  <Input placeholder={t('sender.form.contentTypePlaceholder')} allowClear />
+                  <AutoComplete
+                    placeholder={t('sender.form.contentTypePlaceholder')}
+                    allowClear
+                    options={[
+                      { value: 'text', label: 'text' },
+                      { value: 'html', label: 'html' },
+                    ]}
+                  />
                 </Form.Item>
                 <Form.Item name="to" label={t('sender.form.to')}>
                   <Input placeholder={t('sender.form.toPlaceholder')} allowClear />
