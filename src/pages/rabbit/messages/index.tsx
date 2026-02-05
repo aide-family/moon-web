@@ -201,6 +201,8 @@ export default function MessageManagement() {
     })
   }
 
+  const MAX_RANGE_DAYS = 31
+
   const handleTimeRangeChange = (dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null) => {
     const start = dates?.[0]
     const end = dates?.[1]
@@ -208,6 +210,8 @@ export default function MessageManagement() {
       setSearchParams(prev => ({ ...prev, startAtUnix: undefined, endAtUnix: undefined }))
       return
     }
+    const days = end.diff(start, 'day', true)
+    if (days > MAX_RANGE_DAYS) return
     setSearchParams(prev => ({
       ...prev,
       startAtUnix: String(start.unix()),
@@ -354,6 +358,26 @@ export default function MessageManagement() {
                 searchParams.endAtUnix ? dayjs.unix(Number(searchParams.endAtUnix)) : null,
               ]}
               onChange={handleTimeRangeChange}
+              disabledDate={(current, { from }) => {
+                if (!from) return false
+                if (current.isBefore(from, 'day')) return true
+                if (current.diff(from, 'day') > MAX_RANGE_DAYS) return true
+                return false
+              }}
+              presets={(() => {
+                const now = dayjs()
+                return [
+                  { label: t('messageLog.preset.5m'), value: [now.subtract(5, 'minute'), now] as [dayjs.Dayjs, dayjs.Dayjs] },
+                  { label: t('messageLog.preset.15m'), value: [now.subtract(15, 'minute'), now] as [dayjs.Dayjs, dayjs.Dayjs] },
+                  { label: t('messageLog.preset.30m'), value: [now.subtract(30, 'minute'), now] as [dayjs.Dayjs, dayjs.Dayjs] },
+                  { label: t('messageLog.preset.1h'), value: [now.subtract(1, 'hour'), now] as [dayjs.Dayjs, dayjs.Dayjs] },
+                  { label: t('messageLog.preset.3h'), value: [now.subtract(3, 'hour'), now] as [dayjs.Dayjs, dayjs.Dayjs] },
+                  { label: t('messageLog.preset.12h'), value: [now.subtract(12, 'hour'), now] as [dayjs.Dayjs, dayjs.Dayjs] },
+                  { label: t('messageLog.preset.1d'), value: [now.subtract(1, 'day'), now] as [dayjs.Dayjs, dayjs.Dayjs] },
+                  { label: t('messageLog.preset.3d'), value: [now.subtract(3, 'day'), now] as [dayjs.Dayjs, dayjs.Dayjs] },
+                  { label: t('messageLog.preset.31d'), value: [now.subtract(1, 'month'), now] as [dayjs.Dayjs, dayjs.Dayjs] },
+                ]
+              })()}
               style={{ width: 360 }}
             />
             <Button type="primary" onClick={handleSearch}>
