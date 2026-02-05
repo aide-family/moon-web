@@ -191,8 +191,8 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
           onOpenChange={handleOpenChange}
         />
       </Sider>
-      <Layout>
-        <Header className="h-14 md:h-16" style={{ padding: 0, background: colorBgContainer }}>
+      <Layout className="flex flex-col min-h-0 flex-1">
+        <Header className="h-14 md:h-16 shrink-0" style={{ padding: 0, background: colorBgContainer }}>
           <div className="flex items-center ml-2 md:ml-4 gap-2 md:gap-4 flex-wrap min-w-0">
             <div
               onClick={() => setCollapsed(!collapsed)}
@@ -217,16 +217,18 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
         </Header>
 
         <Content
-          className="p-2 m-2 md:p-4 md:m-4"
+          className="p-2 m-2 md:p-4 md:m-4 flex-1 min-h-0 flex flex-col"
           style={{
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
             overflow: 'auto',
           }}
         >
-          <Outlet />
+          <div className="flex-1 min-h-0">
+            <Outlet />
+          </div>
         </Content>
-        <Footer className="h-10 md:h-12 flex items-center justify-center px-2" style={{ background: colorBgContainer }}>
+        <Footer className="h-10 md:h-12 flex items-center justify-center px-2 shrink-0" style={{ background: colorBgContainer }}>
           <div className="flex items-center justify-center gap-1 md:gap-2 text-xs md:text-sm text-gray-500 flex-wrap">
             <div>{t('footer.copyright', { year: new Date().getFullYear() })}</div>
             <div>{t('footer.icp')}</div>

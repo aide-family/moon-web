@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Card, Form, Input, Button, Segmented, Select, message as antdMessage, App } from 'antd'
+import { Card, Form, Input, Button, Select, message as antdMessage, App } from 'antd'
 import {
   sendEmail,
   sendEmailWithTemplate,
-  sendMessage,
   sendWebhook,
   sendWebhookWithTemplate,
 } from '@/api/sender'
@@ -11,12 +10,11 @@ import { getTemplateSelectList } from '@/api/template'
 import type { TemplateItemSelect } from '@/api/template'
 import { useLocale } from '@/contexts/LocaleContext'
 
-type SendType = 'email' | 'emailTemplate' | 'message' | 'webhook' | 'webhookTemplate'
+type SendType = 'email' | 'emailTemplate' | 'webhook' | 'webhookTemplate'
 
 const SEND_TYPES: { value: SendType; labelKey: string }[] = [
   { value: 'email', labelKey: 'sender.type.email' },
   { value: 'emailTemplate', labelKey: 'sender.type.emailTemplate' },
-  { value: 'message', labelKey: 'sender.type.message' },
   { value: 'webhook', labelKey: 'sender.type.webhook' },
   { value: 'webhookTemplate', labelKey: 'sender.type.webhookTemplate' },
 ]
@@ -84,9 +82,6 @@ export default function SenderManagement() {
           })
           break
         }
-        case 'message':
-          await sendMessage({ uid })
-          break
         case 'webhook':
           await sendWebhook(uid, { data: values.data?.trim() })
           break
@@ -118,21 +113,31 @@ export default function SenderManagement() {
 
   return (
     <App className="h-full">
-      <div className="flex flex-col h-full">
-        <Card className="flex-1">
-          <Form form={form} layout="vertical" onFinish={handleSubmit}>
-            <Form.Item label={t('sender.sendType')}>
-              <Segmented
-                block
-                options={SEND_TYPES.map(({ value, labelKey }) => ({
-                  value,
-                  label: t(labelKey),
-                }))}
-                value={sendType}
-                onChange={v => setSendType(v as SendType)}
-              />
-            </Form.Item>
+      <div className="flex h-full gap-4">
+        {/* 左侧：发送方式 */}
+        <Card className="w-48 shrink-0" title={t('sender.sendType')}>
+          <div className="flex flex-col gap-1">
+            {SEND_TYPES.map(({ value, labelKey }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setSendType(value)}
+                className={`
+                  w-full text-left px-3 py-2.5 rounded-md border transition-colors
+                  ${sendType === value
+                    ? 'bg-blue-50 border-blue-200 text-blue-700'
+                    : 'bg-transparent border-transparent hover:bg-gray-100 hover:border-gray-200'}
+                `}
+              >
+                {t(labelKey)}
+              </button>
+            ))}
+          </div>
+        </Card>
 
+        {/* 右侧：表单 */}
+        <Card className="flex-1 min-w-0">
+          <Form form={form} layout="vertical" onFinish={handleSubmit}>
             <Form.Item
               name="uid"
               label={t('sender.form.uid')}
