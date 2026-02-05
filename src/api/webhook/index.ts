@@ -9,7 +9,9 @@ import type {
   WebhookListParams,
   WebhookItem,
   CreateWebhookParams,
-  UpdateWebhookParams
+  UpdateWebhookParams,
+  WebhookConfigSelectParams,
+  WebhookConfigSelectResponse,
 } from './types'
 
 /**
@@ -68,6 +70,19 @@ export const updateWebhookStatus = (uid: string, status: number | string): Promi
   return http.put<WebhookItem>(`/webhook/config/${uid}/status`, { status } as Record<string, unknown>)
 }
 
+/**
+ * Webhook 配置下拉列表（Webhook_SelectWebhook）
+ * GET /webhook/configs/select，用于下拉选择，支持 app/keyword/limit/lastUID/status
+ */
+export const getWebhookConfigSelectList = (
+  params?: WebhookConfigSelectParams
+): Promise<WebhookConfigSelectResponse> => {
+  return http.get<WebhookConfigSelectResponse>(
+    '/webhook/configs/select',
+    params as unknown as Record<string, unknown>
+  )
+}
+
 // 导出类型
 export type { 
   WebhookItem,
@@ -75,5 +90,8 @@ export type {
   WebhookListParams,
   CreateWebhookParams,
   UpdateWebhookParams,
-  UpdateWebhookStatusParams
+  UpdateWebhookStatusParams,
+  WebhookItemSelect,
+  WebhookConfigSelectParams,
+  WebhookConfigSelectResponse,
 } from './types'

@@ -77,3 +77,34 @@ export interface UpdateWebhookParams {
 export interface UpdateWebhookStatusParams {
   status: number
 }
+
+/**
+ * Webhook 配置下拉项（Webhook_SelectWebhook 返回项）
+ */
+export interface WebhookItemSelect {
+  value?: string
+  label?: string
+  disabled?: boolean
+  tooltip?: string
+  total?: string
+  lastUID?: string
+  hasMore?: boolean
+}
+
+/**
+ * Webhook 配置下拉查询参数（GET /webhook/configs/select）
+ */
+export interface WebhookConfigSelectParams {
+  app?: number
+  keyword?: string
+  limit?: number
+  lastUID?: string
+  status?: number
+}
+
+/**
+ * Webhook 配置下拉响应
+ */
+export interface WebhookConfigSelectResponse {
+  items?: WebhookItemSelect[]
+}

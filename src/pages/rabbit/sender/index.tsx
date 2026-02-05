@@ -8,8 +8,11 @@ import {
 } from '@/api/sender'
 import { getEmailConfigSelectList } from '@/api/email'
 import type { EmailItemSelect } from '@/api/email'
+import { getWebhookConfigSelectList } from '@/api/webhook'
+import type { WebhookItemSelect } from '@/api/webhook'
 import { getTemplateSelectList } from '@/api/template'
 import type { TemplateItemSelect } from '@/api/template'
+import { MessageType } from '@/api/types'
 import { useLocale } from '@/contexts/LocaleContext'
 
 type SendType = 'email' | 'emailTemplate' | 'webhook' | 'webhookTemplate'
@@ -19,6 +22,14 @@ const SEND_TYPES: { value: SendType; labelKey: string }[] = [
   { value: 'emailTemplate', labelKey: 'sender.type.emailTemplate' },
   { value: 'webhook', labelKey: 'sender.type.webhook' },
   { value: 'webhookTemplate', labelKey: 'sender.type.webhookTemplate' },
+]
+
+/** Webhook 模板类型选项（用于发送 Webhook 模板时先选类型再选模板） */
+const WEBHOOK_TEMPLATE_TYPES: MessageType[] = [
+  MessageType.WEBHOOK_OTHER,
+  MessageType.WEBHOOK_DINGTALK,
+  MessageType.WEBHOOK_WECHAT,
+  MessageType.WEBHOOK_FEISHU,
 ]
 
 export default function SenderManagement() {
@@ -32,9 +43,20 @@ export default function SenderManagement() {
   const [emailConfigLoading, setEmailConfigLoading] = useState(false)
   const [emailConfigKeyword, setEmailConfigKeyword] = useState('')
   const emailConfigSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [webhookConfigOptions, setWebhookConfigOptions] = useState<WebhookItemSelect[]>([])
+  const [webhookConfigLoading, setWebhookConfigLoading] = useState(false)
+  const [webhookConfigKeyword, setWebhookConfigKeyword] = useState('')
+  const webhookConfigSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [webhookTemplateType, setWebhookTemplateType] = useState<MessageType | undefined>(undefined)
 
   const needTemplate = sendType === 'emailTemplate' || sendType === 'webhookTemplate'
   const needEmailConfig = sendType === 'email' || sendType === 'emailTemplate'
+  const needWebhookConfig = sendType === 'webhook' || sendType === 'webhookTemplate'
+  const needWebhookTemplateType = sendType === 'webhookTemplate'
+
+  useEffect(() => {
+    if (sendType !== 'webhookTemplate') setWebhookTemplateType(undefined)
+  }, [sendType])
 
   const handleEmailConfigSearch = useCallback((value: string) => {
     if (emailConfigSearchTimerRef.current) clearTimeout(emailConfigSearchTimerRef.current)
@@ -43,14 +65,47 @@ export default function SenderManagement() {
     }, 300)
   }, [])
 
+  const handleWebhookConfigSearch = useCallback((value: string) => {
+    if (webhookConfigSearchTimerRef.current) clearTimeout(webhookConfigSearchTimerRef.current)
+    webhookConfigSearchTimerRef.current = setTimeout(() => {
+      setWebhookConfigKeyword(value)
+    }, 300)
+  }, [])
+
+  const fetchWebhookConfigOptions = useCallback((keyword?: string) => {
+    setWebhookConfigLoading(true)
+    getWebhookConfigSelectList({ keyword: keyword?.trim() || undefined, limit: 20 })
+      .then(res => setWebhookConfigOptions(res.items ?? []))
+      .catch(() => setWebhookConfigOptions([]))
+      .finally(() => setWebhookConfigLoading(false))
+  }, [])
+
+  useEffect(() => {
+    if (!needWebhookConfig) return
+    fetchWebhookConfigOptions(webhookConfigKeyword)
+  }, [needWebhookConfig, webhookConfigKeyword, fetchWebhookConfigOptions])
+
+  const handleWebhookTemplateTypeChange = useCallback((value: MessageType | undefined) => {
+    setWebhookTemplateType(value)
+    form.setFieldValue('templateUID', undefined)
+  }, [form])
+
   useEffect(() => {
     if (!needTemplate) return
+    if (sendType === 'webhookTemplate' && !webhookTemplateType) {
+      setTemplateOptions([])
+      return
+    }
     setTemplateLoading(true)
-    getTemplateSelectList({ limit: 200 })
+    const params =
+      sendType === 'emailTemplate'
+        ? { limit: 20, messageType: MessageType.EMAIL }
+        : { limit: 20, messageType: webhookTemplateType! }
+    getTemplateSelectList(params)
       .then(res => setTemplateOptions(res.items ?? []))
       .catch(() => setTemplateOptions([]))
       .finally(() => setTemplateLoading(false))
-  }, [needTemplate])
+  }, [needTemplate, sendType, webhookTemplateType])
 
   const fetchEmailConfigOptions = useCallback((keyword?: string) => {
     setEmailConfigLoading(true)
@@ -149,7 +204,12 @@ export default function SenderManagement() {
               <button
                 key={value}
                 type="button"
-                onClick={() => setSendType(value)}
+                onClick={() => {
+                  if (value !== sendType) {
+                    setSendType(value)
+                    form.resetFields()
+                  }
+                }}
                 className={`
                   w-full text-left px-3 py-2.5 rounded-md border transition-colors
                   ${sendType === value
@@ -180,6 +240,22 @@ export default function SenderManagement() {
                   loading={emailConfigLoading}
                   onSearch={handleEmailConfigSearch}
                   options={emailConfigOptions
+                    .filter(item => (item.value ?? (item as unknown as { uid?: string }).uid) != null)
+                    .map(item => {
+                      const value = item.value ?? (item as unknown as { uid?: string }).uid ?? ''
+                      const label = item.label ?? (item as unknown as { name?: string }).name ?? value
+                      return { value, label, disabled: item.disabled, title: item.tooltip }
+                    })}
+                />
+              ) : needWebhookConfig ? (
+                <Select
+                  placeholder={t('sender.form.uidPlaceholder')}
+                  allowClear
+                  showSearch
+                  filterOption={false}
+                  loading={webhookConfigLoading}
+                  onSearch={handleWebhookConfigSearch}
+                  options={webhookConfigOptions
                     .filter(item => (item.value ?? (item as unknown as { uid?: string }).uid) != null)
                     .map(item => {
                       const value = item.value ?? (item as unknown as { uid?: string }).uid ?? ''
@@ -240,13 +316,27 @@ export default function SenderManagement() {
 
             {needTemplate && (
               <>
+                {needWebhookTemplateType && (
+                  <Form.Item label={t('sender.form.templateType')}>
+                    <Select<MessageType>
+                      placeholder={t('sender.form.templateTypePlaceholder')}
+                      allowClear
+                      value={webhookTemplateType}
+                      onChange={handleWebhookTemplateTypeChange}
+                      options={WEBHOOK_TEMPLATE_TYPES.map(type => ({
+                        value: type,
+                        label: t(`messageType.${type}`),
+                      }))}
+                    />
+                  </Form.Item>
+                )}
                 <Form.Item name="templateUID" label={t('sender.form.templateUID')}>
                   <Select
                     placeholder={t('sender.form.templateUIDPlaceholder')}
                     allowClear
-                    showSearch
-                    optionFilterProp="label"
+                    showSearch={{ optionFilterProp: 'label' }}
                     loading={templateLoading}
+                    disabled={needWebhookTemplateType && !webhookTemplateType}
                     options={templateOptions
                       .filter(item => item.value != null)
                       .map(item => ({
