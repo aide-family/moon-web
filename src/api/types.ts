@@ -35,3 +35,28 @@ export enum GlobalStatus {
   ENABLED = 'ENABLED',
   DISABLED = 'DISABLED',
 }
+
+/**
+ * Webhook 应用枚举（与 proto rabbit/enum WebhookAPP 一致，与 GlobalStatus 同风格用字符串）
+ * @see rabbit/proto/rabbit/enum/enum.proto
+ */
+export enum WebhookAPP {
+  WebhookAPP_UNKNOWN = 'WebhookAPP_UNKNOWN',
+  OTHER = 'OTHER',
+  DINGTALK = 'DINGTALK',
+  WECHAT = 'WECHAT',
+  FEISHU = 'FEISHU',
+}
+
+/**
+ * HTTP 方法枚举（与 proto rabbit/enum HTTPMethod 一致，与 GlobalStatus 同风格用字符串）
+ * @see rabbit/proto/rabbit/enum/enum.proto
+ */
+export enum HTTPMethod {
+  HTTPMethod_UNKNOWN = 'HTTPMethod_UNKNOWN',
+  GET = 'GET',
+  POST = 'POST',
+  PUT = 'PUT',
+  DELETE = 'DELETE',
+  PATCH = 'PATCH',
+}

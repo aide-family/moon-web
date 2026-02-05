@@ -122,7 +122,7 @@ const WebhookListContent: React.FC = () => {
       dataIndex: 'app',
       key: 'app',
       minWidth: 60,
-      render: (app: number) => getAppLabel(app, t),
+      render: (app: number | string) => getAppLabel(app, t),
     },
     {
       title: t('webhook.table.url'),
@@ -136,7 +136,7 @@ const WebhookListContent: React.FC = () => {
       dataIndex: 'method',
       key: 'method',
       minWidth: 60,
-      render: (method: number) => getMethodLabel(method, t),
+      render: (method: number | string) => getMethodLabel(method, t),
     },
     {
       title: t('table.status'),

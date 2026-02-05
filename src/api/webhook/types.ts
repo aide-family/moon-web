@@ -8,9 +8,11 @@
 export interface WebhookItem {
   uid: string
   name: string
-  app: number
+  /** 应用（全局 WebhookAPP 字符串或接口返回的数字） */
+  app: number | string
   url: string
-  method: number
+  /** 方法（全局 HTTPMethod 字符串或接口返回的数字） */
+  method: number | string
   secret: string
   headers?: Record<string, string>
   createdAt: string
@@ -37,7 +39,8 @@ export interface WebhookListParams {
   keyword?: string
   /** 状态筛选，支持全局状态 GlobalStatus（ENABLED/DISABLED）或数字 1/2 */
   status?: number | string
-  app?: number
+  /** 应用筛选，全局 WebhookAPP 字符串 */
+  app?: number | string
 }
 
 /**
@@ -45,9 +48,11 @@ export interface WebhookListParams {
  */
 export interface CreateWebhookParams {
   name?: string
-  app?: number
+  /** 应用，全局 WebhookAPP 字符串 */
+  app?: number | string
   url?: string
-  method?: number
+  /** 方法，全局 HTTPMethod 字符串 */
+  method?: number | string
   secret?: string
   headers?: Record<string, string>
 }
@@ -58,9 +63,9 @@ export interface CreateWebhookParams {
 export interface UpdateWebhookParams {
   uid?: string
   name?: string
-  app?: number
+  app?: number | string
   url?: string
-  method?: number
+  method?: number | string
   secret?: string
   headers?: Record<string, string>
 }

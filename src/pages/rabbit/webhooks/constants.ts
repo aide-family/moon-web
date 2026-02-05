@@ -2,51 +2,47 @@
  * Webhook 管理相关常量
  */
 
-/**
- * HTTP 方法类型
- */
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS'
+import { WebhookAPP, HTTPMethod } from '@/api'
 
-/**
- * HTTP 方法值映射（整数到方法名）
- */
-export const HTTP_METHOD_MAP: Record<number, HttpMethod> = {
-  1: 'GET',
-  2: 'POST',
-  3: 'PUT',
-  4: 'DELETE',
-  5: 'PATCH',
-  6: 'HEAD',
-  7: 'OPTIONS',
+/** 接口返回的数字 method 与 HTTPMethod 字符串的映射（proto: 0, 1, 2, 3, 4, 5） */
+const METHOD_NUMBER_TO_KEY: Record<number, string> = {
+  0: HTTPMethod.HTTPMethod_UNKNOWN,
+  1: HTTPMethod.GET,
+  2: HTTPMethod.POST,
+  3: HTTPMethod.PUT,
+  4: HTTPMethod.DELETE,
+  5: HTTPMethod.PATCH,
 }
 
 /**
- * HTTP 方法名到整数的映射
+ * HTTP 方法可选值列表（不含 UNKNOWN，用于表单），与 proto HTTPMethod 一致
  */
-export const HTTP_METHOD_TO_NUMBER: Record<HttpMethod, number> = {
-  GET: 1,
-  POST: 2,
-  PUT: 3,
-  DELETE: 4,
-  PATCH: 5,
-  HEAD: 6,
-  OPTIONS: 7,
+export const HTTP_METHOD_VALUES: string[] = [
+  HTTPMethod.GET,
+  HTTPMethod.POST,
+  HTTPMethod.PUT,
+  HTTPMethod.DELETE,
+  HTTPMethod.PATCH,
+]
+
+/**
+ * 应用可选值列表（不含 UNKNOWN，用于筛选/表单），与全局 WebhookAPP 一致
+ */
+export const APP_VALUES: string[] = [
+  WebhookAPP.OTHER,
+  WebhookAPP.DINGTALK,
+  WebhookAPP.WECHAT,
+  WebhookAPP.FEISHU,
+]
+
+/** 接口返回的数字 app 与 WebhookAPP 字符串的映射（proto: 0, 2000, 2001, 2002, 2003） */
+const APP_NUMBER_TO_KEY: Record<number, string> = {
+  0: WebhookAPP.WebhookAPP_UNKNOWN,
+  2000: WebhookAPP.OTHER,
+  2001: WebhookAPP.DINGTALK,
+  2002: WebhookAPP.WECHAT,
+  2003: WebhookAPP.FEISHU,
 }
-
-/**
- * HTTP 方法值列表
- */
-export const HTTP_METHOD_VALUES: number[] = [1, 2, 3, 4, 5, 6, 7]
-
-/**
- * 应用值类型（整数）
- */
-export type AppValue = number
-
-/**
- * 应用值列表（示例，根据实际 API 调整）
- */
-export const APP_VALUES: AppValue[] = [1, 2, 3, 4, 5, 6, 7]
 
 /**
  * 获取 HTTP 方法选项列表（支持国际化）
@@ -55,21 +51,21 @@ export const APP_VALUES: AppValue[] = [1, 2, 3, 4, 5, 6, 7]
  */
 export const getMethodOptions = (t: (key: string) => string) => {
   return HTTP_METHOD_VALUES.map(value => ({
-    label: t(`webhook.method.${HTTP_METHOD_MAP[value]}`),
+    label: getMethodLabel(value, t),
     value,
   }))
 }
 
 /**
  * 根据 HTTP 方法值获取标签（支持国际化）
- * @param value HTTP 方法值（整数）
+ * @param value 方法值（全局 HTTPMethod 字符串或接口返回的数字）
  * @param t 翻译函数
- * @returns HTTP 方法标签
+ * @returns 方法标签
  */
-export const getMethodLabel = (value: number, t: (key: string) => string): string => {
-  const method = HTTP_METHOD_MAP[value]
-  if (method) {
-    return t(`webhook.method.${method}`)
+export const getMethodLabel = (value: number | string, t: (key: string) => string): string => {
+  const key = typeof value === 'string' ? value : METHOD_NUMBER_TO_KEY[value]
+  if (key) {
+    return t(`webhook.method.${key}`)
   }
   return String(value)
 }
@@ -81,20 +77,21 @@ export const getMethodLabel = (value: number, t: (key: string) => string): strin
  */
 export const getAppOptions = (t: (key: string) => string) => {
   return APP_VALUES.map(value => ({
-    label: t(`webhook.app.${value}`),
+    label: getAppLabel(value, t),
     value,
   }))
 }
 
 /**
  * 根据应用值获取标签（支持国际化）
- * @param value 应用值（整数）
+ * @param value 应用值（全局 WebhookAPP 字符串或接口返回的数字）
  * @param t 翻译函数
  * @returns 应用标签
  */
-export const getAppLabel = (value: number, t: (key: string) => string): string => {
-  if (APP_VALUES.includes(value)) {
-    return t(`webhook.app.${value}`)
+export const getAppLabel = (value: number | string, t: (key: string) => string): string => {
+  const key = typeof value === 'string' ? value : APP_NUMBER_TO_KEY[value]
+  if (key) {
+    return t(`webhook.app.${key}`)
   }
   return String(value)
 }

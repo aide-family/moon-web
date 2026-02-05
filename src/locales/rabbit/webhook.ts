@@ -56,21 +56,18 @@ export const zhCN = {
   // 搜索相关
   'webhook.search.app.placeholder': '应用',
   // HTTP方法名称
+  'webhook.method.HTTPMethod_UNKNOWN': '未知',
   'webhook.method.GET': 'GET',
   'webhook.method.POST': 'POST',
   'webhook.method.PUT': 'PUT',
   'webhook.method.DELETE': 'DELETE',
   'webhook.method.PATCH': 'PATCH',
-  'webhook.method.HEAD': 'HEAD',
-  'webhook.method.OPTIONS': 'OPTIONS',
-  // 应用名称（整数映射，根据实际API调整）
-  'webhook.app.1': '应用1',
-  'webhook.app.2': '应用2',
-  'webhook.app.3': '应用3',
-  'webhook.app.4': '应用4',
-  'webhook.app.5': '应用5',
-  'webhook.app.6': '应用6',
-  'webhook.app.7': '应用7',
+  // 应用名称（与 proto WebhookAPP 枚举名一致）
+  'webhook.app.WebhookAPP_UNKNOWN': '未知',
+  'webhook.app.OTHER': '其他',
+  'webhook.app.DINGTALK': '钉钉',
+  'webhook.app.WECHAT': '企业微信',
+  'webhook.app.FEISHU': '飞书',
 } as const;
 
 export const enUS = {
@@ -128,19 +125,16 @@ export const enUS = {
   // Search related
   'webhook.search.app.placeholder': 'App',
   // HTTP Method names
+  'webhook.method.HTTPMethod_UNKNOWN': 'Unknown',
   'webhook.method.GET': 'GET',
   'webhook.method.POST': 'POST',
   'webhook.method.PUT': 'PUT',
   'webhook.method.DELETE': 'DELETE',
   'webhook.method.PATCH': 'PATCH',
-  'webhook.method.HEAD': 'HEAD',
-  'webhook.method.OPTIONS': 'OPTIONS',
-  // App names (integer mapping, adjust according to actual API)
-  'webhook.app.1': 'App 1',
-  'webhook.app.2': 'App 2',
-  'webhook.app.3': 'App 3',
-  'webhook.app.4': 'App 4',
-  'webhook.app.5': 'App 5',
-  'webhook.app.6': 'App 6',
-  'webhook.app.7': 'App 7',
+  // App names (match proto WebhookAPP enum)
+  'webhook.app.WebhookAPP_UNKNOWN': 'Unknown',
+  'webhook.app.OTHER': 'Other',
+  'webhook.app.DINGTALK': 'DingTalk',
+  'webhook.app.WECHAT': 'WeChat',
+  'webhook.app.FEISHU': 'Feishu',
 } as const;
