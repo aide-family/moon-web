@@ -1,3 +1,5 @@
+import { GlobalStatus } from "../index"
+
 /**
  * 邮件相关类型定义
  */
@@ -14,7 +16,7 @@ export interface EmailItem {
   password: string
   createdAt: string
   updatedAt: string
-  status: number
+  status: GlobalStatus
 }
 
 /**
@@ -34,7 +36,7 @@ export interface EmailListParams {
   page?: number
   pageSize?: number
   keyword?: string
-  status?: number
+  status?: GlobalStatus | null
 }
 
 /**
@@ -63,7 +65,7 @@ export interface UpdateEmailParams {
  * 更新邮件状态请求参数
  */
 export interface UpdateEmailStatusParams {
-  status: number
+  status: GlobalStatus
 }
 
 /**
@@ -86,7 +88,7 @@ export interface EmailConfigSelectParams {
   keyword?: string
   limit?: number
   lastUID?: string
-  status?: number
+  status?: GlobalStatus | null
 }
 
 /**

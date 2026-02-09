@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
@@ -14,10 +15,24 @@ import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
 import { GlobalStatus } from '@/api'
+import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
+
+const defaultSearchParams: EmailListParams = {
+  keyword: '',
+  status: undefined,
+}
+
+function parseSearchParamsFromUrl(params: URLSearchParams): EmailListParams {
+  return {
+    keyword: getParam(params, 'keyword') ?? '',
+    status: (getParam(params, 'status') as GlobalStatus) ?? null,
+  }
+}
 
 const EmailListContent: React.FC = () => {
   const { modal } = App.useApp()
   const { t } = useLocale()
+  const [urlSearchParams, setUrlSearchParams] = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [dataSource, setDataSource] = useState<EmailItem[]>([])
   const [pagination, setPagination] = useState({
@@ -25,10 +40,9 @@ const EmailListContent: React.FC = () => {
     pageSize: 10,
     total: 0,
   })
-  const [searchParams, setSearchParams] = useState<EmailListParams>({
-    keyword: '',
-    status: undefined,
-  })
+  const [searchParams, setSearchParams] = useState<EmailListParams>(() =>
+    parseSearchParamsFromUrl(urlSearchParams)
+  )
   const [tableHeight, setTableHeight] = useState<number>(0)
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const tableWrapperRef = useRef<HTMLDivElement>(null)
@@ -65,24 +79,27 @@ const EmailListContent: React.FC = () => {
     }
   }
 
-  // 处理搜索
+  useEffect(() => {
+    setSearchParams(parseSearchParamsFromUrl(urlSearchParams))
+  }, [urlSearchParams.toString()])
+
+  useEffect(() => {
+    applySearchToUrl(
+      setUrlSearchParams,
+      { keyword: searchParams.keyword, status: searchParams.status },
+      { replace: true }
+    )
+  }, [searchParams.keyword, searchParams.status])
+
   const handleSearch = () => {
     setPagination(prev => ({ ...prev, current: 1 }))
     fetchData()
   }
 
-  // 处理重置
   const handleReset = () => {
-    setSearchParams({
-      keyword: '',
-      status: undefined,
-    })
-    setPagination({
-      current: 1,
-      pageSize: 10,
-      total: 0,
-    })
-    // 重置后查询
+    setSearchParams(defaultSearchParams)
+    setUrlSearchParams({})
+    setPagination({ current: 1, pageSize: 10, total: 0 })
     fetchData()
   }
 
@@ -129,13 +146,13 @@ const EmailListContent: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       minWidth: 60,
-      render: (status: number) => {
-        const statusMap: Record<number, { text: string; color: string }> = {
-          0: { text: t('table.unknown'), color: 'default' },
-          1: { text: t('table.enable'), color: 'success' },
-          2: { text: t('table.disable'), color: 'error' },
+      render: (status: GlobalStatus) => {
+        const statusMap: Record<GlobalStatus, { text: string; color: string }> = {
+          [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
+          [GlobalStatus.ENABLED]: { text: t('table.enable'), color: 'success' },
+          [GlobalStatus.DISABLED]: { text: t('table.disable'), color: 'error' },
         }
-        const statusInfo = statusMap[status] || statusMap[0]
+        const statusInfo = statusMap[status] || statusMap[GlobalStatus.UNKNOWN]
         return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>
       },
     },
@@ -256,7 +273,7 @@ const EmailListContent: React.FC = () => {
   }
 
   // 处理修改状态
-  const handleStatusChange = async (record: EmailItem, newStatus: number) => {
+  const handleStatusChange = async (record: EmailItem, newStatus: GlobalStatus) => {
     try {
       await updateEmailStatus(record.uid, newStatus)
       message.success(t('message.update.success'))

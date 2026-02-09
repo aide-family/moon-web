@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
@@ -7,10 +8,24 @@ import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
+import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
+
+const defaultSearchParams: NamespaceListParams = {
+  keyword: '',
+  status: undefined,
+}
+
+function parseSearchParamsFromUrl(params: URLSearchParams): NamespaceListParams {
+  return {
+    keyword: getParam(params, 'keyword') ?? '',
+    status: (getParam(params, 'status') as GlobalStatus) ?? undefined,
+  }
+}
 
 const NamespaceList: React.FC = () => {
   const { modal } = App.useApp()
   const { t } = useLocale()
+  const [urlSearchParams, setUrlSearchParams] = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [dataSource, setDataSource] = useState<NamespaceItem[]>([])
   const [pagination, setPagination] = useState({
@@ -18,10 +33,9 @@ const NamespaceList: React.FC = () => {
     pageSize: 10,
     total: 0,
   })
-  const [searchParams, setSearchParams] = useState<NamespaceListParams>({
-    keyword: '',
-    status: undefined,
-  })
+  const [searchParams, setSearchParams] = useState<NamespaceListParams>(() =>
+    parseSearchParamsFromUrl(urlSearchParams)
+  )
   const [tableHeight, setTableHeight] = useState<number>(0)
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const tableWrapperRef = useRef<HTMLDivElement>(null)
@@ -62,24 +76,27 @@ const NamespaceList: React.FC = () => {
     }
   }
 
-  // 处理搜索
+  useEffect(() => {
+    setSearchParams(parseSearchParamsFromUrl(urlSearchParams))
+  }, [urlSearchParams.toString()])
+
+  useEffect(() => {
+    applySearchToUrl(
+      setUrlSearchParams,
+      { keyword: searchParams.keyword, status: searchParams.status },
+      { replace: true }
+    )
+  }, [searchParams.keyword, searchParams.status])
+
   const handleSearch = () => {
     setPagination(prev => ({ ...prev, current: 1 }))
     fetchData()
   }
 
-  // 处理重置
   const handleReset = () => {
-    setSearchParams({
-      keyword: '',
-      status: undefined,
-    })
-    setPagination({
-      current: 1,
-      pageSize: 10,
-      total: 0,
-    })
-    // 重置后查询
+    setSearchParams(defaultSearchParams)
+    setUrlSearchParams({})
+    setPagination({ current: 1, pageSize: 10, total: 0 })
     fetchData()
   }
 

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App, Select } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
@@ -15,6 +16,21 @@ import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
 import { getAppOptions, getAppLabel, getMethodLabel } from './constants'
+import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
+
+const defaultSearchParams: WebhookListParams = {
+  keyword: '',
+  status: undefined,
+  app: undefined,
+}
+
+function parseSearchParamsFromUrl(params: URLSearchParams): WebhookListParams {
+  return {
+    keyword: getParam(params, 'keyword') ?? '',
+    status: (getParam(params, 'status') as WebhookListParams['status']) ?? undefined,
+    app: (getParam(params, 'app') as WebhookListParams['app']) ?? undefined,
+  }
+}
 
 // 将接口返回的 status（数字或字符串）转为 GlobalStatus，用于展示与筛选
 const normalizeStatus = (status: number | string | undefined): GlobalStatus | string => {
@@ -26,6 +42,7 @@ const normalizeStatus = (status: number | string | undefined): GlobalStatus | st
 const WebhookListContent: React.FC = () => {
   const { modal } = App.useApp()
   const { t } = useLocale()
+  const [urlSearchParams, setUrlSearchParams] = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [dataSource, setDataSource] = useState<WebhookItem[]>([])
   const [pagination, setPagination] = useState({
@@ -33,11 +50,9 @@ const WebhookListContent: React.FC = () => {
     pageSize: 10,
     total: 0,
   })
-  const [searchParams, setSearchParams] = useState<WebhookListParams>({
-    keyword: '',
-    status: undefined,
-    app: undefined,
-  })
+  const [searchParams, setSearchParams] = useState<WebhookListParams>(() =>
+    parseSearchParamsFromUrl(urlSearchParams)
+  )
   const [tableHeight, setTableHeight] = useState<number>(0)
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const tableWrapperRef = useRef<HTMLDivElement>(null)
@@ -75,25 +90,27 @@ const WebhookListContent: React.FC = () => {
     }
   }
 
-  // 处理搜索
+  useEffect(() => {
+    setSearchParams(parseSearchParamsFromUrl(urlSearchParams))
+  }, [urlSearchParams.toString()])
+
+  useEffect(() => {
+    applySearchToUrl(
+      setUrlSearchParams,
+      { keyword: searchParams.keyword, status: searchParams.status, app: searchParams.app },
+      { replace: true }
+    )
+  }, [searchParams.keyword, searchParams.status, searchParams.app])
+
   const handleSearch = () => {
     setPagination(prev => ({ ...prev, current: 1 }))
     fetchData()
   }
 
-  // 处理重置
   const handleReset = () => {
-    setSearchParams({
-      keyword: '',
-      status: undefined,
-      app: undefined,
-    })
-    setPagination({
-      current: 1,
-      pageSize: 10,
-      total: 0,
-    })
-    // 重置后查询
+    setSearchParams(defaultSearchParams)
+    setUrlSearchParams({})
+    setPagination({ current: 1, pageSize: 10, total: 0 })
     fetchData()
   }
 

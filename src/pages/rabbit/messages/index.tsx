@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   Table,
   Button,
@@ -22,6 +23,7 @@ import {
 } from '@/api/message-log'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
+import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 
 const { RangePicker } = DatePicker
 
@@ -72,9 +74,33 @@ function getTypeLabel(type: number | undefined, t: (key: string) => string): str
   return key ? t(`messageType.${i18nKey}`) : String(type)
 }
 
+const defaultDateRange = () => {
+  const end = dayjs().endOf('day')
+  const start = dayjs().subtract(7, 'day').startOf('day')
+  return { startAtUnix: String(start.unix()), endAtUnix: String(end.unix()) }
+}
+
+function parseSearchParamsFromUrl(params: URLSearchParams): {
+  status?: number
+  messageType?: number
+  startAtUnix?: string
+  endAtUnix?: string
+} {
+  const start = getParam(params, 'startAtUnix')
+  const end = getParam(params, 'endAtUnix')
+  const def = defaultDateRange()
+  return {
+    status: getParam(params, 'status') != null ? Number(getParam(params, 'status')) : undefined,
+    messageType: getParam(params, 'messageType') != null ? Number(getParam(params, 'messageType')) : undefined,
+    startAtUnix: start ?? def.startAtUnix,
+    endAtUnix: end ?? def.endAtUnix,
+  }
+}
+
 export default function MessageManagement() {
   const { t } = useLocale()
   const { modal } = App.useApp()
+  const [urlSearchParams, setUrlSearchParams] = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [dataSource, setDataSource] = useState<MessageLogItem[]>([])
   const [pagination, setPagination] = useState({
@@ -87,14 +113,7 @@ export default function MessageManagement() {
     messageType?: number
     startAtUnix?: string
     endAtUnix?: string
-  }>(() => {
-    const end = dayjs().endOf('day')
-    const start = dayjs().subtract(7, 'day').startOf('day')
-    return {
-      startAtUnix: String(start.unix()),
-      endAtUnix: String(end.unix()),
-    }
-  })
+  }>(() => parseSearchParamsFromUrl(urlSearchParams))
   const [tableHeight, setTableHeight] = useState(0)
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const tableWrapperRef = useRef<HTMLDivElement>(null)
@@ -130,18 +149,32 @@ export default function MessageManagement() {
     }
   }
 
+  useEffect(() => {
+    setSearchParams(parseSearchParamsFromUrl(urlSearchParams))
+  }, [urlSearchParams.toString()])
+
+  useEffect(() => {
+    applySearchToUrl(
+      setUrlSearchParams,
+      {
+        status: searchParams.status,
+        messageType: searchParams.messageType,
+        startAtUnix: searchParams.startAtUnix,
+        endAtUnix: searchParams.endAtUnix,
+      },
+      { replace: true }
+    )
+  }, [searchParams.status, searchParams.messageType, searchParams.startAtUnix, searchParams.endAtUnix])
+
   const handleSearch = () => {
     setPagination(prev => ({ ...prev, current: 1 }))
     fetchData()
   }
 
   const handleReset = () => {
-    const end = dayjs().endOf('day')
-    const start = dayjs().subtract(7, 'day').startOf('day')
-    setSearchParams({
-      startAtUnix: String(start.unix()),
-      endAtUnix: String(end.unix()),
-    })
+    const def = defaultDateRange()
+    setSearchParams({ ...def })
+    setUrlSearchParams({})
     setPagination({ current: 1, pageSize: 10, total: 0 })
     fetchData()
   }

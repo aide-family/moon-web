@@ -117,22 +117,25 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
     }
   }, [isDesktop]);
 
-  // 根据当前路径设置选中的菜单项
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-  const [openKeys, setOpenKeys] = useState<string[]>([]);
+  // 根据当前路径计算选中项（用 useMemo 稳定引用，避免 Menu 内部状态与受控值不同步导致要点两次才高亮）
+  const currentPath = location.pathname;
+  const currentItem = findMenuItemByPath(menuItems, currentPath);
+  const selectedKeys = React.useMemo(
+    () => (currentItem ? [currentItem.key] : []),
+    [currentItem?.key]
+  );
+  const defaultOpenKeys = currentItem ? getParentKeys(menuItems, currentItem.key) : [];
+  const [openKeys, setOpenKeys] = useState<string[]>(defaultOpenKeys);
 
+  // 路径变化时同步展开项
   useEffect(() => {
-    const currentPath = location.pathname;
-    const currentItem = findMenuItemByPath(menuItems, currentPath);
     if (currentItem) {
-      setSelectedKeys([currentItem.key]);
-      // 展开父菜单
       const parentKeys = getParentKeys(menuItems, currentItem.key);
       if (parentKeys.length > 0) {
         setOpenKeys(parentKeys);
       }
     }
-  }, [location.pathname, menuItems]);
+  }, [currentPath, currentItem?.key, menuItems]);
 
   // 处理菜单点击
   const handleMenuClick: MenuProps['onClick'] = (e) => {
@@ -179,6 +182,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
       >
         <div className="logo h-16 w-full text-center flex items-center justify-center text-white bg-blue-400 shrink-0">LOGO</div>
         <Menu
+          key={location.pathname}
           theme="dark"
           mode="inline"
           selectedKeys={selectedKeys}

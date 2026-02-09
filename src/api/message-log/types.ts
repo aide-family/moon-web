@@ -1,3 +1,5 @@
+import { GlobalStatus } from "../index"
+
 /**
  * 消息日志相关类型定义
  * 依据接口：MessageLog_ListMessageLog、MessageLog_GetMessageLog、
@@ -8,7 +10,7 @@
 export interface MessageLogItem {
   uid?: string
   messageType?: number
-  status?: number
+  status?: GlobalStatus
   sendAt?: string
   message?: string
   config?: string
@@ -22,7 +24,7 @@ export interface MessageLogItem {
 export interface ListMessageLogsParams {
   page?: number
   pageSize?: number
-  status?: number
+  status?: GlobalStatus
   messageType?: number
   startAtUnix?: string
   endAtUnix?: string

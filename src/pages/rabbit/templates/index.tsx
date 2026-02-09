@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App, Select } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
@@ -8,10 +9,26 @@ import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView.tsx'
 import { useLocale } from '@/contexts/LocaleContext'
 import { getMessageTypeOptions, getMessageTypeLabel } from './constants'
+import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
+
+const defaultSearchParams: TemplateListParams = {
+  keyword: '',
+  status: undefined,
+  messageType: undefined,
+}
+
+function parseSearchParamsFromUrl(params: URLSearchParams): TemplateListParams {
+  return {
+    keyword: getParam(params, 'keyword') ?? '',
+    status: (getParam(params, 'status') as GlobalStatus) ?? undefined,
+    messageType: getParam(params, 'messageType') ?? undefined,
+  }
+}
 
 const TemplateListContent: React.FC = () => {
   const { modal } = App.useApp()
   const { t } = useLocale()
+  const [urlSearchParams, setUrlSearchParams] = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [dataSource, setDataSource] = useState<TemplateItem[]>([])
   const [pagination, setPagination] = useState({
@@ -19,11 +36,9 @@ const TemplateListContent: React.FC = () => {
     pageSize: 10,
     total: 0,
   })
-  const [searchParams, setSearchParams] = useState<TemplateListParams>({
-    keyword: '',
-    status: undefined,
-    messageType: undefined,
-  })
+  const [searchParams, setSearchParams] = useState<TemplateListParams>(() =>
+    parseSearchParamsFromUrl(urlSearchParams)
+  )
   const [tableHeight, setTableHeight] = useState<number>(0)
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const tableWrapperRef = useRef<HTMLDivElement>(null)
@@ -65,7 +80,24 @@ const TemplateListContent: React.FC = () => {
     }
   }
 
-  // 处理搜索
+  // URL 变化时（如浏览器后退）同步到表单
+  useEffect(() => {
+    setSearchParams(parseSearchParamsFromUrl(urlSearchParams))
+  }, [urlSearchParams.toString()])
+
+  // 搜索条件变化即同步到 URL（replace 避免每次输入都产生历史记录）
+  useEffect(() => {
+    applySearchToUrl(
+      setUrlSearchParams,
+      {
+        keyword: searchParams.keyword,
+        status: searchParams.status,
+        messageType: searchParams.messageType,
+      },
+      { replace: true }
+    )
+  }, [searchParams.keyword, searchParams.status, searchParams.messageType])
+
   const handleSearch = () => {
     setPagination(prev => ({ ...prev, current: 1 }))
     fetchData()
@@ -73,17 +105,13 @@ const TemplateListContent: React.FC = () => {
 
   // 处理重置
   const handleReset = () => {
-    setSearchParams({
-      keyword: '',
-      status: undefined,
-      messageType: undefined,
-    })
+    setSearchParams(defaultSearchParams)
+    setUrlSearchParams({})
     setPagination({
       current: 1,
       pageSize: 10,
       total: 0,
     })
-    // 重置后查询
     fetchData()
   }
 

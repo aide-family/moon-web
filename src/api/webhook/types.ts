@@ -1,6 +1,7 @@
 /**
  * Webhook 相关类型定义
  */
+import { GlobalStatus } from "../index"
 
 /**
  * Webhook 项
@@ -39,7 +40,7 @@ export interface WebhookListParams {
   pageSize?: number
   keyword?: string
   /** 状态筛选，支持全局状态 GlobalStatus（ENABLED/DISABLED）或数字 1/2 */
-  status?: number | string
+  status?: GlobalStatus
   /** 应用筛选，全局 WebhookAPP 字符串 */
   app?: number | string
 }
@@ -99,7 +100,7 @@ export interface WebhookConfigSelectParams {
   keyword?: string
   limit?: number
   lastUID?: string
-  status?: number
+  status?: GlobalStatus
 }
 
 /**

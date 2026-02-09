@@ -3,14 +3,13 @@
  * 数据来源：后端 API
  */
 
-import { http } from '../index'
+import { GlobalStatus, http } from '../index'
 import type { 
   EmailListResponse, 
   EmailListParams,
   EmailItem,
   CreateEmailParams,
   UpdateEmailParams,
-  UpdateEmailStatusParams,
   EmailConfigSelectParams,
   EmailConfigSelectResponse,
 } from './types'
@@ -67,7 +66,7 @@ export const deleteEmail = (uid: string): Promise<void> => {
  * @param status 状态值
  * @returns 更新后的邮件配置
  */
-export const updateEmailStatus = (uid: string, status: number): Promise<EmailItem> => {
+export const updateEmailStatus = (uid: string, status: GlobalStatus): Promise<EmailItem> => {
   return http.put<EmailItem>(`/email/config/${uid}/status`, { status } as Record<string, unknown>)
 }
 
