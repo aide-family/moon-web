@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Card, Form, Input, Button, Select, AutoComplete, message as antdMessage, App } from 'antd'
+import { Card, Form, Input, Button, Select, AutoComplete, App } from 'antd'
 import {
   sendEmail,
   sendEmailWithTemplate,
@@ -34,6 +34,7 @@ const WEBHOOK_TEMPLATE_TYPES: MessageType[] = [
 
 export default function SenderManagement() {
   const { t } = useLocale()
+  const { message } = App.useApp()
   const [form] = Form.useForm()
   const [sendType, setSendType] = useState<SendType>('email')
   const [submitting, setSubmitting] = useState(false)
@@ -125,7 +126,7 @@ export default function SenderManagement() {
       const values = await form.validateFields()
       const uid = values.uid?.trim()
       if (!uid) {
-        antdMessage.warning(t('sender.form.uidPlaceholder'))
+        message.warning(t('sender.form.uidPlaceholder'))
         return
       }
       setSubmitting(true)
@@ -138,7 +139,7 @@ export default function SenderManagement() {
             try {
               headers = JSON.parse(values.headers.trim()) as Record<string, string>
             } catch {
-              antdMessage.warning(t('sender.form.headersPlaceholder'))
+              message.warning(t('sender.form.headersPlaceholder'))
               setSubmitting(false)
               return
             }
@@ -177,14 +178,14 @@ export default function SenderManagement() {
         default:
           break
       }
-      antdMessage.success(t('sender.success'))
+      message.success(t('sender.success'))
       form.resetFields()
     } catch (error) {
       if (error && typeof error === 'object' && 'errorFields' in error) {
         return
       }
       console.error('发送失败:', error)
-      antdMessage.error(t('sender.error'))
+      message.error(t('sender.error'))
     } finally {
       setSubmitting(false)
     }
@@ -198,12 +199,11 @@ export default function SenderManagement() {
     <App className="h-full min-h-0 flex flex-col">
       <div className="flex flex-1 min-h-0 gap-4">
         {/* 左侧：发送方式 */}
-        <Card className="w-48 shrink-0 overflow-auto" title={t('sender.sendType')}>
-          <div className="flex flex-col gap-1">
+        <Card className="w-48 shrink-0 overflow-auto" title={t('sender.sendType')} styles={{ body: { padding: '12px' } }}>
+          <div className="flex flex-col gap-2">
             {SEND_TYPES.map(({ value, labelKey }) => (
-              <button
+              <div
                 key={value}
-                type="button"
                 onClick={() => {
                   if (value !== sendType) {
                     setSendType(value)
@@ -211,14 +211,14 @@ export default function SenderManagement() {
                   }
                 }}
                 className={`
-                  w-full text-left px-3 py-2.5 rounded-md border transition-colors
+                  w-full text-left px-3 py-2.5 rounded-md transition-colors
                   ${sendType === value
-                    ? 'bg-blue-50 border-blue-200 text-blue-700'
-                    : 'bg-transparent border-transparent hover:bg-gray-100 hover:border-gray-200'}
+                    ? 'bg-(--ant-color-primary-bg) text-(--ant-color-primary)'
+                    : 'bg-transparent hover:bg-(--ant-color-fill-tertiary)'}
                 `}
               >
                 {t(labelKey)}
-              </button>
+              </div>
             ))}
           </div>
         </Card>
@@ -235,10 +235,8 @@ export default function SenderManagement() {
                 <Select
                   placeholder={t('sender.form.uidPlaceholder')}
                   allowClear
-                  showSearch
-                  filterOption={false}
+                  showSearch={{ onSearch: handleEmailConfigSearch }}
                   loading={emailConfigLoading}
-                  onSearch={handleEmailConfigSearch}
                   options={emailConfigOptions
                     .filter(item => (item.value ?? (item as unknown as { uid?: string }).uid) != null)
                     .map(item => {
@@ -251,10 +249,8 @@ export default function SenderManagement() {
                 <Select
                   placeholder={t('sender.form.uidPlaceholder')}
                   allowClear
-                  showSearch
-                  filterOption={false}
+                  showSearch={{ onSearch: handleWebhookConfigSearch }}
                   loading={webhookConfigLoading}
-                  onSearch={handleWebhookConfigSearch}
                   options={webhookConfigOptions
                     .filter(item => (item.value ?? (item as unknown as { uid?: string }).uid) != null)
                     .map(item => {
@@ -334,7 +330,7 @@ export default function SenderManagement() {
                   <Select
                     placeholder={t('sender.form.templateUIDPlaceholder')}
                     allowClear
-                    showSearch={{ optionFilterProp: 'label' }}
+                    showSearch
                     loading={templateLoading}
                     disabled={needWebhookTemplateType && !webhookTemplateType}
                     options={templateOptions
