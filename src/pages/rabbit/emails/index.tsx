@@ -345,8 +345,8 @@ const EmailListContent: React.FC = () => {
             buttonStyle="solid"
           >
             <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
-            <Radio.Button value={1}>{t('table.search.enabled')}</Radio.Button>
-            <Radio.Button value={2}>{t('table.search.disabled')}</Radio.Button>
+            <Radio.Button value={GlobalStatus.ENABLED}>{t('table.search.enabled')}</Radio.Button>
+            <Radio.Button value={GlobalStatus.DISABLED}>{t('table.search.disabled')}</Radio.Button>
           </Radio.Group>
           <Button onClick={handleSearch} type="primary">
             {t('common.search')}
