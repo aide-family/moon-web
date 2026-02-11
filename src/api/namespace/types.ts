@@ -31,7 +31,7 @@ export interface NamespaceSelectParams {
   keyword?: string
   limit?: number
   lastUID?: string
-  status?: GlobalStatus | string
+  status?: GlobalStatus
 }
 
 /**
@@ -42,7 +42,7 @@ export interface NamespaceItem {
   name: string
   createdAt: string
   updatedAt: string
-  status: GlobalStatus | string
+  status: GlobalStatus
   metadata?: Record<string, unknown>
 }
 
@@ -63,7 +63,7 @@ export interface NamespaceListParams {
   page?: number
   pageSize?: number
   keyword?: string
-  status?: GlobalStatus | string
+  status?: GlobalStatus
 }
 
 /**

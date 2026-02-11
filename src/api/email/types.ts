@@ -36,7 +36,7 @@ export interface EmailListParams {
   page?: number
   pageSize?: number
   keyword?: string
-  status?: GlobalStatus | null
+  status?: GlobalStatus
 }
 
 /**
@@ -88,7 +88,7 @@ export interface EmailConfigSelectParams {
   keyword?: string
   limit?: number
   lastUID?: string
-  status?: GlobalStatus | null
+  status?: GlobalStatus
 }
 
 /**

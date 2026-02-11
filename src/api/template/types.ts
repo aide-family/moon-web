@@ -34,7 +34,7 @@ export interface TemplateListParams {
   page?: number
   pageSize?: number
   keyword?: string
-  status?: GlobalStatus | string
+  status?: GlobalStatus
   messageType?: MessageType | string
 }
 
@@ -85,7 +85,7 @@ export interface TemplateSelectParams {
   keyword?: string
   limit?: number
   lastUID?: string
-  status?: GlobalStatus | string
+  status?: GlobalStatus
 }
 
 /**

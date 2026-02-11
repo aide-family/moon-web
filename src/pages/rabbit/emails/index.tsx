@@ -25,7 +25,7 @@ const defaultSearchParams: EmailListParams = {
 function parseSearchParamsFromUrl(params: URLSearchParams): EmailListParams {
   return {
     keyword: getParam(params, 'keyword') ?? '',
-    status: (getParam(params, 'status') as GlobalStatus) ?? null,
+    status: (getParam(params, 'status') as GlobalStatus) ?? undefined,
   }
 }
 
