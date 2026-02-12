@@ -1,4 +1,3 @@
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import '@/styles/index.css'
@@ -20,9 +19,5 @@ initRem({
   resize: true, // 窗口大小改变时重新计算
 })
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-)
+createRoot(document.getElementById('root')!).render(<App />)
 
