@@ -24,7 +24,7 @@ interface RemConfig {
 export function initRem(config: RemConfig = {}) {
   const {
     baseWidth = 1920,
-    minFontSize = 10,
+    minFontSize = 16,
     maxFontSize = 64,
     resize = true,
     convertAntd = true,

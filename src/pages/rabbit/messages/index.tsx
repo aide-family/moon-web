@@ -265,6 +265,7 @@ export default function MessageManagement() {
       dataIndex: 'messageType',
       key: 'messageType',
       width: 120,
+      align: 'center',
       render: (messageType: number | undefined) => getTypeLabel(messageType, t),
     },
     {
@@ -272,6 +273,7 @@ export default function MessageManagement() {
       dataIndex: 'status',
       key: 'status',
       width: 100,
+      align: 'center',
       render: (status: number) => (
         <Tag color={getStatusColor(status)}>{getStatusLabel(status, t)}</Tag>
       ),
@@ -307,6 +309,7 @@ export default function MessageManagement() {
       key: 'action',
       width: 180,
       fixed: 'right',
+      align: 'center',
       render: (_, record) => {
         const status = record.status
         const showRetry = status === 4 // FAILED：仅重试

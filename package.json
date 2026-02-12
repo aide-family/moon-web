@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "clean": "node -e \"require('fs').rmSync('node_modules/.vite',{recursive:true,force:true})\"",
-    "dev": "concurrently \"npm run dev:main\" \"npm run dev:test\" \"npm run dev:rabbit\"",
+    "dev": "pnpm run clean && concurrently \"npm run dev:main\" \"npm run dev:test\" \"npm run dev:rabbit\"",
     "dev:main": "cross-env APP_NAME=main vite",
     "dev:test": "cross-env APP_NAME=test vite",
     "dev:rabbit": "cross-env APP_NAME=rabbit vite",
