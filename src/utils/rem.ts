@@ -6,7 +6,7 @@
 interface RemConfig {
   /** 设计稿基准宽度，默认 1920px */
   baseWidth?: number
-  /** 根元素最小 font-size，默认 12px */
+  /** 根元素最小 font-size，默认 14px */
   minFontSize?: number
   /** 根元素最大 font-size，默认 24px */
   maxFontSize?: number
@@ -24,7 +24,7 @@ interface RemConfig {
 export function initRem(config: RemConfig = {}) {
   const {
     baseWidth = 1920,
-    minFontSize = 16,
+    minFontSize = 14,
     maxFontSize = 64,
     resize = true,
     convertAntd = true,

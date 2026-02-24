@@ -14,7 +14,7 @@ if (!(window as Window & { __MICRO_APP_STARTED__?: boolean }).__MICRO_APP_STARTE
 // 初始化 rem 等比例缩放（平板/手机下保证最小字号可读）
 initRem({
   baseWidth: 1920, // 设计稿基准宽度
-  minFontSize: 12, // 最小字体大小，兼顾手机可读性
+  minFontSize: 14, // 最小字体大小，兼顾手机可读性
   maxFontSize: 16, // 最大字体大小
   resize: true, // 窗口大小改变时重新计算
 })
