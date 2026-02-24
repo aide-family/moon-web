@@ -225,15 +225,35 @@ export default function SenderManagement() {
 
         {/* 右侧：表单 */}
         <Card className="flex-1 min-w-0 min-h-0 overflow-auto">
+          <div className="flex justify-end mb-4">
+            <Button type="primary" loading={submitting} onClick={() => form.submit()}>
+              {t('sender.submit')}
+            </Button>
+          </div>
           <Form form={form} layout="vertical" onFinish={handleSubmit}>
             <Form.Item
               name="uid"
-              label={t('sender.form.uid')}
-              rules={[{ required: true, message: t('sender.form.uidPlaceholder') }]}
+              label={
+                needEmailConfig
+                  ? t('sender.form.uidEmail')
+                  : needWebhookConfig
+                    ? t('sender.form.uidWebhook')
+                    : t('sender.form.uid')
+              }
+              rules={[
+                {
+                  required: true,
+                  message: needEmailConfig
+                    ? t('sender.form.uidEmailPlaceholder')
+                    : needWebhookConfig
+                      ? t('sender.form.uidWebhookPlaceholder')
+                      : t('sender.form.uidPlaceholder'),
+                },
+              ]}
             >
               {needEmailConfig ? (
                 <Select
-                  placeholder={t('sender.form.uidPlaceholder')}
+                  placeholder={t('sender.form.uidEmailPlaceholder')}
                   allowClear
                   showSearch={{ onSearch: handleEmailConfigSearch }}
                   loading={emailConfigLoading}
@@ -247,7 +267,7 @@ export default function SenderManagement() {
                 />
               ) : needWebhookConfig ? (
                 <Select
-                  placeholder={t('sender.form.uidPlaceholder')}
+                  placeholder={t('sender.form.uidWebhookPlaceholder')}
                   allowClear
                   showSearch={{ onSearch: handleWebhookConfigSearch }}
                   loading={webhookConfigLoading}
@@ -289,8 +309,8 @@ export default function SenderManagement() {
                     placeholder={t('sender.form.contentTypePlaceholder')}
                     allowClear
                     options={[
-                      { value: 'text', label: 'text' },
-                      { value: 'html', label: 'html' },
+                      { value: 'text/plain', label: 'text/plain' },
+                      { value: 'text/html', label: 'text/html' },
                     ]}
                   />
                 </Form.Item>
@@ -373,12 +393,6 @@ export default function SenderManagement() {
                 />
               </Form.Item>
             )}
-
-            <Form.Item>
-              <Button type="primary" htmlType="submit" loading={submitting}>
-                {t('sender.submit')}
-              </Button>
-            </Form.Item>
           </Form>
         </Card>
       </div>
