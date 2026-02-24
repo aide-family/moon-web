@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Card, Form, Input, Button, Select, AutoComplete, App } from 'antd'
+import { Card, Form, Input, Button, Select, AutoComplete, App, message } from 'antd'
 import {
   sendEmail,
   sendEmailWithTemplate,
@@ -34,7 +34,6 @@ const WEBHOOK_TEMPLATE_TYPES: MessageType[] = [
 
 export default function SenderManagement() {
   const { t } = useLocale()
-  const { message } = App.useApp()
   const [form] = Form.useForm()
   const [sendType, setSendType] = useState<SendType>('email')
   const [submitting, setSubmitting] = useState(false)

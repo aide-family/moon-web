@@ -155,6 +155,10 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
               required: true,
               message: t('email.form.username.required'),
             },
+            {
+              type: 'email',
+              message: t('email.form.username.emailFormat'),
+            },
           ]}
         >
           <Input placeholder={t('email.form.username.placeholder')} />
