@@ -337,6 +337,7 @@ const TemplateListContent: React.FC = () => {
       {/* 搜索和操作栏 */}
       <div className="flex items-center justify-between mb-4 shrink-0">
         <Space size="middle" wrap>
+          <span>{t('table.search.keyword')}:</span>
           <Input
             placeholder={t('table.search.placeholder')}
             value={searchParams.keyword}
@@ -344,6 +345,7 @@ const TemplateListContent: React.FC = () => {
             onPressEnter={handleSearch}
             className="w-full min-w-[120px] sm:w-48 md:w-52"
           />
+          <span>{t('table.search.status')}:</span>
           <Radio.Group
             value={searchParams.status}
             onChange={(e) => {
@@ -356,6 +358,7 @@ const TemplateListContent: React.FC = () => {
             <Radio.Button value={GlobalStatus.ENABLED}>{t('table.search.enabled')}</Radio.Button>
             <Radio.Button value={GlobalStatus.DISABLED}>{t('table.search.disabled')}</Radio.Button>
           </Radio.Group>
+          <span>{t('template.table.app')}:</span>
           <Select
             placeholder={t('template.search.app.placeholder')}
             value={searchParams.messageType ?? ''}
