@@ -145,9 +145,10 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
     }
   };
 
-  // 处理子菜单展开/收起
+  // 处理子菜单展开/收起（有选中项时，其父级菜单始终保持展开）
   const handleOpenChange: MenuProps['onOpenChange'] = (keys) => {
-    setOpenKeys(keys);
+    const parentKeys = currentItem ? getParentKeys(menuItems, currentItem.key) : [];
+    setOpenKeys([...new Set([...parentKeys, ...keys])]);
   };
 
   // 递归转换菜单项格式
