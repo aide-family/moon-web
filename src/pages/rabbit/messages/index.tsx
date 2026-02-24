@@ -13,6 +13,7 @@ import {
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
+import { MessageStatus, MessageType } from '@/api/types'
 import {
   listMessageLogs,
   getMessageLog,
@@ -21,58 +22,12 @@ import {
   type MessageLogItem,
   type ListMessageLogsParams,
 } from '@/api/message-log'
+import { getStatusLabel, getStatusColor, getTypeLabel } from './constants'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 
 const { RangePicker } = DatePicker
-
-/** proto MessageStatus 数字 -> i18n key 后缀 */
-const STATUS_NUMBER_TO_KEY: Record<number, string> = {
-  0: 'MessageStatus_UNKNOWN',
-  1: 'pending',   // PENDING
-  2: 'sending',   // SENDING
-  3: 'sent',      // SENT
-  4: 'failed',    // FAILED
-  5: 'cancelled', // CANCELLED
-}
-
-/** proto MessageType 数字 -> i18n key 后缀 */
-const TYPE_NUMBER_TO_KEY: Record<number, string> = {
-  0: 'MessageType_UNKNOWN',
-  1: 'EMAIL',
-  1000: 'SMS_ALICLOUD',
-  2000: 'WEBHOOK_OTHER',
-  2001: 'WEBHOOK_DINGTALK',
-  2002: 'WEBHOOK_WECHAT',
-  2003: 'WEBHOOK_FEISHU',
-}
-
-function getStatusLabel(status: number | undefined, t: (key: string) => string): string {
-  if (status === undefined) return t('messageLog.status.unknown')
-  const key = STATUS_NUMBER_TO_KEY[status]
-  return key ? t(`messageLog.status.${key}`) : t('messageLog.status.unknown')
-}
-
-function getStatusColor(status: number | undefined): string {
-  if (status === undefined) return 'default'
-  const map: Record<number, string> = {
-    0: 'default',     // UNKNOWN
-    1: 'processing',  // PENDING
-    2: 'processing',  // SENDING
-    3: 'success',     // SENT
-    4: 'error',       // FAILED
-    5: 'default',     // CANCELLED
-  }
-  return map[status] ?? 'default'
-}
-
-function getTypeLabel(type: number | undefined, t: (key: string) => string): string {
-  if (type === undefined) return t('messageType.UNKNOWN')
-  const key = TYPE_NUMBER_TO_KEY[type]
-  const i18nKey = key === 'MessageType_UNKNOWN' ? 'UNKNOWN' : key
-  return key ? t(`messageType.${i18nKey}`) : String(type)
-}
 
 const defaultDateRange = () => {
   const end = dayjs().endOf('day')
@@ -81,8 +36,8 @@ const defaultDateRange = () => {
 }
 
 function parseSearchParamsFromUrl(params: URLSearchParams): {
-  status?: number
-  messageType?: number
+  status?: string
+  messageType?: string
   startAtUnix?: string
   endAtUnix?: string
 } {
@@ -90,8 +45,8 @@ function parseSearchParamsFromUrl(params: URLSearchParams): {
   const end = getParam(params, 'endAtUnix')
   const def = defaultDateRange()
   return {
-    status: getParam(params, 'status') != null ? Number(getParam(params, 'status')) : undefined,
-    messageType: getParam(params, 'messageType') != null ? Number(getParam(params, 'messageType')) : undefined,
+    status: getParam(params, 'status') ?? undefined,
+    messageType: getParam(params, 'messageType') ?? undefined,
     startAtUnix: start ?? def.startAtUnix,
     endAtUnix: end ?? def.endAtUnix,
   }
@@ -109,8 +64,8 @@ export default function MessageManagement() {
     total: 0,
   })
   const [searchParams, setSearchParams] = useState<{
-    status?: number
-    messageType?: number
+    status?: string
+    messageType?: string
     startAtUnix?: string
     endAtUnix?: string
   }>(() => parseSearchParamsFromUrl(urlSearchParams))
@@ -173,7 +128,7 @@ export default function MessageManagement() {
 
   const handleReset = () => {
     const def = defaultDateRange()
-    setSearchParams({ ...def })
+    setSearchParams({ ...def, status: undefined, messageType: undefined })
     setUrlSearchParams({})
     setPagination({ current: 1, pageSize: 10, total: 0 })
     fetchData()
@@ -266,7 +221,7 @@ export default function MessageManagement() {
       key: 'messageType',
       width: 120,
       align: 'center',
-      render: (messageType: number | undefined) => getTypeLabel(messageType, t),
+      render: (messageType: MessageType | string | undefined) => getTypeLabel(messageType, t),
     },
     {
       title: t('messageLog.table.status'),
@@ -274,7 +229,7 @@ export default function MessageManagement() {
       key: 'status',
       width: 100,
       align: 'center',
-      render: (status: number) => (
+      render: (status: MessageStatus | string | undefined) => (
         <Tag color={getStatusColor(status)}>{getStatusLabel(status, t)}</Tag>
       ),
     },
@@ -312,8 +267,8 @@ export default function MessageManagement() {
       align: 'center',
       render: (_, record) => {
         const status = record.status
-        const showRetry = status === 4 // FAILED：仅重试
-        const showCancel = status === 1 // PENDING：仅取消
+        const showRetry = status === MessageStatus.FAILED
+        const showCancel = status === MessageStatus.PENDING
         return (
           <Space size="small">
             <Button type="link" size="small" onClick={() => handleViewDetail(record)}>
@@ -366,14 +321,14 @@ export default function MessageManagement() {
               placeholder={t('messageLog.search.status')}
               style={{ width: 120 }}
               value={searchParams.status ?? ''}
-              onChange={v => setSearchParams(prev => ({ ...prev, status: v === '' ? undefined : (v as number) }))}
+              onChange={v => setSearchParams(prev => ({ ...prev, status: v === '' ? undefined : (v as MessageStatus) }))}
               options={[
                 { label: t('table.search.all'), value: '' },
-                { value: 1, label: t('messageLog.status.pending') },
-                { value: 2, label: t('messageLog.status.sending') },
-                { value: 3, label: t('messageLog.status.sent') },
-                { value: 4, label: t('messageLog.status.failed') },
-                { value: 5, label: t('messageLog.status.cancelled') },
+                { value: MessageStatus.PENDING, label: t('messageLog.status.pending') },
+                { value: MessageStatus.SENDING, label: t('messageLog.status.sending') },
+                { value: MessageStatus.SENT, label: t('messageLog.status.sent') },
+                { value: MessageStatus.FAILED, label: t('messageLog.status.failed') },
+                { value: MessageStatus.CANCELLED, label: t('messageLog.status.cancelled') },
               ]}
             />
             <span>{t('messageLog.search.type')}:</span>
@@ -381,15 +336,15 @@ export default function MessageManagement() {
               placeholder={t('messageLog.search.type')}
               style={{ width: 160 }}
               value={searchParams.messageType ?? ''}
-              onChange={v => setSearchParams(prev => ({ ...prev, messageType: v === '' ? undefined : (v as number) }))}
+              onChange={v => setSearchParams(prev => ({ ...prev, messageType: v === '' ? undefined : (v as MessageType) }))}
               options={[
                 { label: t('table.search.all'), value: '' },
-                { value: 1, label: t('messageType.EMAIL') },
-                { value: 1000, label: t('messageType.SMS_ALICLOUD') },
-                { value: 2000, label: t('messageType.WEBHOOK_OTHER') },
-                { value: 2001, label: t('messageType.WEBHOOK_DINGTALK') },
-                { value: 2002, label: t('messageType.WEBHOOK_WECHAT') },
-                { value: 2003, label: t('messageType.WEBHOOK_FEISHU') },
+                { value: MessageType.EMAIL, label: t('messageType.EMAIL') },
+                { value: MessageType.SMS_ALICLOUD, label: t('messageType.SMS_ALICLOUD') },
+                { value: MessageType.WEBHOOK_OTHER, label: t('messageType.WEBHOOK_OTHER') },
+                { value: MessageType.WEBHOOK_DINGTALK, label: t('messageType.WEBHOOK_DINGTALK') },
+                { value: MessageType.WEBHOOK_WECHAT, label: t('messageType.WEBHOOK_WECHAT') },
+                { value: MessageType.WEBHOOK_FEISHU, label: t('messageType.WEBHOOK_FEISHU') },
               ]}
             />
             <span>{t('messageLog.search.timeRange')}:</span>

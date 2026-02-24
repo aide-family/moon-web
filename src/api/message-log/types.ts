@@ -1,16 +1,17 @@
-import { GlobalStatus } from "../index"
+import type { MessageStatus, MessageType } from '@/api/types'
 
 /**
  * 消息日志相关类型定义
  * 依据接口：MessageLog_ListMessageLog、MessageLog_GetMessageLog、
  * MessageLog_CancelMessage、MessageLog_RetryMessage
+ * status/messageType 与后端约定为字符串枚举值（MessageStatus、MessageType）
  */
 
 /** 单条消息日志（接口返回项） */
 export interface MessageLogItem {
   uid?: string
-  messageType?: number
-  status?: GlobalStatus
+  messageType?: MessageType | string
+  status?: MessageStatus | string
   sendAt?: string
   message?: string
   config?: string
@@ -24,8 +25,8 @@ export interface MessageLogItem {
 export interface ListMessageLogsParams {
   page?: number
   pageSize?: number
-  status?: GlobalStatus
-  messageType?: number
+  status?: MessageStatus | string
+  messageType?: MessageType | string
   startAtUnix?: string
   endAtUnix?: string
 }
