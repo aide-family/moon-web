@@ -15,6 +15,7 @@ src/locales/
 ### 步骤 1: 创建翻译文件
 
 为你的模块创建一个翻译文件，中英文写在一起：
+
 - `模块名.ts` - 包含 `zhCN` 和 `enUS` 两个导出
 
 例如，为"用户管理"模块创建 `users.ts`：
@@ -22,14 +23,14 @@ src/locales/
 ```typescript
 // src/locales/users.ts
 export const zhCN = {
-  'users.title': '用户管理',
-  'users.action.add': '添加用户',
+  "users.title": "用户管理",
+  "users.action.add": "添加用户",
   // ... 更多中文翻译
 } as const;
 
 export const enUS = {
-  'users.title': 'User Management',
-  'users.action.add': 'Add User',
+  "users.title": "User Management",
+  "users.action.add": "Add User",
   // ... 更多英文翻译
 } as const;
 ```
@@ -38,7 +39,7 @@ export const enUS = {
 
 ```typescript
 // src/locales/index.ts
-import { zhCN as usersZh, enUS as usersEn } from './users';
+import { zhCN as usersZh, enUS as usersEn } from "./users";
 
 // 在 mergeResources 中添加
 const zhCN = mergeResources(commonZh, namespacesZh, usersZh);
@@ -52,7 +53,7 @@ import { useLocale } from '@/contexts/LocaleContext';
 
 const MyComponent = () => {
   const { t } = useLocale();
-  
+
   return (
     <div>
       <h1>{t('users.title')}</h1>
@@ -71,20 +72,21 @@ const MyComponent = () => {
 // src/locales/users.ts
 export const zhCN = {
   // 中文翻译
-  'users.title': '用户管理',
-  'users.action.add': '添加用户',
+  "users.title": "用户管理",
+  "users.action.add": "添加用户",
   // ...
 } as const;
 
 export const enUS = {
   // 英文翻译
-  'users.title': 'User Management',
-  'users.action.add': 'Add User',
+  "users.title": "User Management",
+  "users.action.add": "Add User",
   // ...
 } as const;
 ```
 
 **注意**：
+
 - 每个文件必须同时导出 `zhCN` 和 `enUS`
 - 两个对象中的键必须完全一致
 - 使用 `as const` 确保类型安全
@@ -92,6 +94,7 @@ export const enUS = {
 ## 翻译键命名规范
 
 ### 命名规则
+
 - 使用点分隔的层级结构：`模块.功能.具体项`
 - 使用小写字母和点号
 - 保持语义清晰
@@ -122,6 +125,7 @@ export const enUS = {
 以下翻译键已在 `common.ts` 中定义，所有页面可以直接使用：
 
 ### 通用操作
+
 - `common.ok` - 确定
 - `common.cancel` - 取消
 - `common.close` - 关闭
@@ -141,12 +145,13 @@ export const enUS = {
 - `common.noData` - 暂无数据
 
 ### 表格通用（所有表格页面共用）
+
 - `table.status` - 状态
 - `table.action` - 操作
 - `table.enable` - 启用
 - `table.disable` - 禁用
 - `table.unknown` - 未知
-- `table.search.placeholder` - 请输入关键字
+- `table.search.placeholder` - 请输入
 - `table.search.all` - 全部
 - `table.search.enabled` - 启用
 - `table.search.disabled` - 禁用
@@ -188,6 +193,7 @@ t('welcome.message', { name: '张三', date: '2026-01-27' })
 ## 文件格式说明
 
 每个模块的翻译文件必须包含两个导出：
+
 - `export const zhCN = { ... }` - 中文翻译
 - `export const enUS = { ... }` - 英文翻译
 
