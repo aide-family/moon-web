@@ -29,7 +29,7 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, loading, onCancel }
           <Spin />
         </div>
       ) : data ? (
-        <Descriptions column={1} bordered size="small">
+        <Descriptions column={1} bordered size="small" labelStyle={{ width: 120, minWidth: 120 }}>
           <Descriptions.Item label={t('messageLog.detail.uid')}>{data.uid ?? '-'}</Descriptions.Item>
           <Descriptions.Item label={t('messageLog.detail.type')}>{getTypeLabel(data.messageType, t)}</Descriptions.Item>
           <Descriptions.Item label={t('messageLog.detail.status')}>

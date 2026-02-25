@@ -51,7 +51,7 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
       destroyOnClose
     >
       {data ? (
-        <Descriptions column={1} bordered>
+        <Descriptions column={1} bordered labelStyle={{ width: 120, minWidth: 120 }}>
           <Descriptions.Item label={t('namespace.detail.uid')}>{data.uid}</Descriptions.Item>
           <Descriptions.Item label={t('namespace.detail.name')}>{data.name || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('table.status')}>
