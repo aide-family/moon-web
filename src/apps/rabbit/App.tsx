@@ -8,6 +8,7 @@ import WebhookManagement from '@/pages/rabbit/webhooks'
 import MessageManagement from '@/pages/rabbit/messages'
 import SenderManagement from '@/pages/rabbit/sender'
 import LayoutComponent, { type MenuItem } from '@/components/layout/Layout'
+import LoginPage from '@/pages/main/login'
 import { isInMicroApp } from '@/utils'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
@@ -68,6 +69,7 @@ function AppContent() {
     >
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<LoginPage />} />
           <Route
             path="/"
             element={ inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} header={headerContent} />}

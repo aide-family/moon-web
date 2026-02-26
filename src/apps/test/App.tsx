@@ -4,6 +4,7 @@ import { UserOutlined, VideoCameraOutlined } from '@ant-design/icons'
 import Test1 from '@/pages/test/test1'
 import Test2 from '@/pages/test/test2'
 import LayoutComponent, { type MenuItem } from '@/components/layout/Layout'
+import LoginPage from '@/pages/main/login'
 import { isInMicroApp } from '@/utils'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
@@ -46,6 +47,7 @@ function AppContent() {
     >
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<LoginPage />} />
           <Route
             path="/"
             element={ inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} header={headerContent} />}
