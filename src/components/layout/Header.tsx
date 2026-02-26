@@ -1,11 +1,21 @@
 // 头部组件
-import React, { useState, useEffect, useRef } from 'react';
-import { Select, Avatar, Dropdown, message } from 'antd';
-import type { MenuProps } from 'antd';
-import { UserOutlined, SunOutlined, MoonOutlined, DesktopOutlined, BgColorsOutlined, GlobalOutlined } from '@ant-design/icons';
-import { getNamespaceList, type NamespaceItemSelect } from '@/api/namespace/index';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useLocale } from '@/contexts/LocaleContext';
+import React, { useState, useEffect, useRef } from "react";
+import { Select, Avatar, Dropdown, message } from "antd";
+import type { MenuProps } from "antd";
+import {
+  UserOutlined,
+  SunOutlined,
+  MoonOutlined,
+  DesktopOutlined,
+  BgColorsOutlined,
+  GlobalOutlined,
+} from "@ant-design/icons";
+import {
+  getNamespaceList,
+  type NamespaceItemSelect,
+} from "@/api/namespace/index";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useLocale } from "@/contexts/LocaleContext";
 
 const Header: React.FC = () => {
   // 主题管理
@@ -15,35 +25,39 @@ const Header: React.FC = () => {
 
   // 命名空间管理
   const [namespace, setNamespace] = useState<string>(() => {
-    return localStorage.getItem('namespace') || '';
+    return localStorage.getItem("namespace") || "";
   });
 
   // 命名空间选项列表
-  const [namespaceOptions, setNamespaceOptions] = useState<NamespaceItemSelect[]>([]);
+  const [namespaceOptions, setNamespaceOptions] = useState<
+    NamespaceItemSelect[]
+  >([]);
   const [loading, setLoading] = useState(false);
 
   // 用于防止重复请求
   const hasFetchedRef = useRef(false);
 
   // 用户信息（可以从 API 或 context 获取）
-  const [userInfo, setUserInfo] = useState<{ name: string; avatar?: string }>(() => {
-    // 可以从 localStorage 或 API 获取用户信息
-    const storedUser = localStorage.getItem('userInfo');
-    if (storedUser) {
-      try {
-        return JSON.parse(storedUser);
-      } catch {
-        return { name: '用户' }; // 使用硬编码的默认值，后续会通过 useEffect 更新
+  const [userInfo, setUserInfo] = useState<{ name: string; avatar?: string }>(
+    () => {
+      // 可以从 localStorage 或 API 获取用户信息
+      const storedUser = localStorage.getItem("userInfo");
+      if (storedUser) {
+        try {
+          return JSON.parse(storedUser);
+        } catch {
+          return { name: "用户" }; // 使用硬编码的默认值，后续会通过 useEffect 更新
+        }
       }
-    }
-    return { name: '用户' }; // 使用硬编码的默认值，后续会通过 useEffect 更新
-  });
+      return { name: "用户" }; // 使用硬编码的默认值，后续会通过 useEffect 更新
+    },
+  );
 
   // 当语言切换时更新用户默认名称
   useEffect(() => {
-    const storedUser = localStorage.getItem('userInfo');
+    const storedUser = localStorage.getItem("userInfo");
     if (!storedUser) {
-      setUserInfo({ name: t('user.defaultName') });
+      setUserInfo({ name: t("user.defaultName") });
     }
   }, [locale, t]);
 
@@ -58,17 +72,19 @@ const Header: React.FC = () => {
     const fetchNamespaceList = async () => {
       setLoading(true);
       try {
-        const response = await getNamespaceList({limit: 100});
+        const response = await getNamespaceList({ limit: 100 });
         if (response?.items) {
           setNamespaceOptions(response.items);
           // 如果当前选中的命名空间不在列表中，且列表不为空，则选择第一个
           if (response.items.length > 0) {
-            const currentNamespace = localStorage.getItem('namespace');
-            const exists = response.items.some(item => item.value === currentNamespace);
+            const currentNamespace = localStorage.getItem("namespace");
+            const exists = response.items.some(
+              (item) => item.value === currentNamespace,
+            );
             if (!exists && !currentNamespace) {
               const firstNamespace = response.items[0].value;
               setNamespace(firstNamespace);
-              localStorage.setItem('namespace', response.items[0].value);
+              localStorage.setItem("namespace", response.items[0].value);
             }
           }
         }
@@ -86,68 +102,66 @@ const Header: React.FC = () => {
   // 处理命名空间切换
   const handleNamespaceChange = (value: string) => {
     setNamespace(value);
-    localStorage.setItem('namespace', value);
+    localStorage.setItem("namespace", value);
     // 可以触发页面刷新或重新加载数据
     window.location.reload();
   };
 
   // 处理退出登录
   const handleLogout = () => {
-    // 清除 token
-    localStorage.removeItem('token');
-    sessionStorage.removeItem('token');
-    // 清除用户信息
-    localStorage.removeItem('userInfo');
+    // 清除 localStorage 和 sessionStorage
+    localStorage.clear();
+    sessionStorage.clear();
     // 提示信息
-    message.success(t('logout.success'));
+    message.success(t("logout.success"));
     // 跳转到登录页（如果有）或刷新页面
     // navigate('/login');
-    window.location.href = '/login';
+    window.location.href = "/login";
   };
 
   // 处理语言切换
-  const handleLocaleChange = (newLocale: 'zh-CN' | 'en-US') => {
+  const handleLocaleChange = (newLocale: "zh-CN" | "en-US") => {
     setLocale(newLocale);
   };
 
   // 处理主题切换
-  const handleThemeChange = (mode: 'light' | 'dark' | 'system') => {
+  const handleThemeChange = (mode: "light" | "dark" | "system") => {
     setThemeMode(mode);
   };
 
   // 主题下拉菜单项
-  const themeMenuItems: MenuProps['items'] = [
+  const themeMenuItems: MenuProps["items"] = [
     {
-      key: 'light',
-      label: t('theme.light'),
+      key: "light",
+      label: t("theme.light"),
       icon: <SunOutlined />,
-      onClick: () => handleThemeChange('light'),
+      onClick: () => handleThemeChange("light"),
     },
     {
-      key: 'dark',
-      label: t('theme.dark'),
+      key: "dark",
+      label: t("theme.dark"),
       icon: <MoonOutlined />,
-      onClick: () => handleThemeChange('dark'),
+      onClick: () => handleThemeChange("dark"),
     },
     {
-      key: 'system',
-      label: t('theme.system'),
+      key: "system",
+      label: t("theme.system"),
       icon: <DesktopOutlined />,
-      onClick: () => handleThemeChange('system'),
+      onClick: () => handleThemeChange("system"),
     },
   ];
 
   // 语言下拉菜单项
-  const localeMenuItems: MenuProps['items'] = [
+  const localeMenuItems: MenuProps["items"] = [
     {
-      key: 'zh-CN',
-      label: t('language.zh'),
-      onClick: () => handleLocaleChange('zh-CN'),
+      key: "zh-CN",
+      label: t("language.zh"),
+      onClick: () => handleLocaleChange("zh-CN"),
     },
     {
-      key: 'en-US',
-      label: t('language.en'),
-      onClick: () => handleLocaleChange('en-US'),
+      key: "en-US",
+      label: t("language.en"),
+      onClick: () => handleLocaleChange("en-US"),
     },
   ];
 
@@ -157,10 +171,10 @@ const Header: React.FC = () => {
   };
 
   // 用户下拉菜单项
-  const userMenuItems: MenuProps['items'] = [
+  const userMenuItems: MenuProps["items"] = [
     {
-      key: 'logout',
-      label: t('user.logout'),
+      key: "logout",
+      label: t("user.logout"),
       //   icon: <LogoutOutlined />,
       onClick: handleLogout,
     },
@@ -175,19 +189,18 @@ const Header: React.FC = () => {
         options={namespaceOptions}
         className="w-20 sm:w-28 md:w-32"
         loading={loading}
-        placeholder={t('namespace.select')}
+        placeholder={t("namespace.select")}
         size="small"
         popupMatchSelectWidth={false}
       />
       <div className="flex items-center">
-
         {/* 主题切换 */}
         <Dropdown
           menu={{
             items: themeMenuItems,
             selectedKeys: [themeMode],
           }}
-          trigger={['click']}
+          trigger={["click"]}
         >
           <div className="flex h-8 w-8 min-w-8 items-center justify-center cursor-pointer hover:opacity-80">
             {getThemeIcon()}
@@ -199,25 +212,23 @@ const Header: React.FC = () => {
             items: localeMenuItems,
             selectedKeys: [locale],
           }}
-          trigger={['click']}
+          trigger={["click"]}
         >
           <div className="flex h-8 w-8 min-w-8 items-center justify-center cursor-pointer hover:opacity-80">
             <GlobalOutlined />
           </div>
         </Dropdown>
       </div>
-      <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
+      <Dropdown menu={{ items: userMenuItems }} trigger={["click"]}>
         <div className="flex h-8 items-center gap-1.5 cursor-pointer min-w-0">
-          <Avatar
-            size="small"
-            icon={<UserOutlined />}
-            src={userInfo.avatar}
-          />
-          <span className="hidden sm:inline truncate max-w-[80px] md:max-w-[120px]">{userInfo.name}</span>
+          <Avatar size="small" icon={<UserOutlined />} src={userInfo.avatar} />
+          <span className="hidden sm:inline truncate max-w-[80px] md:max-w-[120px]">
+            {userInfo.name}
+          </span>
         </div>
       </Dropdown>
     </div>
-  )
-}
+  );
+};
 
 export default Header;

@@ -34,7 +34,7 @@ request.interceptors.request.use(
     const token =
       localStorage.getItem('token') ||
       sessionStorage.getItem('token') ||'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIyMDE3MzkwODkxNzczOTk3MDU2IiwidXNlcm5hbWUiOiJsaWVyLmxvY2FsIiwiaXNzIjoicmFiYml0LXRlc3QiLCJleHAiOjE4MDEzNTQ0NDR9.QWyZDHeHrOHYmGKzwInMFyCbsshhwOhyIQPvy1aF-98'
-    const namespace = localStorage.getItem('namespace') || '2017158160500736000'
+    const namespace = localStorage.getItem('namespace') || ''
     if (token && !config.skipAuth) {
       config.headers.Authorization = `Bearer ${token}`
       config.headers['X-Namespace'] = namespace
