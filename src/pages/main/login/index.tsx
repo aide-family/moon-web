@@ -1,22 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Carousel, Tabs, Form, Input, Button, message, Dropdown } from "antd";
 import type { TabsProps, MenuProps } from "antd";
 import {
   MailOutlined,
   LockOutlined,
   SafetyCertificateOutlined,
-  WechatOutlined,
-  QqOutlined,
   GithubOutlined,
-  GoogleOutlined,
   SunOutlined,
   MoonOutlined,
   DesktopOutlined,
   BgColorsOutlined,
   GlobalOutlined,
+  ApiOutlined,
 } from "@ant-design/icons";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { getOauth2Reports, type OAuth2ReportItem } from "@/api/oauth";
 import GraphicCaptcha from "./components/GraphicCaptcha";
 import banner1 from "@/assets/banner/banner1.svg";
 import banner2 from "@/assets/banner/banner2.svg";
@@ -34,13 +33,16 @@ const INTRO_SLIDES = [
   { titleKey: "login.intro.title2", descKey: "login.intro.desc2" },
 ];
 
-// 其他登录方式（平台图标）
-const OTHER_LOGIN_OPTIONS = [
-  { key: "wechat", labelKey: "login.other.wechat", Icon: WechatOutlined },
-  { key: "qq", labelKey: "login.other.qq", Icon: QqOutlined },
-  { key: "github", labelKey: "login.other.github", Icon: GithubOutlined },
-  { key: "google", labelKey: "login.other.google", Icon: GoogleOutlined },
-];
+// 第三方登录 app 与图标的映射（接口返回的 app 如 GITHUB、GITEE、FEISHU）
+const OAUTH_APP_ICON: Record<
+  string,
+  React.ComponentType<{ className?: string }>
+> = {
+  GITHUB: GithubOutlined,
+  GITEE: GithubOutlined,
+  FEISHU: ApiOutlined,
+};
+const DEFAULT_OAUTH_ICON = ApiOutlined;
 
 /** 图形验证码输入行：输入框 + 验证码并排，像传统验证码 */
 function CaptchaInputRow({
@@ -85,6 +87,11 @@ export default function LoginPage() {
   const [sendingCode, setSendingCode] = useState(false);
   const [codeCountdown, setCodeCountdown] = useState(0);
   const [captchaCode, setCaptchaCode] = useState("");
+  const [oauthOptions, setOauthOptions] = useState<OAuth2ReportItem[]>([]);
+
+  useEffect(() => {
+    getOauth2Reports().then(setOauthOptions);
+  }, []);
 
   const onLoginFinish = (values: Record<string, string>) => {
     message.info(t("login.submitHint"));
@@ -407,18 +414,23 @@ export default function LoginPage() {
               {t("login.otherWays")}
             </p>
             <div className="flex justify-center gap-4">
-              {OTHER_LOGIN_OPTIONS.map((opt) => {
-                const Icon = opt.Icon;
+              {oauthOptions.map((opt) => {
+                const Icon =
+                  OAUTH_APP_ICON[opt.app.toUpperCase()] ?? DEFAULT_OAUTH_ICON;
+                const labelKey = `login.other.${opt.app.toLowerCase()}`;
                 return (
                   <button
-                    key={opt.key}
+                    key={opt.app}
                     type="button"
                     className={`w-12 h-12 rounded-full border flex items-center justify-center transition-colors hover:border-primary hover:text-primary hover:bg-primary/5 ${
                       isDark
                         ? "border-gray-600 text-gray-400"
                         : "border-gray-200 text-gray-600"
                     }`}
-                    title={t(opt.labelKey)}
+                    title={t(labelKey) !== labelKey ? t(labelKey) : opt.app}
+                    onClick={() => {
+                      if (opt.loginUrl) window.location.href = opt.loginUrl;
+                    }}
                   >
                     <Icon className="text-xl" />
                   </button>

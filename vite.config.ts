@@ -57,7 +57,15 @@ export default defineConfig(({ mode }) => {
       },
       optimizeDeps: {
         exclude: ['lucide-react'],
-        include: ['@ant-design/icons', 'antd', 'react', 'react-dom', 'react-router-dom', '@micro-zoe/micro-app'],
+        include: [
+          '@ant-design/icons',
+          'antd',
+          'dayjs',
+          'react',
+          'react-dom',
+          'react-router-dom',
+          '@micro-zoe/micro-app',
+        ],
       },
       build: {
         rollupOptions: {
@@ -75,6 +83,10 @@ export default defineConfig(({ mode }) => {
         },
         proxy: {
           '/v1': {
+            target: v1ApiUrl,
+            changeOrigin: true,
+          },
+          '/oauth2': {
             target: v1ApiUrl,
             changeOrigin: true,
           },
