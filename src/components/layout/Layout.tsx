@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-} from '@ant-design/icons';
-import { Layout, Menu, Breadcrumb, theme, Grid } from 'antd';
-import type { MenuProps } from 'antd';
-import { useNavigate, useLocation, Outlet } from 'react-router-dom';
-import HeaderComponent from './Header';
-import { useLocale } from '@/contexts/LocaleContext';
+import React, { useState, useEffect } from "react";
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
+import { Layout, Menu, Breadcrumb, theme, Grid } from "antd";
+import type { MenuProps } from "antd";
+import { useNavigate, useLocation, Outlet } from "react-router-dom";
+import HeaderComponent from "./Header";
+import { useLocale } from "@/contexts/LocaleContext";
+import logo from "@/assets/logo.svg";
 
 const { Header, Sider, Content, Footer } = Layout;
 const { useBreakpoint } = Grid;
@@ -26,7 +24,10 @@ interface LayoutProps {
 }
 
 // 递归查找菜单项（包括子菜单）
-const findMenuItemByPath = (items: MenuItem[], path: string): MenuItem | null => {
+const findMenuItemByPath = (
+  items: MenuItem[],
+  path: string,
+): MenuItem | null => {
   for (const item of items) {
     if (item.path === path) {
       return item;
@@ -58,7 +59,11 @@ const findMenuItemByKey = (items: MenuItem[], key: string): MenuItem | null => {
 };
 
 // 递归获取所有父菜单的 key（用于展开）
-const getParentKeys = (items: MenuItem[], targetKey: string, parentKeys: string[] = []): string[] => {
+const getParentKeys = (
+  items: MenuItem[],
+  targetKey: string,
+  parentKeys: string[] = [],
+): string[] => {
   for (const item of items) {
     const currentPath = [...parentKeys, item.key];
     if (item.key === targetKey) {
@@ -75,7 +80,11 @@ const getParentKeys = (items: MenuItem[], targetKey: string, parentKeys: string[
 };
 
 // 递归获取面包屑路径
-const getBreadcrumbItems = (items: MenuItem[], targetPath: string, parents: MenuItem[] = []): MenuItem[] => {
+const getBreadcrumbItems = (
+  items: MenuItem[],
+  targetPath: string,
+  parents: MenuItem[] = [],
+): MenuItem[] => {
   for (const item of items) {
     const currentPath = [...parents, item];
     if (item.path === targetPath) {
@@ -99,7 +108,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
   const isDesktop = screens.lg === true; // lg 及以上为桌面，以下为平板/手机
   // 大屏默认展开、小屏默认收起（用 window 初始化避免 useBreakpoint 首帧为空对象）
   const [collapsed, setCollapsed] = useState(() =>
-    typeof window !== 'undefined' ? window.innerWidth < LG_BREAKPOINT : true
+    typeof window !== "undefined" ? window.innerWidth < LG_BREAKPOINT : true,
   );
   const navigate = useNavigate();
   const location = useLocation();
@@ -122,9 +131,11 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
   const currentItem = findMenuItemByPath(menuItems, currentPath);
   const selectedKeys = React.useMemo(
     () => (currentItem ? [currentItem.key] : []),
-    [currentItem?.key]
+    [currentItem?.key],
   );
-  const defaultOpenKeys = currentItem ? getParentKeys(menuItems, currentItem.key) : [];
+  const defaultOpenKeys = currentItem
+    ? getParentKeys(menuItems, currentItem.key)
+    : [];
   const [openKeys, setOpenKeys] = useState<string[]>(defaultOpenKeys);
 
   // 路径变化时同步展开项
@@ -138,7 +149,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
   }, [currentPath, currentItem?.key, menuItems]);
 
   // 处理菜单点击
-  const handleMenuClick: MenuProps['onClick'] = (e) => {
+  const handleMenuClick: MenuProps["onClick"] = (e) => {
     const menuItem = findMenuItemByKey(menuItems, e.key);
     if (menuItem && menuItem.path) {
       navigate(menuItem.path);
@@ -146,14 +157,16 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
   };
 
   // 处理子菜单展开/收起（有选中项时，其父级菜单始终保持展开）
-  const handleOpenChange: MenuProps['onOpenChange'] = (keys) => {
-    const parentKeys = currentItem ? getParentKeys(menuItems, currentItem.key) : [];
+  const handleOpenChange: MenuProps["onOpenChange"] = (keys) => {
+    const parentKeys = currentItem
+      ? getParentKeys(menuItems, currentItem.key)
+      : [];
     setOpenKeys([...new Set([...parentKeys, ...keys])]);
   };
 
   // 递归转换菜单项格式
-  const convertMenuItems = (items: MenuItem[]): MenuProps['items'] => {
-    return items.map(item => ({
+  const convertMenuItems = (items: MenuItem[]): MenuProps["items"] => {
+    return items.map((item) => ({
       key: item.key,
       icon: item.icon,
       label: item.label,
@@ -161,7 +174,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
     }));
   };
 
-  const menuItemsData: MenuProps['items'] = convertMenuItems(menuItems);
+  const menuItemsData: MenuProps["items"] = convertMenuItems(menuItems);
 
   // 生成面包屑数据
   const breadcrumbItems = getBreadcrumbItems(menuItems, location.pathname);
@@ -181,7 +194,13 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
           if (broken) setCollapsed(true);
         }}
       >
-        <div className="logo h-16 w-full text-center flex items-center justify-center text-white bg-blue-400 shrink-0">LOGO</div>
+        <div
+          className="logo h-16 w-full px-4 flex items-center gap-2 text-white shrink-0 border-b border-gray-700"
+          style={{ background: "var(--ant-color-menu-bg, #001529)" }}
+        >
+          <img src={logo} alt="logo" className="h-8 w-9" />
+          <span className="text-xl font-bold">Moon监控</span>
+        </div>
         <Menu
           key={location.pathname}
           theme="dark"
@@ -197,14 +216,21 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
         />
       </Sider>
       <Layout className="flex flex-col min-h-0 flex-1">
-        <Header className="h-14 md:h-16 shrink-0" style={{ padding: 0, background: colorBgContainer }}>
+        <Header
+          className="h-14 md:h-16 shrink-0"
+          style={{ padding: 0, background: colorBgContainer }}
+        >
           <div className="flex items-center ml-2 md:ml-4 gap-2 md:gap-4 flex-wrap min-w-0">
             <div
               onClick={() => setCollapsed(!collapsed)}
               className="cursor-pointer shrink-0 p-2 -ml-1"
-              aria-label={collapsed ? '展开菜单' : '收起菜单'}
+              aria-label={collapsed ? "展开菜单" : "收起菜单"}
             >
-              {collapsed ? <MenuUnfoldOutlined className="text-base" /> : <MenuFoldOutlined className="text-base" />}
+              {collapsed ? (
+                <MenuUnfoldOutlined className="text-base" />
+              ) : (
+                <MenuFoldOutlined className="text-base" />
+              )}
             </div>
             {breadcrumbData.length > 0 && (
               <div className="min-w-0 overflow-hidden">
@@ -226,17 +252,22 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
           style={{
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
-            overflow: 'auto',
+            overflow: "auto",
           }}
         >
           <div className="flex-1 min-h-0">
             <Outlet />
           </div>
         </Content>
-        <Footer className="h-10 md:h-12 flex items-center justify-center px-2 shrink-0" style={{ background: colorBgContainer }}>
+        <Footer
+          className="h-10 md:h-12 flex items-center justify-center px-2 shrink-0"
+          style={{ background: colorBgContainer }}
+        >
           <div className="flex items-center justify-center gap-1 md:gap-2 text-xs md:text-sm text-gray-500 flex-wrap">
-            <div>{t('footer.copyright', { year: new Date().getFullYear() })}</div>
-            <div>{t('footer.icp')}</div>
+            <div>
+              {t("footer.copyright", { year: new Date().getFullYear() })}
+            </div>
+            <div>{t("footer.icp")}</div>
           </div>
         </Footer>
       </Layout>
