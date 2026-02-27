@@ -379,6 +379,8 @@ export default function MessageManagement() {
                   { label: t('messageLog.preset.12h'), value: [now.subtract(12, 'hour'), now] as [dayjs.Dayjs, dayjs.Dayjs] },
                   { label: t('messageLog.preset.1d'), value: [now.subtract(1, 'day'), now] as [dayjs.Dayjs, dayjs.Dayjs] },
                   { label: t('messageLog.preset.3d'), value: [now.subtract(3, 'day'), now] as [dayjs.Dayjs, dayjs.Dayjs] },
+                  { label: t('messageLog.preset.7d'), value: [now.subtract(7, 'day'), now] as [dayjs.Dayjs, dayjs.Dayjs] },
+                  { label: t('messageLog.preset.15d'), value: [now.subtract(15, 'day'), now] as [dayjs.Dayjs, dayjs.Dayjs] },
                   { label: t('messageLog.preset.31d'), value: [now.subtract(1, 'month'), now] as [dayjs.Dayjs, dayjs.Dayjs] },
                 ]
               })()}

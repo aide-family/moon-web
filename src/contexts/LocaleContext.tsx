@@ -2,6 +2,9 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import zhCN from 'antd/locale/zh_CN';
 import enUS from 'antd/locale/en_US';
 import type { Locale } from 'antd/es/locale';
+import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
+import 'dayjs/locale/en';
 import { resources } from '@/locales';
 import { isInMicroApp } from '@/utils';
 
@@ -68,8 +71,14 @@ interface LocaleProviderProps {
 
 export const LocaleProvider: React.FC<LocaleProviderProps> = ({ children }) => {
   // 初始化语言：优先从主应用获取，否则使用默认值
-  const initialLocale = getLocaleFromMainApp() || getDefaultLocale()
+  const initialLocale = getLocaleFromMainApp() || getDefaultLocale();
+  dayjs.locale(initialLocale === 'zh-CN' ? 'zh-cn' : 'en');
   const [locale, setLocaleState] = useState<LocaleType>(initialLocale);
+
+  // 语言切换时同步 dayjs（DatePicker 等组件的月份、星期显示依赖 dayjs locale）
+  useEffect(() => {
+    dayjs.locale(locale === 'zh-CN' ? 'zh-cn' : 'en');
+  }, [locale]);
 
   // 在微前端环境中监听主应用的语言变化
   useEffect(() => {
