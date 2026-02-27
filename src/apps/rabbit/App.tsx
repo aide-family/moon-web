@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { ConfigProvider } from 'antd'
 import { OAuthTokenHandler } from '@/components/OAuthTokenHandler'
+import { AuthGuard } from '@/components/AuthGuard'
 import { FileTextOutlined, ApiOutlined, MessageOutlined, SendOutlined } from '@ant-design/icons'
 import TemplateManagement from '@/pages/rabbit/templates'
 import EmailManagement from '@/pages/rabbit/emails'
@@ -61,7 +62,11 @@ function AppContent() {
               <Route path="/login" element={<LoginPage />} />
               <Route
                 path="/"
-                element={ inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} />}
+                element={
+                  <AuthGuard>
+                    {inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} />}
+                  </AuthGuard>
+                }
               >
                 <Route index element={<Navigate to="/templates" replace />} />
                 <Route path="/templates" element={<TemplateManagement />} />

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { ConfigProvider } from 'antd'
 import { OAuthTokenHandler } from '@/components/OAuthTokenHandler'
+import { AuthGuard } from '@/components/AuthGuard'
 import { UserOutlined, VideoCameraOutlined } from '@ant-design/icons'
 import Test1 from '@/pages/test/test1'
 import Test2 from '@/pages/test/test2'
@@ -54,7 +55,11 @@ function AppContent() {
               <Route path="/login" element={<LoginPage />} />
               <Route
                 path="/"
-                element={ inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} header={headerContent} />}
+                element={
+                  <AuthGuard>
+                    {inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} header={headerContent} />}
+                  </AuthGuard>
+                }
               >
                 <Route index element={<Navigate to="/test1" replace />} />
                 <Route path="/test1" element={<Test1 />} />
