@@ -1,5 +1,5 @@
 // 头部组件
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Select, Avatar, Dropdown, message } from "antd";
 import type { MenuProps } from "antd";
 import {
@@ -10,12 +10,9 @@ import {
   BgColorsOutlined,
   GlobalOutlined,
 } from "@ant-design/icons";
-import {
-  getNamespaceList,
-  type NamespaceItemSelect,
-} from "@/api/namespace/index";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocale } from "@/contexts/LocaleContext";
+import { useNamespace } from "@/contexts/NamespaceContext";
 import DetailForm from "@/pages/main/namespaces/components/DetailForm";
 
 const Header: React.FC = () => {
@@ -24,21 +21,15 @@ const Header: React.FC = () => {
   // 国际化管理
   const { locale, setLocale, t } = useLocale();
 
-  // 命名空间管理
+  // 命名空间列表由 Context 统一管理，创建/编辑后刷新会同步到头部
+  const { namespaceOptions, loading, refreshNamespaceList } = useNamespace();
+
+  // 当前选中的命名空间
   const [namespace, setNamespace] = useState<string>(() => {
     return localStorage.getItem("namespace") || "";
   });
-
-  // 命名空间选项列表
-  const [namespaceOptions, setNamespaceOptions] = useState<
-    NamespaceItemSelect[]
-  >([]);
-  const [loading, setLoading] = useState(false);
   // 添加命名空间弹窗（列表为空时自动弹出）
   const [addNamespaceModalOpen, setAddNamespaceModalOpen] = useState(false);
-
-  // 用于防止重复请求
-  const hasFetchedRef = useRef(false);
 
   // 用户信息（可以从 API 或 context 获取）
   const [userInfo, setUserInfo] = useState<{ name: string; avatar?: string }>(
@@ -64,48 +55,23 @@ const Header: React.FC = () => {
     }
   }, [locale, t]);
 
-  // 获取命名空间列表（可被复用以支持刷新）
-  const fetchNamespaceList = async () => {
-    setLoading(true);
-    try {
-      const response = await getNamespaceList({ limit: 100 });
-      if (response?.items) {
-        setNamespaceOptions(response.items);
-        // 列表为空时弹出添加命名空间弹窗
-        if (response.items.length === 0) {
-          setAddNamespaceModalOpen(true);
-        } else {
-          // 如果当前选中的命名空间不在列表中，且列表不为空，则选择第一个
-          const currentNamespace = localStorage.getItem("namespace");
-          const exists = response.items.some(
-            (item) => item.value === currentNamespace,
-          );
-          if (!exists && !currentNamespace) {
-            const firstNamespace = response.items[0].value;
-            setNamespace(firstNamespace);
-            localStorage.setItem("namespace", response.items[0].value);
-          }
-        }
-      } else {
-        setNamespaceOptions([]);
-        setAddNamespaceModalOpen(true);
-      }
-    } catch {
-      // 失败时使用默认选项
-      setNamespaceOptions([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // 列表为空时弹出添加命名空间弹窗；列表有数据且当前未选则选第一个
   useEffect(() => {
-    // 防止重复请求（StrictMode 在开发环境下会执行两次）
-    if (hasFetchedRef.current) {
-      return;
+    if (loading) return;
+    if (namespaceOptions.length === 0) {
+      setAddNamespaceModalOpen(true);
+    } else {
+      const currentNamespace = localStorage.getItem("namespace");
+      const exists = namespaceOptions.some(
+        (item) => item.value === currentNamespace,
+      );
+      if (!exists && !currentNamespace) {
+        const first = namespaceOptions[0].value;
+        setNamespace(first);
+        localStorage.setItem("namespace", first);
+      }
     }
-    hasFetchedRef.current = true;
-    fetchNamespaceList();
-  }, []);
+  }, [loading, namespaceOptions]);
 
   // 处理命名空间切换
   const handleNamespaceChange = (value: string) => {
@@ -200,6 +166,7 @@ const Header: React.FC = () => {
         placeholder={t("namespace.select")}
         size="small"
         popupMatchSelectWidth={false}
+        showSearch={{ optionFilterProp: "label" }}
       />
       <DetailForm
         open={addNamespaceModalOpen}
@@ -208,7 +175,7 @@ const Header: React.FC = () => {
         onCancel={() => setAddNamespaceModalOpen(false)}
         onSuccess={() => {
           setAddNamespaceModalOpen(false);
-          fetchNamespaceList();
+          refreshNamespaceList();
         }}
       />
       <div className="flex items-center">

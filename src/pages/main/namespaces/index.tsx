@@ -8,6 +8,7 @@ import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
+import { useNamespace } from '@/contexts/NamespaceContext'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 
 const defaultSearchParams: NamespaceListParams = {
@@ -25,6 +26,7 @@ function parseSearchParamsFromUrl(params: URLSearchParams): NamespaceListParams 
 const NamespaceList: React.FC = () => {
   const { modal } = App.useApp()
   const { t } = useLocale()
+  const { refreshNamespaceList } = useNamespace()
   const [urlSearchParams, setUrlSearchParams] = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [dataSource, setDataSource] = useState<NamespaceItem[]>([])
@@ -245,6 +247,7 @@ const NamespaceList: React.FC = () => {
       await deleteNamespace(record.uid)
       message.success(t('message.delete.success'))
       fetchData()
+      refreshNamespaceList()
     } catch (error) {
       console.error('删除失败:', error)
       // 错误信息已由 API 拦截器处理
@@ -274,6 +277,8 @@ const NamespaceList: React.FC = () => {
   const handleDetailFormSuccess = () => {
     // 刷新列表
     fetchData()
+    // 通过 Context 刷新头部命名空间下拉列表
+    refreshNamespaceList()
     // 如果详情页打开，需要更新详情页数据
     if (detailViewOpen && viewingData) {
       // 从表格数据中查找对应的数据并更新

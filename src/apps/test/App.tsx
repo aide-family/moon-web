@@ -9,6 +9,7 @@ import LoginPage from '@/pages/main/login'
 import { isInMicroApp } from '@/utils'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
+import { NamespaceProvider } from '@/contexts/NamespaceContext'
 
 // 菜单配置（支持多级菜单）
 const menuItems: MenuItem[] = [
@@ -47,19 +48,21 @@ function AppContent() {
       theme={themeConfig}
     >
       <BrowserRouter>
-        <OAuthTokenHandler>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-          <Route
-            path="/"
-            element={ inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} header={headerContent} />}
-          >
-            <Route index element={<Navigate to="/test1" replace />} />
-            <Route path="/test1" element={<Test1 />} />
-            <Route path="/test2" element={<Test2 />} />
-          </Route>
-        </Routes>
-        </OAuthTokenHandler>
+        <NamespaceProvider>
+          <OAuthTokenHandler>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route
+                path="/"
+                element={ inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} header={headerContent} />}
+              >
+                <Route index element={<Navigate to="/test1" replace />} />
+                <Route path="/test1" element={<Test1 />} />
+                <Route path="/test2" element={<Test2 />} />
+              </Route>
+            </Routes>
+          </OAuthTokenHandler>
+        </NamespaceProvider>
       </BrowserRouter>
     </ConfigProvider>
   )

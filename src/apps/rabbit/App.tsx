@@ -13,6 +13,7 @@ import LoginPage from '@/pages/main/login'
 import { isInMicroApp } from '@/utils'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
+import { NamespaceProvider } from '@/contexts/NamespaceContext'
 
 function AppContent() {
   const { themeConfig } = useTheme();
@@ -69,23 +70,25 @@ function AppContent() {
       theme={themeConfig}
     >
       <BrowserRouter>
-        <OAuthTokenHandler>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-          <Route
-            path="/"
-            element={ inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} header={headerContent} />}
-          >
-            <Route index element={<Navigate to="/rabbit1" replace />} />
-            <Route path="/rabbit1" element={<Rabbit1 />} />
-            <Route path="/templates" element={<TemplateManagement />} />
-            <Route path="/emails" element={<EmailManagement />} />
-            <Route path="/webhooks" element={<WebhookManagement />} />
-            <Route path="/messages" element={<MessageManagement />} />
-            <Route path="/sender" element={<SenderManagement />} />
-          </Route>
-        </Routes>
-        </OAuthTokenHandler>
+        <NamespaceProvider>
+          <OAuthTokenHandler>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route
+                path="/"
+                element={ inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} header={headerContent} />}
+              >
+                <Route index element={<Navigate to="/rabbit1" replace />} />
+                <Route path="/rabbit1" element={<Rabbit1 />} />
+                <Route path="/templates" element={<TemplateManagement />} />
+                <Route path="/emails" element={<EmailManagement />} />
+                <Route path="/webhooks" element={<WebhookManagement />} />
+                <Route path="/messages" element={<MessageManagement />} />
+                <Route path="/sender" element={<SenderManagement />} />
+              </Route>
+            </Routes>
+          </OAuthTokenHandler>
+        </NamespaceProvider>
       </BrowserRouter>
     </ConfigProvider>
   )

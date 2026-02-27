@@ -8,6 +8,7 @@ import LoginPage from '@/pages/main/login'
 import microApp from '@micro-zoe/micro-app'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
+import { NamespaceProvider } from '@/contexts/NamespaceContext'
 import { 
   getAppConfig, 
   convertToMenuItems, 
@@ -234,18 +235,20 @@ function AppContent() {
       theme={themeConfig}
     >
       <BrowserRouter>
-        <OAuthTokenHandler>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route
-              path="/"
-              element={<LayoutComponent menuItems={menuItems} />}
-            >
-              <Route index element={<Navigate to={defaultPath} replace />} />
-              {routes}
-            </Route>
-          </Routes>
-        </OAuthTokenHandler>
+        <NamespaceProvider>
+          <OAuthTokenHandler>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route
+                path="/"
+                element={<LayoutComponent menuItems={menuItems} />}
+              >
+                <Route index element={<Navigate to={defaultPath} replace />} />
+                {routes}
+              </Route>
+            </Routes>
+          </OAuthTokenHandler>
+        </NamespaceProvider>
       </BrowserRouter>
     </ConfigProvider>
   )
