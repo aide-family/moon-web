@@ -1,8 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { ConfigProvider } from 'antd'
 import { OAuthTokenHandler } from '@/components/OAuthTokenHandler'
-import { UserOutlined, FileTextOutlined, ApiOutlined, MessageOutlined, SendOutlined } from '@ant-design/icons'
-import Rabbit1 from '@/pages/rabbit/rabbit1'
+import { FileTextOutlined, ApiOutlined, MessageOutlined, SendOutlined } from '@ant-design/icons'
 import TemplateManagement from '@/pages/rabbit/templates'
 import EmailManagement from '@/pages/rabbit/emails'
 import WebhookManagement from '@/pages/rabbit/webhooks'
@@ -25,44 +24,30 @@ function AppContent() {
   const menuItems: MenuItem[] = [
     {
       key: '1',
-      icon: <UserOutlined />,
-      label: 'Rabbit1',
-      path: '/rabbit1',
-    },
-    {
-      key: '2',
       icon: <FileTextOutlined />,
       label: t('rabbit.templates.title'),
       path: '/templates',
     },
     {
-      key: '3',
+      key: '2',
       icon: <ApiOutlined />,
       label: t('rabbit.webhooks.title'),
       path: '/webhooks',
     },
     {
-      key: '4',
+      key: '3',
       icon: <MessageOutlined />,
       label: t('rabbit.messages.title'),
       path: '/messages',
     },
     {
-      key: '5',
+      key: '4',
       icon: <SendOutlined />,
       label: t('rabbit.sender.title'),
       path: '/sender',
     },
   ]
   
-  // 头部组件示例
-  const headerContent = (
-    <div className='flex items-center justify-between w-full'>
-      <h2 className='text-2xl font-bold'>Rabbit应用</h2>
-      <div>
-      </div>
-    </div>
-  )
 
   return (
     <ConfigProvider
@@ -76,10 +61,9 @@ function AppContent() {
               <Route path="/login" element={<LoginPage />} />
               <Route
                 path="/"
-                element={ inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} header={headerContent} />}
+                element={ inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} />}
               >
-                <Route index element={<Navigate to="/rabbit1" replace />} />
-                <Route path="/rabbit1" element={<Rabbit1 />} />
+                <Route index element={<Navigate to="/templates" replace />} />
                 <Route path="/templates" element={<TemplateManagement />} />
                 <Route path="/emails" element={<EmailManagement />} />
                 <Route path="/webhooks" element={<WebhookManagement />} />

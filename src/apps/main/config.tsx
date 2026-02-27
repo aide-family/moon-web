@@ -80,18 +80,6 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
     path: '/rabbit',
     children: [
       {
-        key: 'rabbit1',
-        icon: <AppstoreOutlined />,
-        label: t('menu.rabbit1'),
-        path: '/rabbit/rabbit1',
-        subApp: {
-          name: 'rabbit1',
-          devUrl: 'http://localhost:5175/rabbit1',
-          prodUrl: 'http://localhost:4175/rabbit1',
-          path: '/rabbit/rabbit1',
-        },
-      },
-      {
         key: 'rabbit-templates',
         icon: <FileTextOutlined />,
         label: t('menu.rabbitTemplates'),
