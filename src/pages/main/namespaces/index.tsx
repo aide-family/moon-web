@@ -260,6 +260,7 @@ const NamespaceList: React.FC = () => {
       await updateNamespaceStatus(record.uid, newStatus)
       message.success(t('message.update.success'))
       fetchData()
+      refreshNamespaceList()
       // 如果详情页打开，需要更新详情页数据
       if (detailViewOpen && viewingData && viewingData.uid === record.uid) {
         const updatedData = dataSource.find(item => item.uid === record.uid)

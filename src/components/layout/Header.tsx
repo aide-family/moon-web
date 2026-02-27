@@ -25,9 +25,7 @@ const Header: React.FC = () => {
   const { namespaceOptions, loading, refreshNamespaceList } = useNamespace();
 
   // 当前选中的命名空间
-  const [namespace, setNamespace] = useState<string>(() => {
-    return localStorage.getItem("namespace") || "";
-  });
+  const [namespace, setNamespace] = useState<string>("");
   // 添加命名空间弹窗（列表为空时自动弹出）
   const [addNamespaceModalOpen, setAddNamespaceModalOpen] = useState(false);
 
@@ -51,25 +49,31 @@ const Header: React.FC = () => {
   useEffect(() => {
     const storedUser = localStorage.getItem("userInfo");
     if (!storedUser) {
-      setUserInfo({ name: t("user.defaultName") });
+      queueMicrotask(() => setUserInfo({ name: t("user.defaultName") }));
     }
   }, [locale, t]);
 
   // 列表为空时弹出添加命名空间弹窗；列表有数据且当前未选则选第一个
   useEffect(() => {
     if (loading) return;
-    if (namespaceOptions.length === 0) {
-      setAddNamespaceModalOpen(true);
+
+    const validNamespaceOptions = namespaceOptions.filter(
+      (item) => !item.disabled,
+    );
+    if (validNamespaceOptions.length === 0) {
+      queueMicrotask(() => setAddNamespaceModalOpen(true));
     } else {
-      const currentNamespace = localStorage.getItem("namespace");
-      const exists = namespaceOptions.some(
+      const currentNamespace = localStorage.getItem("namespace") || "";
+      const exists = validNamespaceOptions.some(
         (item) => item.value === currentNamespace,
       );
-      if (!exists && !currentNamespace) {
-        const first = namespaceOptions[0].value;
-        setNamespace(first);
-        localStorage.setItem("namespace", first);
+      if (exists) {
+        queueMicrotask(() => setNamespace(currentNamespace));
+        return;
       }
+      const first = validNamespaceOptions[0].value;
+      queueMicrotask(() => setNamespace(first));
+      localStorage.setItem("namespace", first);
     }
   }, [loading, namespaceOptions]);
 
@@ -173,8 +177,12 @@ const Header: React.FC = () => {
         mode="create"
         closable={false}
         onCancel={() => setAddNamespaceModalOpen(false)}
-        onSuccess={() => {
+        onSuccess={(created) => {
           setAddNamespaceModalOpen(false);
+          if (created) {
+            setNamespace(created.uid);
+            localStorage.setItem("namespace", created.uid);
+          }
           refreshNamespaceList();
         }}
       />

@@ -13,7 +13,8 @@ interface DetailFormProps {
   mode: "create" | "edit";
   initialData?: NamespaceItem | null;
   onCancel: () => void;
-  onSuccess: () => void;
+  /** 成功回调；创建时传入新建的命名空间，便于调用方直接选中 */
+  onSuccess: (created?: NamespaceItem) => void;
   /** 为 false 时不可关闭弹窗（无取消按钮、不可点遮罩或右上角关闭） */
   closable?: boolean;
 }
@@ -77,8 +78,9 @@ const DetailForm: React.FC<DetailFormProps> = ({
           name: values.name,
           metadata,
         };
-        await createNamespace(params);
+        const created = await createNamespace(params);
         message.success(t("message.create.success"));
+        onSuccess(created);
       } else if (mode === "edit" && initialData) {
         const params: UpdateNamespaceParams = {
           name: values.name,
@@ -86,9 +88,10 @@ const DetailForm: React.FC<DetailFormProps> = ({
         };
         await updateNamespace(initialData.uid, params);
         message.success(t("message.update.success"));
+        onSuccess();
+      } else {
+        onSuccess();
       }
-
-      onSuccess();
       handleCancel();
     } catch (err) {
       console.error("提交失败:", err);
