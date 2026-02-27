@@ -16,6 +16,7 @@ import {
 } from "@/api/namespace/index";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocale } from "@/contexts/LocaleContext";
+import DetailForm from "@/pages/main/namespaces/components/DetailForm";
 
 const Header: React.FC = () => {
   // 主题管理
@@ -33,6 +34,8 @@ const Header: React.FC = () => {
     NamespaceItemSelect[]
   >([]);
   const [loading, setLoading] = useState(false);
+  // 添加命名空间弹窗（列表为空时自动弹出）
+  const [addNamespaceModalOpen, setAddNamespaceModalOpen] = useState(false);
 
   // 用于防止重复请求
   const hasFetchedRef = useRef(false);
@@ -61,41 +64,46 @@ const Header: React.FC = () => {
     }
   }, [locale, t]);
 
-  // 获取命名空间列表
+  // 获取命名空间列表（可被复用以支持刷新）
+  const fetchNamespaceList = async () => {
+    setLoading(true);
+    try {
+      const response = await getNamespaceList({ limit: 100 });
+      if (response?.items) {
+        setNamespaceOptions(response.items);
+        // 列表为空时弹出添加命名空间弹窗
+        if (response.items.length === 0) {
+          setAddNamespaceModalOpen(true);
+        } else {
+          // 如果当前选中的命名空间不在列表中，且列表不为空，则选择第一个
+          const currentNamespace = localStorage.getItem("namespace");
+          const exists = response.items.some(
+            (item) => item.value === currentNamespace,
+          );
+          if (!exists && !currentNamespace) {
+            const firstNamespace = response.items[0].value;
+            setNamespace(firstNamespace);
+            localStorage.setItem("namespace", response.items[0].value);
+          }
+        }
+      } else {
+        setNamespaceOptions([]);
+        setAddNamespaceModalOpen(true);
+      }
+    } catch {
+      // 失败时使用默认选项
+      setNamespaceOptions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     // 防止重复请求（StrictMode 在开发环境下会执行两次）
     if (hasFetchedRef.current) {
       return;
     }
     hasFetchedRef.current = true;
-
-    const fetchNamespaceList = async () => {
-      setLoading(true);
-      try {
-        const response = await getNamespaceList({ limit: 100 });
-        if (response?.items) {
-          setNamespaceOptions(response.items);
-          // 如果当前选中的命名空间不在列表中，且列表不为空，则选择第一个
-          if (response.items.length > 0) {
-            const currentNamespace = localStorage.getItem("namespace");
-            const exists = response.items.some(
-              (item) => item.value === currentNamespace,
-            );
-            if (!exists && !currentNamespace) {
-              const firstNamespace = response.items[0].value;
-              setNamespace(firstNamespace);
-              localStorage.setItem("namespace", response.items[0].value);
-            }
-          }
-        }
-      } catch {
-        // 失败时使用默认选项
-        setNamespaceOptions([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchNamespaceList();
   }, []);
 
@@ -192,6 +200,16 @@ const Header: React.FC = () => {
         placeholder={t("namespace.select")}
         size="small"
         popupMatchSelectWidth={false}
+      />
+      <DetailForm
+        open={addNamespaceModalOpen}
+        mode="create"
+        closable={false}
+        onCancel={() => setAddNamespaceModalOpen(false)}
+        onSuccess={() => {
+          setAddNamespaceModalOpen(false);
+          fetchNamespaceList();
+        }}
       />
       <div className="flex items-center">
         {/* 主题切换 */}
