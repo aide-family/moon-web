@@ -4,6 +4,8 @@ import type { CreateTemplateParams, UpdateTemplateParams, TemplateItem } from '@
 import { createTemplate, updateTemplate } from '@/api/template/index'
 import { useLocale } from '@/contexts/LocaleContext'
 import { getMessageTypeOptions } from '../constants'
+import { getMessageTypeIconType } from '@/pages/rabbit/constants/appIcons'
+import { IconFont } from '@/components/Icon/IconFont'
 
 interface DetailFormProps {
   open: boolean
@@ -137,7 +139,15 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
           <Select
             placeholder={t('template.form.app.placeholder')}
             style={{ width: '100%' }}
-            options={getMessageTypeOptions(t)}
+            options={getMessageTypeOptions(t).map(opt => ({
+              value: opt.value,
+              label: (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                  <IconFont type={getMessageTypeIconType(opt.value)} />
+                  {opt.label}
+                </span>
+              ),
+            }))}
           />
         </Form.Item>
         <Form.Item

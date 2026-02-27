@@ -4,7 +4,8 @@ import type { WebhookItem } from '@/api/webhook/index'
 import { GlobalStatus } from '@/api'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
-import { getAppLabel, getMethodLabel } from '../constants'
+import { getAppLabel, getAppIconType, getMethodLabel } from '../constants'
+import { IconFont } from '@/components/Icon/IconFont'
 
 const normalizeStatus = (status: number | string | undefined): GlobalStatus | string => {
   if (status === 1 || status === GlobalStatus.ENABLED) return GlobalStatus.ENABLED
@@ -67,7 +68,14 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
         <Descriptions column={1} bordered labelStyle={{ width: 120, minWidth: 120 }}>
           <Descriptions.Item label={t('webhook.detail.uid')}>{data.uid}</Descriptions.Item>
           <Descriptions.Item label={t('webhook.detail.name')}>{data.name || '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('webhook.detail.app')}>{data.app ? getAppLabel(data.app, t) : '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('webhook.detail.app')}>
+            {data.app ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <IconFont type={getAppIconType(data.app)} />
+                {getAppLabel(data.app, t)}
+              </span>
+            ) : '-'}
+          </Descriptions.Item>
           <Descriptions.Item label={t('webhook.detail.url')}>{data.url || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('webhook.detail.method')}>{data.method ? getMethodLabel(data.method, t) : '-'}</Descriptions.Item>
           <Descriptions.Item label={t('webhook.detail.secret')}>******</Descriptions.Item>

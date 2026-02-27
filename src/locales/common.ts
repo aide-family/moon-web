@@ -70,11 +70,11 @@ export const zhCN = {
   // 消息类型（MessageType 枚举，模板管理 / 消息日志共用）
   'messageType.UNKNOWN': '未知',
   'messageType.EMAIL': '邮件',
-  'messageType.SMS_ALICLOUD': '短信(阿里云)',
-  'messageType.WEBHOOK_OTHER': '其他(Webhook)',
-  'messageType.WEBHOOK_DINGTALK': '钉钉(Webhook)',
-  'messageType.WEBHOOK_WECHAT': '微信(Webhook)',
-  'messageType.WEBHOOK_FEISHU': '飞书(Webhook)',
+  'messageType.SMS_ALICLOUD': '阿里云(短信)',
+  'messageType.WEBHOOK_OTHER': 'Webhook(其他)',
+  'messageType.WEBHOOK_DINGTALK': 'Webhook(钉钉)',
+  'messageType.WEBHOOK_WECHAT': 'Webhook(企业微信)',
+  'messageType.WEBHOOK_FEISHU': 'Webhook(飞书)',
   // 通用消息
   'message.success': '操作成功',
   'message.error': '操作失败',
@@ -195,11 +195,11 @@ export const enUS = {
   // Message type (MessageType enum, shared by template & message log)
   'messageType.UNKNOWN': 'Unknown',
   'messageType.EMAIL': 'Email',
-  'messageType.SMS_ALICLOUD': 'SMS(Alicloud )',
-  'messageType.WEBHOOK_OTHER': 'Other(Webhook)',
-  'messageType.WEBHOOK_DINGTALK': 'DingTalk(Webhook)',
-  'messageType.WEBHOOK_WECHAT': 'WeChat(Webhook)',
-  'messageType.WEBHOOK_FEISHU': 'Feishu(Webhook)',
+  'messageType.SMS_ALICLOUD': 'Alicloud(SMS)',
+  'messageType.WEBHOOK_OTHER': 'Webhook(Other)',
+  'messageType.WEBHOOK_DINGTALK': 'Webhook(DingTalk)',
+  'messageType.WEBHOOK_WECHAT': 'Webhook(WeChat)',
+  'messageType.WEBHOOK_FEISHU': 'Webhook(Feishu)',
   // Common messages
   'message.success': 'Operation successful',
   'message.error': 'Operation failed',

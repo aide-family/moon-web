@@ -4,6 +4,8 @@ import type { MessageLogItem } from '@/api/message-log'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
 import { getStatusLabel, getStatusColor, getTypeLabel } from '../constants'
+import { getMessageTypeIconType } from '@/pages/rabbit/constants/appIcons'
+import { IconFont } from '@/components/Icon/IconFont'
 
 interface DetailViewProps {
   open: boolean
@@ -31,7 +33,12 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, loading, onCancel }
       ) : data ? (
         <Descriptions column={1} bordered size="small" labelStyle={{ width: 120, minWidth: 120 }}>
           <Descriptions.Item label={t('messageLog.detail.uid')}>{data.uid ?? '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('messageLog.detail.type')}>{getTypeLabel(data.messageType, t)}</Descriptions.Item>
+          <Descriptions.Item label={t('messageLog.detail.type')}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <IconFont type={getMessageTypeIconType(data.messageType ?? '')} />
+              {getTypeLabel(data.messageType, t)}
+            </span>
+          </Descriptions.Item>
           <Descriptions.Item label={t('messageLog.detail.status')}>
             <Tag color={getStatusColor(data.status)}>
               {getStatusLabel(data.status, t)}

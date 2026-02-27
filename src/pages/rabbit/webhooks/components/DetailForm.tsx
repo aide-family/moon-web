@@ -3,7 +3,8 @@ import { Modal, Form, Input, Select, message } from 'antd'
 import type { CreateWebhookParams, UpdateWebhookParams, WebhookItem } from '@/api/webhook/index'
 import { createWebhook, updateWebhook } from '@/api/webhook/index'
 import { useLocale } from '@/contexts/LocaleContext'
-import { getAppOptions, getMethodOptions } from '../constants'
+import { getAppOptions, getAppIconType, getMethodOptions } from '../constants'
+import { IconFont } from '@/components/Icon/IconFont'
 
 interface DetailFormProps {
   open: boolean
@@ -157,7 +158,15 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
           <Select
             placeholder={t('webhook.form.app.placeholder')}
             style={{ width: '100%' }}
-            options={getAppOptions(t)}
+            options={getAppOptions(t).map(opt => ({
+              value: opt.value,
+              label: (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                  <IconFont type={getAppIconType(opt.value)} />
+                  {opt.label}
+                </span>
+              ),
+            }))}
           />
         </Form.Item>
         <Form.Item

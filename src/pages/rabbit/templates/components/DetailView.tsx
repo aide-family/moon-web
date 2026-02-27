@@ -5,6 +5,8 @@ import { GlobalStatus } from '@/api/template/index'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
 import { getMessageTypeLabel } from '../constants'
+import { getMessageTypeIconType } from '@/pages/rabbit/constants/appIcons'
+import { IconFont } from '@/components/Icon/IconFont'
 
 interface DetailViewProps {
   open: boolean
@@ -66,7 +68,12 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
         <Descriptions column={1} bordered labelStyle={{ width: 120, minWidth: 120 }}>
           <Descriptions.Item label={t('template.detail.uid')}>{data.uid}</Descriptions.Item>
           <Descriptions.Item label={t('template.detail.name')}>{data.name || '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('template.detail.app')}>{getMessageTypeLabel(data.messageType, t)}</Descriptions.Item>
+          <Descriptions.Item label={t('template.detail.app')}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <IconFont type={getMessageTypeIconType(data.messageType)} />
+              {getMessageTypeLabel(data.messageType, t)}
+            </span>
+          </Descriptions.Item>
           <Descriptions.Item label={t('table.status')}>
             <Tag color={getStatusInfo(data.status).color}>
               {getStatusInfo(data.status).text}

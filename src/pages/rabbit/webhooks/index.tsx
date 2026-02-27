@@ -15,7 +15,8 @@ import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
-import { getAppOptions, getAppLabel, getMethodLabel } from './constants'
+import { getAppOptions, getAppLabel, getAppIconType, getMethodLabel } from './constants'
+import { IconFont } from '@/components/Icon/IconFont'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 
 const defaultSearchParams: WebhookListParams = {
@@ -139,7 +140,12 @@ const WebhookListContent: React.FC = () => {
       dataIndex: 'app',
       key: 'app',
       minWidth: 60,
-      render: (app: number | string) => getAppLabel(app, t),
+      render: (app: number | string) => (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+          <IconFont type={getAppIconType(app)} />
+          {getAppLabel(app, t)}
+        </span>
+      ),
     },
     {
       title: t('webhook.table.url'),
@@ -373,7 +379,15 @@ const WebhookListContent: React.FC = () => {
             allowClear
             options={[
               { label: t('table.search.all'), value: '' },
-              ...getAppOptions(t),
+              ...getAppOptions(t).map(opt => ({
+                value: opt.value,
+                label: (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                    <IconFont type={getAppIconType(opt.value)} />
+                    {opt.label}
+                  </span>
+                ),
+              })),
             ]}
           />
           <Button onClick={handleSearch} type="primary">

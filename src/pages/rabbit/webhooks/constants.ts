@@ -3,6 +3,7 @@
  */
 
 import { WebhookAPP, HTTPMethod } from '@/api'
+import { getWebhookAppIconType } from '@/pages/rabbit/constants/appIcons'
 
 /** 接口返回的数字 method 与 HTTPMethod 字符串的映射（proto: 0, 1, 2, 3, 4, 5） */
 const METHOD_NUMBER_TO_KEY: Record<number, string> = {
@@ -94,4 +95,12 @@ export const getAppLabel = (value: number | string, t: (key: string) => string):
     return t(`webhook.app.${key}`)
   }
   return String(value)
+}
+
+/**
+ * 根据应用值获取 iconfont 类型名（用于下拉和表格图标）
+ */
+export const getAppIconType = (value: number | string): string => {
+  const key = typeof value === 'string' ? value : APP_NUMBER_TO_KEY[value]
+  return getWebhookAppIconType(key || WebhookAPP.OTHER)
 }

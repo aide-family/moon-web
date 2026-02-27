@@ -9,6 +9,8 @@ import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView.tsx'
 import { useLocale } from '@/contexts/LocaleContext'
 import { getMessageTypeOptions, getMessageTypeLabel } from './constants'
+import { getMessageTypeIconType } from '@/pages/rabbit/constants/appIcons'
+import { IconFont } from '@/components/Icon/IconFont'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 
 const defaultSearchParams: TemplateListParams = {
@@ -140,7 +142,12 @@ const TemplateListContent: React.FC = () => {
       dataIndex: 'messageType',
       key: 'messageType',
       minWidth: 60,
-      render: (messageType: string) => getMessageTypeLabel(messageType, t),
+      render: (messageType: string) => (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+          <IconFont type={getMessageTypeIconType(messageType)} />
+          {getMessageTypeLabel(messageType, t)}
+        </span>
+      ),
     },
     {
       title: t('table.status'),
@@ -366,10 +373,18 @@ const TemplateListContent: React.FC = () => {
               setSearchParams(prev => ({ ...prev, messageType: value === '' ? undefined : value }))
               setPagination(prev => ({ ...prev, current: 1 }))
             }}
-            className='w-30'
+            className='w-45'
             options={[
               { label: t('table.search.all'), value: '' },
-              ...getMessageTypeOptions(t),
+              ...getMessageTypeOptions(t).map(opt => ({
+                value: opt.value,
+                label: (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                    <IconFont type={getMessageTypeIconType(opt.value)} />
+                    {opt.label}
+                  </span>
+                ),
+              })),
             ]}
           />
           <Button onClick={handleSearch} type="primary">

@@ -23,6 +23,8 @@ import {
   type ListMessageLogsParams,
 } from '@/api/message-log'
 import { getStatusLabel, getStatusColor, getTypeLabel } from './constants'
+import { getMessageTypeIconType } from '@/pages/rabbit/constants/appIcons'
+import { IconFont } from '@/components/Icon/IconFont'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
@@ -221,7 +223,12 @@ export default function MessageManagement() {
       key: 'messageType',
       width: 120,
       align: 'center',
-      render: (messageType: MessageType | string | undefined) => getTypeLabel(messageType, t),
+      render: (messageType: MessageType | string | undefined) => (
+        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <IconFont type={getMessageTypeIconType(messageType ?? '')} />
+          {getTypeLabel(messageType, t)}
+        </span>
+      ),
     },
     {
       title: t('messageLog.table.status'),
@@ -334,17 +341,17 @@ export default function MessageManagement() {
             <span>{t('messageLog.search.type')}:</span>
             <Select
               placeholder={t('messageLog.search.type')}
-              style={{ width: 160 }}
+              className='w-45'
               value={searchParams.messageType ?? ''}
               onChange={v => setSearchParams(prev => ({ ...prev, messageType: v === '' ? undefined : (v as MessageType) }))}
               options={[
                 { label: t('table.search.all'), value: '' },
-                { value: MessageType.EMAIL, label: t('messageType.EMAIL') },
-                { value: MessageType.SMS_ALICLOUD, label: t('messageType.SMS_ALICLOUD') },
-                { value: MessageType.WEBHOOK_OTHER, label: t('messageType.WEBHOOK_OTHER') },
-                { value: MessageType.WEBHOOK_DINGTALK, label: t('messageType.WEBHOOK_DINGTALK') },
-                { value: MessageType.WEBHOOK_WECHAT, label: t('messageType.WEBHOOK_WECHAT') },
-                { value: MessageType.WEBHOOK_FEISHU, label: t('messageType.WEBHOOK_FEISHU') },
+                { value: MessageType.EMAIL, label: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><IconFont type={getMessageTypeIconType(MessageType.EMAIL)} />{t('messageType.EMAIL')}</span> },
+                { value: MessageType.SMS_ALICLOUD, label: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><IconFont type={getMessageTypeIconType(MessageType.SMS_ALICLOUD)} />{t('messageType.SMS_ALICLOUD')}</span> },
+                { value: MessageType.WEBHOOK_OTHER, label: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><IconFont type={getMessageTypeIconType(MessageType.WEBHOOK_OTHER)} />{t('messageType.WEBHOOK_OTHER')}</span> },
+                { value: MessageType.WEBHOOK_DINGTALK, label: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><IconFont type={getMessageTypeIconType(MessageType.WEBHOOK_DINGTALK)} />{t('messageType.WEBHOOK_DINGTALK')}</span> },
+                { value: MessageType.WEBHOOK_WECHAT, label: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><IconFont type={getMessageTypeIconType(MessageType.WEBHOOK_WECHAT)} />{t('messageType.WEBHOOK_WECHAT')}</span> },
+                { value: MessageType.WEBHOOK_FEISHU, label: <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><IconFont type={getMessageTypeIconType(MessageType.WEBHOOK_FEISHU)} />{t('messageType.WEBHOOK_FEISHU')}</span> },
               ]}
             />
             <span>{t('messageLog.search.timeRange')}:</span>
