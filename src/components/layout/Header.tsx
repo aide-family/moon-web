@@ -158,6 +158,10 @@ const Header: React.FC = () => {
     },
   ];
 
+  useEffect(() => {
+    console.log("namespace", namespace);
+  }, [namespace]);
+
   return (
     <div className="flex items-center gap-2 sm:gap-4 mr-2 md:mr-4 h-8 shrink-0 flex-wrap justify-end">
       {/* 命名空间选择：小屏缩小宽度 */}
@@ -182,6 +186,9 @@ const Header: React.FC = () => {
           if (created) {
             setNamespace(created.uid);
             localStorage.setItem("namespace", created.uid);
+            refreshNamespaceList();
+            window.location.reload();
+            return;
           }
           refreshNamespaceList();
         }}
