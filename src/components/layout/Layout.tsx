@@ -195,11 +195,17 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
         }}
       >
         <div
-          className="logo h-16 w-full px-4 flex items-center gap-2 text-white shrink-0 border-b border-gray-700"
+          className={`logo h-16 w-full flex items-center gap-2 text-white shrink-0 border-b border-gray-700 ${collapsed ? "justify-center" : "justify-start px-5"}`}
           style={{ background: "var(--ant-color-menu-bg, #001529)" }}
         >
-          <img src={logo} alt="logo" className="h-8 w-9" />
-          <span className="text-xl font-bold">Moon监控</span>
+          <img src={logo} alt="logo" className="h-8 w-9 shrink-0" />
+          <span
+            className={`text-xl font-bold whitespace-nowrap overflow-hidden transition-all duration-200 ease-in-out ${
+              collapsed ? "hidden" : "max-w-32 opacity-100"
+            }`}
+          >
+            {t("layout.appName")}
+          </span>
         </div>
         <Menu
           key={location.pathname}

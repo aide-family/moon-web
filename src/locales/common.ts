@@ -30,6 +30,8 @@ export const zhCN = {
   'menu.settings': '设置',
   'menu.settings1': '设置1',
   'menu.settings2': '设置2',
+  // 系统名称
+  'layout.appName': 'Moon监控',
   // Footer
   'footer.copyright': 'Copyright© {year} MOON监控系统',
   'footer.icp': '贵公网安备52011502009111号 | 黔ICP备19012566号-8',
@@ -155,6 +157,8 @@ export const enUS = {
   'menu.settings': 'Settings',
   'menu.settings1': 'Settings 1',
   'menu.settings2': 'Settings 2',
+  // 系统名称
+  'layout.appName': 'Moon监控',
   // Footer
   'footer.copyright': 'Copyright© {year} MOON Monitoring System',
   'footer.icp': 'Gui Gong Network Security 52011502009111 | Qian ICP No. 19012566-8',
