@@ -387,6 +387,7 @@ const NamespaceList: React.FC = () => {
     <div className="h-full flex flex-col">
       <div className="mb-4 flex justify-between items-start shrink-0">
         <Space size="middle" wrap>
+          <span>{t('table.search.keyword')}:</span>
           <Input
             placeholder={t('table.search.placeholder')}
             allowClear
@@ -395,6 +396,7 @@ const NamespaceList: React.FC = () => {
             onChange={(e) => setSearchParams(prev => ({ ...prev, keyword: e.target.value }))}
             onPressEnter={handleSearch}
           />
+          <span>{t('table.search.status')}:</span>
           <Radio.Group
             value={searchParams.status}
             onChange={(e) => setSearchParams(prev => ({ ...prev, status: e.target.value }))}
