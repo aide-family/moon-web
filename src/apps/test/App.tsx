@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { ConfigProvider } from 'antd'
+import { OAuthTokenHandler } from '@/components/OAuthTokenHandler'
 import { UserOutlined, VideoCameraOutlined } from '@ant-design/icons'
 import Test1 from '@/pages/test/test1'
 import Test2 from '@/pages/test/test2'
@@ -46,8 +47,9 @@ function AppContent() {
       theme={themeConfig}
     >
       <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
+        <OAuthTokenHandler>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
           <Route
             path="/"
             element={ inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} header={headerContent} />}
@@ -57,6 +59,7 @@ function AppContent() {
             <Route path="/test2" element={<Test2 />} />
           </Route>
         </Routes>
+        </OAuthTokenHandler>
       </BrowserRouter>
     </ConfigProvider>
   )

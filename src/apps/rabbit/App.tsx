@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { ConfigProvider } from 'antd'
+import { OAuthTokenHandler } from '@/components/OAuthTokenHandler'
 import { UserOutlined, FileTextOutlined, ApiOutlined, MessageOutlined, SendOutlined } from '@ant-design/icons'
 import Rabbit1 from '@/pages/rabbit/rabbit1'
 import TemplateManagement from '@/pages/rabbit/templates'
@@ -68,8 +69,9 @@ function AppContent() {
       theme={themeConfig}
     >
       <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
+        <OAuthTokenHandler>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
           <Route
             path="/"
             element={ inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} header={headerContent} />}
@@ -83,6 +85,7 @@ function AppContent() {
             <Route path="/sender" element={<SenderManagement />} />
           </Route>
         </Routes>
+        </OAuthTokenHandler>
       </BrowserRouter>
     </ConfigProvider>
   )

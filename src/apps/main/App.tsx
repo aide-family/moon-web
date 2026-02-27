@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from
 import { ConfigProvider } from 'antd'
 import { useEffect, useRef, useMemo } from 'react'
 import React from 'react'
+import { OAuthTokenHandler } from '@/components/OAuthTokenHandler'
 import LayoutComponent from '@/components/layout/Layout'
 import LoginPage from '@/pages/main/login'
 import microApp from '@micro-zoe/micro-app'
@@ -233,16 +234,18 @@ function AppContent() {
       theme={themeConfig}
     >
       <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route
-            path="/"
-            element={<LayoutComponent menuItems={menuItems} />}
-          >
-            <Route index element={<Navigate to={defaultPath} replace />} />
-            {routes}
-          </Route>
-        </Routes>
+        <OAuthTokenHandler>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/"
+              element={<LayoutComponent menuItems={menuItems} />}
+            >
+              <Route index element={<Navigate to={defaultPath} replace />} />
+              {routes}
+            </Route>
+          </Routes>
+        </OAuthTokenHandler>
       </BrowserRouter>
     </ConfigProvider>
   )
