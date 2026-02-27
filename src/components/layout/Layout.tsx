@@ -120,9 +120,9 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
   // 随断点同步：大屏默认展开，平板/手机默认收起
   useEffect(() => {
     if (isDesktop) {
-      setCollapsed(false);
+      queueMicrotask(() => setCollapsed(false));
     } else {
-      setCollapsed(true);
+      queueMicrotask(() => setCollapsed(true));
     }
   }, [isDesktop]);
 
@@ -131,7 +131,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
   const currentItem = findMenuItemByPath(menuItems, currentPath);
   const selectedKeys = React.useMemo(
     () => (currentItem ? [currentItem.key] : []),
-    [currentItem?.key],
+    [currentItem],
   );
   const defaultOpenKeys = currentItem
     ? getParentKeys(menuItems, currentItem.key)
@@ -143,7 +143,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
     if (currentItem) {
       const parentKeys = getParentKeys(menuItems, currentItem.key);
       if (parentKeys.length > 0) {
-        setOpenKeys(parentKeys);
+        queueMicrotask(() => setOpenKeys(parentKeys));
       }
     }
   }, [currentPath, currentItem?.key, menuItems]);

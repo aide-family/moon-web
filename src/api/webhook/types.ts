@@ -2,6 +2,7 @@
  * Webhook 相关类型定义
  */
 import { GlobalStatus } from "../index"
+import { WebhookAPP } from "../types"
 
 /**
  * Webhook 项
@@ -90,6 +91,7 @@ export interface WebhookItemSelect {
   total?: string
   lastUID?: string
   hasMore?: boolean
+  app?: WebhookAPP
 }
 
 /**

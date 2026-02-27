@@ -34,15 +34,6 @@ const SEND_TYPES: { value: SendType; labelKey: string }[] = [
   { value: "webhook", labelKey: "sender.type.webhook" },
   { value: "webhookTemplate", labelKey: "sender.type.webhookTemplate" },
 ];
-
-/** Webhook 模板类型选项（用于发送 Webhook 模板时先选类型再选模板） */
-const WEBHOOK_TEMPLATE_TYPES: MessageType[] = [
-  MessageType.WEBHOOK_OTHER,
-  MessageType.WEBHOOK_DINGTALK,
-  MessageType.WEBHOOK_WECHAT,
-  MessageType.WEBHOOK_FEISHU,
-];
-
 export default function SenderManagement() {
   const { t } = useLocale();
   const [form] = Form.useForm();
@@ -114,13 +105,6 @@ export default function SenderManagement() {
     fetchWebhookConfigOptions(webhookConfigKeyword);
   }, [needWebhookConfig, webhookConfigKeyword, fetchWebhookConfigOptions]);
 
-  const handleWebhookTemplateTypeChange = useCallback(
-    (value: MessageType | undefined) => {
-      setWebhookTemplateType(value);
-      form.setFieldValue("templateUID", undefined);
-    },
-    [form],
-  );
 
   useEffect(() => {
     if (!needTemplate) return;
@@ -307,12 +291,19 @@ export default function SenderManagement() {
               (item as unknown as { name?: string }).name ??
               value;
             return {
+              ...item,
               value,
               label,
               disabled: item.disabled,
               title: item.tooltip,
             };
           })}
+        onChange={(value) => {
+          const item = webhookConfigOptions.find((item) => item.value === value);
+          if (item) {
+            setWebhookTemplateType("WEBHOOK_" + item.app as MessageType);
+          }
+        }}
       />
     </Form.Item>
   );
@@ -547,7 +538,7 @@ export default function SenderManagement() {
             {sendType === "webhookTemplate" && (
               <>
                 {renderUidWebhook()}
-                <Form.Item label={t("sender.form.templateType")}>
+                {/* <Form.Item label={t("sender.form.templateType")}>
                   <Select<MessageType>
                     placeholder={t("sender.form.templateTypePlaceholder")}
                     allowClear
@@ -558,7 +549,7 @@ export default function SenderManagement() {
                       label: t(`messageType.${type}`),
                     }))}
                   />
-                </Form.Item>
+                </Form.Item> */}
                 <Form.Item
                   name="templateUID"
                   label={t("sender.form.templateUID")}

@@ -265,7 +265,7 @@ const NamespaceList: React.FC = () => {
       if (detailViewOpen && viewingData && viewingData.uid === record.uid) {
         const updatedData = dataSource.find(item => item.uid === record.uid)
         if (updatedData) {
-          setViewingData({ ...updatedData, status: newStatus })
+          setViewingData({ ...updatedData, status: newStatus as GlobalStatus })
         }
       }
     } catch (error) {
