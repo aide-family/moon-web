@@ -54,7 +54,7 @@ const NamespaceList: React.FC = () => {
       // 使用传入的参数或当前 state 的值
       const currentPage = page ?? pagination.current
       const currentPageSize = pageSize ?? pagination.pageSize
-      
+
       const params: NamespaceListParams = {
         page: currentPage,
         pageSize: currentPageSize,
@@ -307,7 +307,7 @@ const NamespaceList: React.FC = () => {
     const updateTableHeight = () => {
       if (tableContainerRef.current && tableWrapperRef.current) {
         const containerHeight = tableContainerRef.current.clientHeight
-        
+
         // 查找表头元素（Ant Design Table 的表头）
         const theadElement = tableWrapperRef.current.querySelector('.ant-table-thead')
         let theadHeight = 0
@@ -317,11 +317,11 @@ const NamespaceList: React.FC = () => {
           const theadMarginBottom = parseFloat(theadStyle.marginBottom) || 0
           theadHeight = theadRect.height + theadMarginBottom
         }
-        
+
         // 查找分页器元素（Ant Design Table 的分页器）
         const paginationElement = tableWrapperRef.current.querySelector('.ant-pagination')
         let paginationHeight = 0
-        
+
         if (paginationElement) {
           // 获取分页器的实际高度（包括 margin）
           const paginationRect = paginationElement.getBoundingClientRect()
@@ -330,7 +330,7 @@ const NamespaceList: React.FC = () => {
           const marginBottom = parseFloat(paginationStyle.marginBottom) || 0
           paginationHeight = paginationRect.height + marginTop + marginBottom
         }
-        
+
         // 查找表格主体容器，获取其 padding
         const tableBodyElement = tableWrapperRef.current.querySelector('.ant-table-body')
         let tableBodyPadding = 0
@@ -340,7 +340,7 @@ const NamespaceList: React.FC = () => {
           const paddingBottom = parseFloat(bodyStyle.paddingBottom) || 0
           tableBodyPadding = paddingTop + paddingBottom
         }
-        
+
         // 计算表格可用的滚动高度 = 容器高度 - 表头高度 - 分页器高度 - 表格主体 padding
         const calculatedHeight = containerHeight - theadHeight - paginationHeight - tableBodyPadding
         setTableHeight(Math.max(calculatedHeight, 100)) // 最小高度100px

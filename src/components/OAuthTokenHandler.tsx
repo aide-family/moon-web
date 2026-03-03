@@ -4,7 +4,7 @@ import type React from 'react'
 
 /**
  * 从 URL 中读取 OAuth 回调带回的 token 并持久化，
- * 与 api/request 拦截器使用的 key 一致。每个系统（main/rabbit/test）均需在 BrowserRouter 内使用。
+ * 与 api/request 拦截器使用的 key 一致。每个系统（main/rabbit/goddess）均需在 BrowserRouter 内使用。
  * 若当前在登录页，保存 token 后会自动跳转到系统首页，避免“要点第二次才能进入”的问题。
  */
 export function OAuthTokenHandler({ children }: { children: React.ReactNode }) {

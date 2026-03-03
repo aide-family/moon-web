@@ -13,7 +13,7 @@ import {
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useNamespace } from "@/contexts/NamespaceContext";
-import DetailForm from "@/pages/main/namespaces/components/DetailForm";
+import DetailForm from "@/pages/goddess/namespaces/components/DetailForm";
 
 const Header: React.FC = () => {
   // 主题管理

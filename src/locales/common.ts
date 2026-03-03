@@ -16,7 +16,7 @@ export const zhCN = {
   'language.zh': '中文',
   'language.en': 'English',
   // 菜单相关
-  'menu.test': '测试应用',
+  'menu.goddess': '系统管理',
   'menu.test1': '测试应用1',
   'menu.test2': '测试应用2',
   'menu.rabbit': 'Rabbit应用',
@@ -142,7 +142,7 @@ export const enUS = {
   'language.zh': '中文',
   'language.en': 'English',
   // Menu related
-  'menu.test': 'Test App',
+  'menu.goddess': 'System Management',
   'menu.test1': 'Test App 1',
   'menu.test2': 'Test App 2',
   'menu.rabbit': 'Rabbit App',

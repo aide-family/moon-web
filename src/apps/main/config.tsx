@@ -1,7 +1,6 @@
 import { ReactNode } from 'react'
-import { UserOutlined, AppstoreOutlined, SettingOutlined, DatabaseOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined } from '@ant-design/icons'
+import { UserOutlined, AppstoreOutlined, DatabaseOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
-import NamespaceList from '@/pages/main/namespaces'
 
 /**
  * 子应用配置
@@ -42,33 +41,21 @@ export interface AppConfigItem {
  */
 export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
   {
-    key: 'test',
+    key: 'goddess',
     icon: <UserOutlined />,
-    label: t('menu.test'),
-    path: '/test',
+    label: t('menu.goddess'),
+    path: '/goddess',
     children: [
       {
-        key: 'test1',
-        icon: <UserOutlined />,
-        label: t('menu.test1'),
-        path: '/test/test1',
+        key: 'goddess-namespaces',
+        icon: <DatabaseOutlined />,
+        label: t('menu.namespaces'),
+        path: '/goddess/namespaces',
         subApp: {
-          name: 'test1',
-          devUrl: 'http://localhost:5174/test1',
-          prodUrl: 'http://localhost:4174/test1',
-          path: '/test/test1',
-        },
-      },
-      {
-        key: 'test2',
-        icon: <UserOutlined />,
-        label: t('menu.test2'),
-        path: '/test/test2',
-        subApp: {
-          name: 'test2',
-          devUrl: 'http://localhost:5174/test2',
-          prodUrl: 'http://localhost:4174/test2',
-          path: '/test/test2',
+          name: 'goddess-namespaces',
+          devUrl: 'http://localhost:5174/namespaces',
+          prodUrl: 'http://localhost:4174/namespaces',
+          path: '/goddess/namespaces',
         },
       },
     ],
@@ -139,35 +126,6 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
           path: '/rabbit/sender',
         },
       }
-    ],
-  },
-  {
-    key: 'namespaces',
-    icon: <DatabaseOutlined />,
-    label: t('menu.namespaces'),
-    path: '/namespaces',
-    element: <NamespaceList />,
-  },
-  {
-    key: 'settings',
-    icon: <SettingOutlined />,
-    label: t('menu.settings'),
-    path: '/settings',
-    children: [
-      {
-        key: 'settings1',
-        icon: <SettingOutlined />,
-        label: t('menu.settings1'),
-        path: '/settings/settings1',
-        element: <div>{t('menu.settings1')}</div>,
-      },
-      {
-        key: 'settings2',
-        icon: <SettingOutlined />,
-        label: t('menu.settings2'),
-        path: '/settings/settings2',
-        element: <div>{t('menu.settings2')}</div>,
-      },
     ],
   },
 ]
