@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
-import { UserOutlined, AppstoreOutlined, DatabaseOutlined, TeamOutlined, UsergroupAddOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined } from '@ant-design/icons'
+import { UserOutlined, AppstoreOutlined, DatabaseOutlined, TeamOutlined, UsergroupAddOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined, IdcardOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
+import ProfilePage from '@/pages/main/profile'
 
 /**
  * 子应用配置
@@ -81,6 +82,13 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
           prodUrl: 'http://localhost:4174/members',
           path: '/goddess/members',
         },
+      },
+      {
+        key: 'goddess-profile',
+        icon: <IdcardOutlined />,
+        label: t('menu.profile'),
+        path: '/goddess/profile',
+        element: <ProfilePage />,
       },
     ],
   },

@@ -1,5 +1,5 @@
 import { http } from '../request'
-import type { RefreshTokenResponse } from './types'
+import type { RefreshTokenResponse, SelfInfo } from './types'
 
 const TOKEN_KEY = 'token'
 
@@ -19,6 +19,14 @@ export function refreshToken(): Promise<void> {
         sessionStorage.setItem(TOKEN_KEY, newToken)
       }
     })
+}
+
+/**
+ * Self_Info
+ * GET /v1/self/info
+ */
+export function getSelfInfo(): Promise<SelfInfo> {
+  return http.get<SelfInfo>('/self/info')
 }
 
 /**

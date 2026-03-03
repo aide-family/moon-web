@@ -1,5 +1,6 @@
 // 头部组件
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Select, Avatar, Dropdown, message, Modal, Form, Input } from "antd";
 import type { MenuProps } from "antd";
 import {
@@ -12,6 +13,7 @@ import {
   MailOutlined,
   PictureOutlined,
   LogoutOutlined,
+  IdcardOutlined,
 } from "@ant-design/icons";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -20,6 +22,7 @@ import DetailForm from "@/pages/goddess/namespaces/components/DetailForm";
 import { changeEmail, changeAvatar } from "@/api/self";
 
 const Header: React.FC = () => {
+  const navigate = useNavigate();
   // 主题管理
   const { themeMode, setThemeMode } = useTheme();
   // 国际化管理
@@ -211,6 +214,12 @@ const Header: React.FC = () => {
 
   // 用户下拉菜单项
   const userMenuItems: MenuProps["items"] = [
+    {
+      key: "profile",
+      label: t("user.profile"),
+      icon: <IdcardOutlined />,
+      onClick: () => navigate("/goddess/profile"),
+    },
     {
       key: "changeEmail",
       label: t("user.changeEmail"),
