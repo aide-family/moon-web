@@ -67,20 +67,21 @@ function AppContent() {
   return (
     <ConfigProvider locale={antdLocale} theme={themeConfig}>
       <BrowserRouter>
-        <NamespaceWrapper>
-          <OAuthTokenHandler>
-            <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route
-                path="/"
-                element={
+        <OAuthTokenHandler>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/"
+              element={
+                <NamespaceWrapper>
                   <AuthGuard>
                     <TokenRefreshHandler>
                       {inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} header={headerContent} />}
                     </TokenRefreshHandler>
                   </AuthGuard>
-                }
-              >
+                </NamespaceWrapper>
+              }
+            >
                 <Route index element={<Navigate to="/namespaces" replace />} />
                 <Route path="/namespaces" element={<NamespaceList />} />
                 <Route path="/users" element={<UsersList />} />
@@ -88,7 +89,6 @@ function AppContent() {
               </Route>
             </Routes>
           </OAuthTokenHandler>
-        </NamespaceWrapper>
       </BrowserRouter>
     </ConfigProvider>
   )

@@ -20,8 +20,10 @@ import {
 } from "@ant-design/icons";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { sendEmailLoginCode, emailLogin } from "@/api/auth";
 import { getCaptcha } from "@/api/captcha";
 import { getOauth2Reports, type OAuth2ReportItem } from "@/api/oauth";
+import { useNavigate } from "react-router-dom";
 import banner1 from "@/assets/banner/banner1.svg";
 import banner2 from "@/assets/banner/banner2.svg";
 import banner3 from "@/assets/banner/banner3.svg";
@@ -40,6 +42,7 @@ const INTRO_SLIDES = [
 export default function LoginPage() {
   const { t, locale, setLocale } = useLocale();
   const { themeMode, setThemeMode, actualThemeMode } = useTheme();
+  const navigate = useNavigate();
   const isDark = actualThemeMode === "dark";
   const [loginForm] = Form.useForm();
   const [registerForm] = Form.useForm();
@@ -48,11 +51,14 @@ export default function LoginPage() {
   const [codeCountdown, setCodeCountdown] = useState(0);
   const codeTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [captchaModalOpen, setCaptchaModalOpen] = useState(false);
+  const [captchaModalForForm, setCaptchaModalForForm] = useState<"login" | "register" | null>(null);
   const [modalCaptchaId, setModalCaptchaId] = useState("");
   const [modalCaptchaB64s, setModalCaptchaB64s] = useState("");
   const [captchaLoading, setCaptchaLoading] = useState(false);
+  const [captchaSubmitting, setCaptchaSubmitting] = useState(false);
   const [modalCaptchaInput, setModalCaptchaInput] = useState("");
   const [oauthOptions, setOauthOptions] = useState<OAuth2ReportItem[]>([]);
+  const [loginLoading, setLoginLoading] = useState(false);
 
   const fetchCaptcha = useCallback(() => {
     setCaptchaLoading(true);
@@ -72,9 +78,19 @@ export default function LoginPage() {
     getOauth2Reports().then(setOauthOptions);
   }, []);
 
-  const onLoginFinish = (values: Record<string, string>) => {
-    message.info(t("login.submitHint"));
-    console.log("Login", values);
+  const onLoginFinish = async (values: Record<string, string>) => {
+    setLoginLoading(true);
+    try {
+      const res = await emailLogin({ email: values.email, code: values.emailCode });
+      const token = res?.token;
+      if (token) {
+        localStorage.setItem("token", token);
+        message.success(t("login.loginSuccess"));
+        navigate("/", { replace: true });
+      }
+    } finally {
+      setLoginLoading(false);
+    }
   };
 
   const onRegisterFinish = (values: Record<string, string>) => {
@@ -82,14 +98,11 @@ export default function LoginPage() {
     console.log("Register", values);
   };
 
-  const runCodeCountdown = (captchaId?: string, captchaCode?: string) => {
+  const runCodeCountdown = () => {
     if (codeTimerRef.current) {
       clearInterval(codeTimerRef.current);
       codeTimerRef.current = null;
     }
-    // TODO: 调用发送邮箱验证码接口，传入邮箱、captchaId、captchaCode，后端校验图形验证码后发送邮件
-    void captchaId;
-    void captchaCode;
     setSendingCode(true);
     setCodeCountdown(60);
     message.success(t("login.codeSent"));
@@ -132,6 +145,7 @@ export default function LoginPage() {
     const form = forForm === "login" ? loginForm : registerForm;
     form.validateFields(["email"]).then(
       () => {
+        setCaptchaModalForForm(forForm);
         setModalCaptchaInput("");
         setCaptchaModalOpen(true);
         fetchCaptcha();
@@ -142,17 +156,34 @@ export default function LoginPage() {
     );
   };
 
-  const handleCaptchaModalOk = () => {
+  const handleCaptchaModalOk = async () => {
     if (!modalCaptchaInput.trim()) {
       message.warning(t("login.graphicCaptchaRequired"));
       return;
     }
-    // 校验由后端在发送邮箱验证码时根据 captchaId + 用户输入完成
-    runCodeCountdown(modalCaptchaId, modalCaptchaInput.trim());
-    setCaptchaModalOpen(false);
-    setModalCaptchaInput("");
-    setModalCaptchaId("");
-    setModalCaptchaB64s("");
+    if (!captchaModalForForm) return;
+    const form = captchaModalForForm === "login" ? loginForm : registerForm;
+    const email = form.getFieldValue("email") as string;
+    if (!email) {
+      message.warning(t("login.emailRequired"));
+      return;
+    }
+    setCaptchaSubmitting(true);
+    try {
+      await sendEmailLoginCode({
+        email,
+        captchaId: modalCaptchaId,
+        captchaAnswer: modalCaptchaInput.trim(),
+      });
+      runCodeCountdown();
+      setCaptchaModalOpen(false);
+      setModalCaptchaInput("");
+      setModalCaptchaId("");
+      setModalCaptchaB64s("");
+      setCaptchaModalForForm(null);
+    } finally {
+      setCaptchaSubmitting(false);
+    }
   };
 
   const handleCaptchaModalCancel = () => {
@@ -160,6 +191,7 @@ export default function LoginPage() {
     setModalCaptchaInput("");
     setModalCaptchaId("");
     setModalCaptchaB64s("");
+    setCaptchaModalForForm(null);
   };
 
   const themeMenuItems: MenuProps["items"] = [
@@ -236,7 +268,13 @@ export default function LoginPage() {
       </Form.Item>
 
       <Form.Item className="mb-4">
-        <Button type="primary" htmlType="submit" block size="large">
+        <Button
+          type="primary"
+          htmlType="submit"
+          block
+          size="large"
+          loading={loginLoading}
+        >
           {t("login.login")}
         </Button>
       </Form.Item>
@@ -428,6 +466,7 @@ export default function LoginPage() {
         onCancel={handleCaptchaModalCancel}
         okText={t("login.sendCode")}
         cancelText={t("common.cancel")}
+        confirmLoading={captchaSubmitting}
         destroyOnHidden
         maskClosable={false}
       >

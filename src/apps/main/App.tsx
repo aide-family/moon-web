@@ -237,26 +237,26 @@ function AppContent() {
       theme={themeConfig}
     >
       <BrowserRouter>
-        <NamespaceProvider>
-          <OAuthTokenHandler>
-            <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route
-                path="/"
-                element={
+        <OAuthTokenHandler>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/"
+              element={
+                <NamespaceProvider>
                   <AuthGuard>
                     <TokenRefreshHandler>
                       <LayoutComponent menuItems={menuItems} />
                     </TokenRefreshHandler>
                   </AuthGuard>
-                }
-              >
+                </NamespaceProvider>
+              }
+            >
                 <Route index element={<Navigate to={defaultPath} replace />} />
                 {routes}
               </Route>
             </Routes>
           </OAuthTokenHandler>
-        </NamespaceProvider>
       </BrowserRouter>
     </ConfigProvider>
   )
