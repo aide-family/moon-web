@@ -38,10 +38,10 @@ const MemberDetailView: React.FC<MemberDetailViewProps> = ({ open, data, onCance
         </Space>
       }
       width={700}
-      destroyOnClose
+      destroyOnHidden
     >
       {data ? (
-        <Descriptions column={1} bordered labelStyle={{ width: 120, minWidth: 120 }}>
+        <Descriptions column={1} bordered styles={{ label: { width: 120, minWidth: 120 } }}>
           <Descriptions.Item label={t('member.detail.uid')}>{data.uid ?? '-'}</Descriptions.Item>
           <Descriptions.Item label={t('member.detail.userUID')}>{data.userUID ?? '-'}</Descriptions.Item>
           <Descriptions.Item label={t('member.detail.namespaceUID')}>{data.namespaceUID ?? '-'}</Descriptions.Item>

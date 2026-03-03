@@ -24,14 +24,14 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, loading, onCancel }
       onCancel={onCancel}
       footer={<Button onClick={onCancel}>{t('common.close')}</Button>}
       width={700}
-      destroyOnClose
+      destroyOnHidden
     >
       {loading ? (
         <div className="flex justify-center items-center py-12">
           <Spin />
         </div>
       ) : data ? (
-        <Descriptions column={1} bordered size="small" labelStyle={{ width: 120, minWidth: 120 }}>
+        <Descriptions column={1} bordered size="small" styles={{ label: { width: 120, minWidth: 120 } }}>
           <Descriptions.Item label={t('messageLog.detail.uid')}>{data.uid ?? '-'}</Descriptions.Item>
           <Descriptions.Item label={t('messageLog.detail.type')}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>

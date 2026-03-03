@@ -103,7 +103,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
       okText={t('common.ok')}
       cancelText={t('common.cancel')}
       width={700}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form
         form={form}

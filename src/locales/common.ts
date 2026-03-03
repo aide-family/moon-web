@@ -9,7 +9,14 @@ export const zhCN = {
   // 用户相关
   'user.logout': '退出登录',
   'user.defaultName': '用户',
+  'user.changeEmail': '修改邮箱',
+  'user.changeAvatar': '修改头像',
   'logout.success': '已退出登录',
+  // Self 弹窗
+  'self.email': '邮箱',
+  'self.avatar': '头像',
+  'self.emailPlaceholder': '请输入新邮箱',
+  'self.avatarPlaceholder': '请输入头像地址',
   // 命名空间相关
   'namespace.select': '选择命名空间',
   // 语言相关
@@ -137,7 +144,14 @@ export const enUS = {
   // User related
   'user.logout': 'Logout',
   'user.defaultName': 'User',
+  'user.changeEmail': 'Change Email',
+  'user.changeAvatar': 'Change Avatar',
   'logout.success': 'Logged out successfully',
+  // Self modals
+  'self.email': 'Email',
+  'self.avatar': 'Avatar',
+  'self.emailPlaceholder': 'Enter new email',
+  'self.avatarPlaceholder': 'Enter avatar URL',
   // Namespace related
   'namespace.select': 'Select Namespace',
   // Language related

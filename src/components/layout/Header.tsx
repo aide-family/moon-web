@@ -1,6 +1,6 @@
 // 头部组件
 import React, { useState, useEffect } from "react";
-import { Select, Avatar, Dropdown, message } from "antd";
+import { Select, Avatar, Dropdown, message, Modal, Form, Input } from "antd";
 import type { MenuProps } from "antd";
 import {
   UserOutlined,
@@ -9,11 +9,15 @@ import {
   DesktopOutlined,
   BgColorsOutlined,
   GlobalOutlined,
+  MailOutlined,
+  PictureOutlined,
+  LogoutOutlined,
 } from "@ant-design/icons";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useNamespace } from "@/contexts/NamespaceContext";
 import DetailForm from "@/pages/goddess/namespaces/components/DetailForm";
+import { changeEmail, changeAvatar } from "@/api/self";
 
 const Header: React.FC = () => {
   // 主题管理
@@ -28,6 +32,13 @@ const Header: React.FC = () => {
   const [namespace, setNamespace] = useState<string>("");
   // 添加命名空间弹窗（列表为空时自动弹出）
   const [addNamespaceModalOpen, setAddNamespaceModalOpen] = useState(false);
+  // 修改邮箱 / 头像弹窗
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [avatarModalOpen, setAvatarModalOpen] = useState(false);
+  const [emailForm] = Form.useForm();
+  const [avatarForm] = Form.useForm();
+  const [emailSubmitting, setEmailSubmitting] = useState(false);
+  const [avatarSubmitting, setAvatarSubmitting] = useState(false);
 
   // 用户信息（可以从 API 或 context 获取）
   const [userInfo, setUserInfo] = useState<{ name: string; avatar?: string }>(
@@ -52,6 +63,13 @@ const Header: React.FC = () => {
       queueMicrotask(() => setUserInfo({ name: t("user.defaultName") }));
     }
   }, [locale, t]);
+
+  // 打开头像弹窗时预填当前头像
+  useEffect(() => {
+    if (avatarModalOpen) {
+      avatarForm.setFieldsValue({ avatar: userInfo.avatar ?? "" });
+    }
+  }, [avatarModalOpen, userInfo.avatar, avatarForm]);
 
   // 列表为空时弹出添加命名空间弹窗；列表有数据且当前未选则选第一个
   useEffect(() => {
@@ -95,6 +113,49 @@ const Header: React.FC = () => {
     // 跳转到登录页（如果有）或刷新页面
     // navigate('/login');
     window.location.href = "/login";
+  };
+
+  // 修改邮箱提交
+  const handleEmailSubmit = async () => {
+    try {
+      const values = await emailForm.validateFields();
+      setEmailSubmitting(true);
+      await changeEmail({ email: values.email });
+      message.success(t("message.success"));
+      setEmailModalOpen(false);
+      emailForm.resetFields();
+    } catch (e) {
+      if (e && typeof e === "object" && "errorFields" in e) return;
+    } finally {
+      setEmailSubmitting(false);
+    }
+  };
+
+  // 修改头像提交
+  const handleAvatarSubmit = async () => {
+    try {
+      const values = await avatarForm.validateFields();
+      setAvatarSubmitting(true);
+      await changeAvatar({ avatar: values.avatar ?? "" });
+      message.success(t("message.success"));
+      const newAvatar = values.avatar?.trim() || undefined;
+      setUserInfo((prev) => ({ ...prev, avatar: newAvatar }));
+      const stored = localStorage.getItem("userInfo");
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored) as { name?: string; avatar?: string };
+          localStorage.setItem("userInfo", JSON.stringify({ ...parsed, avatar: newAvatar }));
+        } catch {
+          // ignore
+        }
+      }
+      setAvatarModalOpen(false);
+      avatarForm.resetFields();
+    } catch (e) {
+      if (e && typeof e === "object" && "errorFields" in e) return;
+    } finally {
+      setAvatarSubmitting(false);
+    }
   };
 
   // 处理语言切换
@@ -151,16 +212,24 @@ const Header: React.FC = () => {
   // 用户下拉菜单项
   const userMenuItems: MenuProps["items"] = [
     {
+      key: "changeEmail",
+      label: t("user.changeEmail"),
+      icon: <MailOutlined />,
+      onClick: () => setEmailModalOpen(true),
+    },
+    {
+      key: "changeAvatar",
+      label: t("user.changeAvatar"),
+      icon: <PictureOutlined />,
+      onClick: () => setAvatarModalOpen(true),
+    },
+    {
       key: "logout",
       label: t("user.logout"),
-      //   icon: <LogoutOutlined />,
+      icon: <LogoutOutlined />,
       onClick: handleLogout,
     },
   ];
-
-  useEffect(() => {
-    console.log("namespace", namespace);
-  }, [namespace]);
 
   return (
     <div className="flex items-center gap-2 sm:gap-4 mr-2 md:mr-4 h-8 shrink-0 flex-wrap justify-end">
@@ -219,14 +288,60 @@ const Header: React.FC = () => {
           </div>
         </Dropdown>
       </div>
-      <Dropdown menu={{ items: userMenuItems }} trigger={["click"]}>
-        <div className="flex h-8 items-center gap-1.5 cursor-pointer min-w-0">
+      <Dropdown menu={{ items: userMenuItems }} trigger={["click"]} >
+        <div className="flex h-8 items-center gap-1.5 cursor-pointer min-w-0 pr-2">
           <Avatar size="small" icon={<UserOutlined />} src={userInfo.avatar} />
           <span className="hidden sm:inline truncate max-w-[80px] md:max-w-[120px]">
             {userInfo.name}
           </span>
         </div>
       </Dropdown>
+
+      {/* 修改邮箱弹窗 */}
+      <Modal
+        title={t("user.changeEmail")}
+        open={emailModalOpen}
+        onCancel={() => {
+          setEmailModalOpen(false);
+          emailForm.resetFields();
+        }}
+        onOk={handleEmailSubmit}
+        confirmLoading={emailSubmitting}
+        destroyOnClose
+        okText={t("common.ok")}
+        cancelText={t("common.cancel")}
+      >
+        <Form form={emailForm} layout="vertical" className="mt-4">
+          <Form.Item
+            name="email"
+            label={t("self.email")}
+            rules={[{ required: true, message: t("self.emailPlaceholder") }]}
+          >
+            <Input placeholder={t("self.emailPlaceholder")} allowClear />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 修改头像弹窗 */}
+      <Modal
+        title={t("user.changeAvatar")}
+        open={avatarModalOpen}
+        onCancel={() => {
+          setAvatarModalOpen(false);
+          avatarForm.resetFields();
+        }}
+        onOk={handleAvatarSubmit}
+        confirmLoading={avatarSubmitting}
+        destroyOnClose
+        okText={t("common.ok")}
+        cancelText={t("common.cancel")}
+      >
+        <Form form={avatarForm} layout="vertical" className="mt-4">
+          <Form.Item name="avatar" label={t("self.avatar")}>
+            <Input placeholder={t("self.avatarPlaceholder")} allowClear />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

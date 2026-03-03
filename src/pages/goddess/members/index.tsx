@@ -403,7 +403,7 @@ const MembersList: React.FC = () => {
         confirmLoading={inviteSubmitting}
         okText={t('common.ok')}
         cancelText={t('common.cancel')}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={inviteForm} layout="vertical" initialValues={{ roleUID: 0 }}>
           <Form.Item

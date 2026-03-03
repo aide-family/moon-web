@@ -20,3 +20,21 @@ export function refreshToken(): Promise<void> {
       }
     })
 }
+
+/**
+ * Self_ChangeEmail
+ * PUT /v1/self/change-email
+ * Body(application/json): email
+ */
+export function changeEmail(body: { email: string }): Promise<unknown> {
+  return http.put('/self/change-email', body as Record<string, unknown>)
+}
+
+/**
+ * Self_ChangeAvatar
+ * PUT /v1/self/change-avatar
+ * Body(application/json): avatar
+ */
+export function changeAvatar(body: { avatar: string }): Promise<unknown> {
+  return http.put('/self/change-avatar', body as Record<string, unknown>)
+}

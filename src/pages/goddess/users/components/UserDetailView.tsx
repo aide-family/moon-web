@@ -37,10 +37,10 @@ const UserDetailView: React.FC<UserDetailViewProps> = ({ open, data, onCancel })
         </Space>
       }
       width={700}
-      destroyOnClose
+      destroyOnHidden
     >
       {data ? (
-        <Descriptions column={1} bordered labelStyle={{ width: 120, minWidth: 120 }}>
+        <Descriptions column={1} bordered styles={{ label: { width: 120, minWidth: 120 } }}>
           <Descriptions.Item label={t('user.detail.uid')}>{data.uid ?? '-'}</Descriptions.Item>
           <Descriptions.Item label={t('user.detail.email')}>{data.email ?? '-'}</Descriptions.Item>
           <Descriptions.Item label={t('user.detail.name')}>{data.name ?? '-'}</Descriptions.Item>

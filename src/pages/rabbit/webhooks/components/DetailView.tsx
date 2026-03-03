@@ -62,10 +62,10 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
         </Space>
       }
       width={800}
-      destroyOnClose
+      destroyOnHidden
     >
       {data ? (
-        <Descriptions column={1} bordered labelStyle={{ width: 120, minWidth: 120 }}>
+        <Descriptions column={1} bordered styles={{ label: { width: 120, minWidth: 120 } }}>
           <Descriptions.Item label={t('webhook.detail.uid')}>{data.uid}</Descriptions.Item>
           <Descriptions.Item label={t('webhook.detail.name')}>{data.name || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('webhook.detail.app')}>
