@@ -19,11 +19,10 @@ export function OAuthTokenHandler({ children }: { children: React.ReactNode }) {
       sessionStorage.setItem('token', token)
       const cleanUrl = location.pathname + (location.hash || '')
       window.history.replaceState({}, '', cleanUrl)
-      // 若在登录页，保存 token 后直接进入系统，无需用户再点一次
+      // 保存 token 后始终执行一次导航，让 AuthGuard 重新执行并读到 token，
+      // 避免首屏渲染时 effect 未执行导致被重定向到登录页、需刷新才能进系统
       const from = (location.state as { from?: string } | null)?.from
-      if (location.pathname === '/login') {
-        navigate(from || '/', { replace: true })
-      }
+      navigate(from || location.pathname || '/', { replace: true })
     }
   }, [location.search, location.pathname, location.hash, location.state, navigate])
 
