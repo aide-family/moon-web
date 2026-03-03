@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import { ConfigProvider } from 'antd'
 import { OAuthTokenHandler } from '@/components/OAuthTokenHandler'
 import { AuthGuard } from '@/components/AuthGuard'
+import { TokenRefreshHandler } from '@/components/TokenRefreshHandler'
 import { FileTextOutlined, ApiOutlined, MessageOutlined, SendOutlined } from '@ant-design/icons'
 import TemplateManagement from '@/pages/rabbit/templates'
 import EmailManagement from '@/pages/rabbit/emails'
@@ -13,7 +14,7 @@ import LoginPage from '@/pages/main/login'
 import { isInMicroApp } from '@/utils'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
-import { NamespaceProvider } from '@/contexts/NamespaceContext'
+import { NamespaceProvider, NoopNamespaceProvider } from '@/contexts/NamespaceContext'
 
 function AppContent() {
   const { themeConfig } = useTheme();
@@ -50,13 +51,11 @@ function AppContent() {
   ]
   
 
+  const NamespaceWrapper = inMicroApp ? NoopNamespaceProvider : NamespaceProvider
   return (
-    <ConfigProvider
-      locale={antdLocale}
-      theme={themeConfig}
-    >
+    <ConfigProvider locale={antdLocale} theme={themeConfig}>
       <BrowserRouter>
-        <NamespaceProvider>
+        <NamespaceWrapper>
           <OAuthTokenHandler>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
@@ -64,7 +63,9 @@ function AppContent() {
                 path="/"
                 element={
                   <AuthGuard>
-                    {inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} />}
+                    <TokenRefreshHandler>
+                      {inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} />}
+                    </TokenRefreshHandler>
                   </AuthGuard>
                 }
               >
@@ -77,7 +78,7 @@ function AppContent() {
               </Route>
             </Routes>
           </OAuthTokenHandler>
-        </NamespaceProvider>
+        </NamespaceWrapper>
       </BrowserRouter>
     </ConfigProvider>
   )

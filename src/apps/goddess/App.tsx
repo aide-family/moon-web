@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import { ConfigProvider } from 'antd'
 import { OAuthTokenHandler } from '@/components/OAuthTokenHandler'
 import { AuthGuard } from '@/components/AuthGuard'
+import { TokenRefreshHandler } from '@/components/TokenRefreshHandler'
 import { UserOutlined, VideoCameraOutlined, DatabaseOutlined } from '@ant-design/icons'
 import NamespaceList from '@/pages/goddess/namespaces'
 import LayoutComponent, { type MenuItem } from '@/components/layout/Layout'
@@ -9,7 +10,7 @@ import LoginPage from '@/pages/main/login'
 import { isInMicroApp } from '@/utils'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
-import { NamespaceProvider } from '@/contexts/NamespaceContext'
+import { NamespaceProvider, NoopNamespaceProvider } from '@/contexts/NamespaceContext'
 
 // 菜单配置（支持多级菜单）：命名空间 + 原 test 子页
 const menuItems: MenuItem[] = [
@@ -48,13 +49,11 @@ function AppContent() {
     </div>
   )
 
+  const NamespaceWrapper = inMicroApp ? NoopNamespaceProvider : NamespaceProvider
   return (
-    <ConfigProvider
-      locale={antdLocale}
-      theme={themeConfig}
-    >
+    <ConfigProvider locale={antdLocale} theme={themeConfig}>
       <BrowserRouter>
-        <NamespaceProvider>
+        <NamespaceWrapper>
           <OAuthTokenHandler>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
@@ -62,7 +61,9 @@ function AppContent() {
                 path="/"
                 element={
                   <AuthGuard>
-                    {inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} header={headerContent} />}
+                    <TokenRefreshHandler>
+                      {inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} header={headerContent} />}
+                    </TokenRefreshHandler>
                   </AuthGuard>
                 }
               >
@@ -71,7 +72,7 @@ function AppContent() {
               </Route>
             </Routes>
           </OAuthTokenHandler>
-        </NamespaceProvider>
+        </NamespaceWrapper>
       </BrowserRouter>
     </ConfigProvider>
   )

@@ -17,6 +17,20 @@ interface NamespaceProviderProps {
   children: ReactNode
 }
 
+/** 微服务环境下使用：不请求接口，仅提供空列表与 no-op 刷新，避免子组件 useNamespace 报错 */
+export const NoopNamespaceProvider: React.FC<NamespaceProviderProps> = ({ children }) => {
+  const value: NamespaceContextType = {
+    namespaceOptions: [],
+    loading: false,
+    refreshNamespaceList: async () => {},
+  }
+  return (
+    <NamespaceContext.Provider value={value}>
+      {children}
+    </NamespaceContext.Provider>
+  )
+}
+
 export const NamespaceProvider: React.FC<NamespaceProviderProps> = ({ children }) => {
   const [namespaceOptions, setNamespaceOptions] = useState<NamespaceItemSelect[]>([])
   // 初始为 true，避免刷新时首帧「空列表 + 未加载」被误判为「已加载且为空」导致误弹新建弹窗

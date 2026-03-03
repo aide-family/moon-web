@@ -4,6 +4,7 @@ import { useEffect, useRef, useMemo } from 'react'
 import React from 'react'
 import { OAuthTokenHandler } from '@/components/OAuthTokenHandler'
 import { AuthGuard } from '@/components/AuthGuard'
+import { TokenRefreshHandler } from '@/components/TokenRefreshHandler'
 import LayoutComponent from '@/components/layout/Layout'
 import LoginPage from '@/pages/main/login'
 import microApp from '@micro-zoe/micro-app'
@@ -244,7 +245,9 @@ function AppContent() {
                 path="/"
                 element={
                   <AuthGuard>
-                    <LayoutComponent menuItems={menuItems} />
+                    <TokenRefreshHandler>
+                      <LayoutComponent menuItems={menuItems} />
+                    </TokenRefreshHandler>
                   </AuthGuard>
                 }
               >

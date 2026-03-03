@@ -33,7 +33,7 @@ request.interceptors.request.use(
     // 添加 token（如果存在）
     const token =
       localStorage.getItem('token') ||
-      sessionStorage.getItem('token') ||'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIyMDE3MzkwODkxNzczOTk3MDU2IiwidXNlcm5hbWUiOiJsaWVyLmxvY2FsIiwiaXNzIjoicmFiYml0LXRlc3QiLCJleHAiOjE4MDEzNTQ0NDR9.QWyZDHeHrOHYmGKzwInMFyCbsshhwOhyIQPvy1aF-98'
+      sessionStorage.getItem('token') ||''
     const namespace = localStorage.getItem('namespace') || ''
     if (token && !config.skipAuth) {
       config.headers.Authorization = `Bearer ${token}`
