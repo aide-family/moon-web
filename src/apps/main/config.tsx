@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { UserOutlined, AppstoreOutlined, DatabaseOutlined, TeamOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined } from '@ant-design/icons'
+import { UserOutlined, AppstoreOutlined, DatabaseOutlined, TeamOutlined, UsergroupAddOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
 
 /**
@@ -68,6 +68,18 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
           devUrl: 'http://localhost:5174/users',
           prodUrl: 'http://localhost:4174/users',
           path: '/goddess/users',
+        },
+      },
+      {
+        key: 'goddess-members',
+        icon: <UsergroupAddOutlined />,
+        label: t('menu.members'),
+        path: '/goddess/members',
+        subApp: {
+          name: 'goddess-members',
+          devUrl: 'http://localhost:5174/members',
+          prodUrl: 'http://localhost:4174/members',
+          path: '/goddess/members',
         },
       },
     ],
