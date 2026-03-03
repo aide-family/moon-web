@@ -5,6 +5,7 @@ import { AuthGuard } from '@/components/AuthGuard'
 import { TokenRefreshHandler } from '@/components/TokenRefreshHandler'
 import { UserOutlined, VideoCameraOutlined, DatabaseOutlined } from '@ant-design/icons'
 import NamespaceList from '@/pages/goddess/namespaces'
+import UsersList from '@/pages/goddess/users'
 import LayoutComponent, { type MenuItem } from '@/components/layout/Layout'
 import LoginPage from '@/pages/main/login'
 import { isInMicroApp } from '@/utils'
@@ -21,8 +22,14 @@ const menuItems: MenuItem[] = [
     path: '/namespaces',
   },
   {
-    key: '1',
+    key: 'users',
     icon: <UserOutlined />,
+    label: '用户管理',
+    path: '/users',
+  },
+  {
+    key: '1',
+    icon: <VideoCameraOutlined />,
     label: 'Test1',
     path: '/test1',
   },
@@ -69,6 +76,7 @@ function AppContent() {
               >
                 <Route index element={<Navigate to="/namespaces" replace />} />
                 <Route path="/namespaces" element={<NamespaceList />} />
+                <Route path="/users" element={<UsersList />} />
               </Route>
             </Routes>
           </OAuthTokenHandler>
