@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Carousel,
   Tabs,
@@ -20,8 +20,8 @@ import {
 } from "@ant-design/icons";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { getCaptcha } from "@/api/captcha";
 import { getOauth2Reports, type OAuth2ReportItem } from "@/api/oauth";
-import GraphicCaptcha from "./components/GraphicCaptcha";
 import banner1 from "@/assets/banner/banner1.svg";
 import banner2 from "@/assets/banner/banner2.svg";
 import banner3 from "@/assets/banner/banner3.svg";
@@ -48,9 +48,25 @@ export default function LoginPage() {
   const [codeCountdown, setCodeCountdown] = useState(0);
   const codeTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [captchaModalOpen, setCaptchaModalOpen] = useState(false);
-  const [modalCaptchaCode, setModalCaptchaCode] = useState("");
+  const [modalCaptchaId, setModalCaptchaId] = useState("");
+  const [modalCaptchaB64s, setModalCaptchaB64s] = useState("");
+  const [captchaLoading, setCaptchaLoading] = useState(false);
   const [modalCaptchaInput, setModalCaptchaInput] = useState("");
   const [oauthOptions, setOauthOptions] = useState<OAuth2ReportItem[]>([]);
+
+  const fetchCaptcha = useCallback(() => {
+    setCaptchaLoading(true);
+    getCaptcha()
+      .then((res) => {
+        setModalCaptchaId(res.captchaId ?? "");
+        setModalCaptchaB64s(res.captchaB64s ?? "");
+      })
+      .catch(() => {
+        setModalCaptchaId("");
+        setModalCaptchaB64s("");
+      })
+      .finally(() => setCaptchaLoading(false));
+  }, []);
 
   useEffect(() => {
     getOauth2Reports().then(setOauthOptions);
@@ -66,11 +82,14 @@ export default function LoginPage() {
     console.log("Register", values);
   };
 
-  const runCodeCountdown = () => {
+  const runCodeCountdown = (captchaId?: string, captchaCode?: string) => {
     if (codeTimerRef.current) {
       clearInterval(codeTimerRef.current);
       codeTimerRef.current = null;
     }
+    // TODO: 调用发送邮箱验证码接口，传入邮箱、captchaId、captchaCode，后端校验图形验证码后发送邮件
+    void captchaId;
+    void captchaCode;
     setSendingCode(true);
     setCodeCountdown(60);
     message.success(t("login.codeSent"));
@@ -113,9 +132,9 @@ export default function LoginPage() {
     const form = forForm === "login" ? loginForm : registerForm;
     form.validateFields(["email"]).then(
       () => {
-        setModalCaptchaCode("");
         setModalCaptchaInput("");
         setCaptchaModalOpen(true);
+        fetchCaptcha();
       },
       () => {
         // 校验失败不打开弹窗，表单项会展示错误
@@ -128,20 +147,19 @@ export default function LoginPage() {
       message.warning(t("login.graphicCaptchaRequired"));
       return;
     }
-    if (modalCaptchaInput.toUpperCase() !== modalCaptchaCode.toUpperCase()) {
-      message.error(t("login.captchaError"));
-      return;
-    }
-    runCodeCountdown();
+    // 校验由后端在发送邮箱验证码时根据 captchaId + 用户输入完成
+    runCodeCountdown(modalCaptchaId, modalCaptchaInput.trim());
     setCaptchaModalOpen(false);
     setModalCaptchaInput("");
-    setModalCaptchaCode("");
+    setModalCaptchaId("");
+    setModalCaptchaB64s("");
   };
 
   const handleCaptchaModalCancel = () => {
     setCaptchaModalOpen(false);
     setModalCaptchaInput("");
-    setModalCaptchaCode("");
+    setModalCaptchaId("");
+    setModalCaptchaB64s("");
   };
 
   const themeMenuItems: MenuProps["items"] = [
@@ -419,15 +437,28 @@ export default function LoginPage() {
               value={modalCaptchaInput}
               onChange={(e) => setModalCaptchaInput(e.target.value)}
               placeholder={t("login.graphicCaptchaPlaceholder")}
-              maxLength={4}
+              maxLength={6}
               className="flex-1"
             />
-            <GraphicCaptcha
-              onRefresh={setModalCaptchaCode}
-              width={120}
-              height={40}
-              className="shrink-0"
-            />
+            <div className="shrink-0 w-[120px] h-10 flex items-center justify-center rounded border border-gray-200 bg-gray-50 overflow-hidden">
+              {captchaLoading ? (
+                <span className="text-gray-400 text-sm">加载中...</span>
+              ) : modalCaptchaB64s ? (
+                <img
+                  src={
+                    modalCaptchaB64s.startsWith("data:")
+                      ? modalCaptchaB64s
+                      : `data:image/png;base64,${modalCaptchaB64s}`
+                  }
+                  alt="验证码"
+                  className="w-full h-full object-contain cursor-pointer select-none"
+                  title="点击刷新"
+                  onClick={fetchCaptcha}
+                />
+              ) : (
+                <span className="text-gray-400 text-sm">点击刷新</span>
+              )}
+            </div>
           </div>
           <p className="text-sm text-gray-500">
             {t("login.graphicCaptchaHint")}
