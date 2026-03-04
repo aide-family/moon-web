@@ -1,7 +1,7 @@
 import React from 'react'
 import { Modal, Descriptions, Tag, Button, Space } from 'antd'
 import type { NamespaceItem } from '@/api/namespace/index'
-import { GlobalStatus } from '@/api/namespace/index'
+import { GlobalStatus } from '@/api/types'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
 

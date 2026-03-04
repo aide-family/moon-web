@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react'
-import { getNamespaceList } from '@/api/namespace/index'
+import { getSelfNamespaces } from '@/api/namespace/index'
+import { GlobalStatus } from '@/api/types'
 import type { NamespaceItemSelect } from '@/api/namespace/index'
 
 interface NamespaceContextType {
@@ -56,9 +57,16 @@ export const NamespaceProvider: React.FC<NamespaceProviderProps> = ({ children }
   const refreshNamespaceList = async () => {
     setLoading(true)
     try {
-      const response = await getNamespaceList({ limit: 100 })
-      if (response?.items) {
-        setNamespaceOptions(response.items)
+      const response = await getSelfNamespaces()
+      if (response?.namespaces?.length) {
+        console.log('response.namespaces', response.namespaces)
+        setNamespaceOptions(
+          response.namespaces.map((ns) => ({
+            value: ns.uid,
+            label: ns.name ?? ns.uid,
+            disabled: ns.status !== GlobalStatus.ENABLED,
+          }))
+        )
       } else {
         setNamespaceOptions([])
       }

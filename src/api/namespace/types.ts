@@ -25,6 +25,30 @@ export interface NamespaceSelectResponse {
 }
 
 /**
+ * 当前用户可用的命名空间项（GET /v1/self/namespaces 单条）
+ */
+export interface SelfNamespaceItem {
+  uid: string
+  name: string
+  remark?: string
+  createdAt?: string
+  updatedAt?: string
+  status?: GlobalStatus
+  logo?: string
+  secret?: string
+  leader?: string
+  metadata?: Record<string, unknown>
+  banners?: string[]
+}
+
+/**
+ * 当前用户命名空间列表响应（GET /v1/self/namespaces）
+ */
+export interface SelfNamespacesResponse {
+  namespaces: SelfNamespaceItem[]
+}
+
+/**
  * 命名空间选择请求参数
  */
 export interface NamespaceSelectParams {

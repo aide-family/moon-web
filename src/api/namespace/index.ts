@@ -12,11 +12,20 @@ import type {
   NamespaceItem,
   CreateNamespaceParams,
   UpdateNamespaceParams,
-  GlobalStatus
+  SelfNamespacesResponse,
 } from './types'
+import { GlobalStatus } from '../types'
 
 /**
- * 获取命名空间选择列表（用于下拉选择）
+ * 获取当前用户可用的命名空间列表（头部下拉使用）
+ * GET /v1/self/namespaces，需 Authorization、可选 X-Namespace
+ */
+export const getSelfNamespaces = (): Promise<SelfNamespacesResponse> => {
+  return http.get<SelfNamespacesResponse>('/self/namespaces')
+}
+
+/**
+ * 获取命名空间选择列表（用于下拉选择，旧接口 /namespaces/select）
  * @param params 查询参数
  * @returns 命名空间选择列表
  */
@@ -89,8 +98,7 @@ export type {
   NamespaceListResponse,
   NamespaceListParams,
   CreateNamespaceParams,
-  UpdateNamespaceParams
+  UpdateNamespaceParams,
+  SelfNamespaceItem,
+  SelfNamespacesResponse,
 } from './types'
-
-// 导出公共枚举
-export { GlobalStatus } from '../types'

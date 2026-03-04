@@ -19,7 +19,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useNamespace } from "@/contexts/NamespaceContext";
 import DetailForm from "@/pages/goddess/namespaces/components/DetailForm";
-import { changeEmail, changeAvatar } from "@/api/self";
+import { getSelfInfo, changeEmail, changeAvatar } from "@/api/self";
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
@@ -40,29 +40,41 @@ const Header: React.FC = () => {
   const [emailSubmitting, setEmailSubmitting] = useState(false);
   const [avatarSubmitting, setAvatarSubmitting] = useState(false);
 
-  // 用户信息（可以从 API 或 context 获取）
-  const [userInfo, setUserInfo] = useState<{ name: string; avatar?: string }>(
-    () => {
-      // 可以从 localStorage 或 API 获取用户信息
-      const storedUser = localStorage.getItem("userInfo");
-      if (storedUser) {
-        try {
-          return JSON.parse(storedUser);
-        } catch {
-          return { name: "用户" }; // 使用硬编码的默认值，后续会通过 useEffect 更新
-        }
+  // 用户信息：通过 GET /v1/self/info 获取，修改头像/邮箱后同步
+  const [userInfo, setUserInfo] = useState<{ name: string; avatar?: string }>(() => {
+    const stored = localStorage.getItem("userInfo");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored) as { name?: string; avatar?: string };
+        return { name: parsed.name ?? "用户", avatar: parsed.avatar };
+      } catch {
+        return { name: "用户" };
       }
-      return { name: "用户" }; // 使用硬编码的默认值，后续会通过 useEffect 更新
-    },
-  );
-
-  // 当语言切换时更新用户默认名称
-  useEffect(() => {
-    const storedUser = localStorage.getItem("userInfo");
-    if (!storedUser) {
-      queueMicrotask(() => setUserInfo({ name: t("user.defaultName") }));
     }
-  }, [locale, t]);
+    return { name: "用户" };
+  });
+
+  // 拉取个人信息并更新展示（有 token 时请求）
+  useEffect(() => {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (!token) return;
+    getSelfInfo()
+      .then((data) => {
+        const name = data.name ?? data.nickname ?? t("user.defaultName");
+        const avatar = data.avatar;
+        setUserInfo((prev) => ({ ...prev, name, avatar }));
+        const stored = localStorage.getItem("userInfo");
+        try {
+          const parsed = (stored ? JSON.parse(stored) : {}) as Record<string, unknown>;
+          localStorage.setItem("userInfo", JSON.stringify({ ...parsed, name, avatar }));
+        } catch {
+          localStorage.setItem("userInfo", JSON.stringify({ name, avatar }));
+        }
+      })
+      .catch(() => {
+        // 未登录或接口失败时保留现有展示
+      });
+  }, [t]);
 
   // 打开头像弹窗时预填当前头像
   useEffect(() => {
