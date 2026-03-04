@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, message, Button, Space } from "antd";
+import { Modal, Form, Input, message, Button } from "antd";
 import type {
   CreateNamespaceParams,
   UpdateNamespaceParams,
