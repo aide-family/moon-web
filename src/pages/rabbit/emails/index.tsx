@@ -109,6 +109,9 @@ const EmailListContent: React.FC = () => {
     fetchData(page, pageSize)
   }
 
+  const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : text
+  const numPlaceholder = (val: unknown) => (val == null) ? '-' : val
+
   // 表格列定义
   const columns: ColumnsType<EmailItem> = [
     {
@@ -116,30 +119,35 @@ const EmailListContent: React.FC = () => {
       dataIndex: 'uid',
       key: 'uid',
       minWidth: 60,
+      render: (txt) => emptyPlaceholder(txt),
     },
     {
       title: t('email.table.name'),
       dataIndex: 'name',
       key: 'name',
       minWidth: 120,
+      render: (txt) => emptyPlaceholder(txt),
     },
     {
       title: t('email.table.host'),
       dataIndex: 'host',
       key: 'host',
       minWidth: 60,
+      render: (txt) => emptyPlaceholder(txt),
     },
     {
       title: t('email.table.port'),
       dataIndex: 'port',
       key: 'port',
       minWidth: 120,
+      render: (txt) => numPlaceholder(txt),
     },
     {
       title: t('email.table.username'),
       dataIndex: 'username',
       key: 'username',
       minWidth: 120,
+      render: (txt) => emptyPlaceholder(txt),
     },
     {
       title: t('table.status'),

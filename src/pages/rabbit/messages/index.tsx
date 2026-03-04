@@ -215,8 +215,10 @@ export default function MessageManagement() {
     }))
   }
 
+  const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : text
+
   const columns: ColumnsType<MessageLogItem> = [
-    { title: t('messageLog.table.uid'), dataIndex: 'uid', key: 'uid', width: 140, ellipsis: true },
+    { title: t('messageLog.table.uid'), dataIndex: 'uid', key: 'uid', width: 140, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
     {
       title: t('messageLog.table.type'),
       dataIndex: 'messageType',
@@ -262,7 +264,7 @@ export default function MessageManagement() {
               <Tag color="red">{t('messageLog.errorLabel')}</Tag>
             </Tooltip>
           )}
-          <span>{text ?? '-'}</span>
+          <span>{text || '-'}</span>
         </Space>
       ),
     },

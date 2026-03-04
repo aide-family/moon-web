@@ -188,12 +188,14 @@ const UsersList: React.FC = () => {
     }
   }
 
+  const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : text
+
   const columns: ColumnsType<UserItem> = [
-    { title: t('user.table.uid'), dataIndex: 'uid', key: 'uid', width: 140, ellipsis: true },
-    { title: t('user.table.email'), dataIndex: 'email', key: 'email', width: 160, ellipsis: true },
-    { title: t('user.table.name'), dataIndex: 'name', key: 'name', width: 100 },
-    { title: t('user.table.nickname'), dataIndex: 'nickname', key: 'nickname', width: 100 },
-    { title: t('user.table.phone'), dataIndex: 'phone', key: 'phone', width: 120 },
+    { title: t('user.table.uid'), dataIndex: 'uid', key: 'uid', width: 140, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
+    { title: t('user.table.email'), dataIndex: 'email', key: 'email', width: 160, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
+    { title: t('user.table.name'), dataIndex: 'name', key: 'name', width: 100, render: (txt) => emptyPlaceholder(txt) },
+    { title: t('user.table.nickname'), dataIndex: 'nickname', key: 'nickname', width: 100, render: (txt) => emptyPlaceholder(txt) },
+    { title: t('user.table.phone'), dataIndex: 'phone', key: 'phone', width: 120, render: (txt) => emptyPlaceholder(txt) },
     {
       title: t('user.table.status'),
       dataIndex: 'status',

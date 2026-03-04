@@ -57,7 +57,7 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, loading = false, on
         </div>
       ) : data ? (
         <Descriptions column={1} bordered styles={{ label: { width: 120, minWidth: 120 } }}>
-          <Descriptions.Item label={t('namespace.detail.uid')}>{data.uid}</Descriptions.Item>
+          <Descriptions.Item label={t('namespace.detail.uid')}>{data.uid || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('namespace.detail.name')}>{data.name || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('table.status')}>
             <Tag color={getStatusInfo(data.status).color}>
@@ -70,13 +70,13 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, loading = false, on
           <Descriptions.Item label={t('namespace.detail.updatedAt')}>
             {data.updatedAt ? dayjs(data.updatedAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
           </Descriptions.Item>
-          {data.metadata && Object.keys(data.metadata).length > 0 && (
-            <Descriptions.Item label={t('namespace.detail.metadata')}>
+          <Descriptions.Item label={t('namespace.detail.metadata')}>
+            {data.metadata && Object.keys(data.metadata).length > 0 ? (
               <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                 {JSON.stringify(data.metadata, null, 2)}
               </pre>
-            </Descriptions.Item>
-          )}
+            ) : '-'}
+          </Descriptions.Item>
         </Descriptions>
       ) : (
         <div style={{ textAlign: 'center', padding: '40px 0' }}>{t('common.noData')}</div>

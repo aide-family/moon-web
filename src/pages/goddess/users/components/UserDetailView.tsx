@@ -41,11 +41,11 @@ const UserDetailView: React.FC<UserDetailViewProps> = ({ open, data, onCancel })
     >
       {data ? (
         <Descriptions column={1} bordered styles={{ label: { width: 120, minWidth: 120 } }}>
-          <Descriptions.Item label={t('user.detail.uid')}>{data.uid ?? '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('user.detail.email')}>{data.email ?? '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('user.detail.name')}>{data.name ?? '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('user.detail.nickname')}>{data.nickname ?? '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('user.detail.phone')}>{data.phone ?? '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('user.detail.uid')}>{data.uid || '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('user.detail.email')}>{data.email || '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('user.detail.name')}>{data.name || '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('user.detail.nickname')}>{data.nickname || '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('user.detail.phone')}>{data.phone || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('table.status')}>
             <Tag color={getStatusInfo(data.status).color}>{getStatusInfo(data.status).text}</Tag>
           </Descriptions.Item>
@@ -58,7 +58,7 @@ const UserDetailView: React.FC<UserDetailViewProps> = ({ open, data, onCancel })
               '-'
             )}
           </Descriptions.Item>
-          <Descriptions.Item label={t('user.detail.remark')}>{data.remark ?? '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('user.detail.remark')}>{data.remark || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('user.detail.createdAt')}>
             {data.createdAt ? dayjs(data.createdAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
           </Descriptions.Item>

@@ -10,8 +10,7 @@ import {
   dismissMember,
   inviteMember,
   MemberStatus,
-  memberStatusFromNumber,
-  MEMBER_STATUS_TO_NUMBER,
+  normalizeMemberStatus,
   type MemberItem,
   type ListMembersParams,
   type InviteMemberBody,
@@ -32,7 +31,7 @@ function parseSearchParamsFromUrl(params: URLSearchParams): ListMembersParams {
   return {
     keyword: getParam(params, 'keyword') ?? '',
     email: getParam(params, 'email') ?? '',
-    status: statusParam !== undefined && statusParam !== '' ? Number(statusParam) : undefined,
+    status: statusParam !== undefined && statusParam !== '' ? statusParam : undefined,
   }
 }
 
@@ -65,8 +64,8 @@ const MembersList: React.FC = () => {
   const [inviteSubmitting, setInviteSubmitting] = useState(false)
   const [inviteForm] = Form.useForm<InviteMemberBody>()
 
-  const getStatusInfo = (status?: number) => {
-    const s = memberStatusFromNumber(status)
+  const getStatusInfo = (status?: string) => {
+    const s = normalizeMemberStatus(status)
     const map: Record<MemberStatus, { textKey: string; color: string }> = {
       [MemberStatus.MemberStatus_UNKNOWN]: { textKey: 'member.status.MemberStatus_UNKNOWN', color: 'default' },
       [MemberStatus.JOINED]: { textKey: 'member.status.JOINED', color: 'success' },
@@ -164,11 +163,11 @@ const MembersList: React.FC = () => {
 
   const doUpdateStatus = async (uid: string, newStatus: MemberStatus) => {
     try {
-      await updateMemberStatus(uid, { uid, status: MEMBER_STATUS_TO_NUMBER[newStatus] })
+      await updateMemberStatus(uid, { uid, status: newStatus })
       message.success(t('message.update.success'))
       fetchData()
       if (detailOpen && viewingData?.uid === uid) {
-        setViewingData(prev => (prev ? { ...prev, status: MEMBER_STATUS_TO_NUMBER[newStatus] } : null))
+        setViewingData(prev => (prev ? { ...prev, status: newStatus } : null))
       }
     } catch (error) {
       console.error('更新状态失败:', error)
@@ -217,19 +216,21 @@ const MembersList: React.FC = () => {
     }
   }
 
+  const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : text
+
   const columns: ColumnsType<MemberItem> = [
-    { title: t('member.table.uid'), dataIndex: 'uid', key: 'uid', width: 140, ellipsis: true },
-    { title: t('member.table.userUID'), dataIndex: 'userUID', key: 'userUID', width: 140, ellipsis: true },
-    { title: t('member.table.email'), dataIndex: 'email', key: 'email', width: 160, ellipsis: true },
-    { title: t('member.table.name'), dataIndex: 'name', key: 'name', width: 100 },
-    { title: t('member.table.nickname'), dataIndex: 'nickname', key: 'nickname', width: 100 },
-    { title: t('member.table.phone'), dataIndex: 'phone', key: 'phone', width: 120 },
+    { title: t('member.table.uid'), dataIndex: 'uid', key: 'uid', width: 140, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
+    { title: t('member.table.userUID'), dataIndex: 'userUID', key: 'userUID', width: 140, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
+    { title: t('member.table.email'), dataIndex: 'email', key: 'email', width: 160, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
+    { title: t('member.table.name'), dataIndex: 'name', key: 'name', width: 100, render: (txt) => emptyPlaceholder(txt) },
+    { title: t('member.table.nickname'), dataIndex: 'nickname', key: 'nickname', width: 100, render: (txt) => emptyPlaceholder(txt) },
+    { title: t('member.table.phone'), dataIndex: 'phone', key: 'phone', width: 120, render: (txt) => emptyPlaceholder(txt) },
     {
       title: t('member.table.status'),
       dataIndex: 'status',
       key: 'status',
       width: 90,
-      render: (status: number) => {
+      render: (status: string) => {
         const info = getStatusInfo(status)
         return <Tag color={info.color}>{info.text}</Tag>
       },
@@ -248,7 +249,7 @@ const MembersList: React.FC = () => {
       fixed: 'right',
       align: 'center',
       render: (_, record) => {
-        const currentStatus = memberStatusFromNumber(record.status)
+        const currentStatus = normalizeMemberStatus(record.status)
         const menuItems: MenuProps['items'] = [
           ...STATUS_OPTIONS.map(opt => ({
             key: `status-${opt.value}`,
@@ -356,7 +357,7 @@ const MembersList: React.FC = () => {
           >
             <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
             {STATUS_OPTIONS.map(opt => (
-              <Radio.Button key={opt.value} value={MEMBER_STATUS_TO_NUMBER[opt.value]}>
+              <Radio.Button key={opt.value} value={opt.value}>
                 {t(opt.labelKey)}
               </Radio.Button>
             ))}

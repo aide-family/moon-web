@@ -4,40 +4,30 @@
  * Member_UpdateMemberStatus、Member_DismissMember、Member_InviteMember
  */
 
-/** 成员状态枚举（与 proto MemberStatus 一致，接口为 integer） */
+/** 成员状态枚举（与后端一致，接口为字符串） */
 export enum MemberStatus {
-  MemberStatus_UNKNOWN = 0,
-  JOINED = 1,
-  INVITED = 2,
-  EXPIRED = 3,
+  MemberStatus_UNKNOWN = 'MemberStatus_UNKNOWN',
+  JOINED = 'JOINED',
+  INVITED = 'INVITED',
+  EXPIRED = 'EXPIRED',
 }
 
-/** 后端状态码与 MemberStatus 对应 */
-export const MEMBER_STATUS_FROM_NUMBER: Record<number, MemberStatus> = {
-  0: MemberStatus.MemberStatus_UNKNOWN,
-  1: MemberStatus.JOINED,
-  2: MemberStatus.INVITED,
-  3: MemberStatus.EXPIRED,
+const MEMBER_STATUS_VALUES: Set<string> = new Set(Object.values(MemberStatus))
+
+/** 将后端返回的 status 字符串规范为 MemberStatus */
+export function normalizeMemberStatus(status?: string): MemberStatus {
+  if (status != null && MEMBER_STATUS_VALUES.has(status)) {
+    return status as MemberStatus
+  }
+  return MemberStatus.MemberStatus_UNKNOWN
 }
 
-export const MEMBER_STATUS_TO_NUMBER: Record<MemberStatus, number> = {
-  [MemberStatus.MemberStatus_UNKNOWN]: 0,
-  [MemberStatus.JOINED]: 1,
-  [MemberStatus.INVITED]: 2,
-  [MemberStatus.EXPIRED]: 3,
-}
-
-export function memberStatusFromNumber(n?: number | null): MemberStatus {
-  if (n === undefined || n === null) return MemberStatus.MemberStatus_UNKNOWN
-  return MEMBER_STATUS_FROM_NUMBER[n] ?? MemberStatus.MemberStatus_UNKNOWN
-}
-
-/** 成员列表项（Member_ListMember / Member_GetMember 返回，status 为 integer） */
+/** 成员列表项（Member_ListMember / Member_GetMember 返回，status 为字符串） */
 export interface MemberItem {
   uid?: string
   email?: string
   phone?: string
-  status?: number
+  status?: string
   createdAt?: string
   updatedAt?: string
   userUID?: string
@@ -56,12 +46,12 @@ export interface SelectMemberItem {
   tooltip?: string
 }
 
-/** Member_ListMember 查询参数（status 为 integer） */
+/** Member_ListMember 查询参数（status 为字符串枚举） */
 export interface ListMembersParams {
   page?: number
   pageSize?: number
   keyword?: string
-  status?: number
+  status?: string
   userUID?: string
   email?: string
   phone?: string
@@ -81,7 +71,7 @@ export interface SelectMembersParams {
   keyword?: string
   limit?: number
   lastUID?: string
-  status?: number
+  status?: string
   uids?: string[]
 }
 
@@ -96,7 +86,7 @@ export interface SelectMembersResponse {
 /** Member_UpdateMemberStatus 请求体 */
 export interface UpdateMemberStatusBody {
   uid?: string
-  status?: number
+  status?: string
 }
 
 /** Member_InviteMember 请求体 */

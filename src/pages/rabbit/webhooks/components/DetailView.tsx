@@ -66,7 +66,7 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
     >
       {data ? (
         <Descriptions column={1} bordered styles={{ label: { width: 120, minWidth: 120 } }}>
-          <Descriptions.Item label={t('webhook.detail.uid')}>{data.uid}</Descriptions.Item>
+          <Descriptions.Item label={t('webhook.detail.uid')}>{data.uid || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('webhook.detail.name')}>{data.name || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('webhook.detail.app')}>
             {data.app ? (
@@ -84,13 +84,13 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
               {getStatusInfo(data.status).text}
             </Tag>
           </Descriptions.Item>
-          {data.headers && Object.keys(data.headers).length > 0 && (
-            <Descriptions.Item label={t('webhook.detail.headers')}>
+          <Descriptions.Item label={t('webhook.detail.headers')}>
+            {data.headers && Object.keys(data.headers).length > 0 ? (
               <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxHeight: '400px', overflow: 'auto' }}>
                 {formatHeaders(data.headers)}
               </pre>
-            </Descriptions.Item>
-          )}
+            ) : '-'}
+          </Descriptions.Item>
           <Descriptions.Item label={t('webhook.detail.createdAt')}>
             {data.createdAt ? dayjs(data.createdAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
           </Descriptions.Item>

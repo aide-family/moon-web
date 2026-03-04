@@ -123,6 +123,8 @@ const TemplateListContent: React.FC = () => {
     fetchData(page, pageSize)
   }
 
+  const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : text
+
   // 表格列定义
   const columns: ColumnsType<TemplateItem> = [
     {
@@ -130,24 +132,29 @@ const TemplateListContent: React.FC = () => {
       dataIndex: 'uid',
       key: 'uid',
       minWidth: 60,
+      render: (txt) => emptyPlaceholder(txt),
     },
     {
       title: t('template.table.name'),
       dataIndex: 'name',
       key: 'name',
       minWidth: 120,
+      render: (txt) => emptyPlaceholder(txt),
     },
     {
       title: t('template.table.app'),
       dataIndex: 'messageType',
       key: 'messageType',
       minWidth: 60,
-      render: (messageType: string) => (
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-          <IconFont type={getMessageTypeIconType(messageType)} />
-          {getMessageTypeLabel(messageType, t)}
-        </span>
-      ),
+      render: (messageType: string) =>
+        messageType != null && messageType !== '' ? (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <IconFont type={getMessageTypeIconType(messageType)} />
+            {getMessageTypeLabel(messageType, t)}
+          </span>
+        ) : (
+          '-'
+        ),
     },
     {
       title: t('table.status'),

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Modal, Descriptions, Tag, Button, Space } from 'antd'
 import type { MemberItem } from '@/api/member'
-import { MemberStatus, memberStatusFromNumber } from '@/api/member'
+import { MemberStatus, normalizeMemberStatus } from '@/api/member'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
 
@@ -21,8 +21,8 @@ interface MemberDetailViewProps {
 const MemberDetailView: React.FC<MemberDetailViewProps> = ({ open, data, onCancel }) => {
   const { t } = useLocale()
 
-  const getStatusInfo = (status?: number) => {
-    const s = memberStatusFromNumber(status)
+  const getStatusInfo = (status?: string) => {
+    const s = normalizeMemberStatus(status)
     const info = MEMBER_STATUS_MAP[s]
     return { text: t(info.textKey), color: info.color }
   }
@@ -42,13 +42,13 @@ const MemberDetailView: React.FC<MemberDetailViewProps> = ({ open, data, onCance
     >
       {data ? (
         <Descriptions column={1} bordered styles={{ label: { width: 120, minWidth: 120 } }}>
-          <Descriptions.Item label={t('member.detail.uid')}>{data.uid ?? '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('member.detail.userUID')}>{data.userUID ?? '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('member.detail.namespaceUID')}>{data.namespaceUID ?? '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('member.detail.email')}>{data.email ?? '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('member.detail.name')}>{data.name ?? '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('member.detail.nickname')}>{data.nickname ?? '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('member.detail.phone')}>{data.phone ?? '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('member.detail.uid')}>{data.uid || '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('member.detail.userUID')}>{data.userUID || '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('member.detail.namespaceUID')}>{data.namespaceUID || '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('member.detail.email')}>{data.email || '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('member.detail.name')}>{data.name || '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('member.detail.nickname')}>{data.nickname || '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('member.detail.phone')}>{data.phone || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('table.status')}>
             <Tag color={getStatusInfo(data.status).color}>{getStatusInfo(data.status).text}</Tag>
           </Descriptions.Item>
@@ -61,7 +61,7 @@ const MemberDetailView: React.FC<MemberDetailViewProps> = ({ open, data, onCance
               '-'
             )}
           </Descriptions.Item>
-          <Descriptions.Item label={t('member.detail.remark')}>{data.remark ?? '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('member.detail.remark')}>{data.remark || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('member.detail.createdAt')}>
             {data.createdAt ? dayjs(data.createdAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
           </Descriptions.Item>

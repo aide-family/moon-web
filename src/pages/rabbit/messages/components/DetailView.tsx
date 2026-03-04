@@ -32,7 +32,7 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, loading, onCancel }
         </div>
       ) : data ? (
         <Descriptions column={1} bordered size="small" styles={{ label: { width: 120, minWidth: 120 } }}>
-          <Descriptions.Item label={t('messageLog.detail.uid')}>{data.uid ?? '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('messageLog.detail.uid')}>{data.uid || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('messageLog.detail.type')}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
               <IconFont type={getMessageTypeIconType(data.messageType ?? '')} />
@@ -48,16 +48,16 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, loading, onCancel }
             {data.sendAt ? dayjs(data.sendAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
           </Descriptions.Item>
           <Descriptions.Item label={t('messageLog.detail.message')}>
-            {data.message ?? '-'}
+            {data.message || '-'}
           </Descriptions.Item>
           <Descriptions.Item label={t('messageLog.detail.config')}>
-            {data.config ?? '-'}
+            {data.config || '-'}
           </Descriptions.Item>
           <Descriptions.Item label={t('messageLog.detail.retryTotal')}>
-            {data.retryTotal ?? '-'}
+            {data.retryTotal || '-'}
           </Descriptions.Item>
           <Descriptions.Item label={t('messageLog.detail.lastError')}>
-            {data.lastError ?? '-'}
+            {data.lastError || '-'}
           </Descriptions.Item>
           <Descriptions.Item label={t('messageLog.detail.updatedAt')}>
             {data.updatedAt ? dayjs(data.updatedAt).format('YYYY-MM-DD HH:mm:ss') : '-'}

@@ -66,13 +66,15 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
     >
       {data ? (
         <Descriptions column={1} bordered styles={{ label: { width: 120, minWidth: 120 } }}>
-          <Descriptions.Item label={t('template.detail.uid')}>{data.uid}</Descriptions.Item>
+          <Descriptions.Item label={t('template.detail.uid')}>{data.uid || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('template.detail.name')}>{data.name || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('template.detail.app')}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              <IconFont type={getMessageTypeIconType(data.messageType)} />
-              {getMessageTypeLabel(data.messageType, t)}
-            </span>
+            {data.messageType != null && data.messageType !== '' ? (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <IconFont type={getMessageTypeIconType(data.messageType)} />
+                {getMessageTypeLabel(data.messageType, t)}
+              </span>
+            ) : '-'}
           </Descriptions.Item>
           <Descriptions.Item label={t('table.status')}>
             <Tag color={getStatusInfo(data.status).color}>
@@ -85,13 +87,13 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
           <Descriptions.Item label={t('template.detail.updatedAt')}>
             {data.updatedAt ? dayjs(data.updatedAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
           </Descriptions.Item>
-          {data.jsonData && (
-            <Descriptions.Item label={t('template.detail.jsonData')}>
+          <Descriptions.Item label={t('template.detail.jsonData')}>
+            {data.jsonData ? (
               <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxHeight: '400px', overflow: 'auto' }}>
                 {formatJsonData(data.jsonData)}
               </pre>
-            </Descriptions.Item>
-          )}
+            ) : '-'}
+          </Descriptions.Item>
         </Descriptions>
       ) : (
         <div style={{ textAlign: 'center', padding: '40px 0' }}>{t('common.noData')}</div>

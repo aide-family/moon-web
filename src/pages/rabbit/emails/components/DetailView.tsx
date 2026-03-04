@@ -51,10 +51,10 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
     >
       {data ? (
         <Descriptions column={1} bordered styles={{ label: { width: 120, minWidth: 120 } }}>
-          <Descriptions.Item label={t('email.detail.uid')}>{data.uid}</Descriptions.Item>
+          <Descriptions.Item label={t('email.detail.uid')}>{data.uid || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('email.detail.name')}>{data.name || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('email.detail.host')}>{data.host || '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('email.detail.port')}>{data.port || '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('email.detail.port')}>{data.port != null ? data.port : '-'}</Descriptions.Item>
           <Descriptions.Item label={t('email.detail.username')}>{data.username || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('email.detail.password')}>******</Descriptions.Item>
           <Descriptions.Item label={t('table.status')}>

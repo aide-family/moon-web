@@ -110,6 +110,8 @@ const NamespaceList: React.FC = () => {
     fetchData(page, pageSize)
   }
 
+  const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : text
+
   // 表格列定义
   const columns: ColumnsType<NamespaceItem> = [
     {
@@ -117,12 +119,14 @@ const NamespaceList: React.FC = () => {
       dataIndex: 'uid',
       key: 'uid',
       minWidth: 60,
+      render: (txt) => emptyPlaceholder(txt),
     },
     {
       title: t('namespace.table.name'),
       dataIndex: 'name',
       key: 'name',
       minWidth: 120,
+      render: (txt) => emptyPlaceholder(txt),
     },
     {
       title: t('table.status'),

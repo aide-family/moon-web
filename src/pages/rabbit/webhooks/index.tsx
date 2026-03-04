@@ -121,6 +121,8 @@ const WebhookListContent: React.FC = () => {
     fetchData(page, pageSize)
   }
 
+  const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : text
+
   // 表格列定义
   const columns: ColumnsType<WebhookItem> = [
     {
@@ -128,24 +130,29 @@ const WebhookListContent: React.FC = () => {
       dataIndex: 'uid',
       key: 'uid',
       minWidth: 100,
+      render: (txt) => emptyPlaceholder(txt),
     },
     {
       title: t('webhook.table.name'),
       dataIndex: 'name',
       key: 'name',
       minWidth: 100,
+      render: (txt) => emptyPlaceholder(txt),
     },
     {
       title: t('webhook.table.app'),
       dataIndex: 'app',
       key: 'app',
       minWidth: 60,
-      render: (app: number | string) => (
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-          <IconFont type={getAppIconType(app)} />
-          {getAppLabel(app, t)}
-        </span>
-      ),
+      render: (app: number | string) =>
+        app != null && app !== '' ? (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <IconFont type={getAppIconType(app)} />
+            {getAppLabel(app, t)}
+          </span>
+        ) : (
+          '-'
+        ),
     },
     {
       title: t('webhook.table.url'),
@@ -153,13 +160,14 @@ const WebhookListContent: React.FC = () => {
       key: 'url',
       minWidth: 150,
       ellipsis: true,
+      render: (txt) => emptyPlaceholder(txt),
     },
     {
       title: t('webhook.table.method'),
       dataIndex: 'method',
       key: 'method',
       minWidth: 60,
-      render: (method: number | string) => getMethodLabel(method, t),
+      render: (method: number | string) => (method != null && method !== '') ? getMethodLabel(method, t) : '-',
     },
     {
       title: t('table.status'),

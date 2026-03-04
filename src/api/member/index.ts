@@ -55,7 +55,7 @@ export function getMember(uid: string): Promise<MemberItem> {
 /**
  * Member_UpdateMemberStatus
  * PUT /member/{uid}/status
- * Body(application/json): uid?, status (integer)
+ * Body(application/json): uid?, status (string 枚举)
  */
 export function updateMemberStatus(
   uid: string,
@@ -91,9 +91,4 @@ export type {
   UpdateMemberStatusBody,
   InviteMemberBody,
 } from './types'
-export {
-  MemberStatus,
-  memberStatusFromNumber,
-  MEMBER_STATUS_FROM_NUMBER,
-  MEMBER_STATUS_TO_NUMBER,
-} from './types'
+export { MemberStatus, normalizeMemberStatus } from './types'
