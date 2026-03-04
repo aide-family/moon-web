@@ -7,6 +7,10 @@ interface NamespaceContextType {
   namespaceOptions: NamespaceItemSelect[]
   /** 是否正在加载 */
   loading: boolean
+  /** 当前选中的命名空间（与 localStorage 同步，新建后设为此值头部会立即更新） */
+  currentNamespace: string
+  /** 设置当前命名空间（会写入 localStorage） */
+  setCurrentNamespace: (uid: string) => void
   /** 刷新列表（创建/编辑/删除命名空间后调用，头部下拉会同步更新） */
   refreshNamespaceList: () => Promise<void>
 }
@@ -22,6 +26,8 @@ export const NoopNamespaceProvider: React.FC<NamespaceProviderProps> = ({ childr
   const value: NamespaceContextType = {
     namespaceOptions: [],
     loading: false,
+    currentNamespace: '',
+    setCurrentNamespace: () => {},
     refreshNamespaceList: async () => {},
   }
   return (
@@ -36,6 +42,16 @@ export const NamespaceProvider: React.FC<NamespaceProviderProps> = ({ children }
   // 初始为 true，避免刷新时首帧「空列表 + 未加载」被误判为「已加载且为空」导致误弹新建弹窗
   const [loading, setLoading] = useState(true)
   const hasFetchedRef = useRef(false)
+  const [currentNamespace, setCurrentNamespaceState] = useState<string>(
+    () => (typeof window !== 'undefined' ? localStorage.getItem('namespace') || '' : '')
+  )
+
+  const setCurrentNamespace = (uid: string) => {
+    setCurrentNamespaceState(uid)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('namespace', uid)
+    }
+  }
 
   const refreshNamespaceList = async () => {
     setLoading(true)
@@ -62,6 +78,8 @@ export const NamespaceProvider: React.FC<NamespaceProviderProps> = ({ children }
   const value: NamespaceContextType = {
     namespaceOptions,
     loading,
+    currentNamespace,
+    setCurrentNamespace,
     refreshNamespaceList,
   }
 

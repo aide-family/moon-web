@@ -26,7 +26,7 @@ function parseSearchParamsFromUrl(params: URLSearchParams): NamespaceListParams 
 const NamespaceList: React.FC = () => {
   const { modal } = App.useApp()
   const { t } = useLocale()
-  const { refreshNamespaceList } = useNamespace()
+  const { refreshNamespaceList, setCurrentNamespace } = useNamespace()
   const [urlSearchParams, setUrlSearchParams] = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [dataSource, setDataSource] = useState<NamespaceItem[]>([])
@@ -274,15 +274,19 @@ const NamespaceList: React.FC = () => {
     }
   }
 
-  // 处理详情表单成功回调
-  const handleDetailFormSuccess = () => {
-    // 刷新列表
-    fetchData()
-    // 通过 Context 刷新头部命名空间下拉列表
-    refreshNamespaceList()
+  // 处理详情表单成功回调（创建时传入新建的命名空间，便于设为当前选中）
+  const handleDetailFormSuccess = (created?: NamespaceItem) => {
+    // 新建成功：通过 Context 设为当前选中，头部下拉会立即更新
+    console.log('created', created)
+    if (created) {
+      setCurrentNamespace(created.uid)
+      refreshNamespaceList().then(() => fetchData())
+    } else {
+      fetchData()
+      refreshNamespaceList()
+    }
     // 如果详情页打开，需要更新详情页数据
     if (detailViewOpen && viewingData) {
-      // 从表格数据中查找对应的数据并更新
       const updatedData = dataSource.find(item => item.uid === viewingData.uid)
       if (updatedData) {
         setViewingData(updatedData)

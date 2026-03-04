@@ -3,7 +3,7 @@ import { ConfigProvider } from 'antd'
 import { OAuthTokenHandler } from '@/components/OAuthTokenHandler'
 import { AuthGuard } from '@/components/AuthGuard'
 import { TokenRefreshHandler } from '@/components/TokenRefreshHandler'
-import { UserOutlined, VideoCameraOutlined, DatabaseOutlined, UsergroupAddOutlined } from '@ant-design/icons'
+import { UserOutlined,  DatabaseOutlined, UsergroupAddOutlined } from '@ant-design/icons'
 import NamespaceList from '@/pages/goddess/namespaces'
 import UsersList from '@/pages/goddess/users'
 import MembersList from '@/pages/goddess/members'
@@ -34,18 +34,6 @@ const menuItems: MenuItem[] = [
     label: '成员管理',
     path: '/members',
   },
-  {
-    key: '1',
-    icon: <VideoCameraOutlined />,
-    label: 'Test1',
-    path: '/test1',
-  },
-  {
-    key: '2',
-    icon: <VideoCameraOutlined />,
-    label: 'Test2',
-    path: '/test2',
-  },
 ]
 
 function AppContent() {
@@ -54,14 +42,6 @@ function AppContent() {
   // 检测是否在微服务环境中
   const inMicroApp = isInMicroApp()
 
-  // 头部组件示例
-  const headerContent = (
-    <div className='flex items-center justify-between w-full'>
-      <h2 className='text-2xl font-bold'>系统管理</h2>
-      <div>
-      </div>
-    </div>
-  )
 
   const NamespaceWrapper = inMicroApp ? NoopNamespaceProvider : NamespaceProvider
   return (
@@ -76,7 +56,7 @@ function AppContent() {
                 <NamespaceWrapper>
                   <AuthGuard>
                     <TokenRefreshHandler>
-                      {inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} header={headerContent} />}
+                      {inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} />}
                     </TokenRefreshHandler>
                   </AuthGuard>
                 </NamespaceWrapper>

@@ -28,11 +28,8 @@ const Header: React.FC = () => {
   // 国际化管理
   const { locale, setLocale, t } = useLocale();
 
-  // 命名空间列表由 Context 统一管理，创建/编辑后刷新会同步到头部
-  const { namespaceOptions, loading, refreshNamespaceList } = useNamespace();
-
-  // 当前选中的命名空间
-  const [namespace, setNamespace] = useState<string>("");
+  // 命名空间列表由 Context 统一管理，当前选中也由 Context 提供以便新建后立即同步
+  const { namespaceOptions, loading, refreshNamespaceList, currentNamespace, setCurrentNamespace } = useNamespace();
   // 添加命名空间弹窗（列表为空时自动弹出）
   const [addNamespaceModalOpen, setAddNamespaceModalOpen] = useState(false);
   // 修改邮箱 / 头像弹窗
@@ -74,7 +71,7 @@ const Header: React.FC = () => {
     }
   }, [avatarModalOpen, userInfo.avatar, avatarForm]);
 
-  // 列表为空时弹出添加命名空间弹窗；列表有数据且当前未选则选第一个
+  // 列表为空时弹出添加弹窗；有数据时若当前未选或当前值不在列表中且为空则选第一个（有值则保留，如刚新建尚未在接口返回中）
   useEffect(() => {
     if (loading) return;
 
@@ -84,25 +81,19 @@ const Header: React.FC = () => {
     if (validNamespaceOptions.length === 0) {
       queueMicrotask(() => setAddNamespaceModalOpen(true));
     } else {
-      const currentNamespace = localStorage.getItem("namespace") || "";
       const exists = validNamespaceOptions.some(
         (item) => item.value === currentNamespace,
       );
-      if (exists) {
-        queueMicrotask(() => setNamespace(currentNamespace));
-        return;
-      }
+      if (exists) return;
+      if (currentNamespace) return; // 保留当前选中（如新建的），不覆盖为第一个
       const first = validNamespaceOptions[0].value;
-      queueMicrotask(() => setNamespace(first));
-      localStorage.setItem("namespace", first);
+      queueMicrotask(() => setCurrentNamespace(first));
     }
-  }, [loading, namespaceOptions]);
+  }, [loading, namespaceOptions, currentNamespace, setCurrentNamespace]);
 
   // 处理命名空间切换
   const handleNamespaceChange = (value: string) => {
-    setNamespace(value);
-    localStorage.setItem("namespace", value);
-    // 可以触发页面刷新或重新加载数据
+    setCurrentNamespace(value);
     window.location.reload();
   };
 
@@ -244,7 +235,7 @@ const Header: React.FC = () => {
     <div className="flex items-center gap-2 sm:gap-4 mr-2 md:mr-4 h-8 shrink-0 flex-wrap justify-end">
       {/* 命名空间选择：小屏缩小宽度 */}
       <Select
-        value={namespace}
+        value={currentNamespace}
         onChange={(value: string) => handleNamespaceChange(value)}
         options={namespaceOptions}
         className="w-20 sm:w-28 md:w-32"
@@ -262,8 +253,7 @@ const Header: React.FC = () => {
         onSuccess={(created) => {
           setAddNamespaceModalOpen(false);
           if (created) {
-            setNamespace(created.uid);
-            localStorage.setItem("namespace", created.uid);
+            setCurrentNamespace(created.uid);
             refreshNamespaceList();
             window.location.reload();
             return;
