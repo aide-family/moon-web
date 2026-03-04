@@ -244,8 +244,9 @@ const MembersList: React.FC = () => {
     {
       title: t('table.action'),
       key: 'action',
-      width: 180,
+      width: 160,
       fixed: 'right',
+      align: 'center',
       render: (_, record) => {
         const currentStatus = memberStatusFromNumber(record.status)
         const menuItems: MenuProps['items'] = [

@@ -182,7 +182,8 @@ const TemplateListContent: React.FC = () => {
       title: t('table.action'),
       key: 'action',
       fixed: 'right',
-      width: 120,
+      width: 160,
+      align: 'center',
       render: (_, record) => {
         const handleStatusClick = () => {
           const isEnabled = record.status === GlobalStatus.ENABLED

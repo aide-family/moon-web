@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
-import { type NamespaceItem, type NamespaceListParams, getNamespaceTableList, deleteNamespace, updateNamespaceStatus } from '@/api/namespace/index'
+import { type NamespaceItem, type NamespaceListParams, getNamespaceTableList, getNamespaceDetail, deleteNamespace, updateNamespaceStatus } from '@/api/namespace/index'
 import { GlobalStatus } from '@/api/types'
 import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
@@ -47,6 +47,7 @@ const NamespaceList: React.FC = () => {
   const [editingData, setEditingData] = useState<NamespaceItem | null>(null)
   const [detailViewOpen, setDetailViewOpen] = useState(false)
   const [viewingData, setViewingData] = useState<NamespaceItem | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
 
   // 获取数据
   const fetchData = async (page?: number, pageSize?: number) => {
@@ -155,8 +156,9 @@ const NamespaceList: React.FC = () => {
     {
       title: t('table.action'),
       key: 'action',
-      width: 120,
+      width: 160,
       fixed: 'right',
+      align: 'center',
       render: (_, record) => {
         const handleStatusClick = () => {
           const isEnabled = record.status === GlobalStatus.ENABLED
@@ -221,10 +223,20 @@ const NamespaceList: React.FC = () => {
     setDetailFormOpen(true)
   }
 
-  // 处理查看详情
-  const handleViewDetail = (record: NamespaceItem) => {
-    setViewingData(record)
+  // 处理查看详情（调接口拉取最新详情）
+  const handleViewDetail = async (record: NamespaceItem) => {
     setDetailViewOpen(true)
+    setViewingData(null)
+    setDetailLoading(true)
+    try {
+      const data = await getNamespaceDetail(record.uid)
+      setViewingData(data)
+    } catch (error) {
+      console.error('获取命名空间详情失败:', error)
+      setDetailViewOpen(false)
+    } finally {
+      setDetailLoading(false)
+    }
   }
 
   // 处理编辑
@@ -262,11 +274,13 @@ const NamespaceList: React.FC = () => {
       message.success(t('message.update.success'))
       fetchData()
       refreshNamespaceList()
-      // 如果详情页打开，需要更新详情页数据
+      // 如果详情页打开，重新拉取详情
       if (detailViewOpen && viewingData && viewingData.uid === record.uid) {
-        const updatedData = dataSource.find(item => item.uid === record.uid)
-        if (updatedData) {
-          setViewingData({ ...updatedData, status: newStatus as GlobalStatus })
+        try {
+          const data = await getNamespaceDetail(record.uid)
+          setViewingData(data)
+        } catch {
+          // 忽略，列表已刷新
         }
       }
     } catch (error) {
@@ -286,12 +300,11 @@ const NamespaceList: React.FC = () => {
       fetchData()
       refreshNamespaceList()
     }
-    // 如果详情页打开，需要更新详情页数据
+    // 如果详情页打开，重新拉取详情
     if (detailViewOpen && viewingData) {
-      const updatedData = dataSource.find(item => item.uid === viewingData.uid)
-      if (updatedData) {
-        setViewingData(updatedData)
-      }
+      getNamespaceDetail(viewingData.uid)
+        .then(setViewingData)
+        .catch(() => {})
     }
   }
 
@@ -464,6 +477,7 @@ const NamespaceList: React.FC = () => {
       <DetailView
         open={detailViewOpen}
         data={viewingData}
+        loading={detailLoading}
         onCancel={() => setDetailViewOpen(false)}
         onEdit={handleEditFromDetail}
       />

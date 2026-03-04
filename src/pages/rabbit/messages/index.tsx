@@ -269,7 +269,7 @@ export default function MessageManagement() {
     {
       title: t('table.action'),
       key: 'action',
-      width: 180,
+      width: 160,
       fixed: 'right',
       align: 'center',
       render: (_, record) => {

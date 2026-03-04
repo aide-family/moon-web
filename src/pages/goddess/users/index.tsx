@@ -216,6 +216,7 @@ const UsersList: React.FC = () => {
       key: 'action',
       width: 160,
       fixed: 'right',
+      align: 'center',
       render: (_, record) => {
         const isBanned = parseUserStatus(record.status) === UserStatus.BANNED
         const menuItems: MenuProps['items'] = [

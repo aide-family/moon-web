@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, Descriptions, Tag, Button, Space } from 'antd'
+import { Modal, Descriptions, Tag, Button, Space, Spin } from 'antd'
 import type { NamespaceItem } from '@/api/namespace/index'
 import { GlobalStatus } from '@/api/types'
 import dayjs from 'dayjs'
@@ -8,11 +8,12 @@ import { useLocale } from '@/contexts/LocaleContext'
 interface DetailViewProps {
   open: boolean
   data?: NamespaceItem | null
+  loading?: boolean
   onCancel: () => void
   onEdit?: (data: NamespaceItem) => void
 }
 
-const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit }) => {
+const DetailView: React.FC<DetailViewProps> = ({ open, data, loading = false, onCancel, onEdit }) => {
   const { t } = useLocale()
 
   // 处理编辑
@@ -50,7 +51,11 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
       width={700}
       destroyOnHidden
     >
-      {data ? (
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '40px 0' }}>
+          <Spin size="large" />
+        </div>
+      ) : data ? (
         <Descriptions column={1} bordered styles={{ label: { width: 120, minWidth: 120 } }}>
           <Descriptions.Item label={t('namespace.detail.uid')}>{data.uid}</Descriptions.Item>
           <Descriptions.Item label={t('namespace.detail.name')}>{data.name || '-'}</Descriptions.Item>

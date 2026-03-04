@@ -173,8 +173,9 @@ const EmailListContent: React.FC = () => {
     {
       title: t('table.action'),
       key: 'action',
-      width: 120,
+      width: 160,
       fixed: 'right',
+      align: 'center',
       render: (_, record) => {
         const isEnabled = record.status === GlobalStatus.ENABLED
         const handleStatusClick = () => {
