@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App } from 'antd'
+import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App, Image } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
 import { type NamespaceItem, type NamespaceListParams, getNamespaceTableList, getNamespaceDetail, deleteNamespace, updateNamespaceStatus } from '@/api/namespace/index'
@@ -127,6 +127,55 @@ const NamespaceList: React.FC = () => {
       key: 'name',
       minWidth: 120,
       render: (txt) => emptyPlaceholder(txt),
+    },
+    {
+      title: t('namespace.table.remark'),
+      dataIndex: 'remark',
+      key: 'remark',
+      minWidth: 100,
+      ellipsis: true,
+      render: (txt) => emptyPlaceholder(txt),
+    },
+    {
+      title: t('namespace.table.logo'),
+      dataIndex: 'logo',
+      key: 'logo',
+      width: 64,
+      render: (logo: string) =>
+        logo ? (
+          <Image
+            src={logo}
+            alt=""
+            width={40}
+            height={40}
+            style={{ objectFit: 'contain' }}
+          />
+        ) : (
+          '-'
+        ),
+    },
+    {
+      title: t('namespace.table.banners'),
+      dataIndex: 'banners',
+      key: 'banners',
+      width: 64,
+      render: (banners: string[] | undefined) =>
+        banners && banners.length > 0 ? (
+          <Image.PreviewGroup>
+            <Image
+              src={banners[0]}
+              alt=""
+              width={40}
+              height={40}
+              style={{ objectFit: 'contain', borderRadius: 4 }}
+            />
+            {banners.slice(1, 3).map((url, i) => (
+              <Image key={i} src={url} alt="" style={{ display: 'none' }} />
+            ))}
+          </Image.PreviewGroup>
+        ) : (
+          '-'
+        ),
     },
     {
       title: t('table.status'),

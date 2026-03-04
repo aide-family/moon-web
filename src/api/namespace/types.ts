@@ -64,10 +64,13 @@ export interface NamespaceSelectParams {
 export interface NamespaceItem {
   uid: string
   name: string
+  remark?: string
+  logo?: string
   createdAt: string
   updatedAt: string
   status: GlobalStatus
   metadata?: Record<string, unknown>
+  banners?: string[]
 }
 
 /**
@@ -95,7 +98,10 @@ export interface NamespaceListParams {
  */
 export interface CreateNamespaceParams {
   name?: string
+  remark?: string
+  logo?: string
   metadata?: Record<string, unknown>
+  banners?: string[]
 }
 
 /**
@@ -104,5 +110,8 @@ export interface CreateNamespaceParams {
 export interface UpdateNamespaceParams {
   uid?: string
   name?: string
+  remark?: string
+  logo?: string
   metadata?: Record<string, unknown>
+  banners?: string[]
 }

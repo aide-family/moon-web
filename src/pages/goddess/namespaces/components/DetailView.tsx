@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, Descriptions, Tag, Button, Space, Spin } from 'antd'
+import { Modal, Descriptions, Tag, Button, Space, Spin, Image } from 'antd'
 import type { NamespaceItem } from '@/api/namespace/index'
 import { GlobalStatus } from '@/api/types'
 import dayjs from 'dayjs'
@@ -50,6 +50,7 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, loading = false, on
       }
       width={700}
       destroyOnHidden
+      styles={{ body: { maxHeight: '70vh', overflowY: 'auto' } }}
     >
       {loading ? (
         <div style={{ textAlign: 'center', padding: '40px 0' }}>
@@ -59,6 +60,36 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, loading = false, on
         <Descriptions column={1} bordered styles={{ label: { width: 120, minWidth: 120 } }}>
           <Descriptions.Item label={t('namespace.detail.uid')}>{data.uid || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('namespace.detail.name')}>{data.name || '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('namespace.detail.remark')}>{data.remark || '-'}</Descriptions.Item>
+          <Descriptions.Item label={t('namespace.detail.logo')}>
+            {data.logo ? (
+              <Image
+                src={data.logo}
+                alt="logo"
+                width={120}
+                height={120}
+                style={{ objectFit: 'contain' }}
+              />
+            ) : '-'}
+          </Descriptions.Item>
+          <Descriptions.Item label={t('namespace.detail.banners')}>
+            {data.banners && data.banners.length > 0 ? (
+              <Image.PreviewGroup>
+                <div style={{ display: 'flex', flexWrap: 'nowrap', gap: 8, alignItems: 'flex-start' }}>
+                  {data.banners.slice(0, 3).map((url, i) => (
+                    <Image
+                      key={i}
+                      src={url}
+                      alt={`${t('namespace.detail.banners')} ${i + 1}`}
+                      width={150}
+                      height={120}
+                      style={{ objectFit: 'contain', borderRadius: 4 }}
+                    />
+                  ))}
+                </div>
+              </Image.PreviewGroup>
+            ) : '-'}
+          </Descriptions.Item>
           <Descriptions.Item label={t('table.status')}>
             <Tag color={getStatusInfo(data.status).color}>
               {getStatusInfo(data.status).text}
