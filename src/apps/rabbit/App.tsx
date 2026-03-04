@@ -3,47 +3,57 @@ import { ConfigProvider } from 'antd'
 import { OAuthTokenHandler } from '@/components/OAuthTokenHandler'
 import { AuthGuard } from '@/components/AuthGuard'
 import { TokenRefreshHandler } from '@/components/TokenRefreshHandler'
-import { FileTextOutlined, ApiOutlined, MessageOutlined, SendOutlined } from '@ant-design/icons'
+import { FileTextOutlined, ApiOutlined, MessageOutlined, SendOutlined, MailOutlined } from '@ant-design/icons'
 import TemplateManagement from '@/pages/rabbit/templates'
 import EmailManagement from '@/pages/rabbit/emails'
 import WebhookManagement from '@/pages/rabbit/webhooks'
 import MessageManagement from '@/pages/rabbit/messages'
 import SenderManagement from '@/pages/rabbit/sender'
+import NamespaceList from '@/pages/goddess/namespaces'
+import UsersList from '@/pages/goddess/users'
+import MembersList from '@/pages/goddess/members'
+import ProfilePage from '@/pages/main/profile'
 import LayoutComponent, { type MenuItem } from '@/components/layout/Layout'
 import LoginPage from '@/pages/main/login'
 import { isInMicroApp } from '@/utils'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
 import { NamespaceProvider, NoopNamespaceProvider } from '@/contexts/NamespaceContext'
+import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
 
 function AppContent() {
   const { themeConfig } = useTheme();
   const { antdLocale, t } = useLocale();
-  // 检测是否在微服务环境中
   const inMicroApp = isInMicroApp()
-  
-  // 菜单配置（支持多级菜单）
+  // 每个系统都包含系统管理菜单 + 本系统业务菜单
   const menuItems: MenuItem[] = [
+    ...getSystemManagementMenuItems(t),
     {
-      key: '1',
+      key: 'rabbit-templates',
       icon: <FileTextOutlined />,
       label: t('rabbit.templates.title'),
       path: '/templates',
     },
     {
-      key: '2',
+      key: 'rabbit-emails',
+      icon: <MailOutlined />,
+      label: t('menu.rabbitEmails'),
+      path: '/emails',
+    },
+    {
+      key: 'rabbit-webhooks',
       icon: <ApiOutlined />,
       label: t('rabbit.webhooks.title'),
       path: '/webhooks',
     },
     {
-      key: '3',
+      key: 'rabbit-messages',
       icon: <MessageOutlined />,
       label: t('rabbit.messages.title'),
       path: '/messages',
     },
     {
-      key: '4',
+      key: 'rabbit-sender',
       icon: <SendOutlined />,
       label: t('rabbit.sender.title'),
       path: '/sender',
@@ -70,7 +80,11 @@ function AppContent() {
                 </NamespaceWrapper>
               }
             >
-                <Route index element={<Navigate to="/templates" replace />} />
+                <Route index element={<Navigate to="/namespaces" replace />} />
+                <Route path="/namespaces" element={<NamespaceList />} />
+                <Route path="/users" element={<UsersList />} />
+                <Route path="/members" element={<MembersList />} />
+                <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/templates" element={<TemplateManagement />} />
                 <Route path="/emails" element={<EmailManagement />} />
                 <Route path="/webhooks" element={<WebhookManagement />} />

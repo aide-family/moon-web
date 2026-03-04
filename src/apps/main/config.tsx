@@ -2,6 +2,9 @@ import { ReactNode } from 'react'
 import { UserOutlined, AppstoreOutlined, DatabaseOutlined, TeamOutlined, UsergroupAddOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined, IdcardOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
 import ProfilePage from '@/pages/main/profile'
+import NamespaceList from '@/pages/goddess/namespaces'
+import UsersList from '@/pages/goddess/users'
+import MembersList from '@/pages/goddess/members'
 
 /**
  * 子应用配置
@@ -41,6 +44,7 @@ export interface AppConfigItem {
  * 获取应用配置（支持国际化）
  */
 export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
+  // 系统管理：主系统直接渲染，不通过微前端子应用
   {
     key: 'goddess',
     icon: <UserOutlined />,
@@ -52,36 +56,21 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         icon: <DatabaseOutlined />,
         label: t('menu.namespaces'),
         path: '/goddess/namespaces',
-        subApp: {
-          name: 'goddess-namespaces',
-          devUrl: 'http://localhost:5174/namespaces',
-          prodUrl: 'http://localhost:4174/namespaces',
-          path: '/goddess/namespaces',
-        },
+        element: <NamespaceList />,
       },
       {
         key: 'goddess-users',
         icon: <TeamOutlined />,
         label: t('menu.users'),
         path: '/goddess/users',
-        subApp: {
-          name: 'goddess-users',
-          devUrl: 'http://localhost:5174/users',
-          prodUrl: 'http://localhost:4174/users',
-          path: '/goddess/users',
-        },
+        element: <UsersList />,
       },
       {
         key: 'goddess-members',
         icon: <UsergroupAddOutlined />,
         label: t('menu.members'),
         path: '/goddess/members',
-        subApp: {
-          name: 'goddess-members',
-          devUrl: 'http://localhost:5174/members',
-          prodUrl: 'http://localhost:4174/members',
-          path: '/goddess/members',
-        },
+        element: <MembersList />,
       },
       {
         key: 'goddess-profile',
