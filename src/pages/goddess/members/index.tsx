@@ -220,7 +220,6 @@ const MembersList: React.FC = () => {
 
   const columns: ColumnsType<MemberItem> = [
     { title: t('member.table.uid'), dataIndex: 'uid', key: 'uid', width: 140, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
-    { title: t('member.table.userUID'), dataIndex: 'userUID', key: 'userUID', width: 140, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
     { title: t('member.table.email'), dataIndex: 'email', key: 'email', width: 160, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
     { title: t('member.table.name'), dataIndex: 'name', key: 'name', width: 100, render: (txt) => emptyPlaceholder(txt) },
     { title: t('member.table.nickname'), dataIndex: 'nickname', key: 'nickname', width: 100, render: (txt) => emptyPlaceholder(txt) },

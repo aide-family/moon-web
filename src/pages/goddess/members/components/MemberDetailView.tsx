@@ -43,7 +43,6 @@ const MemberDetailView: React.FC<MemberDetailViewProps> = ({ open, data, onCance
       {data ? (
         <Descriptions column={1} bordered styles={{ label: { width: 120, minWidth: 120 } }}>
           <Descriptions.Item label={t('member.detail.uid')}>{data.uid || '-'}</Descriptions.Item>
-          <Descriptions.Item label={t('member.detail.userUID')}>{data.userUID || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('member.detail.namespaceUID')}>{data.namespaceUID || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('member.detail.email')}>{data.email || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('member.detail.name')}>{data.name || '-'}</Descriptions.Item>
