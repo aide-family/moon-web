@@ -138,15 +138,29 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
     : [];
   const [openKeys, setOpenKeys] = useState<string[]>(defaultOpenKeys);
 
-  // 路径变化时同步展开项
+  // 收起时不传 openKeys，Menu 非受控以便悬停弹出子菜单；展开时传 openKeys 受控
+  const menuOpenKeys = collapsed ? undefined : openKeys;
+
+  // 菜单从收起变为展开时，恢复当前路径对应的父级展开
   useEffect(() => {
+    if (!collapsed && currentItem) {
+      const parentKeys = getParentKeys(menuItems, currentItem.key);
+      if (parentKeys.length > 0) {
+        queueMicrotask(() => setOpenKeys(parentKeys));
+      }
+    }
+  }, [collapsed, currentItem, menuItems]);
+
+  // 路径变化时同步展开项（仅菜单未收起时）
+  useEffect(() => {
+    if (collapsed) return;
     if (currentItem) {
       const parentKeys = getParentKeys(menuItems, currentItem.key);
       if (parentKeys.length > 0) {
         queueMicrotask(() => setOpenKeys(parentKeys));
       }
     }
-  }, [currentPath, currentItem?.key, menuItems]);
+  }, [collapsed, currentPath, currentItem, menuItems]);
 
   // 处理菜单点击
   const handleMenuClick: MenuProps["onClick"] = (e) => {
@@ -211,8 +225,9 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
           key={location.pathname}
           theme="dark"
           mode="inline"
+          inlineCollapsed={collapsed}
           selectedKeys={selectedKeys}
-          openKeys={openKeys}
+          {...(menuOpenKeys !== undefined ? { openKeys: menuOpenKeys } : {})}
           items={menuItemsData}
           onClick={(e) => {
             handleMenuClick(e);
