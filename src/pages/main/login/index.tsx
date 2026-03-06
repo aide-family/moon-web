@@ -348,7 +348,7 @@ export default function LoginPage() {
         >
           <button
             type="button"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white/90 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800/90 dark:hover:bg-gray-700"
+            className="flex h-9 w-9 items-center justify-center  rounded-full border border-gray-200 bg-white/90 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800/90 dark:hover:bg-gray-700"
             title={t("theme.light")}
           >
             <BgColorsOutlined className="text-lg" />
@@ -400,9 +400,9 @@ export default function LoginPage() {
       </div>
 
       {/* 右侧：操作表单 */}
-      <div className="flex-1 min-w-0 flex flex-col justify-center px-8 py-12 sm:px-16">
+      <div className="flex-1 min-w-0 flex flex-col justify-center px-8 py-12 sm:px-16 ">
         <div
-          className={`w-full max-w-md mx-auto rounded-2xl shadow-lg p-8 ${isDark ? "bg-gray-800" : "bg-white"}`}
+          className={`w-full h-140 max-w-md flex flex-col justify-center mx-auto rounded-2xl shadow-lg p-8 ${isDark ? "bg-gray-800" : "bg-white"}`}
         >
           <h1
             className={`text-2xl font-semibold text-center mb-2 ${isDark ? "text-gray-100" : "text-gray-800"}`}
@@ -419,12 +419,13 @@ export default function LoginPage() {
               : t("login.registerSub")}
           </p>
 
-          <Tabs
+          {/* <Tabs
             activeKey={activeTab}
             onChange={handleTabChange}
             items={tabItems}
             className="login-tabs"
-          />
+          /> */}
+          {loginFormContent}
 
           {/* 其他登录方式 */}
           <div
