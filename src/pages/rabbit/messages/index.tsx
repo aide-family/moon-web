@@ -218,12 +218,12 @@ export default function MessageManagement() {
   const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : text
 
   const columns: ColumnsType<MessageLogItem> = [
-    { title: t('messageLog.table.uid'), dataIndex: 'uid', key: 'uid', width: 140, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
+    { title: t('messageLog.table.uid'), dataIndex: 'uid', key: 'uid', width: 160, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
     {
       title: t('messageLog.table.type'),
       dataIndex: 'messageType',
       key: 'messageType',
-      width: 120,
+      minWidth: 120,
       align: 'center',
       render: (messageType: MessageType | string | undefined) => (
         <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
@@ -236,7 +236,7 @@ export default function MessageManagement() {
       title: t('messageLog.table.status'),
       dataIndex: 'status',
       key: 'status',
-      width: 100,
+      minWidth: 100,
       align: 'center',
       render: (status: MessageStatus | string | undefined) => (
         <Tag color={getStatusColor(status)}>{getStatusLabel(status, t)}</Tag>
@@ -246,7 +246,7 @@ export default function MessageManagement() {
       title: t('messageLog.table.sendAt'),
       dataIndex: 'sendAt',
       key: 'sendAt',
-      width: 160,
+      minWidth: 160,
       render: (text: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
     },
     {
@@ -254,8 +254,9 @@ export default function MessageManagement() {
       dataIndex: 'message',
       key: 'message',
       ellipsis: true,
+      minWidth: 300,
       render: (text: string, record: MessageLogItem) => (
-        <Space size={4} wrap direction="horizontal" align="start">
+        <Space size={4} wrap orientation="horizontal" align="start">
           {(record.retryTotal != null && record.retryTotal > 0) && (
             <Tag color="orange">{t('messageLog.retryBadge', { n: record.retryTotal })}</Tag>
           )}

@@ -118,7 +118,7 @@ const EmailListContent: React.FC = () => {
       title: t('email.table.uid'),
       dataIndex: 'uid',
       key: 'uid',
-      minWidth: 60,
+      width: 160,
       render: (txt) => emptyPlaceholder(txt),
     },
     {
@@ -154,6 +154,7 @@ const EmailListContent: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       minWidth: 60,
+      align: 'center',
       render: (status: GlobalStatus) => {
         const statusMap: Record<GlobalStatus, { text: string; color: string }> = {
           [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },

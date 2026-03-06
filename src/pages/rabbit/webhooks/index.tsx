@@ -129,7 +129,7 @@ const WebhookListContent: React.FC = () => {
       title: t('webhook.table.uid'),
       dataIndex: 'uid',
       key: 'uid',
-      minWidth: 100,
+      width: 160,
       render: (txt) => emptyPlaceholder(txt),
     },
     {
@@ -174,6 +174,7 @@ const WebhookListContent: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       minWidth: 60,
+      align: 'center',
       render: (status: number | string) => {
         const statusMap: Record<string, { text: string; color: string }> = {
           [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },

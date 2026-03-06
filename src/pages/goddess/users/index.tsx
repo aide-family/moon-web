@@ -191,16 +191,17 @@ const UsersList: React.FC = () => {
   const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : text
 
   const columns: ColumnsType<UserItem> = [
-    { title: t('user.table.uid'), dataIndex: 'uid', key: 'uid', width: 140, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
-    { title: t('user.table.email'), dataIndex: 'email', key: 'email', width: 160, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
-    { title: t('user.table.name'), dataIndex: 'name', key: 'name', width: 100, render: (txt) => emptyPlaceholder(txt) },
-    { title: t('user.table.nickname'), dataIndex: 'nickname', key: 'nickname', width: 100, render: (txt) => emptyPlaceholder(txt) },
-    { title: t('user.table.phone'), dataIndex: 'phone', key: 'phone', width: 120, render: (txt) => emptyPlaceholder(txt) },
+    { title: t('user.table.uid'), dataIndex: 'uid', key: 'uid', width: 160, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
+    { title: t('user.table.email'), dataIndex: 'email', key: 'email', minWidth: 160, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
+    { title: t('user.table.name'), dataIndex: 'name', key: 'name', minWidth: 100, render: (txt) => emptyPlaceholder(txt) },
+    { title: t('user.table.nickname'), dataIndex: 'nickname', key: 'nickname', minWidth: 100, render: (txt) => emptyPlaceholder(txt) },
+    { title: t('user.table.phone'), dataIndex: 'phone', key: 'phone', minWidth: 120, render: (txt) => emptyPlaceholder(txt) },
     {
       title: t('user.table.status'),
       dataIndex: 'status',
       key: 'status',
-      width: 80,
+      minWidth: 80,
+      align: 'center',
       render: (status: UserItem['status']) => {
         const info = getStatusInfo(status)
         return <Tag color={info.color}>{info.text}</Tag>
@@ -210,7 +211,7 @@ const UsersList: React.FC = () => {
       title: t('user.table.createdAt'),
       dataIndex: 'createdAt',
       key: 'createdAt',
-      width: 160,
+      minWidth: 160,
       render: (text: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
     },
     {

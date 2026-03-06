@@ -118,7 +118,7 @@ const NamespaceList: React.FC = () => {
       title: t('namespace.table.uid'),
       dataIndex: 'uid',
       key: 'uid',
-      minWidth: 60,
+      width: 160,
       render: (txt) => emptyPlaceholder(txt),
     },
     {
@@ -140,7 +140,7 @@ const NamespaceList: React.FC = () => {
       title: t('namespace.table.logo'),
       dataIndex: 'logo',
       key: 'logo',
-      width: 64,
+      minWidth: 64,
       render: (logo: string) =>
         logo ? (
           <Image
@@ -158,7 +158,7 @@ const NamespaceList: React.FC = () => {
       title: t('namespace.table.banners'),
       dataIndex: 'banners',
       key: 'banners',
-      width: 64,
+      minWidth: 64,
       render: (banners: string[] | undefined) =>
         banners && banners.length > 0 ? (
           <Image.PreviewGroup>
@@ -182,6 +182,7 @@ const NamespaceList: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       minWidth: 60,
+      align: 'center',
       render: (status: string) => {
         const statusMap: Record<string, { text: string; color: string }> = {
           [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
