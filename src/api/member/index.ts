@@ -78,7 +78,7 @@ export function dismissMember(uid: string): Promise<unknown> {
  * Body(application/json): email, roleUID
  */
 export function inviteMember(body: InviteMemberBody): Promise<unknown> {
-  return http.post<unknown>('/member/invite', body as Record<string, unknown>)
+  return http.post<unknown>('/member/invite', body as unknown as Record<string, unknown>)
 }
 
 export type {

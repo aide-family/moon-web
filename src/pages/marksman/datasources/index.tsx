@@ -288,12 +288,13 @@ const DatasourceList: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="mb-4 flex justify-between items-start shrink-0">
+      <div className="flex items-center justify-between mb-4 shrink-0">
         <Space size="middle" wrap>
+          <span>{t("table.search.keyword")}:</span>
           <Input
             placeholder={t("table.search.placeholder")}
             allowClear
-            className="w-48"
+            className="w-full min-w-[120px] sm:w-48 md:w-52"
             value={searchParams.keyword ?? ""}
             onChange={(e) => setSearchParams((prev: DatasourceListParams) => ({ ...prev, keyword: e.target.value }))}
             onPressEnter={handleSearch}
@@ -303,9 +304,11 @@ const DatasourceList: React.FC = () => {
           </Button>
           <Button onClick={handleReset}>{t("common.reset")}</Button>
         </Space>
-        <Button type="primary" onClick={handleAdd}>
-          {t("common.add")}
-        </Button>
+        <Space>
+          <Button type="primary" onClick={handleAdd}>
+            {t("common.add")}
+          </Button>
+        </Space>
       </div>
       <div ref={tableContainerRef} className="flex-1 flex overflow-hidden flex-col" style={{ minHeight: 0 }}>
         <div ref={tableWrapperRef} className="h-full flex flex-col flex-1">

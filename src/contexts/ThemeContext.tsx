@@ -114,12 +114,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     try {
       const win = window as Window & {
         microApp?: {
-          addDataListener?: (callback: (data: { theme?: ThemeMode; themeMode?: ThemeMode; [key: string]: unknown }) => void) => void;
+          addDataListener?: (callback: (data: unknown) => void) => void;
+          removeDataListener?: (callback: (data: unknown) => void) => void;
         };
       };
       if (!win.microApp?.addDataListener) return;
-      const dataListener = (data: { theme?: ThemeMode; themeMode?: ThemeMode; [key: string]: unknown }) => {
-        const mode = (data?.theme ?? data?.themeMode) as ThemeMode | undefined;
+      const dataListener = (raw: unknown) => {
+        const data = (raw ?? {}) as { theme?: ThemeMode; themeMode?: ThemeMode; [key: string]: unknown };
+        const mode = (data.theme ?? data.themeMode) as ThemeMode | undefined;
         if (mode === 'light' || mode === 'dark' || mode === 'system') {
           setThemeModeState(mode);
           localStorage.setItem(THEME_STORAGE_KEY, mode);
@@ -127,7 +129,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       };
       win.microApp.addDataListener(dataListener);
       return () => {
-        (win.microApp as { removeDataListener?: (cb: (data: unknown) => void) => void })?.removeDataListener?.(dataListener);
+        win.microApp?.removeDataListener?.(dataListener);
       };
     } catch {
       // ignore

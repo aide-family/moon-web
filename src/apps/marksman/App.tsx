@@ -10,11 +10,12 @@ import { isInMicroApp } from '@/utils'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
 import { NamespaceProvider, NoopNamespaceProvider } from '@/contexts/NamespaceContext'
-import { HddOutlined } from '@ant-design/icons'
+import { HddOutlined, BellOutlined } from '@ant-design/icons'
 import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
 import { convertToMenuItems, getAllSubAppConfigs, generateRoutes, getDefaultPath } from '../main/config'
 import type { AppConfigItem } from '../main/config'
 import DatasourceListWrapper from '@/pages/marksman/datasources'
+import LevelListWrapper from '@/pages/marksman/levels'
 
 function AppContent() {
   const { themeConfig } = useTheme()
@@ -29,6 +30,13 @@ function AppContent() {
       label: t('menu.datasources'),
       path: '/datasources',
       element: <DatasourceListWrapper />,
+    },
+    {
+      key: 'levels',
+      icon: <BellOutlined />,
+      label: t('menu.levels'),
+      path: '/levels',
+      element: <LevelListWrapper />,
     },
   ], [t])
   const menuItems = useMemo(() => convertToMenuItems(appConfig), [appConfig])

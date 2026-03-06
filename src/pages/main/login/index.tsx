@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Carousel,
-  Tabs,
   Form,
   Input,
   Button,
   message,
   Dropdown,
   Modal,
+  Radio,
 } from "antd";
-import type { TabsProps, MenuProps } from "antd";
+import type { MenuProps } from "antd";
 import {
   MailOutlined,
   SunOutlined,
@@ -129,15 +129,17 @@ export default function LoginPage() {
     setCodeCountdown(0);
   };
 
-  const handleTabChange = (key: string) => {
+  const handleTabChange = (key: "login" | "register") => {
     resetCodeCountdown();
     // 切换时同步邮箱：从当前 Tab 的表单把邮箱同步到目标 Tab 的表单，避免重复输入
     const loginEmail = loginForm.getFieldValue("email");
     const registerEmail = registerForm.getFieldValue("email");
-    if (key === "register" && loginEmail !== undefined)
+    if (key === "register" && loginEmail !== undefined) {
       registerForm.setFieldValue("email", loginEmail);
-    if (key === "login" && registerEmail !== undefined)
+    }
+    if (key === "login" && registerEmail !== undefined) {
       loginForm.setFieldValue("email", registerEmail);
+    }
     setActiveTab(key);
   };
 
@@ -327,15 +329,6 @@ export default function LoginPage() {
     </Form>
   );
 
-  const tabItems: TabsProps["items"] = [
-    { key: "login", label: t("login.login"), children: loginFormContent },
-    {
-      key: "register",
-      label: t("login.register"),
-      children: registerFormContent,
-    },
-  ];
-
   return (
     <div
       className={`min-h-screen flex relative ${isDark ? "bg-gray-900" : "bg-gray-50"}`}
@@ -419,13 +412,22 @@ export default function LoginPage() {
               : t("login.registerSub")}
           </p>
 
-          {/* <Tabs
-            activeKey={activeTab}
-            onChange={handleTabChange}
-            items={tabItems}
-            className="login-tabs"
-          /> */}
-          {loginFormContent}
+          <Radio.Group
+            value={activeTab}
+            onChange={(e) => handleTabChange(e.target.value)}
+            optionType="button"
+            buttonStyle="solid"
+            className="w-full mb-4"
+          >
+            <Radio.Button value="login" className="w-1/2 text-center">
+              {t("login.login")}
+            </Radio.Button>
+            <Radio.Button value="register" className="w-1/2 text-center">
+              {t("login.register")}
+            </Radio.Button>
+          </Radio.Group>
+
+          {activeTab === "login" ? loginFormContent : registerFormContent}
 
           {/* 其他登录方式 */}
           <div
