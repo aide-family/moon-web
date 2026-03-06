@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react'
 import { Route } from 'react-router-dom'
-import { UserOutlined, AppstoreOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined, SafetyCertificateOutlined } from '@ant-design/icons'
+import { UserOutlined, AppstoreOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined, SafetyCertificateOutlined, HddOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
 import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
 import { SubAppContainer } from '@/components/SubAppContainer'
@@ -109,12 +109,26 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
       }
     ],
   },
-  // 策略管理服务（后端端口 8003）
+  // 策略管理服务（后端端口 8003，微前端嵌套）
   {
     key: 'marksman',
     icon: <SafetyCertificateOutlined />,
     label: t('menu.marksman'),
     path: '/marksman',
+    children: [
+      {
+        key: 'marksman-datasources',
+        icon: <HddOutlined />,
+        label: t('menu.datasources'),
+        path: '/marksman/datasources',
+        subApp: {
+          name: 'marksman-datasources',
+          devUrl: 'http://localhost:5176/datasources',
+          prodUrl: 'http://localhost:4176/datasources',
+          path: '/marksman/datasources',
+        },
+      },
+    ],
   },
 ]
 

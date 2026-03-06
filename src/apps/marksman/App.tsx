@@ -10,15 +10,27 @@ import { isInMicroApp } from '@/utils'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
 import { NamespaceProvider, NoopNamespaceProvider } from '@/contexts/NamespaceContext'
+import { HddOutlined } from '@ant-design/icons'
 import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
 import { convertToMenuItems, getAllSubAppConfigs, generateRoutes, getDefaultPath } from '../main/config'
+import type { AppConfigItem } from '../main/config'
+import DatasourceListWrapper from '@/pages/marksman/datasources'
 
 function AppContent() {
   const { themeConfig } = useTheme()
   const { antdLocale, t } = useLocale()
   const inMicroApp = isInMicroApp()
 
-  const appConfig = useMemo(() => getSystemManagementMenuItems(t), [t])
+  const appConfig = useMemo((): AppConfigItem[] => [
+    ...getSystemManagementMenuItems(t),
+    {
+      key: 'datasources',
+      icon: <HddOutlined />,
+      label: t('menu.datasources'),
+      path: '/datasources',
+      element: <DatasourceListWrapper />,
+    },
+  ], [t])
   const menuItems = useMemo(() => convertToMenuItems(appConfig), [appConfig])
   const subAppConfigMap = useMemo(() => getAllSubAppConfigs(appConfig), [appConfig])
   const routes = useMemo(() => generateRoutes(appConfig, subAppConfigMap), [appConfig, subAppConfigMap])

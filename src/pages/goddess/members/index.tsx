@@ -244,7 +244,7 @@ const MembersList: React.FC = () => {
     {
       title: t('table.action'),
       key: 'action',
-      width: 160,
+      width: 140,
       fixed: 'right',
       align: 'center',
       render: (_, record) => {

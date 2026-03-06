@@ -189,7 +189,7 @@ const TemplateListContent: React.FC = () => {
       title: t('table.action'),
       key: 'action',
       fixed: 'right',
-      width: 160,
+      width: 140,
       align: 'center',
       render: (_, record) => {
         const handleStatusClick = () => {
