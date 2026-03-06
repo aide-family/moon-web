@@ -245,17 +245,31 @@ const Header: React.FC = () => {
 
   return (
     <div className="flex items-center gap-2 sm:gap-4 mr-2 md:mr-4 h-8 shrink-0 flex-wrap justify-end">
-      {/* 命名空间选择：小屏缩小宽度 */}
+      {/* 命名空间选择：选项与选中均展示 logo */}
       <Select
         value={currentNamespace}
         onChange={(value: string) => handleNamespaceChange(value)}
-        options={namespaceOptions}
+        options={namespaceOptions.map((opt) => ({
+          value: opt.value,
+          label: (
+            <span className="flex items-center gap-2">
+              {opt.logo ? (
+                <Avatar src={opt.logo} size={20} shape="square" />
+              ) : (
+                <Avatar size={20} shape="square" icon={<GlobalOutlined />} />
+              )}
+              <span>{opt.label}</span>
+            </span>
+          ),
+          searchLabel: opt.label,
+          disabled: opt.disabled,
+        }))}
         className="w-20 sm:w-28 md:w-32"
         loading={loading}
         placeholder={t("namespace.select")}
         size="small"
         popupMatchSelectWidth={false}
-        showSearch={{ optionFilterProp: "label" }}
+        showSearch={{ optionFilterProp: "searchLabel" }}
       />
       <DetailForm
         open={addNamespaceModalOpen}
@@ -318,7 +332,7 @@ const Header: React.FC = () => {
         }}
         onOk={handleEmailSubmit}
         confirmLoading={emailSubmitting}
-        destroyOnClose
+        destroyOnHidden
         okText={t("common.ok")}
         cancelText={t("common.cancel")}
       >
@@ -343,7 +357,7 @@ const Header: React.FC = () => {
         }}
         onOk={handleAvatarSubmit}
         confirmLoading={avatarSubmitting}
-        destroyOnClose
+        destroyOnHidden
         okText={t("common.ok")}
         cancelText={t("common.cancel")}
       >

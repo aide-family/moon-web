@@ -65,6 +65,7 @@ export const NamespaceProvider: React.FC<NamespaceProviderProps> = ({ children }
             value: ns.uid,
             label: ns.name ?? ns.uid,
             disabled: ns.status !== GlobalStatus.ENABLED,
+            logo: ns.logo,
           }))
         )
       } else {

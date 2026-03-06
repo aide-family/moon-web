@@ -12,6 +12,8 @@ export interface NamespaceItemSelect {
   label: string
   disabled?: boolean
   tooltip?: string
+  /** 命名空间 logo 地址，用于下拉展示 */
+  logo?: string
 }
 
 /**

@@ -5,6 +5,7 @@ import type { MenuProps } from "antd";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import HeaderComponent from "./Header";
 import { useLocale } from "@/contexts/LocaleContext";
+import { useNamespace } from "@/contexts/NamespaceContext";
 import logo from "@/assets/logo.svg";
 
 const { Header, Sider, Content, Footer } = Layout;
@@ -113,6 +114,9 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useLocale();
+  const { namespaceOptions, currentNamespace } = useNamespace();
+  const currentNsLogo = namespaceOptions.find((o) => o.value === currentNamespace)?.logo;
+  const menuLogoSrc = currentNsLogo || logo;
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -212,7 +216,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
           className={`logo h-16 w-full flex items-center gap-2 text-white shrink-0 border-b border-gray-700 ${collapsed ? "justify-center" : "justify-start px-5"}`}
           style={{ background: "var(--ant-color-menu-bg, #001529)" }}
         >
-          <img src={logo} alt="logo" className="h-8 w-9 shrink-0" />
+          <img src={menuLogoSrc} alt="logo" className="h-8 w-9 shrink-0 object-contain" />
           <span
             className={`text-xl font-bold whitespace-nowrap overflow-hidden transition-all duration-200 ease-in-out ${
               collapsed ? "hidden" : "max-w-32 opacity-100"
