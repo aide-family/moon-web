@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react'
 import { Route } from 'react-router-dom'
-import { UserOutlined, AppstoreOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined } from '@ant-design/icons'
+import { UserOutlined, AppstoreOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined, SafetyCertificateOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
 import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
 import { SubAppContainer } from '@/components/SubAppContainer'
@@ -108,6 +108,13 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         },
       }
     ],
+  },
+  // 策略管理服务（后端端口 8003）
+  {
+    key: 'marksman',
+    icon: <SafetyCertificateOutlined />,
+    label: t('menu.marksman'),
+    path: '/marksman',
   },
 ]
 
