@@ -375,7 +375,7 @@ export default function LoginPage() {
             {INTRO_SLIDES.map((slide, i) => (
               <div
                 key={i}
-                className="min-h-screen bg-gradient-to-br from-sky-100 via-slate-100 to-indigo-100"
+                className={`min-h-screen bg-gradient-to-br ${isDark ? "from-slate-800 via-gray-800 to-indigo-900" : "from-sky-100 via-slate-100 to-indigo-100"}`}
               >
                 <div className=" min-h-screen flex flex-col items-center justify-center gap-4">
                   <img
@@ -386,10 +386,10 @@ export default function LoginPage() {
                     style={{ width: 520, height: 380, objectFit: "contain" }}
                     className="block shrink-0"
                   />
-                  <h2 className="text-3xl font-bold mb-4 text-slate-800 drop-shadow-sm">
+                  <h2 className={`text-3xl font-bold mb-4 drop-shadow-sm ${isDark ? "text-slate-100" : "text-slate-800"}`}>
                     {t(slide.titleKey)}
                   </h2>
-                  <p className="text-lg max-w-md text-slate-700 mx-auto">
+                  <p className={`text-lg max-w-md mx-auto ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                     {t(slide.descKey)}
                   </p>
                 </div>
