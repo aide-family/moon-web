@@ -1,24 +1,13 @@
-import { ReactNode } from 'react'
-import { UserOutlined, AppstoreOutlined, DatabaseOutlined, TeamOutlined, UsergroupAddOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined, IdcardOutlined } from '@ant-design/icons'
+import React, { ReactNode } from 'react'
+import { Route } from 'react-router-dom'
+import { UserOutlined, AppstoreOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
-import ProfilePage from '@/pages/main/profile'
-import NamespaceList from '@/pages/goddess/namespaces'
-import UsersList from '@/pages/goddess/users'
-import MembersList from '@/pages/goddess/members'
+import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
+import { SubAppContainer } from '@/components/SubAppContainer'
+import { PlaceholderPage } from '@/components/PlaceholderPage'
+import type { SubAppConfig } from '@/types/subApp'
 
-/**
- * 子应用配置
- */
-export interface SubAppConfig {
-  /** 子应用名称（用于 micro-app 的 name 属性） */
-  name: string
-  /** 开发环境 URL */
-  devUrl: string
-  /** 生产环境 URL */
-  prodUrl: string
-  /** 子应用路径（用于路由） */
-  path: string
-}
+export type { SubAppConfig }
 
 /**
  * 应用配置项
@@ -50,36 +39,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
     icon: <UserOutlined />,
     label: t('menu.goddess'),
     path: '/goddess',
-    children: [
-      {
-        key: 'goddess-namespaces',
-        icon: <DatabaseOutlined />,
-        label: t('menu.namespaces'),
-        path: '/goddess/namespaces',
-        element: <NamespaceList />,
-      },
-      {
-        key: 'goddess-users',
-        icon: <TeamOutlined />,
-        label: t('menu.users'),
-        path: '/goddess/users',
-        element: <UsersList />,
-      },
-      {
-        key: 'goddess-members',
-        icon: <UsergroupAddOutlined />,
-        label: t('menu.members'),
-        path: '/goddess/members',
-        element: <MembersList />,
-      },
-      {
-        key: 'goddess-profile',
-        icon: <IdcardOutlined />,
-        label: t('menu.profile'),
-        path: '/goddess/profile',
-        element: <ProfilePage />,
-      },
-    ],
+    children: [...getSystemManagementMenuItems(t) as AppConfigItem[]],
   },
   {
     key: 'rabbit',
@@ -203,4 +163,43 @@ export function getDefaultPath(config: AppConfigItem[]): string {
   }
   
   return findFirstPath(config) || '/'
+}
+
+/**
+ * 从应用配置生成路由（支持 subApp 微前端、element 本地组件、占位页）
+ * 主应用与子系统（rabbit、goddess）统一使用；子系统若配置 subApp 也会渲染微前端
+ */
+export function generateRoutes(
+  config: AppConfigItem[],
+  subAppConfigMap: Record<string, SubAppConfig>
+): React.ReactNode[] {
+  const routes: React.ReactNode[] = []
+  function traverse(items: AppConfigItem[]) {
+    for (const item of items) {
+      if (item.path) {
+        if (item.subApp) {
+          routes.push(
+            <Route
+              key={item.subApp.name}
+              path={item.path}
+              element={<SubAppContainer appName={item.subApp.name} subAppConfigMap={subAppConfigMap} />}
+            />
+          )
+        } else if (item.element) {
+          routes.push(<Route key={item.key} path={item.path} element={item.element} />)
+        } else if (!item.children) {
+          routes.push(
+            <Route
+              key={item.key}
+              path={item.path}
+              element={<PlaceholderPage label={item.label} path={item.path} />}
+            />
+          )
+        }
+      }
+      if (item.children) traverse(item.children)
+    }
+  }
+  traverse(config)
+  return routes
 }

@@ -221,7 +221,7 @@ const Header: React.FC = () => {
       key: "profile",
       label: t("user.profile"),
       icon: <IdcardOutlined />,
-      onClick: () => navigate("/goddess/profile"),
+      onClick: () => navigate("/profile"),
     },
     {
       key: "changeEmail",
