@@ -3,7 +3,7 @@ import { ConfigProvider } from 'antd'
 import { OAuthTokenHandler } from '@/components/OAuthTokenHandler'
 import { AuthGuard } from '@/components/AuthGuard'
 import { TokenRefreshHandler } from '@/components/TokenRefreshHandler'
-import { FileTextOutlined, ApiOutlined, MessageOutlined, SendOutlined, MailOutlined } from '@ant-design/icons'
+import { FileTextOutlined, ApiOutlined, MessageOutlined, SendOutlined, MailOutlined, UserOutlined } from '@ant-design/icons'
 import TemplateManagement from '@/pages/rabbit/templates'
 import EmailManagement from '@/pages/rabbit/emails'
 import WebhookManagement from '@/pages/rabbit/webhooks'
@@ -27,7 +27,6 @@ function AppContent() {
   const inMicroApp = isInMicroApp()
   // 每个系统都包含系统管理菜单 + 本系统业务菜单
   const menuItems: MenuItem[] = [
-    ...getSystemManagementMenuItems(t),
     {
       key: 'rabbit-templates',
       icon: <FileTextOutlined />,
@@ -58,6 +57,14 @@ function AppContent() {
       label: t('rabbit.sender.title'),
       path: '/sender',
     },
+    {
+      key: 'rabbit-goddess',
+      icon: <UserOutlined />,
+      label: t('menu.goddess'),
+      path: '/rabbit/goddess',
+      children: [...getSystemManagementMenuItems(t),
+      ],
+    }
   ]
   
 
