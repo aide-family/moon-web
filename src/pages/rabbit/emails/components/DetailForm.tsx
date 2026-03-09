@@ -173,7 +173,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
             },
           ]}
         >
-          <Input.Password placeholder={t('email.form.password.placeholder')} />
+          <Input.Password autoComplete="new-password" placeholder={t('email.form.password.placeholder')} />
         </Form.Item>
       </Form>
     </Modal>

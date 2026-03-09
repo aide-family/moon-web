@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { List, Input, Button, Space, message, App, Card, Dropdown, Spin } from "antd";
+import { Input, Button, message, App, Dropdown, Spin, Tabs } from "antd";
 import type { MenuProps } from "antd";
 import {
   type DatasourceItem,
@@ -10,6 +10,7 @@ import {
 } from "@/api/datasource/index";
 import DetailForm from "./components/DetailForm";
 import DetailView from "./components/DetailView";
+import { EllipsisOutlined } from "@ant-design/icons";
 import { useLocale } from "@/contexts/LocaleContext";
 
 function getTypeLabel(value: string | undefined, t: (key: string) => string): string {
@@ -111,12 +112,6 @@ const DatasourceList: React.FC = () => {
     fetchData(1, false);
   };
 
-  const handleReset = () => {
-    setSearchParams(defaultSearchParams);
-    setPagination({ current: 1, pageSize, total: 0 });
-    fetchData(1, false);
-  };
-
   const handleAdd = () => {
     setDetailFormMode("create");
     setEditingData(null);
@@ -182,98 +177,82 @@ const DatasourceList: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between mb-4 shrink-0">
-        <Space size="middle" wrap>
-          <span>{t("table.search.keyword")}:</span>
-          <Input
-            placeholder={t("table.search.placeholder")}
-            allowClear
-            className="w-full min-w-[120px] sm:w-48 md:w-52"
-            value={searchParams.keyword ?? ""}
-            onChange={(e) =>
-              setSearchParams((prev: DatasourceListParams) => ({ ...prev, keyword: e.target.value }))
-            }
-            onPressEnter={handleSearch}
-          />
-          <Button onClick={handleSearch} type="primary">
-            {t("common.search")}
-          </Button>
-          <Button onClick={handleReset}>{t("common.reset")}</Button>
-        </Space>
-        <Space>
-          <Button type="primary" onClick={handleAdd}>
-            {t("common.add")}
-          </Button>
-        </Space>
-      </div>
       <div className="flex-1 flex min-h-0 gap-4">
         {/* 左侧：数据源列表 */}
-        <Card
-          className="w-72 shrink-0 flex flex-col overflow-hidden"
-          title={t("datasource.list.title")}
-          styles={{ body: { padding: 0, flex: 1, minHeight: 0, display: "flex", flexDirection: "column" } }}
-        >
-          <div className="flex-1 min-h-0 overflow-auto" onScroll={handleScroll}>
-            <List
-              loading={loading}
-              dataSource={dataSource}
-              rowKey="uid"
-              size="small"
-              renderItem={(item) => {
-                const isSelected = selectedUid === item.uid;
-                const menuItems: MenuProps["items"] = [
-                  {
-                    key: "edit",
-                    label: t("common.edit"),
-                    onClick: () => handleEdit(item),
-                  },
-                  {
-                    key: "delete",
-                    label: t("common.delete"),
-                    danger: true,
-                    onClick: () => {
-                      modal.confirm({
-                        title: t("datasource.confirm.delete.title"),
-                        content: t("datasource.confirm.delete.content", {
-                          name: item.name ?? item.uid ?? "",
-                        }),
-                        okText: t("common.ok"),
-                        cancelText: t("common.cancel"),
-                        onOk: () => handleDelete(item),
-                      });
-                    },
-                  },
-                ];
-                return (
-                  <List.Item
-                    className={`
-                      cursor-pointer px-3 py-2 border-b border-(--ant-color-border-secondary)
-                      transition-colors
-                      ${isSelected ? "bg-(--ant-color-primary-bg) text-(--ant-color-primary)" : "hover:bg-(--ant-color-fill-tertiary)"}
-                    `}
-                    onClick={() => handleSelectItem(item)}
-                    actions={[
-                      <span key="more" onClick={(e) => e.stopPropagation()}>
-                        <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
-                          <Button type="text" size="small">
-                            {t("common.more")}
-                          </Button>
-                        </Dropdown>
-                      </span>,
-                    ]}
-                  >
-                    <List.Item.Meta
-                      title={<span className="truncate block">{item.name || item.uid || "-"}</span>}
-                      description={
-                        <span className="text-xs text-(--ant-color-text-secondary)">
-                          {getTypeLabel(item.type, t)} / {getDriverLabel(item.driver, t)}
-                        </span>
-                      }
-                    />
-                  </List.Item>
-                );
-              }}
+        <div className="w-72 shrink-0 flex flex-col overflow-hidden border border-(--ant-color-border) rounded-(--ant-border-radius-lg) bg-(--ant-color-bg-container)">
+          <div className="flex items-center gap-2 px-3 h-14 py-2 border-b border-(--ant-color-border-secondary) shrink-0">
+            <Input
+              placeholder={t("table.search.placeholder")}
+              allowClear
+              className="flex-1 min-w-0"
+              value={searchParams.keyword ?? ""}
+              onChange={(e) =>
+                setSearchParams((prev: DatasourceListParams) => ({ ...prev, keyword: e.target.value }))
+              }
+              onPressEnter={handleSearch}
             />
+            <Button type="primary" onClick={handleAdd}>
+              {t("common.add")}
+            </Button>
+          </div>
+          <div className="flex-1 min-h-0 overflow-auto p-2" onScroll={handleScroll}>
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <Spin size="small" />
+              </div>
+            ) : (
+              <>
+                {dataSource.map((item) => {
+                  const isSelected = selectedUid === item.uid;
+                  const menuItems: MenuProps["items"] = [
+                    {
+                      key: "edit",
+                      label: t("common.edit"),
+                      onClick: () => handleEdit(item),
+                    },
+                    {
+                      key: "delete",
+                      label: t("common.delete"),
+                      danger: true,
+                      onClick: () => {
+                        modal.confirm({
+                          title: t("datasource.confirm.delete.title"),
+                          content: t("datasource.confirm.delete.content", {
+                            name: item.name ?? item.uid ?? "",
+                          }),
+                          okText: t("common.ok"),
+                          cancelText: t("common.cancel"),
+                          onOk: () => handleDelete(item),
+                        });
+                      },
+                    },
+                  ];
+                  return (
+                    <div
+                      key={item.uid}
+                      className={`
+                        flex items-center justify-between gap-2 cursor-pointer px-3 py-2 border-b border-(--ant-color-border-secondary)
+                        transition-colors rounded-(--ant-border-radius)
+                        ${isSelected ? "bg-(--ant-color-primary-bg) text-(--ant-color-primary)" : "hover:bg-(--ant-color-fill-tertiary)"}
+                      `}
+                      onClick={() => handleSelectItem(item)}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate">{item.name || item.uid || "-"}</div>
+                        <div className="text-xs text-(--ant-color-text-secondary)">
+                          {getTypeLabel(item.type, t)} / {getDriverLabel(item.driver, t)}
+                        </div>
+                      </div>
+                      <span onClick={(e) => e.stopPropagation()}>
+                        <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
+                          <Button type="text" size="small" icon={<EllipsisOutlined />} title={t("common.more")} />
+                        </Dropdown>
+                      </span>
+                    </div>
+                  );
+                })}
+              </>
+            )}
             {loadingMore && (
               <div className="flex justify-center py-3">
                 <Spin size="small" />
@@ -285,34 +264,64 @@ const DatasourceList: React.FC = () => {
               </div>
             )}
           </div>
-        </Card>
-        {/* 右侧：详情 */}
-        <Card
-          className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden"
-          title={viewingData ? (viewingData.name || viewingData.uid) : t("datasource.modal.detail.title")}
-          styles={{
-            body: {
-              flex: 1,
-              minHeight: 0,
-              overflow: "auto",
-              display: "flex",
-              flexDirection: "column",
-            },
-          }}
-        >
+        </div>
+        {/* 右侧：详情 / 元数据 / 快捷查询 */}
+        <div className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
           {selectedUid ? (
-            <DetailView
-              embedded
-              data={viewingData}
-              loading={detailLoading}
-              onEdit={handleEditFromDetail}
+            <Tabs
+              className="flex-1 min-h-0 flex flex-col [&_.ant-tabs-content]:flex-1 [&_.ant-tabs-tabpane]:h-full [&_.ant-tabs-tabpane]:overflow-auto"
+              style={{ height: "100%" }}
+              items={[
+                {
+                  key: "detail",
+                  label: t("datasource.tab.detail"),
+                  children: (
+                    <div className="h-full overflow-auto p-4">
+                      <DetailView embedded data={viewingData} loading={detailLoading} onEdit={handleEditFromDetail} />
+                    </div>
+                  ),
+                },
+                {
+                  key: "metadata",
+                  label: t("datasource.tab.metadata"),
+                  children: (
+                    <div className="p-4 h-full overflow-auto">
+                      {detailLoading ? (
+                        <div className="flex justify-center py-8">
+                          <Spin />
+                        </div>
+                      ) : viewingData?.metadata && Object.keys(viewingData.metadata).length > 0 ? (
+                        <pre className="m-0 text-sm whitespace-pre-wrap wrap-break-word bg-(--ant-color-fill-quaternary) p-3 rounded">
+                          {JSON.stringify(viewingData.metadata, null, 2)}
+                        </pre>
+                      ) : (
+                        <div className="text-(--ant-color-text-tertiary) py-4">{t("datasource.metadata.empty")}</div>
+                      )}
+                    </div>
+                  ),
+                },
+                {
+                  key: "quickQuery",
+                  label: t("datasource.tab.quickQuery"),
+                  children: (
+                    <div className="p-4 h-full flex flex-col gap-3">
+                      <Input.TextArea
+                        placeholder={t("datasource.quickQuery.placeholder")}
+                        rows={6}
+                        className="font-mono text-sm"
+                      />
+                      <Button type="primary">{t("datasource.quickQuery.run")}</Button>
+                    </div>
+                  ),
+                },
+              ]}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-(--ant-color-text-tertiary)">
               {t("datasource.detail.selectHint")}
             </div>
           )}
-        </Card>
+        </div>
       </div>
       <DetailForm
         open={detailFormOpen}
