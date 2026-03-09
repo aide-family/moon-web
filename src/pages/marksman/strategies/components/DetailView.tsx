@@ -1,6 +1,7 @@
 import React from 'react'
-import { Modal, Descriptions, Button, Space, Spin } from 'antd'
+import { Modal, Descriptions, Button, Space, Spin, Tag } from 'antd'
 import type { StrategyItem } from '@/api/strategy/index'
+import { GlobalStatus } from '@/api'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
 
@@ -25,17 +26,34 @@ function getDriverLabel(value: string | undefined, t: (key: string) => string): 
   return t(`datasource.driver.${value}`) || value
 }
 
+function normalizeStatus(status: string | undefined): GlobalStatus {
+  if (status === GlobalStatus.ENABLED) return GlobalStatus.ENABLED
+  if (status === GlobalStatus.DISABLED) return GlobalStatus.DISABLED
+  return GlobalStatus.UNKNOWN
+}
+
+const statusMap: Record<GlobalStatus, { text: string; color: string }> = {
+  [GlobalStatus.UNKNOWN]: { text: 'table.unknown', color: 'default' },
+  [GlobalStatus.ENABLED]: { text: 'table.enable', color: 'success' },
+  [GlobalStatus.DISABLED]: { text: 'table.disable', color: 'error' },
+}
+
 const detailContent = (
   data: StrategyItem,
   t: (key: string) => string,
-) => (
+) => {
+  const s = normalizeStatus(data.status)
+  const info = statusMap[s]
+  return (
   <Descriptions column={1} bordered size="small" styles={{ label: { width: 120, minWidth: 120 } }}>
     <Descriptions.Item label={t('strategy.detail.uid')}>{empty(data.uid)}</Descriptions.Item>
     <Descriptions.Item label={t('strategy.detail.name')}>{empty(data.name)}</Descriptions.Item>
     <Descriptions.Item label={t('strategy.detail.remark')}>{empty(data.remark)}</Descriptions.Item>
     <Descriptions.Item label={t('strategy.detail.type')}>{getTypeLabel(data.type, t)}</Descriptions.Item>
     <Descriptions.Item label={t('strategy.detail.driver')}>{getDriverLabel(data.driver, t)}</Descriptions.Item>
-    <Descriptions.Item label={t('strategy.detail.status')}>{empty(data.status)}</Descriptions.Item>
+    <Descriptions.Item label={t('strategy.detail.status')}>
+      <Tag color={info.color}>{t(info.text)}</Tag>
+    </Descriptions.Item>
     <Descriptions.Item label={t('strategy.detail.strategyGroupUID')}>{empty(data.strategyGroupUID)}</Descriptions.Item>
     <Descriptions.Item label={t('strategy.detail.createdAt')}>
       {data.createdAt ? dayjs(data.createdAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
@@ -51,7 +69,8 @@ const detailContent = (
       ) : '-'}
     </Descriptions.Item>
   </Descriptions>
-)
+  )
+}
 
 const DetailView: React.FC<DetailViewProps> = ({
   open = true,

@@ -7,11 +7,14 @@ export const zhCN = {
   'strategy.table.type': '类型',
   'strategy.table.driver': '驱动',
   'strategy.table.status': '状态',
+  'strategy.table.strategyGroup': '策略组',
   'strategy.table.createdAt': '创建时间',
   'strategy.table.updatedAt': '更新时间',
 
   'strategy.confirm.delete.title': '确定要删除吗？',
   'strategy.confirm.delete.content': '删除策略 "{name}"',
+  'strategy.confirm.status.title': '确定要{action}吗？',
+  'strategy.confirm.status.content': '{action}策略 "{name}"',
 
   'strategy.modal.create.title': '新建策略',
   'strategy.modal.edit.title': '编辑策略',
@@ -42,9 +45,11 @@ export const zhCN = {
   'strategy.form.remark.label': '备注',
   'strategy.form.remark.placeholder': '请输入备注',
   'strategy.form.type.label': '类型',
+  'strategy.form.type.placeholder': '请选择类型',
   'strategy.form.driver.label': '驱动',
-  'strategy.form.strategyGroupUID.label': '策略组UID',
-  'strategy.form.strategyGroupUID.placeholder': '请输入策略组UID',
+  'strategy.form.driver.placeholder': '请选择驱动',
+  'strategy.form.strategyGroup.label': '策略组',
+  'strategy.form.strategyGroup.placeholder': '请选择策略组',
 }
 
 export const enUS = {
@@ -54,11 +59,14 @@ export const enUS = {
   'strategy.table.type': 'Type',
   'strategy.table.driver': 'Driver',
   'strategy.table.status': 'Status',
+  'strategy.table.strategyGroup': 'Strategy Group',
   'strategy.table.createdAt': 'Created At',
   'strategy.table.updatedAt': 'Updated At',
 
   'strategy.confirm.delete.title': 'Confirm delete?',
   'strategy.confirm.delete.content': 'Delete strategy "{name}"',
+  'strategy.confirm.status.title': 'Confirm to {action}?',
+  'strategy.confirm.status.content': '{action} strategy "{name}"',
 
   'strategy.modal.create.title': 'Create Strategy',
   'strategy.modal.edit.title': 'Edit Strategy',
@@ -89,7 +97,9 @@ export const enUS = {
   'strategy.form.remark.label': 'Remark',
   'strategy.form.remark.placeholder': 'Enter remark',
   'strategy.form.type.label': 'Type',
+  'strategy.form.type.placeholder': 'Select type',
   'strategy.form.driver.label': 'Driver',
-  'strategy.form.strategyGroupUID.label': 'Strategy Group UID',
-  'strategy.form.strategyGroupUID.placeholder': 'Enter strategy group UID',
+  'strategy.form.driver.placeholder': 'Select driver',
+  'strategy.form.strategyGroup.label': 'Strategy Group',
+  'strategy.form.strategyGroup.placeholder': 'Select strategy group',
 }

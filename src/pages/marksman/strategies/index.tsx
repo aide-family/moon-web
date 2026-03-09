@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Table, Input, Button, Space, message, Dropdown, App } from 'antd'
+import { Table, Input, Button, Space, message, Dropdown, App, Radio, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
 import {
@@ -7,8 +7,13 @@ import {
   type StrategyListParams,
   getStrategyList,
   deleteStrategy,
+  updateStrategyStatus,
 } from '@/api/strategy/index'
+import { GlobalStatus } from '@/api'
 import dayjs from 'dayjs'
+import DetailForm from './components/DetailForm'
+import DetailView from './components/DetailView'
+import { useLocale } from '@/contexts/LocaleContext'
 
 function getTypeLabel(value: string | undefined, t: (key: string) => string): string {
   if (value == null || value === '') return '-'
@@ -18,12 +23,22 @@ function getDriverLabel(value: string | undefined, t: (key: string) => string): 
   if (value == null || value === '') return '-'
   return t(`datasource.driver.${value}`) || value
 }
-import DetailForm from './components/DetailForm'
-import DetailView from './components/DetailView'
-import { useLocale } from '@/contexts/LocaleContext'
+
+/** 将接口返回的 status（字符串）规范为 GlobalStatus */
+function normalizeStatus(status: string | undefined): GlobalStatus {
+  if (status === GlobalStatus.ENABLED) return GlobalStatus.ENABLED
+  if (status === GlobalStatus.DISABLED) return GlobalStatus.DISABLED
+  return GlobalStatus.UNKNOWN
+}
+
+/** 修改状态接口要求传 integer：1=启用 2=禁用 */
+function globalStatusToNumber(status: GlobalStatus): number {
+  return status === GlobalStatus.ENABLED ? 1 : 2
+}
 
 const defaultSearchParams: StrategyListParams = {
   keyword: '',
+  status: undefined,
 }
 
 const StrategyListContent: React.FC = () => {
@@ -40,25 +55,31 @@ const StrategyListContent: React.FC = () => {
   const [tableHeight, setTableHeight] = useState<number>(0)
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const tableWrapperRef = useRef<HTMLDivElement>(null)
+  const isFirstMount = useRef(true)
   const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>('create')
   const [editingData, setEditingData] = useState<StrategyItem | null>(null)
   const [detailViewOpen, setDetailViewOpen] = useState(false)
   const [viewingData, setViewingData] = useState<StrategyItem | null>(null)
 
-  const fetchData = async (page?: number, pageSize?: number) => {
+  const fetchData = async (
+    page?: number,
+    pageSize?: number,
+    paramsOverride?: Partial<StrategyListParams>
+  ) => {
     setLoading(true)
     try {
       const currentPage = page ?? pagination.current
       const currentPageSize = pageSize ?? pagination.pageSize
+      const base = paramsOverride ?? searchParams
       const params: StrategyListParams = {
         page: currentPage,
         pageSize: currentPageSize,
-        keyword: searchParams.keyword || undefined,
-        type: searchParams.type,
-        driver: searchParams.driver,
-        status: searchParams.status,
-        strategyGroupUID: searchParams.strategyGroupUID,
+        keyword: base.keyword || undefined,
+        type: base.type,
+        driver: base.driver,
+        status: base.status,
+        strategyGroupUID: base.strategyGroupUID,
       }
       const response = await getStrategyList(params)
       const items = response?.items ?? []
@@ -86,7 +107,7 @@ const StrategyListContent: React.FC = () => {
   const handleReset = () => {
     setSearchParams(defaultSearchParams)
     setPagination(prev => ({ ...prev, current: 1, total: 0 }))
-    fetchData(1, pagination.pageSize)
+    fetchData(1, pagination.pageSize, defaultSearchParams)
   }
 
   const handleTableChange = (page: number, pageSize: number) => {
@@ -94,7 +115,6 @@ const StrategyListContent: React.FC = () => {
   }
 
   const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : text
-  const numPlaceholder = (val: unknown) => (val == null) ? '-' : val
 
   const columns: ColumnsType<StrategyItem> = [
     {
@@ -134,12 +154,21 @@ const StrategyListContent: React.FC = () => {
       render: (v: string) => getDriverLabel(v, t),
     },
     {
-      title: t('strategy.table.status'),
+      title: t('table.status'),
       dataIndex: 'status',
       key: 'status',
-      width: 80,
+      width: 90,
       align: 'center',
-      render: (v) => numPlaceholder(v),
+      render: (status: string | undefined) => {
+        const s = normalizeStatus(status)
+        const statusMap: Record<GlobalStatus, { text: string; color: string }> = {
+          [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
+          [GlobalStatus.ENABLED]: { text: t('table.enable'), color: 'success' },
+          [GlobalStatus.DISABLED]: { text: t('table.disable'), color: 'error' },
+        }
+        const info = statusMap[s]
+        return <Tag color={info.color}>{info.text}</Tag>
+      },
     },
     {
       title: t('strategy.table.createdAt'),
@@ -162,11 +191,31 @@ const StrategyListContent: React.FC = () => {
       fixed: 'right',
       align: 'center',
       render: (_, record) => {
+        const isEnabled = normalizeStatus(record.status) === GlobalStatus.ENABLED
+        const handleStatusClick = () => {
+          const action = isEnabled ? t('table.disable') : t('table.enable')
+          modal.confirm({
+            title: t('strategy.confirm.status.title', { action }),
+            content: t('strategy.confirm.status.content', {
+              action,
+              name: record.name ?? record.uid ?? '',
+            }),
+            okText: t('common.ok'),
+            cancelText: t('common.cancel'),
+            onOk: () =>
+              handleStatusChange(record, isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED),
+          })
+        }
         const menuItems: MenuProps['items'] = [
           {
             key: 'edit',
             label: t('common.edit'),
             onClick: () => handleEdit(record),
+          },
+          {
+            key: 'status',
+            label: isEnabled ? t('table.disable') : t('table.enable'),
+            onClick: handleStatusClick,
           },
           {
             key: 'delete',
@@ -240,6 +289,20 @@ const StrategyListContent: React.FC = () => {
     }
   }
 
+  const handleStatusChange = async (record: StrategyItem, newStatus: GlobalStatus) => {
+    if (!record.uid) return
+    try {
+      await updateStrategyStatus(record.uid, globalStatusToNumber(newStatus))
+      message.success(t('message.update.success'))
+      fetchData(pagination.current, pagination.pageSize)
+      if (viewingData?.uid === record.uid) {
+        setViewingData({ ...viewingData, status: newStatus })
+      }
+    } catch (error) {
+      console.error('修改状态失败:', error)
+    }
+  }
+
   const handleFormSuccess = () => {
     setDetailFormOpen(false)
     fetchData(pagination.current, pagination.pageSize)
@@ -249,6 +312,17 @@ const StrategyListContent: React.FC = () => {
     fetchData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // 状态筛选变更时自动请求列表
+  useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false
+      return
+    }
+    setPagination(prev => ({ ...prev, current: 1 }))
+    fetchData(1, pagination.pageSize)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.status])
 
   useEffect(() => {
     const calculateTableHeight = () => {
@@ -282,6 +356,16 @@ const StrategyListContent: React.FC = () => {
             onPressEnter={handleSearch}
             className="w-full min-w-[120px] sm:w-48 md:w-52"
           />
+          <span>{t('table.search.status')}:</span>
+          <Radio.Group
+            value={searchParams.status}
+            onChange={(e) => setSearchParams(prev => ({ ...prev, status: e.target.value }))}
+            buttonStyle="solid"
+          >
+            <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
+            <Radio.Button value={GlobalStatus.ENABLED}>{t('table.search.enabled')}</Radio.Button>
+            <Radio.Button value={GlobalStatus.DISABLED}>{t('table.search.disabled')}</Radio.Button>
+          </Radio.Group>
           <Button onClick={handleSearch} type="primary">
             {t('common.search')}
           </Button>

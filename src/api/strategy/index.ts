@@ -37,3 +37,11 @@ export const updateStrategy = (uid: string, params?: UpdateStrategyParams): Prom
 export const deleteStrategy = (uid: string): Promise<Record<string, never>> => {
   return http.delete<Record<string, never>>(`/strategy/${uid}`)
 }
+
+/** 更新策略状态 PUT /v1/strategy/{uid}/status，body 中 status 为 integer */
+export const updateStrategyStatus = (
+  uid: string,
+  status: number
+): Promise<Record<string, never>> => {
+  return http.put<Record<string, never>>(`/strategy/${uid}/status`, { uid, status })
+}
