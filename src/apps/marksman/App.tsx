@@ -10,11 +10,12 @@ import { isInMicroApp } from '@/utils'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
 import { NamespaceProvider, NoopNamespaceProvider } from '@/contexts/NamespaceContext'
-import { HddOutlined, BellOutlined } from '@ant-design/icons'
+import { HddOutlined, BellOutlined, ThunderboltOutlined } from '@ant-design/icons'
 import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
 import { convertToMenuItems, getAllSubAppConfigs, generateRoutes, getDefaultPath } from '../main/config'
 import type { AppConfigItem } from '../main/config'
 import DatasourceListWrapper from '@/pages/marksman/datasources'
+import StrategyListWrapper from '@/pages/marksman/strategies'
 import LevelListWrapper from '@/pages/marksman/levels'
 
 function AppContent() {
@@ -30,6 +31,13 @@ function AppContent() {
       label: t('menu.datasources'),
       path: '/datasources',
       element: <DatasourceListWrapper />,
+    },
+    {
+      key: 'strategies',
+      icon: <ThunderboltOutlined />,
+      label: t('menu.strategies'),
+      path: '/strategies',
+      element: <StrategyListWrapper />,
     },
     {
       key: 'levels',

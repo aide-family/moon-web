@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react'
 import { Route } from 'react-router-dom'
-import { UserOutlined, AppstoreOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined, SafetyCertificateOutlined, HddOutlined, BellOutlined } from '@ant-design/icons'
+import { UserOutlined, AppstoreOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined, SafetyCertificateOutlined, HddOutlined, BellOutlined, ThunderboltOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
 import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
 import { SubAppContainer } from '@/components/SubAppContainer'
@@ -126,6 +126,18 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
           devUrl: 'http://localhost:5176/datasources',
           prodUrl: 'http://localhost:4176/datasources',
           path: '/marksman/datasources',
+        },
+      },
+      {
+        key: 'marksman-strategies',
+        icon: <ThunderboltOutlined />,
+        label: t('menu.strategies'),
+        path: '/marksman/strategies',
+        subApp: {
+          name: 'marksman-strategies',
+          devUrl: 'http://localhost:5176/strategies',
+          prodUrl: 'http://localhost:4176/strategies',
+          path: '/marksman/strategies',
         },
       },
       {
