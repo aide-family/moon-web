@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Table, Input, Button, Space, message, App, Dropdown } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import React, { useState, useEffect, useCallback } from "react";
+import { List, Input, Button, Space, message, App, Card, Dropdown, Spin } from "antd";
 import type { MenuProps } from "antd";
 import {
   type DatasourceItem,
@@ -9,7 +8,6 @@ import {
   getDatasourceDetail,
   deleteDatasource,
 } from "@/api/datasource/index";
-import dayjs from "dayjs";
 import DetailForm from "./components/DetailForm";
 import DetailView from "./components/DetailView";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -33,64 +31,91 @@ const DatasourceList: React.FC = () => {
   const { t } = useLocale();
   const [loading, setLoading] = useState(false);
   const [dataSource, setDataSource] = useState<DatasourceItem[]>([]);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
   const [searchParams, setSearchParams] = useState<DatasourceListParams>(defaultSearchParams);
   const [detailFormOpen, setDetailFormOpen] = useState(false);
   const [detailFormMode, setDetailFormMode] = useState<"create" | "edit">("create");
   const [editingData, setEditingData] = useState<DatasourceItem | null>(null);
-  const [detailViewOpen, setDetailViewOpen] = useState(false);
+  const [selectedUid, setSelectedUid] = useState<string | null>(null);
   const [viewingData, setViewingData] = useState<DatasourceItem | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
-  const tableContainerRef = useRef<HTMLDivElement>(null);
-  const tableWrapperRef = useRef<HTMLDivElement>(null);
-  const [tableHeight, setTableHeight] = useState(400);
+  const [loadingMore, setLoadingMore] = useState(false);
 
-  const fetchData = async (page?: number, pageSize?: number) => {
-    setLoading(true);
-    try {
-      const currentPage = page ?? pagination.current;
-      const currentPageSize = pageSize ?? pagination.pageSize;
-      const params: DatasourceListParams = {
-        page: currentPage,
-        pageSize: currentPageSize,
-        keyword: searchParams.keyword || undefined,
-        type: searchParams.type,
-        driver: searchParams.driver,
-        status: searchParams.status,
-      };
-      const response = await getDatasourceList(params);
-      if (response) {
-        setDataSource(response.items ?? []);
-        setPagination((prev) => ({
-          ...prev,
-          current: currentPage,
-          pageSize: currentPageSize,
-          total: parseInt(String(response.total ?? "0"), 10),
-        }));
+  const pageSize = 20;
+  const hasMore = dataSource.length < pagination.total && pagination.total > 0;
+
+  const fetchData = useCallback(
+    async (page: number, append: boolean) => {
+      if (append) setLoadingMore(true);
+      else setLoading(true);
+      try {
+        const params: DatasourceListParams = {
+          page,
+          pageSize,
+          keyword: searchParams.keyword || undefined,
+          type: searchParams.type,
+          driver: searchParams.driver,
+          status: searchParams.status,
+        };
+        const response = await getDatasourceList(params);
+        if (response) {
+          const items = response.items ?? [];
+          const total = parseInt(String(response.total ?? "0"), 10);
+          if (append) {
+            setDataSource((prev) => [...prev, ...items]);
+          } else {
+            setDataSource(items);
+            if (items.length > 0 && items[0].uid) {
+              setSelectedUid(items[0].uid);
+              setViewingData(null);
+              setDetailLoading(true);
+              getDatasourceDetail(items[0].uid)
+                .then(setViewingData)
+                .catch(() => {})
+                .finally(() => setDetailLoading(false));
+            } else {
+              setSelectedUid(null);
+              setViewingData(null);
+            }
+          }
+          setPagination((prev) => ({ ...prev, current: page, pageSize, total }));
+        }
+      } catch (error) {
+        console.error("获取数据源列表失败:", error);
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
       }
-    } catch (error) {
-      console.error("获取数据源列表失败:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [searchParams.keyword, searchParams.type, searchParams.driver, searchParams.status],
+  );
+
+  const loadMore = useCallback(() => {
+    if (loading || loadingMore || !hasMore) return;
+    fetchData(pagination.current + 1, true);
+  }, [loading, loadingMore, hasMore, pagination, fetchData]);
+
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const el = e.currentTarget;
+      const threshold = 80;
+      if (el.scrollHeight - el.scrollTop - el.clientHeight <= threshold) {
+        loadMore();
+      }
+    },
+    [loadMore],
+  );
 
   const handleSearch = () => {
-    setPagination((prev) => ({ ...prev, current: 1 }));
-    fetchData();
+    setPagination((prev) => ({ ...prev, current: 1, total: 0 }));
+    fetchData(1, false);
   };
 
   const handleReset = () => {
     setSearchParams(defaultSearchParams);
-    setPagination({ current: 1, pageSize: 10, total: 0 });
-    fetchData();
+    setPagination({ current: 1, pageSize, total: 0 });
+    fetchData(1, false);
   };
-
-  const handleTableChange = (page: number, pageSize: number) => {
-    fetchData(page, pageSize);
-  };
-
-  const emptyPlaceholder = (text: unknown) => (text == null || text === "" ? "-" : String(text));
 
   const handleAdd = () => {
     setDetailFormMode("create");
@@ -98,9 +123,9 @@ const DatasourceList: React.FC = () => {
     setDetailFormOpen(true);
   };
 
-  const handleViewDetail = async (record: DatasourceItem) => {
+  const handleSelectItem = async (record: DatasourceItem) => {
     if (!record.uid) return;
-    setDetailViewOpen(true);
+    setSelectedUid(record.uid);
     setViewingData(null);
     setDetailLoading(true);
     try {
@@ -108,7 +133,6 @@ const DatasourceList: React.FC = () => {
       setViewingData(data);
     } catch (error) {
       console.error("获取数据源详情失败:", error);
-      setDetailViewOpen(false);
     } finally {
       setDetailLoading(false);
     }
@@ -121,7 +145,6 @@ const DatasourceList: React.FC = () => {
   };
 
   const handleEditFromDetail = (data: DatasourceItem) => {
-    setDetailViewOpen(false);
     setDetailFormMode("edit");
     setEditingData(data);
     setDetailFormOpen(true);
@@ -132,8 +155,11 @@ const DatasourceList: React.FC = () => {
     try {
       await deleteDatasource(record.uid);
       message.success(t("message.delete.success"));
-      fetchData();
-      if (detailViewOpen && viewingData?.uid === record.uid) setDetailViewOpen(false);
+      if (selectedUid === record.uid) {
+        setSelectedUid(null);
+        setViewingData(null);
+      }
+      fetchData(1, false);
     } catch (error) {
       console.error("删除失败:", error);
     }
@@ -141,150 +167,18 @@ const DatasourceList: React.FC = () => {
 
   const handleDetailFormSuccess = () => {
     setDetailFormOpen(false);
-    fetchData();
-    if (detailViewOpen && viewingData) {
-      getDatasourceDetail(viewingData.uid!)
+    fetchData(1, false);
+    if (viewingData?.uid) {
+      getDatasourceDetail(viewingData.uid)
         .then(setViewingData)
         .catch(() => {});
     }
   };
 
-  const columns: ColumnsType<DatasourceItem> = [
-    {
-      title: t("datasource.table.uid"),
-      dataIndex: "uid",
-      key: "uid",
-      width: 160,
-      ellipsis: true,
-      render: (v) => emptyPlaceholder(v),
-    },
-    {
-      title: t("datasource.table.name"),
-      dataIndex: "name",
-      key: "name",
-      width: 140,
-      render: (v) => emptyPlaceholder(v),
-    },
-    {
-      title: t("datasource.table.type"),
-      dataIndex: "type",
-      key: "type",
-      width: 100,
-      render: (v: string) => getTypeLabel(v, t),
-    },
-    {
-      title: t("datasource.table.driver"),
-      dataIndex: "driver",
-      key: "driver",
-      width: 140,
-      render: (v: string) => getDriverLabel(v, t),
-    },
-    {
-      title: t("datasource.table.status"),
-      dataIndex: "status",
-      key: "status",
-      width: 80,
-      align: "center",
-      render: (v) => emptyPlaceholder(v),
-    },
-    {
-      title: t("datasource.table.url"),
-      dataIndex: "url",
-      key: "url",
-      width: 300,
-      ellipsis: true,
-      render: (v) => emptyPlaceholder(v),
-    },
-    {
-      title: t("datasource.table.remark"),
-      dataIndex: "remark",
-      key: "remark",
-      width: 120,
-      ellipsis: true,
-      render: (v) => emptyPlaceholder(v),
-    },
-    {
-      title: t("datasource.table.createdAt"),
-      dataIndex: "createdAt",
-      key: "createdAt",
-      width: 160,
-      render: (v: string) => (v ? dayjs(v).format("YYYY-MM-DD HH:mm:ss") : "-"),
-    },
-    {
-      title: t("datasource.table.updatedAt"),
-      dataIndex: "updatedAt",
-      key: "updatedAt",
-      width: 160,
-      render: (v: string) => (v ? dayjs(v).format("YYYY-MM-DD HH:mm:ss") : "-"),
-    },
-    {
-      title: t("table.action"),
-      key: "action",
-      width: 140,
-      fixed: "right",
-      align: "center",
-      render: (_, record) => {
-        const menuItems: MenuProps["items"] = [
-          {
-            key: "edit",
-            label: t("common.edit"),
-            onClick: () => handleEdit(record),
-          },
-          {
-            key: "delete",
-            label: t("common.delete"),
-            danger: true,
-            onClick: () => {
-              modal.confirm({
-                title: t("datasource.confirm.delete.title"),
-                content: t("datasource.confirm.delete.content", { name: record.name ?? record.uid ?? "" }),
-                okText: t("common.ok"),
-                cancelText: t("common.cancel"),
-                onOk: () => handleDelete(record),
-              });
-            },
-          },
-        ];
-        return (
-          <Space size="small">
-            <Button type="link" size="small" onClick={() => handleViewDetail(record)}>
-              {t("common.detail")}
-            </Button>
-            <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
-              <Button type="link" size="small">
-                {t("common.more")}
-              </Button>
-            </Dropdown>
-          </Space>
-        );
-      },
-    },
-  ];
-
   useEffect(() => {
-    fetchData();
+    fetchData(1, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    const updateTableHeight = () => {
-      if (tableContainerRef.current && tableWrapperRef.current) {
-        const containerHeight = tableContainerRef.current.clientHeight;
-        const theadEl = tableWrapperRef.current.querySelector(".ant-table-thead");
-        const paginationEl = tableWrapperRef.current.querySelector(".ant-pagination");
-        let theadHeight = 0;
-        let paginationHeight = 0;
-        if (theadEl) theadHeight = (theadEl as HTMLElement).getBoundingClientRect().height;
-        if (paginationEl) paginationHeight = (paginationEl as HTMLElement).getBoundingClientRect().height + 16;
-        setTableHeight(Math.max(containerHeight - theadHeight - paginationHeight - 24, 100));
-      }
-    };
-    const timer = setTimeout(updateTableHeight, 100);
-    window.addEventListener("resize", updateTableHeight);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("resize", updateTableHeight);
-    };
-  }, [dataSource, pagination]);
 
   return (
     <div className="h-full flex flex-col">
@@ -296,7 +190,9 @@ const DatasourceList: React.FC = () => {
             allowClear
             className="w-full min-w-[120px] sm:w-48 md:w-52"
             value={searchParams.keyword ?? ""}
-            onChange={(e) => setSearchParams((prev: DatasourceListParams) => ({ ...prev, keyword: e.target.value }))}
+            onChange={(e) =>
+              setSearchParams((prev: DatasourceListParams) => ({ ...prev, keyword: e.target.value }))
+            }
             onPressEnter={handleSearch}
           />
           <Button onClick={handleSearch} type="primary">
@@ -310,26 +206,113 @@ const DatasourceList: React.FC = () => {
           </Button>
         </Space>
       </div>
-      <div ref={tableContainerRef} className="flex-1 flex overflow-hidden flex-col" style={{ minHeight: 0 }}>
-        <div ref={tableWrapperRef} className="h-full flex flex-col flex-1">
-          <Table
-            columns={columns}
-            dataSource={dataSource}
-            rowKey="uid"
-            loading={loading}
-            size="small"
-            scroll={{ y: tableHeight, x: '100%' }}
-            pagination={{
-              current: pagination.current,
-              pageSize: pagination.pageSize,
-              total: pagination.total,
-              showSizeChanger: true,
-              showTotal: (total) => t("table.total", { total }),
-              onChange: handleTableChange,
-              onShowSizeChange: handleTableChange,
-            }}
-          />
-        </div>
+      <div className="flex-1 flex min-h-0 gap-4">
+        {/* 左侧：数据源列表 */}
+        <Card
+          className="w-72 shrink-0 flex flex-col overflow-hidden"
+          title={t("datasource.list.title")}
+          styles={{ body: { padding: 0, flex: 1, minHeight: 0, display: "flex", flexDirection: "column" } }}
+        >
+          <div className="flex-1 min-h-0 overflow-auto" onScroll={handleScroll}>
+            <List
+              loading={loading}
+              dataSource={dataSource}
+              rowKey="uid"
+              size="small"
+              renderItem={(item) => {
+                const isSelected = selectedUid === item.uid;
+                const menuItems: MenuProps["items"] = [
+                  {
+                    key: "edit",
+                    label: t("common.edit"),
+                    onClick: () => handleEdit(item),
+                  },
+                  {
+                    key: "delete",
+                    label: t("common.delete"),
+                    danger: true,
+                    onClick: () => {
+                      modal.confirm({
+                        title: t("datasource.confirm.delete.title"),
+                        content: t("datasource.confirm.delete.content", {
+                          name: item.name ?? item.uid ?? "",
+                        }),
+                        okText: t("common.ok"),
+                        cancelText: t("common.cancel"),
+                        onOk: () => handleDelete(item),
+                      });
+                    },
+                  },
+                ];
+                return (
+                  <List.Item
+                    className={`
+                      cursor-pointer px-3 py-2 border-b border-(--ant-color-border-secondary)
+                      transition-colors
+                      ${isSelected ? "bg-(--ant-color-primary-bg) text-(--ant-color-primary)" : "hover:bg-(--ant-color-fill-tertiary)"}
+                    `}
+                    onClick={() => handleSelectItem(item)}
+                    actions={[
+                      <span key="more" onClick={(e) => e.stopPropagation()}>
+                        <Dropdown menu={{ items: menuItems }} trigger={["click"]}>
+                          <Button type="text" size="small">
+                            {t("common.more")}
+                          </Button>
+                        </Dropdown>
+                      </span>,
+                    ]}
+                  >
+                    <List.Item.Meta
+                      title={<span className="truncate block">{item.name || item.uid || "-"}</span>}
+                      description={
+                        <span className="text-xs text-(--ant-color-text-secondary)">
+                          {getTypeLabel(item.type, t)} / {getDriverLabel(item.driver, t)}
+                        </span>
+                      }
+                    />
+                  </List.Item>
+                );
+              }}
+            />
+            {loadingMore && (
+              <div className="flex justify-center py-3">
+                <Spin size="small" />
+              </div>
+            )}
+            {!loading && hasMore && dataSource.length > 0 && !loadingMore && (
+              <div className="text-center py-2 text-(--ant-color-text-tertiary) text-xs">
+                {t("datasource.list.scrollToLoadMore")}
+              </div>
+            )}
+          </div>
+        </Card>
+        {/* 右侧：详情 */}
+        <Card
+          className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden"
+          title={viewingData ? (viewingData.name || viewingData.uid) : t("datasource.modal.detail.title")}
+          styles={{
+            body: {
+              flex: 1,
+              minHeight: 0,
+              overflow: "auto",
+              display: "flex",
+              flexDirection: "column",
+            },
+          }}
+        >
+          {selectedUid ? (
+            <DetailView
+              embedded
+              data={viewingData}
+              loading={detailLoading}
+              onEdit={handleEditFromDetail}
+            />
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-(--ant-color-text-tertiary)">
+              {t("datasource.detail.selectHint")}
+            </div>
+          )}
+        </Card>
       </div>
       <DetailForm
         open={detailFormOpen}
@@ -337,13 +320,6 @@ const DatasourceList: React.FC = () => {
         initialData={editingData}
         onCancel={() => setDetailFormOpen(false)}
         onSuccess={handleDetailFormSuccess}
-      />
-      <DetailView
-        open={detailViewOpen}
-        data={viewingData}
-        loading={detailLoading}
-        onCancel={() => setDetailViewOpen(false)}
-        onEdit={handleEditFromDetail}
       />
     </div>
   );
