@@ -10,6 +10,7 @@ import { zhCN as memberZh, enUS as memberEn } from './member';
 import { zhCN as datasourceZh, enUS as datasourceEn } from './datasource';
 import { zhCN as strategyZh, enUS as strategyEn } from './strategy';
 import { zhCN as levelZh, enUS as levelEn } from './level';
+import { zhCN as strategyGroupZh, enUS as strategyGroupEn } from './strategyGroup';
 import type { LocaleType } from '@/contexts/LocaleContext';
 
 // 合并所有模块的翻译资源
@@ -18,10 +19,10 @@ const mergeResources = (...modules: Array<Record<string, string>>): Record<strin
 };
 
 // 中文资源（合并所有模块）
-const zhCN = mergeResources(commonZh, namespacesZh, rabbitZh, emailZh, webhookZh, messageZh, senderZh, userZh, memberZh, datasourceZh, strategyZh, levelZh);
+const zhCN = mergeResources(commonZh, namespacesZh, rabbitZh, emailZh, webhookZh, messageZh, senderZh, userZh, memberZh, datasourceZh, strategyZh, levelZh, strategyGroupZh);
 
 // 英文资源（合并所有模块）
-const enUS = mergeResources(commonEn, namespacesEn, rabbitEn, emailEn, webhookEn, messageEn, senderEn, userEn, memberEn, datasourceEn, strategyEn, levelEn);
+const enUS = mergeResources(commonEn, namespacesEn, rabbitEn, emailEn, webhookEn, messageEn, senderEn, userEn, memberEn, datasourceEn, strategyEn, levelEn, strategyGroupEn);
 
 // 语言资源映射
 export const resources: Record<LocaleType, Record<string, string>> = {

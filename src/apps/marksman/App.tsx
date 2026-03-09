@@ -15,6 +15,7 @@ import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
 import { convertToMenuItems, getAllSubAppConfigs, generateRoutes, getDefaultPath } from '../main/config'
 import type { AppConfigItem } from '../main/config'
 import DatasourceListWrapper from '@/pages/marksman/datasources'
+import StrategyGroupListWrapper from '@/pages/marksman/strategy-groups'
 import StrategyListWrapper from '@/pages/marksman/strategies'
 import LevelListWrapper from '@/pages/marksman/levels'
 
@@ -31,6 +32,13 @@ function AppContent() {
       label: t('menu.datasources'),
       path: '/datasources',
       element: <DatasourceListWrapper />,
+    },
+    {
+      key: 'strategy-groups',
+      icon: <ThunderboltOutlined />,
+      label: t('menu.strategyGroups'),
+      path: '/strategy-groups',
+      element: <StrategyGroupListWrapper />,
     },
     {
       key: 'strategies',
