@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Avatar, Spin, Tag, Typography } from "antd";
+import { Avatar, Spin, Tag, Typography, theme } from "antd";
 import { UserOutlined, MailOutlined } from "@ant-design/icons";
 import { useLocale } from "@/contexts/LocaleContext";
 import { getSelfInfo } from "@/api/self";
@@ -22,6 +22,7 @@ const DEFAULT_STATUS_KEY = "user.status.UserStatus_UNKNOWN";
 
 const ProfilePage: React.FC = () => {
   const { t } = useLocale();
+  const { token } = theme.useToken();
   const [loading, setLoading] = useState(true);
   const [info, setInfo] = useState<SelfInfo | null>(null);
 
@@ -95,7 +96,10 @@ const ProfilePage: React.FC = () => {
 
       {/* 基本信息 + 账户信息 */}
       <section>
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg px-4 py-2">
+        <div
+          className="rounded-lg px-4 py-2"
+          style={{ background: token.colorFillTertiary }}
+        >
           {renderRows(allItems)}
         </div>
       </section>

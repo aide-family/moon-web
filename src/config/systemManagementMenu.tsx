@@ -3,7 +3,7 @@ import NamespaceList from '@/pages/goddess/namespaces'
 import { AppConfigItem } from '@/apps/main/config'
 import UsersList from '@/pages/goddess/users'
 import MembersList from '@/pages/goddess/members'
-import ProfilePage from '@/pages/main/profile'
+import ProfilePage from '@/pages/goddess/profile'
 
 /**
  * 系统管理 + 个人中心菜单项（命名空间、用户管理、成员管理、个人中心）

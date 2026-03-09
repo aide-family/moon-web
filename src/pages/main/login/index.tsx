@@ -7,7 +7,6 @@ import {
   message,
   Dropdown,
   Modal,
-  Radio,
 } from "antd";
 import type { MenuProps } from "antd";
 import {
@@ -412,7 +411,7 @@ export default function LoginPage() {
               : t("login.registerSub")}
           </p>
 
-          <Radio.Group
+          {/* <Radio.Group
             value={activeTab}
             onChange={(e) => handleTabChange(e.target.value)}
             optionType="button"
@@ -425,7 +424,7 @@ export default function LoginPage() {
             <Radio.Button value="register" className="w-1/2 text-center">
               {t("login.register")}
             </Radio.Button>
-          </Radio.Group>
+          </Radio.Group> */}
 
           {activeTab === "login" ? loginFormContent : registerFormContent}
 
