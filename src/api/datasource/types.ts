@@ -105,3 +105,16 @@ export interface UpdateDatasourceParams {
   remark?: string
   metadata?: Record<string, string>
 }
+
+/** 指标元数据项（ListMetrics 接口返回） */
+export interface MetricSummaryItem {
+  name?: string
+  description?: string
+  unit?: string
+  type?: string
+}
+
+/** 数据源指标列表响应 GET /v1/datasource/{uid}/metrics */
+export interface DatasourceMetricsResponse {
+  metrics?: MetricSummaryItem[]
+}

@@ -108,7 +108,7 @@ const DetailForm: React.FC<DetailFormProps> = ({
       onCancel={closable ? handleCancel : undefined}
       closable={closable}
       maskClosable={closable}
-      destroyOnClose
+      destroyOnHidden
       confirmLoading={loading}
       okText={t('common.submit')}
       cancelButtonProps={closable ? undefined : { style: { display: 'none' } }}

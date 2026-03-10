@@ -10,6 +10,7 @@ import {
 } from "@/api/datasource/index";
 import DetailForm from "./components/DetailForm";
 import DetailView from "./components/DetailView";
+import MetadataView from "./components/MetadataView";
 import { EllipsisOutlined } from "@ant-design/icons";
 import { useLocale } from "@/contexts/LocaleContext";
 
@@ -284,21 +285,7 @@ const DatasourceList: React.FC = () => {
                 {
                   key: "metadata",
                   label: t("datasource.tab.metadata"),
-                  children: (
-                    <div className="p-4 h-full overflow-auto">
-                      {detailLoading ? (
-                        <div className="flex justify-center py-8">
-                          <Spin />
-                        </div>
-                      ) : viewingData?.metadata && Object.keys(viewingData.metadata).length > 0 ? (
-                        <pre className="m-0 text-sm whitespace-pre-wrap wrap-break-word bg-(--ant-color-fill-quaternary) p-3 rounded">
-                          {JSON.stringify(viewingData.metadata, null, 2)}
-                        </pre>
-                      ) : (
-                        <div className="text-(--ant-color-text-tertiary) py-4">{t("datasource.metadata.empty")}</div>
-                      )}
-                    </div>
-                  ),
+                  children: <MetadataView uid={selectedUid} />,
                 },
                 {
                   key: "quickQuery",
