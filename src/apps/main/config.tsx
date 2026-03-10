@@ -129,18 +129,6 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         },
       },
       {
-        key: 'marksman-strategy-groups',
-        icon: <ThunderboltOutlined />,
-        label: t('menu.strategyGroups'),
-        path: '/marksman/strategy-groups',
-        subApp: {
-          name: 'marksman-strategy-groups',
-          devUrl: 'http://localhost:5176/strategy-groups',
-          prodUrl: 'http://localhost:4176/strategy-groups',
-          path: '/marksman/strategy-groups',
-        },
-      },
-      {
         key: 'marksman-strategies',
         icon: <ThunderboltOutlined />,
         label: t('menu.strategies'),

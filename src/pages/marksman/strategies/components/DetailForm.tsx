@@ -12,6 +12,8 @@ interface DetailFormProps {
   open: boolean
   mode: 'create' | 'edit'
   initialData?: StrategyItem | null
+  /** 新增时默认策略组 UID（传入则自动带入且不展示策略组选择） */
+  defaultStrategyGroupUID?: string | null
   onCancel: () => void
   onSuccess: (created?: StrategyItem) => void
   closable?: boolean
@@ -21,10 +23,12 @@ const DetailForm: React.FC<DetailFormProps> = ({
   open,
   mode,
   initialData,
+  defaultStrategyGroupUID,
   onCancel,
   onSuccess,
   closable = true,
 }) => {
+  const hideStrategyGroupSelect = mode === 'create' && defaultStrategyGroupUID != null && defaultStrategyGroupUID !== ''
   const { t } = useLocale()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
@@ -58,8 +62,11 @@ const DetailForm: React.FC<DetailFormProps> = ({
       })
     } else if (open && mode === 'create') {
       form.resetFields()
+      if (defaultStrategyGroupUID) {
+        form.setFieldsValue({ strategyGroupUID: defaultStrategyGroupUID })
+      }
     }
-  }, [open, mode, initialData, form])
+  }, [open, mode, initialData, defaultStrategyGroupUID, form])
 
   const handleSubmit = async () => {
     try {
@@ -140,23 +147,29 @@ const DetailForm: React.FC<DetailFormProps> = ({
         >
           <Select allowClear placeholder={t('strategy.form.driver.placeholder')} options={driverOptions} />
         </Form.Item>
-        <Form.Item
-          name="strategyGroupUID"
-          label={t('strategy.form.strategyGroup.label')}
-          rules={[{ required: true, message: t('strategy.form.strategyGroup.placeholder') }]}
-        >
-          <Select
-            allowClear
-            placeholder={t('strategy.form.strategyGroup.placeholder')}
-            showSearch
-            optionFilterProp="label"
-            options={strategyGroupOptions.map(item => ({
-              value: item.value,
-              label: item.label ?? item.value,
-              disabled: item.disabled,
-            }))}
-          />
-        </Form.Item>
+        {hideStrategyGroupSelect ? (
+          <Form.Item name="strategyGroupUID" hidden>
+            <Input type="hidden" />
+          </Form.Item>
+        ) : (
+          <Form.Item
+            name="strategyGroupUID"
+            label={t('strategy.form.strategyGroup.label')}
+            rules={[{ required: true, message: t('strategy.form.strategyGroup.placeholder') }]}
+          >
+            <Select
+              allowClear
+              placeholder={t('strategy.form.strategyGroup.placeholder')}
+              showSearch
+              optionFilterProp="label"
+              options={strategyGroupOptions.map(item => ({
+                value: item.value,
+                label: item.label ?? item.value,
+                disabled: item.disabled,
+              }))}
+            />
+          </Form.Item>
+        )}
         <Form.Item name="remark" label={t('strategy.form.remark.label')}>
           <Input.TextArea rows={2} placeholder={t('strategy.form.remark.placeholder')} allowClear />
         </Form.Item>

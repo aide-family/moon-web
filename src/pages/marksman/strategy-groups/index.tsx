@@ -47,7 +47,7 @@ function renderStatus(status: string | undefined, t: (key: string) => string) {
   return <Tag color={info.color}>{info.text}</Tag>
 }
 
-const StrategyGroupList: React.FC = () => {
+export const StrategyGroupList: React.FC = () => {
   const { modal } = App.useApp()
   const { t } = useLocale()
   const [urlSearchParams, setUrlSearchParams] = useSearchParams()

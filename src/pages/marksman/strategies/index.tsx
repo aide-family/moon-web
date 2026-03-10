@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { Table, Input, Button, Space, message, Dropdown, App, Radio, Tag } from 'antd'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
+import { Table, Input, Button, Space, message, Dropdown, App, Radio, Tag, Spin } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
+import { EllipsisOutlined } from '@ant-design/icons'
 import {
   type StrategyItem,
   type StrategyListParams,
@@ -14,6 +15,15 @@ import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
+import type { StrategyGroupItem, StrategyGroupListParams } from '@/api/strategyGroup'
+import {
+  getStrategyGroupList,
+  getStrategyGroupDetail,
+  deleteStrategyGroup,
+  updateStrategyGroupStatus,
+} from '@/api/strategyGroup'
+import StrategyGroupDetailForm from '@/pages/marksman/strategy-groups/components/DetailForm'
+import StrategyGroupDetailView from '@/pages/marksman/strategy-groups/components/DetailView'
 
 function getTypeLabel(value: string | undefined, t: (key: string) => string): string {
   if (value == null || value === '') return '-'
@@ -41,7 +51,14 @@ const defaultSearchParams: StrategyListParams = {
   status: undefined,
 }
 
-const StrategyListContent: React.FC = () => {
+export interface StrategyListContentProps {
+  /** 左侧选中的策略组 UID，用于过滤右侧列表 */
+  selectedStrategyGroupUID?: string | null
+}
+
+export const StrategyListContent: React.FC<StrategyListContentProps> = ({
+  selectedStrategyGroupUID,
+}) => {
   const { modal } = App.useApp()
   const { t } = useLocale()
   const [loading, setLoading] = useState(false)
@@ -79,7 +96,7 @@ const StrategyListContent: React.FC = () => {
         type: base.type,
         driver: base.driver,
         status: base.status,
-        strategyGroupUID: base.strategyGroupUID,
+        strategyGroupUID: selectedStrategyGroupUID ?? base.strategyGroupUID,
       }
       const response = await getStrategyList(params)
       const items = response?.items ?? []
@@ -313,6 +330,13 @@ const StrategyListContent: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // 左侧选中策略组变化时重新请求
+  useEffect(() => {
+    setPagination(prev => ({ ...prev, current: 1 }))
+    fetchData(1, pagination.pageSize)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedStrategyGroupUID])
+
   // 状态筛选变更时自动请求列表
   useEffect(() => {
     if (isFirstMount.current) {
@@ -404,6 +428,7 @@ const StrategyListContent: React.FC = () => {
         open={detailFormOpen}
         mode={detailFormMode}
         initialData={editingData}
+        defaultStrategyGroupUID={detailFormMode === 'create' ? selectedStrategyGroupUID : undefined}
         onCancel={() => {
           setDetailFormOpen(false)
           setEditingData(null)
@@ -424,10 +449,332 @@ const StrategyListContent: React.FC = () => {
   )
 }
 
+/** 左侧策略组列表（布局同数据源左侧） */
+const StrategyGroupSidebar: React.FC<{
+  selectedUid: string | null
+  onSelect: (uid: string | null) => void
+  onRefresh?: () => void
+}> = ({ selectedUid, onSelect, onRefresh }) => {
+  const { modal } = App.useApp()
+  const { t } = useLocale()
+  const [keyword, setKeyword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [dataSource, setDataSource] = useState<StrategyGroupItem[]>([])
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 })
+  const [detailFormOpen, setDetailFormOpen] = useState(false)
+  const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>('create')
+  const [editingData, setEditingData] = useState<StrategyGroupItem | null>(null)
+  const [detailViewOpen, setDetailViewOpen] = useState(false)
+  const [viewingData, setViewingData] = useState<StrategyGroupItem | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+
+  const hasMore = dataSource.length < pagination.total && pagination.total > 0
+
+  const fetchData = useCallback(
+    async (page: number, append: boolean) => {
+      if (append) setLoadingMore(true)
+      else setLoading(true)
+      try {
+        const params: StrategyGroupListParams = {
+          page,
+          pageSize: pagination.pageSize,
+          keyword: keyword || undefined,
+        }
+        const response = await getStrategyGroupList(params)
+        const items = response?.items ?? []
+        const total = parseInt(String(response?.total ?? '0'), 10)
+        if (append) {
+          setDataSource(prev => [...prev, ...items])
+        } else {
+          setDataSource(items)
+          if (items.length > 0 && items[0].uid) {
+            onSelect(items[0].uid)
+            setViewingData(null)
+            setDetailLoading(true)
+            getStrategyGroupDetail(items[0].uid)
+              .then(setViewingData)
+              .catch(() => {})
+              .finally(() => setDetailLoading(false))
+          } else {
+            onSelect(null)
+            setViewingData(null)
+          }
+        }
+        setPagination(prev => ({ ...prev, current: page, total }))
+      } catch (error) {
+        console.error('获取策略组列表失败:', error)
+      } finally {
+        setLoading(false)
+        setLoadingMore(false)
+      }
+    },
+    [keyword, pagination.pageSize, onSelect],
+  )
+
+  const loadMore = useCallback(() => {
+    if (loading || loadingMore || !hasMore) return
+    fetchData(pagination.current + 1, true)
+  }, [loading, loadingMore, hasMore, pagination, fetchData])
+
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const el = e.currentTarget
+      const threshold = 80
+      if (el.scrollHeight - el.scrollTop - el.clientHeight <= threshold) {
+        loadMore()
+      }
+    },
+    [loadMore],
+  )
+
+  useEffect(() => {
+    fetchData(1, false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const handleSearch = () => {
+    setPagination(prev => ({ ...prev, current: 1, total: 0 }))
+    fetchData(1, false)
+  }
+
+  const handleAdd = () => {
+    setDetailFormMode('create')
+    setEditingData(null)
+    setDetailFormOpen(true)
+  }
+
+  const handleSelectItem = async (record: StrategyGroupItem) => {
+    if (!record.uid) return
+    onSelect(record.uid)
+    setViewingData(null)
+    setDetailLoading(true)
+    try {
+      const data = await getStrategyGroupDetail(record.uid)
+      setViewingData(data)
+    } catch (error) {
+      console.error('获取策略组详情失败:', error)
+    } finally {
+      setDetailLoading(false)
+    }
+  }
+
+  const handleEdit = (record: StrategyGroupItem) => {
+    setDetailFormMode('edit')
+    setEditingData(record)
+    setDetailFormOpen(true)
+  }
+
+  const handleEditFromDetail = (data: StrategyGroupItem) => {
+    setDetailFormMode('edit')
+    setEditingData(data)
+    setDetailFormOpen(true)
+  }
+
+  const handleViewDetail = (record: StrategyGroupItem) => {
+    setViewingData(record)
+    setDetailViewOpen(true)
+  }
+
+  const handleDelete = async (record: StrategyGroupItem) => {
+    if (!record.uid) return
+    try {
+      await deleteStrategyGroup(record.uid)
+      message.success(t('message.delete.success'))
+      if (selectedUid === record.uid) {
+        onSelect(null)
+        setViewingData(null)
+      }
+      fetchData(1, false)
+      onRefresh?.()
+    } catch (error) {
+      console.error('删除失败:', error)
+    }
+  }
+
+  const handleStatusChange = async (record: StrategyGroupItem, newStatus: string) => {
+    if (!record.uid) return
+    try {
+      await updateStrategyGroupStatus(record.uid, newStatus)
+      message.success(t('message.update.success'))
+      fetchData(1, false)
+      if (viewingData?.uid === record.uid) {
+        setViewingData({ ...viewingData, status: newStatus })
+      }
+      onRefresh?.()
+    } catch (error) {
+      console.error('修改状态失败:', error)
+    }
+  }
+
+  const handleDetailFormSuccess = (created?: StrategyGroupItem) => {
+    setDetailFormOpen(false)
+    fetchData(1, false)
+    onRefresh?.()
+    if (created?.uid) {
+      onSelect(created.uid)
+      setViewingData(null)
+      setDetailLoading(true)
+      getStrategyGroupDetail(created.uid)
+        .then(setViewingData)
+        .catch(() => {})
+        .finally(() => setDetailLoading(false))
+    }
+  }
+
+  function getStatusText(status: string | undefined) {
+    const statusMap: Record<string, string> = {
+      [GlobalStatus.UNKNOWN]: t('table.unknown'),
+      [GlobalStatus.ENABLED]: t('table.enable'),
+      [GlobalStatus.DISABLED]: t('table.disable'),
+    }
+    return (status && statusMap[status]) || statusMap[GlobalStatus.UNKNOWN]
+  }
+
+  return (
+    <>
+      <div className="w-72 shrink-0 flex flex-col overflow-hidden border border-(--ant-color-border) rounded-(--ant-border-radius-lg) bg-(--ant-color-bg-container)">
+        <div className="flex items-center gap-2 px-3 h-14 py-2 border-b border-(--ant-color-border-secondary) shrink-0">
+          <Input
+            placeholder={t('table.search.placeholder')}
+            allowClear
+            className="flex-1 min-w-0"
+            value={keyword}
+            onChange={e => setKeyword(e.target.value)}
+            onPressEnter={handleSearch}
+          />
+          <Button type="primary" onClick={handleAdd}>
+            {t('common.add')}
+          </Button>
+        </div>
+        <div className="flex-1 min-h-0 overflow-auto p-2" onScroll={handleScroll}>
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <Spin size="small" />
+            </div>
+          ) : (
+            <>
+              {dataSource.map(item => {
+                const isSelected = selectedUid === item.uid
+                const isEnabled = item.status === GlobalStatus.ENABLED
+                const menuItems: MenuProps['items'] = [
+                  { key: 'edit', label: t('common.edit'), onClick: () => handleEdit(item) },
+                  { key: 'view', label: t('common.view'), onClick: () => handleViewDetail(item) },
+                  {
+                    key: 'status',
+                    label: isEnabled ? t('table.disable') : t('table.enable'),
+                    onClick: () => {
+                      const action = isEnabled ? t('table.disable') : t('table.enable')
+                      modal.confirm({
+                        title: t('strategyGroup.confirm.status.title', { action }),
+                        content: t('strategyGroup.confirm.status.content', {
+                          action,
+                          name: item.name ?? item.uid ?? '',
+                        }),
+                        onOk: () =>
+                          handleStatusChange(
+                            item,
+                            isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED,
+                          ),
+                        okText: t('common.ok'),
+                        cancelText: t('common.cancel'),
+                      })
+                    },
+                  },
+                  {
+                    key: 'delete',
+                    label: t('common.delete'),
+                    danger: true,
+                    onClick: () => {
+                      modal.confirm({
+                        title: t('strategyGroup.confirm.delete.title'),
+                        content: t('strategyGroup.confirm.delete.content', {
+                          name: item.name ?? item.uid ?? '',
+                        }),
+                        okText: t('common.ok'),
+                        cancelText: t('common.cancel'),
+                        onOk: () => handleDelete(item),
+                      })
+                    },
+                  },
+                ]
+                return (
+                  <div
+                    key={item.uid}
+                    className={`
+                      flex items-center justify-between gap-2 cursor-pointer px-3 py-2 border-b border-(--ant-color-border-secondary)
+                      transition-colors rounded-(--ant-border-radius)
+                      ${isSelected ? 'bg-(--ant-color-primary-bg) text-(--ant-color-primary)' : 'hover:bg-(--ant-color-fill-tertiary)'}
+                    `}
+                    onClick={() => handleSelectItem(item)}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate">{item.name || item.uid || '-'}</div>
+                      <div className="text-xs text-(--ant-color-text-secondary)">
+                        {getStatusText(item.status)}
+                      </div>
+                    </div>
+                    <span onClick={e => e.stopPropagation()}>
+                      <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+                        <Button type="text" size="small" icon={<EllipsisOutlined />} title={t('common.more')} />
+                      </Dropdown>
+                    </span>
+                  </div>
+                )
+              })}
+            </>
+          )}
+          {loadingMore && (
+            <div className="flex justify-center py-3">
+              <Spin size="small" />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <StrategyGroupDetailForm
+        open={detailFormOpen}
+        mode={detailFormMode}
+        initialData={editingData}
+        onCancel={() => {
+          setDetailFormOpen(false)
+          setEditingData(null)
+        }}
+        onSuccess={handleDetailFormSuccess}
+      />
+      <StrategyGroupDetailView
+        open={detailViewOpen}
+        data={viewingData}
+        loading={detailLoading}
+        onCancel={() => setDetailViewOpen(false)}
+        onEdit={handleEditFromDetail}
+      />
+    </>
+  )
+}
+
+/** 策略列表页：左侧策略组，右侧策略列表（布局同数据源，无标题） */
+function StrategyListPage() {
+  const [selectedGroupUid, setSelectedGroupUid] = useState<string | null>(null)
+  return (
+    <div className="h-full flex flex-col">
+      <div className="flex-1 flex min-h-0 gap-4">
+        <StrategyGroupSidebar
+          selectedUid={selectedGroupUid}
+          onSelect={setSelectedGroupUid}
+        />
+        <div className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden border border-(--ant-color-border) rounded-(--ant-border-radius-lg) bg-(--ant-color-bg-container) p-4">
+          <StrategyListContent selectedStrategyGroupUID={selectedGroupUid} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function StrategyListWrapper() {
   return (
     <App className="h-full">
-      <StrategyListContent />
+      <StrategyListPage />
     </App>
   )
 }
