@@ -25,6 +25,7 @@ import { getTemplateSelectList } from "@/api/template";
 import type { TemplateItemSelect } from "@/api/template";
 import { MessageType } from "@/api/types";
 import { useLocale } from "@/contexts/LocaleContext";
+import PageContent from "@/components/layout/PageContent";
 
 type SendType = "email" | "emailTemplate" | "webhook" | "webhookTemplate";
 
@@ -310,14 +311,17 @@ export default function SenderManagement() {
 
   return (
     <App className="h-full min-h-0 flex flex-col">
+      <div className="flex flex-1 min-h-0">
       <div className="flex flex-1 min-h-0 gap-4">
         {/* 左侧：发送方式 */}
-        <Card
+     
+        <PageContent
           className="w-48 shrink-0 overflow-auto"
-          title={t("sender.sendType")}
-          styles={{ body: { padding: "12px" } }}
         >
-          <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2 px-3 h-10 font-bold ">
+            {t("sender.sendType")}
+          </div>
+          <div className="flex flex-col gap-2 pt-2">
             {SEND_TYPES.map(({ value, labelKey }) => (
               <div
                 key={value}
@@ -340,10 +344,10 @@ export default function SenderManagement() {
               </div>
             ))}
           </div>
-        </Card>
+        </PageContent>
 
         {/* 右侧：表单 */}
-        <Card className="flex-1 min-w-0 min-h-0 overflow-auto">
+        <PageContent className="flex-1 min-w-0 min-h-0 overflow-auto">
           <div className="flex justify-end mb-4">
             <Button
               type="primary"
@@ -580,7 +584,8 @@ export default function SenderManagement() {
               </>
             )}
           </Form>
-        </Card>
+        </PageContent>
+      </div>
       </div>
     </App>
   );

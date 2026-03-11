@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Avatar, Spin, Tag, Typography, theme } from "antd";
 import { UserOutlined, MailOutlined } from "@ant-design/icons";
 import { useLocale } from "@/contexts/LocaleContext";
+import PageContent from "@/components/layout/PageContent";
 import { getSelfInfo } from "@/api/self";
 import type { SelfInfo } from "@/api/self/types";
 import { parseUserStatus } from "@/api/user";
@@ -35,9 +36,11 @@ const ProfilePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[320px] w-full">
-        <Spin size="large" tip={t("common.loading")} />
-      </div>
+      <PageContent>
+        <div className="flex items-center justify-center min-h-[320px] w-full">
+          <Spin size="large" tip={t("common.loading")} />
+        </div>
+      </PageContent>
     );
   }
 
@@ -72,6 +75,7 @@ const ProfilePage: React.FC = () => {
     ));
 
   return (
+    <PageContent>
     <div className="w-full min-h-full p-6 md:p-8 box-border">
       {/* 头像 + 姓名 */}
       <div className="flex flex-col sm:flex-row items-center gap-6 mb-10">
@@ -104,6 +108,7 @@ const ProfilePage: React.FC = () => {
         </div>
       </section>
     </div>
+    </PageContent>
   );
 };
 

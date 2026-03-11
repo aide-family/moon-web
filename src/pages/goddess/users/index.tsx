@@ -16,6 +16,7 @@ import {
 import dayjs from 'dayjs'
 import UserDetailView from './components/UserDetailView'
 import { useLocale } from '@/contexts/LocaleContext'
+import PageContent from '@/components/layout/PageContent'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 
 const defaultSearchParams: ListUsersParams = {
@@ -370,7 +371,9 @@ const UsersList: React.FC = () => {
 export default function UsersListWrapper() {
   return (
     <App className="h-full">
-      <UsersList />
+      <PageContent>
+        <UsersList />
+      </PageContent>
     </App>
   )
 }

@@ -14,6 +14,7 @@ import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
+import PageContent from '@/components/layout/PageContent'
 import { GlobalStatus } from '@/api'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 
@@ -429,7 +430,9 @@ const EmailListContent: React.FC = () => {
 export default function EmailList() {
   return (
     <App className='h-full'>
-      <EmailListContent />
+      <PageContent>
+        <EmailListContent />
+      </PageContent>
     </App>
   )
 }

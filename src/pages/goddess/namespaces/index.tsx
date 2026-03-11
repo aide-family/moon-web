@@ -9,6 +9,7 @@ import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
+import PageContent from '@/components/layout/PageContent'
 import { useNamespace } from '@/contexts/NamespaceContext'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 
@@ -543,7 +544,9 @@ const NamespaceList: React.FC = () => {
 export default function NamespaceListWrapper() {
   return (
     <App className='h-full'>
-      <NamespaceList />
+      <PageContent>
+        <NamespaceList />
+      </PageContent>
     </App>
   )
 }

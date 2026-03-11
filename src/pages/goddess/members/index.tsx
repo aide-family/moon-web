@@ -18,6 +18,7 @@ import {
 import dayjs from "dayjs";
 import MemberDetailView from "./components/MemberDetailView";
 import { useLocale } from "@/contexts/LocaleContext";
+import PageContent from "@/components/layout/PageContent";
 import { applySearchToUrl, getParam } from "@/utils/urlSearchParams";
 
 const defaultSearchParams: ListMembersParams = {
@@ -456,7 +457,9 @@ const MembersList: React.FC = () => {
 export default function MembersListWrapper() {
   return (
     <App className="h-full">
-      <MembersList />
+      <PageContent>
+        <MembersList />
+      </PageContent>
     </App>
   );
 }

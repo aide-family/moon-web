@@ -15,6 +15,7 @@ import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
+import PageContent from '@/components/layout/PageContent'
 import { getAppOptions, getAppLabel, getAppIconType, getMethodLabel } from './constants'
 import { IconFont } from '@/components/Icon/IconFont'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
@@ -469,7 +470,9 @@ const WebhookListContent: React.FC = () => {
 export default function WebhookList() {
   return (
     <App className='h-full'>
-      <WebhookListContent />
+      <PageContent>
+        <WebhookListContent />
+      </PageContent>
     </App>
   )
 }

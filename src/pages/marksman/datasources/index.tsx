@@ -13,6 +13,7 @@ import DetailView from "./components/DetailView";
 import MetadataView from "./components/MetadataView";
 import { EllipsisOutlined } from "@ant-design/icons";
 import { useLocale } from "@/contexts/LocaleContext";
+import PageContent from "@/components/layout/PageContent";
 
 function getTypeLabel(value: string | undefined, t: (key: string) => string): string {
   if (value == null || value === "") return "-";
@@ -180,7 +181,7 @@ const DatasourceList: React.FC = () => {
     <div className="h-full flex flex-col">
       <div className="flex-1 flex min-h-0 gap-4">
         {/* 左侧：数据源列表 */}
-        <div className="w-72 shrink-0 flex flex-col overflow-hidden border border-(--ant-color-border) rounded-(--ant-border-radius-lg) bg-(--ant-color-bg-container)">
+        <PageContent className="h-full">
           <div className="flex items-center gap-2 px-3 h-14 py-2 border-b border-(--ant-color-border-secondary) shrink-0">
             <Input
               placeholder={t("table.search.placeholder")}
@@ -265,9 +266,9 @@ const DatasourceList: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
+        </PageContent>
         {/* 右侧：详情 / 元数据 / 快捷查询 */}
-        <div className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
+        <PageContent className="flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden">
           {selectedUid ? (
             <Tabs
               className="flex-1 min-h-0 flex flex-col [&_.ant-tabs-content]:flex-1 [&_.ant-tabs-tabpane]:h-full [&_.ant-tabs-tabpane]:overflow-auto"
@@ -308,7 +309,7 @@ const DatasourceList: React.FC = () => {
               {t("datasource.detail.selectHint")}
             </div>
           )}
-        </div>
+        </PageContent>
       </div>
       <DetailForm
         open={detailFormOpen}

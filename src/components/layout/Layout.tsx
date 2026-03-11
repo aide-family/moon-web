@@ -118,7 +118,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
   const currentNsLogo = namespaceOptions.find((o) => o.value === currentNamespace)?.logo;
   const menuLogoSrc = currentNsLogo || logo;
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { colorBgContainer },
   } = theme.useToken();
 
   // 随断点同步：大屏默认展开，平板/手机默认收起
@@ -272,14 +272,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
           </div>
         </Header>
 
-        <Content
-          className="p-2 m-2 md:p-4 md:m-4 flex-1 min-h-0 flex flex-col"
-          style={{
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
-            overflow: "auto",
-          }}
-        >
+        <Content className="m-2 md:m-4 flex-1 min-h-0 flex flex-col">
           <div className="flex-1 min-h-0">
             <Outlet />
           </div>

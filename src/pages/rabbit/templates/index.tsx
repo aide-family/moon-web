@@ -8,6 +8,7 @@ import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView.tsx'
 import { useLocale } from '@/contexts/LocaleContext'
+import PageContent from '@/components/layout/PageContent'
 import { getMessageTypeOptions, getMessageTypeLabel } from './constants'
 import { getMessageTypeIconType } from '@/pages/rabbit/constants/appIcons'
 import { IconFont } from '@/components/Icon/IconFont'
@@ -465,7 +466,9 @@ const TemplateListContent: React.FC = () => {
 export default function TemplateList() {
   return (
     <App className='h-full'>
-      <TemplateListContent />
+      <PageContent>
+        <TemplateListContent />
+      </PageContent>
     </App>
   )
 }

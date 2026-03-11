@@ -15,6 +15,7 @@ import { GlobalStatus } from '@/api/types'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
+import PageContent from '@/components/layout/PageContent'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 
 const defaultSearchParams: StrategyGroupListParams = {
@@ -437,7 +438,9 @@ export const StrategyGroupList: React.FC = () => {
 export default function StrategyGroupListWrapper() {
   return (
     <App className="h-full">
-      <StrategyGroupList />
+      <PageContent>
+        <StrategyGroupList />
+      </PageContent>
     </App>
   )
 }

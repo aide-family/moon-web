@@ -10,6 +10,7 @@ import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
+import PageContent from '@/components/layout/PageContent'
 
 const defaultSearchParams: LevelListParams = {
   keyword: '',
@@ -401,7 +402,9 @@ const LevelList: React.FC = () => {
 export default function LevelListWrapper() {
   return (
     <App className="h-full">
-      <LevelList />
+      <PageContent>
+        <LevelList />
+      </PageContent>
     </App>
   )
 }

@@ -27,6 +27,7 @@ import { getMessageTypeIconType } from '@/pages/rabbit/constants/appIcons'
 import { IconFont } from '@/components/Icon/IconFont'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
+import PageContent from '@/components/layout/PageContent'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 
 const { RangePicker } = DatePicker
@@ -323,7 +324,8 @@ export default function MessageManagement() {
 
   return (
     <App className="h-full">
-      <div className="flex flex-col h-full">
+      <PageContent>
+        <div className="flex flex-col h-full">
         <div className="flex items-center justify-between mb-4 shrink-0 flex-wrap gap-2">
           <Space size="middle" wrap>
             <span>{t('messageLog.search.status')}:</span>
@@ -432,7 +434,8 @@ export default function MessageManagement() {
             setDetailData(null)
           }}
         />
-      </div>
+        </div>
+      </PageContent>
     </App>
   )
 }
