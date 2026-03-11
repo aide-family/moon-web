@@ -7,6 +7,7 @@ import {
   type StrategyItem,
   type StrategyListParams,
   getStrategyList,
+  getStrategyDetail,
   deleteStrategy,
   updateStrategyStatus,
 } from "@/api/strategy/index";
@@ -77,6 +78,7 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({ select
   const [editingData, setEditingData] = useState<StrategyItem | null>(null);
   const [detailViewOpen, setDetailViewOpen] = useState(false);
   const [viewingData, setViewingData] = useState<StrategyItem | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   const fetchData = async (page?: number, pageSize?: number, paramsOverride?: Partial<StrategyListParams>) => {
     setLoading(true);
@@ -268,8 +270,14 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({ select
   };
 
   const handleViewDetail = (record: StrategyItem) => {
-    setViewingData(record);
+    if (!record.uid) return;
+    setViewingData(null);
     setDetailViewOpen(true);
+    setDetailLoading(true);
+    getStrategyDetail(record.uid)
+      .then(setViewingData)
+      .catch(() => {})
+      .finally(() => setDetailLoading(false));
   };
 
   const handleEdit = (record: StrategyItem) => {
@@ -429,11 +437,21 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({ select
       <DetailView
         open={detailViewOpen}
         data={viewingData}
+        loading={detailLoading}
         onCancel={() => {
           setDetailViewOpen(false);
           setViewingData(null);
         }}
         onEdit={handleEditFromDetail}
+        onRuleDetailSuccess={() => {
+          if (viewingData?.uid) {
+            setDetailLoading(true);
+            getStrategyDetail(viewingData.uid)
+              .then(setViewingData)
+              .catch(() => {})
+              .finally(() => setDetailLoading(false));
+          }
+        }}
       />
     </div>
   );
@@ -746,7 +764,7 @@ function StrategyListPage() {
         <PageContent>
         <StrategyGroupSidebar selectedUid={selectedGroupUid} onSelect={setSelectedGroupUid} />
         </PageContent>
-        <PageContent>
+        <PageContent className="flex-1">
           <StrategyListContent selectedStrategyGroupUID={selectedGroupUid} />
         </PageContent>
       </div>
