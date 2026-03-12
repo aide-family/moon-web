@@ -2,9 +2,9 @@
 
 export const zhCN = {
   'datasource.type.DatasourceType_UNKNOWN': '未知',
-  'datasource.type.METRICS': '指标',
-  'datasource.type.LOGS': '日志',
-  'datasource.type.TRACE': '链路',
+  'datasource.type.METRICS': 'METRICS',
+  'datasource.type.LOGS': 'LOGS',
+  'datasource.type.TRACE': 'TRACE',
   'datasource.driver.DatasourceDriver_UNKNOWN': '未知',
   'datasource.driver.METRICS_PROMETHEUS': 'Prometheus',
   'datasource.driver.METRICS_VICTORIA_METRICS': 'VictoriaMetrics',

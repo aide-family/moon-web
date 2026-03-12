@@ -44,3 +44,15 @@ export interface SaveStrategyMetricParams {
   labels?: Record<string, string>
   datasourceUIDs?: string[]
 }
+
+/** 保存策略指标等级请求体（StrategyMetric_SaveStrategyMetricLevel Body） POST /v1/metric/strategy/{strategyUID}/level */
+export interface SaveStrategyMetricLevelParams {
+  strategyUID?: string
+  levelUID?: string
+  mode?: number
+  condition?: number
+  /** 格式如 1s、0.5s，正则：^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$ */
+  duration?: string
+  status?: number
+  values?: number[]
+}

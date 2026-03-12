@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Table, Input, Button, Space, message, Dropdown, App, Radio, Tag, Spin } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { MenuProps } from "antd";
@@ -7,14 +8,12 @@ import {
   type StrategyItem,
   type StrategyListParams,
   getStrategyList,
-  getStrategyDetail,
   deleteStrategy,
   updateStrategyStatus,
 } from "@/api/strategy/index";
 import { GlobalStatus } from "@/api";
 import dayjs from "dayjs";
 import DetailForm from "./components/DetailForm";
-import DetailView from "./components/DetailView";
 import { useLocale } from "@/contexts/LocaleContext";
 import PageContent from "@/components/layout/PageContent";
 import type { StrategyGroupItem, StrategyGroupListParams } from "@/api/strategyGroup";
@@ -61,6 +60,7 @@ export interface StrategyListContentProps {
 export const StrategyListContent: React.FC<StrategyListContentProps> = ({ selectedStrategyGroupUID }) => {
   const { modal } = App.useApp();
   const { t } = useLocale();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [dataSource, setDataSource] = useState<StrategyItem[]>([]);
   const [pagination, setPagination] = useState({
@@ -76,9 +76,6 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({ select
   const [detailFormOpen, setDetailFormOpen] = useState(false);
   const [detailFormMode, setDetailFormMode] = useState<"create" | "edit">("create");
   const [editingData, setEditingData] = useState<StrategyItem | null>(null);
-  const [detailViewOpen, setDetailViewOpen] = useState(false);
-  const [viewingData, setViewingData] = useState<StrategyItem | null>(null);
-  const [detailLoading, setDetailLoading] = useState(false);
 
   const fetchData = async (page?: number, pageSize?: number, paramsOverride?: Partial<StrategyListParams>) => {
     setLoading(true);
@@ -271,25 +268,12 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({ select
 
   const handleViewDetail = (record: StrategyItem) => {
     if (!record.uid) return;
-    setViewingData(null);
-    setDetailViewOpen(true);
-    setDetailLoading(true);
-    getStrategyDetail(record.uid)
-      .then(setViewingData)
-      .catch(() => {})
-      .finally(() => setDetailLoading(false));
+    navigate(`/strategies/${record.uid}`);
   };
 
   const handleEdit = (record: StrategyItem) => {
     setDetailFormMode("edit");
     setEditingData(record);
-    setDetailFormOpen(true);
-  };
-
-  const handleEditFromDetail = (data: StrategyItem) => {
-    setDetailViewOpen(false);
-    setDetailFormMode("edit");
-    setEditingData(data);
     setDetailFormOpen(true);
   };
 
@@ -299,10 +283,6 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({ select
       await deleteStrategy(record.uid);
       message.success(t("message.delete.success"));
       fetchData(pagination.current, pagination.pageSize);
-      if (viewingData?.uid === record.uid) {
-        setDetailViewOpen(false);
-        setViewingData(null);
-      }
     } catch (error) {
       console.error("删除失败:", error);
     }
@@ -314,9 +294,6 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({ select
       await updateStrategyStatus(record.uid, globalStatusToNumber(newStatus));
       message.success(t("message.update.success"));
       fetchData(pagination.current, pagination.pageSize);
-      if (viewingData?.uid === record.uid) {
-        setViewingData({ ...viewingData, status: newStatus });
-      }
     } catch (error) {
       console.error("修改状态失败:", error);
     }
@@ -432,26 +409,6 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({ select
           setEditingData(null);
         }}
         onSuccess={handleFormSuccess}
-      />
-
-      <DetailView
-        open={detailViewOpen}
-        data={viewingData}
-        loading={detailLoading}
-        onCancel={() => {
-          setDetailViewOpen(false);
-          setViewingData(null);
-        }}
-        onEdit={handleEditFromDetail}
-        onRuleDetailSuccess={() => {
-          if (viewingData?.uid) {
-            setDetailLoading(true);
-            getStrategyDetail(viewingData.uid)
-              .then(setViewingData)
-              .catch(() => {})
-              .finally(() => setDetailLoading(false));
-          }
-        }}
       />
     </div>
   );

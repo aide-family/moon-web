@@ -74,6 +74,17 @@ export const zhCN = {
   'strategy.ruleDetail.labels.keyRequired': '请输入 key',
   'strategy.ruleDetail.datasourceUIDs': '数据源',
   'strategy.ruleDetail.datasourceUIDs.placeholder': '请选择数据源',
+
+  'strategy.alertLevel.add': '新增',
+  'strategy.alertLevel.modal.title': '新增告警规则等级',
+  'strategy.alertLevel.levelUID.placeholder': '请输入等级 UID',
+  'strategy.alertLevel.mode.placeholder': '请输入模式',
+  'strategy.alertLevel.condition.placeholder': '请输入条件',
+  'strategy.alertLevel.duration.placeholder': '如 1s、0.5s',
+  'strategy.alertLevel.duration.pattern': '格式需为数字+s，如 1s、0.5s',
+  'strategy.alertLevel.status.placeholder': '请输入状态',
+  'strategy.alertLevel.values': '阈值/数值',
+  'strategy.alertLevel.values.placeholder': '逗号分隔的数字，如 1, 2, 3',
 }
 
 export const enUS = {
@@ -150,4 +161,15 @@ export const enUS = {
   'strategy.ruleDetail.labels.keyRequired': 'Please enter key',
   'strategy.ruleDetail.datasourceUIDs': 'Datasources',
   'strategy.ruleDetail.datasourceUIDs.placeholder': 'Select datasources',
+
+  'strategy.alertLevel.add': 'Add',
+  'strategy.alertLevel.modal.title': 'Add Alarm Rule Level',
+  'strategy.alertLevel.levelUID.placeholder': 'Enter level UID',
+  'strategy.alertLevel.mode.placeholder': 'Enter mode',
+  'strategy.alertLevel.condition.placeholder': 'Enter condition',
+  'strategy.alertLevel.duration.placeholder': 'e.g. 1s, 0.5s',
+  'strategy.alertLevel.duration.pattern': 'Format: number + s, e.g. 1s, 0.5s',
+  'strategy.alertLevel.status.placeholder': 'Enter status',
+  'strategy.alertLevel.values': 'Values / Threshold',
+  'strategy.alertLevel.values.placeholder': 'Comma-separated numbers, e.g. 1, 2, 3',
 }

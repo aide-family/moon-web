@@ -24,7 +24,7 @@ interface LayoutProps {
   header?: React.ReactNode;
 }
 
-// 递归查找菜单项（包括子菜单）
+// 递归查找菜单项（包括子菜单），精确匹配 path
 const findMenuItemByPath = (
   items: MenuItem[],
   path: string,
@@ -41,6 +41,30 @@ const findMenuItemByPath = (
     }
   }
   return null;
+};
+
+// 递归查找：当前路径以该菜单 path 为前缀时也视为命中（用于详情等子路由仍高亮父级菜单）
+const findMenuItemByPathOrPrefix = (
+  items: MenuItem[],
+  currentPath: string,
+): MenuItem | null => {
+  const exact = findMenuItemByPath(items, currentPath);
+  if (exact) return exact;
+  let best: MenuItem | null = null;
+  let bestLen = 0;
+  const visit = (list: MenuItem[]) => {
+    for (const item of list) {
+      if (item.path && item.path !== "/" && currentPath.startsWith(item.path + "/")) {
+        if (item.path.length > bestLen) {
+          bestLen = item.path.length;
+          best = item;
+        }
+      }
+      if (item.children) visit(item.children);
+    }
+  };
+  visit(items);
+  return best;
 };
 
 // 递归查找菜单项（通过 key）
@@ -80,7 +104,7 @@ const getParentKeys = (
   return [];
 };
 
-// 递归获取面包屑路径
+// 递归获取面包屑路径（精确匹配 path）
 const getBreadcrumbItems = (
   items: MenuItem[],
   targetPath: string,
@@ -93,6 +117,27 @@ const getBreadcrumbItems = (
     }
     if (item.children) {
       const found = getBreadcrumbItems(item.children, targetPath, currentPath);
+      if (found.length > 0) {
+        return found;
+      }
+    }
+  }
+  return [];
+};
+
+// 根据菜单 key 从根到该项收集面包屑（用于子路由无精确 path 时）
+const getBreadcrumbItemsByKey = (
+  items: MenuItem[],
+  targetKey: string,
+  parents: MenuItem[] = [],
+): MenuItem[] => {
+  for (const item of items) {
+    const path = [...parents, item];
+    if (item.key === targetKey) {
+      return path;
+    }
+    if (item.children) {
+      const found = getBreadcrumbItemsByKey(item.children, targetKey, path);
       if (found.length > 0) {
         return found;
       }
@@ -130,9 +175,9 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
     }
   }, [isDesktop]);
 
-  // 根据当前路径计算选中项（用 useMemo 稳定引用，避免 Menu 内部状态与受控值不同步导致要点两次才高亮）
+  // 根据当前路径计算选中项（支持子路由前缀匹配，如 /strategies/uid 仍选中「策略列表」）
   const currentPath = location.pathname;
-  const currentItem = findMenuItemByPath(menuItems, currentPath);
+  const currentItem = findMenuItemByPathOrPrefix(menuItems, currentPath);
   const selectedKeys = React.useMemo(
     () => (currentItem ? [currentItem.key] : []),
     [currentItem],
@@ -194,8 +239,28 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
 
   const menuItemsData: MenuProps["items"] = convertMenuItems(menuItems);
 
-  // 生成面包屑数据
-  const breadcrumbItems = getBreadcrumbItems(menuItems, location.pathname);
+  // 生成面包屑数据（支持子路由：无精确 path 时用当前匹配的菜单项链，并追加「策略详情」等末级标题）
+  const exactBreadcrumb = getBreadcrumbItems(menuItems, location.pathname);
+  let breadcrumbItems: MenuItem[] =
+    exactBreadcrumb.length > 0
+      ? exactBreadcrumb
+      : currentItem
+        ? getBreadcrumbItemsByKey(menuItems, currentItem.key)
+        : [];
+  // 子路由（如 /strategies/:uid）时追加详情级面包屑
+  if (
+    breadcrumbItems.length > 0 &&
+    currentItem?.path &&
+    location.pathname !== currentItem.path &&
+    currentItem.path.length < location.pathname.length
+  ) {
+    const detailLabel =
+      currentItem.key === "strategies" ? t("strategy.modal.detail.title") : t("common.detail");
+    breadcrumbItems = [
+      ...breadcrumbItems,
+      { key: "__detail__", label: detailLabel },
+    ];
+  }
   const breadcrumbData = breadcrumbItems.map((item) => ({
     title: <span>{item.label}</span>,
   }));

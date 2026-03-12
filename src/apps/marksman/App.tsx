@@ -16,6 +16,7 @@ import { convertToMenuItems, getAllSubAppConfigs, generateRoutes, getDefaultPath
 import type { AppConfigItem } from '../main/config'
 import DatasourceListWrapper from '@/pages/marksman/datasources'
 import StrategyListWrapper from '@/pages/marksman/strategies'
+import StrategyDetailPage from '@/pages/marksman/strategies/detail'
 import LevelListWrapper from '@/pages/marksman/levels'
 
 function AppContent() {
@@ -72,6 +73,7 @@ function AppContent() {
               }
             >
               <Route index element={<Navigate to={defaultPath} replace />} />
+              <Route path="/strategies/:uid" element={<StrategyDetailPage />} />
               {routes}
             </Route>
           </Routes>
