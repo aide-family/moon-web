@@ -246,7 +246,7 @@ export default function StrategyDetailPage() {
   }
 
   return (
-    <App>
+    <App className="h-full">
       <PageContent>
         <div className="flex flex-col h-full">
           <div className="flex items-center gap-2 mb-4 shrink-0">
