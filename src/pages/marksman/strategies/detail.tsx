@@ -251,21 +251,18 @@ export default function StrategyDetailPage() {
                     title: t("strategy.detail.level"),
                     dataIndex: ["level", "uid"],
                     key: "level",
-                    width: 120,
                     render: empty,
                   },
                   {
                     title: t("strategy.detail.mode"),
                     dataIndex: ["level", "mode"],
                     key: "mode",
-                    width: 80,
                     render: empty,
                   },
                   {
                     title: t("strategy.detail.condition"),
                     dataIndex: ["level", "condition"],
                     key: "condition",
-                    width: 80,
                     render: empty,
                   },
                   {
@@ -278,14 +275,12 @@ export default function StrategyDetailPage() {
                     title: t("strategy.detail.duration"),
                     dataIndex: ["level", "duration"],
                     key: "duration",
-                    width: 100,
                     render: empty,
                   },
                   {
                     title: t("strategy.detail.status"),
                     dataIndex: ["level", "status"],
                     key: "status",
-                    width: 80,
                     render: (v: number | undefined) => (v != null ? String(v) : "-"),
                   },
                 ] as ColumnsType<StrategyMetricLevelItem>
