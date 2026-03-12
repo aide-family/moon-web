@@ -4,6 +4,13 @@ import type { CreateStrategyParams, UpdateStrategyParams, StrategyItem } from '@
 import { createStrategy, updateStrategy } from '@/api/strategy/index'
 import { DatasourceType, DatasourceDriver } from '@/api/datasource/index'
 import { getStrategyGroupSelectList } from '@/api/strategyGroup'
+
+/** 类型与可选驱动的对应关系（驱动只能选择该类型下的）；未知类型/驱动不参与展示 */
+const TYPE_DRIVER_MAP: Record<string, string[]> = {
+  [DatasourceType.METRICS]: [DatasourceDriver.METRICS_PROMETHEUS, DatasourceDriver.METRICS_VICTORIA_METRICS],
+  [DatasourceType.LOGS]: [DatasourceDriver.LOGS_ELASTICSEARCH],
+  [DatasourceType.TRACE]: [DatasourceDriver.TRACE_JAEGER],
+}
 import type { StrategyGroupItemSelect } from '@/api/strategyGroup'
 import { useLocale } from '@/contexts/LocaleContext'
 import { GlobalStatus } from '@/api'
@@ -28,20 +35,34 @@ const DetailForm: React.FC<DetailFormProps> = ({
   onSuccess,
   closable = true,
 }) => {
-  const hideStrategyGroupSelect = mode === 'create' && defaultStrategyGroupUID != null && defaultStrategyGroupUID !== ''
+  const isEditWithUid = mode === 'edit' && !!initialData?.uid
+  const hideStrategyGroupSelect =
+    (mode === 'create' && defaultStrategyGroupUID != null && defaultStrategyGroupUID !== '') || isEditWithUid
   const { t } = useLocale()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [strategyGroupOptions, setStrategyGroupOptions] = useState<StrategyGroupItemSelect[]>([])
 
+  const selectedType = Form.useWatch('type', form)
   const typeOptions = useMemo(
-    () => Object.values(DatasourceType).map(value => ({ value, label: t(`datasource.type.${value}`) })),
+    () =>
+      Object.values(DatasourceType)
+        .filter(v => v !== DatasourceType.DatasourceType_UNKNOWN)
+        .map(value => ({ value, label: t(`datasource.type.${value}`) })),
     [t]
   )
-  const driverOptions = useMemo(
-    () => Object.values(DatasourceDriver).map(value => ({ value, label: t(`datasource.driver.${value}`) })),
+  const allDriverOptions = useMemo(
+    () =>
+      Object.values(DatasourceDriver)
+        .filter(v => v !== DatasourceDriver.DatasourceDriver_UNKNOWN)
+        .map(value => ({ value, label: t(`datasource.driver.${value}`) })),
     [t]
   )
+  const driverOptions = useMemo(() => {
+    const allowed = selectedType ? (TYPE_DRIVER_MAP[selectedType] ?? []) : []
+    if (allowed.length === 0) return allDriverOptions
+    return allDriverOptions.filter(opt => allowed.includes(opt.value))
+  }, [selectedType, allDriverOptions])
 
   useEffect(() => {
     if (open) {
@@ -138,14 +159,31 @@ const DetailForm: React.FC<DetailFormProps> = ({
           label={t('strategy.form.type.label')}
           rules={[{ required: true, message: t('strategy.form.type.placeholder') }]}
         >
-          <Select allowClear placeholder={t('strategy.form.type.placeholder')} options={typeOptions} />
+          <Select
+            allowClear
+            placeholder={t('strategy.form.type.placeholder')}
+            options={typeOptions}
+            disabled={isEditWithUid}
+            onChange={newType => {
+              const allowed = newType ? (TYPE_DRIVER_MAP[newType] ?? []) : []
+              const currentDriver = form.getFieldValue('driver')
+              if (currentDriver && allowed.length > 0 && !allowed.includes(currentDriver)) {
+                form.setFieldValue('driver', undefined)
+              }
+            }}
+          />
         </Form.Item>
         <Form.Item
           name="driver"
           label={t('strategy.form.driver.label')}
           rules={[{ required: true, message: t('strategy.form.driver.placeholder') }]}
         >
-          <Select allowClear placeholder={t('strategy.form.driver.placeholder')} options={driverOptions} />
+          <Select
+            allowClear
+            placeholder={t('strategy.form.driver.placeholder')}
+            options={driverOptions}
+            disabled={isEditWithUid}
+          />
         </Form.Item>
         {hideStrategyGroupSelect ? (
           <Form.Item name="strategyGroupUID" hidden>
@@ -160,8 +198,7 @@ const DetailForm: React.FC<DetailFormProps> = ({
             <Select
               allowClear
               placeholder={t('strategy.form.strategyGroup.placeholder')}
-              showSearch
-              optionFilterProp="label"
+              showSearch={{optionFilterProp: 'label'}}
               options={strategyGroupOptions.map(item => ({
                 value: item.value,
                 label: item.label ?? item.value,

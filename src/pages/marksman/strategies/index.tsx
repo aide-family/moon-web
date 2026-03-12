@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Table, Input, Button, Space, message, Dropdown, App, Radio, Tag, Spin } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { MenuProps } from "antd";
-import { EllipsisOutlined } from "@ant-design/icons";
+import { EllipsisOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   type StrategyItem,
   type StrategyListParams,
@@ -454,7 +454,7 @@ const StrategyGroupSidebar: React.FC<{
         } else {
           setDataSource(items);
           if (items.length > 0 && items[0].uid) {
-            onSelect(items[0].uid);
+            // onSelect(items[0].uid);
             setViewingData(null);
             setDetailLoading(true);
             getStrategyGroupDetail(items[0].uid)
@@ -608,8 +608,8 @@ const StrategyGroupSidebar: React.FC<{
             onChange={(e) => setKeyword(e.target.value)}
             onPressEnter={handleSearch}
           />
-          <Button type="primary" onClick={handleAdd}>
-            {t("common.add")}
+          <Button type="primary" onClick={handleAdd} icon={<PlusOutlined />}>
+            {/* {t("common.add")} */}
           </Button>
         </div>
         <div className="flex-1 min-h-0 overflow-auto p-2" onScroll={handleScroll}>
@@ -669,9 +669,21 @@ const StrategyGroupSidebar: React.FC<{
                     `}
                     onClick={() => handleSelectItem(item)}
                   >
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate">{item.name || item.uid || "-"}</div>
-                      <div className="text-xs text-(--ant-color-text-secondary)">{getStatusText(item.status)}</div>
+                    <div className="min-w-0 flex-1 flex items-center gap-2">
+                      <span
+                        className="shrink-0 w-1.5 h-1.5 rounded-full"
+                        style={{
+                          backgroundColor:
+                            item.status === GlobalStatus.ENABLED
+                              ? "var(--ant-color-success)"
+                              : item.status === GlobalStatus.DISABLED
+                                ? "var(--ant-color-error)"
+                                : "var(--ant-color-text-tertiary)",
+                        }}
+                        title={getStatusText(normalizeStatus(item.status))}
+                      />
+                      <div className="truncate min-w-0">{item.name || item.uid || "-"}</div>
+                      {/* <div className="text-xs text-(--ant-color-text-secondary)">{getStatusText(item.status)}</div> */}
                     </div>
                     <span onClick={(e) => e.stopPropagation()}>
                       <Dropdown menu={{ items: menuItems }} trigger={["click"]}>

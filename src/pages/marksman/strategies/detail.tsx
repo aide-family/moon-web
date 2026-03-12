@@ -64,12 +64,18 @@ export default function StrategyDetailPage() {
     queueMicrotask(() => {
       if (!cancelled) setLoading(true)
     })
-    Promise.all([getStrategyDetail(uid), getStrategyMetric(uid)])
-      .then(([detailRes, metricRes]) => {
-        if (!cancelled) {
-          setData(detailRes)
-          setLevels(metricRes?.levels ?? [])
+    getStrategyDetail(uid)
+      .then((detailRes) => {
+        if (cancelled) return
+        setData(detailRes)
+        if (detailRes?.type === 'METRICS') {
+          return getStrategyMetric(uid).then((metricRes) => {
+            if (!cancelled) setLevels(metricRes?.levels ?? [])
+          }).catch(() => {
+            if (!cancelled) setLevels([])
+          })
         }
+        setLevels([])
       })
       .catch(() => {
         if (!cancelled) {
@@ -180,57 +186,61 @@ export default function StrategyDetailPage() {
           </Descriptions>
         </div>
 
-        {/* 规则明细 */}
-        <div>
-          {sectionTitle(
-            t('strategy.detail.section.ruleDetail'),
-            <Button type="link" size="small" onClick={() => setRuleDetailModalOpen(true)}>
-              {t('strategy.ruleDetail.add')}
-            </Button>
-          )}
-          <Descriptions column={1} bordered size="small" styles={{ label: { width: labelWidth, minWidth: labelWidth } }}>
-            <Descriptions.Item label={t('strategy.detail.expr')}>{empty(meta.expr)}</Descriptions.Item>
-            <Descriptions.Item label={t('strategy.detail.customLabels')}>{empty(meta.labels)}</Descriptions.Item>
-            <Descriptions.Item label={t('strategy.detail.summary')}>{empty(meta.summary)}</Descriptions.Item>
-            <Descriptions.Item label={t('strategy.detail.description')}>{empty(meta.description)}</Descriptions.Item>
-          </Descriptions>
-        </div>
+        {/* 规则明细（仅 METRICS 类型） */}
+        {data.type === 'METRICS' && (
+          <div>
+            {sectionTitle(
+              t('strategy.detail.section.ruleDetail'),
+              <Button type="link" size="small" onClick={() => setRuleDetailModalOpen(true)}>
+                {t('strategy.ruleDetail.add')}
+              </Button>
+            )}
+            <Descriptions column={1} bordered size="small" styles={{ label: { width: labelWidth, minWidth: labelWidth } }}>
+              <Descriptions.Item label={t('strategy.detail.expr')}>{empty(meta.expr)}</Descriptions.Item>
+              <Descriptions.Item label={t('strategy.detail.customLabels')}>{empty(meta.labels)}</Descriptions.Item>
+              <Descriptions.Item label={t('strategy.detail.summary')}>{empty(meta.summary)}</Descriptions.Item>
+              <Descriptions.Item label={t('strategy.detail.description')}>{empty(meta.description)}</Descriptions.Item>
+            </Descriptions>
+          </div>
+        )}
 
-        {/* 告警规则等级 */}
-        <div>
-          {sectionTitle(
-            t('strategy.detail.section.alertLevel'),
-            <Button type="link" size="small" onClick={() => setAlertLevelModalOpen(true)}>
-              {t('strategy.alertLevel.add')}
-            </Button>
-          )}
-          <Table<StrategyMetricLevelItem>
-            size="small"
-            bordered
-            rowKey={(_, i) => String(i)}
-            pagination={false}
-            dataSource={levels}
-            columns={[
-              { title: t('strategy.detail.level'), dataIndex: ['level', 'uid'], key: 'level', width: 120, render: empty },
-              { title: t('strategy.detail.mode'), dataIndex: ['level', 'mode'], key: 'mode', width: 80, render: empty },
-              { title: t('strategy.detail.condition'), dataIndex: ['level', 'condition'], key: 'condition', width: 80, render: empty },
-              {
-                title: t('strategy.detail.threshold'),
-                dataIndex: ['level', 'values'],
-                key: 'values',
-                render: (v: number[] | undefined) => (v?.length ? v.join(', ') : '-'),
-              },
-              { title: t('strategy.detail.duration'), dataIndex: ['level', 'duration'], key: 'duration', width: 100, render: empty },
-              {
-                title: t('strategy.detail.status'),
-                dataIndex: ['level', 'status'],
-                key: 'status',
-                width: 80,
-                render: (v: number | undefined) => (v != null ? String(v) : '-'),
-              },
-            ] as ColumnsType<StrategyMetricLevelItem>}
-          />
-        </div>
+        {/* 告警规则等级（仅 METRICS 类型） */}
+        {data.type === 'METRICS' && (
+          <div>
+            {sectionTitle(
+              t('strategy.detail.section.alertLevel'),
+              <Button type="link" size="small" onClick={() => setAlertLevelModalOpen(true)}>
+                {t('strategy.alertLevel.add')}
+              </Button>
+            )}
+            <Table<StrategyMetricLevelItem>
+              size="small"
+              bordered
+              rowKey={(_, i) => String(i)}
+              pagination={false}
+              dataSource={levels}
+              columns={[
+                { title: t('strategy.detail.level'), dataIndex: ['level', 'uid'], key: 'level', width: 120, render: empty },
+                { title: t('strategy.detail.mode'), dataIndex: ['level', 'mode'], key: 'mode', width: 80, render: empty },
+                { title: t('strategy.detail.condition'), dataIndex: ['level', 'condition'], key: 'condition', width: 80, render: empty },
+                {
+                  title: t('strategy.detail.threshold'),
+                  dataIndex: ['level', 'values'],
+                  key: 'values',
+                  render: (v: number[] | undefined) => (v?.length ? v.join(', ') : '-'),
+                },
+                { title: t('strategy.detail.duration'), dataIndex: ['level', 'duration'], key: 'duration', width: 100, render: empty },
+                {
+                  title: t('strategy.detail.status'),
+                  dataIndex: ['level', 'status'],
+                  key: 'status',
+                  width: 80,
+                  render: (v: number | undefined) => (v != null ? String(v) : '-'),
+                },
+              ] as ColumnsType<StrategyMetricLevelItem>}
+            />
+          </div>
+        )}
       </div>
     )
   }
