@@ -511,6 +511,11 @@ const StrategyGroupSidebar: React.FC<{
 
   const handleSelectItem = async (record: StrategyGroupItem) => {
     if (!record.uid) return;
+    if (selectedUid === record.uid) {
+      onSelect(null);
+      setViewingData(null);
+      return;
+    }
     onSelect(record.uid);
     setViewingData(null);
     setDetailLoading(true);
@@ -601,7 +606,7 @@ const StrategyGroupSidebar: React.FC<{
       <div className="flex flex-col h-full">
         <div className="flex items-center gap-2 px-3 h-14 py-2 shrink-0">
           <Input
-            placeholder={t("table.search.placeholder")}
+            placeholder={t("strategyGroup.search.placeholder")}
             allowClear
             className="flex-1 min-w-0"
             value={keyword}

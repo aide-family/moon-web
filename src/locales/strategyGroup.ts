@@ -17,6 +17,7 @@ export const zhCN = {
   'strategyGroup.modal.edit.title': '编辑策略组',
   'strategyGroup.modal.detail.title': '策略组详情',
 
+  'strategyGroup.search.placeholder': '请输入策略组',
   'strategyGroup.list.scrollToLoadMore': '滚动到底部加载更多',
   'strategyGroup.detail.selectHint': '请从左侧选择一条策略组查看详情',
   'strategyGroup.tab.detail': '详情',
@@ -56,6 +57,7 @@ export const enUS = {
   'strategyGroup.modal.edit.title': 'Edit Strategy Group',
   'strategyGroup.modal.detail.title': 'Strategy Group Detail',
 
+  'strategyGroup.search.placeholder': 'Enter strategy group',
   'strategyGroup.list.scrollToLoadMore': 'Scroll to load more',
   'strategyGroup.detail.selectHint': 'Select a strategy group from the list to view details',
   'strategyGroup.tab.detail': 'Detail',

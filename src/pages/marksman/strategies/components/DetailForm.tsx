@@ -19,7 +19,7 @@ interface DetailFormProps {
   open: boolean
   mode: 'create' | 'edit'
   initialData?: StrategyItem | null
-  /** 新增时默认策略组 UID（传入则自动带入且不展示策略组选择） */
+  /** 新增时默认策略组 UID（传入则自动带入表单，策略组仍可修改） */
   defaultStrategyGroupUID?: string | null
   onCancel: () => void
   onSuccess: (created?: StrategyItem) => void
@@ -36,8 +36,8 @@ const DetailForm: React.FC<DetailFormProps> = ({
   closable = true,
 }) => {
   const isEditWithUid = mode === 'edit' && !!initialData?.uid
-  const hideStrategyGroupSelect =
-    (mode === 'create' && defaultStrategyGroupUID != null && defaultStrategyGroupUID !== '') || isEditWithUid
+  /** 仅编辑时隐藏策略组（创建时始终展示，默认选中可修改） */
+  const hideStrategyGroupSelect = isEditWithUid
   const { t } = useLocale()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
