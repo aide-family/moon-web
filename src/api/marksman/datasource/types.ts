@@ -106,10 +106,10 @@ export interface UpdateDatasourceParams {
   metadata?: Record<string, string>
 }
 
-/** 指标元数据项（ListMetrics 接口返回） */
+/** 指标元数据项（ListMetrics 接口返回，与后端 help 对齐） */
 export interface MetricSummaryItem {
   name?: string
-  description?: string
+  help?: string
   unit?: string
   type?: string
 }
@@ -117,4 +117,44 @@ export interface MetricSummaryItem {
 /** 数据源指标列表响应 GET /v1/datasource/{uid}/metrics */
 export interface DatasourceMetricsResponse {
   metrics?: MetricSummaryItem[]
+}
+
+/** 指标标签项（GetMetricDetail 返回的 labels 元素） */
+export interface MetricLabelItem {
+  name?: string
+  values?: string[]
+}
+
+/** 单指标详情（GetMetricDetail 返回）GET /v1/datasource/{uid}/metric/{metric} */
+export interface MetricDetailItem {
+  name?: string
+  help?: string
+  unit?: string
+  type?: string
+  labels?: MetricLabelItem[]
+}
+
+/** 数据源状态数据点 */
+export interface DatasourceStatusPoint {
+  timestamp?: string
+  value?: number
+}
+
+/** 数据源状态序列 */
+export interface DatasourceStatusSeries {
+  uid?: string
+  name?: string
+  points?: DatasourceStatusPoint[]
+}
+
+/** 获取数据源状态查询参数 GET /v1/datasource/{uid}/status */
+export interface GetDatasourceStatusParams {
+  startTime?: string
+  endTime?: string
+  stepSeconds?: number
+}
+
+/** 获取数据源状态响应 */
+export interface GetDatasourceStatusResponse {
+  series?: DatasourceStatusSeries[]
 }

@@ -63,3 +63,10 @@ export interface SaveStrategyMetricLevelParams {
   status?: number
   values?: number[]
 }
+
+/** 策略指标绑定接收人请求体 POST /v1/metric/strategy/{strategyUID}/receivers */
+export interface StrategyMetricBindReceiversParams {
+  strategyUID?: string
+  receiverUIDs?: string[]
+  levelUID?: string
+}
