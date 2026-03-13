@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, Select, Spin, message, Button, Space } from "antd";
+import { Modal, Form, Input, Select, message, Button, Space } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
-import { getStrategyMetric, saveStrategyMetric } from "@/api/marksman/strategyMetric";
+import { saveStrategyMetric } from "@/api/marksman/strategyMetric";
 import type { StrategyMetricItem, SaveStrategyMetricParams } from "@/api/marksman/strategyMetric";
 import { getDatasourceSelectList } from "@/api/marksman/datasource";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -9,6 +9,7 @@ import { useLocale } from "@/contexts/LocaleContext";
 interface RuleDetailModalProps {
   open: boolean;
   strategyUID: string | undefined;
+  initialData?: StrategyMetricItem | null;
   onCancel: () => void;
   onSuccess: () => void;
 }
@@ -30,10 +31,15 @@ function fieldsToLabels(fields: { key?: string; value?: string }[] | undefined):
   return Object.keys(obj).length > 0 ? obj : undefined;
 }
 
-const RuleDetailModal: React.FC<RuleDetailModalProps> = ({ open, strategyUID, onCancel, onSuccess }) => {
+const RuleDetailModal: React.FC<RuleDetailModalProps> = ({
+  open,
+  strategyUID,
+  initialData,
+  onCancel,
+  onSuccess,
+}) => {
   const { t } = useLocale();
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [datasourceOptions, setDatasourceOptions] = useState<{ value: string; label: string }[]>([]);
 
@@ -51,27 +57,19 @@ const RuleDetailModal: React.FC<RuleDetailModalProps> = ({ open, strategyUID, on
   }, [open]);
 
   useEffect(() => {
-    if (open && strategyUID) {
-      setLoading(true);
-      getStrategyMetric(strategyUID)
-        .then((data: StrategyMetricItem) => {
-          form.setFieldsValue({
-            expr: data.expr ?? "",
-            summary: data.summary ?? "",
-            description: data.description ?? "",
-            status: data.status,
-            labels: labelsToFields(data.labels),
-            datasourceUIDs: data.datasourceUIDs ?? undefined,
-          });
-        })
-        .catch(() => {
-          form.resetFields();
-        })
-        .finally(() => setLoading(false));
-    } else if (open && !strategyUID) {
+    if (open && initialData) {
+      form.setFieldsValue({
+        expr: initialData.expr ?? "",
+        summary: initialData.summary ?? "",
+        description: initialData.description ?? "",
+        status: initialData.status,
+        labels: labelsToFields(initialData.labels),
+        datasourceUIDs: initialData.datasourceUIDs ?? undefined,
+      });
+    } else if (open) {
       form.resetFields();
     }
-  }, [open, strategyUID, form]);
+  }, [open, initialData, form]);
 
   const handleSubmit = async () => {
     if (!strategyUID) return;
@@ -116,14 +114,9 @@ const RuleDetailModal: React.FC<RuleDetailModalProps> = ({ open, strategyUID, on
       confirmLoading={saving}
       destroyOnHidden
       width={640}
-      styles={{ body: { height: 580, overflow: "auto" } }}
+      styles={{ body: { height: 580, overflowY: "auto", overflowX: "hidden" } }}
     >
-      {loading ? (
-        <div style={{ textAlign: "center", padding: "40px 0" }}>
-          <Spin size="large" />
-        </div>
-      ) : (
-        <Form form={form} layout="vertical" className="mt-4">
+      <Form form={form} layout="vertical" className="mt-4">
           <Form.Item name="datasourceUIDs" label={t("strategy.ruleDetail.datasourceUIDs")}>
             <Select
               mode="multiple"
@@ -142,9 +135,6 @@ const RuleDetailModal: React.FC<RuleDetailModalProps> = ({ open, strategyUID, on
           <Form.Item name="description" label={t("strategy.detail.description")}>
             <Input.TextArea rows={2} placeholder={t("strategy.ruleDetail.description.placeholder")} />
           </Form.Item>
-          <Form.Item name="status" label={t("strategy.detail.status")}>
-            <Input type="number" placeholder="1" />
-          </Form.Item>
           <Form.Item label={t("strategy.detail.customLabels")}>
             <Form.List name="labels">
               {(fields, { add, remove }) => (
@@ -155,11 +145,11 @@ const RuleDetailModal: React.FC<RuleDetailModalProps> = ({ open, strategyUID, on
                         {...restField}
                         name={[name, "key"]}
                         rules={[{ required: true, message: t("strategy.ruleDetail.labels.keyRequired") }]}
-                        style={{ marginBottom: 0, minWidth: 120 }}
+                        style={{ marginBottom: 0, width: 200 }}
                       >
                         <Input placeholder={t("strategy.ruleDetail.labels.keyPlaceholder")} />
                       </Form.Item>
-                      <Form.Item {...restField} name={[name, "value"]} style={{ marginBottom: 0, minWidth: 140 }}>
+                      <Form.Item {...restField} name={[name, "value"]} style={{ marginBottom: 0, width: 340}}>
                         <Input placeholder={t("strategy.ruleDetail.labels.valuePlaceholder")} />
                       </Form.Item>
                       <Button
@@ -181,7 +171,6 @@ const RuleDetailModal: React.FC<RuleDetailModalProps> = ({ open, strategyUID, on
             </Form.List>
           </Form.Item>
         </Form>
-      )}
     </Modal>
   );
 };
