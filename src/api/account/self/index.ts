@@ -3,12 +3,19 @@ import type { RefreshTokenResponse, SelfInfo } from './types'
 
 const TOKEN_KEY = 'token'
 
+/** 进行中的刷新 Promise，用于微前端/多应用场景下的单飞，避免主服务与子服务同时触发多次请求 */
+let refreshPromise: Promise<void> | null = null
+
 /**
  * 刷新当前用户 token（GET /v1/self/refresh-token）
- * 成功后将新 token 写入 localStorage / sessionStorage，与 AuthGuard、request 拦截器一致
+ * 成功后将新 token 写入 localStorage / sessionStorage，与 AuthGuard、request 拦截器一致。
+ * 同一时刻仅会发起一次请求，多应用同时调用会复用同一 Promise，避免无效多次调用。
  */
 export function refreshToken(): Promise<void> {
-  return http
+  if (refreshPromise !== null) {
+    return refreshPromise
+  }
+  refreshPromise = http
     .get<RefreshTokenResponse>('/self/refresh-token', undefined, {
       showError: false, // 刷新失败由 401 拦截器统一提示，避免重复
     })
@@ -19,6 +26,10 @@ export function refreshToken(): Promise<void> {
         sessionStorage.setItem(TOKEN_KEY, newToken)
       }
     })
+    .finally(() => {
+      refreshPromise = null
+    })
+  return refreshPromise
 }
 
 /**

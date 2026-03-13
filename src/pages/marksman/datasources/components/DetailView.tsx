@@ -55,6 +55,9 @@ function collectStatusPoints(
   return points
 }
 
+/** 状态栏展示的格子数（只保留最新），格子均分容器宽度，单行无横向滚动 */
+const MAX_STATUS_CELLS = 128
+
 interface StatusGridStripProps {
   points: Array<{ timestamp?: string; value?: number }>
   loading?: boolean
@@ -69,11 +72,11 @@ const StatusGridStrip: React.FC<StatusGridStripProps> = ({
   const { t } = useLocale()
   if (loading) {
     return (
-      <div className='mb-4'>
+      <div className='mb-4 min-w-0'>
         <div className='text-sm text-(--ant-color-text-secondary) mb-2'>
           {label}
         </div>
-        <div className='flex items-center gap-0.5 flex-wrap'>
+        <div className='h-5 w-full flex items-stretch'>
           <Spin size='small' />
         </div>
       </div>
@@ -81,7 +84,7 @@ const StatusGridStrip: React.FC<StatusGridStripProps> = ({
   }
   if (points.length === 0) {
     return (
-      <div className='mb-4'>
+      <div className='mb-4 min-w-0'>
         <div className='text-sm text-(--ant-color-text-secondary) mb-2'>
           {label}
         </div>
@@ -91,28 +94,38 @@ const StatusGridStrip: React.FC<StatusGridStripProps> = ({
       </div>
     )
   }
+  const latestPoints = points.slice(-MAX_STATUS_CELLS)
+  const placeholderCount = Math.max(0, MAX_STATUS_CELLS - latestPoints.length)
+  const placeholders = Array.from({ length: placeholderCount }, () => null)
+  const cells = [...placeholders, ...latestPoints]
   return (
-    <div className='mb-4'>
+    <div className='mb-4 min-w-0 w-full'>
       <div className='text-sm text-(--ant-color-text-secondary) mb-2'>
         {label}
       </div>
-      <div className='flex items-center gap-0.5 flex-wrap'>
-        {points.map((p, i) => {
-          const isUp = p.value === 1
-          const timeStr = p.timestamp
-            ? dayjs(p.timestamp).format('YYYY-MM-DD HH:mm')
-            : ''
-          const tip = timeStr
-            ? `${timeStr} · ${isUp ? t('datasource.status.up') : t('datasource.status.down')} (${p.value ?? '-'})`
-            : `${isUp ? t('datasource.status.up') : t('datasource.status.down')} (${p.value ?? '-'})`
+      <div className='flex items-stretch h-5 w-full min-w-0'>
+        {cells.map((p, i) => {
+          const isPlaceholder = p === null
+          const isUp = !isPlaceholder && p.value === 1
+          const timeStr =
+            !isPlaceholder && p?.timestamp
+              ? dayjs(+p.timestamp * 1000).format('YYYY-MM-DD HH:mm:ss')
+              : ''
+          const tip = isPlaceholder
+            ? t('common.noData')
+            : timeStr
+              ? `${timeStr} · ${isUp ? t('datasource.status.up') : t('datasource.status.down')} (${p?.value ?? '-'})`
+              : `${isUp ? t('datasource.status.up') : t('datasource.status.down')} (${p?.value ?? '-'})`
           return (
             <Tooltip key={i} title={tip}>
               <span
-                className='inline-block w-3 h-4 rounded-sm border border-(--ant-color-border) transition-colors'
+                className='flex-1 min-w-0 max-w-[15px] rounded-sm border border-(--ant-color-border) transition-colors'
                 style={{
-                  backgroundColor: isUp
-                    ? 'var(--ant-color-success)'
-                    : 'var(--ant-color-fill-quaternary)',
+                  backgroundColor: isPlaceholder
+                    ? 'var(--ant-color-fill-quaternary)'
+                    : isUp
+                      ? 'var(--ant-color-success)'
+                      : 'var(--ant-color-error)',
                 }}
               />
             </Tooltip>
