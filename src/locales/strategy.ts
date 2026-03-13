@@ -85,6 +85,26 @@ export const zhCN = {
   'strategy.alertLevel.status.placeholder': '请输入状态',
   'strategy.alertLevel.values': '阈值/数值',
   'strategy.alertLevel.values.placeholder': '逗号分隔的数字，如 1, 2, 3',
+  'strategy.alertLevel.values.rangeMin': '下限',
+  'strategy.alertLevel.values.rangeMax': '上限',
+  'strategy.alertLevel.confirm.status.title': '确定要{action}该告警等级吗？',
+  'strategy.alertLevel.confirm.status.content': '告警等级「{name}」',
+
+  'strategy.sampleMode.SAMPLE_MODE_UNKNOWN': '未知',
+  'strategy.sampleMode.SAMPLE_MODE_FOR': 'FOR',
+  'strategy.sampleMode.SAMPLE_MODE_MAX': 'MAX',
+  'strategy.sampleMode.SAMPLE_MODE_MIN': 'MIN',
+
+  'strategy.conditionMetric.CONDITION_METRIC_UNKNOWN': '未知',
+  'strategy.conditionMetric.CONDITION_METRIC_EQ': '等于',
+  'strategy.conditionMetric.CONDITION_METRIC_NE': '不等于',
+  'strategy.conditionMetric.CONDITION_METRIC_GT': '大于',
+  'strategy.conditionMetric.CONDITION_METRIC_GTE': '大于等于',
+  'strategy.conditionMetric.CONDITION_METRIC_LT': '小于',
+  'strategy.conditionMetric.CONDITION_METRIC_LTE': '小于等于',
+  'strategy.conditionMetric.CONDITION_METRIC_IN': '属于',
+  'strategy.conditionMetric.CONDITION_METRIC_NOT_IN': '不属于',
+  'strategy.conditionMetric.CONDITION_METRIC_BETWEEN': '范围',
 }
 
 export const enUS = {
@@ -172,4 +192,24 @@ export const enUS = {
   'strategy.alertLevel.status.placeholder': 'Enter status',
   'strategy.alertLevel.values': 'Values / Threshold',
   'strategy.alertLevel.values.placeholder': 'Comma-separated numbers, e.g. 1, 2, 3',
+  'strategy.alertLevel.values.rangeMin': 'Min',
+  'strategy.alertLevel.values.rangeMax': 'Max',
+  'strategy.alertLevel.confirm.status.title': 'Confirm to {action} this alert level?',
+  'strategy.alertLevel.confirm.status.content': 'Alert level "{name}"',
+
+  'strategy.sampleMode.SAMPLE_MODE_UNKNOWN': 'Unknown',
+  'strategy.sampleMode.SAMPLE_MODE_FOR': 'FOR',
+  'strategy.sampleMode.SAMPLE_MODE_MAX': 'MAX',
+  'strategy.sampleMode.SAMPLE_MODE_MIN': 'MIN',
+
+  'strategy.conditionMetric.CONDITION_METRIC_UNKNOWN': 'Unknown',
+  'strategy.conditionMetric.CONDITION_METRIC_EQ': 'Equal',
+  'strategy.conditionMetric.CONDITION_METRIC_NE': 'Not equal',
+  'strategy.conditionMetric.CONDITION_METRIC_GT': 'Greater than',
+  'strategy.conditionMetric.CONDITION_METRIC_GTE': 'Greater or equal',
+  'strategy.conditionMetric.CONDITION_METRIC_LT': 'Less than',
+  'strategy.conditionMetric.CONDITION_METRIC_LTE': 'Less or equal',
+  'strategy.conditionMetric.CONDITION_METRIC_IN': 'In',
+  'strategy.conditionMetric.CONDITION_METRIC_NOT_IN': 'Not in',
+  'strategy.conditionMetric.CONDITION_METRIC_BETWEEN': 'Between',
 }

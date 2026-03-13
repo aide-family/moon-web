@@ -4,6 +4,7 @@
  */
 
 import { http } from '../index'
+import type { GlobalStatus } from '../types'
 import type { StrategyMetricItem, StrategyMetricLevelItem, SaveStrategyMetricParams, SaveStrategyMetricLevelParams } from './types'
 export type { StrategyMetricItem, StrategyMetricLevelItem, SaveStrategyMetricParams, SaveStrategyMetricLevelParams } from './types'
 
@@ -26,4 +27,13 @@ export const saveStrategyMetricLevel = (
   params?: SaveStrategyMetricLevelParams
 ): Promise<unknown> => {
   return http.post<unknown>(`/metric/strategy/${strategyUID}/level`, params as Record<string, unknown>)
+}
+
+/** 修改告警等级状态 PUT /v1/metric/strategy/{strategyUID}/level/{uid}/status，status 传全局状态枚举 */
+export const updateStrategyMetricLevelStatus = (
+  strategyUID: string,
+  uid: string,
+  status: GlobalStatus | string
+): Promise<unknown> => {
+  return http.put<unknown>(`/metric/strategy/${strategyUID}/level/${uid}/status`, { status })
 }

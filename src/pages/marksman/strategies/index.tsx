@@ -268,7 +268,7 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({ select
 
   const handleViewDetail = (record: StrategyItem) => {
     if (!record.uid) return;
-    navigate(`/strategies/${record.uid}`);
+    navigate(`/strategies/${record.uid}`, { state: { type: record.type } });
   };
 
   const handleEdit = (record: StrategyItem) => {
