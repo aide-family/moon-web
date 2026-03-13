@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { Modal, Form, Input, Select, message } from 'antd'
-import type { CreateStrategyParams, UpdateStrategyParams, StrategyItem } from '@/api/strategy/index'
-import { createStrategy, updateStrategy } from '@/api/strategy/index'
-import { DatasourceType, DatasourceDriver } from '@/api/datasource/index'
-import { getStrategyGroupSelectList } from '@/api/strategyGroup'
+import type { CreateStrategyParams, UpdateStrategyParams, StrategyItem } from '@/api/marksman/strategy/index'
+import { createStrategy, updateStrategy } from '@/api/marksman/strategy/index'
+import { DatasourceType, DatasourceDriver } from '@/api/marksman/datasource/index'
+import { getStrategyGroupSelectList } from '@/api/marksman/strategyGroup'
 
 /** 类型与可选驱动的对应关系（驱动只能选择该类型下的）；未知类型/驱动不参与展示 */
 const TYPE_DRIVER_MAP: Record<string, string[]> = {
@@ -11,7 +11,7 @@ const TYPE_DRIVER_MAP: Record<string, string[]> = {
   [DatasourceType.LOGS]: [DatasourceDriver.LOGS_ELASTICSEARCH],
   [DatasourceType.TRACE]: [DatasourceDriver.TRACE_JAEGER],
 }
-import type { StrategyGroupItemSelect } from '@/api/strategyGroup'
+import type { StrategyGroupItemSelect } from '@/api/marksman/strategyGroup'
 import { useLocale } from '@/contexts/LocaleContext'
 import { GlobalStatus } from '@/api'
 

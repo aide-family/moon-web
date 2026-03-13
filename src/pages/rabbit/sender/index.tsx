@@ -16,14 +16,14 @@ import {
   sendEmailWithTemplate,
   sendWebhook,
   sendWebhookWithTemplate,
-} from "@/api/sender";
-import { getEmailConfigSelectList } from "@/api/email";
-import type { EmailItemSelect } from "@/api/email";
-import { getWebhookConfigSelectList } from "@/api/webhook";
-import type { WebhookItemSelect } from "@/api/webhook";
-import { getTemplateSelectList } from "@/api/template";
-import type { TemplateItemSelect } from "@/api/template";
-import { MessageType } from "@/api/types";
+} from "@/api/rabbit/sender";
+import { getEmailConfigSelectList } from "@/api/rabbit/email";
+import type { EmailItemSelect } from "@/api/rabbit/email";
+import { getWebhookConfigSelectList } from "@/api/rabbit/webhook";
+import type { WebhookItemSelect } from "@/api/rabbit/webhook";
+import { getTemplateSelectList } from "@/api/rabbit/template";
+import type { TemplateItemSelect } from "@/api/rabbit/template";
+import { MessageType } from "@/api/common/types";
 import { useLocale } from "@/contexts/LocaleContext";
 import PageContent from "@/components/layout/PageContent";
 

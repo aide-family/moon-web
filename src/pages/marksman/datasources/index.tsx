@@ -7,7 +7,7 @@ import {
   getDatasourceList,
   getDatasourceDetail,
   deleteDatasource,
-} from "@/api/datasource/index";
+} from "@/api/marksman/datasource/index";
 import DetailForm from "./components/DetailForm";
 import DetailView from "./components/DetailView";
 import MetadataView from "./components/MetadataView";

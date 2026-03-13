@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Form, Input, InputNumber, message } from 'antd'
-import type { CreateEmailParams, UpdateEmailParams, EmailItem } from '@/api/email/index'
-import { createEmail, updateEmail } from '@/api/email/index'
+import type { CreateEmailParams, UpdateEmailParams, EmailItem } from '@/api/rabbit/email/index'
+import { createEmail, updateEmail } from '@/api/rabbit/email/index'
 import { useLocale } from '@/contexts/LocaleContext'
 
 interface DetailFormProps {

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Modal, Descriptions, Button, Space, Spin, Tag } from 'antd'
-import type { StrategyGroupItem } from '@/api/strategyGroup'
-import { GlobalStatus } from '@/api/types'
+import type { StrategyGroupItem } from '@/api/marksman/strategyGroup'
+import { GlobalStatus } from '@/api/common/types'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
 

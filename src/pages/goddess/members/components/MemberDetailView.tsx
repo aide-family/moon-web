@@ -1,7 +1,7 @@
 import React from 'react'
 import { Modal, Descriptions, Tag, Button, Space } from 'antd'
-import type { MemberItem } from '@/api/member'
-import { MemberStatus, normalizeMemberStatus } from '@/api/member'
+import type { MemberItem } from '@/api/account/member'
+import { MemberStatus, normalizeMemberStatus } from '@/api/account/member'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
 

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Modal, Descriptions, Tag, Button, Space } from 'antd'
-import type { EmailItem } from '@/api/email/index'
-import { GlobalStatus } from '@/api/types'
+import type { EmailItem } from '@/api/rabbit/email/index'
+import { GlobalStatus } from '@/api/common/types'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
 

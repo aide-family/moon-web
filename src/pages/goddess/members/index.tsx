@@ -14,7 +14,7 @@ import {
   type MemberItem,
   type ListMembersParams,
   type InviteMemberBody,
-} from "@/api/member";
+} from "@/api/account/member";
 import dayjs from "dayjs";
 import MemberDetailView from "./components/MemberDetailView";
 import { useLocale } from "@/contexts/LocaleContext";

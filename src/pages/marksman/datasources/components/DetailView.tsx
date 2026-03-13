@@ -1,6 +1,6 @@
 import React from 'react'
 import { Modal, Descriptions, Button, Space, Spin } from 'antd'
-import type { DatasourceItem } from '@/api/datasource/index'
+import type { DatasourceItem } from '@/api/marksman/datasource/index'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
 

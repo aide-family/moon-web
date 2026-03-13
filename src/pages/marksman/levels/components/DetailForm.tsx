@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Form, Input, message } from 'antd'
-import type { CreateLevelParams, UpdateLevelParams, LevelItem } from '@/api/level'
-import { createLevel, updateLevel } from '@/api/level'
+import type { CreateLevelParams, UpdateLevelParams, LevelItem } from '@/api/marksman/level'
+import { createLevel, updateLevel } from '@/api/marksman/level'
 import { useLocale } from '@/contexts/LocaleContext'
 
 interface DetailFormProps {

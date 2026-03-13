@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import type React from 'react'
-import { refreshToken } from '@/api/self'
+import { refreshToken } from '@/api/account/self'
 
 const REFRESH_INTERVAL_MS = 3 * 60 * 1000 // 10 分钟
 

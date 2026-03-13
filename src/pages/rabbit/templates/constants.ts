@@ -3,7 +3,7 @@
  * 应用对应 messageType，使用 api/types 的 MessageType 枚举
  */
 
-import { MessageType } from '@/api/types'
+import { MessageType } from '@/api/common/types'
 
 /** 用于列表筛选/表单的 messageType 可选值（排除 UNKNOWN） */
 export const MESSAGE_TYPE_OPTIONS: MessageType[] = [

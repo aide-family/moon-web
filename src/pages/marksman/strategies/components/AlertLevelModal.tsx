@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Form, Input, message } from 'antd'
-import { saveStrategyMetricLevel } from '@/api/strategyMetric'
-import type { SaveStrategyMetricLevelParams } from '@/api/strategyMetric'
+import { saveStrategyMetricLevel } from '@/api/marksman/strategyMetric'
+import type { SaveStrategyMetricLevelParams } from '@/api/marksman/strategyMetric'
 import { useLocale } from '@/contexts/LocaleContext'
 
 const DURATION_REGEX = /^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$/

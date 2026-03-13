@@ -13,7 +13,7 @@ import {
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
-import { MessageStatus, MessageType } from '@/api/types'
+import { MessageStatus, MessageType } from '@/api/common/types'
 import {
   listMessageLogs,
   getMessageLog,
@@ -21,7 +21,7 @@ import {
   retryMessage,
   type MessageLogItem,
   type ListMessageLogsParams,
-} from '@/api/message-log'
+} from '@/api/rabbit/message-log'
 import { getStatusLabel, getStatusColor, getTypeLabel } from './constants'
 import { getMessageTypeIconType } from '@/pages/rabbit/constants/appIcons'
 import { IconFont } from '@/components/Icon/IconFont'

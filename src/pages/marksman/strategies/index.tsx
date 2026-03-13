@@ -10,19 +10,19 @@ import {
   getStrategyList,
   deleteStrategy,
   updateStrategyStatus,
-} from "@/api/strategy/index";
+} from "@/api/marksman/strategy/index";
 import { GlobalStatus } from "@/api";
 import dayjs from "dayjs";
 import DetailForm from "./components/DetailForm";
 import { useLocale } from "@/contexts/LocaleContext";
 import PageContent from "@/components/layout/PageContent";
-import type { StrategyGroupItem, StrategyGroupListParams } from "@/api/strategyGroup";
+import type { StrategyGroupItem, StrategyGroupListParams } from "@/api/marksman/strategyGroup";
 import {
   getStrategyGroupList,
   getStrategyGroupDetail,
   deleteStrategyGroup,
   updateStrategyGroupStatus,
-} from "@/api/strategyGroup";
+} from "@/api/marksman/strategyGroup";
 import StrategyGroupDetailForm from "@/pages/marksman/strategy-groups/components/DetailForm";
 import StrategyGroupDetailView from "@/pages/marksman/strategy-groups/components/DetailView";
 

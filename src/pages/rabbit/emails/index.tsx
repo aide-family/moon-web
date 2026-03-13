@@ -9,7 +9,7 @@ import {
   getEmailTableList,
   deleteEmail,
   updateEmailStatus,
-} from '@/api/email/index'
+} from '@/api/rabbit/email/index'
 import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'

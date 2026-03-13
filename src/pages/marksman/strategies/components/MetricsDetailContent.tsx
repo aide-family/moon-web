@@ -2,16 +2,16 @@ import { useEffect, useState } from "react";
 import { Button, Descriptions, Divider, Empty, Input, InputNumber, message, Modal, Select, Space, Spin, Switch, Table, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { EditOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
-import type { StrategyItem } from "@/api/strategy/index";
-import { getStrategyMetric, saveStrategyMetricLevel, updateStrategyMetricLevelStatus } from "@/api/strategyMetric";
+import type { StrategyItem } from "@/api/marksman/strategy/index";
+import { getStrategyMetric, saveStrategyMetricLevel, updateStrategyMetricLevelStatus } from "@/api/marksman/strategyMetric";
 import type {
   StrategyMetricItem,
   StrategyMetricLevelItem,
   StrategyMetricLevelItemLevel,
-} from "@/api/strategyMetric/types";
-import type { SaveStrategyMetricLevelParams } from "@/api/strategyMetric";
-import { getLevelSelectList } from "@/api/level";
-import type { LevelItemSelect } from "@/api/level";
+} from "@/api/marksman/strategyMetric/types";
+import type { SaveStrategyMetricLevelParams } from "@/api/marksman/strategyMetric";
+import { getLevelSelectList } from "@/api/marksman/level";
+import type { LevelItemSelect } from "@/api/marksman/level";
 import { ConditionMetric, GlobalStatus, SampleMode } from "@/api";
 import { useLocale } from "@/contexts/LocaleContext";
 import DetailForm from "./DetailForm";

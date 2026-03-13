@@ -19,7 +19,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useNamespace } from "@/contexts/NamespaceContext";
 import DetailForm from "@/pages/goddess/namespaces/components/DetailForm";
-import { getSelfInfo, changeEmail, changeAvatar } from "@/api/self";
+import { getSelfInfo, changeEmail, changeAvatar } from "@/api/account/self";
 
 const Header: React.FC = () => {
   const navigate = useNavigate();

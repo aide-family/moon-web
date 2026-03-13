@@ -1,6 +1,6 @@
 import React from 'react'
 import { Modal, Descriptions, Tag, Button, Space } from 'antd'
-import type { WebhookItem } from '@/api/webhook/index'
+import type { WebhookItem } from '@/api/rabbit/webhook/index'
 import { GlobalStatus } from '@/api'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'

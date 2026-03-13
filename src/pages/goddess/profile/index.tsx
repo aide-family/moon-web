@@ -3,9 +3,9 @@ import { Avatar, Spin, Tag, Typography, theme } from "antd";
 import { UserOutlined, MailOutlined } from "@ant-design/icons";
 import { useLocale } from "@/contexts/LocaleContext";
 import PageContent from "@/components/layout/PageContent";
-import { getSelfInfo } from "@/api/self";
-import type { SelfInfo } from "@/api/self/types";
-import { parseUserStatus } from "@/api/user";
+import { getSelfInfo } from "@/api/account/self";
+import type { SelfInfo } from "@/api/account/self/types";
+import { parseUserStatus } from "@/api/account/user";
 
 const { Title, Text } = Typography;
 

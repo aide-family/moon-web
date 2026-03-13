@@ -1,4 +1,4 @@
-import { MessageStatus, MessageType } from '@/api/types'
+import { MessageStatus, MessageType } from '@/api/common/types'
 
 /** MessageStatus -> i18n key 后缀（messageLog.status.xxx） */
 const STATUS_TO_I18N_SUFFIX: Record<MessageStatus, string> = {

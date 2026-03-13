@@ -4,8 +4,8 @@ import type {
   CreateNamespaceParams,
   UpdateNamespaceParams,
   NamespaceItem,
-} from "@/api/namespace/index";
-import { createNamespace, updateNamespace } from "@/api/namespace/index";
+} from "@/api/account/namespace/index";
+import { createNamespace, updateNamespace } from "@/api/account/namespace/index";
 import { useLocale } from "@/contexts/LocaleContext";
 
 interface DetailFormProps {

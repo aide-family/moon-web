@@ -19,9 +19,9 @@ import {
 } from "@ant-design/icons";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { sendEmailLoginCode, emailLogin } from "@/api/auth";
-import { getCaptcha } from "@/api/captcha";
-import { getOauth2Reports, type OAuth2ReportItem } from "@/api/oauth";
+import { sendEmailLoginCode, emailLogin } from "@/api/account/auth";
+import { getCaptcha } from "@/api/account/captcha";
+import { getOauth2Reports, type OAuth2ReportItem } from "@/api/account/oauth";
 import { useNavigate } from "react-router-dom";
 import banner1 from "@/assets/banner/banner1.svg";
 import banner2 from "@/assets/banner/banner2.svg";

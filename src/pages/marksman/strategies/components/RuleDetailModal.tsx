@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Form, Input, Select, Spin, message, Button, Space } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
-import { getStrategyMetric, saveStrategyMetric } from "@/api/strategyMetric";
-import type { StrategyMetricItem, SaveStrategyMetricParams } from "@/api/strategyMetric";
-import { getDatasourceSelectList } from "@/api/datasource";
+import { getStrategyMetric, saveStrategyMetric } from "@/api/marksman/strategyMetric";
+import type { StrategyMetricItem, SaveStrategyMetricParams } from "@/api/marksman/strategyMetric";
+import { getDatasourceSelectList } from "@/api/marksman/datasource";
 import { useLocale } from "@/contexts/LocaleContext";
 
 interface RuleDetailModalProps {

@@ -5,7 +5,7 @@
  */
 
 import { WebhookAPP } from '@/api'
-import { MessageType } from '@/api/types'
+import { MessageType } from '@/api/common/types'
 
 /** Webhook 应用枚举 key -> iconfont 类型名 */
 const WEBHOOK_APP_ICON: Record<string, string> = {

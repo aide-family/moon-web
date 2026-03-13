@@ -4,8 +4,8 @@ import type {
   CreateStrategyGroupParams,
   UpdateStrategyGroupParams,
   StrategyGroupItem,
-} from '@/api/strategyGroup'
-import { createStrategyGroup, updateStrategyGroup } from '@/api/strategyGroup'
+} from '@/api/marksman/strategyGroup'
+import { createStrategyGroup, updateStrategyGroup } from '@/api/marksman/strategyGroup'
 import { useLocale } from '@/contexts/LocaleContext'
 
 interface DetailFormProps {

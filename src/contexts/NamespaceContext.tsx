@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react'
-import { getSelfNamespaces } from '@/api/namespace/index'
-import { GlobalStatus } from '@/api/types'
-import type { NamespaceItemSelect } from '@/api/namespace/index'
+import { getSelfNamespaces } from '@/api/account/namespace/index'
+import { GlobalStatus } from '@/api/common/types'
+import type { NamespaceItemSelect } from '@/api/account/namespace/index'
 
 interface NamespaceContextType {
   /** 命名空间下拉选项列表 */

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Modal, Descriptions, Button, Space, Spin, Tag } from 'antd'
-import type { LevelItem } from '@/api/level'
-import { GlobalStatus } from '@/api/level'
+import type { LevelItem } from '@/api/marksman/level'
+import { GlobalStatus } from '@/api/marksman/level'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
 

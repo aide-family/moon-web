@@ -1,18 +1,37 @@
 /**
- * API 模块统一导出
+ * API 模块统一导出（按大类：common / account / marksman / rabbit）
  */
-export { default as request, http } from './request'
-export type { ApiResponse, PaginatedResponse, RequestConfig } from './types'
-export { GlobalStatus, WebhookAPP, HTTPMethod, MessageStatus, MessageType, SampleMode, ConditionMetric } from './types'
-export * from './auth/index'
-export * from './captcha/index'
-export * from './namespace/index'
-export * from './oauth'
-export * from './self/index'
-export * from './user/index'
-export * from './member/index'
-export * from './datasource/index'
-export * from './level/index'
-export * from './strategy/index'
-export * from './strategyMetric/index'
-export * from './strategyGroup/index'
+export { default as request, http } from './common/request'
+export type { ApiResponse, PaginatedResponse, RequestConfig } from './common/types'
+export {
+  GlobalStatus,
+  WebhookAPP,
+  HTTPMethod,
+  MessageStatus,
+  MessageType,
+  SampleMode,
+  ConditionMetric,
+} from './common/types'
+
+// account：认证与用户
+export * from './account/auth/index'
+export * from './account/captcha/index'
+export * from './account/oauth'
+export * from './account/self/index'
+export * from './account/user/index'
+export * from './account/member/index'
+export * from './account/namespace/index'
+
+// marksman：策略与数据源
+export * from './marksman/datasource/index'
+export * from './marksman/level/index'
+export * from './marksman/strategy/index'
+export * from './marksman/strategyMetric/index'
+export * from './marksman/strategyGroup/index'
+
+// rabbit：消息与发送
+export * from './rabbit/sender/index'
+export * from './rabbit/email/index'
+export * from './rabbit/webhook/index'
+export * from './rabbit/template/index'
+export * from './rabbit/message-log/index'

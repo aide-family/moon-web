@@ -12,7 +12,7 @@ import {
   parseUserStatus,
   type UserItem,
   type ListUsersParams,
-} from '@/api/user'
+} from '@/api/account/user'
 import dayjs from 'dayjs'
 import UserDetailView from './components/UserDetailView'
 import { useLocale } from '@/contexts/LocaleContext'

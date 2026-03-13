@@ -4,14 +4,14 @@ import { App, Button, Dropdown, Input, Radio, Space, Table, Tag, message } from 
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
 import dayjs from 'dayjs'
-import type { StrategyGroupItem, StrategyGroupListParams } from '@/api/strategyGroup'
+import type { StrategyGroupItem, StrategyGroupListParams } from '@/api/marksman/strategyGroup'
 import {
   deleteStrategyGroup,
   getStrategyGroupDetail,
   getStrategyGroupList,
   updateStrategyGroupStatus,
-} from '@/api/strategyGroup'
-import { GlobalStatus } from '@/api/types'
+} from '@/api/marksman/strategyGroup'
+import { GlobalStatus } from '@/api/common/types'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'

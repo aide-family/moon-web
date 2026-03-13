@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { Modal, Form, Input, Select, message } from 'antd'
-import type { CreateDatasourceParams, UpdateDatasourceParams, DatasourceItem } from '@/api/datasource/index'
-import { createDatasource, updateDatasource, DatasourceType, DatasourceDriver } from '@/api/datasource/index'
+import type { CreateDatasourceParams, UpdateDatasourceParams, DatasourceItem } from '@/api/marksman/datasource/index'
+import { createDatasource, updateDatasource, DatasourceType, DatasourceDriver } from '@/api/marksman/datasource/index'
 import { useLocale } from '@/contexts/LocaleContext'
 
 interface DetailFormProps {

@@ -9,7 +9,7 @@ import {
   getWebhookTableList,
   deleteWebhook,
   updateWebhookStatus,
-} from '@/api/webhook/index'
+} from '@/api/rabbit/webhook/index'
 import { GlobalStatus } from '@/api'
 import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'

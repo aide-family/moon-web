@@ -1,6 +1,6 @@
 import React from 'react'
 import { Modal, Descriptions, Tag, Button, Spin } from 'antd'
-import type { MessageLogItem } from '@/api/message-log'
+import type { MessageLogItem } from '@/api/rabbit/message-log'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
 import { getStatusLabel, getStatusColor, getTypeLabel } from '../constants'

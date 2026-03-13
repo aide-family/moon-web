@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Table, Spin } from "antd";
-import { type MetricSummaryItem, getDatasourceMetrics } from "@/api/datasource/index";
+import { type MetricSummaryItem, getDatasourceMetrics } from "@/api/marksman/datasource/index";
 import { useLocale } from "@/contexts/LocaleContext";
 
 interface MetadataViewProps {
