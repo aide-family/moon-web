@@ -57,6 +57,8 @@ export const zhCN = {
   'datasource.form.remark.placeholder': '请输入备注',
   'datasource.form.metadata.label': '元数据(JSON)',
   'datasource.form.metadata.placeholder': '可选，JSON 对象',
+  'datasource.status.up': '正常',
+  'datasource.status.down': '异常',
 }
 
 export const enUS = {
@@ -117,4 +119,6 @@ export const enUS = {
   'datasource.form.remark.placeholder': 'Enter remark',
   'datasource.form.metadata.label': 'Metadata (JSON)',
   'datasource.form.metadata.placeholder': 'Optional, JSON object',
+  'datasource.status.up': 'Up',
+  'datasource.status.down': 'Down',
 }
