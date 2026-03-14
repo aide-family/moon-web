@@ -216,7 +216,12 @@ const DetailView: React.FC<DetailViewProps> = ({
         queueMicrotask(() => setStatusLoading(true))
         isFirst = false
       }
-      getDatasourceStatus(data.uid!, {})
+      const endTime = dayjs()
+      const startTime = endTime.subtract(3, 'hour')
+      getDatasourceStatus(data.uid!, {
+        endTime: endTime.unix(),
+        startTime: startTime.unix(),
+      })
         .then((res) => {
           if (!cancelled) setStatusRes(res)
         })

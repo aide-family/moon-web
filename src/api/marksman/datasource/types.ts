@@ -149,8 +149,8 @@ export interface DatasourceStatusSeries {
 
 /** 获取数据源状态查询参数 GET /v1/datasource/{uid}/status */
 export interface GetDatasourceStatusParams {
-  startTime?: string
-  endTime?: string
+  startTime?: number
+  endTime?: number
   stepSeconds?: number
 }
 
