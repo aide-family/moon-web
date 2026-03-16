@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react'
 import {
   Button,
   Descriptions,
@@ -14,332 +14,409 @@ import {
   Switch,
   Table,
   Tag,
-} from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { EditOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
-import type { StrategyItem } from "@/api/marksman/strategy/index";
+} from 'antd'
+import type { ColumnsType } from 'antd/es/table'
+import { EditOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons'
+import type { StrategyItem } from '@/api/marksman/strategy/index'
 import {
+  deleteStrategyMetricLevel,
   getStrategyMetric,
   saveStrategyMetricLevel,
   updateStrategyMetricLevelStatus,
-} from "@/api/marksman/strategyMetric";
+} from '@/api/marksman/strategyMetric'
 import type {
   StrategyMetricItem,
   StrategyMetricLevelItem,
   StrategyMetricLevelItemLevel,
-} from "@/api/marksman/strategyMetric/types";
-import type { SaveStrategyMetricLevelParams } from "@/api/marksman/strategyMetric";
-import { getLevelSelectList } from "@/api/marksman/level";
-import type { LevelItemSelect } from "@/api/marksman/level";
-import { ConditionMetric, GlobalStatus, SampleMode } from "@/api";
-import { useLocale } from "@/contexts/LocaleContext";
-import DetailForm from "./DetailForm";
-import RuleDetailModal from "./RuleDetailModal";
+} from '@/api/marksman/strategyMetric/types'
+import type { SaveStrategyMetricLevelParams } from '@/api/marksman/strategyMetric'
+import { getLevelSelectList } from '@/api/marksman/level'
+import type { LevelItemSelect } from '@/api/marksman/level'
+import { ConditionMetric, GlobalStatus, SampleMode } from '@/api'
+import { useLocale } from '@/contexts/LocaleContext'
+import DetailForm from './DetailForm'
+import RuleDetailModal from './RuleDetailModal'
 
-const empty = (v: unknown) => (v == null || v === "" ? "-" : String(v));
+const empty = (v: unknown) => (v == null || v === '' ? '-' : String(v))
 
 /** 将 labels 对象格式化为可读字符串，避免 [object Object] */
 function formatLabels(labels: unknown): string {
-  if (labels == null) return "-";
-  if (typeof labels === "string") return labels === "" ? "-" : labels;
-  if (typeof labels === "object" && !Array.isArray(labels) && labels !== null) {
+  if (labels == null) return '-'
+  if (typeof labels === 'string') return labels === '' ? '-' : labels
+  if (typeof labels === 'object' && !Array.isArray(labels) && labels !== null) {
     const entries = Object.entries(labels as Record<string, unknown>)
-      .filter(([, val]) => val != null && val !== "")
-      .map(([k, val]) => `${k}=${val}`);
-    return entries.length > 0 ? entries.join(", ") : "-";
+      .filter(([, val]) => val != null && val !== '')
+      .map(([k, val]) => `${k}=${val}`)
+    return entries.length > 0 ? entries.join(', ') : '-'
   }
-  return String(labels);
+  return String(labels)
 }
 
-function getTypeLabel(value: string | undefined, t: (key: string) => string): string {
-  if (value == null || value === "") return "-";
-  return t(`datasource.type.${value}`) || value;
+function getTypeLabel(
+  value: string | undefined,
+  t: (key: string) => string,
+): string {
+  if (value == null || value === '') return '-'
+  return t(`datasource.type.${value}`) || value
 }
-function getDriverLabel(value: string | undefined, t: (key: string) => string): string {
-  if (value == null || value === "") return "-";
-  return t(`datasource.driver.${value}`) || value;
+function getDriverLabel(
+  value: string | undefined,
+  t: (key: string) => string,
+): string {
+  if (value == null || value === '') return '-'
+  return t(`datasource.driver.${value}`) || value
 }
 
 function normalizeStatus(status: string | undefined): GlobalStatus {
-  if (status === GlobalStatus.ENABLED) return GlobalStatus.ENABLED;
-  if (status === GlobalStatus.DISABLED) return GlobalStatus.DISABLED;
-  return GlobalStatus.UNKNOWN;
+  if (status === GlobalStatus.ENABLED) return GlobalStatus.ENABLED
+  if (status === GlobalStatus.DISABLED) return GlobalStatus.DISABLED
+  return GlobalStatus.UNKNOWN
 }
 
 const statusMap: Record<GlobalStatus, { text: string; color: string }> = {
-  [GlobalStatus.UNKNOWN]: { text: "table.unknown", color: "default" },
-  [GlobalStatus.ENABLED]: { text: "table.enable", color: "success" },
-  [GlobalStatus.DISABLED]: { text: "table.disable", color: "error" },
-};
+  [GlobalStatus.UNKNOWN]: { text: 'table.unknown', color: 'default' },
+  [GlobalStatus.ENABLED]: { text: 'table.enable', color: 'success' },
+  [GlobalStatus.DISABLED]: { text: 'table.disable', color: 'error' },
+}
 
-const labelWidth = 140;
+const labelWidth = 140
 
 /** 接口可能返回数字，前端统一按全局状态展示；保存时再转回数字 */
 function normalizeLevelStatus(raw: number | string | undefined): GlobalStatus {
-  if (raw === 1 || raw === GlobalStatus.ENABLED) return GlobalStatus.ENABLED;
-  if (raw === 0 || raw === GlobalStatus.DISABLED) return GlobalStatus.DISABLED;
-  return GlobalStatus.UNKNOWN;
+  if (raw === 1 || raw === GlobalStatus.ENABLED) return GlobalStatus.ENABLED
+  if (raw === 0 || raw === GlobalStatus.DISABLED) return GlobalStatus.DISABLED
+  return GlobalStatus.UNKNOWN
 }
 
 function globalStatusToLevelStatus(s: GlobalStatus): number {
-  if (s === GlobalStatus.ENABLED) return 1;
-  if (s === GlobalStatus.DISABLED) return 0;
-  return 0;
+  if (s === GlobalStatus.ENABLED) return 1
+  if (s === GlobalStatus.DISABLED) return 0
+  return 0
 }
 
 function parseValuesString(str: string | undefined): number[] | undefined {
-  if (str == null || String(str).trim() === "") return undefined;
+  if (str == null || String(str).trim() === '') return undefined
   const parts = String(str)
     .split(/[,，\s]+/)
     .map((s) => s.trim())
-    .filter(Boolean);
-  const nums: number[] = [];
+    .filter(Boolean)
+  const nums: number[] = []
   for (const p of parts) {
-    const n = Number(p);
-    if (Number.isFinite(n)) nums.push(n);
+    const n = Number(p)
+    if (Number.isFinite(n)) nums.push(n)
   }
-  return nums.length > 0 ? nums : undefined;
+  return nums.length > 0 ? nums : undefined
 }
 
 /** 接口可能返回数字，前端统一按枚举字符串展示与提交 */
 function normalizeMode(raw: number | string | undefined): string {
-  if (raw == null || raw === "") return SampleMode.SAMPLE_MODE_UNKNOWN;
-  const s = String(raw);
-  if (Object.values(SampleMode).includes(s as SampleMode)) return s;
-  return s || SampleMode.SAMPLE_MODE_UNKNOWN;
+  if (raw == null || raw === '') return SampleMode.SAMPLE_MODE_UNKNOWN
+  const s = String(raw)
+  if (Object.values(SampleMode).includes(s as SampleMode)) return s
+  return s || SampleMode.SAMPLE_MODE_UNKNOWN
 }
 
 function normalizeCondition(raw: number | string | undefined): string {
-  if (raw == null || raw === "") return ConditionMetric.CONDITION_METRIC_UNKNOWN;
-  const s = String(raw);
-  if (Object.values(ConditionMetric).includes(s as ConditionMetric)) return s;
-  return s || ConditionMetric.CONDITION_METRIC_UNKNOWN;
+  if (raw == null || raw === '') return ConditionMetric.CONDITION_METRIC_UNKNOWN
+  const s = String(raw)
+  if (Object.values(ConditionMetric).includes(s as ConditionMetric)) return s
+  return s || ConditionMetric.CONDITION_METRIC_UNKNOWN
 }
 
 /** 条件为「范围」时显示两个阈值输入框 */
-const RANGE_CONDITION = ConditionMetric.CONDITION_METRIC_BETWEEN;
+const RANGE_CONDITION = ConditionMetric.CONDITION_METRIC_BETWEEN
 
 export interface MetricsDetailContentProps {
-  strategyUID: string;
+  strategyUID: string
 }
 
-export default function MetricsDetailContent({ strategyUID }: MetricsDetailContentProps) {
-  const { t } = useLocale();
-  const [data, setData] = useState<StrategyMetricItem | null>(null);
-  const [levels, setLevels] = useState<StrategyMetricLevelItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [detailFormOpen, setDetailFormOpen] = useState(false);
-  const [editingData, setEditingData] = useState<StrategyItem | null>(null);
-  const [ruleDetailModalOpen, setRuleDetailModalOpen] = useState(false);
-  const [editingLevelKey, setEditingLevelKey] = useState<string | null>(null);
-  const [editingLevelData, setEditingLevelData] = useState<StrategyMetricLevelItemLevel | null>(null);
-  const [levelSaving, setLevelSaving] = useState(false);
-  const [levelSelectOptions, setLevelSelectOptions] = useState<LevelItemSelect[]>([]);
+export default function MetricsDetailContent({
+  strategyUID,
+}: MetricsDetailContentProps) {
+  const { t } = useLocale()
+  const [data, setData] = useState<StrategyMetricItem | null>(null)
+  const [levels, setLevels] = useState<StrategyMetricLevelItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [detailFormOpen, setDetailFormOpen] = useState(false)
+  const [editingData, setEditingData] = useState<StrategyItem | null>(null)
+  const [ruleDetailModalOpen, setRuleDetailModalOpen] = useState(false)
+  const [editingLevelKey, setEditingLevelKey] = useState<string | null>(null)
+  const [editingLevelData, setEditingLevelData] =
+    useState<StrategyMetricLevelItemLevel | null>(null)
+  const [levelSaving, setLevelSaving] = useState(false)
+  const [levelSelectOptions, setLevelSelectOptions] = useState<
+    LevelItemSelect[]
+  >([])
 
   const fetchData = () => {
-    setLoading(true);
+    setLoading(true)
     getStrategyMetric(strategyUID)
       .then((detailRes) => {
-        setData(detailRes);
-        setLevels(detailRes?.levels ?? []);
+        setData(detailRes)
+        setLevels(detailRes?.levels ?? [])
       })
       .catch(() => {
-        setData(null);
-        setLevels([]);
+        setData(null)
+        setLevels([])
       })
-      .finally(() => setLoading(false));
-  };
+      .finally(() => setLoading(false))
+  }
 
   useEffect(() => {
     queueMicrotask(() => {
-      fetchData();
-    });
+      fetchData()
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchData intentionally stable per strategyUID
-  }, [strategyUID]);
+  }, [strategyUID])
 
   useEffect(() => {
     getLevelSelectList({ limit: 100, status: GlobalStatus.ENABLED })
       .then((res) => setLevelSelectOptions(res?.items ?? []))
-      .catch(() => setLevelSelectOptions([]));
-  }, []);
+      .catch(() => setLevelSelectOptions([]))
+  }, [])
 
   const handleEdit = (item: StrategyItem) => {
-    setEditingData(item);
-    setDetailFormOpen(true);
-  };
+    setEditingData(item)
+    setDetailFormOpen(true)
+  }
 
   const handleFormSuccess = () => {
-    setDetailFormOpen(false);
-    setEditingData(null);
-    fetchData();
-  };
+    setDetailFormOpen(false)
+    setEditingData(null)
+    fetchData()
+  }
 
   const handleRuleDetailSuccess = () => {
-    setRuleDetailModalOpen(false);
-    fetchData();
-  };
+    setRuleDetailModalOpen(false)
+    fetchData()
+  }
 
   const refreshLevels = () => {
     getStrategyMetric(strategyUID)
       .then((res) => setLevels(res?.levels ?? []))
-      .catch(() => setLevels([]));
-  };
+      .catch(() => setLevels([]))
+  }
 
   const handleAddLevelRow = () => {
-    setLevels((prev) => [...prev, { level: {} }]);
-    setEditingLevelKey(`level-${levels.length}`);
-    setEditingLevelData({ status: globalStatusToLevelStatus(GlobalStatus.ENABLED) });
-  };
+    setLevels((prev) => [...prev, { level: {} }])
+    setEditingLevelKey(`level-${levels.length}`)
+    setEditingLevelData({
+      status: globalStatusToLevelStatus(GlobalStatus.ENABLED),
+    })
+  }
 
   const handleEditLevel = (index: number) => {
-    const item = levels[index];
-    const row = item as StrategyMetricLevelItem & StrategyMetricLevelItemLevel;
-    const level = item?.level;
-    const modeRaw = row?.mode;
-    const conditionRaw = row?.condition;
-    const modeStr = normalizeMode(modeRaw);
-    const conditionStr = normalizeCondition(conditionRaw);
-    setEditingLevelKey(`level-${index}`);
+    const item = levels[index]
+    const row = item as StrategyMetricLevelItem & StrategyMetricLevelItemLevel
+    const level = item?.level
+    const modeRaw = row?.mode
+    const conditionRaw = row?.condition
+    const modeStr = normalizeMode(modeRaw)
+    const conditionStr = normalizeCondition(conditionRaw)
+    setEditingLevelKey(`level-${index}`)
     setEditingLevelData({
       uid: level?.uid,
       mode: modeStr !== SampleMode.SAMPLE_MODE_UNKNOWN ? modeStr : modeRaw,
-      condition: conditionStr !== ConditionMetric.CONDITION_METRIC_UNKNOWN ? conditionStr : conditionRaw,
+      condition:
+        conditionStr !== ConditionMetric.CONDITION_METRIC_UNKNOWN
+          ? conditionStr
+          : conditionRaw,
       values: row?.values,
       duration: row?.duration,
       status: row?.status,
-    });
-  };
+    })
+  }
 
   const handleSaveLevel = async () => {
-    if (!data?.strategyUID || !editingLevelData) return;
+    if (!data?.strategyUID || !editingLevelData) return
     const params: SaveStrategyMetricLevelParams = {
       strategyUID: data.strategyUID,
       levelUID: editingLevelData.uid?.trim() || undefined,
-      mode: editingLevelData.mode != null && editingLevelData.mode !== "" ? String(editingLevelData.mode) : undefined,
+      mode:
+        editingLevelData.mode != null && editingLevelData.mode !== ''
+          ? String(editingLevelData.mode)
+          : undefined,
       condition:
-        editingLevelData.condition != null && editingLevelData.condition !== ""
+        editingLevelData.condition != null && editingLevelData.condition !== ''
           ? String(editingLevelData.condition)
           : undefined,
       duration: editingLevelData.duration?.trim() || undefined,
       status: editingLevelData.status,
       values: editingLevelData.values,
-    };
-    setLevelSaving(true);
-    try {
-      await saveStrategyMetricLevel(data.strategyUID, params);
-      message.success(t("message.update.success"));
-      setEditingLevelKey(null);
-      setEditingLevelData(null);
-      refreshLevels();
-    } catch (err) {
-      console.error("保存告警规则等级失败:", err);
-      message.error(t("message.error"));
-    } finally {
-      setLevelSaving(false);
     }
-  };
+    setLevelSaving(true)
+    try {
+      await saveStrategyMetricLevel(data.strategyUID, params)
+      message.success(t('message.update.success'))
+      setEditingLevelKey(null)
+      setEditingLevelData(null)
+      refreshLevels()
+    } catch (err) {
+      console.error('保存告警规则等级失败:', err)
+      message.error(t('message.error'))
+    } finally {
+      setLevelSaving(false)
+    }
+  }
 
   const handleCancelEditLevel = () => {
-    const key = editingLevelKey;
-    setEditingLevelKey(null);
-    setEditingLevelData(null);
-    if (key != null && key.startsWith("level-")) {
-      const idx = Number(key.replace("level-", ""));
-      if (Number.isFinite(idx) && levels[idx]?.level && !levels[idx].level?.uid) {
-        setLevels((prev) => prev.filter((_, i) => i !== idx));
+    const key = editingLevelKey
+    setEditingLevelKey(null)
+    setEditingLevelData(null)
+    if (key != null && key.startsWith('level-')) {
+      const idx = Number(key.replace('level-', ''))
+      if (
+        Number.isFinite(idx) &&
+        levels[idx]?.level &&
+        !levels[idx].level?.uid
+      ) {
+        setLevels((prev) => prev.filter((_, i) => i !== idx))
       }
     }
-  };
+  }
 
   const handleToggleLevelStatus = (index: number) => {
-    const item = levels[index];
-    const level = item?.level;
-    if (!data?.strategyUID || !level?.uid) return;
-    const strategyUID = data.strategyUID;
-    const levelUid = level.uid;
-    const current = normalizeLevelStatus(item?.status);
-    const nextStatus = current === GlobalStatus.ENABLED ? GlobalStatus.DISABLED : GlobalStatus.ENABLED;
-    const action = current === GlobalStatus.ENABLED ? t("table.disable") : t("table.enable");
-    const levelName = levelSelectOptions.find((o) => o.value === level.uid)?.label ?? level.uid;
+    const item = levels[index]
+    const level = item?.level
+    if (!data?.strategyUID || !level?.uid) return
+    const strategyUID = data.strategyUID
+    const levelUid = level.uid
+    const current = normalizeLevelStatus(item?.status)
+    const nextStatus =
+      current === GlobalStatus.ENABLED
+        ? GlobalStatus.DISABLED
+        : GlobalStatus.ENABLED
+    const action =
+      current === GlobalStatus.ENABLED ? t('table.disable') : t('table.enable')
+    const levelName =
+      levelSelectOptions.find((o) => o.value === level.uid)?.label ?? level.uid
     Modal.confirm({
-      title: t("strategy.alertLevel.confirm.status.title", { action }),
-      content: t("strategy.alertLevel.confirm.status.content", { name: levelName }),
-      okText: t("common.confirm"),
-      cancelText: t("common.cancel"),
+      title: t('strategy.alertLevel.confirm.status.title', { action }),
+      content: t('strategy.alertLevel.confirm.status.content', {
+        name: levelName,
+      }),
+      okText: t('common.confirm'),
+      cancelText: t('common.cancel'),
       onOk: async () => {
-        setLevelSaving(true);
+        setLevelSaving(true)
         try {
-          await updateStrategyMetricLevelStatus(strategyUID, levelUid, nextStatus);
-          message.success(t("message.update.success"));
-          refreshLevels();
+          await updateStrategyMetricLevelStatus(
+            strategyUID,
+            levelUid,
+            nextStatus,
+          )
+          message.success(t('message.update.success'))
+          refreshLevels()
         } catch (err) {
-          console.error("切换告警等级状态失败:", err);
-          message.error(t("message.error"));
+          console.error('切换告警等级状态失败:', err)
+          message.error(t('message.error'))
         } finally {
-          setLevelSaving(false);
+          setLevelSaving(false)
         }
       },
-    });
-  };
+    })
+  }
+
+  const handleDeleteLevel = (metricLevelItem: StrategyMetricLevelItem) => {
+    if (!data?.strategyUID || !metricLevelItem?.levelUID) return
+    const strategyUID = data.strategyUID
+    const levelUid = metricLevelItem?.levelUID ?? ''
+    const levelName =
+      levelSelectOptions.find((o) => o.value === levelUid)?.label ?? levelUid
+    Modal.confirm({
+      title: t('strategy.alertLevel.confirm.delete.title'),
+      content: t('strategy.alertLevel.confirm.delete.content', {
+        name: levelName,
+      }),
+      okText: t('common.confirm'),
+      cancelText: t('common.cancel'),
+      onOk: async () => {
+        setLevelSaving(true)
+        try {
+          await deleteStrategyMetricLevel(strategyUID, levelUid)
+          message.success(t('message.delete.success'))
+          refreshLevels()
+        } catch (err) {
+          console.error('删除告警等级失败:', err)
+          message.error(t('message.error'))
+        } finally {
+          setLevelSaving(false)
+        }
+      },
+    })
+  }
 
   if (loading) {
     return (
-      <div style={{ textAlign: "center", padding: "40px 0" }}>
-        <Spin size="large" />
+      <div style={{ textAlign: 'center', padding: '40px 0' }}>
+        <Spin size='large' />
       </div>
-    );
+    )
   }
   if (!data) {
-    return <div style={{ textAlign: "center", padding: "40px 0" }}>{t("common.noData")}</div>;
+    return (
+      <div style={{ textAlign: 'center', padding: '40px 0' }}>
+        {t('common.noData')}
+      </div>
+    )
   }
 
-  const s = normalizeStatus(data.strategy.status);
-  const info = statusMap[s];
+  const s = normalizeStatus(data.strategy.status)
+  const info = statusMap[s]
 
   return (
     <>
-      <div className="space-y-6">
+      <div className='space-y-6'>
         {/* 基础信息 */}
         <div>
-          <Divider titlePlacement="left" orientationMargin={0}>
+          <Divider titlePlacement='left' orientationMargin={0}>
             <Space>
-              <span className="text-sm font-medium">{t("strategy.detail.section.basic")}</span>
-              <Button type="link" size="small" onClick={() => handleEdit(data.strategy)} icon={<EditOutlined />} />
+              <span className='text-sm font-medium'>
+                {t('strategy.detail.section.basic')}
+              </span>
+              <Button
+                type='link'
+                size='small'
+                onClick={() => handleEdit(data.strategy)}
+                icon={<EditOutlined />}
+              />
             </Space>
           </Divider>
           <Descriptions
             column={2}
             bordered
-            size="small"
+            size='small'
             styles={{ label: { width: labelWidth, minWidth: labelWidth } }}
           >
-            <Descriptions.Item label={t("strategy.detail.name")}>
+            <Descriptions.Item label={t('strategy.detail.name')}>
               <Space>
                 <span>{empty(data.strategy.name)}</span>
                 <Tag color={info.color}>{t(info.text)}</Tag>
               </Space>
             </Descriptions.Item>
-            <Descriptions.Item label={t("strategy.detail.type")}>
-              {getTypeLabel(data.strategy.type, t)}({getDriverLabel(data.strategy.driver, t)})
+            <Descriptions.Item label={t('strategy.detail.type')}>
+              {getTypeLabel(data.strategy.type, t)}(
+              {getDriverLabel(data.strategy.driver, t)})
             </Descriptions.Item>
-            <Descriptions.Item label={t("strategy.detail.remark")} span={2}>
+            <Descriptions.Item label={t('strategy.detail.remark')} span={2}>
               {empty(data.strategy.remark)}
             </Descriptions.Item>
-            <Descriptions.Item label={t("strategy.detail.metadata")} span={2}>
-              {data.strategy.metadata && Object.keys(data.strategy.metadata).length > 0 ? (
+            <Descriptions.Item label={t('strategy.detail.metadata')} span={2}>
+              {data.strategy.metadata &&
+              Object.keys(data.strategy.metadata).length > 0 ? (
                 <pre
                   style={{
                     margin: 0,
-                    whiteSpace: "pre-wrap",
-                    wordBreak: "break-word",
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
                     maxHeight: 200,
-                    overflow: "auto",
+                    overflow: 'auto',
                   }}
                 >
                   {JSON.stringify(data.strategy.metadata, null, 2)}
                 </pre>
               ) : (
-                "-"
+                '-'
               )}
             </Descriptions.Item>
           </Descriptions>
@@ -347,12 +424,14 @@ export default function MetricsDetailContent({ strategyUID }: MetricsDetailConte
 
         {/* 规则明细 */}
         <div>
-          <Divider titlePlacement="left" orientationMargin={0}>
+          <Divider titlePlacement='left' orientationMargin={0}>
             <Space>
-              <span className="text-sm font-medium">{t("strategy.detail.section.ruleDetail")}</span>
+              <span className='text-sm font-medium'>
+                {t('strategy.detail.section.ruleDetail')}
+              </span>
               <Button
-                type="link"
-                size="small"
+                type='link'
+                size='small'
                 onClick={() => setRuleDetailModalOpen(true)}
                 icon={data.expr ? <EditOutlined /> : <PlusOutlined />}
               />
@@ -362,13 +441,21 @@ export default function MetricsDetailContent({ strategyUID }: MetricsDetailConte
             <Descriptions
               column={1}
               bordered
-              size="small"
+              size='small'
               styles={{ label: { width: labelWidth, minWidth: labelWidth } }}
             >
-              <Descriptions.Item label={t("strategy.detail.expr")}>{empty(data.expr)}</Descriptions.Item>
-              <Descriptions.Item label={t("strategy.detail.customLabels")}>{formatLabels(data.labels)}</Descriptions.Item>
-              <Descriptions.Item label={t("strategy.detail.summary")}>{empty(data.summary)}</Descriptions.Item>
-              <Descriptions.Item label={t("strategy.detail.description")}>{empty(data.description)}</Descriptions.Item>
+              <Descriptions.Item label={t('strategy.detail.expr')}>
+                {empty(data.expr)}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('strategy.detail.customLabels')}>
+                {formatLabels(data.labels)}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('strategy.detail.summary')}>
+                {empty(data.summary)}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('strategy.detail.description')}>
+                {empty(data.description)}
+              </Descriptions.Item>
             </Descriptions>
           ) : (
             <Empty />
@@ -377,16 +464,23 @@ export default function MetricsDetailContent({ strategyUID }: MetricsDetailConte
 
         {/* 告警规则等级 */}
         <div>
-          <Divider titlePlacement="left" orientationMargin={0}>
+          <Divider titlePlacement='left' orientationMargin={0}>
             <Space>
-              <span className="text-sm font-medium">{t("strategy.detail.section.alertLevel")}</span>
-              <Button type="link" size="small" onClick={handleAddLevelRow} icon={<PlusOutlined />} />
+              <span className='text-sm font-medium'>
+                {t('strategy.detail.section.alertLevel')}
+              </span>
+              <Button
+                type='link'
+                size='small'
+                onClick={handleAddLevelRow}
+                icon={<PlusOutlined />}
+              />
             </Space>
           </Divider>
           <Table<StrategyMetricLevelItem>
-            size="small"
+            size='small'
             bordered
-            tableLayout="fixed"
+            tableLayout='fixed'
             rowKey={(_, i) => `level-${i}`}
             pagination={false}
             loading={levelSaving}
@@ -394,220 +488,314 @@ export default function MetricsDetailContent({ strategyUID }: MetricsDetailConte
             columns={
               [
                 {
-                  title: t("strategy.detail.level"),
-                  dataIndex: ["level", "uid"],
-                  key: "level",
+                  title: t('strategy.detail.level'),
+                  dataIndex: ['level', 'uid'],
+                  key: 'level',
                   width: 160,
-                  render: (v: string | undefined, _r: StrategyMetricLevelItem, index: number) => {
-                    const isEditing = editingLevelKey === `level-${index}`;
-                    const val = isEditing ? editingLevelData?.uid : v;
+                  render: (
+                    v: string | undefined,
+                    _r: StrategyMetricLevelItem,
+                    index: number,
+                  ) => {
+                    const isEditing = editingLevelKey === `level-${index}`
+                    const val = isEditing ? editingLevelData?.uid : v
                     if (isEditing) {
                       const usedUids = new Set(
                         levels
                           .map((item, i) =>
-                            i === index ? null : (item?.level?.uid ?? (item as { uid?: string })?.uid),
+                            i === index
+                              ? null
+                              : (item?.level?.uid ??
+                                (item as { uid?: string })?.uid),
                           )
-                          .filter((uid): uid is string => uid != null && uid !== ""),
-                      );
+                          .filter(
+                            (uid): uid is string => uid != null && uid !== '',
+                          ),
+                      )
                       return (
                         <Select
-                          size="small"
-                          className="w-full"
-                          placeholder={t("strategy.alertLevel.levelUID.placeholder")}
+                          size='small'
+                          className='w-full'
+                          placeholder={t(
+                            'strategy.alertLevel.levelUID.placeholder',
+                          )}
                           value={val || undefined}
                           onChange={(s) =>
                             setEditingLevelData((prev) =>
-                              prev ? { ...prev, uid: s ?? undefined } : { uid: s ?? undefined },
+                              prev
+                                ? { ...prev, uid: s ?? undefined }
+                                : { uid: s ?? undefined },
                             )
                           }
                           options={levelSelectOptions
-                            .filter((o) => o.value != null && o.value !== "")
+                            .filter((o) => o.value != null && o.value !== '')
                             .map((o) => ({
                               value: o.value!,
                               label: o.label ?? o.value,
                               disabled: o.disabled || usedUids.has(o.value!),
                             }))}
-                          optionFilterProp="label"
+                          optionFilterProp='label'
                           showSearch
                           filterOption={(input, opt) =>
-                            (opt?.label ?? "").toString().toLowerCase().includes(input.toLowerCase())
+                            (opt?.label ?? '')
+                              .toString()
+                              .toLowerCase()
+                              .includes(input.toLowerCase())
                           }
                         />
-                      );
+                      )
                     }
-                    const label = levelSelectOptions.find((o) => o.value === v)?.label;
-                    return label ?? empty(v);
+                    const label = levelSelectOptions.find(
+                      (o) => o.value === v,
+                    )?.label
+                    return label ?? empty(v)
                   },
                 },
                 {
-                  title: t("strategy.detail.mode"),
-                  dataIndex: ["mode"],
-                  key: "mode",
+                  title: t('strategy.detail.mode'),
+                  dataIndex: ['mode'],
+                  key: 'mode',
                   width: 200,
-                  render: (v: number | string | undefined, _r: StrategyMetricLevelItem, index: number) => {
-                    const isEditing = editingLevelKey === `level-${index}`;
-                    const rawVal = isEditing ? editingLevelData?.mode : v;
-                    const strVal = normalizeMode(rawVal);
+                  render: (
+                    v: number | string | undefined,
+                    _r: StrategyMetricLevelItem,
+                    index: number,
+                  ) => {
+                    const isEditing = editingLevelKey === `level-${index}`
+                    const rawVal = isEditing ? editingLevelData?.mode : v
+                    const strVal = normalizeMode(rawVal)
                     if (isEditing) {
                       return (
                         <Select
-                          size="small"
-                          className="w-full"
-                          placeholder={t("strategy.alertLevel.mode.placeholder")}
-                          value={strVal === SampleMode.SAMPLE_MODE_UNKNOWN ? undefined : strVal}
-                          onChange={(s) => setEditingLevelData((prev) => (prev ? { ...prev, mode: s } : { mode: s }))}
+                          size='small'
+                          className='w-full'
+                          placeholder={t(
+                            'strategy.alertLevel.mode.placeholder',
+                          )}
+                          value={
+                            strVal === SampleMode.SAMPLE_MODE_UNKNOWN
+                              ? undefined
+                              : strVal
+                          }
+                          onChange={(s) =>
+                            setEditingLevelData((prev) =>
+                              prev ? { ...prev, mode: s } : { mode: s },
+                            )
+                          }
                           options={Object.values(SampleMode)
                             .filter((m) => m !== SampleMode.SAMPLE_MODE_UNKNOWN)
-                            .map((m) => ({ value: m, label: t(`strategy.sampleMode.${m}`) }))}
+                            .map((m) => ({
+                              value: m,
+                              label: t(`strategy.sampleMode.${m}`),
+                            }))}
                         />
-                      );
+                      )
                     }
-                    return t(`strategy.sampleMode.${strVal}`) || empty(v);
+                    return t(`strategy.sampleMode.${strVal}`) || empty(v)
                   },
                 },
                 {
-                  title: t("strategy.detail.condition"),
-                  dataIndex: ["condition"],
-                  key: "condition",
+                  title: t('strategy.detail.condition'),
+                  dataIndex: ['condition'],
+                  key: 'condition',
                   width: 200,
-                  render: (v: number | string | undefined, _r: StrategyMetricLevelItem, index: number) => {
-                    const isEditing = editingLevelKey === `level-${index}`;
-                    const rawVal = isEditing ? editingLevelData?.condition : v;
-                    const strVal = normalizeCondition(rawVal);
+                  render: (
+                    v: number | string | undefined,
+                    _r: StrategyMetricLevelItem,
+                    index: number,
+                  ) => {
+                    const isEditing = editingLevelKey === `level-${index}`
+                    const rawVal = isEditing ? editingLevelData?.condition : v
+                    const strVal = normalizeCondition(rawVal)
                     if (isEditing) {
                       return (
                         <Select
-                          size="small"
-                          className="w-full"
-                          placeholder={t("strategy.alertLevel.condition.placeholder")}
-                          value={strVal === ConditionMetric.CONDITION_METRIC_UNKNOWN ? undefined : strVal}
+                          size='small'
+                          className='w-full'
+                          placeholder={t(
+                            'strategy.alertLevel.condition.placeholder',
+                          )}
+                          value={
+                            strVal === ConditionMetric.CONDITION_METRIC_UNKNOWN
+                              ? undefined
+                              : strVal
+                          }
                           onChange={(s) =>
-                            setEditingLevelData((prev) => (prev ? { ...prev, condition: s } : { condition: s }))
+                            setEditingLevelData((prev) =>
+                              prev
+                                ? { ...prev, condition: s }
+                                : { condition: s },
+                            )
                           }
                           options={Object.values(ConditionMetric)
-                            .filter((c) => c !== ConditionMetric.CONDITION_METRIC_UNKNOWN)
-                            .map((c) => ({ value: c, label: t(`strategy.conditionMetric.${c}`) }))}
+                            .filter(
+                              (c) =>
+                                c !== ConditionMetric.CONDITION_METRIC_UNKNOWN,
+                            )
+                            .map((c) => ({
+                              value: c,
+                              label: t(`strategy.conditionMetric.${c}`),
+                            }))}
                         />
-                      );
+                      )
                     }
-                    return t(`strategy.conditionMetric.${strVal}`) || empty(v);
+                    return t(`strategy.conditionMetric.${strVal}`) || empty(v)
                   },
                 },
                 {
-                  title: t("strategy.detail.threshold"),
-                  dataIndex: ["values"],
-                  key: "values",
+                  title: t('strategy.detail.threshold'),
+                  dataIndex: ['values'],
+                  key: 'values',
                   width: 300,
-                  render: (v: number[] | undefined, _r: StrategyMetricLevelItem, index: number) => {
-                    const isEditing = editingLevelKey === `level-${index}`;
-                    const val = isEditing ? editingLevelData?.values : v;
+                  render: (
+                    v: number[] | undefined,
+                    _r: StrategyMetricLevelItem,
+                    index: number,
+                  ) => {
+                    const isEditing = editingLevelKey === `level-${index}`
+                    const val = isEditing ? editingLevelData?.values : v
                     const condition = normalizeCondition(
                       isEditing
                         ? editingLevelData?.condition
-                        : (_r as StrategyMetricLevelItem & { condition?: number | string })?.condition,
-                    );
-                    const isRange = condition === RANGE_CONDITION;
-                    const strVal = val?.length ? val.join(", ") : "";
+                        : (
+                            _r as StrategyMetricLevelItem & {
+                              condition?: number | string
+                            }
+                          )?.condition,
+                    )
+                    const isRange = condition === RANGE_CONDITION
+                    const strVal = val?.length ? val.join(', ') : ''
                     if (isEditing && isRange) {
-                      const v0 = val?.[0];
-                      const v1 = val?.[1];
+                      const v0 = val?.[0]
+                      const v1 = val?.[1]
                       return (
-                        <Space.Compact size="small" className="w-full">
+                        <Space.Compact size='small' className='w-full'>
                           <InputNumber
-                            size="small"
+                            size='small'
                             controls={false}
-                            className="flex-1"
-                            placeholder={t("strategy.alertLevel.values.rangeMin")}
+                            className='flex-1'
+                            placeholder={t(
+                              'strategy.alertLevel.values.rangeMin',
+                            )}
                             value={v0}
                             onChange={(n) =>
                               setEditingLevelData((prev) => {
-                                const cur = prev?.values ?? [];
+                                const cur = prev?.values ?? []
                                 const next = [n ?? cur[0], cur[1]].filter(
-                                  (x): x is number => x != null && Number.isFinite(x),
-                                );
+                                  (x): x is number =>
+                                    x != null && Number.isFinite(x),
+                                )
                                 return prev
-                                  ? { ...prev, values: next.length ? next : undefined }
-                                  : { values: next.length ? next : undefined };
+                                  ? {
+                                      ...prev,
+                                      values: next.length ? next : undefined,
+                                    }
+                                  : { values: next.length ? next : undefined }
                               })
                             }
                           />
                           <InputNumber
-                            size="small"
+                            size='small'
                             controls={false}
-                            className="flex-1"
-                            placeholder={t("strategy.alertLevel.values.rangeMax")}
+                            className='flex-1'
+                            placeholder={t(
+                              'strategy.alertLevel.values.rangeMax',
+                            )}
                             value={v1}
                             onChange={(n) =>
                               setEditingLevelData((prev) => {
-                                const cur = prev?.values ?? [];
+                                const cur = prev?.values ?? []
                                 const next = [cur[0], n ?? cur[1]].filter(
-                                  (x): x is number => x != null && Number.isFinite(x),
-                                );
+                                  (x): x is number =>
+                                    x != null && Number.isFinite(x),
+                                )
                                 return prev
-                                  ? { ...prev, values: next.length ? next : undefined }
-                                  : { values: next.length ? next : undefined };
+                                  ? {
+                                      ...prev,
+                                      values: next.length ? next : undefined,
+                                    }
+                                  : { values: next.length ? next : undefined }
                               })
                             }
                           />
                         </Space.Compact>
-                      );
+                      )
                     }
                     if (isEditing) {
                       return (
                         <Input
-                          size="small"
+                          size='small'
                           value={strVal}
                           onChange={(e) => {
-                            const parsed = parseValuesString(e.target.value);
-                            setEditingLevelData((prev) => (prev ? { ...prev, values: parsed } : { values: parsed }));
+                            const parsed = parseValuesString(e.target.value)
+                            setEditingLevelData((prev) =>
+                              prev
+                                ? { ...prev, values: parsed }
+                                : { values: parsed },
+                            )
                           }}
-                          placeholder={t("strategy.alertLevel.values.placeholder")}
+                          placeholder={t(
+                            'strategy.alertLevel.values.placeholder',
+                          )}
                         />
-                      );
+                      )
                     }
-                    return strVal || "-";
+                    return strVal || '-'
                   },
                 },
                 {
-                  title: t("strategy.detail.duration"),
-                  dataIndex: ["duration"],
-                  key: "duration",
+                  title: t('strategy.detail.duration'),
+                  dataIndex: ['duration'],
+                  key: 'duration',
                   width: 120,
-                  render: (v: string | undefined, _r: StrategyMetricLevelItem, index: number) => {
-                    const isEditing = editingLevelKey === `level-${index}`;
-                    const val = isEditing ? editingLevelData?.duration : v;
+                  render: (
+                    v: string | undefined,
+                    _r: StrategyMetricLevelItem,
+                    index: number,
+                  ) => {
+                    const isEditing = editingLevelKey === `level-${index}`
+                    const val = isEditing ? editingLevelData?.duration : v
                     if (isEditing) {
                       return (
                         <Input
-                          size="small"
-                          value={val ?? ""}
+                          size='small'
+                          value={val ?? ''}
                           onChange={(e) =>
                             setEditingLevelData((prev) =>
                               prev
-                                ? { ...prev, duration: e.target.value || undefined }
+                                ? {
+                                    ...prev,
+                                    duration: e.target.value || undefined,
+                                  }
                                 : { duration: e.target.value || undefined },
                             )
                           }
-                          placeholder={t("strategy.alertLevel.duration.placeholder")}
+                          placeholder={t(
+                            'strategy.alertLevel.duration.placeholder',
+                          )}
                         />
-                      );
+                      )
                     }
-                    return empty(v);
+                    return empty(v)
                   },
                 },
                 {
-                  title: t("strategy.detail.status"),
-                  dataIndex: ["status"],
-                  key: "status",
+                  title: t('strategy.detail.status'),
+                  dataIndex: ['status'],
+                  key: 'status',
                   width: 80,
-                  render: (v: number | undefined, _r: StrategyMetricLevelItem, index: number) => {
-                    const isEditing = editingLevelKey === `level-${index}`;
-                    const numVal = isEditing ? editingLevelData?.status : v;
-                    const globalVal = normalizeLevelStatus(numVal);
-                    const checked = globalVal === GlobalStatus.ENABLED;
+                  render: (
+                    v: number | undefined,
+                    _r: StrategyMetricLevelItem,
+                    index: number,
+                  ) => {
+                    const isEditing = editingLevelKey === `level-${index}`
+                    const numVal = isEditing ? editingLevelData?.status : v
+                    const globalVal = normalizeLevelStatus(numVal)
+                    const checked = globalVal === GlobalStatus.ENABLED
                     return (
                       <Switch
-                        size="small"
+                        size='small'
                         checked={checked}
                         disabled={!isEditing}
                         onChange={(on) =>
@@ -616,68 +804,105 @@ export default function MetricsDetailContent({ strategyUID }: MetricsDetailConte
                               ? {
                                   ...prev,
                                   status: on
-                                    ? globalStatusToLevelStatus(GlobalStatus.ENABLED)
-                                    : globalStatusToLevelStatus(GlobalStatus.DISABLED),
+                                    ? globalStatusToLevelStatus(
+                                        GlobalStatus.ENABLED,
+                                      )
+                                    : globalStatusToLevelStatus(
+                                        GlobalStatus.DISABLED,
+                                      ),
                                 }
                               : {
                                   status: on
-                                    ? globalStatusToLevelStatus(GlobalStatus.ENABLED)
-                                    : globalStatusToLevelStatus(GlobalStatus.DISABLED),
+                                    ? globalStatusToLevelStatus(
+                                        GlobalStatus.ENABLED,
+                                      )
+                                    : globalStatusToLevelStatus(
+                                        GlobalStatus.DISABLED,
+                                      ),
                                 },
                           )
                         }
                       />
-                    );
+                    )
                   },
                 },
                 {
-                  title: t("table.action"),
-                  key: "action",
+                  title: t('table.action'),
+                  key: 'action',
                   width: 160,
-                  fixed: "right",
-                  render: (_: unknown, _r: StrategyMetricLevelItem, index: number) => {
-                    const isEditing = editingLevelKey === `level-${index}`;
-                    const level = levels[index]?.level;
-                    const hasUid = !!level?.uid;
-                    const isEnabled = normalizeLevelStatus(_r?.status) === GlobalStatus.ENABLED;
+                  fixed: 'right',
+                  render: (
+                    _: unknown,
+                    metricLevelItem: StrategyMetricLevelItem,
+                    index: number,
+                  ) => {
+                    const isEditing = editingLevelKey === `level-${index}`
+                    const hasUid = !!metricLevelItem?.uid
+                    const isEnabled =
+                      normalizeLevelStatus(metricLevelItem?.status) ===
+                      GlobalStatus.ENABLED
                     return (
-                      <Space size="small">
+                      <Space size='small'>
                         {isEditing ? (
                           <>
                             <Button
-                              type="link"
-                              size="small"
+                              type='link'
+                              size='small'
                               loading={levelSaving}
                               onClick={handleSaveLevel}
                               icon={<SaveOutlined />}
                             >
-                              {t("common.save")}
+                              {t('common.save')}
                             </Button>
-                            <Button type="link" size="small" disabled={levelSaving} onClick={handleCancelEditLevel}>
-                              {t("common.cancel")}
+                            <Button
+                              type='link'
+                              size='small'
+                              disabled={levelSaving}
+                              onClick={handleCancelEditLevel}
+                            >
+                              {t('common.cancel')}
                             </Button>
                           </>
                         ) : (
                           <>
-                            <Button type="link" size="small" onClick={() => handleEditLevel(index)}>
-                              {t("common.edit")}
+                            <Button
+                              type='link'
+                              size='small'
+                              onClick={() => handleEditLevel(index)}
+                            >
+                              {t('common.edit')}
                             </Button>
                             {hasUid && (
                               <Button
-                                type="link"
-                                size="small"
+                                type='link'
+                                size='small'
                                 loading={levelSaving}
                                 danger={isEnabled}
-                                style={!isEnabled ? { color: "var(--ant-color-success)" } : undefined}
+                                style={
+                                  !isEnabled
+                                    ? { color: 'var(--ant-color-success)' }
+                                    : undefined
+                                }
                                 onClick={() => handleToggleLevelStatus(index)}
                               >
-                                {isEnabled ? t("table.disable") : t("table.enable")}
+                                {isEnabled
+                                  ? t('table.disable')
+                                  : t('table.enable')}
                               </Button>
                             )}
+                            <Button
+                              type='link'
+                              size='small'
+                              loading={levelSaving}
+                              danger
+                              onClick={() => handleDeleteLevel(metricLevelItem)}
+                            >
+                              {t('common.delete')}
+                            </Button>
                           </>
                         )}
                       </Space>
-                    );
+                    )
                   },
                 },
               ] as ColumnsType<StrategyMetricLevelItem>
@@ -695,14 +920,14 @@ export default function MetricsDetailContent({ strategyUID }: MetricsDetailConte
       />
       <DetailForm
         open={detailFormOpen}
-        mode="edit"
+        mode='edit'
         initialData={editingData}
         onCancel={() => {
-          setDetailFormOpen(false);
-          setEditingData(null);
+          setDetailFormOpen(false)
+          setEditingData(null)
         }}
         onSuccess={handleFormSuccess}
       />
     </>
-  );
+  )
 }

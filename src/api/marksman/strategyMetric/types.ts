@@ -3,8 +3,8 @@
  * 接口文档：GET /v1/metric/strategy/{strategyUID}、POST /v1/metric/strategy/{strategyUID}
  */
 
-import { LevelItem } from "../level"
-import { StrategyItem } from "../strategy/types"
+import { LevelItem } from '../level'
+import { StrategyItem } from '../strategy/types'
 
 /** 等级项内层（LevelItem）；mode/condition 接口可能返回数字，后端接受字符串枚举 */
 export interface StrategyMetricLevelItemLevel {
@@ -19,6 +19,7 @@ export interface StrategyMetricLevelItemLevel {
   status?: number
   values?: number[]
   level?: LevelItem
+  levelUID?: string
 }
 
 /** 策略指标等级项（表格行）；与 StrategyMetricLevelItemLevel 同构，接口返回的 status 在当层 */

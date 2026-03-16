@@ -89,6 +89,8 @@ export const zhCN = {
   'strategy.alertLevel.values.rangeMax': '上限',
   'strategy.alertLevel.confirm.status.title': '确定要{action}该告警等级吗？',
   'strategy.alertLevel.confirm.status.content': '告警等级「{name}」',
+  'strategy.alertLevel.confirm.delete.title': '确定要删除该告警等级吗？',
+  'strategy.alertLevel.confirm.delete.content': '删除告警等级「{name}」',
 
   'strategy.sampleMode.SAMPLE_MODE_UNKNOWN': '未知',
   'strategy.sampleMode.SAMPLE_MODE_FOR': 'FOR',
@@ -196,6 +198,8 @@ export const enUS = {
   'strategy.alertLevel.values.rangeMax': 'Max',
   'strategy.alertLevel.confirm.status.title': 'Confirm to {action} this alert level?',
   'strategy.alertLevel.confirm.status.content': 'Alert level "{name}"',
+  'strategy.alertLevel.confirm.delete.title': 'Confirm delete this alert level?',
+  'strategy.alertLevel.confirm.delete.content': 'Delete alert level "{name}"',
 
   'strategy.sampleMode.SAMPLE_MODE_UNKNOWN': 'Unknown',
   'strategy.sampleMode.SAMPLE_MODE_FOR': 'FOR',
