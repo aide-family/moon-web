@@ -472,6 +472,7 @@ export default function MetricsDetailContent({
               <Button
                 type='link'
                 size='small'
+                disabled={editingLevelKey != null}
                 onClick={handleAddLevelRow}
                 icon={<PlusOutlined />}
               />
