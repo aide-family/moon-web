@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { Modal, Form, Input, message } from 'antd'
+import { Modal, Form, Input, Select, message } from 'antd'
 import { saveStrategyMetricLevel } from '@/api/marksman/strategyMetric'
 import type { SaveStrategyMetricLevelParams } from '@/api/marksman/strategyMetric'
+import { ConditionMetric, SampleMode } from '@/api'
 import { useLocale } from '@/contexts/LocaleContext'
 
 const DURATION_REGEX = /^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$/
@@ -43,8 +44,14 @@ const AlertLevelModal: React.FC<AlertLevelModalProps> = ({ open, strategyUID, on
       const params: SaveStrategyMetricLevelParams = {
         strategyUID,
         levelUID: values.levelUID?.trim() || undefined,
-        mode: values.mode != null && values.mode !== '' ? Number(values.mode) : undefined,
-        condition: values.condition != null && values.condition !== '' ? Number(values.condition) : undefined,
+        mode:
+          values.mode != null && values.mode !== ''
+            ? (values.mode as SampleMode)
+            : undefined,
+        condition:
+          values.condition != null && values.condition !== ''
+            ? (values.condition as ConditionMetric)
+            : undefined,
         duration: values.duration?.trim() || undefined,
         status: values.status != null && values.status !== '' ? Number(values.status) : undefined,
         values: parseValuesString(values.values),
@@ -83,10 +90,22 @@ const AlertLevelModal: React.FC<AlertLevelModalProps> = ({ open, strategyUID, on
           <Input placeholder={t('strategy.alertLevel.levelUID.placeholder')} />
         </Form.Item>
         <Form.Item name="mode" label={t('strategy.detail.mode')}>
-          <Input type="number" placeholder={t('strategy.alertLevel.mode.placeholder')} />
+          <Select
+            placeholder={t('strategy.alertLevel.mode.placeholder')}
+            allowClear
+            options={Object.values(SampleMode)
+              .filter((m) => m !== SampleMode.SAMPLE_MODE_UNKNOWN)
+              .map((value) => ({ value, label: t(`strategy.sampleMode.${value}`) }))}
+          />
         </Form.Item>
         <Form.Item name="condition" label={t('strategy.detail.condition')}>
-          <Input type="number" placeholder={t('strategy.alertLevel.condition.placeholder')} />
+          <Select
+            placeholder={t('strategy.alertLevel.condition.placeholder')}
+            allowClear
+            options={Object.values(ConditionMetric)
+              .filter((c) => c !== ConditionMetric.CONDITION_METRIC_UNKNOWN)
+              .map((value) => ({ value, label: t(`strategy.conditionMetric.${value}`) }))}
+          />
         </Form.Item>
         <Form.Item
           name="duration"

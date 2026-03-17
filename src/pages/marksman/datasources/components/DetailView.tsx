@@ -7,6 +7,7 @@ import {
 } from '@/api/marksman/datasource/index'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
+import { emptyPlaceholder, getTypeLabel, getDriverLabel } from '@/utils/marksman'
 
 interface DetailViewProps {
   open?: boolean
@@ -17,24 +18,6 @@ interface DetailViewProps {
   /** 内嵌模式：在右侧面板展示，不用 Modal */
   embedded?: boolean
 }
-
-function getTypeLabel(
-  value: string | undefined,
-  t: (key: string) => string,
-): string {
-  if (value == null || value === '') return '-'
-  return t(`datasource.type.${value}`) || value
-}
-
-function getDriverLabel(
-  value: string | undefined,
-  t: (key: string) => string,
-): string {
-  if (value == null || value === '') return '-'
-  return t(`datasource.driver.${value}`) || value
-}
-
-const empty = (v: unknown) => (v == null || v === '' ? '-' : String(v))
 
 /** 从状态接口响应中收集所有点（按时间排序），用于小格子展示 */
 function collectStatusPoints(
@@ -144,10 +127,10 @@ const detailContent = (data: DatasourceItem, t: (key: string) => string) => (
     styles={{ label: { width: 120, minWidth: 120 } }}
   >
     <Descriptions.Item label={t('datasource.detail.uid')}>
-      {empty(data.uid)}
+      {emptyPlaceholder(data.uid)}
     </Descriptions.Item>
     <Descriptions.Item label={t('datasource.detail.name')}>
-      {empty(data.name)}
+      {emptyPlaceholder(data.name)}
     </Descriptions.Item>
     <Descriptions.Item label={t('datasource.detail.type')}>
       {getTypeLabel(data.type, t)}
@@ -156,13 +139,13 @@ const detailContent = (data: DatasourceItem, t: (key: string) => string) => (
       {getDriverLabel(data.driver, t)}
     </Descriptions.Item>
     <Descriptions.Item label={t('datasource.detail.status')}>
-      {empty(data.status)}
+      {emptyPlaceholder(data.status)}
     </Descriptions.Item>
     <Descriptions.Item label={t('datasource.detail.url')}>
-      <span style={{ wordBreak: 'break-all' }}>{empty(data.url)}</span>
+      <span style={{ wordBreak: 'break-all' }}>{emptyPlaceholder(data.url)}</span>
     </Descriptions.Item>
     <Descriptions.Item label={t('datasource.detail.remark')}>
-      {empty(data.remark)}
+      {emptyPlaceholder(data.remark)}
     </Descriptions.Item>
     <Descriptions.Item label={t('datasource.detail.createdAt')}>
       {data.createdAt

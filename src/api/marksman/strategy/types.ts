@@ -1,28 +1,32 @@
 /**
  * 策略相关类型定义（Strategy API）
  * 接口文档：GET/POST /v1/strategy(s)、GET /v1/strategies/select
- * 状态与全局 GlobalStatus 一致（接口可能返回数字，前端统一按全局状态展示与筛选）
+ * type/driver 与数据源枚举一致；status 与全局 GlobalStatus 一致。
+ * 后端可能返回数字或字符串，由请求/响应处统一转换，类型层面仅使用枚举。
  */
+
+import type { GlobalStatus } from '../../common/types'
+import type { DatasourceType, DatasourceDriver } from '../datasource/types'
 
 /** 策略组单项（嵌套引用，避免循环可放同目录或 strategyGroup） */
 export interface StrategyGroupItemRef {
   uid?: string
   name?: string
   remark?: string
-  status?: number | string
+  status?: GlobalStatus
   metadata?: Record<string, string>
   createdAt?: string
   updatedAt?: string
 }
 
-/** 策略单项（列表/详情），type/driver 与数据源一致；status 与全局状态一致（后端可能返回数字） */
+/** 策略单项（列表/详情），type/driver 与数据源枚举一致，status 为全局状态枚举 */
 export interface StrategyItem {
   uid?: string
   name?: string
   remark?: string
-  type?: number | string
-  driver?: number | string
-  status?: number | string
+  type?: DatasourceType
+  driver?: DatasourceDriver
+  status?: GlobalStatus
   strategyGroupUID?: string
   strategyGroup?: StrategyGroupItemRef
   createdAt?: string
@@ -35,10 +39,10 @@ export interface StrategyListParams {
   keyword?: string
   page?: number
   pageSize?: number
-  status?: number | string
+  status?: GlobalStatus
   strategyGroupUID?: string
-  type?: number | string
-  driver?: number | string
+  type?: DatasourceType
+  driver?: DatasourceDriver
 }
 
 /** 列表响应 ListStrategyReply（兼容旧版 metadata 形状） */
@@ -64,7 +68,7 @@ export interface StrategySelectParams {
   keyword?: string
   limit?: number
   lastUid?: string
-  status?: number | string
+  status?: GlobalStatus
   strategyGroupUids?: string[]
 }
 
@@ -80,10 +84,10 @@ export interface StrategySelectResponse {
 export interface CreateStrategyParams {
   name?: string
   remark?: string
-  type?: number | string
-  driver?: number | string
+  type?: DatasourceType
+  driver?: DatasourceDriver
   strategyGroupUID?: string
-  status?: number | string
+  status?: GlobalStatus
   metadata?: Record<string, string>
 }
 
@@ -93,7 +97,7 @@ export interface UpdateStrategyParams {
   name?: string
   remark?: string
   strategyGroupUID?: string
-  type?: number | string
-  driver?: number | string
+  type?: DatasourceType
+  driver?: DatasourceDriver
   metadata?: Record<string, string>
 }

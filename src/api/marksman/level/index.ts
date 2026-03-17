@@ -40,8 +40,8 @@ export const deleteLevel = (uid: string): Promise<Record<string, never>> => {
   return http.delete<Record<string, never>>(`/level/${uid}`)
 }
 
-/** 更新告警等级状态 PUT /v1/level/{uid}/status */
-export const updateLevelStatus = (uid: string, status: GlobalStatus | string): Promise<LevelItem> => {
+/** 更新告警等级状态 PUT /v1/level/{uid}/status，传入 GlobalStatus */
+export const updateLevelStatus = (uid: string, status: GlobalStatus): Promise<LevelItem> => {
   return http.put<LevelItem>(`/level/${uid}/status`, { status } as Record<string, unknown>)
 }
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { App, Button, Dropdown, Input, Radio, Space, Table, Tag, message } from 'antd'
+import { App, Button, Dropdown, Input, Radio, Space, Table, message } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
 import dayjs from 'dayjs'
@@ -11,12 +11,13 @@ import {
   getStrategyGroupList,
   updateStrategyGroupStatus,
 } from '@/api/marksman/strategyGroup'
-import { GlobalStatus } from '@/api/common/types'
+import { GlobalStatus } from '@/api'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
 import PageContent from '@/components/layout/PageContent'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
+import { emptyPlaceholder, renderStatusTag } from '@/utils/marksman'
 
 const defaultSearchParams: StrategyGroupListParams = {
   keyword: '',
@@ -35,17 +36,6 @@ function parseSearchParamsFromUrl(params: URLSearchParams): StrategyGroupListPar
     keyword: getParam(params, 'keyword') ?? '',
     status,
   }
-}
-
-function renderStatus(status: string | undefined, t: (key: string) => string) {
-  const statusMap: Record<string, { text: string; color: string }> = {
-    [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
-    [GlobalStatus.ENABLED]: { text: t('table.enable'), color: 'success' },
-    [GlobalStatus.DISABLED]: { text: t('table.disable'), color: 'error' },
-  }
-  const info =
-    (status && statusMap[status]) || statusMap[GlobalStatus.UNKNOWN]
-  return <Tag color={info.color}>{info.text}</Tag>
 }
 
 export const StrategyGroupList: React.FC = () => {
@@ -113,8 +103,6 @@ export const StrategyGroupList: React.FC = () => {
     fetchData(page, pageSize)
   }
 
-  const emptyPlaceholder = (text: unknown) => (text == null || text === '' ? '-' : String(text))
-
   const handleAdd = () => {
     setDetailFormMode('create')
     setEditingData(null)
@@ -162,7 +150,10 @@ export const StrategyGroupList: React.FC = () => {
     }
   }
 
-  const handleStatusChange = async (record: StrategyGroupItem, newStatus: string) => {
+  const handleStatusChange = async (
+    record: StrategyGroupItem,
+    newStatus: GlobalStatus,
+  ) => {
     if (!record.uid) return
     try {
       await updateStrategyGroupStatus(record.uid, newStatus)
@@ -206,7 +197,7 @@ export const StrategyGroupList: React.FC = () => {
       key: 'status',
       width: 100,
       align: 'center',
-      render: (v: string) => renderStatus(v, t),
+      render: (v: string) => renderStatusTag(v, t),
     },
     {
       title: t('strategyGroup.table.remark'),

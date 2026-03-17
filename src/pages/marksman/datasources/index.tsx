@@ -14,16 +14,7 @@ import MetadataView from "./components/MetadataView";
 import { EllipsisOutlined } from "@ant-design/icons";
 import { useLocale } from "@/contexts/LocaleContext";
 import PageContent from "@/components/layout/PageContent";
-
-function getTypeLabel(value: string | undefined, t: (key: string) => string): string {
-  if (value == null || value === "") return "-";
-  return t(`datasource.type.${value}`) || value;
-}
-
-function getDriverLabel(value: string | undefined, t: (key: string) => string): string {
-  if (value == null || value === "") return "-";
-  return t(`datasource.driver.${value}`) || value;
-}
+import { getTypeLabel, getDriverLabel } from "@/utils/marksman";
 
 const defaultSearchParams: DatasourceListParams = {
   keyword: "",

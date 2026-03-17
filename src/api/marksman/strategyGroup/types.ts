@@ -2,14 +2,17 @@
  * 策略组（Strategy Group）相关类型定义
  * 接口文档：Strategy_CreateStrategyGroup、Strategy_GetStrategyGroup、Strategy_UpdateStrategyGroup、
  * Strategy_UpdateStrategyGroupStatus、Strategy_DeleteStrategyGroup、Strategy_SelectStrategyGroup
+ * status 统一使用全局状态枚举 GlobalStatus。
  */
 
-/** 策略组单项（列表/详情），status 与全局状态一致为字符串 */
+import type { GlobalStatus } from '../../common/types'
+
+/** 策略组单项（列表/详情），status 为全局状态枚举 */
 export interface StrategyGroupItem {
   uid?: string
   name?: string
   remark?: string
-  status?: string
+  status?: GlobalStatus
   createdAt?: string
   updatedAt?: string
   metadata?: Record<string, string>
@@ -20,7 +23,7 @@ export interface StrategyGroupListParams {
   keyword?: string
   page?: number
   pageSize?: number
-  status?: string
+  status?: GlobalStatus
 }
 
 /** 列表响应 */
@@ -46,10 +49,10 @@ export interface UpdateStrategyGroupParams {
   metadata?: Record<string, string>
 }
 
-/** 更新状态请求参数 PUT /v1/strategy-group/{uid}/status，后端为 integer enum，前端可传 number 或全局状态字符串 */
+/** 更新状态请求参数 PUT /v1/strategy-group/{uid}/status，使用 GlobalStatus */
 export interface UpdateStrategyGroupStatusParams {
   uid?: string
-  status?: number | string
+  status?: GlobalStatus
 }
 
 /** 下拉选择项 GET /v1/strategy-groups/select */
@@ -64,7 +67,7 @@ export interface StrategyGroupSelectParams {
   keyword?: string
   limit?: number
   lastUID?: string
-  status?: string
+  status?: GlobalStatus
 }
 
 /** SelectStrategyGroupReply：nextUID 后端为 uint32，前端按 string 兼容 */

@@ -1,9 +1,9 @@
 import React from 'react'
-import { Modal, Descriptions, Button, Space, Spin, Tag } from 'antd'
+import { Modal, Descriptions, Button, Space, Spin } from 'antd'
 import type { StrategyGroupItem } from '@/api/marksman/strategyGroup'
-import { GlobalStatus } from '@/api/common/types'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
+import { emptyPlaceholder, renderStatusTag } from '@/utils/marksman'
 
 interface DetailViewProps {
   open?: boolean
@@ -13,19 +13,6 @@ interface DetailViewProps {
   onEdit?: (data: StrategyGroupItem) => void
   /** 内嵌模式：在右侧面板展示，不用 Modal */
   embedded?: boolean
-}
-
-const empty = (v: unknown) => (v == null || v === '' ? '-' : String(v))
-
-/** 状态与全局一致为字符串 */
-function renderStatus(status: string | undefined, t: (key: string) => string) {
-  const statusMap: Record<string, { text: string; color: string }> = {
-    [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
-    [GlobalStatus.ENABLED]: { text: t('table.enable'), color: 'success' },
-    [GlobalStatus.DISABLED]: { text: t('table.disable'), color: 'error' },
-  }
-  const info = (status && statusMap[status]) || statusMap[GlobalStatus.UNKNOWN]
-  return <Tag color={info.color}>{info.text}</Tag>
 }
 
 const detailContent = (
@@ -39,16 +26,16 @@ const detailContent = (
     styles={{ label: { width: 120, minWidth: 120 } }}
   >
     <Descriptions.Item label={t('strategyGroup.detail.uid')}>
-      {empty(data.uid)}
+      {emptyPlaceholder(data.uid)}
     </Descriptions.Item>
     <Descriptions.Item label={t('strategyGroup.detail.name')}>
-      {empty(data.name)}
+      {emptyPlaceholder(data.name)}
     </Descriptions.Item>
     <Descriptions.Item label={t('strategyGroup.detail.status')}>
-      {renderStatus(data.status, t)}
+      {renderStatusTag(data.status, t)}
     </Descriptions.Item>
     <Descriptions.Item label={t('strategyGroup.detail.remark')}>
-      {empty(data.remark)}
+      {emptyPlaceholder(data.remark)}
     </Descriptions.Item>
     <Descriptions.Item label={t('strategyGroup.detail.createdAt')}>
       {data.createdAt ? dayjs(data.createdAt).format('YYYY-MM-DD HH:mm:ss') : '-'}

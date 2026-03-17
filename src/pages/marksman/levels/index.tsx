@@ -1,16 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { App, Button, Dropdown, Input, Radio, Space, Table, Tag, message } from 'antd'
+import { App, Button, Dropdown, Input, Radio, Space, Table, message } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
 import dayjs from 'dayjs'
 import type { LevelItem, LevelListParams } from '@/api/marksman/level'
-import { deleteLevel, getLevelDetail, getLevelList, GlobalStatus, updateLevelStatus } from '@/api/marksman/level'
+import { deleteLevel, getLevelDetail, getLevelList, updateLevelStatus } from '@/api/marksman/level'
+import { GlobalStatus } from '@/api'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 import PageContent from '@/components/layout/PageContent'
+import { emptyPlaceholder, renderStatusTag } from '@/utils/marksman'
 
 const defaultSearchParams: LevelListParams = {
   keyword: '',
@@ -22,16 +24,6 @@ function parseSearchParamsFromUrl(params: URLSearchParams): LevelListParams {
     keyword: getParam(params, 'keyword') ?? '',
     status: (getParam(params, 'status') as GlobalStatus) ?? undefined,
   }
-}
-
-function renderStatus(status: string | undefined, t: (key: string) => string) {
-  const statusMap: Record<string, { text: string; color: string }> = {
-    [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
-    [GlobalStatus.ENABLED]: { text: t('table.enable'), color: 'success' },
-    [GlobalStatus.DISABLED]: { text: t('table.disable'), color: 'error' },
-  }
-  const info = (status && statusMap[status]) || statusMap[GlobalStatus.UNKNOWN]
-  return <Tag color={info.color}>{info.text}</Tag>
 }
 
 const LevelList: React.FC = () => {
@@ -99,8 +91,6 @@ const LevelList: React.FC = () => {
     fetchData(page, pageSize)
   }
 
-  const emptyPlaceholder = (text: unknown) => (text == null || text === '' ? '-' : String(text))
-
   const handleAdd = () => {
     setDetailFormMode('create')
     setEditingData(null)
@@ -148,7 +138,10 @@ const LevelList: React.FC = () => {
     }
   }
 
-  const handleStatusChange = async (record: LevelItem, newStatus: GlobalStatus | string) => {
+  const handleStatusChange = async (
+    record: LevelItem,
+    newStatus: GlobalStatus,
+  ) => {
     if (!record.uid) return
     try {
       await updateLevelStatus(record.uid, newStatus)
@@ -179,14 +172,14 @@ const LevelList: React.FC = () => {
       key: 'uid',
       width: 160,
       ellipsis: true,
-      render: v => emptyPlaceholder(v),
+      render: (v) => emptyPlaceholder(v),
     },
     {
       title: t('level.table.name'),
       dataIndex: 'name',
       key: 'name',
       width: 160,
-      render: v => emptyPlaceholder(v),
+      render: (v) => emptyPlaceholder(v),
     },
     {
       title: t('table.status'),
@@ -194,7 +187,7 @@ const LevelList: React.FC = () => {
       key: 'status',
       width: 100,
       align: 'center',
-      render: (v: string) => renderStatus(v, t),
+      render: (v: string) => renderStatusTag(v, t),
     },
     {
       title: t('level.table.remark'),
@@ -202,7 +195,7 @@ const LevelList: React.FC = () => {
       key: 'remark',
       width: 220,
       ellipsis: true,
-      render: v => emptyPlaceholder(v),
+      render: (v) => emptyPlaceholder(v),
     },
     {
       title: t('level.table.createdAt'),

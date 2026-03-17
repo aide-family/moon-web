@@ -23,12 +23,12 @@ export enum DatasourceDriver {
   TRACE_JAEGER = 'TRACE_JAEGER',
 }
 
-/** 数据源单项（列表/详情） */
+/** 数据源单项（列表/详情），type/driver 使用数据源枚举 */
 export interface DatasourceItem {
   uid?: string
   name?: string
-  type?: string
-  driver?: string
+  type?: DatasourceType
+  driver?: DatasourceDriver
   status?: number
   createdAt?: string
   updatedAt?: string
@@ -42,8 +42,8 @@ export interface DatasourceListParams {
   keyword?: string
   page?: number
   pageSize?: number
-  type?: string
-  driver?: string
+  type?: DatasourceType
+  driver?: DatasourceDriver
   status?: number
 }
 
@@ -61,8 +61,8 @@ export interface SelectDatasourceItem {
   label?: string
   disabled?: boolean
   tooltip?: string
-  type?: string
-  driver?: string
+  type?: DatasourceType
+  driver?: DatasourceDriver
   url?: string
 }
 
@@ -71,8 +71,8 @@ export interface DatasourceSelectParams {
   keyword?: string
   limit?: number
   lastUID?: string
-  type?: string
-  driver?: string
+  type?: DatasourceType
+  driver?: DatasourceDriver
   status?: number
   uids?: string[]
 }
@@ -88,8 +88,8 @@ export interface DatasourceSelectResponse {
 /** 创建数据源请求参数 */
 export interface CreateDatasourceParams {
   name?: string
-  type?: string
-  driver?: string
+  type?: DatasourceType
+  driver?: DatasourceDriver
   url?: string
   remark?: string
   metadata?: Record<string, string>
@@ -99,8 +99,8 @@ export interface CreateDatasourceParams {
 export interface UpdateDatasourceParams {
   uid?: string
   name?: string
-  type?: string
-  driver?: string
+  type?: DatasourceType
+  driver?: DatasourceDriver
   url?: string
   remark?: string
   metadata?: Record<string, string>

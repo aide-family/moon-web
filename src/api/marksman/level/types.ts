@@ -4,12 +4,12 @@
 
 import { GlobalStatus } from '../../common/types'
 
-/** 告警等级单项（列表/详情） */
+/** 告警等级单项（列表/详情），status 为全局状态枚举 */
 export interface LevelItem {
   uid?: string
   name?: string
   remark?: string
-  status?: GlobalStatus | string
+  status?: GlobalStatus
   createdAt?: string
   updatedAt?: string
   metadata?: Record<string, string>
@@ -48,7 +48,7 @@ export interface UpdateLevelParams {
 
 /** 更新状态请求参数 PUT /v1/level/{uid}/status */
 export interface UpdateLevelStatusParams {
-  status: GlobalStatus | string
+  status: GlobalStatus
 }
 
 /** 下拉选择项 GET /v1/levels/select */

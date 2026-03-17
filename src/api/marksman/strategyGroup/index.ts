@@ -4,6 +4,7 @@
  */
 
 import { http } from '../../index'
+import type { GlobalStatus } from '../../common/types'
 import type {
   StrategyGroupItem,
   StrategyGroupListParams,
@@ -53,10 +54,10 @@ export const updateStrategyGroup = (
   return http.put<Record<string, never>>(`/strategy-group/${uid}`, params as Record<string, unknown>)
 }
 
-/** 更新策略组状态 PUT /v1/strategy-group/{uid}/status，status 与全局状态一致为字符串 */
+/** 更新策略组状态 PUT /v1/strategy-group/{uid}/status，传入 GlobalStatus */
 export const updateStrategyGroupStatus = (
   uid: string,
-  status: string
+  status: GlobalStatus
 ): Promise<Record<string, never>> => {
   return http.put<Record<string, never>>(`/strategy-group/${uid}/status`, { status })
 }

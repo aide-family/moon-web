@@ -34,10 +34,15 @@ import { getLevelSelectList } from '@/api/marksman/level'
 import type { LevelItemSelect } from '@/api/marksman/level'
 import { ConditionMetric, GlobalStatus, SampleMode } from '@/api'
 import { useLocale } from '@/contexts/LocaleContext'
+import {
+  emptyPlaceholder,
+  getTypeLabel,
+  getDriverLabel,
+  normalizeStatus,
+  getStatusTagInfo,
+} from '@/utils/marksman'
 import DetailForm from './DetailForm'
 import RuleDetailModal from './RuleDetailModal'
-
-const empty = (v: unknown) => (v == null || v === '' ? '-' : String(v))
 
 /** 将 labels 对象格式化为可读字符串，避免 [object Object] */
 function formatLabels(labels: unknown): string {
@@ -50,33 +55,6 @@ function formatLabels(labels: unknown): string {
     return entries.length > 0 ? entries.join(', ') : '-'
   }
   return String(labels)
-}
-
-function getTypeLabel(
-  value: string | undefined,
-  t: (key: string) => string,
-): string {
-  if (value == null || value === '') return '-'
-  return t(`datasource.type.${value}`) || value
-}
-function getDriverLabel(
-  value: string | undefined,
-  t: (key: string) => string,
-): string {
-  if (value == null || value === '') return '-'
-  return t(`datasource.driver.${value}`) || value
-}
-
-function normalizeStatus(status: string | undefined): GlobalStatus {
-  if (status === GlobalStatus.ENABLED) return GlobalStatus.ENABLED
-  if (status === GlobalStatus.DISABLED) return GlobalStatus.DISABLED
-  return GlobalStatus.UNKNOWN
-}
-
-const statusMap: Record<GlobalStatus, { text: string; color: string }> = {
-  [GlobalStatus.UNKNOWN]: { text: 'table.unknown', color: 'default' },
-  [GlobalStatus.ENABLED]: { text: 'table.enable', color: 'success' },
-  [GlobalStatus.DISABLED]: { text: 'table.disable', color: 'error' },
 }
 
 const labelWidth = 140
@@ -124,7 +102,10 @@ function normalizeCondition(raw: number | string | undefined): string {
 }
 
 /** 条件为「范围」时显示两个阈值输入框 */
-const RANGE_CONDITION = ConditionMetric.CONDITION_METRIC_BETWEEN
+const RANGE_CONDITION = [
+  ConditionMetric.CONDITION_METRIC_GTE,
+  ConditionMetric.CONDITION_METRIC_LTE,
+]
 
 export interface MetricsDetailContentProps {
   strategyUID: string
@@ -211,16 +192,16 @@ export default function MetricsDetailContent({
     const level = item?.level
     const modeRaw = row?.mode
     const conditionRaw = row?.condition
-    const modeStr = normalizeMode(modeRaw)
-    const conditionStr = normalizeCondition(conditionRaw)
+    const modeStr = normalizeMode(modeRaw) as SampleMode
+    const conditionStr = normalizeCondition(conditionRaw) as ConditionMetric
     setEditingLevelKey(`level-${index}`)
     setEditingLevelData({
       uid: level?.uid,
-      mode: modeStr !== SampleMode.SAMPLE_MODE_UNKNOWN ? modeStr : modeRaw,
+      mode: modeStr !== SampleMode.SAMPLE_MODE_UNKNOWN ? modeStr : undefined,
       condition:
         conditionStr !== ConditionMetric.CONDITION_METRIC_UNKNOWN
           ? conditionStr
-          : conditionRaw,
+          : undefined,
       values: row?.values,
       duration: row?.duration,
       status: row?.status,
@@ -233,12 +214,14 @@ export default function MetricsDetailContent({
       strategyUID: data.strategyUID,
       levelUID: editingLevelData.uid?.trim() || undefined,
       mode:
-        editingLevelData.mode != null && editingLevelData.mode !== ''
-          ? String(editingLevelData.mode)
+        editingLevelData.mode &&
+        editingLevelData.mode !== SampleMode.SAMPLE_MODE_UNKNOWN
+          ? editingLevelData.mode
           : undefined,
       condition:
-        editingLevelData.condition != null && editingLevelData.condition !== ''
-          ? String(editingLevelData.condition)
+        editingLevelData.condition &&
+        editingLevelData.condition !== ConditionMetric.CONDITION_METRIC_UNKNOWN
+          ? editingLevelData.condition
           : undefined,
       duration: editingLevelData.duration?.trim() || undefined,
       status: editingLevelData.status,
@@ -362,14 +345,17 @@ export default function MetricsDetailContent({
   }
 
   const s = normalizeStatus(data.strategy.status)
-  const info = statusMap[s]
+  const info = getStatusTagInfo(s)
 
   return (
     <>
       <div className='space-y-6'>
         {/* 基础信息 */}
         <div>
-          <Divider titlePlacement='left' orientationMargin={0}>
+          <Divider
+            titlePlacement='left'
+            styles={{ content: { marginInlineStart: 0 } }}
+          >
             <Space>
               <span className='text-sm font-medium'>
                 {t('strategy.detail.section.basic')}
@@ -390,16 +376,16 @@ export default function MetricsDetailContent({
           >
             <Descriptions.Item label={t('strategy.detail.name')}>
               <Space>
-                <span>{empty(data.strategy.name)}</span>
-                <Tag color={info.color}>{t(info.text)}</Tag>
+                <span>{emptyPlaceholder(data.strategy.name)}</span>
+                <Tag color={info.color}>{t(info.textKey)}</Tag>
               </Space>
             </Descriptions.Item>
             <Descriptions.Item label={t('strategy.detail.type')}>
-              {getTypeLabel(data.strategy.type, t)}(
-              {getDriverLabel(data.strategy.driver, t)})
+              {getTypeLabel(data.strategy.type, t)} /{' '}
+              {getDriverLabel(data.strategy.driver, t)}
             </Descriptions.Item>
             <Descriptions.Item label={t('strategy.detail.remark')} span={2}>
-              {empty(data.strategy.remark)}
+              {emptyPlaceholder(data.strategy.remark)}
             </Descriptions.Item>
             <Descriptions.Item label={t('strategy.detail.metadata')} span={2}>
               {data.strategy.metadata &&
@@ -424,7 +410,10 @@ export default function MetricsDetailContent({
 
         {/* 规则明细 */}
         <div>
-          <Divider titlePlacement='left' orientationMargin={0}>
+          <Divider
+            titlePlacement='left'
+            styles={{ content: { marginInlineStart: 0 } }}
+          >
             <Space>
               <span className='text-sm font-medium'>
                 {t('strategy.detail.section.ruleDetail')}
@@ -445,16 +434,16 @@ export default function MetricsDetailContent({
               styles={{ label: { width: labelWidth, minWidth: labelWidth } }}
             >
               <Descriptions.Item label={t('strategy.detail.expr')}>
-                {empty(data.expr)}
+                {emptyPlaceholder(data.expr)}
               </Descriptions.Item>
               <Descriptions.Item label={t('strategy.detail.customLabels')}>
                 {formatLabels(data.labels)}
               </Descriptions.Item>
               <Descriptions.Item label={t('strategy.detail.summary')}>
-                {empty(data.summary)}
+                {emptyPlaceholder(data.summary)}
               </Descriptions.Item>
               <Descriptions.Item label={t('strategy.detail.description')}>
-                {empty(data.description)}
+                {emptyPlaceholder(data.description)}
               </Descriptions.Item>
             </Descriptions>
           ) : (
@@ -464,7 +453,10 @@ export default function MetricsDetailContent({
 
         {/* 告警规则等级 */}
         <div>
-          <Divider titlePlacement='left' orientationMargin={0}>
+          <Divider
+            titlePlacement='left'
+            styles={{ content: { marginInlineStart: 0 } }}
+          >
             <Space>
               <span className='text-sm font-medium'>
                 {t('strategy.detail.section.alertLevel')}
@@ -482,7 +474,12 @@ export default function MetricsDetailContent({
             size='small'
             bordered
             tableLayout='fixed'
-            rowKey={(_, i) => `level-${i}`}
+            rowKey={(record) =>
+              record.uid ??
+              record.level?.uid ??
+              record.levelUID ??
+              `level-${record.strategyUID ?? ''}-${record.levelUID ?? ''}-${record.duration ?? ''}`
+            }
             pagination={false}
             loading={levelSaving}
             dataSource={levels}
@@ -549,7 +546,7 @@ export default function MetricsDetailContent({
                     const label = levelSelectOptions.find(
                       (o) => o.value === v,
                     )?.label
-                    return label ?? empty(v)
+                    return label ?? emptyPlaceholder(v)
                   },
                 },
                 {
@@ -580,7 +577,9 @@ export default function MetricsDetailContent({
                           }
                           onChange={(s) =>
                             setEditingLevelData((prev) =>
-                              prev ? { ...prev, mode: s } : { mode: s },
+                              prev
+                                ? { ...prev, mode: s as SampleMode }
+                                : { mode: s as SampleMode },
                             )
                           }
                           options={Object.values(SampleMode)
@@ -592,7 +591,9 @@ export default function MetricsDetailContent({
                         />
                       )
                     }
-                    return t(`strategy.sampleMode.${strVal}`) || empty(v)
+                    return (
+                      t(`strategy.sampleMode.${strVal}`) || emptyPlaceholder(v)
+                    )
                   },
                 },
                 {
@@ -624,8 +625,8 @@ export default function MetricsDetailContent({
                           onChange={(s) =>
                             setEditingLevelData((prev) =>
                               prev
-                                ? { ...prev, condition: s }
-                                : { condition: s },
+                                ? { ...prev, condition: s as ConditionMetric }
+                                : { condition: s as ConditionMetric },
                             )
                           }
                           options={Object.values(ConditionMetric)
@@ -640,7 +641,10 @@ export default function MetricsDetailContent({
                         />
                       )
                     }
-                    return t(`strategy.conditionMetric.${strVal}`) || empty(v)
+                    return (
+                      t(`strategy.conditionMetric.${strVal}`) ||
+                      emptyPlaceholder(v)
+                    )
                   },
                 },
                 {
@@ -664,7 +668,9 @@ export default function MetricsDetailContent({
                             }
                           )?.condition,
                     )
-                    const isRange = condition === RANGE_CONDITION
+                    const isRange = RANGE_CONDITION.includes(
+                      condition as ConditionMetric,
+                    )
                     const strVal = val?.length ? val.join(', ') : ''
                     if (isEditing && isRange) {
                       const v0 = val?.[0]
@@ -777,7 +783,7 @@ export default function MetricsDetailContent({
                         />
                       )
                     }
-                    return empty(v)
+                    return emptyPlaceholder(v)
                   },
                 },
                 {

@@ -1,19 +1,19 @@
 /**
  * 策略指标相关类型（StrategyMetric API）
  * 接口文档：GET /v1/metric/strategy/{strategyUID}、POST /v1/metric/strategy/{strategyUID}
+ * mode/condition 使用 SampleMode、ConditionMetric 枚举；后端接受字符串，由 API 层统一处理。
  */
 
-import { LevelItem } from '../level'
-import { StrategyItem } from '../strategy/types'
+import type { SampleMode, ConditionMetric } from '../../common/types'
+import type { LevelItem } from '../level'
+import type { StrategyItem } from '../strategy/types'
 
-/** 等级项内层（LevelItem）；mode/condition 接口可能返回数字，后端接受字符串枚举 */
+/** 等级项内层（LevelItem）；mode/condition 为策略指标枚举 */
 export interface StrategyMetricLevelItemLevel {
   uid?: string
   strategyUID?: string
-  /** SampleMode 枚举字符串，接口可能返回数字 */
-  mode?: number | string
-  /** ConditionMetric 枚举字符串，接口可能返回数字 */
-  condition?: number | string
+  mode?: SampleMode
+  condition?: ConditionMetric
   /** 格式如 -?(\d+)(\.\d{1,9})?s */
   duration?: string
   status?: number
@@ -51,14 +51,12 @@ export interface SaveStrategyMetricParams {
   datasourceUIDs?: string[]
 }
 
-/** 保存策略指标等级请求体（StrategyMetric_SaveStrategyMetricLevel Body） POST /v1/metric/strategy/{strategyUID}/level；后端接受 mode/condition 为字符串枚举 */
+/** 保存策略指标等级请求体（StrategyMetric_SaveStrategyMetricLevel Body） POST /v1/metric/strategy/{strategyUID}/level；mode/condition 使用枚举 */
 export interface SaveStrategyMetricLevelParams {
   strategyUID?: string
   levelUID?: string
-  /** SampleMode 枚举字符串 */
-  mode?: string
-  /** ConditionMetric 枚举字符串 */
-  condition?: string
+  mode?: SampleMode
+  condition?: ConditionMetric
   /** 格式如 1s、0.5s，正则：^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$ */
   duration?: string
   status?: number

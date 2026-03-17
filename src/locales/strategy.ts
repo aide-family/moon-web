@@ -106,7 +106,6 @@ export const zhCN = {
   'strategy.conditionMetric.CONDITION_METRIC_LTE': '小于等于',
   'strategy.conditionMetric.CONDITION_METRIC_IN': '属于',
   'strategy.conditionMetric.CONDITION_METRIC_NOT_IN': '不属于',
-  'strategy.conditionMetric.CONDITION_METRIC_BETWEEN': '范围',
 }
 
 export const enUS = {
@@ -131,7 +130,8 @@ export const enUS = {
 
   'strategy.list.title': 'Strategy List',
   'strategy.list.scrollToLoadMore': 'Scroll to load more',
-  'strategy.detail.selectHint': 'Select a strategy from the list to view details',
+  'strategy.detail.selectHint':
+    'Select a strategy from the list to view details',
 
   'strategy.tab.detail': 'Detail',
   'strategy.tab.metadata': 'Metadata',
@@ -193,12 +193,15 @@ export const enUS = {
   'strategy.alertLevel.duration.pattern': 'Format: number + s, e.g. 1s, 0.5s',
   'strategy.alertLevel.status.placeholder': 'Enter status',
   'strategy.alertLevel.values': 'Values / Threshold',
-  'strategy.alertLevel.values.placeholder': 'Comma-separated numbers, e.g. 1, 2, 3',
+  'strategy.alertLevel.values.placeholder':
+    'Comma-separated numbers, e.g. 1, 2, 3',
   'strategy.alertLevel.values.rangeMin': 'Min',
   'strategy.alertLevel.values.rangeMax': 'Max',
-  'strategy.alertLevel.confirm.status.title': 'Confirm to {action} this alert level?',
+  'strategy.alertLevel.confirm.status.title':
+    'Confirm to {action} this alert level?',
   'strategy.alertLevel.confirm.status.content': 'Alert level "{name}"',
-  'strategy.alertLevel.confirm.delete.title': 'Confirm delete this alert level?',
+  'strategy.alertLevel.confirm.delete.title':
+    'Confirm delete this alert level?',
   'strategy.alertLevel.confirm.delete.content': 'Delete alert level "{name}"',
 
   'strategy.sampleMode.SAMPLE_MODE_UNKNOWN': 'Unknown',
@@ -215,5 +218,4 @@ export const enUS = {
   'strategy.conditionMetric.CONDITION_METRIC_LTE': 'Less or equal',
   'strategy.conditionMetric.CONDITION_METRIC_IN': 'In',
   'strategy.conditionMetric.CONDITION_METRIC_NOT_IN': 'Not in',
-  'strategy.conditionMetric.CONDITION_METRIC_BETWEEN': 'Between',
 }

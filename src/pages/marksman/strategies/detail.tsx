@@ -4,34 +4,17 @@ import { Button, App, Descriptions, Divider, Space, Spin, Tag } from "antd";
 import { ArrowLeftOutlined, EditOutlined } from "@ant-design/icons";
 import { getStrategyDetail } from "@/api/marksman/strategy/index";
 import type { StrategyItem } from "@/api/marksman/strategy/index";
-import { GlobalStatus } from "@/api";
 import { useLocale } from "@/contexts/LocaleContext";
 import PageContent from "@/components/layout/PageContent";
 import DetailForm from "./components/DetailForm";
 import MetricsDetailContent from "./components/MetricsDetailContent";
-
-const empty = (v: unknown) => (v == null || v === "" ? "-" : String(v));
-
-function getTypeLabel(value: string | undefined, t: (key: string) => string): string {
-  if (value == null || value === "") return "-";
-  return t(`datasource.type.${value}`) || value;
-}
-function getDriverLabel(value: string | undefined, t: (key: string) => string): string {
-  if (value == null || value === "") return "-";
-  return t(`datasource.driver.${value}`) || value;
-}
-
-function normalizeStatus(status: string | undefined): GlobalStatus {
-  if (status === GlobalStatus.ENABLED) return GlobalStatus.ENABLED;
-  if (status === GlobalStatus.DISABLED) return GlobalStatus.DISABLED;
-  return GlobalStatus.UNKNOWN;
-}
-
-const statusMap: Record<GlobalStatus, { text: string; color: string }> = {
-  [GlobalStatus.UNKNOWN]: { text: "table.unknown", color: "default" },
-  [GlobalStatus.ENABLED]: { text: "table.enable", color: "success" },
-  [GlobalStatus.DISABLED]: { text: "table.disable", color: "error" },
-};
+import {
+  emptyPlaceholder,
+  getTypeLabel,
+  getDriverLabel,
+  normalizeStatus,
+  getStatusTagInfo,
+} from "@/utils/marksman";
 
 const labelWidth = 140;
 
@@ -140,13 +123,13 @@ export default function StrategyDetailPage() {
     }
 
     const s = normalizeStatus(data.status);
-    const info = statusMap[s];
+    const info = getStatusTagInfo(s);
 
     return (
       <div className="space-y-6">
         {/* 非 METRICS：仅基础信息 */}
         <div>
-          <Divider titlePlacement="left" orientationMargin={0}>
+          <Divider titlePlacement="left" styles={{ content: { marginInlineStart: 0 } }}>
             <Space>
               <span className="text-sm font-medium">{t("strategy.detail.section.basic")}</span>
               <Button type="link" size="small" onClick={() => data && handleEdit(data)} icon={<EditOutlined />} />
@@ -160,13 +143,13 @@ export default function StrategyDetailPage() {
           >
             <Descriptions.Item label={t("strategy.detail.name")}>
               <Space>
-                <span>{empty(data.name)}</span>
-                <Tag color={info.color}>{t(info.text)}</Tag>
+                <span>{emptyPlaceholder(data.name)}</span>
+                <Tag color={info.color}>{t(info.textKey)}</Tag>
               </Space>
             </Descriptions.Item>
             <Descriptions.Item label={t("strategy.detail.type")}>{getTypeLabel(data.type, t)}</Descriptions.Item>
             <Descriptions.Item label={t("strategy.detail.remark")} span={2}>
-              {empty(data.remark)}
+              {emptyPlaceholder(data.remark)}
             </Descriptions.Item>
             <Descriptions.Item label={t("strategy.detail.metadata")} span={2}>
               {data.metadata && Object.keys(data.metadata).length > 0 ? (

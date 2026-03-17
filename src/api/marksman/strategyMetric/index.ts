@@ -61,11 +61,11 @@ export const deleteStrategyMetricLevel = (
   )
 }
 
-/** 修改告警等级状态 PUT /v1/metric/strategy/{strategyUID}/level/{uid}/status，status 传全局状态枚举 */
+/** 修改告警等级状态 PUT /v1/metric/strategy/{strategyUID}/level/{uid}/status，传入 GlobalStatus */
 export const updateStrategyMetricLevelStatus = (
   strategyUID: string,
   uid: string,
-  status: GlobalStatus | string
+  status: GlobalStatus
 ): Promise<unknown> => {
   return http.put<unknown>(`/metric/strategy/${strategyUID}/level/${uid}/status`, { status })
 }
