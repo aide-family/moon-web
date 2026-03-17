@@ -10,7 +10,7 @@ import { isInMicroApp } from '@/utils'
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
 import { NamespaceProvider, NoopNamespaceProvider } from '@/contexts/NamespaceContext'
-import { HddOutlined, BellOutlined, ThunderboltOutlined } from '@ant-design/icons'
+import { HddOutlined, BellOutlined, ThunderboltOutlined, AlertOutlined } from '@ant-design/icons'
 import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
 import { convertToMenuItems, getAllSubAppConfigs, generateRoutes, getDefaultPath } from '../main/config'
 import type { AppConfigItem } from '../main/config'
@@ -18,6 +18,7 @@ import DatasourceListWrapper from '@/pages/marksman/datasources'
 import StrategyListWrapper from '@/pages/marksman/strategies'
 import StrategyDetailPage from '@/pages/marksman/strategies/detail'
 import LevelListWrapper from '@/pages/marksman/levels'
+import RealtimeAlertListWrapper from '@/pages/marksman/realtime-alerts'
 
 function AppContent() {
   const { themeConfig } = useTheme()
@@ -46,6 +47,13 @@ function AppContent() {
       label: t('menu.levels'),
       path: '/levels',
       element: <LevelListWrapper />,
+    },
+    {
+      key: 'realtime-alerts',
+      icon: <AlertOutlined />,
+      label: t('menu.realtimeAlerts'),
+      path: '/realtime-alerts',
+      element: <RealtimeAlertListWrapper />,
     },
   ], [t])
   const menuItems = useMemo(() => convertToMenuItems(appConfig), [appConfig])

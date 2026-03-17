@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react'
 import { Route } from 'react-router-dom'
-import { UserOutlined, AppstoreOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined, SafetyCertificateOutlined, HddOutlined, BellOutlined, ThunderboltOutlined } from '@ant-design/icons'
+import { UserOutlined, AppstoreOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined, SafetyCertificateOutlined, HddOutlined, BellOutlined, ThunderboltOutlined, AlertOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
 import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
 import { SubAppContainer } from '@/components/SubAppContainer'
@@ -150,6 +150,18 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
           devUrl: 'http://localhost:5176/levels',
           prodUrl: 'http://localhost:4176/levels',
           path: '/marksman/levels',
+        },
+      },
+      {
+        key: 'marksman-realtime-alerts',
+        icon: <AlertOutlined />,
+        label: t('menu.realtimeAlerts'),
+        path: '/marksman/realtime-alerts',
+        subApp: {
+          name: 'marksman-realtime-alerts',
+          devUrl: 'http://localhost:5176/realtime-alerts',
+          prodUrl: 'http://localhost:4176/realtime-alerts',
+          path: '/marksman/realtime-alerts',
         },
       },
     ],

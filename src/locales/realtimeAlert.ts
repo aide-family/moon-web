@@ -1,0 +1,93 @@
+// 实时告警模块翻译
+
+export const zhCN = {
+  'realtimeAlert.title': '实时告警',
+  'realtimeAlert.search.placeholder': '搜索摘要/描述',
+  'realtimeAlert.filter.alertPage': '告警页',
+  'realtimeAlert.filter.alertPage.placeholder': '请选择告警页',
+  'realtimeAlert.filter.status': '状态',
+  'realtimeAlert.filter.status.all': '全部',
+  'realtimeAlert.filter.status.firing': '告警中',
+  'realtimeAlert.filter.status.intervened': '已介入',
+  'realtimeAlert.filter.status.recovered': '已恢复',
+  'realtimeAlert.filter.status.suppressed': '已抑制',
+  'realtimeAlert.filter.startAt': '开始时间',
+  'realtimeAlert.filter.endAt': '结束时间',
+
+  'realtimeAlert.table.uid': '告警ID',
+  'realtimeAlert.table.levelName': '等级',
+  'realtimeAlert.table.summary': '摘要',
+  'realtimeAlert.table.description': '描述',
+  'realtimeAlert.table.firedAt': '触发时间',
+  'realtimeAlert.table.value': '数值',
+  'realtimeAlert.table.status': '状态',
+  'realtimeAlert.table.intervenedAt': '介入时间',
+  'realtimeAlert.table.recoveredAt': '恢复时间',
+  'realtimeAlert.table.suppressedUntil': '抑制至',
+
+  'realtimeAlert.action.intervene': '介入',
+  'realtimeAlert.action.recover': '恢复',
+  'realtimeAlert.action.suppress': '抑制',
+  'realtimeAlert.action.detail': '详情',
+
+  'realtimeAlert.modal.detail.title': '告警详情',
+  'realtimeAlert.modal.suppress.title': '抑制告警',
+  'realtimeAlert.modal.suppress.until': '抑制截止时间',
+
+  'realtimeAlert.message.selectAlertPage': '请先选择告警页',
+  'realtimeAlert.message.noAlertPages': '暂无告警页，请先创建告警页',
+  'realtimeAlert.message.intervene.success': '介入成功',
+  'realtimeAlert.message.createAlertPage.success': '创建告警页成功',
+
+  'realtimeAlert.modal.createAlertPage.title': '创建告警页',
+  'realtimeAlert.form.alertPageName': '告警页名称',
+  'realtimeAlert.form.alertPageName.placeholder': '请输入告警页名称',
+  'realtimeAlert.message.recover.success': '恢复成功',
+  'realtimeAlert.message.suppress.success': '抑制成功',
+}
+
+export const enUS = {
+  'realtimeAlert.title': 'Real-time Alerts',
+  'realtimeAlert.search.placeholder': 'Search summary / description',
+  'realtimeAlert.filter.alertPage': 'Alert Page',
+  'realtimeAlert.filter.alertPage.placeholder': 'Select alert page',
+  'realtimeAlert.filter.status': 'Status',
+  'realtimeAlert.filter.status.all': 'All',
+  'realtimeAlert.filter.status.firing': 'Firing',
+  'realtimeAlert.filter.status.intervened': 'Intervened',
+  'realtimeAlert.filter.status.recovered': 'Recovered',
+  'realtimeAlert.filter.status.suppressed': 'Suppressed',
+  'realtimeAlert.filter.startAt': 'Start Time',
+  'realtimeAlert.filter.endAt': 'End Time',
+
+  'realtimeAlert.table.uid': 'Alert ID',
+  'realtimeAlert.table.levelName': 'Level',
+  'realtimeAlert.table.summary': 'Summary',
+  'realtimeAlert.table.description': 'Description',
+  'realtimeAlert.table.firedAt': 'Fired At',
+  'realtimeAlert.table.value': 'Value',
+  'realtimeAlert.table.status': 'Status',
+  'realtimeAlert.table.intervenedAt': 'Intervened At',
+  'realtimeAlert.table.recoveredAt': 'Recovered At',
+  'realtimeAlert.table.suppressedUntil': 'Suppressed Until',
+
+  'realtimeAlert.action.intervene': 'Intervene',
+  'realtimeAlert.action.recover': 'Recover',
+  'realtimeAlert.action.suppress': 'Suppress',
+  'realtimeAlert.action.detail': 'Detail',
+
+  'realtimeAlert.modal.detail.title': 'Alert Detail',
+  'realtimeAlert.modal.suppress.title': 'Suppress Alert',
+  'realtimeAlert.modal.suppress.until': 'Suppress Until',
+
+  'realtimeAlert.message.selectAlertPage': 'Please select an alert page first',
+  'realtimeAlert.message.noAlertPages': 'No alert pages. Create one first.',
+  'realtimeAlert.message.intervene.success': 'Intervened successfully',
+  'realtimeAlert.message.createAlertPage.success': 'Alert page created successfully',
+
+  'realtimeAlert.modal.createAlertPage.title': 'Create Alert Page',
+  'realtimeAlert.form.alertPageName': 'Alert Page Name',
+  'realtimeAlert.form.alertPageName.placeholder': 'Enter alert page name',
+  'realtimeAlert.message.recover.success': 'Recovered successfully',
+  'realtimeAlert.message.suppress.success': 'Suppressed successfully',
+}

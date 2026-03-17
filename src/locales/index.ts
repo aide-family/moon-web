@@ -14,6 +14,7 @@ import {
   zhCN as strategyGroupZh,
   enUS as strategyGroupEn,
 } from './strategyGroup'
+import { zhCN as realtimeAlertZh, enUS as realtimeAlertEn } from './realtimeAlert'
 import type { LocaleType } from '@/contexts/LocaleContext'
 
 // 合并所有模块的翻译资源
@@ -38,6 +39,7 @@ const zhCN = mergeResources(
   strategyZh,
   levelZh,
   strategyGroupZh,
+  realtimeAlertZh,
 )
 
 // 英文资源（合并所有模块）
@@ -55,6 +57,7 @@ const enUS = mergeResources(
   strategyEn,
   levelEn,
   strategyGroupEn,
+  realtimeAlertEn,
 )
 
 // 语言资源映射
