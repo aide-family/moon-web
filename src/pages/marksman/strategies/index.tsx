@@ -35,10 +35,11 @@ function getDriverLabel(value: string | undefined, t: (key: string) => string): 
   return t(`datasource.driver.${value}`) || value;
 }
 
-/** 将接口返回的 status（字符串）规范为 GlobalStatus */
-function normalizeStatus(status: string | undefined): GlobalStatus {
-  if (status === GlobalStatus.ENABLED) return GlobalStatus.ENABLED;
-  if (status === GlobalStatus.DISABLED) return GlobalStatus.DISABLED;
+/** 将接口返回的 status（字符串或数字）规范为 GlobalStatus */
+function normalizeStatus(status: string | number | undefined): GlobalStatus {
+  const s = status != null ? String(status) : undefined;
+  if (s === GlobalStatus.ENABLED) return GlobalStatus.ENABLED;
+  if (s === GlobalStatus.DISABLED) return GlobalStatus.DISABLED;
   return GlobalStatus.UNKNOWN;
 }
 
@@ -94,8 +95,7 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({ select
       };
       const response = await getStrategyList(params);
       const items = response?.items ?? [];
-      const meta = response?.metadata;
-      const total = parseInt(String(meta?.total ?? 0), 10);
+      const total = parseInt(String(response?.total ?? response?.metadata?.total ?? 0), 10);
       setDataSource(items);
       setPagination((prev) => ({
         ...prev,

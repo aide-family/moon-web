@@ -23,8 +23,10 @@ export * from './account/member/index'
 export * from './account/namespace/index'
 
 // marksman：策略与数据源
+export * from './marksman/alert/index'
 export * from './marksman/datasource/index'
 export * from './marksman/level/index'
+export * from './marksman/metricQuery/index'
 export * from './marksman/strategy/index'
 export * from './marksman/strategyMetric/index'
 export * from './marksman/strategyGroup/index'

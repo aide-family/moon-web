@@ -8,10 +8,21 @@ import type {
   StrategyItem,
   StrategyListParams,
   StrategyListResponse,
+  StrategySelectParams,
+  StrategySelectResponse,
   CreateStrategyParams,
   UpdateStrategyParams,
 } from './types'
-export type { StrategyItem, StrategyListParams, CreateStrategyParams, UpdateStrategyParams } from './types'
+export type {
+  StrategyItem,
+  StrategyListParams,
+  StrategyListResponse,
+  StrategyItemSelect,
+  StrategySelectParams,
+  StrategySelectResponse,
+  CreateStrategyParams,
+  UpdateStrategyParams,
+} from './types'
 
 /** 获取策略列表 GET /v1/strategies */
 export const getStrategyList = (params?: StrategyListParams): Promise<StrategyListResponse> => {
@@ -44,4 +55,11 @@ export const updateStrategyStatus = (
   status: number
 ): Promise<Record<string, never>> => {
   return http.put<Record<string, never>>(`/strategy/${uid}/status`, { uid, status })
+}
+
+/** 策略选择列表（下拉等）GET /v1/strategies/select */
+export const getStrategySelectList = (
+  params?: StrategySelectParams
+): Promise<StrategySelectResponse> => {
+  return http.get<StrategySelectResponse>('/strategies/select', params as unknown as Record<string, unknown>)
 }

@@ -46,10 +46,10 @@ export interface UpdateStrategyGroupParams {
   metadata?: Record<string, string>
 }
 
-/** 更新状态请求参数 PUT /v1/strategy-group/{uid}/status，与全局状态一致为字符串 */
+/** 更新状态请求参数 PUT /v1/strategy-group/{uid}/status，后端为 integer enum，前端可传 number 或全局状态字符串 */
 export interface UpdateStrategyGroupStatusParams {
   uid?: string
-  status?: string
+  status?: number | string
 }
 
 /** 下拉选择项 GET /v1/strategy-groups/select */
@@ -67,11 +67,12 @@ export interface StrategyGroupSelectParams {
   status?: string
 }
 
+/** SelectStrategyGroupReply：nextUID 后端为 uint32，前端按 string 兼容 */
 export interface StrategyGroupSelectResponse {
   items?: StrategyGroupItemSelect[]
   total?: string
   hasMore?: boolean
-  nextUID?: number
+  nextUID?: number | string
 }
 
 /** 策略组绑定接收人请求体 POST /v1/strategy-group/{uid}/receivers */
