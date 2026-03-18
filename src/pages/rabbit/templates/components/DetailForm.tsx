@@ -52,7 +52,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
             return
           }
           jsonData = JSON.stringify(parsed)
-        } catch (error) {
+        } catch {
           message.error(t('template.form.jsonData.invalid'))
           setLoading(false)
           return

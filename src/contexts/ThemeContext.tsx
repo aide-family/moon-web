@@ -64,41 +64,20 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [themeMode, setThemeModeState] = useState<ThemeMode>(getDefaultTheme);
-  const [actualThemeMode, setActualThemeMode] = useState<ActualThemeMode>(() => {
-    const mode = getDefaultTheme();
-    if (mode === 'system') {
-      return getSystemTheme();
-    }
-    return mode;
-  });
+  const [systemTheme, setSystemTheme] = useState<ActualThemeMode>(() => getSystemTheme());
 
-  // 计算实际应用的主题
-  useEffect(() => {
-    if (themeMode === 'system') {
-      const systemTheme = getSystemTheme();
-      setActualThemeMode(systemTheme);
-    } else {
-      setActualThemeMode(themeMode);
-    }
-  }, [themeMode]);
+  // 根据 themeMode + 系统偏好计算实际主题
+  const actualThemeMode: ActualThemeMode = themeMode === 'system' ? systemTheme : themeMode;
 
-  // 监听系统主题变化（仅在 themeMode 为 'system' 时）
+  // 监听系统主题变化：只在事件回调里更新 state
   useEffect(() => {
-    if (themeMode !== 'system') {
-      return;
-    }
-    
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent) => {
-      setActualThemeMode(e.matches ? 'dark' : 'light');
+      setSystemTheme(e.matches ? 'dark' : 'light');
     };
-    
-    // 初始化时设置一次
-    setActualThemeMode(getSystemTheme());
-    
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [themeMode]);
+  }, []);
 
   // 根据实际主题模式设置 data-theme 属性，用于 CSS 样式
   useEffect(() => {
@@ -144,7 +123,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   // 切换主题（保留兼容性，在 light 和 dark 之间切换）
   const toggleTheme = () => {
-    const currentActual = themeMode === 'system' ? actualThemeMode : themeMode;
+    const currentActual = themeMode === 'system' ? systemTheme : themeMode;
     const newTheme: ThemeMode = currentActual === 'light' ? 'dark' : 'light';
     setThemeMode(newTheme);
   };

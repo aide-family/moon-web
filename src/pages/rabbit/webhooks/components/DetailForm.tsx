@@ -63,7 +63,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
             }
           }
           headers = stringHeaders
-        } catch (error) {
+        } catch {
           message.error(t('webhook.form.headers.invalid'))
           setLoading(false)
           return

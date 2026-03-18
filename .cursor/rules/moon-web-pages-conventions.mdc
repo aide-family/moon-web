@@ -1,0 +1,81 @@
+---
+description: Moon Web pages conventions (React + TS + Ant Design v6)
+globs: src/pages/**/*.tsx
+alwaysApply: false
+---
+
+# React + TS + Ant Design v6 页面规范
+
+## 1) 组件与数据流
+
+- 页面组件使用函数式组件 + hooks；避免把副作用写在 render 中。
+- 派生状态优先用 `useMemo`（例如过滤/排序后数据、列定义），避免每次 render 都重建大对象。
+- 事件处理函数优先用 `useCallback`，并保证依赖项正确且完整。
+- 页面业务请求只调用 `src/api/**` 的封装；禁止在页面内直接使用底层 `http`。
+
+## 2) 数据获取与副作用（必做）
+
+- 进行异步请求时，必须处理 `loading`（至少是页面级 `loading` 或局部 `actionLoading`）。
+- 需要在卸载后避免 setState：使用 `mountedRef`/取消逻辑（与当前项目一致的写法优先）。
+- `try/catch/finally` 必须闭环：成功给用户反馈，失败记录并给出降级 UI（例如空表/空状态）。
+- 不要在异常里吞掉错误；至少 `console.error`（或项目约定的 logger）。
+
+示例（结构要求，非强制实现）：
+
+```typescript
+setLoading(true)
+try {
+  const res = await apiCall()
+  setData(res.items ?? [])
+} catch (e) {
+  console.error('xxx失败', e)
+  setData([])
+} finally {
+  setLoading(false)
+}
+```
+
+## 3) i18n（必做）
+
+- 所有 UI 文案必须走 i18n：使用 `const { t } = useLocale()` + `t('xxx')`。
+- `message`/`Modal`/`Table`/`placeholder`/`Tooltip`/`Button` 的文本都必须来自 `t(...)`。
+- 规则：页面里不允许出现业务文案的硬编码（表格列名、弹窗标题、按钮文本、空状态文案等）。
+
+## 4) Ant Design v6 用法（必做）
+
+### Table
+
+- `Table` 必须设置 `rowKey`，且 `rowKey` 应为业务稳定字段（如 `uid`）。
+- 分页/滚动使用受控 props：`pagination.current/pageSize/total` 与 `onChange` 联动。
+- 列渲染函数使用类型约束（`ColumnsType<T>`），渲染内避免出现未处理的 `undefined`（使用 `emptyPlaceholder` 或兜底 `'-'`）。
+
+### Modal
+
+- 使用 `open`（v6）而非 `visible`。
+- `onCancel` 必须回收/重置本地 state（关闭弹窗时把 record 清空、把输入值清空）。
+- `footer`：
+  - 详情弹窗优先 `footer={null}` 并只读展示
+  - 有确认逻辑的弹窗使用 `onOk` + `confirmLoading`
+
+### Form
+
+- 表单使用 `Form.useForm()` 管理实例，校验通过用 `form.validateFields()`。
+- 处理 `validateFields` 的异常：仅当是 `errorFields`（校验失败）时直接 return；其它异常要记录并提示。
+
+### Dropdown
+
+- `Dropdown` 使用 `menu={{ items: ... }}`（v6），并避免在 render 中创建会变化但不必要的 handler（可在上层 memo/回调中稳定）。
+
+## 5) 类型与可维护性（高优先级）
+
+- 使用项目已有的类型：例如 `AlertEventItem`、`ListRealtimeAlertParams` 等；不要用 `any`。
+- 函数/组件的返回值类型要清晰（能推导就推导，涉及复杂对象尽量显式类型）。
+- 不要把“通用常量/映射表”写进组件内部：如状态映射、mock 列表等应放在文件作用域常量区。
+- 避免在生产页面保留大段 mock 逻辑：如需 mock，只能通过明确的开关（如仅 dev/测试、环境变量或 feature flag）。
+
+## 6) 额外质量门槛（建议）
+
+- 不要在 `catch` 后继续执行依赖成功数据的逻辑；确保失败时 UI 能正确降级。
+- 组件拆分：当页面超过单一职责（例如“列表 + 详情 + 抑制弹窗 + 创建弹窗”）且代码超过可读阈值时，拆成小组件/子组件（如 `AlertPageTabContent`）。
+
+
