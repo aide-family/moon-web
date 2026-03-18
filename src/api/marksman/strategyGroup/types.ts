@@ -77,9 +77,3 @@ export interface StrategyGroupSelectResponse {
   hasMore?: boolean
   nextUID?: number | string
 }
-
-/** 策略组绑定接收人请求体 POST /v1/strategy-group/{uid}/receivers */
-export interface StrategyGroupBindReceiversParams {
-  uid?: string
-  receiverUIDs?: string[]
-}

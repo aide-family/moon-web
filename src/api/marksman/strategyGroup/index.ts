@@ -13,7 +13,6 @@ import type {
   UpdateStrategyGroupParams,
   StrategyGroupSelectParams,
   StrategyGroupSelectResponse,
-  StrategyGroupBindReceiversParams,
 } from './types'
 
 export type {
@@ -24,7 +23,6 @@ export type {
   StrategyGroupItemSelect,
   StrategyGroupSelectParams,
   StrategyGroupSelectResponse,
-  StrategyGroupBindReceiversParams,
 } from './types'
 
 /** 获取策略组列表 GET /v1/strategy-groups */
@@ -77,10 +75,3 @@ export const getStrategyGroupSelectList = (
   )
 }
 
-/** 策略组绑定接收人 POST /v1/strategy-group/{uid}/receivers */
-export const strategyGroupBindReceivers = (
-  uid: string,
-  params?: StrategyGroupBindReceiversParams
-): Promise<unknown> => {
-  return http.post<unknown>(`/strategy-group/${uid}/receivers`, params as Record<string, unknown>)
-}

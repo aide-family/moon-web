@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   App,
+  Badge,
   Button,
   DatePicker,
   Descriptions,
@@ -8,8 +9,10 @@ import {
   Form,
   Input,
   Modal,
+  Progress,
   Select,
   Space,
+  Spin,
   Table,
   Tabs,
   Tag,
@@ -18,16 +21,24 @@ import {
 } from 'antd'
 import type { MenuProps } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import { PlusOutlined } from '@ant-design/icons'
+import { LinkOutlined, PlusOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
-import type { AlertEventItem, AlertPageItem, ListRealtimeAlertParams } from '@/api/marksman/alert'
+import type {
+  AlertEventItem,
+  AlertPageItem,
+  GetAlertStatisticsReply,
+  ListRealtimeAlertParams,
+} from '@/api/marksman/alert'
 import {
   createAlertPage,
   getAlertPageList,
+  getAlertStatistics,
   getRealtimeAlertList,
   interveneAlert,
+  listUserAlertPages,
   recoverAlert,
   suppressAlert,
+  saveUserAlertPages,
 } from '@/api/marksman/alert'
 import { emptyPlaceholder } from '@/utils/marksman'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -82,7 +93,7 @@ function getMockRealtimeAlerts(count: number): AlertEventItem[] {
       status,
       intervenedAt: status >= 1 ? new Date(now - (count - i) * 30 * 60 * 1000).toISOString() : undefined,
       recoveredAt: status >= 2 ? new Date(now - (count - i) * 15 * 60 * 1000).toISOString() : undefined,
-      suppressedUntil: status === 3 ? new Date(now + 24 * 60 * 60 * 1000).toISOString() : undefined,
+        suppressUntilAt: status === 3 ? new Date(now + 24 * 60 * 60 * 1000).toISOString() : undefined,
       createdAt: firedAt,
       updatedAt: firedAt,
     })
@@ -256,7 +267,7 @@ const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({ alertPageUid 
     setActionLoading(true)
     try {
       await suppressAlert(suppressRecord.uid, {
-        suppressUntil: suppressUntil.toISOString(),
+        suppressUntilUnix: String(suppressUntil.unix()),
       })
       message.success(t('realtimeAlert.message.suppress.success'))
       setSuppressOpen(false)
@@ -396,21 +407,68 @@ const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({ alertPageUid 
                 { label: t('realtimeAlert.filter.status.suppressed'), value: 3 },
               ]}
             />
-            <span>{t('realtimeAlert.filter.startAt')}:</span>
-            <DatePicker
+            <span>{t('realtimeAlert.filter.timeRange')}:</span>
+            <DatePicker.RangePicker
               showTime
-              value={startAt}
-              onChange={setStartAt}
+              value={[startAt, endAt]}
+              onChange={v => {
+                const [s, e] = v ?? [null, null]
+                setStartAt(s)
+                setEndAt(e)
+              }}
               format="YYYY-MM-DD HH:mm:ss"
               allowClear
-            />
-            <span>{t('realtimeAlert.filter.endAt')}:</span>
-            <DatePicker
-              showTime
-              value={endAt}
-              onChange={setEndAt}
-              format="YYYY-MM-DD HH:mm:ss"
-              allowClear
+              presets={[
+                (() => {
+                  const now = dayjs()
+                  return {
+                    label: t('realtimeAlert.filter.range.last15Minutes'),
+                    value: [now.subtract(15, 'minute'), now] as [dayjs.Dayjs, dayjs.Dayjs],
+                  }
+                })(),
+                (() => {
+                  const now = dayjs()
+                  return {
+                    label: t('realtimeAlert.filter.range.last1Hour'),
+                    value: [now.subtract(1, 'hour'), now] as [dayjs.Dayjs, dayjs.Dayjs],
+                  }
+                })(),
+                (() => {
+                  const now = dayjs()
+                  return {
+                    label: t('realtimeAlert.filter.range.last1Day'),
+                    value: [now.subtract(1, 'day'), now] as [dayjs.Dayjs, dayjs.Dayjs],
+                  }
+                })(),
+                (() => {
+                  const now = dayjs()
+                  return {
+                    label: t('realtimeAlert.filter.range.last3Days'),
+                    value: [now.subtract(3, 'day'), now] as [dayjs.Dayjs, dayjs.Dayjs],
+                  }
+                })(),
+                (() => {
+                  const now = dayjs()
+                  return {
+                    label: t('realtimeAlert.filter.range.last7Days'),
+                    value: [now.subtract(7, 'day'), now] as [dayjs.Dayjs, dayjs.Dayjs],
+                  }
+                })(),
+                (() => {
+                  const now = dayjs()
+                  return {
+                    label: t('realtimeAlert.filter.range.last30Days'),
+                    value: [now.subtract(30, 'day'), now] as [dayjs.Dayjs, dayjs.Dayjs],
+                  }
+                })(),
+                (() => {
+                  const now = dayjs()
+                  return {
+                    label: t('realtimeAlert.filter.range.last90Days'),
+                    value: [now.subtract(90, 'day'), now] as [dayjs.Dayjs, dayjs.Dayjs],
+                  }
+                })(),
+              ]}
             />
             <Button type="primary" onClick={handleSearch}>
               {t('common.search')}
@@ -487,8 +545,8 @@ const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({ alertPageUid 
                 : '-'}
             </Descriptions.Item>
             <Descriptions.Item label={t('realtimeAlert.table.suppressedUntil')}>
-              {detailRecord.suppressedUntil
-                ? dayjs(detailRecord.suppressedUntil).format('YYYY-MM-DD HH:mm:ss')
+              {detailRecord.suppressUntilAt
+                ? dayjs(detailRecord.suppressUntilAt).format('YYYY-MM-DD HH:mm:ss')
                 : '-'}
             </Descriptions.Item>
           </Descriptions>
@@ -523,42 +581,67 @@ const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({ alertPageUid 
   )
 }
 
-const RealtimeAlertList: React.FC = () => {
+interface RealtimeAlertListProps {
+  stats: GetAlertStatisticsReply | null
+  statsLoading: boolean
+}
+
+const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({ stats }) => {
   const { t } = useLocale()
-  const [alertPages, setAlertPages] = useState<AlertPageItem[]>([])
-  const [alertPageLoading, setAlertPageLoading] = useState(false)
+  const [availableAlertPages, setAvailableAlertPages] = useState<AlertPageItem[]>([])
+  const [availableAlertPagesLoading, setAvailableAlertPagesLoading] = useState(false)
+  const [boundAlertPages, setBoundAlertPages] = useState<AlertPageItem[]>([])
+  const [boundAlertPagesLoading, setBoundAlertPagesLoading] = useState(false)
   const [activeTabKey, setActiveTabKey] = useState<string | undefined>(undefined)
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [createLoading, setCreateLoading] = useState(false)
+  const [bindModalOpen, setBindModalOpen] = useState(false)
+  const [bindLoading, setBindLoading] = useState(false)
   const [form] = Form.useForm()
+  const [bindForm] = Form.useForm()
   const mountedRef = useRef(true)
 
-  const fetchAlertPages = useCallback(async () => {
-    setAlertPageLoading(true)
+  const fetchAvailableAlertPages = useCallback(async () => {
+    setAvailableAlertPagesLoading(true)
     try {
       const res = await getAlertPageList({ page: 1, pageSize: 100 })
       if (!mountedRef.current) return
       const items = res.items ?? []
-      setAlertPages(items)
+      setAvailableAlertPages(items)
+    } catch (e) {
+      console.error('获取告警页列表失败:', e)
+    } finally {
+      if (mountedRef.current) setAvailableAlertPagesLoading(false)
+    }
+  }, [])
+
+  const fetchBoundAlertPages = useCallback(async () => {
+    setBoundAlertPagesLoading(true)
+    try {
+      const res = await listUserAlertPages()
+      if (!mountedRef.current) return
+      const items = res.items ?? []
+      setBoundAlertPages(items)
       setActiveTabKey(prev => {
         if (items.length === 0) return undefined
         if (!prev || !items.some(p => p.uid === prev)) return items[0]?.uid
         return prev
       })
     } catch (e) {
-      console.error('获取告警页列表失败:', e)
+      console.error('获取绑定告警页失败:', e)
     } finally {
-      if (mountedRef.current) setAlertPageLoading(false)
+      if (mountedRef.current) setBoundAlertPagesLoading(false)
     }
   }, [])
 
   useEffect(() => {
     mountedRef.current = true
-    fetchAlertPages()
+    fetchAvailableAlertPages()
+    fetchBoundAlertPages()
     return () => {
       mountedRef.current = false
     }
-  }, [fetchAlertPages])
+  }, [fetchAvailableAlertPages, fetchBoundAlertPages])
 
   const handleCreateOk = async () => {
     try {
@@ -569,8 +652,9 @@ const RealtimeAlertList: React.FC = () => {
       message.success(t('realtimeAlert.message.createAlertPage.success'))
       setCreateModalOpen(false)
       form.resetFields()
-      await fetchAlertPages()
-      if (newUid) setActiveTabKey(newUid)
+      await fetchAvailableAlertPages()
+      // 新创建的告警页是否自动绑定由后端策略决定，这里不做额外假设
+      if (newUid) setActiveTabKey(prev => (prev ? prev : newUid))
     } catch (e) {
       if (e && typeof e === 'object' && 'errorFields' in e) return
       console.error('创建告警页失败:', e)
@@ -579,21 +663,90 @@ const RealtimeAlertList: React.FC = () => {
     }
   }
 
+  const bindAlertPageOptions = useMemo(() => {
+    return availableAlertPages
+      .filter(p => p.uid)
+      .map(p => ({
+        label: p.name ?? p.uid ?? '-',
+        value: p.uid as string,
+      }))
+  }, [availableAlertPages])
+
+  const parseCount = (v?: string) => {
+    const n = v == null ? 0 : Number(v)
+    return Number.isFinite(n) ? n : 0
+  }
+
+  const alertPageCountMap = useMemo(() => {
+    const map = new Map<string, number>()
+    ;(stats?.countByAlertPage ?? []).forEach(item => {
+      if (!item.alertPageUid) return
+      map.set(item.alertPageUid, parseCount(item.count))
+    })
+    return map
+  }, [stats])
+
   const tabItems = useMemo(
     () =>
-      alertPages.map(page => ({
-        key: page.uid ?? '',
-        label: page.name ?? page.uid ?? '-',
-        children: null,
-      })),
-    [alertPages]
+      boundAlertPages
+        .filter(page => page.uid)
+        .map(page => {
+          const uid = page.uid as string
+          const count = alertPageCountMap.get(uid)
+          const labelText = page.name ?? page.uid ?? '-'
+          return {
+            key: uid,
+            label:
+              count != null && count > 0 ? (
+                <Badge count={count}>
+                  <span>{labelText}</span>
+                </Badge>
+              ) : (
+                labelText
+              ),
+            children: null,
+          }
+        }),
+    [boundAlertPages, alertPageCountMap]
   )
 
   const activeKey = activeTabKey ?? tabItems[0]?.key
+  const openBindModal = useCallback(() => {
+    const selected = boundAlertPages.filter(p => p.uid).map(p => p.uid as string)
+    bindForm.setFieldsValue({ alertPageUids: selected })
+    setBindModalOpen(true)
+  }, [bindForm, boundAlertPages])
+
+  const handleBindOk = async () => {
+    type BindFormValues = {
+      alertPageUids?: string[]
+    }
+    try {
+      const values = (await bindForm.validateFields()) as BindFormValues
+      setBindLoading(true)
+      await saveUserAlertPages({
+        alertPageUids: values.alertPageUids,
+      })
+      message.success(t('realtimeAlert.message.bind.success'))
+      setBindModalOpen(false)
+      bindForm.resetFields()
+      await fetchBoundAlertPages()
+    } catch (e) {
+      if (e && typeof e === 'object' && 'errorFields' in e) return
+      console.error('绑定个人告警页失败:', e)
+    } finally {
+      setBindLoading(false)
+    }
+  }
+
+  const showGlobalEmpty =
+    availableAlertPages.length === 0 && !availableAlertPagesLoading && boundAlertPages.length === 0 && !boundAlertPagesLoading
+  const showBindEmpty =
+    availableAlertPages.length > 0 && !availableAlertPagesLoading && boundAlertPages.length === 0 && !boundAlertPagesLoading
 
   return (
     <div className="h-full flex flex-col min-h-0">
-      {alertPages.length === 0 && !alertPageLoading ? (
+      {showGlobalEmpty ? (
         <>
           <div className="flex items-center gap-2 mb-3 shrink-0">
             <Tooltip title={t('common.add')}>
@@ -604,9 +757,26 @@ const RealtimeAlertList: React.FC = () => {
             {t('realtimeAlert.message.noAlertPages')}
           </div>
         </>
-      ) : alertPages.length > 0 ? (
+      ) : showBindEmpty ? (
+        <>
+          <div className="flex items-center gap-2 mb-3 shrink-0">
+            <Tooltip title={t('realtimeAlert.action.bindAlertPages')}>
+              <Button icon={<LinkOutlined />} onClick={openBindModal} />
+            </Tooltip>
+            <Tooltip title={t('common.add')}>
+              <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalOpen(true)} />
+            </Tooltip>
+          </div>
+          <div className="flex-1 flex items-center justify-center text-gray-500">
+            {t('realtimeAlert.message.noBoundAlertPages')}
+          </div>
+        </>
+      ) : tabItems.length > 0 ? (
         <>
           <div className="flex items-center gap-2 mb-2 shrink-0">
+            <Tooltip title={t('realtimeAlert.action.bindAlertPages')}>
+              <Button icon={<LinkOutlined />} onClick={openBindModal} />
+            </Tooltip>
             <Tooltip title={t('common.add')}>
               <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalOpen(true)} />
             </Tooltip>
@@ -621,7 +791,11 @@ const RealtimeAlertList: React.FC = () => {
             {activeKey ? <AlertPageTabContent alertPageUid={activeKey} /> : null}
           </div>
         </>
-      ) : null}
+      ) : (
+        <div className="flex-1 flex items-center justify-center">
+          <Spin />
+        </div>
+      )}
 
       <Modal
         title={t('realtimeAlert.modal.createAlertPage.title')}
@@ -646,17 +820,132 @@ const RealtimeAlertList: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
+
+      <Modal
+        title={t('realtimeAlert.modal.bindAlertPages.title')}
+        open={bindModalOpen}
+        onOk={handleBindOk}
+        onCancel={() => {
+          setBindModalOpen(false)
+          bindForm.resetFields()
+        }}
+        confirmLoading={bindLoading}
+        okText={t('common.ok')}
+        cancelText={t('common.cancel')}
+        destroyOnClose
+      >
+        <Form form={bindForm} layout="vertical" preserve={false}>
+          <Form.Item
+            name="alertPageUids"
+            label={t('realtimeAlert.form.bindAlertPages.label')}
+            rules={[{ required: true, message: t('realtimeAlert.form.bindAlertPages.required') }]}
+          >
+            <Select
+              mode="multiple"
+              showSearch
+              placeholder={t('realtimeAlert.form.bindAlertPages.placeholder')}
+              style={{ width: '100%' }}
+              options={bindAlertPageOptions}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   )
 }
 
 export default function RealtimeAlertListWrapper() {
   const { t } = useLocale()
+  const [statsLoading, setStatsLoading] = useState(false)
+  const [stats, setStats] = useState<GetAlertStatisticsReply | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    const run = async () => {
+      setStatsLoading(true)
+      try {
+        const res = await getAlertStatistics()
+        if (cancelled) return
+        setStats(res)
+      } catch (e) {
+        console.error('获取告警实时统计失败:', e)
+        if (cancelled) return
+        setStats(null)
+      } finally {
+        if (!cancelled) setStatsLoading(false)
+      }
+    }
+    run()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const parseCount = (v?: string) => {
+    const n = v == null ? 0 : Number(v)
+    return Number.isFinite(n) ? n : 0
+  }
+
+  const totalActive = parseCount(stats?.totalActiveCount)
+  const levels = stats?.countByLevel ?? []
+
   return (
     <App className="h-full">
       <PageContent>
-        <div className="mb-2 text-base font-medium">{t('realtimeAlert.title')}</div>
-        <RealtimeAlertList />
+        <div className="sticky top-0 z-10 bg-white pt-2 pb-3 mb-2 border-b border-gray-100">
+          <div className="mb-2 text-base font-medium">{t('realtimeAlert.title')}</div>
+          {statsLoading ? (
+            <div className="py-3 flex items-center justify-start gap-2">
+              <Spin />
+              <span className="text-gray-500">{t('common.loading')}</span>
+            </div>
+          ) : stats ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="rounded border border-gray-200 bg-white p-4">
+                <div className="text-sm text-gray-500">{t('realtimeAlert.statistics.totalActiveCount')}</div>
+                <div className="mt-2 text-2xl font-semibold text-gray-900">
+                  {stats.totalActiveCount ?? '-'}
+                </div>
+              </div>
+              <div className="rounded border border-gray-200 bg-white p-4">
+                <div className="text-sm text-gray-500">{t('realtimeAlert.statistics.todayRecoveredCount')}</div>
+                <div className="mt-2 text-2xl font-semibold text-gray-900">
+                  {stats.todayRecoveredCount ?? '-'}
+                </div>
+              </div>
+              <div className="rounded border border-gray-200 bg-white p-4">
+                <div className="text-sm font-medium text-gray-800 mb-3">{t('realtimeAlert.statistics.byLevel')}</div>
+                {levels.length ? (
+                  <div className="flex flex-col gap-3">
+                    {levels.slice(0, 5).map((item, idx) => {
+                      const count = parseCount(item.count)
+                      const pct = totalActive > 0 ? Math.round((count * 100) / totalActive) : 0
+                      return (
+                        <div key={item.levelUid ?? item.levelName ?? String(idx)}>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-600">{item.levelName ?? '-'}</span>
+                            <span className="text-gray-900 font-medium">
+                              {item.count ?? '-'} ({pct}%)
+                            </span>
+                          </div>
+                          <div className="mt-2">
+                            <Progress percent={pct} size="small" showInfo={false} />
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-gray-500">{t('common.noData')}</div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="text-gray-500">{t('common.noData')}</div>
+          )}
+        </div>
+
+        <RealtimeAlertList stats={stats} statsLoading={statsLoading} />
       </PageContent>
     </App>
   )

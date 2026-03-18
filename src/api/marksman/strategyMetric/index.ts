@@ -10,14 +10,12 @@ import type {
   StrategyMetricLevelItem,
   SaveStrategyMetricParams,
   SaveStrategyMetricLevelParams,
-  StrategyMetricBindReceiversParams,
 } from './types'
 export type {
   StrategyMetricItem,
   StrategyMetricLevelItem,
   SaveStrategyMetricParams,
   SaveStrategyMetricLevelParams,
-  StrategyMetricBindReceiversParams,
 } from './types'
 
 /** 获取策略指标 GET /v1/metric/strategy/{strategyUID} */
@@ -70,10 +68,3 @@ export const updateStrategyMetricLevelStatus = (
   return http.put<unknown>(`/metric/strategy/${strategyUID}/level/${uid}/status`, { status })
 }
 
-/** 策略指标绑定接收人 POST /v1/metric/strategy/{strategyUID}/receivers */
-export const strategyMetricBindReceivers = (
-  strategyUID: string,
-  params?: StrategyMetricBindReceiversParams
-): Promise<unknown> => {
-  return http.post<unknown>(`/metric/strategy/${strategyUID}/receivers`, params as Record<string, unknown>)
-}

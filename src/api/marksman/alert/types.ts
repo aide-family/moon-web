@@ -2,6 +2,7 @@
  * 告警页与实时告警相关类型（Alert API）
  * 接口文档：Alert_ListAlertPage、Alert_CreateAlertPage、Alert_GetAlertPage、Alert_UpdateAlertPage、
  * Alert_DeleteAlertPage、Alert_ListRealtimeAlert、Alert_InterveneAlert、Alert_RecoverAlert、Alert_SuppressAlert
+ * Alert_GetAlertStatistics、Alert_ListUserAlertPages、Alert_SaveUserAlertPages
  */
 
 /** 告警页筛选条件（哪些告警属于该页，任意匹配） */
@@ -76,9 +77,12 @@ export interface AlertEventItem {
   status?: number
   intervenedAt?: string
   intervenedBy?: string
-  suppressedUntil?: string
+  suppressUntilAt?: string
+  suppressedBy?: string
+  suppressedReason?: string
   recoveredAt?: string
   recoveredBy?: string
+  recoveredReason?: string
   createdAt?: string
   updatedAt?: string
 }
@@ -100,6 +104,41 @@ export interface ListRealtimeAlertResponse {
   pageSize?: number
 }
 
+/** 告警统计（GET /v1/alert/statistics） */
+export interface GetAlertStatisticsReply {
+  totalActiveCount?: string
+  todayRecoveredCount?: string
+  countByLevel?: LevelCount[]
+  countByAlertPage?: AlertPageCount[]
+}
+
+/** 按告警等级统计项 */
+export interface LevelCount {
+  levelUid?: string
+  levelName?: string
+  count?: string
+}
+
+/** 按告警页统计项 */
+export interface AlertPageCount {
+  alertPageUid?: string
+  alertPageName?: string
+  count?: string
+}
+
+/** 用户可见告警页列表（GET /v1/alert/user/alert-pages） */
+export interface ListUserAlertPagesReply {
+  items?: AlertPageItem[]
+}
+
+/** 保存用户告警页列表请求体（PUT /v1/alert/user/alert-pages） */
+export interface SaveUserAlertPagesRequest {
+  alertPageUids?: string[]
+}
+
+/** 保存用户告警页列表响应（PUT /v1/alert/user/alert-pages） */
+export type SaveUserAlertPagesReply = Record<string, never>
+
 /** 介入告警请求体 POST /v1/realtime-alerts/{uid}/intervene */
 export interface InterveneAlertParams {
   uid?: string
@@ -108,10 +147,12 @@ export interface InterveneAlertParams {
 /** 恢复告警请求体 POST /v1/realtime-alerts/{uid}/recover */
 export interface RecoverAlertParams {
   uid?: string
+  recoveredReason?: string
 }
 
-/** 抑制告警请求体 POST /v1/realtime-alerts/{uid}/suppress，suppressUntil 为 RFC3339 时间 */
+/** 抑制告警请求体 POST /v1/alert/realtime-alerts/{uid}/suppress，suppressUntilUnix 为 Unix 秒（string） */
 export interface SuppressAlertParams {
   uid?: string
-  suppressUntil?: string
+  suppressUntilUnix?: string
+  suppressedReason?: string
 }
