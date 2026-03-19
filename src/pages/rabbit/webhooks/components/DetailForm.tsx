@@ -97,19 +97,21 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
       }
 
       onSuccess()
-      handleCancel()
+      onCancel()
     } catch (error) {
+      if (error && typeof error === 'object' && 'errorFields' in error) {
+        return
+      }
       console.error('提交失败:', error)
-      // 错误信息已由 API 拦截器处理
+      message.error(t('message.error'))
     } finally {
       setLoading(false)
     }
   }
 
-  // 处理取消
   const handleCancel = () => {
-    form.resetFields()
     onCancel()
+    form.resetFields()
   }
 
   return (

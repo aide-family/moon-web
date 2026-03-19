@@ -34,18 +34,15 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
     }
   }, [open, mode, initialData, form])
 
-  // 处理提交
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields()
       setLoading(true)
 
-      // 解析 jsonData
       let jsonData: string | undefined = undefined
       if (values.jsonData && values.jsonData.trim()) {
         try {
           const parsed = JSON.parse(values.jsonData.trim())
-          // 确保解析后是对象
           if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
             message.error(t('template.form.jsonData.invalid'))
             setLoading(false)
@@ -78,19 +75,21 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
       }
 
       onSuccess()
-      handleCancel()
+      onCancel()
     } catch (error) {
+      if (error && typeof error === 'object' && 'errorFields' in error) {
+        return
+      }
       console.error('提交失败:', error)
-      // 错误信息已由 API 拦截器处理
+      message.error(t('message.error'))
     } finally {
       setLoading(false)
     }
   }
 
-  // 处理取消
   const handleCancel = () => {
-    form.resetFields()
     onCancel()
+    form.resetFields()
   }
 
   return (

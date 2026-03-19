@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App, Select } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
@@ -6,7 +6,7 @@ import type { MenuProps } from 'antd'
 import { type TemplateItem, type TemplateListParams, getTemplateTableList, deleteTemplate, updateTemplateStatus, GlobalStatus } from '@/api/rabbit/template/index'
 import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
-import DetailView from './components/DetailView.tsx'
+import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
 import PageContent from '@/components/layout/PageContent'
 import { getMessageTypeOptions, getMessageTypeLabel } from './constants'
@@ -50,38 +50,45 @@ const TemplateListContent: React.FC = () => {
   const [editingData, setEditingData] = useState<TemplateItem | null>(null)
   const [detailViewOpen, setDetailViewOpen] = useState(false)
   const [viewingData, setViewingData] = useState<TemplateItem | null>(null)
+  const mountedRef = useRef(true)
+  const paginationRef = useRef(pagination)
+  paginationRef.current = pagination
 
-  // 获取数据
-  const fetchData = async (page?: number, pageSize?: number) => {
-    setLoading(true)
-    try {
-      // 使用传入的参数或当前 state 的值
-      const currentPage = page ?? pagination.current
-      const currentPageSize = pageSize ?? pagination.pageSize
-      
-      const params: TemplateListParams = {
-        page: currentPage,
-        pageSize: currentPageSize,
-        keyword: searchParams.keyword || undefined,
-        status: searchParams.status,
-        messageType: searchParams.messageType,
-      }
-      const response = await getTemplateTableList(params)
-      if (response) {
-        setDataSource(response.items || [])
-        setPagination(prev => ({
-          ...prev,
-          current: currentPage,
+  const fetchData = useCallback(
+    async (page?: number, pageSize?: number, keywordOverride?: string) => {
+      setLoading(true)
+      try {
+        const cur = paginationRef.current
+        const currentPage = page ?? cur.current
+        const currentPageSize = pageSize ?? cur.pageSize
+        const keyword = keywordOverride !== undefined ? (keywordOverride || undefined) : (searchParams.keyword || undefined)
+        const params: TemplateListParams = {
+          page: currentPage,
           pageSize: currentPageSize,
-          total: parseInt(response.total || '0', 10),
-        }))
+          keyword,
+          status: searchParams.status,
+          messageType: searchParams.messageType,
+        }
+        const response = await getTemplateTableList(params)
+        if (!mountedRef.current) return
+        if (response) {
+          setDataSource(response.items ?? [])
+          setPagination(prev => ({
+            ...prev,
+            current: currentPage,
+            pageSize: currentPageSize,
+            total: parseInt(response.total || '0', 10),
+          }))
+        }
+      } catch (error) {
+        console.error('获取模板列表失败:', error)
+        if (mountedRef.current) setDataSource([])
+      } finally {
+        if (mountedRef.current) setLoading(false)
       }
-    } catch (error) {
-      console.error('获取模板列表失败:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+    },
+    [searchParams.keyword, searchParams.status, searchParams.messageType]
+  )
 
   // URL 变化时（如浏览器后退）同步到表单
   useEffect(() => {
@@ -101,33 +108,31 @@ const TemplateListContent: React.FC = () => {
     )
   }, [searchParams.keyword, searchParams.status, searchParams.messageType])
 
-  const handleSearch = () => {
+  const handleSearch = useCallback((keywordFromInput?: string) => {
+    if (keywordFromInput !== undefined) {
+      setSearchParams(prev => ({ ...prev, keyword: keywordFromInput }))
+    }
     setPagination(prev => ({ ...prev, current: 1 }))
-    fetchData()
-  }
+    fetchData(1, paginationRef.current.pageSize, keywordFromInput)
+  }, [fetchData])
 
-  // 处理重置
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setSearchParams(defaultSearchParams)
     setUrlSearchParams({})
-    setPagination({
-      current: 1,
-      pageSize: 10,
-      total: 0,
-    })
-    fetchData()
-  }
+    setPagination({ current: 1, pageSize: 10, total: 0 })
+    fetchData(1, 10)
+  }, [fetchData])
 
-  // 处理表格变化（分页）
-  const handleTableChange = (page: number, pageSize: number) => {
-    // 直接传递新的分页参数给 fetchData
-    fetchData(page, pageSize)
-  }
+  const handleTableChange = useCallback(
+    (page: number, pageSize: number) => {
+      fetchData(page, pageSize)
+    },
+    [fetchData]
+  )
 
-  const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : text
-
-  // 表格列定义
-  const columns: ColumnsType<TemplateItem> = [
+  const columns: ColumnsType<TemplateItem> = useMemo(() => {
+    const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : String(text)
+    return [
     {
       title: t('template.table.uid'),
       dataIndex: 'uid',
@@ -251,6 +256,7 @@ const TemplateListContent: React.FC = () => {
       },
     },
   ]
+  }, [t])
 
   // 处理新增
   const handleAdd = () => {
@@ -318,9 +324,16 @@ const TemplateListContent: React.FC = () => {
     fetchData()
   }
 
-  // 初始化加载数据和监听搜索参数变化
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
+
   useEffect(() => {
     fetchData()
+    // 仅在 status / messageType 变化时重新拉取，keyword 由「搜索」按钮触发
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.status, searchParams.messageType])
 
@@ -359,7 +372,7 @@ const TemplateListContent: React.FC = () => {
             placeholder={t('table.search.placeholder')}
             value={searchParams.keyword}
             onChange={(e) => setSearchParams(prev => ({ ...prev, keyword: e.target.value }))}
-            onPressEnter={handleSearch}
+            onPressEnter={(e) => handleSearch((e.target as HTMLInputElement).value)}
             className="w-full min-w-[120px] sm:w-48 md:w-52"
           />
           <span>{t('table.search.status')}:</span>
@@ -397,7 +410,7 @@ const TemplateListContent: React.FC = () => {
               })),
             ]}
           />
-          <Button onClick={handleSearch} type="primary">
+          <Button onClick={() => handleSearch()} type="primary">
             {t('common.search')}
           </Button>
           <Button onClick={handleReset}>

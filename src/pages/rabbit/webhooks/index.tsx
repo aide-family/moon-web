@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App, Select } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
@@ -63,34 +63,43 @@ const WebhookListContent: React.FC = () => {
   const [editingData, setEditingData] = useState<WebhookItem | null>(null)
   const [detailViewOpen, setDetailViewOpen] = useState(false)
   const [viewingData, setViewingData] = useState<WebhookItem | null>(null)
+  const mountedRef = useRef(true)
+  const paginationRef = useRef(pagination)
+  paginationRef.current = pagination
 
-  // 获取数据（真实接口）
-  const fetchData = async (page?: number, pageSize?: number) => {
-    setLoading(true)
-    try {
-      const currentPage = page ?? pagination.current
-      const currentPageSize = pageSize ?? pagination.pageSize
-      const params: WebhookListParams = {
-        page: currentPage,
-        pageSize: currentPageSize,
-        keyword: searchParams.keyword || undefined,
-        status: searchParams.status,
-        app: searchParams.app,
+  const fetchData = useCallback(
+    async (page?: number, pageSize?: number, keywordOverride?: string) => {
+      setLoading(true)
+      try {
+        const cur = paginationRef.current
+        const currentPage = page ?? cur.current
+        const currentPageSize = pageSize ?? cur.pageSize
+        const keyword = keywordOverride !== undefined ? (keywordOverride || undefined) : (searchParams.keyword || undefined)
+        const params: WebhookListParams = {
+          page: currentPage,
+          pageSize: currentPageSize,
+          keyword,
+          status: searchParams.status,
+          app: searchParams.app,
+        }
+        const response = await getWebhookTableList(params)
+        if (!mountedRef.current) return
+        setDataSource(response?.items ?? [])
+        setPagination(prev => ({
+          ...prev,
+          current: currentPage,
+          pageSize: currentPageSize,
+          total: parseInt(String(response?.total ?? 0), 10),
+        }))
+      } catch (error) {
+        console.error('获取Webhook列表失败:', error)
+        if (mountedRef.current) setDataSource([])
+      } finally {
+        if (mountedRef.current) setLoading(false)
       }
-      const response = await getWebhookTableList(params)
-      setDataSource(response?.items ?? [])
-      setPagination(prev => ({
-        ...prev,
-        current: currentPage,
-        pageSize: currentPageSize,
-        total: parseInt(String(response?.total ?? 0), 10),
-      }))
-    } catch (error) {
-      console.error('获取Webhook列表失败:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+    },
+    [searchParams.keyword, searchParams.status, searchParams.app]
+  )
 
   useEffect(() => {
     setSearchParams(parseSearchParamsFromUrl(urlSearchParams))
@@ -104,28 +113,31 @@ const WebhookListContent: React.FC = () => {
     )
   }, [searchParams.keyword, searchParams.status, searchParams.app])
 
-  const handleSearch = () => {
+  const handleSearch = useCallback((keywordFromInput?: string) => {
+    if (keywordFromInput !== undefined) {
+      setSearchParams(prev => ({ ...prev, keyword: keywordFromInput }))
+    }
     setPagination(prev => ({ ...prev, current: 1 }))
-    fetchData()
-  }
+    fetchData(1, paginationRef.current.pageSize, keywordFromInput)
+  }, [fetchData])
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setSearchParams(defaultSearchParams)
     setUrlSearchParams({})
     setPagination({ current: 1, pageSize: 10, total: 0 })
-    fetchData()
-  }
+    fetchData(1, 10)
+  }, [fetchData])
 
-  // 处理表格变化（分页）
-  const handleTableChange = (page: number, pageSize: number) => {
-    // 直接传递新的分页参数给 fetchData
-    fetchData(page, pageSize)
-  }
+  const handleTableChange = useCallback(
+    (page: number, pageSize: number) => {
+      fetchData(page, pageSize)
+    },
+    [fetchData]
+  )
 
-  const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : text
-
-  // 表格列定义
-  const columns: ColumnsType<WebhookItem> = [
+  const columns: ColumnsType<WebhookItem> = useMemo(() => {
+    const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : String(text)
+    return [
     {
       title: t('webhook.table.uid'),
       dataIndex: 'uid',
@@ -263,6 +275,7 @@ const WebhookListContent: React.FC = () => {
       },
     },
   ]
+  }, [t])
 
   // 处理新增
   const handleAdd = () => {
@@ -327,7 +340,13 @@ const WebhookListContent: React.FC = () => {
     fetchData()
   }
 
-  // 初始化加载数据
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
+
   useEffect(() => {
     fetchData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -368,13 +387,16 @@ const WebhookListContent: React.FC = () => {
             placeholder={t('table.search.placeholder')}
             value={searchParams.keyword}
             onChange={(e) => setSearchParams(prev => ({ ...prev, keyword: e.target.value }))}
-            onPressEnter={handleSearch}
+            onPressEnter={(e) => handleSearch((e.target as HTMLInputElement).value)}
             className="w-full min-w-[120px] sm:w-48 md:w-52"
           />
           <span>{t('table.search.status')}:</span>
           <Radio.Group
             value={searchParams.status}
-            onChange={(e) => setSearchParams(prev => ({ ...prev, status: e.target.value }))}
+            onChange={(e) => {
+              setSearchParams(prev => ({ ...prev, status: e.target.value }))
+              setPagination(prev => ({ ...prev, current: 1 }))
+            }}
             buttonStyle="solid"
           >
             <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
@@ -385,7 +407,10 @@ const WebhookListContent: React.FC = () => {
           <Select
             placeholder={t('webhook.search.app.placeholder')}
             value={searchParams.app ?? ''}
-            onChange={(value) => setSearchParams(prev => ({ ...prev, app: value === '' ? undefined : value }))}
+            onChange={(value) => {
+              setSearchParams(prev => ({ ...prev, app: value === '' ? undefined : value }))
+              setPagination(prev => ({ ...prev, current: 1 }))
+            }}
             className='w-30'
             allowClear
             options={[
@@ -401,7 +426,7 @@ const WebhookListContent: React.FC = () => {
               })),
             ]}
           />
-          <Button onClick={handleSearch} type="primary">
+          <Button onClick={() => handleSearch()} type="primary">
             {t('common.search')}
           </Button>
           <Button onClick={handleReset}>

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import {
   Table,
@@ -78,34 +78,48 @@ export default function MessageManagement() {
   const [detailOpen, setDetailOpen] = useState(false)
   const [detailData, setDetailData] = useState<MessageLogItem | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
+  const mountedRef = useRef(true)
+  const paginationRef = useRef(pagination)
+  paginationRef.current = pagination
 
-  const fetchData = async (page?: number, pageSize?: number) => {
-    setLoading(true)
-    try {
-      const currentPage = page ?? pagination.current
-      const currentPageSize = pageSize ?? pagination.pageSize
-      const params: ListMessageLogsParams = {
-        page: currentPage,
-        pageSize: currentPageSize,
-        status: searchParams.status,
-        messageType: searchParams.messageType,
-        startAtUnix: searchParams.startAtUnix,
-        endAtUnix: searchParams.endAtUnix,
+  const fetchData = useCallback(
+    async (page?: number, pageSize?: number) => {
+      setLoading(true)
+      try {
+        const cur = paginationRef.current
+        const currentPage = page ?? cur.current
+        const currentPageSize = pageSize ?? cur.pageSize
+        const params: ListMessageLogsParams = {
+          page: currentPage,
+          pageSize: currentPageSize,
+          status: searchParams.status,
+          messageType: searchParams.messageType,
+          startAtUnix: searchParams.startAtUnix,
+          endAtUnix: searchParams.endAtUnix,
+        }
+        const res = await listMessageLogs(params)
+        if (!mountedRef.current) return
+        setDataSource(res.items ?? [])
+        setPagination(prev => ({
+          ...prev,
+          current: currentPage,
+          pageSize: currentPageSize,
+          total: parseInt(String(res.total ?? 0), 10),
+        }))
+      } catch (error) {
+        console.error('获取消息日志列表失败:', error)
+        if (mountedRef.current) setDataSource([])
+      } finally {
+        if (mountedRef.current) setLoading(false)
       }
-      const res = await listMessageLogs(params)
-      setDataSource(res.items ?? [])
-      setPagination(prev => ({
-        ...prev,
-        current: currentPage,
-        pageSize: currentPageSize,
-        total: parseInt(String(res.total ?? 0), 10),
-      }))
-    } catch (error) {
-      console.error('获取消息日志列表失败:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+    },
+    [
+      searchParams.status,
+      searchParams.messageType,
+      searchParams.startAtUnix,
+      searchParams.endAtUnix,
+    ]
+  )
 
   useEffect(() => {
     setSearchParams(parseSearchParamsFromUrl(urlSearchParams))
@@ -124,24 +138,27 @@ export default function MessageManagement() {
     )
   }, [searchParams.status, searchParams.messageType, searchParams.startAtUnix, searchParams.endAtUnix])
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     setPagination(prev => ({ ...prev, current: 1 }))
-    fetchData()
-  }
+    fetchData(1, paginationRef.current.pageSize)
+  }, [fetchData])
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     const def = defaultDateRange()
     setSearchParams({ ...def, status: undefined, messageType: undefined })
     setUrlSearchParams({})
     setPagination({ current: 1, pageSize: 10, total: 0 })
-    fetchData()
-  }
+    fetchData(1, 10)
+  }, [fetchData])
 
-  const handleTableChange = (page: number, pageSize: number) => {
-    fetchData(page, pageSize)
-  }
+  const handleTableChange = useCallback(
+    (page: number, pageSize: number) => {
+      fetchData(page, pageSize)
+    },
+    [fetchData]
+  )
 
-  const handleViewDetail = async (record: MessageLogItem) => {
+  const handleViewDetail = useCallback(async (record: MessageLogItem) => {
     const uid = record.uid
     if (!uid) return
     setDetailOpen(true)
@@ -149,14 +166,15 @@ export default function MessageManagement() {
     setDetailLoading(true)
     try {
       const data = await getMessageLog(uid)
+      if (!mountedRef.current) return
       setDetailData(data)
     } catch (error) {
       console.error('获取消息详情失败:', error)
-      setDetailData(record)
+      if (mountedRef.current) setDetailData(record)
     } finally {
-      setDetailLoading(false)
+      if (mountedRef.current) setDetailLoading(false)
     }
-  }
+  }, [])
 
   const handleCancel = (record: MessageLogItem) => {
     const uid = record.uid
@@ -216,9 +234,9 @@ export default function MessageManagement() {
     }))
   }
 
-  const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : text
-
-  const columns: ColumnsType<MessageLogItem> = [
+  const columns: ColumnsType<MessageLogItem> = useMemo(() => {
+    const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : String(text)
+    return [
     { title: t('messageLog.table.uid'), dataIndex: 'uid', key: 'uid', width: 160, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
     {
       title: t('messageLog.table.type'),
@@ -300,6 +318,14 @@ export default function MessageManagement() {
       },
     },
   ]
+  }, [t])
+
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
 
   useEffect(() => {
     fetchData()

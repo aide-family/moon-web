@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Form,
   Input,
@@ -9,224 +9,177 @@ import {
   message,
   Row,
   Col,
-} from "antd";
+} from 'antd'
 import {
   sendEmail,
   sendEmailWithTemplate,
   sendWebhook,
   sendWebhookWithTemplate,
-} from "@/api/rabbit/sender";
-import { getEmailConfigSelectList } from "@/api/rabbit/email";
-import type { EmailItemSelect } from "@/api/rabbit/email";
-import { getWebhookConfigSelectList } from "@/api/rabbit/webhook";
-import type { WebhookItemSelect } from "@/api/rabbit/webhook";
-import { getTemplateSelectList } from "@/api/rabbit/template";
-import type { TemplateItemSelect } from "@/api/rabbit/template";
-import { MessageType } from "@/api/common/types";
-import { useLocale } from "@/contexts/LocaleContext";
-import PageContent from "@/components/layout/PageContent";
+} from '@/api/rabbit/sender'
+import { getEmailConfigSelectList } from '@/api/rabbit/email'
+import type { EmailItemSelect } from '@/api/rabbit/email'
+import { getWebhookConfigSelectList } from '@/api/rabbit/webhook'
+import type { WebhookItemSelect } from '@/api/rabbit/webhook'
+import { getTemplateSelectList } from '@/api/rabbit/template'
+import type { TemplateItemSelect } from '@/api/rabbit/template'
+import { MessageType } from '@/api/common/types'
+import { useLocale } from '@/contexts/LocaleContext'
+import PageContent from '@/components/layout/PageContent'
 
-type SendType = "email" | "emailTemplate" | "webhook" | "webhookTemplate";
+type SendType = 'email' | 'emailTemplate' | 'webhook' | 'webhookTemplate'
 
 const SEND_TYPES: { value: SendType; labelKey: string }[] = [
-  { value: "email", labelKey: "sender.type.email" },
-  { value: "emailTemplate", labelKey: "sender.type.emailTemplate" },
-  { value: "webhook", labelKey: "sender.type.webhook" },
-  { value: "webhookTemplate", labelKey: "sender.type.webhookTemplate" },
-];
+  { value: 'email', labelKey: 'sender.type.email' },
+  { value: 'emailTemplate', labelKey: 'sender.type.emailTemplate' },
+  { value: 'webhook', labelKey: 'sender.type.webhook' },
+  { value: 'webhookTemplate', labelKey: 'sender.type.webhookTemplate' },
+]
 export default function SenderManagement() {
-  const { t } = useLocale();
-  const [form] = Form.useForm();
-  const [sendType, setSendType] = useState<SendType>("email");
-  const [submitting, setSubmitting] = useState(false);
-  const [templateOptions, setTemplateOptions] = useState<TemplateItemSelect[]>(
-    [],
-  );
-  const [templateLoading, setTemplateLoading] = useState(false);
-  const [emailConfigOptions, setEmailConfigOptions] = useState<
-    EmailItemSelect[]
-  >([]);
-  const [emailConfigLoading, setEmailConfigLoading] = useState(false);
-  const [emailConfigKeyword, setEmailConfigKeyword] = useState("");
-  const emailConfigSearchTimerRef = useRef<ReturnType<
-    typeof setTimeout
-  > | null>(null);
-  const [webhookConfigOptions, setWebhookConfigOptions] = useState<
-    WebhookItemSelect[]
-  >([]);
-  const [webhookConfigLoading, setWebhookConfigLoading] = useState(false);
-  const [webhookConfigKeyword, setWebhookConfigKeyword] = useState("");
-  const webhookConfigSearchTimerRef = useRef<ReturnType<
-    typeof setTimeout
-  > | null>(null);
-  const [webhookTemplateType, setWebhookTemplateType] = useState<
-    MessageType | undefined
-  >(undefined);
+  const { t } = useLocale()
+  const [form] = Form.useForm()
+  const [sendType, setSendType] = useState<SendType>('email')
+  const [submitting, setSubmitting] = useState(false)
+  const [templateOptions, setTemplateOptions] = useState<TemplateItemSelect[]>([])
+  const [templateLoading, setTemplateLoading] = useState(false)
+  const [emailConfigOptions, setEmailConfigOptions] = useState<EmailItemSelect[]>([])
+  const [emailConfigLoading, setEmailConfigLoading] = useState(false)
+  const [emailConfigKeyword, setEmailConfigKeyword] = useState('')
+  const emailConfigSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [webhookConfigOptions, setWebhookConfigOptions] = useState<WebhookItemSelect[]>([])
+  const [webhookConfigLoading, setWebhookConfigLoading] = useState(false)
+  const [webhookConfigKeyword, setWebhookConfigKeyword] = useState('')
+  const webhookConfigSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [webhookTemplateType, setWebhookTemplateType] = useState<MessageType | undefined>(undefined)
 
-  const needTemplate =
-    sendType === "emailTemplate" || sendType === "webhookTemplate";
-  const needEmailConfig = sendType === "email" || sendType === "emailTemplate";
-  const needWebhookConfig =
-    sendType === "webhook" || sendType === "webhookTemplate";
+  const needTemplate = sendType === 'emailTemplate' || sendType === 'webhookTemplate'
+  const needEmailConfig = sendType === 'email' || sendType === 'emailTemplate'
+  const needWebhookConfig = sendType === 'webhook' || sendType === 'webhookTemplate'
 
   useEffect(() => {
-    if (sendType !== "webhookTemplate") setWebhookTemplateType(undefined);
-  }, [sendType]);
+    if (sendType !== 'webhookTemplate') setWebhookTemplateType(undefined)
+  }, [sendType])
 
   const handleEmailConfigSearch = useCallback((value: string) => {
-    if (emailConfigSearchTimerRef.current)
-      clearTimeout(emailConfigSearchTimerRef.current);
-    emailConfigSearchTimerRef.current = setTimeout(() => {
-      setEmailConfigKeyword(value);
-    }, 300);
-  }, []);
+    if (emailConfigSearchTimerRef.current) clearTimeout(emailConfigSearchTimerRef.current)
+    emailConfigSearchTimerRef.current = setTimeout(() => setEmailConfigKeyword(value), 300)
+  }, [])
 
   const handleWebhookConfigSearch = useCallback((value: string) => {
-    if (webhookConfigSearchTimerRef.current)
-      clearTimeout(webhookConfigSearchTimerRef.current);
-    webhookConfigSearchTimerRef.current = setTimeout(() => {
-      setWebhookConfigKeyword(value);
-    }, 300);
-  }, []);
+    if (webhookConfigSearchTimerRef.current) clearTimeout(webhookConfigSearchTimerRef.current)
+    webhookConfigSearchTimerRef.current = setTimeout(() => setWebhookConfigKeyword(value), 300)
+  }, [])
 
   const fetchWebhookConfigOptions = useCallback((keyword?: string) => {
-    setWebhookConfigLoading(true);
-    getWebhookConfigSelectList({
-      keyword: keyword?.trim() || undefined,
-      limit: 20,
-    })
+    setWebhookConfigLoading(true)
+    getWebhookConfigSelectList({ keyword: keyword?.trim() || undefined, limit: 20 })
       .then((res) => setWebhookConfigOptions(res.items ?? []))
       .catch(() => setWebhookConfigOptions([]))
-      .finally(() => setWebhookConfigLoading(false));
-  }, []);
+      .finally(() => setWebhookConfigLoading(false))
+  }, [])
 
   useEffect(() => {
-    if (!needWebhookConfig) return;
-    fetchWebhookConfigOptions(webhookConfigKeyword);
-  }, [needWebhookConfig, webhookConfigKeyword, fetchWebhookConfigOptions]);
-
+    if (!needWebhookConfig) return
+    fetchWebhookConfigOptions(webhookConfigKeyword)
+  }, [needWebhookConfig, webhookConfigKeyword, fetchWebhookConfigOptions])
 
   useEffect(() => {
-    if (!needTemplate) return;
-    if (sendType === "webhookTemplate" && !webhookTemplateType) {
-      setTemplateOptions([]);
-      return;
+    if (!needTemplate) return
+    if (sendType === 'webhookTemplate' && !webhookTemplateType) {
+      setTemplateOptions([])
+      return
     }
-    setTemplateLoading(true);
+    setTemplateLoading(true)
     const params =
-      sendType === "emailTemplate"
+      sendType === 'emailTemplate'
         ? { limit: 20, messageType: MessageType.EMAIL }
-        : { limit: 20, messageType: webhookTemplateType! };
+        : { limit: 20, messageType: webhookTemplateType! }
     getTemplateSelectList(params)
       .then((res) => setTemplateOptions(res.items ?? []))
       .catch(() => setTemplateOptions([]))
-      .finally(() => setTemplateLoading(false));
-  }, [needTemplate, sendType, webhookTemplateType]);
+      .finally(() => setTemplateLoading(false))
+  }, [needTemplate, sendType, webhookTemplateType])
 
   const fetchEmailConfigOptions = useCallback((keyword?: string) => {
-    setEmailConfigLoading(true);
-    getEmailConfigSelectList({
-      keyword: keyword?.trim() || undefined,
-      limit: 100,
-    })
+    setEmailConfigLoading(true)
+    getEmailConfigSelectList({ keyword: keyword?.trim() || undefined, limit: 100 })
       .then((res) => setEmailConfigOptions(res.items ?? []))
       .catch(() => setEmailConfigOptions([]))
-      .finally(() => setEmailConfigLoading(false));
-  }, []);
+      .finally(() => setEmailConfigLoading(false))
+  }, [])
 
   useEffect(() => {
-    if (!needEmailConfig) return;
-    fetchEmailConfigOptions(emailConfigKeyword);
-  }, [needEmailConfig, emailConfigKeyword, fetchEmailConfigOptions]);
+    if (!needEmailConfig) return
+    fetchEmailConfigOptions(emailConfigKeyword)
+  }, [needEmailConfig, emailConfigKeyword, fetchEmailConfigOptions])
 
   const handleSubmit = async () => {
     try {
-      const values = await form.validateFields();
-      const uid = values.uid?.trim();
+      const values = await form.validateFields()
+      const uid = values.uid?.trim()
       if (!uid) {
-        message.warning(t("sender.form.uidPlaceholder"));
-        return;
+        message.warning(t('sender.form.uidPlaceholder'))
+        return
       }
-      setSubmitting(true);
+      setSubmitting(true)
       switch (sendType) {
-        case "email": {
-          const toStr = values.to?.trim();
-          const ccStr = values.cc?.trim();
-          const headersList = (values.headers ?? []) as { key?: string; value?: string }[];
+        case 'email': {
+          const toStr = values.to?.trim()
+          const ccStr = values.cc?.trim()
+          const headersList = (values.headers ?? []) as { key?: string; value?: string }[]
           const headers: Record<string, string> | undefined =
             headersList.length > 0
               ? Object.fromEntries(
                   headersList
-                    .filter((h) => (h.key ?? "").trim())
-                    .map((h) => [(h.key ?? "").trim(), (h.value ?? "").trim()]),
+                    .filter((h) => (h.key ?? '').trim())
+                    .map((h) => [(h.key ?? '').trim(), (h.value ?? '').trim()])
                 )
-              : undefined;
+              : undefined
           await sendEmail(uid, {
             uid,
-            subject: values.subject?.trim() ?? "",
-            body: values.body?.trim() ?? "",
+            subject: values.subject?.trim() ?? '',
+            body: values.body?.trim() ?? '',
             contentType: values.contentType?.trim(),
-            to: toStr
-              ? toStr
-                  .split(",")
-                  .map((s: string) => s.trim())
-                  .filter(Boolean)
-              : undefined,
-            cc: ccStr
-              ? ccStr
-                  .split(",")
-                  .map((s: string) => s.trim())
-                  .filter(Boolean)
-              : undefined,
+            to: toStr ? toStr.split(',').map((s: string) => s.trim()).filter(Boolean) : undefined,
+            cc: ccStr ? ccStr.split(',').map((s: string) => s.trim()).filter(Boolean) : undefined,
             headers,
-          });
-          break;
+          })
+          break
         }
-        case "emailTemplate": {
-          const toStr = values.to?.trim();
-          const ccStr = values.cc?.trim();
+        case 'emailTemplate': {
+          const toStr = values.to?.trim()
+          const ccStr = values.cc?.trim()
           await sendEmailWithTemplate(uid, {
             templateUID: values.templateUID?.trim(),
             jsonData: values.jsonData?.trim(),
-            to: toStr
-              ? toStr
-                  .split(",")
-                  .map((s: string) => s.trim())
-                  .filter(Boolean)
-              : undefined,
-            cc: ccStr
-              ? ccStr
-                  .split(",")
-                  .map((s: string) => s.trim())
-                  .filter(Boolean)
-              : undefined,
-          });
-          break;
+            to: toStr ? toStr.split(',').map((s: string) => s.trim()).filter(Boolean) : undefined,
+            cc: ccStr ? ccStr.split(',').map((s: string) => s.trim()).filter(Boolean) : undefined,
+          })
+          break
         }
-        case "webhook":
-          await sendWebhook(uid, { data: values.data?.trim() });
-          break;
-        case "webhookTemplate":
+        case 'webhook':
+          await sendWebhook(uid, { data: values.data?.trim() })
+          break
+        case 'webhookTemplate':
           await sendWebhookWithTemplate(uid, {
             templateUID: values.templateUID?.trim(),
             jsonData: values.jsonData?.trim(),
-          });
-          break;
+          })
+          break
         default:
-          break;
+          break
       }
-      message.success(t("sender.success"));
-      form.resetFields();
+      message.success(t('sender.success'))
+      form.resetFields()
     } catch (error) {
-      if (error && typeof error === "object" && "errorFields" in error) {
-        return;
+      if (error && typeof error === 'object' && 'errorFields' in error) {
+        return
       }
-      console.error("发送失败:", error);
-      message.error(t("sender.error"));
+      console.error('发送失败:', error)
+      message.error(t('sender.error'))
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   /** 四种发送方式各自的表单项渲染 */
   const renderUidEmail = () => (
@@ -299,9 +252,9 @@ export default function SenderManagement() {
             };
           })}
         onChange={(value) => {
-          const item = webhookConfigOptions.find((item) => item.value === value);
+          const item = webhookConfigOptions.find((i) => i.value === value)
           if (item) {
-            setWebhookTemplateType("WEBHOOK_" + item.app as MessageType);
+            setWebhookTemplateType(('WEBHOOK_' + String(item.app)) as MessageType)
           }
         }}
       />
@@ -538,21 +491,9 @@ export default function SenderManagement() {
             )}
 
             {/* 4. Webhook - 模板发送 */}
-            {sendType === "webhookTemplate" && (
+            {sendType === 'webhookTemplate' && (
               <>
                 {renderUidWebhook()}
-                {/* <Form.Item label={t("sender.form.templateType")}>
-                  <Select<MessageType>
-                    placeholder={t("sender.form.templateTypePlaceholder")}
-                    allowClear
-                    value={webhookTemplateType}
-                    onChange={handleWebhookTemplateTypeChange}
-                    options={WEBHOOK_TEMPLATE_TYPES.map((type) => ({
-                      value: type,
-                      label: t(`messageType.${type}`),
-                    }))}
-                  />
-                </Form.Item> */}
                 <Form.Item
                   name="templateUID"
                   label={t("sender.form.templateUID")}
