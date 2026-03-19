@@ -1,15 +1,16 @@
 // 头部组件
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Select, Avatar, Dropdown, message, Modal, Form, Input } from "antd";
+import { Select, Avatar, Dropdown, message, Modal, Form, Input, theme } from "antd";
 import type { MenuProps } from "antd";
 import {
   UserOutlined,
   SunOutlined,
   MoonOutlined,
   DesktopOutlined,
-  BgColorsOutlined,
   GlobalOutlined,
+  TranslationOutlined,
+  DownOutlined,
   MailOutlined,
   PictureOutlined,
   LogoutOutlined,
@@ -23,8 +24,9 @@ import { getSelfInfo, changeEmail, changeAvatar } from "@/api/account/self";
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  // 主题管理
-  const { themeMode, setThemeMode } = useTheme();
+  const { token } = theme.useToken();
+  // 主题管理（actualThemeMode 为当前实际应用的主题，用于展示图标）
+  const { themeMode, actualThemeMode, setThemeMode } = useTheme();
   // 国际化管理
   const { locale, setLocale, t } = useLocale();
 
@@ -210,9 +212,9 @@ const Header: React.FC = () => {
     },
   ];
 
-  // 根据当前主题模式获取图标（使用 BgColorsOutlined 作为主图标，参考 Ant Design 官网）
+  // 根据当前实际应用的主题显示对应图标
   const getThemeIcon = () => {
-    return <BgColorsOutlined />;
+    return actualThemeMode === "dark" ? <MoonOutlined /> : <SunOutlined />;
   };
 
   // 用户下拉菜单项
@@ -245,7 +247,7 @@ const Header: React.FC = () => {
 
   return (
     <div className="flex items-center gap-2 sm:gap-4 mr-2 md:mr-4 h-8 shrink-0 flex-wrap justify-end">
-      {/* 命名空间选择：选项与选中均展示 logo */}
+      {/* 命名空间选择：选项与选中均展示 logo，样式与主题统一 */}
       <Select
         value={currentNamespace}
         onChange={(value: string) => handleNamespaceChange(value)}
@@ -254,22 +256,27 @@ const Header: React.FC = () => {
           label: (
             <span className="flex items-center gap-2">
               {opt.logo ? (
-                <Avatar src={opt.logo} size={20} shape="square" />
+                <Avatar src={opt.logo} size={22} shape="square" className="shrink-0 rounded" />
               ) : (
-                <Avatar size={20} shape="square" icon={<GlobalOutlined />} />
+                <Avatar size={22} shape="square" className="shrink-0 rounded bg-(--ant-colorFillTertiary)" icon={<GlobalOutlined />} />
               )}
-              <span>{opt.label}</span>
+              <span className="truncate">{opt.label}</span>
             </span>
           ),
           searchLabel: opt.label,
           disabled: opt.disabled,
         }))}
-        className="w-20 sm:w-28 md:w-32"
+        className="namespace-select-header min-w-[140px] max-w-[200px] sm:min-w-[160px] sm:max-w-[220px]"
         loading={loading}
         placeholder={t("namespace.select")}
         size="small"
+        suffixIcon={<DownOutlined className="text-[10px] opacity-60" />}
         popupMatchSelectWidth={false}
+        popupClassName="namespace-select-dropdown"
         showSearch={{ optionFilterProp: "searchLabel" }}
+        style={{
+          borderRadius: token.borderRadiusLG,
+        }}
       />
       <DetailForm
         open={addNamespaceModalOpen}
@@ -309,7 +316,7 @@ const Header: React.FC = () => {
           trigger={["click"]}
         >
           <div className="flex h-8 w-8 min-w-8 items-center justify-center cursor-pointer hover:opacity-80">
-            <GlobalOutlined />
+            <TranslationOutlined />
           </div>
         </Dropdown>
       </div>

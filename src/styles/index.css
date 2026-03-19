@@ -115,3 +115,23 @@ micro-app iframe {
 .ant-theme-dark *::-webkit-scrollbar-thumb:hover {
     background-color: rgba(255, 255, 255, 0.3);
 }
+
+/* 头部命名空间选择器：圆角、下拉宽度与选项间距 */
+.namespace-select-header.ant-select .ant-select-selector {
+    border-radius: var(--ant-border-radius-lg) !important;
+    padding-inline: 10px 24px !important;
+}
+.namespace-select-dropdown.ant-select-dropdown {
+    min-width: 200px !important;
+    border-radius: var(--ant-border-radius-lg);
+    padding: 6px 0;
+}
+.namespace-select-dropdown .ant-select-item-option {
+    padding-inline: 12px;
+    min-height: 40px;
+    align-items: center;
+}
+.namespace-select-dropdown .ant-select-item-option-content {
+    display: flex;
+    align-items: center;
+}

@@ -6,8 +6,7 @@ import {
   SunOutlined,
   MoonOutlined,
   DesktopOutlined,
-  BgColorsOutlined,
-  GlobalOutlined,
+  TranslationOutlined,
 } from '@ant-design/icons'
 import { useLocale } from '@/contexts/LocaleContext'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -209,9 +208,13 @@ export default function LoginPage() {
           <button
             type='button'
             className='flex h-9 w-9 items-center justify-center  rounded-full border border-gray-200 bg-white/90 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800/90 dark:hover:bg-gray-700'
-            title={t('theme.light')}
+            title={themeMode === 'system' ? t('theme.system') : actualThemeMode === 'dark' ? t('theme.dark') : t('theme.light')}
           >
-            <BgColorsOutlined className='text-lg' />
+            {actualThemeMode === 'dark' ? (
+              <MoonOutlined className='text-lg' />
+            ) : (
+              <SunOutlined className='text-lg' />
+            )}
           </button>
         </Dropdown>
         <Dropdown
@@ -221,9 +224,9 @@ export default function LoginPage() {
           <button
             type='button'
             className='flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white/90 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800/90 dark:hover:bg-gray-700'
-            title={t('language.zh')}
+            title={locale === 'zh-CN' ? t('language.zh') : t('language.en')}
           >
-            <GlobalOutlined className='text-lg' />
+            <TranslationOutlined className='text-lg' />
           </button>
         </Dropdown>
       </div>
