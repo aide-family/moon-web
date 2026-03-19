@@ -76,6 +76,7 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const tableWrapperRef = useRef<HTMLDivElement>(null)
   const isFirstMount = useRef(true)
+  const isFirstStrategyGroupMount = useRef(true)
   const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>(
     'create',
@@ -135,9 +136,10 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
     ],
   )
 
-  const handleSearch = () => {
+  const handleSearch = (override?: Partial<StrategyListParams>) => {
+    if (override) setSearchParams((prev) => ({ ...prev, ...override }))
     setPagination((prev) => ({ ...prev, current: 1 }))
-    fetchData(1, pagination.pageSize)
+    fetchData(1, pagination.pageSize, override)
   }
 
   const handleReset = () => {
@@ -345,8 +347,12 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // 左侧选中策略组变化时重新请求
+  // 左侧选中策略组变化时重新请求（跳过首次挂载，避免与上面 [] 的 effect 重复请求）
   useEffect(() => {
+    if (isFirstStrategyGroupMount.current) {
+      isFirstStrategyGroupMount.current = false
+      return
+    }
     setPagination((prev) => ({ ...prev, current: 1 }))
     fetchData(1, pagination.pageSize)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -396,7 +402,9 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
             onChange={(e) =>
               setSearchParams((prev) => ({ ...prev, keyword: e.target.value }))
             }
-            onPressEnter={handleSearch}
+            onPressEnter={(e) =>
+              handleSearch({ keyword: (e.target as HTMLInputElement).value })
+            }
             className='w-full min-w-[120px] sm:w-48 md:w-52'
           />
           <span>{t('table.search.status')}:</span>
@@ -417,7 +425,7 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
               {t('table.search.disabled')}
             </Radio.Button>
           </Radio.Group>
-          <Button onClick={handleSearch} type='primary'>
+          <Button onClick={() => handleSearch()} type='primary'>
             {t('common.search')}
           </Button>
           <Button onClick={handleReset}>{t('common.reset')}</Button>
@@ -499,14 +507,15 @@ const StrategyGroupSidebar: React.FC<{
   const hasMore = dataSource.length < pagination.total && pagination.total > 0
 
   const fetchData = useCallback(
-    async (page: number, append: boolean) => {
+    async (page: number, append: boolean, override?: { keyword?: string }) => {
       if (append) setLoadingMore(true)
       else setLoading(true)
       try {
+        const effectiveKeyword = override?.keyword !== undefined ? override.keyword : keyword
         const params: StrategyGroupListParams = {
           page,
           pageSize: pagination.pageSize,
-          keyword: keyword || undefined,
+          keyword: effectiveKeyword || undefined,
         }
         const response = await getStrategyGroupList(params)
         const items = response?.items ?? []
@@ -515,17 +524,9 @@ const StrategyGroupSidebar: React.FC<{
           setDataSource((prev) => [...prev, ...items])
         } else {
           setDataSource(items)
-          if (items.length > 0 && items[0].uid) {
-            // onSelect(items[0].uid);
-            setViewingData(null)
-            setDetailLoading(true)
-            getStrategyGroupDetail(items[0].uid)
-              .then(setViewingData)
-              .catch(() => {})
-              .finally(() => setDetailLoading(false))
-          } else {
+          setViewingData(null)
+          if (items.length === 0) {
             onSelect(null)
-            setViewingData(null)
           }
         }
         setPagination((prev) => ({ ...prev, current: page, total }))
@@ -560,9 +561,10 @@ const StrategyGroupSidebar: React.FC<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleSearch = () => {
+  const handleSearch = (override?: { keyword?: string }) => {
+    if (override?.keyword !== undefined) setKeyword(override.keyword)
     setPagination((prev) => ({ ...prev, current: 1, total: 0 }))
-    fetchData(1, false)
+    fetchData(1, false, override)
   }
 
   const handleAdd = () => {
@@ -571,7 +573,7 @@ const StrategyGroupSidebar: React.FC<{
     setDetailFormOpen(true)
   }
 
-  const handleSelectItem = async (record: StrategyGroupItem) => {
+  const handleSelectItem = (record: StrategyGroupItem) => {
     if (!record.uid) return
     if (selectedUid === record.uid) {
       onSelect(null)
@@ -580,7 +582,43 @@ const StrategyGroupSidebar: React.FC<{
     }
     onSelect(record.uid)
     setViewingData(null)
+  }
+
+  const handleEdit = async (record: StrategyGroupItem) => {
+    if (!record.uid) return
+    const hide = message.loading(t('common.loading'), 0)
+    try {
+      const data = await getStrategyGroupDetail(record.uid)
+      setDetailFormMode('edit')
+      setEditingData(data)
+      setDetailFormOpen(true)
+    } catch (error) {
+      console.error('获取策略组详情失败:', error)
+    } finally {
+      hide()
+    }
+  }
+
+  const handleEditFromDetail = async (data: StrategyGroupItem) => {
+    if (!data?.uid) return
+    const hide = message.loading(t('common.loading'), 0)
+    try {
+      const detail = await getStrategyGroupDetail(data.uid)
+      setDetailFormMode('edit')
+      setEditingData(detail)
+      setDetailFormOpen(true)
+    } catch (error) {
+      console.error('获取策略组详情失败:', error)
+    } finally {
+      hide()
+    }
+  }
+
+  const handleViewDetail = async (record: StrategyGroupItem) => {
+    if (!record.uid) return
+    setDetailViewOpen(true)
     setDetailLoading(true)
+    setViewingData(null)
     try {
       const data = await getStrategyGroupDetail(record.uid)
       setViewingData(data)
@@ -589,23 +627,6 @@ const StrategyGroupSidebar: React.FC<{
     } finally {
       setDetailLoading(false)
     }
-  }
-
-  const handleEdit = (record: StrategyGroupItem) => {
-    setDetailFormMode('edit')
-    setEditingData(record)
-    setDetailFormOpen(true)
-  }
-
-  const handleEditFromDetail = (data: StrategyGroupItem) => {
-    setDetailFormMode('edit')
-    setEditingData(data)
-    setDetailFormOpen(true)
-  }
-
-  const handleViewDetail = (record: StrategyGroupItem) => {
-    setViewingData(record)
-    setDetailViewOpen(true)
   }
 
   const handleDelete = async (record: StrategyGroupItem) => {
@@ -649,11 +670,6 @@ const StrategyGroupSidebar: React.FC<{
     if (created?.uid) {
       onSelect(created.uid)
       setViewingData(null)
-      setDetailLoading(true)
-      getStrategyGroupDetail(created.uid)
-        .then(setViewingData)
-        .catch(() => {})
-        .finally(() => setDetailLoading(false))
     }
   }
 
@@ -672,7 +688,9 @@ const StrategyGroupSidebar: React.FC<{
             className='flex-1 min-w-0'
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            onPressEnter={handleSearch}
+            onPressEnter={(e) =>
+              handleSearch({ keyword: (e.target as HTMLInputElement).value })
+            }
           />
           <Button type='primary' onClick={handleAdd} icon={<PlusOutlined />}>
             {/* {t("common.add")} */}

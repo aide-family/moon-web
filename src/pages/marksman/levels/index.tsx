@@ -49,16 +49,21 @@ const LevelList: React.FC = () => {
   const tableWrapperRef = useRef<HTMLDivElement>(null)
   const [tableHeight, setTableHeight] = useState(400)
 
-  const fetchData = async (page?: number, pageSize?: number) => {
+  const fetchData = async (
+    page?: number,
+    pageSize?: number,
+    override?: Partial<LevelListParams>,
+  ) => {
     setLoading(true)
     try {
       const currentPage = page ?? pagination.current
       const currentPageSize = pageSize ?? pagination.pageSize
+      const effective = override ? { ...searchParams, ...override } : searchParams
       const params: LevelListParams = {
         page: currentPage,
         pageSize: currentPageSize,
-        keyword: searchParams.keyword || undefined,
-        status: searchParams.status,
+        keyword: effective.keyword || undefined,
+        status: effective.status,
       }
       const response = await getLevelList(params)
       setDataSource(response.items ?? [])
@@ -75,9 +80,10 @@ const LevelList: React.FC = () => {
     }
   }
 
-  const handleSearch = () => {
+  const handleSearch = (override?: Partial<LevelListParams>) => {
+    if (override) setSearchParams(prev => ({ ...prev, ...override }))
     setPagination(prev => ({ ...prev, current: 1 }))
-    fetchData()
+    fetchData(1, pagination.pageSize, override)
   }
 
   const handleReset = () => {
@@ -324,7 +330,9 @@ const LevelList: React.FC = () => {
             className="w-full min-w-[120px] sm:w-48 md:w-52"
             value={searchParams.keyword ?? ''}
             onChange={(e) => setSearchParams(prev => ({ ...prev, keyword: e.target.value }))}
-            onPressEnter={handleSearch}
+            onPressEnter={(e) =>
+              handleSearch({ keyword: (e.target as HTMLInputElement).value })
+            }
           />
           <span>{t('table.search.status')}:</span>
           <Radio.Group

@@ -25,11 +25,21 @@ const DetailForm: React.FC<DetailFormProps> = ({
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
 
-  const typeOptions = useMemo(() =>
-    Object.values(DatasourceType).map(value => ({ value, label: t(`datasource.type.${value}`) })), [t])
+  const typeOptions = useMemo(
+    () =>
+      Object.values(DatasourceType)
+        .filter((v) => v !== DatasourceType.DatasourceType_UNKNOWN)
+        .map((value) => ({ value, label: t(`datasource.type.${value}`) })),
+    [t]
+  )
 
-  const driverOptions = useMemo(() =>
-    Object.values(DatasourceDriver).map(value => ({ value, label: t(`datasource.driver.${value}`) })), [t])
+  const driverOptions = useMemo(
+    () =>
+      Object.values(DatasourceDriver)
+        .filter((v) => v !== DatasourceDriver.DatasourceDriver_UNKNOWN)
+        .map((value) => ({ value, label: t(`datasource.driver.${value}`) })),
+    [t]
+  )
 
   useEffect(() => {
     if (open && mode === 'edit' && initialData) {
@@ -130,13 +140,43 @@ const DetailForm: React.FC<DetailFormProps> = ({
         >
           <Input placeholder={t('datasource.form.name.placeholder')} allowClear />
         </Form.Item>
-        <Form.Item name="type" label={t('datasource.form.type.label')}>
-          <Select allowClear placeholder={t('table.search.placeholder')} options={typeOptions} />
+        <Form.Item
+          name="type"
+          label={t('datasource.form.type.label')}
+          rules={[{ required: true, message: t('datasource.form.type.placeholder') }]}
+        >
+          <Select placeholder={t('datasource.form.type.placeholder')} options={typeOptions} />
         </Form.Item>
-        <Form.Item name="driver" label={t('datasource.form.driver.label')}>
-          <Select allowClear placeholder={t('table.search.placeholder')} options={driverOptions} />
+        <Form.Item
+          name="driver"
+          label={t('datasource.form.driver.label')}
+          rules={[{ required: true, message: t('datasource.form.driver.placeholder') }]}
+        >
+          <Select placeholder={t('datasource.form.driver.placeholder')} options={driverOptions} />
         </Form.Item>
-        <Form.Item name="url" label={t('datasource.form.url.label')}>
+        <Form.Item
+          name="url"
+          label={t('datasource.form.url.label')}
+          rules={[
+            { required: true, message: t('datasource.form.url.placeholder') },
+            {
+              validator: (_, value) => {
+                if (!value || typeof value !== 'string') return Promise.resolve()
+                const trimmed = value.trim()
+                if (!trimmed) return Promise.reject(new Error(t('datasource.form.url.placeholder')))
+                try {
+                  const u = new URL(trimmed)
+                  if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+                    return Promise.reject(new Error(t('datasource.form.url.invalid')))
+                  }
+                  return Promise.resolve()
+                } catch {
+                  return Promise.reject(new Error(t('datasource.form.url.invalid')))
+                }
+              },
+            },
+          ]}
+        >
           <Input placeholder={t('datasource.form.url.placeholder')} allowClear />
         </Form.Item>
         <Form.Item name="remark" label={t('datasource.form.remark.label')}>

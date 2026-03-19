@@ -39,17 +39,18 @@ const DatasourceList: React.FC = () => {
   const hasMore = dataSource.length < pagination.total && pagination.total > 0;
 
   const fetchData = useCallback(
-    async (page: number, append: boolean) => {
+    async (page: number, append: boolean, override?: Partial<DatasourceListParams>) => {
       if (append) setLoadingMore(true);
       else setLoading(true);
       try {
+        const effective = override ? { ...searchParams, ...override } : searchParams;
         const params: DatasourceListParams = {
           page,
           pageSize,
-          keyword: searchParams.keyword || undefined,
-          type: searchParams.type,
-          driver: searchParams.driver,
-          status: searchParams.status,
+          keyword: effective.keyword || undefined,
+          type: effective.type,
+          driver: effective.driver,
+          status: effective.status,
         };
         const response = await getDatasourceList(params);
         if (response) {
@@ -100,9 +101,10 @@ const DatasourceList: React.FC = () => {
     [loadMore],
   );
 
-  const handleSearch = () => {
+  const handleSearch = (override?: Partial<DatasourceListParams>) => {
+    if (override) setSearchParams((prev) => ({ ...prev, ...override }));
     setPagination((prev) => ({ ...prev, current: 1, total: 0 }));
-    fetchData(1, false);
+    fetchData(1, false, override);
   };
 
   const handleAdd = () => {
@@ -182,7 +184,9 @@ const DatasourceList: React.FC = () => {
               onChange={(e) =>
                 setSearchParams((prev: DatasourceListParams) => ({ ...prev, keyword: e.target.value }))
               }
-              onPressEnter={handleSearch}
+              onPressEnter={(e) =>
+                handleSearch({ keyword: (e.target as HTMLInputElement).value })
+              }
             />
             <Button type="primary" onClick={handleAdd}>
               {t("common.add")}

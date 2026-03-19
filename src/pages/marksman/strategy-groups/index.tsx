@@ -61,16 +61,21 @@ export const StrategyGroupList: React.FC = () => {
   const tableWrapperRef = useRef<HTMLDivElement>(null)
   const [tableHeight, setTableHeight] = useState(400)
 
-  const fetchData = async (page?: number, pageSize?: number) => {
+  const fetchData = async (
+    page?: number,
+    pageSize?: number,
+    override?: Partial<StrategyGroupListParams>,
+  ) => {
     setLoading(true)
     try {
       const currentPage = page ?? pagination.current
       const currentPageSize = pageSize ?? pagination.pageSize
+      const effective = override ? { ...searchParams, ...override } : searchParams
       const params: StrategyGroupListParams = {
         page: currentPage,
         pageSize: currentPageSize,
-        keyword: searchParams.keyword || undefined,
-        status: searchParams.status,
+        keyword: effective.keyword || undefined,
+        status: effective.status,
       }
       const response = await getStrategyGroupList(params)
       setDataSource(response.items ?? [])
@@ -87,9 +92,10 @@ export const StrategyGroupList: React.FC = () => {
     }
   }
 
-  const handleSearch = () => {
+  const handleSearch = (override?: Partial<StrategyGroupListParams>) => {
+    if (override) setSearchParams((prev) => ({ ...prev, ...override }))
     setPagination((prev) => ({ ...prev, current: 1 }))
-    fetchData()
+    fetchData(1, pagination.pageSize, override)
   }
 
   const handleReset = () => {
@@ -350,7 +356,9 @@ export const StrategyGroupList: React.FC = () => {
             onChange={(e) =>
               setSearchParams((prev) => ({ ...prev, keyword: e.target.value }))
             }
-            onPressEnter={handleSearch}
+            onPressEnter={(e) =>
+              handleSearch({ keyword: (e.target as HTMLInputElement).value })
+            }
           />
           <span>{t('table.search.status')}:</span>
           <Radio.Group
