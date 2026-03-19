@@ -50,19 +50,17 @@ const NamespaceList: React.FC = () => {
   const [viewingData, setViewingData] = useState<NamespaceItem | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
 
-  // 获取数据
-  const fetchData = async (page?: number, pageSize?: number) => {
+  // 获取数据（override 用于回车搜索时传入当前输入值，避免 state 未更新）
+  const fetchData = async (page?: number, pageSize?: number, override?: Partial<NamespaceListParams>) => {
     setLoading(true)
     try {
-      // 使用传入的参数或当前 state 的值
       const currentPage = page ?? pagination.current
       const currentPageSize = pageSize ?? pagination.pageSize
-
       const params: NamespaceListParams = {
         page: currentPage,
         pageSize: currentPageSize,
-        keyword: searchParams.keyword || undefined,
-        status: searchParams.status,
+        keyword: override?.keyword !== undefined ? (override.keyword || undefined) : (searchParams.keyword || undefined),
+        status: override?.status !== undefined ? override.status : searchParams.status,
       }
       const response = await getNamespaceTableList(params)
       if (response) {
@@ -93,9 +91,12 @@ const NamespaceList: React.FC = () => {
     )
   }, [searchParams.keyword, searchParams.status])
 
-  const handleSearch = () => {
+  const handleSearch = (override?: Partial<NamespaceListParams>) => {
+    if (override) {
+      setSearchParams(prev => ({ ...prev, ...override }))
+    }
     setPagination(prev => ({ ...prev, current: 1 }))
-    fetchData()
+    fetchData(1, pagination.pageSize, override)
   }
 
   const handleReset = () => {
@@ -473,7 +474,7 @@ const NamespaceList: React.FC = () => {
             className="w-full min-w-[120px] sm:w-48 md:w-52"
             value={searchParams.keyword}
             onChange={(e) => setSearchParams(prev => ({ ...prev, keyword: e.target.value }))}
-            onPressEnter={handleSearch}
+            onPressEnter={(e) => handleSearch({ keyword: (e.target as HTMLInputElement).value })}
           />
           <span>{t('table.search.status')}:</span>
           <Radio.Group
@@ -485,7 +486,7 @@ const NamespaceList: React.FC = () => {
             <Radio.Button value={GlobalStatus.ENABLED}>{t('table.search.enabled')}</Radio.Button>
             <Radio.Button value={GlobalStatus.DISABLED}>{t('table.search.disabled')}</Radio.Button>
           </Radio.Group>
-          <Button onClick={handleSearch} type="primary">
+          <Button onClick={() => handleSearch()} type="primary">
             {t('common.search')}
           </Button>
           <Button onClick={handleReset}>

@@ -108,7 +108,7 @@ const DetailForm: React.FC<DetailFormProps> = ({
       } else {
         onSuccess();
       }
-      handleCancel();
+      onCancel();
     } catch (err) {
       console.error("提交失败:", err);
       // 错误信息已由 API 拦截器处理

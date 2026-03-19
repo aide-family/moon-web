@@ -69,7 +69,7 @@ const UsersList: React.FC = () => {
     return { text: t(info.textKey), color: info.color }
   }
 
-  const fetchData = async (page?: number, pageSize?: number) => {
+  const fetchData = async (page?: number, pageSize?: number, override?: Partial<ListUsersParams>) => {
     setLoading(true)
     try {
       const currentPage = page ?? pagination.current
@@ -77,9 +77,9 @@ const UsersList: React.FC = () => {
       const params: ListUsersParams = {
         page: currentPage,
         pageSize: currentPageSize,
-        keyword: searchParams.keyword || undefined,
-        email: searchParams.email || undefined,
-        status: searchParams.status,
+        keyword: override?.keyword !== undefined ? (override.keyword || undefined) : (searchParams.keyword || undefined),
+        email: override?.email !== undefined ? (override.email || undefined) : (searchParams.email || undefined),
+        status: override?.status !== undefined ? override.status : searchParams.status,
       }
       const response = await listUsers(params)
       if (response) {
@@ -114,9 +114,12 @@ const UsersList: React.FC = () => {
     )
   }, [searchParams.keyword, searchParams.email, searchParams.status])
 
-  const handleSearch = () => {
+  const handleSearch = (override?: Partial<ListUsersParams>) => {
+    if (override) {
+      setSearchParams(prev => ({ ...prev, ...override }))
+    }
     setPagination(prev => ({ ...prev, current: 1 }))
-    fetchData()
+    fetchData(1, pagination.pageSize, override)
   }
 
   const handleReset = () => {
@@ -311,7 +314,7 @@ const UsersList: React.FC = () => {
             className="w-full min-w-[120px] sm:w-48 md:w-52"
             value={searchParams.keyword ?? ''}
             onChange={e => setSearchParams(prev => ({ ...prev, keyword: e.target.value }))}
-            onPressEnter={handleSearch}
+            onPressEnter={e => handleSearch({ keyword: (e.target as HTMLInputElement).value })}
           />
           <span>{t('user.search.email')}:</span>
           <Input
@@ -320,7 +323,7 @@ const UsersList: React.FC = () => {
             className="w-full min-w-[120px] sm:w-48"
             value={searchParams.email ?? ''}
             onChange={e => setSearchParams(prev => ({ ...prev, email: e.target.value }))}
-            onPressEnter={handleSearch}
+            onPressEnter={e => handleSearch({ email: (e.target as HTMLInputElement).value })}
           />
           <span>{t('table.search.status')}:</span>
           <Radio.Group
@@ -332,7 +335,7 @@ const UsersList: React.FC = () => {
             <Radio.Button value={UserStatus.ACTIVE}>{t('user.status.ACTIVE')}</Radio.Button>
             <Radio.Button value={UserStatus.BANNED}>{t('user.status.BANNED')}</Radio.Button>
           </Radio.Group>
-          <Button onClick={handleSearch} type="primary">
+          <Button onClick={() => handleSearch()} type="primary">
             {t('common.search')}
           </Button>
           <Button onClick={handleReset}>{t('common.reset')}</Button>

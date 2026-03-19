@@ -46,6 +46,14 @@ description: Develops feature pages and modules in React + TypeScript using Ant 
 - 加载中：Spin 或 Skeleton；操作反馈：Message/Notification；危险操作：Popconfirm 或 Modal 二次确认。
 - 表单：校验规则与 API 参数对应；提交前可做前端校验，提交用 API 模块的创建/更新方法。
 
+### 列表模糊查询（必做）
+
+- 搜索框支持**回车触发查询**：`onPressEnter` 时须用**当前输入框的值**发起请求，避免依赖 state 未更新导致查询条件滞后。实现方式：`handleSearch` 支持可选参数（如 `override?: Partial<SearchParams>`），回车时传入 `(e.target as HTMLInputElement).value`，`fetchData` 接受 override 并优先使用其参与请求，同时可同步更新 state/URL。
+
+### 新增/编辑弹窗表单（必做）
+
+- **先关闭弹窗，再重置表单**：提交成功回调中只调用 `onSuccess()` 与 `onCancel()`，**不要**在成功路径里调用会执行 `form.resetFields()` 的 `handleCancel()`，否则用户会先看到表单清空再关闭。表单重置仅在用户点击取消/遮罩关闭时在 `onCancel` 中执行，或依赖再次打开时（如 create 模式）的 `useEffect` 里 `resetFields()`。
+
 ### 国际化（若项目已启用）
 
 - 若存在 `LocaleContext` 或 `useLocale()`，列表标题、按钮、提示等使用 `t('key')`，不写死中文/英文。
@@ -63,4 +71,6 @@ description: Develops feature pages and modules in React + TypeScript using Ant 
 - [ ] 类型完整、无不必要的 `any`；Props 与状态类型清晰。
 - [ ] 异步请求有取消/清理，无卸载后 setState。
 - [ ] 列表/空态/错误态有明确 UI；表单与 API 参数一致。
+- [ ] 列表搜索：回车触发查询时使用当前输入值（override 入参或 ref），不依赖未刷新的 state。
+- [ ] 新增/编辑弹窗：提交成功后只调用 onSuccess + onCancel，不在成功路径中先 resetFields 再关闭。
 - [ ] 代码结构清晰、可维护，符合高级前端工程师标准。
