@@ -268,9 +268,9 @@ export default function SenderManagement() {
         {/* 左侧：发送方式 */}
      
         <PageContent
-          className="w-48 shrink-0 overflow-auto"
+          className="w-56 shrink-0 overflow-auto"
         >
-          <div className="flex items-center gap-2 px-3 h-10 font-bold ">
+          <div className="flex items-center gap-2 px-3 h-10 font-bold whitespace-nowrap">
             {t("sender.sendType")}
           </div>
           <div className="flex flex-col gap-2 pt-2">
@@ -285,6 +285,7 @@ export default function SenderManagement() {
                 }}
                 className={`
                   w-full text-left px-3 py-2.5 rounded-md transition-colors
+                  whitespace-nowrap overflow-hidden text-ellipsis
                   ${
                     sendType === value
                       ? "bg-(--ant-color-primary-bg) text-(--ant-color-primary)"
