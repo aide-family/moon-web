@@ -48,9 +48,9 @@ export const zhCN = {
   'menu.goddess': '系统管理',
   'menu.profile': '个人中心',
   'menu.rabbit': '消息管理',
-  'menu.rabbitTemplates': '模板管理',
-  'menu.rabbitEmails': '邮件管理',
-  'menu.rabbitWebhooks': 'Webhook管理',
+  'menu.rabbitTemplates': '模板列表',
+  'menu.rabbitEmails': '邮件列表',
+  'menu.rabbitWebhooks': '网络钩子',
   'menu.rabbitMessages': '消息日志',
   'menu.rabbitSender': '发送消息',
   'menu.marksman': '策略管理',
@@ -63,8 +63,6 @@ export const zhCN = {
   'menu.users': '用户管理',
   'menu.members': '成员管理',
   'menu.settings': '设置',
-  'menu.settings1': '设置1',
-  'menu.settings2': '设置2',
   // 系统名称
   'layout.appName': 'Moon监控',
   // Footer
@@ -107,11 +105,11 @@ export const zhCN = {
   // 消息类型（MessageType 枚举，模板管理 / 消息日志共用）
   'messageType.UNKNOWN': '未知',
   'messageType.EMAIL': '邮件',
-  'messageType.SMS_ALICLOUD': '阿里云(短信)',
-  'messageType.WEBHOOK_OTHER': 'Webhook(其他)',
-  'messageType.WEBHOOK_DINGTALK': 'Webhook(钉钉)',
-  'messageType.WEBHOOK_WECHAT': 'Webhook(企业微信)',
-  'messageType.WEBHOOK_FEISHU': 'Webhook(飞书)',
+  'messageType.SMS_ALICLOUD': '短信(阿里云)',
+  'messageType.WEBHOOK_OTHER': '网络钩子(其他)',
+  'messageType.WEBHOOK_DINGTALK': '网络钩子(钉钉)',
+  'messageType.WEBHOOK_WECHAT': '网络钩子(企业微信)',
+  'messageType.WEBHOOK_FEISHU': '网络钩子(飞书)',
   // 通用消息
   'message.success': '操作成功',
   'message.error': '操作失败',
@@ -164,7 +162,7 @@ export const zhCN = {
   'login.intro.desc2': '支持基础设施、应用、业务等多维度监控与可视化。',
   'login.intro.title3': '智能告警',
   'login.intro.desc3': '灵活规则与多渠道通知，第一时间发现并处理异常。',
-} as const;
+} as const
 
 export const enUS = {
   // Theme related
@@ -216,8 +214,8 @@ export const enUS = {
   'menu.rabbitTemplates': 'Templates',
   'menu.rabbitEmails': 'Emails',
   'menu.rabbitWebhooks': 'Webhooks',
-  'menu.rabbitMessages': 'Message Log',
-  'menu.rabbitSender': 'Send Message',
+  'menu.rabbitMessages': 'Log',
+  'menu.rabbitSender': 'Send',
   'menu.marksman': 'Policies',
   'menu.datasources': 'Datasources',
   'menu.strategyGroups': 'Strategy Groups',
@@ -228,13 +226,12 @@ export const enUS = {
   'menu.users': 'Users',
   'menu.members': 'Members',
   'menu.settings': 'Settings',
-  'menu.settings1': 'Settings 1',
-  'menu.settings2': 'Settings 2',
   // 系统名称
   'layout.appName': 'Moon Monitor',
   // Footer
   'footer.copyright': 'Copyright© {year} MOON Monitoring System',
-  'footer.icp': 'Gui Gong Network Security 52011502009111 | Qian ICP No. 19012566-8',
+  'footer.icp':
+    'Gui Gong Network Security 52011502009111 | Qian ICP No. 19012566-8',
   // Common actions
   'common.ok': 'OK',
   'common.cancel': 'Cancel',
@@ -272,11 +269,11 @@ export const enUS = {
   // Message type (MessageType enum, shared by template & message log)
   'messageType.UNKNOWN': 'Unknown',
   'messageType.EMAIL': 'Email',
-  'messageType.SMS_ALICLOUD': 'Alicloud(SMS)',
-  'messageType.WEBHOOK_OTHER': 'Webhook(Other)',
-  'messageType.WEBHOOK_DINGTALK': 'Webhook(DingTalk)',
-  'messageType.WEBHOOK_WECHAT': 'Webhook(WeChat)',
-  'messageType.WEBHOOK_FEISHU': 'Webhook(Feishu)',
+  'messageType.SMS_ALICLOUD': 'SMS(Alicloud)',
+  'messageType.WEBHOOK_OTHER': 'Webhooks(Other)',
+  'messageType.WEBHOOK_DINGTALK': 'Webhooks(DingTalk)',
+  'messageType.WEBHOOK_WECHAT': 'Webhooks(WeChat)',
+  'messageType.WEBHOOK_FEISHU': 'Webhooks(Feishu)',
   // Common messages
   'message.success': 'Operation successful',
   'message.error': 'Operation failed',
@@ -305,7 +302,8 @@ export const enUS = {
   'login.captchaError': 'Wrong captcha',
   'login.captchaModalTitle': 'Security verification',
   'login.captchaModalConfirm': 'Confirm',
-  'login.graphicCaptchaHint': 'After entering correctly, a code will be sent to your email.',
+  'login.graphicCaptchaHint':
+    'After entering correctly, a code will be sent to your email.',
   'login.emailCodePlaceholder': 'Email code',
   'login.emailCodeRequired': 'Please enter email code',
   'login.sendCode': 'Get code',
@@ -329,4 +327,4 @@ export const enUS = {
   'login.intro.desc2': 'Infrastructure, application and business monitoring.',
   'login.intro.title3': 'Smart alerts',
   'login.intro.desc3': 'Flexible rules and multi-channel notifications.',
-} as const;
+} as const

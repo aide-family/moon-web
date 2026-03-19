@@ -1,4 +1,4 @@
-import { DatabaseOutlined, UserOutlined, UsergroupAddOutlined, IdcardOutlined } from '@ant-design/icons'
+import { ApartmentOutlined, UserOutlined, TeamOutlined, ProfileOutlined } from '@ant-design/icons'
 import NamespaceList from '@/pages/goddess/namespaces'
 import { AppConfigItem } from '@/apps/main/config'
 import UsersList from '@/pages/goddess/users'
@@ -13,7 +13,7 @@ export function getSystemManagementMenuItems(t: (key: string) => string): AppCon
   return [
     {
       key: 'namespaces',
-      icon: <DatabaseOutlined />,
+      icon: <ApartmentOutlined />,
       label: t('menu.namespaces'),
       path: '/namespaces',
       element: <NamespaceList />,
@@ -27,14 +27,14 @@ export function getSystemManagementMenuItems(t: (key: string) => string): AppCon
     },
     {
       key: 'members',
-      icon: <UsergroupAddOutlined />,
+      icon: <TeamOutlined />,
       label: t('menu.members'),
       path: '/members',
       element: <MembersList />,
     },
     {
       key: 'profile',
-      icon: <IdcardOutlined />,
+      icon: <ProfileOutlined />,
       label: t('menu.profile'),
       path: '/profile',
       element: <ProfilePage />,

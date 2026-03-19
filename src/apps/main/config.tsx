@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react'
 import { Route } from 'react-router-dom'
-import { UserOutlined, AppstoreOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined, SafetyCertificateOutlined, HddOutlined, BellOutlined, ThunderboltOutlined, AlertOutlined, HistoryOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined, SafetyCertificateOutlined, HddOutlined, BellOutlined, ThunderboltOutlined, AlertOutlined, HistoryOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
 import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
 import { SubAppContainer } from '@/components/SubAppContainer'
@@ -36,7 +36,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
   // 系统管理：主系统直接渲染，不通过微前端子应用
   {
     key: 'goddess',
-    icon: <UserOutlined />,
+    icon: <AppstoreOutlined />,
     label: t('menu.goddess'),
     path: '/goddess',
     children: [...getSystemManagementMenuItems(t) as AppConfigItem[]],
