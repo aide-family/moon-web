@@ -271,6 +271,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
         trigger={null}
         collapsible
         collapsed={collapsed}
+        width={240}
         breakpoint="lg"
         collapsedWidth={isDesktop ? 80 : 0}
         onBreakpoint={(broken) => {
@@ -284,7 +285,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
           <img src={menuLogoSrc} alt="logo" className="h-8 w-9 shrink-0 object-contain" />
           <span
             className={`text-xl font-bold whitespace-nowrap overflow-hidden transition-all duration-200 ease-in-out ${
-              collapsed ? "hidden" : "max-w-32 opacity-100"
+              collapsed ? "hidden" : "max-w-[11rem] opacity-100"
             }`}
           >
             {t("layout.appName")}

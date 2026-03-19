@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react'
 import { Route } from 'react-router-dom'
-import { UserOutlined, AppstoreOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined, SafetyCertificateOutlined, HddOutlined, BellOutlined, ThunderboltOutlined, AlertOutlined } from '@ant-design/icons'
+import { UserOutlined, AppstoreOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined, SafetyCertificateOutlined, HddOutlined, BellOutlined, ThunderboltOutlined, AlertOutlined, HistoryOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
 import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
 import { SubAppContainer } from '@/components/SubAppContainer'
@@ -43,7 +43,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
   },
   {
     key: 'rabbit',
-    icon: <AppstoreOutlined />,
+    icon: <MessageOutlined />,
     label: t('menu.rabbit'),
     path: '/rabbit',
     children: [
@@ -85,7 +85,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
       },
       {
         key: 'rabbit-messages',
-        icon: <MessageOutlined />,
+        icon: <HistoryOutlined />,
         label: t('menu.rabbitMessages'),
         path: '/rabbit/messages',
         subApp: {

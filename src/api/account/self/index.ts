@@ -57,3 +57,12 @@ export function changeEmail(body: { email: string }): Promise<unknown> {
 export function changeAvatar(body: { avatar: string }): Promise<unknown> {
   return http.put('/self/change-avatar', body as Record<string, unknown>)
 }
+
+/**
+ * Self_ChangePhone
+ * PUT /v1/self/change-phone
+ * Body(application/json): phone
+ */
+export function changePhone(body: { phone: string }): Promise<unknown> {
+  return http.put('/self/change-phone', body as Record<string, unknown>)
+}
