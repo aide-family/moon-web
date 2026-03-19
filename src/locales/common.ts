@@ -38,8 +38,6 @@ export const zhCN = {
   // 菜单相关
   'menu.goddess': '系统管理',
   'menu.profile': '个人中心',
-  'menu.test1': '测试应用1',
-  'menu.test2': '测试应用2',
   'menu.rabbit': 'Rabbit应用',
   'menu.rabbitTemplates': '模板管理',
   'menu.rabbitEmails': '邮件管理',
@@ -195,8 +193,6 @@ export const enUS = {
   // Menu related
   'menu.goddess': 'System Management',
   'menu.profile': 'Personal Center',
-  'menu.test1': 'Test App 1',
-  'menu.test2': 'Test App 2',
   'menu.rabbit': 'Rabbit App',
   'menu.rabbitTemplates': 'Template Management',
   'menu.rabbitEmails': 'Email Management',
