@@ -42,6 +42,7 @@ import {
 } from '@/api/marksman/alert'
 import { emptyPlaceholder } from '@/utils/marksman'
 import { useLocale } from '@/contexts/LocaleContext'
+import { useTheme } from '@/contexts/ThemeContext'
 import PageContent from '@/components/layout/PageContent'
 
 /** 告警状态与前端展示映射（后端 status 为数字，此处仅做展示用） */
@@ -856,6 +857,8 @@ const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({ stats }) => {
 
 export default function RealtimeAlertListWrapper() {
   const { t } = useLocale()
+  const { actualThemeMode } = useTheme()
+  const isDark = actualThemeMode === 'dark'
   const [statsLoading, setStatsLoading] = useState(false)
   const [stats, setStats] = useState<GetAlertStatisticsReply | null>(null)
 
@@ -889,32 +892,75 @@ export default function RealtimeAlertListWrapper() {
   const totalActive = parseCount(stats?.totalActiveCount)
   const levels = stats?.countByLevel ?? []
 
+  const headerClassName = isDark
+    ? 'sticky top-0 z-10 pt-2 pb-3 mb-2 border-b'
+    : 'sticky top-0 z-10 bg-white pt-2 pb-3 mb-2 border-b border-gray-100'
+  const headerStyle = isDark
+    ? ({
+        backgroundColor: 'var(--ant-table-header-bg)',
+        borderBottomColor: 'var(--ant-color-border-secondary)',
+      } as React.CSSProperties)
+    : undefined
+  const cardClassName = 'rounded-lg p-5'
+  const cardStyle: React.CSSProperties = {
+    backgroundColor: isDark ? 'var(--ant-table-header-bg)' : 'var(--ant-color-bg-container)',
+    backgroundImage: isDark
+      ? 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0))'
+      : undefined,
+    border: `1px solid var(--ant-color-border-secondary)`,
+    borderRadius: 'var(--ant-border-radius-lg)',
+    boxShadow: 'var(--ant-box-shadow-tertiary)',
+  }
+  const mutedTextStyle = isDark ? ({ color: 'var(--ant-color-text-secondary)' } as React.CSSProperties) : undefined
+  const primaryTextStyle = isDark ? ({ color: 'var(--ant-color-text-heading)' } as React.CSSProperties) : undefined
+  const secondaryTextStyle = isDark ? ({ color: 'var(--ant-color-text)' } as React.CSSProperties) : undefined
+
+  const mutedTextClassName = isDark ? '' : 'text-gray-500'
+  const primaryTextClassName = isDark ? '' : 'text-gray-900'
+  const secondaryTextClassName = isDark ? '' : 'text-gray-800'
+
   return (
     <App className="h-full">
       <PageContent>
-        <div className="sticky top-0 z-10 bg-white pt-2 pb-3 mb-2 border-b border-gray-100">
-          <div className="mb-2 text-base font-medium">{t('realtimeAlert.title')}</div>
+        <div className={headerClassName} style={headerStyle}>
+          <div
+            className={`mb-2 text-base font-medium ${primaryTextClassName}`}
+            style={primaryTextStyle}
+          >
+            {t('realtimeAlert.title')}
+          </div>
           {statsLoading ? (
             <div className="py-3 flex items-center justify-start gap-2">
               <Spin />
-              <span className="text-gray-500">{t('common.loading')}</span>
+              <span className={mutedTextClassName} style={mutedTextStyle}>
+                {t('common.loading')}
+              </span>
             </div>
           ) : stats ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              <div className="rounded border border-gray-200 bg-white p-4">
-                <div className="text-sm text-gray-500">{t('realtimeAlert.statistics.totalActiveCount')}</div>
-                <div className="mt-2 text-2xl font-semibold text-gray-900">
+              <div className={cardClassName} style={cardStyle}>
+                <div className={`text-sm ${mutedTextClassName}`} style={mutedTextStyle}>
+                  {t('realtimeAlert.statistics.totalActiveCount')}
+                </div>
+                <div className={`mt-2 text-2xl font-semibold ${primaryTextClassName}`} style={primaryTextStyle}>
                   {stats.totalActiveCount ?? '-'}
                 </div>
               </div>
-              <div className="rounded border border-gray-200 bg-white p-4">
-                <div className="text-sm text-gray-500">{t('realtimeAlert.statistics.todayRecoveredCount')}</div>
-                <div className="mt-2 text-2xl font-semibold text-gray-900">
+              <div className={cardClassName} style={cardStyle}>
+                <div className={`text-sm ${mutedTextClassName}`} style={mutedTextStyle}>
+                  {t('realtimeAlert.statistics.todayRecoveredCount')}
+                </div>
+                <div className={`mt-2 text-2xl font-semibold ${primaryTextClassName}`} style={primaryTextStyle}>
                   {stats.todayRecoveredCount ?? '-'}
                 </div>
               </div>
-              <div className="rounded border border-gray-200 bg-white p-4">
-                <div className="text-sm font-medium text-gray-800 mb-3">{t('realtimeAlert.statistics.byLevel')}</div>
+              <div className={cardClassName} style={cardStyle}>
+                <div
+                  className={`text-sm font-medium ${secondaryTextClassName} mb-3`}
+                  style={secondaryTextStyle}
+                >
+                  {t('realtimeAlert.statistics.byLevel')}
+                </div>
                 {levels.length ? (
                   <div className="flex flex-col gap-3">
                     {levels.slice(0, 5).map((item, idx) => {
@@ -923,8 +969,10 @@ export default function RealtimeAlertListWrapper() {
                       return (
                         <div key={item.levelUid ?? item.levelName ?? String(idx)}>
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">{item.levelName ?? '-'}</span>
-                            <span className="text-gray-900 font-medium">
+                            <span className={isDark ? '' : 'text-gray-600'} style={isDark ? mutedTextStyle : undefined}>
+                              {item.levelName ?? '-'}
+                            </span>
+                            <span className={`${primaryTextClassName} font-medium`} style={primaryTextStyle}>
                               {item.count ?? '-'} ({pct}%)
                             </span>
                           </div>
@@ -936,12 +984,16 @@ export default function RealtimeAlertListWrapper() {
                     })}
                   </div>
                 ) : (
-                  <div className="text-gray-500">{t('common.noData')}</div>
+                  <div className={mutedTextClassName} style={mutedTextStyle}>
+                    {t('common.noData')}
+                  </div>
                 )}
               </div>
             </div>
           ) : (
-            <div className="text-gray-500">{t('common.noData')}</div>
+            <div className={mutedTextClassName} style={mutedTextStyle}>
+              {t('common.noData')}
+            </div>
           )}
         </div>
 
