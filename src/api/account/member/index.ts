@@ -74,11 +74,11 @@ export function dismissMember(uid: string): Promise<unknown> {
 
 /**
  * Member_InviteMember
- * POST /member/invite
- * Body(application/json): email, roleUID
+ * POST /v1/member/invite
+ * Body(application/json): email, role（整数枚举）
  */
-export function inviteMember(body: InviteMemberBody): Promise<unknown> {
-  return http.post<unknown>('/member/invite', body as unknown as Record<string, unknown>)
+export function inviteMember(body: InviteMemberBody): Promise<{ message?: string }> {
+  return http.post<{ message?: string }>('/member/invite', body as unknown as Record<string, unknown>)
 }
 
 export type {

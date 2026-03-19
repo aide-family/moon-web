@@ -205,7 +205,7 @@ const MembersList: React.FC = () => {
     try {
       const values = await inviteForm.validateFields();
       setInviteSubmitting(true);
-      await inviteMember({ email: values.email, roleUID: Number(values.roleUID) || 0 });
+      await inviteMember({ email: values.email, role: values.role ?? 0 });
       message.success(t("message.create.success"));
       setInviteOpen(false);
       inviteForm.resetFields();
@@ -440,7 +440,7 @@ const MembersList: React.FC = () => {
         cancelText={t("common.cancel")}
         destroyOnHidden
       >
-        <Form form={inviteForm} layout="vertical" initialValues={{ roleUID: 0 }}>
+        <Form form={inviteForm} layout="vertical" initialValues={{ role: 0 }}>
           <Form.Item
             name="email"
             label={t("member.form.invite.email")}
@@ -448,7 +448,7 @@ const MembersList: React.FC = () => {
           >
             <Input placeholder={t("member.form.invite.emailPlaceholder")} />
           </Form.Item>
-          <Form.Item name="roleUID" label={t("member.form.invite.roleUID")}>
+          <Form.Item name="role" label={t("member.form.invite.roleUID")}>
             <InputNumber min={0} className="w-full" placeholder={t("member.form.invite.roleUIDPlaceholder")} />
           </Form.Item>
         </Form>

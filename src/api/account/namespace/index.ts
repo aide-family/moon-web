@@ -25,6 +25,17 @@ export const getSelfNamespaces = (): Promise<SelfNamespacesResponse> => {
 }
 
 /**
+ * 根据 uid、secret 获取命名空间简要信息（无需鉴权）
+ * GET /v1/namespaces/simple
+ */
+export const getNamespaceSimple = (params?: {
+  uid?: string
+  secret?: string
+}): Promise<NamespaceItem> => {
+  return http.get<NamespaceItem>('/namespaces/simple', params as unknown as Record<string, unknown>)
+}
+
+/**
  * 获取命名空间选择列表（用于下拉选择，旧接口 /namespaces/select）
  * @param params 查询参数
  * @returns 命名空间选择列表

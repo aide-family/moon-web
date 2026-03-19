@@ -12,6 +12,7 @@ export const zhCN = {
   'user.changeEmail': '修改邮箱',
   'user.changeAvatar': '修改头像',
   'user.changePhone': '修改手机号',
+  'user.changeRemark': '修改备注',
   'user.profile': '个人中心',
   'logout.success': '已退出登录',
   // 个人中心页
@@ -37,6 +38,7 @@ export const zhCN = {
   'self.emailPlaceholder': '请输入新邮箱',
   'self.avatarPlaceholder': '请输入头像地址',
   'self.phonePlaceholder': '请输入手机号',
+  'self.remarkPlaceholder': '请输入备注',
   // 命名空间相关
   'namespace.select': '选择命名空间',
   // 语言相关
@@ -175,6 +177,7 @@ export const enUS = {
   'user.changeEmail': 'Change Email',
   'user.changeAvatar': 'Change Avatar',
   'user.changePhone': 'Change Phone',
+  'user.changeRemark': 'Change Remark',
   'user.profile': 'Personal Center',
   'logout.success': 'Logged out successfully',
   // Profile page
@@ -200,6 +203,7 @@ export const enUS = {
   'self.emailPlaceholder': 'Enter new email',
   'self.avatarPlaceholder': 'Enter avatar URL',
   'self.phonePlaceholder': 'Enter phone number',
+  'self.remarkPlaceholder': 'Enter remark',
   // Namespace related
   'namespace.select': 'Select Namespace',
   // Language related

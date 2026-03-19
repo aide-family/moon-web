@@ -89,8 +89,8 @@ export interface UpdateMemberStatusBody {
   status?: string
 }
 
-/** Member_InviteMember 请求体 */
+/** Member_InviteMember 请求体（InviteMemberRequest：email, role 为整数枚举） */
 export interface InviteMemberBody {
-  email: string
-  roleUID: number
+  email?: string
+  role?: number
 }

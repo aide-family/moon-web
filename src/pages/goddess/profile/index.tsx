@@ -20,6 +20,7 @@ import {
   changeEmail,
   changeAvatar,
   changePhone,
+  changeRemark,
 } from '@/api/account/self'
 import type { SelfInfo } from '@/api/account/self/types'
 import { parseUserStatus } from '@/api/account/user'
@@ -59,20 +60,26 @@ const ProfilePage: React.FC = () => {
   } = theme.useToken()
 
   const mountedRef = useRef(true)
+  const fetchingRef = useRef(false)
   const [loading, setLoading] = useState(true)
   const [info, setInfo] = useState<SelfInfo | null>(null)
 
   const [emailModalOpen, setEmailModalOpen] = useState(false)
   const [avatarModalOpen, setAvatarModalOpen] = useState(false)
   const [phoneModalOpen, setPhoneModalOpen] = useState(false)
+  const [remarkModalOpen, setRemarkModalOpen] = useState(false)
   const [emailForm] = Form.useForm()
   const [avatarForm] = Form.useForm()
   const [phoneForm] = Form.useForm()
+  const [remarkForm] = Form.useForm()
   const [emailSubmitting, setEmailSubmitting] = useState(false)
   const [avatarSubmitting, setAvatarSubmitting] = useState(false)
   const [phoneSubmitting, setPhoneSubmitting] = useState(false)
+  const [remarkSubmitting, setRemarkSubmitting] = useState(false)
 
   const fetchInfo = useCallback(() => {
+    if (fetchingRef.current) return
+    fetchingRef.current = true
     getSelfInfo()
       .then((data) => {
         if (mountedRef.current) setInfo(data ?? null)
@@ -81,35 +88,29 @@ const ProfilePage: React.FC = () => {
         if (mountedRef.current) setInfo(null)
       })
       .finally(() => {
+        fetchingRef.current = false
         if (mountedRef.current) setLoading(false)
       })
   }, [])
 
   useEffect(() => {
     mountedRef.current = true
-    getSelfInfo()
-      .then((data) => {
-        if (mountedRef.current) setInfo(data ?? null)
-      })
-      .catch(() => {
-        if (mountedRef.current) setInfo(null)
-      })
-      .finally(() => {
-        if (mountedRef.current) setLoading(false)
-      })
+    fetchInfo()
     return () => {
       mountedRef.current = false
     }
-  }, [])
+  }, [fetchInfo])
 
   const handleEmailOk = useCallback(() => {
     emailForm.validateFields().then((values) => {
       setEmailSubmitting(true)
-      changeEmail({ email: values.email })
+      const newEmail = values.email
+      changeEmail({ email: newEmail })
         .then(() => {
-          messageApi.success(t('common.save') + ' ' + t('self.email'))
           setEmailModalOpen(false)
           emailForm.resetFields()
+          setInfo((prev) => (prev ? { ...prev, email: newEmail } : null))
+          messageApi.success(t('common.save') + ' ' + t('self.email'))
           fetchInfo()
         })
         .catch((e) => {
@@ -125,11 +126,13 @@ const ProfilePage: React.FC = () => {
   const handleAvatarOk = useCallback(() => {
     avatarForm.validateFields().then((values) => {
       setAvatarSubmitting(true)
-      changeAvatar({ avatar: values.avatar })
+      const newAvatar = values.avatar
+      changeAvatar({ avatar: newAvatar })
         .then(() => {
-          messageApi.success(t('common.save') + ' ' + t('self.avatar'))
           setAvatarModalOpen(false)
           avatarForm.resetFields()
+          setInfo((prev) => (prev ? { ...prev, avatar: newAvatar } : null))
+          messageApi.success(t('common.save') + ' ' + t('self.avatar'))
           fetchInfo()
         })
         .catch((e) => {
@@ -155,11 +158,13 @@ const ProfilePage: React.FC = () => {
   const handlePhoneOk = useCallback(() => {
     phoneForm.validateFields().then((values) => {
       setPhoneSubmitting(true)
-      changePhone({ phone: values.phone })
+      const newPhone = values.phone
+      changePhone({ phone: newPhone })
         .then(() => {
-          messageApi.success(t('common.save') + ' ' + t('profile.phone'))
           setPhoneModalOpen(false)
           phoneForm.resetFields()
+          setInfo((prev) => (prev ? { ...prev, phone: newPhone } : null))
+          messageApi.success(t('common.save') + ' ' + t('profile.phone'))
           fetchInfo()
         })
         .catch((e) => {
@@ -176,6 +181,33 @@ const ProfilePage: React.FC = () => {
     setPhoneModalOpen(false)
     phoneForm.resetFields()
   }, [phoneForm])
+
+  const handleRemarkOk = useCallback(() => {
+    return remarkForm.validateFields().then((values) => {
+      setRemarkSubmitting(true)
+      const newRemark = values.remark ?? ''
+      return changeRemark({ remark: newRemark })
+        .then(() => {
+          setRemarkModalOpen(false)
+          remarkForm.resetFields()
+          setInfo((prev) => (prev ? { ...prev, remark: newRemark } : null))
+          messageApi.success(t('common.save') + ' ' + t('profile.remark'))
+          fetchInfo()
+        })
+        .catch((e) => {
+          console.error('changeRemark failed', e)
+          messageApi.error(t('user.changeRemark') + ' ' + t('common.failed'))
+        })
+        .finally(() => {
+          setRemarkSubmitting(false)
+        })
+    })
+  }, [remarkForm, messageApi, t, fetchInfo])
+
+  const handleRemarkCancel = useCallback(() => {
+    setRemarkModalOpen(false)
+    remarkForm.resetFields()
+  }, [remarkForm])
 
   if (loading) {
     return (
@@ -437,15 +469,29 @@ const ProfilePage: React.FC = () => {
                     </div>
                   </div>
                   <div
-                    className='mt-2 pt-2 shrink-0'
+                    className='mt-2 pt-2 shrink-0 flex items-start justify-between gap-2'
                     style={{ borderTop: `1px solid ${colorBorderSecondary}` }}
                   >
-                    <Text style={{ fontSize: 12, color: colorTextTertiary }}>
-                      {t('profile.remark')}
-                    </Text>
-                    <div className='mt-0.5 font-medium text-sm whitespace-pre-wrap wrap-break-word'>
-                      {fill(info?.remark)}
+                    <div className='min-w-0 flex-1'>
+                      <Text style={{ fontSize: 12, color: colorTextTertiary }}>
+                        {t('profile.remark')}
+                      </Text>
+                      <div className='mt-0.5 font-medium text-sm whitespace-pre-wrap wrap-break-word'>
+                        {fill(info?.remark)}
+                      </div>
                     </div>
+                    <Button
+                      type='primary'
+                      ghost
+                      size='small'
+                      icon={<EditOutlined />}
+                      onClick={() => {
+                        setRemarkModalOpen(true)
+                        remarkForm.setFieldValue('remark', info?.remark ?? '')
+                      }}
+                    >
+                      {t('user.changeRemark')}
+                    </Button>
                   </div>
                 </div>
               </section>
@@ -513,6 +559,27 @@ const ProfilePage: React.FC = () => {
             rules={[{ required: true, message: t('self.phonePlaceholder') }]}
           >
             <Input placeholder={t('self.phonePlaceholder')} />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title={t('user.changeRemark')}
+        open={remarkModalOpen}
+        onOk={handleRemarkOk}
+        onCancel={handleRemarkCancel}
+        confirmLoading={remarkSubmitting}
+        destroyOnClose
+        okText={t('common.ok')}
+        cancelText={t('common.cancel')}
+      >
+        <Form form={remarkForm} layout='vertical' className='mt-4'>
+          <Form.Item name='remark' label={t('profile.remark')}>
+            <Input.TextArea
+              placeholder={t('self.remarkPlaceholder')}
+              rows={4}
+              autoSize={{ minRows: 3, maxRows: 8 }}
+            />
           </Form.Item>
         </Form>
       </Modal>
