@@ -95,6 +95,11 @@ export interface CreateDatasourceParams {
   metadata?: Record<string, string>
 }
 
+/** 创建数据源返回值（CreateDatasourceReply：仅 uid） */
+export interface CreateDatasourceReply {
+  uid?: string
+}
+
 /** 更新数据源请求参数 */
 export interface UpdateDatasourceParams {
   uid?: string

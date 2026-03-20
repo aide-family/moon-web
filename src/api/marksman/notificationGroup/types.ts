@@ -83,8 +83,8 @@ export type DeleteNotificationGroupReply = Record<string, never>
 
 /** 更新通知组状态请求体 PUT /v1/notification-groups/{uid}/status */
 export interface UpdateNotificationGroupStatusParams {
-  uid?: string
-  status?: GlobalStatus
+  uid: string
+  status: GlobalStatus
 }
 
 /** 更新通知组状态响应 */

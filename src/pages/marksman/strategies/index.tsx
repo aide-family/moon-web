@@ -325,7 +325,7 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
   ) => {
     if (!record.uid) return
     try {
-      await updateStrategyStatus(record.uid, newStatus)
+      await updateStrategyStatus({ uid: record.uid, status: newStatus })
       message.success(t('message.update.success'))
       fetchData(pagination.current, pagination.pageSize)
     } catch (error) {
@@ -651,7 +651,7 @@ const StrategyGroupSidebar: React.FC<{
   ) => {
     if (!record.uid) return
     try {
-      await updateStrategyGroupStatus(record.uid, newStatus)
+      await updateStrategyGroupStatus({ uid: record.uid, status: newStatus })
       message.success(t('message.update.success'))
       fetchData(1, false)
       if (viewingData?.uid === record.uid) {

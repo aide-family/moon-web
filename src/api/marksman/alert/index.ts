@@ -48,7 +48,7 @@ export const getAlertPageList = (
 ): Promise<AlertPageListResponse> => {
   return http.get<AlertPageListResponse>(
     '/alert/alert-pages',
-    params as unknown as Record<string, unknown>
+    { ...params }
   )
 }
 
@@ -58,7 +58,7 @@ export const createAlertPage = (
 ): Promise<CreateAlertPageResponse> => {
   return http.post<CreateAlertPageResponse>(
     '/alert/alert-pages',
-    params as Record<string, unknown>
+    { ...params }
   )
 }
 
@@ -74,7 +74,7 @@ export const updateAlertPage = (
 ): Promise<Record<string, never>> => {
   return http.put<Record<string, never>>(
     `/alert/alert-pages/${uid}`,
-    params as Record<string, unknown>
+    { ...params }
   )
 }
 
@@ -90,7 +90,7 @@ export const getRealtimeAlertList = (
 ): Promise<ListRealtimeAlertResponse> => {
   return http.get<ListRealtimeAlertResponse>(
     `/alert/alert-pages/${alertPageUid}/realtime-alerts`,
-    params as unknown as Record<string, unknown>
+    { ...params }
   )
 }
 
@@ -101,7 +101,7 @@ export const interveneAlert = (
 ): Promise<Record<string, never>> => {
   return http.post<Record<string, never>>(
     `/alert/realtime-alerts/${uid}/intervene`,
-    params as Record<string, unknown>
+    { ...params }
   )
 }
 
@@ -112,7 +112,7 @@ export const recoverAlert = (
 ): Promise<Record<string, never>> => {
   return http.post<Record<string, never>>(
     `/alert/realtime-alerts/${uid}/recover`,
-    params as Record<string, unknown>
+    { ...params }
   )
 }
 
@@ -123,7 +123,7 @@ export const suppressAlert = (
 ): Promise<Record<string, never>> => {
   return http.post<Record<string, never>>(
     `/alert/realtime-alerts/${uid}/suppress`,
-    params as Record<string, unknown>
+    { ...params }
   )
 }
 
@@ -141,5 +141,8 @@ export const listUserAlertPages = (): Promise<ListUserAlertPagesReply> => {
 export const saveUserAlertPages = (
   params?: SaveUserAlertPagesRequest
 ): Promise<SaveUserAlertPagesReply> => {
-  return http.put<SaveUserAlertPagesReply>('/alert/user/alert-pages', params as Record<string, unknown>)
+  return http.put<SaveUserAlertPagesReply>(
+    '/alert/user/alert-pages',
+    { ...params }
+  )
 }

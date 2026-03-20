@@ -41,6 +41,11 @@ export interface CreateStrategyGroupParams {
   metadata?: Record<string, string>
 }
 
+/** 创建策略组返回值（CreateStrategyGroupReply：仅 uid） */
+export interface CreateStrategyGroupReply {
+  uid?: string
+}
+
 /** 更新请求参数 PUT /v1/strategy-group/{uid} */
 export interface UpdateStrategyGroupParams {
   uid?: string
@@ -51,8 +56,8 @@ export interface UpdateStrategyGroupParams {
 
 /** 更新状态请求参数 PUT /v1/strategy-group/{uid}/status，使用 GlobalStatus */
 export interface UpdateStrategyGroupStatusParams {
-  uid?: string
-  status?: GlobalStatus
+  uid: string
+  status: GlobalStatus
 }
 
 /** 下拉选择项 GET /v1/strategy-groups/select */

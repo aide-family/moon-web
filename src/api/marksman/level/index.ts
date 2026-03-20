@@ -9,15 +9,19 @@ import type {
   LevelListParams,
   LevelListResponse,
   CreateLevelParams,
+  CreateLevelReply,
   UpdateLevelParams,
+  UpdateLevelStatusParams,
   LevelSelectParams,
   LevelSelectResponse,
 } from './types'
-import { GlobalStatus } from '../../common/types'
 
 /** 获取告警等级列表 GET /v1/levels */
 export const getLevelList = (params?: LevelListParams): Promise<LevelListResponse> => {
-  return http.get<LevelListResponse>('/levels', params as unknown as Record<string, unknown>)
+  return http.get<LevelListResponse>(
+    '/levels',
+    { ...params }
+  )
 }
 
 /** 获取告警等级详情 GET /v1/level/{uid} */
@@ -26,13 +30,22 @@ export const getLevelDetail = (uid: string): Promise<LevelItem> => {
 }
 
 /** 创建告警等级 POST /v1/level */
-export const createLevel = (params?: CreateLevelParams): Promise<LevelItem> => {
-  return http.post<LevelItem>('/level', params as Record<string, unknown>)
+export const createLevel = (params?: CreateLevelParams): Promise<CreateLevelReply> => {
+  return http.post<CreateLevelReply>(
+    '/level',
+    { ...params }
+  )
 }
 
 /** 更新告警等级 PUT /v1/level/{uid} */
-export const updateLevel = (uid: string, params?: UpdateLevelParams): Promise<LevelItem> => {
-  return http.put<LevelItem>(`/level/${uid}`, params as Record<string, unknown>)
+export const updateLevel = (
+  uid: string,
+  params?: UpdateLevelParams,
+): Promise<Record<string, never>> => {
+  return http.put<Record<string, never>>(
+    `/level/${uid}`,
+    { ...params },
+  )
 }
 
 /** 删除告警等级 DELETE /v1/level/{uid} */
@@ -41,13 +54,21 @@ export const deleteLevel = (uid: string): Promise<Record<string, never>> => {
 }
 
 /** 更新告警等级状态 PUT /v1/level/{uid}/status，传入 GlobalStatus */
-export const updateLevelStatus = (uid: string, status: GlobalStatus): Promise<LevelItem> => {
-  return http.put<LevelItem>(`/level/${uid}/status`, { status } as Record<string, unknown>)
+export const updateLevelStatus = (
+  params: UpdateLevelStatusParams,
+): Promise<Record<string, never>> => {
+  return http.put<Record<string, never>>(
+    `/level/${params.uid}/status`,
+    { uid: params.uid, status: params.status },
+  )
 }
 
 /** 告警等级选择列表（下拉等）GET /v1/levels/select */
 export const getLevelSelectList = (params?: LevelSelectParams): Promise<LevelSelectResponse> => {
-  return http.get<LevelSelectResponse>('/levels/select', params as unknown as Record<string, unknown>)
+  return http.get<LevelSelectResponse>(
+    '/levels/select',
+    { ...params }
+  )
 }
 
 export type {
@@ -55,6 +76,7 @@ export type {
   LevelListParams,
   LevelListResponse,
   CreateLevelParams,
+  CreateLevelReply,
   UpdateLevelParams,
   UpdateLevelStatusParams,
   LevelItemSelect,

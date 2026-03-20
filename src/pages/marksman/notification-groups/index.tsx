@@ -481,7 +481,7 @@ const NotificationGroupPage: React.FC = () => {
   const handleStatusChange = async (record: NotificationGroupItem, newStatus: GlobalStatus) => {
     if (!record.uid) return
     try {
-      await updateNotificationGroupStatus(record.uid, newStatus)
+      await updateNotificationGroupStatus({ uid: record.uid, status: newStatus })
       message.success(t('message.update.success'))
       if (selectedUid === record.uid) setDetailData((prev) => (prev ? { ...prev, status: newStatus } : prev))
       fetchList(pagination.current, pagination.pageSize)

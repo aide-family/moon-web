@@ -5,7 +5,6 @@
  */
 
 import { http } from '../../index'
-import type { GlobalStatus } from '../../common/types'
 import type {
   NotificationGroupItem,
   NotificationGroupListParams,
@@ -39,7 +38,7 @@ export const getNotificationGroupList = (
 ): Promise<NotificationGroupListResponse> => {
   return http.get<NotificationGroupListResponse>(
     '/notification-groups',
-    params as unknown as Record<string, unknown>,
+    { ...params },
   )
 }
 
@@ -56,7 +55,7 @@ export const createNotificationGroup = (
 ): Promise<CreateNotificationGroupReply> => {
   return http.post<CreateNotificationGroupReply>(
     '/notification-groups',
-    params as unknown as Record<string, unknown>,
+    { ...params },
   )
 }
 
@@ -67,7 +66,7 @@ export const updateNotificationGroup = (
 ): Promise<UpdateNotificationGroupReply> => {
   return http.put<UpdateNotificationGroupReply>(
     `/notification-groups/${uid}`,
-    params as unknown as Record<string, unknown>,
+    { ...params },
   )
 }
 
@@ -80,13 +79,11 @@ export const deleteNotificationGroup = (
 
 /** 更新通知组状态 PUT /v1/notification-groups/{uid}/status */
 export const updateNotificationGroupStatus = (
-  uid: string,
-  status: GlobalStatus,
+  params: UpdateNotificationGroupStatusParams,
 ): Promise<UpdateNotificationGroupStatusReply> => {
-  const params: UpdateNotificationGroupStatusParams = { uid, status }
   return http.put<UpdateNotificationGroupStatusReply>(
-    `/notification-groups/${uid}/status`,
-    params as unknown as Record<string, unknown>,
+    `/notification-groups/${params.uid}/status`,
+    { ...params },
   )
 }
 

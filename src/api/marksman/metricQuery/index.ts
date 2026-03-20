@@ -26,17 +26,26 @@ export type {
 export const metricQueryProxy = (
   params?: MetricQueryProxyParams
 ): Promise<MetricQueryProxyResponse> => {
-  return http.post<MetricQueryProxyResponse>('/metric-query/proxy', params as Record<string, unknown>)
+  return http.post<MetricQueryProxyResponse>(
+    '/metric-query/proxy',
+    { ...params }
+  )
 }
 
 /** 即时查询 POST /v1/metric-query/query */
 export const metricQuery = (params?: MetricQueryParams): Promise<MetricQueryResponse> => {
-  return http.post<MetricQueryResponse>('/metric-query/query', params as Record<string, unknown>)
+  return http.post<MetricQueryResponse>(
+    '/metric-query/query',
+    { ...params }
+  )
 }
 
 /** 区间查询 POST /v1/metric-query/query-range */
 export const metricQueryRange = (
   params?: MetricQueryRangeParams
 ): Promise<MetricQueryRangeResponse> => {
-  return http.post<MetricQueryRangeResponse>('/metric-query/query-range', params as Record<string, unknown>)
+  return http.post<MetricQueryRangeResponse>(
+    '/metric-query/query-range',
+    { ...params }
+  )
 }

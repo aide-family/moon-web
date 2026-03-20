@@ -91,6 +91,11 @@ export interface CreateStrategyParams {
   metadata?: Record<string, string>
 }
 
+/** 创建策略返回值（CreateStrategyReply：仅 uid） */
+export interface CreateStrategyReply {
+  uid?: string
+}
+
 /** 更新策略请求参数 PUT /v1/strategy/{uid} */
 export interface UpdateStrategyParams {
   uid?: string
@@ -100,4 +105,10 @@ export interface UpdateStrategyParams {
   type?: DatasourceType
   driver?: DatasourceDriver
   metadata?: Record<string, string>
+}
+
+/** 更新策略状态请求参数 PUT /v1/strategy/{uid}/status */
+export interface UpdateStrategyStatusParams {
+  uid: string
+  status: GlobalStatus
 }

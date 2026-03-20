@@ -38,6 +38,11 @@ export interface CreateLevelParams {
   metadata?: Record<string, string>
 }
 
+/** 创建告警等级返回值（CreateLevelReply：仅 uid） */
+export interface CreateLevelReply {
+  uid?: string
+}
+
 /** 更新请求参数 PUT /v1/level/{uid} */
 export interface UpdateLevelParams {
   uid?: string
@@ -48,6 +53,7 @@ export interface UpdateLevelParams {
 
 /** 更新状态请求参数 PUT /v1/level/{uid}/status */
 export interface UpdateLevelStatusParams {
+  uid: string
   status: GlobalStatus
 }
 

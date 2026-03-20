@@ -150,7 +150,7 @@ const LevelList: React.FC = () => {
   ) => {
     if (!record.uid) return
     try {
-      await updateLevelStatus(record.uid, newStatus)
+      await updateLevelStatus({ uid: record.uid, status: newStatus })
       message.success(t('message.update.success'))
       fetchData()
       if (viewingData && viewingData.uid === record.uid) {

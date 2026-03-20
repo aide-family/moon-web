@@ -162,7 +162,7 @@ export const StrategyGroupList: React.FC = () => {
   ) => {
     if (!record.uid) return
     try {
-      await updateStrategyGroupStatus(record.uid, newStatus)
+      await updateStrategyGroupStatus({ uid: record.uid, status: newStatus })
       message.success(t('message.update.success'))
       fetchData()
       if (viewingData?.uid === record.uid) {

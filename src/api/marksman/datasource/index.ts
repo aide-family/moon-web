@@ -11,6 +11,7 @@ import type {
   DatasourceSelectParams,
   DatasourceSelectResponse,
   CreateDatasourceParams,
+  CreateDatasourceReply,
   UpdateDatasourceParams,
   DatasourceMetricsResponse,
   MetricDetailItem,
@@ -21,6 +22,7 @@ export type {
   DatasourceItem,
   DatasourceListParams,
   CreateDatasourceParams,
+  CreateDatasourceReply,
   UpdateDatasourceParams,
   MetricSummaryItem,
   MetricDetailItem,
@@ -32,7 +34,10 @@ export { DatasourceType, DatasourceDriver } from './types'
 
 /** 获取数据源列表 GET /v1/datasources */
 export const getDatasourceList = (params?: DatasourceListParams): Promise<DatasourceListResponse> => {
-  return http.get<DatasourceListResponse>('/datasources', params as unknown as Record<string, unknown>)
+  return http.get<DatasourceListResponse>(
+    '/datasources',
+    { ...params }
+  )
 }
 
 /** 获取数据源详情 GET /v1/datasource/{uid} */
@@ -41,13 +46,24 @@ export const getDatasourceDetail = (uid: string): Promise<DatasourceItem> => {
 }
 
 /** 创建数据源 POST /v1/datasource */
-export const createDatasource = (params?: CreateDatasourceParams): Promise<DatasourceItem> => {
-  return http.post<DatasourceItem>('/datasource', params as Record<string, unknown>)
+export const createDatasource = (
+  params?: CreateDatasourceParams,
+): Promise<CreateDatasourceReply> => {
+  return http.post<CreateDatasourceReply>(
+    '/datasource',
+    { ...params }
+  )
 }
 
 /** 更新数据源 PUT /v1/datasource/{uid} */
-export const updateDatasource = (uid: string, params?: UpdateDatasourceParams): Promise<DatasourceItem> => {
-  return http.put<DatasourceItem>(`/datasource/${uid}`, params as Record<string, unknown>)
+export const updateDatasource = (
+  uid: string,
+  params?: UpdateDatasourceParams,
+): Promise<Record<string, never>> => {
+  return http.put<Record<string, never>>(
+    `/datasource/${uid}`,
+    { ...params }
+  )
 }
 
 /** 删除数据源 DELETE /v1/datasource/{uid} */
@@ -57,7 +73,10 @@ export const deleteDatasource = (uid: string): Promise<Record<string, never>> =>
 
 /** 数据源选择列表（下拉等）GET /v1/datasources/select */
 export const getDatasourceSelectList = (params?: DatasourceSelectParams): Promise<DatasourceSelectResponse> => {
-  return http.get<DatasourceSelectResponse>('/datasources/select', params as unknown as Record<string, unknown>)
+  return http.get<DatasourceSelectResponse>(
+    '/datasources/select',
+    { ...params }
+  )
 }
 
 /** 获取数据源指标元数据 GET /v1/datasource/{uid}/metrics */
@@ -80,7 +99,7 @@ export const getDatasourceStatus = (
 ): Promise<GetDatasourceStatusResponse> => {
   return http.get<GetDatasourceStatusResponse>(
     `/datasource/${uid}/status`,
-    params as unknown as Record<string, unknown>
+    { ...params }
   )
 }
 

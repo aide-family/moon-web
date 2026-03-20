@@ -283,11 +283,11 @@ export default function MetricsDetailContent({
       onOk: async () => {
         setLevelSaving(true)
         try {
-          await updateStrategyMetricLevelStatus(
+          await updateStrategyMetricLevelStatus({
             strategyUID,
-            levelUid,
-            nextStatus,
-          )
+            uid: levelUid,
+            status: nextStatus,
+          })
           message.success(t('message.update.success'))
           refreshLevels()
         } catch (err) {

@@ -4,18 +4,19 @@
  */
 
 import { http } from '../../index'
-import type { GlobalStatus } from '../../common/types'
 import type {
   StrategyMetricItem,
   StrategyMetricLevelItem,
   SaveStrategyMetricParams,
   SaveStrategyMetricLevelParams,
+  UpdateStrategyMetricLevelStatusParams,
 } from './types'
 export type {
   StrategyMetricItem,
   StrategyMetricLevelItem,
   SaveStrategyMetricParams,
   SaveStrategyMetricLevelParams,
+  UpdateStrategyMetricLevelStatusParams,
 } from './types'
 
 /** 获取策略指标 GET /v1/metric/strategy/{strategyUID} */
@@ -28,7 +29,10 @@ export const saveStrategyMetric = (
   strategyUID: string,
   params?: SaveStrategyMetricParams
 ): Promise<StrategyMetricItem | unknown> => {
-  return http.post<StrategyMetricItem | unknown>(`/metric/strategy/${strategyUID}`, params as Record<string, unknown>)
+  return http.post<StrategyMetricItem | unknown>(
+    `/metric/strategy/${strategyUID}`,
+    { ...params }
+  )
 }
 
 /** 保存策略指标等级 POST /v1/metric/strategy/{strategyUID}/level */
@@ -36,7 +40,10 @@ export const saveStrategyMetricLevel = (
   strategyUID: string,
   params?: SaveStrategyMetricLevelParams
 ): Promise<unknown> => {
-  return http.post<unknown>(`/metric/strategy/${strategyUID}/level`, params as Record<string, unknown>)
+  return http.post<unknown>(
+    `/metric/strategy/${strategyUID}/level`,
+    { ...params }
+  )
 }
 
 /** 获取策略指标等级详情 GET /v1/metric/strategy/{strategyUID}/level/{levelUID} */
@@ -61,10 +68,15 @@ export const deleteStrategyMetricLevel = (
 
 /** 修改告警等级状态 PUT /v1/metric/strategy/{strategyUID}/level/{uid}/status，传入 GlobalStatus */
 export const updateStrategyMetricLevelStatus = (
-  strategyUID: string,
-  uid: string,
-  status: GlobalStatus
+  params: UpdateStrategyMetricLevelStatusParams,
 ): Promise<unknown> => {
-  return http.put<unknown>(`/metric/strategy/${strategyUID}/level/${uid}/status`, { status })
+  return http.put<unknown>(
+    `/metric/strategy/${params.strategyUID}/level/${params.uid}/status`,
+    {
+      strategyUID: params.strategyUID,
+      levelUID: params.uid,
+      status: params.status,
+    },
+  )
 }
 

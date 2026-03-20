@@ -4,13 +4,14 @@
  */
 
 import { http } from '../../index'
-import type { GlobalStatus } from '../../common/types'
 import type {
   StrategyGroupItem,
   StrategyGroupListParams,
   StrategyGroupListResponse,
   CreateStrategyGroupParams,
+  CreateStrategyGroupReply,
   UpdateStrategyGroupParams,
+  UpdateStrategyGroupStatusParams,
   StrategyGroupSelectParams,
   StrategyGroupSelectResponse,
 } from './types'
@@ -19,6 +20,7 @@ export type {
   StrategyGroupItem,
   StrategyGroupListParams,
   CreateStrategyGroupParams,
+  CreateStrategyGroupReply,
   UpdateStrategyGroupParams,
   StrategyGroupItemSelect,
   StrategyGroupSelectParams,
@@ -29,7 +31,10 @@ export type {
 export const getStrategyGroupList = (
   params?: StrategyGroupListParams
 ): Promise<StrategyGroupListResponse> => {
-  return http.get<StrategyGroupListResponse>('/strategy-groups', params as unknown as Record<string, unknown>)
+  return http.get<StrategyGroupListResponse>(
+    '/strategy-groups',
+    { ...params }
+  )
 }
 
 /** 获取策略组详情 GET /v1/strategy-group/{uid} */
@@ -40,8 +45,11 @@ export const getStrategyGroupDetail = (uid: string): Promise<StrategyGroupItem> 
 /** 创建策略组 POST /v1/strategy-group */
 export const createStrategyGroup = (
   params?: CreateStrategyGroupParams
-): Promise<StrategyGroupItem> => {
-  return http.post<StrategyGroupItem>('/strategy-group', params as Record<string, unknown>)
+): Promise<CreateStrategyGroupReply> => {
+  return http.post<CreateStrategyGroupReply>(
+    '/strategy-group',
+    { ...params }
+  )
 }
 
 /** 更新策略组 PUT /v1/strategy-group/{uid} */
@@ -49,15 +57,20 @@ export const updateStrategyGroup = (
   uid: string,
   params?: UpdateStrategyGroupParams
 ): Promise<Record<string, never>> => {
-  return http.put<Record<string, never>>(`/strategy-group/${uid}`, params as Record<string, unknown>)
+  return http.put<Record<string, never>>(
+    `/strategy-group/${uid}`,
+    { ...params }
+  )
 }
 
 /** 更新策略组状态 PUT /v1/strategy-group/{uid}/status，传入 GlobalStatus */
 export const updateStrategyGroupStatus = (
-  uid: string,
-  status: GlobalStatus
+  params: UpdateStrategyGroupStatusParams
 ): Promise<Record<string, never>> => {
-  return http.put<Record<string, never>>(`/strategy-group/${uid}/status`, { status })
+  return http.put<Record<string, never>>(
+    `/strategy-group/${params.uid}/status`,
+    { ...params },
+  )
 }
 
 /** 删除策略组 DELETE /v1/strategy-group/{uid} */
@@ -71,7 +84,7 @@ export const getStrategyGroupSelectList = (
 ): Promise<StrategyGroupSelectResponse> => {
   return http.get<StrategyGroupSelectResponse>(
     '/strategy-groups/select',
-    params as unknown as Record<string, unknown>
+    { ...params }
   )
 }
 

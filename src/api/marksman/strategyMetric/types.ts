@@ -4,7 +4,7 @@
  * mode/condition 使用 SampleMode、ConditionMetric 枚举；后端接受字符串，由 API 层统一处理。
  */
 
-import type { SampleMode, ConditionMetric } from '../../common/types'
+import type { GlobalStatus, SampleMode, ConditionMetric } from '../../common/types'
 import type { LevelItem } from '../level'
 import type { StrategyItem } from '../strategy/types'
 
@@ -61,4 +61,11 @@ export interface SaveStrategyMetricLevelParams {
   duration?: string
   status?: number
   values?: number[]
+}
+
+/** 修改策略指标等级状态请求参数 PUT /v1/metric/strategy/{strategyUID}/level/{levelUID}/status */
+export interface UpdateStrategyMetricLevelStatusParams {
+  strategyUID: string
+  uid: string
+  status: GlobalStatus
 }
