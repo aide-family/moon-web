@@ -347,7 +347,7 @@ const LevelList: React.FC = () => {
             <Radio.Button value={GlobalStatus.ENABLED}>{t('table.search.enabled')}</Radio.Button>
             <Radio.Button value={GlobalStatus.DISABLED}>{t('table.search.disabled')}</Radio.Button>
           </Radio.Group>
-          <Button onClick={handleSearch} type="primary">
+          <Button onClick={() => handleSearch()} type="primary">
             {t('common.search')}
           </Button>
           <Button onClick={handleReset}>{t('common.reset')}</Button>

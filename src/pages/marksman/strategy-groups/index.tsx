@@ -377,7 +377,7 @@ export const StrategyGroupList: React.FC = () => {
               {t('table.search.disabled')}
             </Radio.Button>
           </Radio.Group>
-          <Button onClick={handleSearch} type="primary">
+          <Button onClick={() => handleSearch()} type="primary">
             {t('common.search')}
           </Button>
           <Button onClick={handleReset}>{t('common.reset')}</Button>

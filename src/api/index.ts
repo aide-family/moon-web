@@ -30,6 +30,7 @@ export * from './marksman/metricQuery/index'
 export * from './marksman/strategy/index'
 export * from './marksman/strategyMetric/index'
 export * from './marksman/strategyGroup/index'
+export * from './marksman/notificationGroup/index'
 
 // rabbit：消息与发送
 export * from './rabbit/sender/index'

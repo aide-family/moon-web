@@ -272,7 +272,7 @@ const Header: React.FC = () => {
         size="small"
         suffixIcon={<DownOutlined className="text-[10px] opacity-60" />}
         popupMatchSelectWidth={false}
-        popupClassName="namespace-select-dropdown"
+        classNames={{ popup: { root: 'namespace-select-dropdown' } }}
         showSearch={{ optionFilterProp: "searchLabel" }}
         style={{
           borderRadius: token.borderRadiusLG,

@@ -164,6 +164,18 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
           path: '/marksman/realtime-alerts',
         },
       },
+      {
+        key: 'marksman-notification-groups',
+        icon: <BellOutlined />,
+        label: t('menu.notificationGroups'),
+        path: '/marksman/notification-groups',
+        subApp: {
+          name: 'marksman-notification-groups',
+          devUrl: 'http://localhost:5176/notification-groups',
+          prodUrl: 'http://localhost:4176/notification-groups',
+          path: '/marksman/notification-groups',
+        },
+      },
     ],
   },
 ]

@@ -59,7 +59,6 @@ export const NamespaceProvider: React.FC<NamespaceProviderProps> = ({ children }
     try {
       const response = await getSelfNamespaces()
       if (response?.namespaces?.length) {
-        console.log('response.namespaces', response.namespaces)
         setNamespaceOptions(
           response.namespaces.map((ns) => ({
             value: ns.uid,
