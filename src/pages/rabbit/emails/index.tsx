@@ -299,7 +299,7 @@ const EmailListContent: React.FC = () => {
   // 处理修改状态
   const handleStatusChange = async (record: EmailItem, newStatus: GlobalStatus) => {
     try {
-      await updateEmailStatus(record.uid, newStatus)
+      await updateEmailStatus({ uid: record.uid, status: newStatus })
       message.success(t('message.update.success'))
       fetchData()
       if (viewingData && viewingData.uid === record.uid) {

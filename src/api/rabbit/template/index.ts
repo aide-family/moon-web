@@ -10,10 +10,10 @@ import type {
   TemplateItem,
   CreateTemplateParams,
   UpdateTemplateParams,
+  UpdateTemplateStatusParams,
   TemplateSelectParams,
   TemplateSelectResponse,
 } from './types'
-import { GlobalStatus } from '../../common/types'
 
 /**
  * 获取模板列表（用于表格展示）
@@ -21,7 +21,7 @@ import { GlobalStatus } from '../../common/types'
  * @returns 模板列表
  */
 export const getTemplateTableList = (params?: TemplateListParams): Promise<TemplateListResponse> => {
-  return http.get<TemplateListResponse>('/templates', params as unknown as Record<string, unknown>)
+  return http.get<TemplateListResponse>('/templates', { ...params })
 }
 
 /**
@@ -39,7 +39,7 @@ export const getTemplateDetail = (uid: string): Promise<TemplateItem> => {
  * @returns 创建的模板
  */
 export const createTemplate = (params?: CreateTemplateParams): Promise<TemplateItem> => {
-  return http.post<TemplateItem>('/template', params as Record<string, unknown>)
+  return http.post<TemplateItem>('/template', { ...params })
 }
 
 /**
@@ -49,7 +49,7 @@ export const createTemplate = (params?: CreateTemplateParams): Promise<TemplateI
  * @returns 更新后的模板
  */
 export const updateTemplate = (uid: string, params?: UpdateTemplateParams): Promise<TemplateItem> => {
-  return http.put<TemplateItem>(`/template/${uid}`, params as Record<string, unknown>)
+  return http.put<TemplateItem>(`/template/${uid}`, { ...params })
 }
 
 /**
@@ -67,8 +67,13 @@ export const deleteTemplate = (uid: string): Promise<void> => {
  * @param status 状态值
  * @returns 更新后的模板
  */
-export const updateTemplateStatus = (uid: string, status: GlobalStatus | string): Promise<TemplateItem> => {
-  return http.put<TemplateItem>(`/template/${uid}/status`, { status } as Record<string, unknown>)
+export const updateTemplateStatus = (
+  params: UpdateTemplateStatusParams,
+): Promise<TemplateItem> => {
+  return http.put<TemplateItem>(
+    `/template/${params.uid}/status`,
+    { status: params.status },
+  )
 }
 
 /**
@@ -80,7 +85,7 @@ export const getTemplateSelectList = (
 ): Promise<TemplateSelectResponse> => {
   return http.get<TemplateSelectResponse>(
     '/templates/select',
-    params as unknown as Record<string, unknown>
+    { ...params }
   )
 }
 

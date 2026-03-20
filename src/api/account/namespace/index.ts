@@ -12,9 +12,9 @@ import type {
   NamespaceItem,
   CreateNamespaceParams,
   UpdateNamespaceParams,
+  UpdateNamespaceStatusParams,
   SelfNamespacesResponse,
 } from './types'
-import { GlobalStatus } from '../../common/types'
 
 /**
  * 获取当前用户可用的命名空间列表（头部下拉使用）
@@ -32,7 +32,7 @@ export const getNamespaceSimple = (params?: {
   uid?: string
   secret?: string
 }): Promise<NamespaceItem> => {
-  return http.get<NamespaceItem>('/namespaces/simple', params as unknown as Record<string, unknown>)
+  return http.get<NamespaceItem>('/namespaces/simple', { ...params })
 }
 
 /**
@@ -41,7 +41,7 @@ export const getNamespaceSimple = (params?: {
  * @returns 命名空间选择列表
  */
 export const getNamespaceList = (params?: NamespaceSelectParams): Promise<NamespaceSelectResponse> => {
-  return http.get<NamespaceSelectResponse>('/namespaces/select', params as unknown as Record<string, unknown>)
+  return http.get<NamespaceSelectResponse>('/namespaces/select', { ...params })
 }
 
 /**
@@ -50,7 +50,7 @@ export const getNamespaceList = (params?: NamespaceSelectParams): Promise<Namesp
  * @returns 命名空间列表
  */
 export const getNamespaceTableList = (params?: NamespaceListParams): Promise<NamespaceListResponse> => {
-  return http.get<NamespaceListResponse>('/namespaces', params as unknown as Record<string, unknown>)
+  return http.get<NamespaceListResponse>('/namespaces', { ...params })
 }
 
 /**
@@ -68,7 +68,7 @@ export const getNamespaceDetail = (uid: string): Promise<NamespaceItem> => {
  * @returns 创建的命名空间
  */
 export const createNamespace = (params?: CreateNamespaceParams): Promise<NamespaceItem> => {
-  return http.post<NamespaceItem>('/namespace', params as Record<string, unknown>)
+  return http.post<NamespaceItem>('/namespace', { ...params })
 }
 
 /**
@@ -78,7 +78,7 @@ export const createNamespace = (params?: CreateNamespaceParams): Promise<Namespa
  * @returns 更新后的命名空间
  */
 export const updateNamespace = (uid: string, params?: UpdateNamespaceParams): Promise<NamespaceItem> => {
-  return http.put<NamespaceItem>(`/namespace/${uid}`, params as Record<string, unknown>)
+  return http.put<NamespaceItem>(`/namespace/${uid}`, { ...params })
 }
 
 /**
@@ -96,8 +96,10 @@ export const deleteNamespace = (uid: string): Promise<void> => {
  * @param status 状态值
  * @returns 更新后的命名空间
  */
-export const updateNamespaceStatus = (uid: string, status: GlobalStatus | string): Promise<NamespaceItem> => {
-  return http.put<NamespaceItem>(`/namespace/${uid}/status`, { status } as Record<string, unknown>)
+export const updateNamespaceStatus = (
+  params: UpdateNamespaceStatusParams
+): Promise<NamespaceItem> => {
+  return http.put<NamespaceItem>(`/namespace/${params.uid}/status`, { status: params.status })
 }
 
 // 导出类型

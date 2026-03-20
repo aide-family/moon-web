@@ -301,7 +301,7 @@ const TemplateListContent: React.FC = () => {
   // 处理修改状态
   const handleStatusChange = async (record: TemplateItem, newStatus: GlobalStatus | string) => {
     try {
-      await updateTemplateStatus(record.uid, newStatus)
+      await updateTemplateStatus({ uid: record.uid, status: newStatus })
       message.success(t('message.update.success'))
       fetchData()
       // 如果详情页打开，需要更新详情页数据

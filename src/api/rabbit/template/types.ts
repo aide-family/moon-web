@@ -10,11 +10,11 @@ import { GlobalStatus, MessageType } from '../../common/types'
 export interface TemplateItem {
   uid: string
   name: string
-  messageType: MessageType | string
+  messageType: MessageType
   jsonData: string
   createdAt: string
   updatedAt: string
-  status: GlobalStatus | string
+  status: GlobalStatus
 }
 
 /**
@@ -35,7 +35,7 @@ export interface TemplateListParams {
   pageSize?: number
   keyword?: string
   status?: GlobalStatus
-  messageType?: MessageType | string
+  messageType?: MessageType
 }
 
 /**
@@ -43,7 +43,7 @@ export interface TemplateListParams {
  */
 export interface CreateTemplateParams {
   name?: string
-  messageType?: MessageType | string
+  messageType?: MessageType
   jsonData?: string
 }
 
@@ -53,7 +53,7 @@ export interface CreateTemplateParams {
 export interface UpdateTemplateParams {
   uid?: string
   name?: string
-  messageType?: MessageType | string
+  messageType?: MessageType
   jsonData?: string
 }
 
@@ -61,7 +61,8 @@ export interface UpdateTemplateParams {
  * 更新模板状态请求参数
  */
 export interface UpdateTemplateStatusParams {
-  status: GlobalStatus | string
+  uid: string
+  status: GlobalStatus
 }
 
 /**

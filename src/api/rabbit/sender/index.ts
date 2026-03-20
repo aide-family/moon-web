@@ -20,7 +20,7 @@ import type {
  * Path: uid (string, 必需)；Body(application/json, 必需): uid, subject, body, contentType?, to?, cc?, headers?
  */
 export function sendEmail(uid: string, params: SendEmailParams): Promise<unknown> {
-  return http.post<unknown>(`/sender/email/${uid}`, params as unknown as Record<string, unknown>)
+  return http.post<unknown>(`/sender/email/${uid}`, { ...params })
 }
 
 /**
@@ -32,7 +32,7 @@ export function sendEmailWithTemplate(
   uid: string,
   params?: SendEmailWithTemplateParams
 ): Promise<unknown> {
-  return http.post<unknown>(`/sender/email/${uid}/template`, params as unknown as Record<string, unknown>)
+  return http.post<unknown>(`/sender/email/${uid}/template`, { ...params })
 }
 
 /**
@@ -41,7 +41,7 @@ export function sendEmailWithTemplate(
  * Body(application/json, 必需): uid 等
  */
 export function sendMessage(params: SendMessageParams): Promise<unknown> {
-  return http.post<unknown>('/sender/message', params as unknown as Record<string, unknown>)
+  return http.post<unknown>('/sender/message', { ...params })
 }
 
 /**
@@ -50,7 +50,7 @@ export function sendMessage(params: SendMessageParams): Promise<unknown> {
  * Path: uid (string)；Body(application/json, 必需): uid?, data?
  */
 export function sendWebhook(uid: string, params?: SendWebhookParams): Promise<unknown> {
-  return http.post<unknown>(`/sender/webhook/${uid}`, params as unknown as Record<string, unknown>)
+  return http.post<unknown>(`/sender/webhook/${uid}`, { ...params })
 }
 
 /**
@@ -62,7 +62,7 @@ export function sendWebhookWithTemplate(
   uid: string,
   params?: SendWebhookWithTemplateParams
 ): Promise<unknown> {
-  return http.post<unknown>(`/sender/webhook/${uid}/template`, params as unknown as Record<string, unknown>)
+  return http.post<unknown>(`/sender/webhook/${uid}/template`, { ...params })
 }
 
 export type {

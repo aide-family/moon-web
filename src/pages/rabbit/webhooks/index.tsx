@@ -319,7 +319,7 @@ const WebhookListContent: React.FC = () => {
   // 处理修改状态
   const handleStatusChange = async (record: WebhookItem, newStatus: GlobalStatus | string) => {
     try {
-      await updateWebhookStatus(record.uid, newStatus)
+      await updateWebhookStatus({ uid: record.uid, status: newStatus })
       message.success(t('message.update.success'))
       fetchData()
       if (viewingData && viewingData.uid === record.uid) {

@@ -10,6 +10,7 @@ import type {
   WebhookItem,
   CreateWebhookParams,
   UpdateWebhookParams,
+  UpdateWebhookStatusParams,
   WebhookConfigSelectParams,
   WebhookConfigSelectResponse,
 } from './types'
@@ -20,7 +21,7 @@ import type {
  * @returns Webhook 列表
  */
 export const getWebhookTableList = (params?: WebhookListParams): Promise<WebhookListResponse> => {
-  return http.get<WebhookListResponse>('/webhook/configs', params as unknown as Record<string, unknown>)
+  return http.get<WebhookListResponse>('/webhook/configs', { ...params })
 }
 
 /**
@@ -38,7 +39,7 @@ export const getWebhookDetail = (uid: string): Promise<WebhookItem> => {
  * @returns 创建的 Webhook
  */
 export const createWebhook = (params?: CreateWebhookParams): Promise<WebhookItem> => {
-  return http.post<WebhookItem>('/webhook/config', params as Record<string, unknown>)
+  return http.post<WebhookItem>('/webhook/config', { ...params })
 }
 
 /**
@@ -48,7 +49,7 @@ export const createWebhook = (params?: CreateWebhookParams): Promise<WebhookItem
  * @returns 更新后的 Webhook
  */
 export const updateWebhook = (uid: string, params?: UpdateWebhookParams): Promise<WebhookItem> => {
-  return http.put<WebhookItem>(`/webhook/config/${uid}`, params as Record<string, unknown>)
+  return http.put<WebhookItem>(`/webhook/config/${uid}`, { ...params })
 }
 
 /**
@@ -66,8 +67,8 @@ export const deleteWebhook = (uid: string): Promise<void> => {
  * @param status 状态值（全局状态 GlobalStatus.ENABLED/DISABLED 或数字 1/2）
  * @returns 更新后的 Webhook
  */
-export const updateWebhookStatus = (uid: string, status: number | string): Promise<WebhookItem> => {
-  return http.put<WebhookItem>(`/webhook/config/${uid}/status`, { status } as Record<string, unknown>)
+export const updateWebhookStatus = (params: UpdateWebhookStatusParams): Promise<WebhookItem> => {
+  return http.put<WebhookItem>(`/webhook/config/${params.uid}/status`, { status: params.status })
 }
 
 /**
@@ -79,7 +80,7 @@ export const getWebhookConfigSelectList = (
 ): Promise<WebhookConfigSelectResponse> => {
   return http.get<WebhookConfigSelectResponse>(
     '/webhook/configs/select',
-    params as unknown as Record<string, unknown>
+    { ...params }
   )
 }
 

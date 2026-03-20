@@ -117,3 +117,12 @@ export interface UpdateNamespaceParams {
   metadata?: Record<string, unknown>
   banners?: string[]
 }
+
+/**
+ * 更新命名空间状态请求参数
+ * PUT /v1/namespace/{uid}/status
+ */
+export interface UpdateNamespaceStatusParams {
+  uid: string
+  status: GlobalStatus
+}

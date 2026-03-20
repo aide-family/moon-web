@@ -3,13 +3,14 @@
  * 数据来源：后端 API
  */
 
-import { GlobalStatus, http } from '../../index'
+import { http } from '../../index'
 import type { 
   EmailListResponse, 
   EmailListParams,
   EmailItem,
   CreateEmailParams,
   UpdateEmailParams,
+  UpdateEmailStatusParams,
   EmailConfigSelectParams,
   EmailConfigSelectResponse,
 } from './types'
@@ -20,7 +21,7 @@ import type {
  * @returns 邮件配置列表
  */
 export const getEmailTableList = (params?: EmailListParams): Promise<EmailListResponse> => {
-  return http.get<EmailListResponse>('/email/configs', params as unknown as Record<string, unknown>)
+  return http.get<EmailListResponse>('/email/configs', { ...params })
 }
 
 /**
@@ -38,7 +39,7 @@ export const getEmailDetail = (uid: string): Promise<EmailItem> => {
  * @returns 创建的邮件配置
  */
 export const createEmail = (params?: CreateEmailParams): Promise<EmailItem> => {
-  return http.post<EmailItem>('/email/config', params as Record<string, unknown>)
+  return http.post<EmailItem>('/email/config', { ...params })
 }
 
 /**
@@ -48,7 +49,7 @@ export const createEmail = (params?: CreateEmailParams): Promise<EmailItem> => {
  * @returns 更新后的邮件配置
  */
 export const updateEmail = (uid: string, params?: UpdateEmailParams): Promise<EmailItem> => {
-  return http.put<EmailItem>(`/email/config/${uid}`, params as Record<string, unknown>)
+  return http.put<EmailItem>(`/email/config/${uid}`, { ...params })
 }
 
 /**
@@ -66,8 +67,8 @@ export const deleteEmail = (uid: string): Promise<void> => {
  * @param status 状态值
  * @returns 更新后的邮件配置
  */
-export const updateEmailStatus = (uid: string, status: GlobalStatus): Promise<EmailItem> => {
-  return http.put<EmailItem>(`/email/config/${uid}/status`, { status } as Record<string, unknown>)
+export const updateEmailStatus = (params: UpdateEmailStatusParams): Promise<EmailItem> => {
+  return http.put<EmailItem>(`/email/config/${params.uid}/status`, { status: params.status })
 }
 
 /**
@@ -79,7 +80,7 @@ export const getEmailConfigSelectList = (
 ): Promise<EmailConfigSelectResponse> => {
   return http.get<EmailConfigSelectResponse>(
     '/email/configs/select',
-    params as unknown as Record<string, unknown>
+    { ...params }
   )
 }
 

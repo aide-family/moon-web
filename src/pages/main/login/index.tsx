@@ -208,7 +208,13 @@ export default function LoginPage() {
           <button
             type='button'
             className='flex h-9 w-9 items-center justify-center  rounded-full border border-gray-200 bg-white/90 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800/90 dark:hover:bg-gray-700'
-            title={themeMode === 'system' ? t('theme.system') : actualThemeMode === 'dark' ? t('theme.dark') : t('theme.light')}
+            title={
+              themeMode === 'system'
+                ? t('theme.system')
+                : actualThemeMode === 'dark'
+                  ? t('theme.dark')
+                  : t('theme.light')
+            }
           >
             {actualThemeMode === 'dark' ? (
               <MoonOutlined className='text-lg' />
@@ -238,7 +244,7 @@ export default function LoginPage() {
             {INTRO_SLIDES.map((slide, i) => (
               <div
                 key={i}
-                className={`min-h-screen bg-gradient-to-br ${isDark ? 'from-slate-800 via-gray-800 to-indigo-900' : 'from-sky-100 via-slate-100 to-indigo-100'}`}
+                className={`min-h-screen bg-linear-to-br ${isDark ? 'from-slate-800 via-gray-800 to-indigo-900' : 'from-sky-100 via-slate-100 to-indigo-100'}`}
               >
                 <div className=' min-h-screen flex flex-col items-center justify-center gap-4'>
                   <img

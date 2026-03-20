@@ -76,7 +76,8 @@ export interface UpdateWebhookParams {
  * 更新 Webhook 状态请求参数
  */
 export interface UpdateWebhookStatusParams {
-  status: number
+  uid: string
+  status: number | string
 }
 
 /**

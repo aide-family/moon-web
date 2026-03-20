@@ -12,7 +12,7 @@ import type {
   ListMembersResponse,
   SelectMembersParams,
   SelectMembersResponse,
-  UpdateMemberStatusBody,
+  UpdateMemberStatusParams,
   InviteMemberBody,
 } from './types'
 
@@ -26,7 +26,7 @@ export function listMembers(
 ): Promise<ListMembersResponse> {
   return http.get<ListMembersResponse>(
     '/members',
-    params as unknown as Record<string, unknown>
+    { ...params }
   )
 }
 
@@ -40,7 +40,7 @@ export function selectMembers(
 ): Promise<SelectMembersResponse> {
   return http.get<SelectMembersResponse>(
     '/members/select',
-    params as unknown as Record<string, unknown>
+    { ...params }
   )
 }
 
@@ -58,10 +58,9 @@ export function getMember(uid: string): Promise<MemberItem> {
  * Body(application/json): uid?, status (string 枚举)
  */
 export function updateMemberStatus(
-  uid: string,
-  body: UpdateMemberStatusBody
+  params: UpdateMemberStatusParams
 ): Promise<unknown> {
-  return http.put<unknown>(`/member/${uid}/status`, body as Record<string, unknown>)
+  return http.put<unknown>(`/member/${params.uid}/status`, { ...params })
 }
 
 /**
@@ -78,7 +77,7 @@ export function dismissMember(uid: string): Promise<unknown> {
  * Body(application/json): email, role（整数枚举）
  */
 export function inviteMember(body: InviteMemberBody): Promise<{ message?: string }> {
-  return http.post<{ message?: string }>('/member/invite', body as unknown as Record<string, unknown>)
+  return http.post<{ message?: string }>('/member/invite', { ...body })
 }
 
 export type {
@@ -89,6 +88,7 @@ export type {
   SelectMembersParams,
   SelectMembersResponse,
   UpdateMemberStatusBody,
+  UpdateMemberStatusParams,
   InviteMemberBody,
 } from './types'
 export { MemberStatus, normalizeMemberStatus } from './types'

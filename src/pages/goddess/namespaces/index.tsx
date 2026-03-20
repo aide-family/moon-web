@@ -326,7 +326,7 @@ const NamespaceList: React.FC = () => {
   // 处理修改状态
   const handleStatusChange = async (record: NamespaceItem, newStatus: GlobalStatus | string) => {
     try {
-      await updateNamespaceStatus(record.uid, newStatus)
+      await updateNamespaceStatus({ uid: record.uid, status: newStatus })
       message.success(t('message.update.success'))
       fetchData()
       refreshNamespaceList()

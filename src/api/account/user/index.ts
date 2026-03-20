@@ -22,7 +22,7 @@ import type {
 export function listUsers(params?: ListUsersParams): Promise<ListUsersResponse> {
   return http.get<ListUsersResponse>(
     '/users',
-    params as unknown as Record<string, unknown>
+    { ...params }
   )
 }
 
@@ -36,7 +36,7 @@ export function selectUsers(
 ): Promise<SelectUsersResponse> {
   return http.get<SelectUsersResponse>(
     '/users/select',
-    params as unknown as Record<string, unknown>
+    { ...params }
   )
 }
 
@@ -59,7 +59,7 @@ export function permitUser(
 ): Promise<{ message?: string }> {
   return http.put<{ message?: string }>(
     `/user/permit/${uid}`,
-    body as Record<string, unknown>
+    { ...body }
   )
 }
 
@@ -74,7 +74,7 @@ export function banUser(
 ): Promise<{ message?: string }> {
   return http.put<{ message?: string }>(
     `/user/ban/${uid}`,
-    body as Record<string, unknown>
+    { ...body }
   )
 }
 

@@ -46,7 +46,7 @@ export function getSelfInfo(): Promise<SelfInfo> {
  * Body(application/json): email
  */
 export function changeEmail(body: { email?: string }): Promise<{ message?: string }> {
-  return http.put<{ message?: string }>('/self/change-email', body as Record<string, unknown>)
+  return http.put<{ message?: string }>('/self/change-email', { ...body })
 }
 
 /**
@@ -55,7 +55,7 @@ export function changeEmail(body: { email?: string }): Promise<{ message?: strin
  * Body(application/json): avatar
  */
 export function changeAvatar(body: { avatar?: string }): Promise<{ message?: string }> {
-  return http.put<{ message?: string }>('/self/change-avatar', body as Record<string, unknown>)
+  return http.put<{ message?: string }>('/self/change-avatar', { ...body })
 }
 
 /**
@@ -64,7 +64,7 @@ export function changeAvatar(body: { avatar?: string }): Promise<{ message?: str
  * Body(application/json): phone
  */
 export function changePhone(body: { phone?: string }): Promise<{ message?: string }> {
-  return http.put<{ message?: string }>('/self/change-phone', body as Record<string, unknown>)
+  return http.put<{ message?: string }>('/self/change-phone', { ...body })
 }
 
 /**
@@ -73,5 +73,5 @@ export function changePhone(body: { phone?: string }): Promise<{ message?: strin
  * Body(application/json): remark
  */
 export function changeRemark(body: { remark?: string }): Promise<{ message?: string }> {
-  return http.put<{ message?: string }>('/self/change-remark', body as Record<string, unknown>)
+  return http.put<{ message?: string }>('/self/change-remark', { ...body })
 }

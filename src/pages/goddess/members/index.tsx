@@ -165,7 +165,7 @@ const MembersList: React.FC = () => {
 
   const doUpdateStatus = async (uid: string, newStatus: MemberStatus) => {
     try {
-      await updateMemberStatus(uid, { uid, status: newStatus });
+      await updateMemberStatus({ uid, status: newStatus });
       message.success(t("message.update.success"));
       fetchData();
       if (detailOpen && viewingData?.uid === uid) {

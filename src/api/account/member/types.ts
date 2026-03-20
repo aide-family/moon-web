@@ -89,6 +89,15 @@ export interface UpdateMemberStatusBody {
   status?: string
 }
 
+/**
+ * 更新成员状态请求参数
+ * PUT /member/{uid}/status
+ */
+export interface UpdateMemberStatusParams {
+  uid: string
+  status: string
+}
+
 /** Member_InviteMember 请求体（InviteMemberRequest：email, role 为整数枚举） */
 export interface InviteMemberBody {
   email?: string

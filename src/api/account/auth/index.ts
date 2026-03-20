@@ -48,7 +48,7 @@ export function sendEmailLoginCode(
 ): Promise<{ message?: string }> {
   return http.post<{ message?: string }>(
     '/auth/email/login/code',
-    params as unknown as Record<string, unknown>,
+    { ...params },
     { skipAuth: true }
   )
 }
@@ -60,7 +60,7 @@ export function sendEmailLoginCode(
 export function emailLogin(params: EmailLoginParams): Promise<LoginReply> {
   return http.post<LoginReply>(
     '/auth/email/login',
-    params as unknown as Record<string, unknown>,
+    { ...params },
     { skipAuth: true }
   )
 }
@@ -72,7 +72,7 @@ export function emailLogin(params: EmailLoginParams): Promise<LoginReply> {
 export function oauth2Login(params: OAuth2LoginParams): Promise<LoginReply> {
   return http.post<LoginReply>(
     '/auth/oauth2/login',
-    params as unknown as Record<string, unknown>,
+    { ...params },
     { skipAuth: true }
   )
 }

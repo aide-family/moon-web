@@ -65,6 +65,7 @@ export interface UpdateEmailParams {
  * 更新邮件状态请求参数
  */
 export interface UpdateEmailStatusParams {
+  uid: string
   status: GlobalStatus
 }
 
