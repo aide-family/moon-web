@@ -31,14 +31,15 @@ import {
   App,
   Badge,
   Button,
+  Col,
   ColorPicker,
   DatePicker,
   Descriptions,
   Dropdown,
   Form,
   Input,
-  InputNumber,
   Modal,
+  Row,
   Select,
   Space,
   Spin,
@@ -1016,31 +1017,44 @@ const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({ stats }) => {
             ]}
           >
             <Input
+              autoComplete='off'
               placeholder={t('realtimeAlert.form.alertPageName.placeholder')}
             />
           </Form.Item>
-          <Form.Item
-            name='color'
-            label={t('realtimeAlert.form.alertPageColor')}
-            getValueFromEvent={(_color, css: string) =>
-              css?.trim() ? css.trim() : undefined
-            }
-          >
-            <ColorPicker format='hex' allowClear showText className='w-full' />
-          </Form.Item>
-          <Form.Item
-            name='sortOrder'
-            label={t('realtimeAlert.form.alertPageSortOrder')}
-          >
-            <InputNumber
-              className='w-full'
-              min={0}
-              step={1}
-              placeholder={t(
-                'realtimeAlert.form.alertPageSortOrder.placeholder',
-              )}
-            />
-          </Form.Item>
+          <Row gutter={16}>
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name='sortOrder'
+                label={t('realtimeAlert.form.alertPageSortOrder')}
+              >
+                <Input
+                  type='number'
+                  min={0}
+                  step={1}
+                  autoComplete='off'
+                  placeholder={t(
+                    'realtimeAlert.form.alertPageSortOrder.placeholder',
+                  )}
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name='color'
+                label={t('realtimeAlert.form.alertPageColor')}
+                getValueFromEvent={(_color, css: string) =>
+                  css?.trim() ? css.trim() : undefined
+                }
+              >
+                <ColorPicker
+                  format='hex'
+                  allowClear
+                  showText
+                  // className='w-full'
+                />
+              </Form.Item>
+            </Col>
+          </Row>
           <div className='text-sm text-gray-500 mb-2'>
             {t('realtimeAlert.form.alertPageFilter.section')}
           </div>
