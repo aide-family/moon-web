@@ -24,6 +24,7 @@ description: Develops feature pages and modules in React + TypeScript using Ant 
 ### 结构与类型
 
 - 页面/模块放在 `src/pages/` 对应业务目录下；可复用 UI 抽到 `src/components/`。
+- **页面内子组件**：当单文件内组件/逻辑过多、超过可读阈值时，将子组件与仅本页使用的辅助函数（如筛选构建、mock、常量映射）拆到**当前页面模块目录下的 `components/`**（例如 `src/pages/foo/bar/components/`），由入口 `index.tsx` 引用；跨页面复用的再提升到 `src/components/`。
 - 组件用 `React.FC<Props>` 或 `function Component(props: Props)`，Props 用 `interface` 定义，必填/可选写清楚。
 - 优先 `import type` 引用类型；状态类型与 API 返回类型一致，避免到处 `any`。
 
@@ -74,3 +75,4 @@ description: Develops feature pages and modules in React + TypeScript using Ant 
 - [ ] 列表搜索：回车触发查询时使用当前输入值（override 入参或 ref），不依赖未刷新的 state。
 - [ ] 新增/编辑弹窗：提交成功后只调用 onSuccess + onCancel，不在成功路径中先 resetFields 再关闭。
 - [ ] 代码结构清晰、可维护，符合高级前端工程师标准。
+- [ ] 复杂页面已将子组件与页内专用辅助逻辑放在同模块 `components/` 下，入口页保持精简。
