@@ -7,21 +7,41 @@ import PageContent from '@/components/layout/PageContent'
 import { useLocale } from '@/contexts/LocaleContext'
 import { emptyPlaceholder } from '@/utils/marksman'
 import { useTheme } from '@/contexts/ThemeContext'
-import { App, Spin } from 'antd'
-import React, { useEffect, useMemo, useState } from 'react'
+import { App, Space, Spin, Switch, Tooltip } from 'antd'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RealtimeAlertList } from './components/RealtimeAlertList'
 
 export default function RealtimeAlertListWrapper() {
   const { t } = useLocale()
   const { actualThemeMode } = useTheme()
   const isDark = actualThemeMode === 'dark'
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true)
   const [statsLoading, setStatsLoading] = useState(false)
+  const mountedRef = useRef(true)
+  const statsRefreshInFlightRef = useRef(false)
+  const initialLoadedRef = useRef(false)
   const [stats, setStats] = useState<GetAlertStatisticsReply | null>(null)
   const [levelSelectList, setLevelSelectList] = useState<
     { value: string; label: string }[]
   >([])
 
+  const refreshStatsSilently = useCallback(async () => {
+    if (statsRefreshInFlightRef.current) return
+    statsRefreshInFlightRef.current = true
+    try {
+      const res = await getAlertStatistics()
+      if (!mountedRef.current) return
+      setStats(res)
+    } catch (e) {
+      // 自动刷新失败时不破坏当前展示，仍保持旧数据
+      console.error('获取告警实时统计失败:', e)
+    } finally {
+      statsRefreshInFlightRef.current = false
+    }
+  }, [])
+
   useEffect(() => {
+    mountedRef.current = true
     let cancelled = false
     const run = async () => {
       setStatsLoading(true)
@@ -52,14 +72,32 @@ export default function RealtimeAlertListWrapper() {
           setLevelSelectList([])
         }
       } finally {
-        if (!cancelled) setStatsLoading(false)
+        if (!cancelled && mountedRef.current) {
+          setStatsLoading(false)
+          initialLoadedRef.current = true
+        }
       }
     }
     run()
     return () => {
       cancelled = true
+      mountedRef.current = false
     }
   }, [])
+
+  useEffect(() => {
+    if (!autoRefreshEnabled) return
+    const timer = window.setInterval(() => {
+      void refreshStatsSilently()
+    }, 60_000)
+    // 避免与首屏 Promise.allSettled 重复请求
+    if (initialLoadedRef.current) {
+      void refreshStatsSilently()
+    }
+    return () => {
+      window.clearInterval(timer)
+    }
+  }, [autoRefreshEnabled, refreshStatsSilently])
 
   const parseCount = (v?: string) => {
     const n = v == null ? 0 : Number(v)
@@ -123,11 +161,25 @@ export default function RealtimeAlertListWrapper() {
     <App className='h-full'>
       <PageContent>
         <div className={headerClassName} style={headerStyle}>
-          <div
-            className={`mb-2 text-base font-medium ${primaryTextClassName}`}
-            style={primaryTextStyle}
-          >
-            {t('realtimeAlert.title')}
+          <div className='flex items-center justify-between gap-3 mb-2'>
+            <div
+              className={`text-base font-medium ${primaryTextClassName}`}
+              style={primaryTextStyle}
+            >
+              {t('realtimeAlert.title')}
+            </div>
+            <Space size='small' className='shrink-0'>
+              <Tooltip title={t('realtimeAlert.autoRefresh.interval', { minutes: 1 })}>
+              <span className={mutedTextClassName} style={mutedTextStyle}>
+                {t('realtimeAlert.autoRefresh.label')}
+              </span>
+              </Tooltip>
+              <Switch
+                size='small'
+                checked={autoRefreshEnabled}
+                onChange={(checked) => setAutoRefreshEnabled(checked)}
+              />
+            </Space>
           </div>
           {statsLoading ? (
             <div className='py-3 flex items-center justify-start gap-2'>
@@ -211,7 +263,10 @@ export default function RealtimeAlertListWrapper() {
           )}
         </div>
 
-        <RealtimeAlertList stats={stats} />
+        <RealtimeAlertList
+          stats={stats}
+          autoRefreshEnabled={autoRefreshEnabled}
+        />
       </PageContent>
     </App>
   )

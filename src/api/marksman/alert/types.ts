@@ -5,6 +5,8 @@
  * Alert_GetAlertStatistics、Alert_ListUserAlertPages、Alert_SaveUserAlertPages
  */
 
+import type { AlertStatus } from '@/api/common/types'
+
 /** 告警页筛选条件（哪些告警属于该页，任意匹配） */
 export interface AlertPageFilter {
   strategyGroupUids?: string[]
@@ -74,7 +76,7 @@ export interface AlertEventItem {
   value?: number
   labels?: Record<string, string>
   datasourceUid?: string
-  status?: number
+  status?: AlertStatus
   intervenedAt?: string
   intervenedBy?: string
   suppressUntilAt?: string

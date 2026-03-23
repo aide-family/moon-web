@@ -28,8 +28,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ALERT_STATUS_MAP,
   defaultListParams,
-  getMockRealtimeAlerts,
 } from './realtimeAlertHelpers'
+import { AlertStatus } from '@/api/common/types'
 
 /** 实时告警列表筛选表单（仅 Tab 内使用） */
 interface AlertFilterFormValues {
@@ -40,10 +40,12 @@ interface AlertFilterFormValues {
 
 export interface AlertPageTabContentProps {
   alertPageUid: string
+  autoRefreshEnabled?: boolean
 }
 
 export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   alertPageUid,
+  autoRefreshEnabled = false,
 }) => {
   const { t } = useLocale()
   const [filterForm] = Form.useForm<AlertFilterFormValues>()
@@ -69,13 +71,22 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   const [suppressUntil, setSuppressUntil] = useState<dayjs.Dayjs | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
   const mountedRef = useRef(true)
+  const fetchRequestSeqRef = useRef(0)
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const tableWrapperRef = useRef<HTMLDivElement>(null)
   const [tableHeight, setTableHeight] = useState(400)
 
   const fetchData = useCallback(
-    async (page?: number, pageSize?: number) => {
-      setLoading(true)
+    async (
+      page?: number,
+      pageSize?: number,
+      options?: {
+        silent?: boolean
+      },
+    ) => {
+      const silent = options?.silent ?? false
+      const seq = ++fetchRequestSeqRef.current
+      if (!silent) setLoading(true)
       try {
         const currentPage = page ?? 1
         const currentPageSize = pageSize ?? 10
@@ -89,18 +100,11 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
         }
         const res = await getRealtimeAlertList(alertPageUid, params)
         if (!mountedRef.current) return
-        let items = res.items ?? []
-        let total = parseInt(String(res.total ?? '0'), 10)
-        if (items.length === 0 && total === 0) {
-          const mockAll = getMockRealtimeAlerts(100)
-          const statusFiltered =
-            filterStatus !== undefined
-              ? mockAll.filter((item) => item.status === filterStatus)
-              : mockAll
-          total = statusFiltered.length
-          const start = (currentPage - 1) * currentPageSize
-          items = statusFiltered.slice(start, start + currentPageSize)
-        }
+        // 避免并发请求导致状态被旧响应覆盖
+        if (seq !== fetchRequestSeqRef.current) return
+        const items = res.items ?? []
+        const total = parseInt(String(res.total ?? '0'), 10)
+
         setDataSource(items)
         setPagination((prev) => ({
           ...prev,
@@ -110,9 +114,13 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
         }))
       } catch (e) {
         console.error('获取实时告警列表失败:', e)
-        if (mountedRef.current) setDataSource([])
+        if (mountedRef.current && seq === fetchRequestSeqRef.current) {
+          setDataSource([])
+        }
       } finally {
-        if (mountedRef.current) setLoading(false)
+        if (!silent && mountedRef.current && seq === fetchRequestSeqRef.current) {
+          setLoading(false)
+        }
       }
     },
     [alertPageUid, filterStatus, startAt, endAt],
@@ -120,11 +128,27 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
 
   useEffect(() => {
     mountedRef.current = true
-    fetchData()
+    fetchData(undefined, undefined, { silent: false })
     return () => {
       mountedRef.current = false
     }
   }, [fetchData])
+
+  const paginationRef = useRef(pagination)
+  useEffect(() => {
+    paginationRef.current = pagination
+  }, [pagination])
+
+  useEffect(() => {
+    if (!autoRefreshEnabled) return
+    const timer = window.setInterval(() => {
+      const { current, pageSize } = paginationRef.current
+      void fetchData(current, pageSize, { silent: true })
+    }, 60_000)
+    return () => {
+      window.clearInterval(timer)
+    }
+  }, [autoRefreshEnabled, fetchData])
 
   useEffect(() => {
     const updateTableHeight = () => {
@@ -153,8 +177,11 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     }
   }, [dataSource, pagination])
 
-  const handleSearch = () => {
+  const handleSearch = (overrideKeyword?: string) => {
     setPagination((prev) => ({ ...prev, current: 1 }))
+    if (overrideKeyword !== undefined) {
+      filterForm.setFieldsValue({ keyword: overrideKeyword })
+    }
     fetchData(1, pagination.pageSize)
   }
 
@@ -230,7 +257,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     }
   }
 
-  const renderStatus = (status: number | undefined) => {
+  const renderStatus = (status?: AlertStatus) => {
     if (status == null) return emptyPlaceholder(status)
     const info = ALERT_STATUS_MAP[status] ?? {
       key: 'table.unknown',
@@ -372,39 +399,44 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
         <Form<AlertFilterFormValues>
           form={filterForm}
           layout='inline'
-          className='w-full [&_.ant-form-item]:mb-3'
           initialValues={{
             keyword: '',
             status: undefined,
-            timeRange: null,
+            timeRange: [
+              dayjs().subtract(7, 'day'),
+              dayjs(),
+            ],
           }}
         >
-          <Form.Item name='keyword' className='max-w-md flex-1 min-w-[200px]'>
-            <Input.Search
+          <Form.Item className='w-full max-w-sm' name='keyword' label={t('realtimeAlert.search.label')}>
+            <Input
+              autoComplete='off'
               placeholder={t('realtimeAlert.search.placeholder')}
               allowClear
-              className='w-full max-w-md'
-              onSearch={handleSearch}
+              onPressEnter={( e) => handleSearch((e.target as HTMLInputElement)?.value)}
             />
           </Form.Item>
           <Form.Item
+            className='min-w-[200px]'
             label={t('realtimeAlert.filter.status')}
             name='status'
-            className='min-w-0'
           >
             <Select
+              className='w-full'
               allowClear
               placeholder={t('realtimeAlert.filter.status.all')}
-              className='min-w-[140px]'
               options={[
-                { label: t('realtimeAlert.filter.status.firing'), value: 0 },
                 {
-                  label: t('realtimeAlert.filter.status.intervened'),
-                  value: 1,
+                  label: t('realtimeAlert.filter.status.unknown'),
+                  value: 0,
                 },
-                { label: t('realtimeAlert.filter.status.recovered'), value: 2 },
+                { label: t('realtimeAlert.filter.status.firing'), value: 1 },
                 {
-                  label: t('realtimeAlert.filter.status.suppressed'),
+                  label: t('realtimeAlert.filter.status.recovered'),
+                  value: 2,
+                },
+                {
+                  label: t('realtimeAlert.filter.status.recoveredByManual'),
                   value: 3,
                 },
               ]}
@@ -424,7 +456,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
           </Form.Item>
           <Form.Item>
             <Space size='middle' wrap>
-              <Button type='primary' onClick={handleSearch}>
+              <Button type='primary' onClick={() => handleSearch()}>
                 {t('common.search')}
               </Button>
               <Button onClick={handleReset}>{t('common.reset')}</Button>

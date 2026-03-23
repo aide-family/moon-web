@@ -42,10 +42,12 @@ type AlertPageFormMode = 'create' | 'edit'
 
 export interface RealtimeAlertListProps {
   stats: GetAlertStatisticsReply | null
+  autoRefreshEnabled: boolean
 }
 
 export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
   stats,
+  autoRefreshEnabled,
 }) => {
   const { t } = useLocale()
   const [availableAlertPages, setAvailableAlertPages] = useState<
@@ -587,7 +589,10 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
           </div>
           <div className='flex-1 min-h-0 overflow-hidden flex flex-col'>
             {activeKey ? (
-              <AlertPageTabContent alertPageUid={activeKey} />
+              <AlertPageTabContent
+                alertPageUid={activeKey}
+                autoRefreshEnabled={autoRefreshEnabled}
+              />
             ) : null}
           </div>
         </>
