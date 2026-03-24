@@ -31,13 +31,14 @@ export function initRem(config: RemConfig = {}) {
   } = config
 
   // 固定的基准 font-size（16px），用于 px 转 rem
-  const BASE_FONT_SIZE = 16
+  const BASE_FONT_SIZE = 18
 
   /**
    * 计算并设置根元素的 font-size
    */
   const setRem = () => {
-    const clientWidth = document.documentElement.clientWidth || window.innerWidth
+    const clientWidth =
+      document.documentElement.clientWidth || window.innerWidth
     // 计算缩放比例
     const scale = clientWidth / baseWidth
     // 计算 font-size（基准为 16px）
@@ -92,7 +93,10 @@ export function initRem(config: RemConfig = {}) {
     if (convertedContent !== originalContent) {
       try {
         // 使用 Object.defineProperty 直接设置，避免触发 setter
-        const descriptor = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent')
+        const descriptor = Object.getOwnPropertyDescriptor(
+          Node.prototype,
+          'textContent',
+        )
         if (descriptor && descriptor.set) {
           descriptor.set.call(styleTag, convertedContent)
         } else {
@@ -154,7 +158,7 @@ export function initRem(config: RemConfig = {}) {
     originalCreateElement = document.createElement.bind(document)
     document.createElement = function (
       tagName: string,
-      options?: ElementCreationOptions
+      options?: ElementCreationOptions,
     ): HTMLElement {
       const element = originalCreateElement!(tagName, options)
 
@@ -165,11 +169,11 @@ export function initRem(config: RemConfig = {}) {
         // 保存原始描述符
         const originalTextContentDescriptor = Object.getOwnPropertyDescriptor(
           Node.prototype,
-          'textContent'
+          'textContent',
         )
         const originalInnerHTMLDescriptor = Object.getOwnPropertyDescriptor(
           Element.prototype,
-          'innerHTML'
+          'innerHTML',
         )
 
         // 拦截 textContent
@@ -275,7 +279,7 @@ export function initRem(config: RemConfig = {}) {
   if (convertAntd) {
     // 立即执行一次转换
     convertAllStyleTags()
-    
+
     // 在 DOM 加载完成后再次转换
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => {
@@ -359,4 +363,3 @@ function convertPxToRem(styleValue: string, baseFontSize: number = 16): string {
     return `${remValue.toFixed(4)}rem`.replace(/\.?0+rem$/, 'rem')
   })
 }
-
