@@ -11,7 +11,6 @@ import {
   Select,
   Space,
   Spin,
-  Switch,
   Table,
   Tag,
 } from 'antd'
@@ -189,14 +188,13 @@ export default function MetricsDetailContent({
   const handleEditLevel = (index: number) => {
     const item = levels[index]
     const row = item as StrategyMetricLevelItem & StrategyMetricLevelItemLevel
-    const level = item?.level
     const modeRaw = row?.mode
     const conditionRaw = row?.condition
     const modeStr = normalizeMode(modeRaw) as SampleMode
     const conditionStr = normalizeCondition(conditionRaw) as ConditionMetric
     setEditingLevelKey(`level-${index}`)
     setEditingLevelData({
-      uid: level?.uid,
+      levelUID: item?.levelUID,
       mode: modeStr !== SampleMode.SAMPLE_MODE_UNKNOWN ? modeStr : undefined,
       condition:
         conditionStr !== ConditionMetric.CONDITION_METRIC_UNKNOWN
@@ -212,7 +210,7 @@ export default function MetricsDetailContent({
     if (!data?.strategyUID || !editingLevelData) return
     const params: SaveStrategyMetricLevelParams = {
       strategyUID: data.strategyUID,
-      levelUID: editingLevelData.uid?.trim() || undefined,
+      levelUID: editingLevelData.levelUID?.trim() || undefined,
       mode:
         editingLevelData.mode &&
         editingLevelData.mode !== SampleMode.SAMPLE_MODE_UNKNOWN
@@ -475,8 +473,6 @@ export default function MetricsDetailContent({
             bordered
             tableLayout='fixed'
             rowKey={(record) =>
-              record.uid ??
-              record.level?.uid ??
               record.levelUID ??
               `level-${record.strategyUID ?? ''}-${record.levelUID ?? ''}-${record.duration ?? ''}`
             }
@@ -487,23 +483,22 @@ export default function MetricsDetailContent({
               [
                 {
                   title: t('strategy.detail.level'),
-                  dataIndex: ['level', 'uid'],
+                  dataIndex: ['levelUID'],
                   key: 'level',
-                  width: 160,
                   render: (
                     v: string | undefined,
                     _r: StrategyMetricLevelItem,
                     index: number,
                   ) => {
                     const isEditing = editingLevelKey === `level-${index}`
-                    const val = isEditing ? editingLevelData?.uid : v
+                    const val = isEditing ? editingLevelData?.levelUID : v
                     if (isEditing) {
                       const usedUids = new Set(
                         levels
                           .map((item, i) =>
                             i === index
                               ? null
-                              : (item?.level?.uid ??
+                              : (item?.levelUID ??
                                 (item as { uid?: string })?.uid),
                           )
                           .filter(
@@ -521,8 +516,8 @@ export default function MetricsDetailContent({
                           onChange={(s) =>
                             setEditingLevelData((prev) =>
                               prev
-                                ? { ...prev, uid: s ?? undefined }
-                                : { uid: s ?? undefined },
+                                ? { ...prev, levelUID: s ?? undefined }
+                                : { levelUID: s ?? undefined },
                             )
                           }
                           options={levelSelectOptions
@@ -553,7 +548,8 @@ export default function MetricsDetailContent({
                   title: t('strategy.detail.mode'),
                   dataIndex: ['mode'],
                   key: 'mode',
-                  width: 200,
+                  width: 100,
+                  align: 'center',
                   render: (
                     v: number | string | undefined,
                     _r: StrategyMetricLevelItem,
@@ -600,7 +596,8 @@ export default function MetricsDetailContent({
                   title: t('strategy.detail.condition'),
                   dataIndex: ['condition'],
                   key: 'condition',
-                  width: 200,
+                  width: 100,
+                  align: 'center',
                   render: (
                     v: number | string | undefined,
                     _r: StrategyMetricLevelItem,
@@ -651,7 +648,8 @@ export default function MetricsDetailContent({
                   title: t('strategy.detail.threshold'),
                   dataIndex: ['values'],
                   key: 'values',
-                  width: 300,
+                  width: 200,
+                  align: 'right',
                   render: (
                     v: number[] | undefined,
                     _r: StrategyMetricLevelItem,
@@ -755,6 +753,7 @@ export default function MetricsDetailContent({
                   dataIndex: ['duration'],
                   key: 'duration',
                   width: 120,
+                  align: 'right',
                   render: (
                     v: string | undefined,
                     _r: StrategyMetricLevelItem,
@@ -791,6 +790,7 @@ export default function MetricsDetailContent({
                   dataIndex: ['status'],
                   key: 'status',
                   width: 80,
+                  align: 'center',
                   render: (
                     v: number | undefined,
                     _r: StrategyMetricLevelItem,
@@ -801,35 +801,9 @@ export default function MetricsDetailContent({
                     const globalVal = normalizeLevelStatus(numVal)
                     const checked = globalVal === GlobalStatus.ENABLED
                     return (
-                      <Switch
-                        size='small'
-                        checked={checked}
-                        disabled={!isEditing}
-                        onChange={(on) =>
-                          setEditingLevelData((prev) =>
-                            prev
-                              ? {
-                                  ...prev,
-                                  status: on
-                                    ? globalStatusToLevelStatus(
-                                        GlobalStatus.ENABLED,
-                                      )
-                                    : globalStatusToLevelStatus(
-                                        GlobalStatus.DISABLED,
-                                      ),
-                                }
-                              : {
-                                  status: on
-                                    ? globalStatusToLevelStatus(
-                                        GlobalStatus.ENABLED,
-                                      )
-                                    : globalStatusToLevelStatus(
-                                        GlobalStatus.DISABLED,
-                                      ),
-                                },
-                          )
-                        }
-                      />
+                      <Tag color={checked ? 'green' : 'red'}>
+                        {checked ? t('table.enable') : t('table.disable')}
+                      </Tag>
                     )
                   },
                 },
@@ -838,13 +812,13 @@ export default function MetricsDetailContent({
                   key: 'action',
                   width: 160,
                   fixed: 'right',
+                  align: 'center',
                   render: (
                     _: unknown,
                     metricLevelItem: StrategyMetricLevelItem,
                     index: number,
                   ) => {
                     const isEditing = editingLevelKey === `level-${index}`
-                    const hasUid = !!metricLevelItem?.uid
                     const isEnabled =
                       normalizeLevelStatus(metricLevelItem?.status) ===
                       GlobalStatus.ENABLED
@@ -879,24 +853,22 @@ export default function MetricsDetailContent({
                             >
                               {t('common.edit')}
                             </Button>
-                            {hasUid && (
-                              <Button
-                                type='link'
-                                size='small'
-                                loading={levelSaving}
-                                danger={isEnabled}
-                                style={
-                                  !isEnabled
-                                    ? { color: 'var(--ant-color-success)' }
-                                    : undefined
-                                }
-                                onClick={() => handleToggleLevelStatus(index)}
-                              >
-                                {isEnabled
-                                  ? t('table.disable')
-                                  : t('table.enable')}
-                              </Button>
-                            )}
+                            <Button
+                              type='link'
+                              size='small'
+                              loading={levelSaving}
+                              danger={isEnabled}
+                              style={
+                                !isEnabled
+                                  ? { color: 'var(--ant-color-success)' }
+                                  : undefined
+                              }
+                              onClick={() => handleToggleLevelStatus(index)}
+                            >
+                              {isEnabled
+                                ? t('table.disable')
+                                : t('table.enable')}
+                            </Button>
                             <Button
                               type='link'
                               size='small'

@@ -511,7 +511,8 @@ const StrategyGroupSidebar: React.FC<{
       if (append) setLoadingMore(true)
       else setLoading(true)
       try {
-        const effectiveKeyword = override?.keyword !== undefined ? override.keyword : keyword
+        const effectiveKeyword =
+          override?.keyword !== undefined ? override.keyword : keyword
         const params: StrategyGroupListParams = {
           page,
           pageSize: pagination.pageSize,
@@ -692,9 +693,7 @@ const StrategyGroupSidebar: React.FC<{
               handleSearch({ keyword: (e.target as HTMLInputElement).value })
             }
           />
-          <Button type='primary' onClick={handleAdd} icon={<PlusOutlined />}>
-            {/* {t("common.add")} */}
-          </Button>
+          <Button type='primary' onClick={handleAdd} icon={<PlusOutlined />} />
         </div>
         <div
           className='flex-1 min-h-0 overflow-auto p-2'

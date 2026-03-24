@@ -4,13 +4,16 @@
  * mode/condition 使用 SampleMode、ConditionMetric 枚举；后端接受字符串，由 API 层统一处理。
  */
 
-import type { GlobalStatus, SampleMode, ConditionMetric } from '../../common/types'
+import type {
+  GlobalStatus,
+  SampleMode,
+  ConditionMetric,
+} from '../../common/types'
 import type { LevelItem } from '../level'
 import type { StrategyItem } from '../strategy/types'
 
 /** 等级项内层（LevelItem）；mode/condition 为策略指标枚举 */
 export interface StrategyMetricLevelItemLevel {
-  uid?: string
   strategyUID?: string
   mode?: SampleMode
   condition?: ConditionMetric
