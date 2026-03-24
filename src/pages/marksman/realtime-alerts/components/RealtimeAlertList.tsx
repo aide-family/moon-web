@@ -43,11 +43,13 @@ type AlertPageFormMode = 'create' | 'edit'
 export interface RealtimeAlertListProps {
   stats: GetAlertStatisticsReply | null
   autoRefreshEnabled: boolean
+  rowBgColorEnabled: boolean
 }
 
 export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
   stats,
   autoRefreshEnabled,
+  rowBgColorEnabled,
 }) => {
   const { t } = useLocale()
   const [availableAlertPages, setAvailableAlertPages] = useState<
@@ -592,6 +594,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
               <AlertPageTabContent
                 alertPageUid={activeKey}
                 autoRefreshEnabled={autoRefreshEnabled}
+                rowBgColorEnabled={rowBgColorEnabled}
               />
             ) : null}
           </div>

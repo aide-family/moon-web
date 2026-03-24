@@ -10,6 +10,8 @@ export interface LevelItem {
   name?: string
   remark?: string
   status?: GlobalStatus
+  /** 等级标识色，可用于实时告警行背景等 */
+  bgColor?: string
   createdAt?: string
   updatedAt?: string
   metadata?: Record<string, string>
@@ -36,6 +38,7 @@ export interface CreateLevelParams {
   name?: string
   remark?: string
   metadata?: Record<string, string>
+  bgColor?: string
 }
 
 /** 创建告警等级返回值（CreateLevelReply：仅 uid） */
@@ -49,6 +52,7 @@ export interface UpdateLevelParams {
   name?: string
   remark?: string
   metadata?: Record<string, string>
+  bgColor?: string
 }
 
 /** 更新状态请求参数 PUT /v1/level/{uid}/status */

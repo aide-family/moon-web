@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { App, Button, Dropdown, Input, Radio, Space, Table, message } from 'antd'
+import { App, Badge, Button, Dropdown, Input, Radio, Space, Table, message } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
 import dayjs from 'dayjs'
@@ -186,6 +186,15 @@ const LevelList: React.FC = () => {
       key: 'name',
       width: 160,
       render: (v) => emptyPlaceholder(v),
+    },
+    {
+      title: t('level.table.bgColor'),
+      dataIndex: 'bgColor',
+      key: 'bgColor',
+      width: 88,
+      align: 'center',
+      render: (v: string | undefined) =>
+        v?.trim() ? <Badge color={v} size="small" /> : '-',
     },
     {
       title: t('table.status'),

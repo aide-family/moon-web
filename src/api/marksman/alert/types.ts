@@ -85,6 +85,8 @@ export interface AlertEventItem {
   recoveredAt?: string
   recoveredBy?: string
   recoveredReason?: string
+  /** 实时告警列表行背景色（与等级 bgColor 等来源一致，由后端聚合返回） */
+  bgColor?: string
   createdAt?: string
   updatedAt?: string
 }

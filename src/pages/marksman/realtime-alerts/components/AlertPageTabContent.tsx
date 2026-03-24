@@ -9,6 +9,7 @@ import { useLocale } from '@/contexts/LocaleContext'
 import { emptyPlaceholder } from '@/utils/marksman'
 import type { MenuProps } from 'antd'
 import {
+  Badge,
   Button,
   DatePicker,
   Descriptions,
@@ -41,11 +42,14 @@ interface AlertFilterFormValues {
 export interface AlertPageTabContentProps {
   alertPageUid: string
   autoRefreshEnabled?: boolean
+  /** 是否对表格行应用接口返回的 bgColor */
+  rowBgColorEnabled?: boolean
 }
 
 export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   alertPageUid,
   autoRefreshEnabled = false,
+  rowBgColorEnabled = true,
 }) => {
   const { t } = useLocale()
   const [filterForm] = Form.useForm<AlertFilterFormValues>()
@@ -279,8 +283,26 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       title: t('realtimeAlert.table.levelName'),
       dataIndex: 'levelName',
       key: 'levelName',
-      width: 100,
-      render: (v) => emptyPlaceholder(v),
+      width: rowBgColorEnabled ? 100 : 128,
+      ellipsis: true,
+      render: (_, record) => {
+        const nameText = emptyPlaceholder(record.levelName)
+        const levelColor = record.bgColor?.trim()
+        if (!rowBgColorEnabled && levelColor) {
+          return (
+            <span className='inline-flex max-w-full min-w-0 items-center gap-1'>
+              <Badge color={levelColor} size='small' className='shrink-0' />
+              <span
+                className='truncate min-w-0'
+                title={record.levelName ?? undefined}
+              >
+                {nameText}
+              </span>
+            </span>
+          )
+        }
+        return nameText
+      },
     },
     {
       title: t('realtimeAlert.table.summary'),
@@ -479,6 +501,16 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
             rowKey='uid'
             loading={loading}
             size='small'
+            onRow={
+              rowBgColorEnabled
+                ? (record) => {
+                    const bg = record.bgColor?.trim()
+                    return {
+                      style: bg ? { backgroundColor: bg } : undefined,
+                    }
+                  }
+                : undefined
+            }
             scroll={{ x: 'max-content', y: tableHeight }}
             pagination={{
               current: pagination.current,

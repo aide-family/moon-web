@@ -16,6 +16,8 @@ export default function RealtimeAlertListWrapper() {
   const { actualThemeMode } = useTheme()
   const isDark = actualThemeMode === 'dark'
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true)
+  /** 是否对实时告警表格行应用接口返回的 bgColor（默认开启） */
+  const [rowBgColorEnabled, setRowBgColorEnabled] = useState(true)
   const [statsLoading, setStatsLoading] = useState(false)
   const mountedRef = useRef(true)
   const statsRefreshInFlightRef = useRef(false)
@@ -168,17 +170,35 @@ export default function RealtimeAlertListWrapper() {
             >
               {t('realtimeAlert.title')}
             </div>
-            <Space size='small' className='shrink-0'>
-              <Tooltip title={t('realtimeAlert.autoRefresh.interval', { minutes: 1 })}>
-              <span className={mutedTextClassName} style={mutedTextStyle}>
-                {t('realtimeAlert.autoRefresh.label')}
-              </span>
-              </Tooltip>
-              <Switch
-                size='small'
-                checked={autoRefreshEnabled}
-                onChange={(checked) => setAutoRefreshEnabled(checked)}
-              />
+            <Space size='middle' wrap className='shrink-0 justify-end'>
+              <Space size='small' wrap align='center'>
+                <Tooltip
+                  title={t('realtimeAlert.autoRefresh.interval', {
+                    minutes: 1,
+                  })}
+                >
+                  <span className={mutedTextClassName} style={mutedTextStyle}>
+                    {t('realtimeAlert.autoRefresh.label')}
+                  </span>
+                </Tooltip>
+                <Switch
+                  size='small'
+                  checked={autoRefreshEnabled}
+                  onChange={(checked) => setAutoRefreshEnabled(checked)}
+                />
+              </Space>
+              <Space size='small' wrap align='center'>
+                <Tooltip title={t('realtimeAlert.rowBgColor.tooltip')}>
+                  <span className={mutedTextClassName} style={mutedTextStyle}>
+                    {t('realtimeAlert.rowBgColor.label')}
+                  </span>
+                </Tooltip>
+                <Switch
+                  size='small'
+                  checked={rowBgColorEnabled}
+                  onChange={(checked) => setRowBgColorEnabled(checked)}
+                />
+              </Space>
             </Space>
           </div>
           {statsLoading ? (
@@ -266,6 +286,7 @@ export default function RealtimeAlertListWrapper() {
         <RealtimeAlertList
           stats={stats}
           autoRefreshEnabled={autoRefreshEnabled}
+          rowBgColorEnabled={rowBgColorEnabled}
         />
       </PageContent>
     </App>

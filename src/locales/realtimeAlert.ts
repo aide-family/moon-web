@@ -94,6 +94,8 @@ export const zhCN = {
   'realtimeAlert.statistics.byAlertPage': '按告警页统计',
   'realtimeAlert.autoRefresh.label': '自动刷新',
   'realtimeAlert.autoRefresh.interval': '每{minutes}分钟刷新一次',
+  'realtimeAlert.rowBgColor.label': '行背景色',
+  'realtimeAlert.rowBgColor.tooltip': '关闭后实时告警表格不再使用等级/告警返回的背景色',
 }
 
 export const enUS = {
@@ -190,4 +192,7 @@ export const enUS = {
   'realtimeAlert.statistics.byAlertPage': 'By alert page',
   'realtimeAlert.autoRefresh.label': 'Auto refresh',
   'realtimeAlert.autoRefresh.interval': 'Refresh every {minutes} minutes',
+  'realtimeAlert.rowBgColor.label': 'Row background',
+  'realtimeAlert.rowBgColor.tooltip':
+    'When off, the real-time alert table ignores bgColor from the API',
 }

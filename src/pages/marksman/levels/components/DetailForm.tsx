@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Modal, Form, Input, message } from 'antd'
+import { ColorPicker, Form, Input, Modal, message } from 'antd'
 import type { CreateLevelParams, UpdateLevelParams, LevelItem } from '@/api/marksman/level'
 import { createLevel, updateLevel } from '@/api/marksman/level'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -30,6 +30,7 @@ const DetailForm: React.FC<DetailFormProps> = ({
       form.setFieldsValue({
         name: initialData.name ?? '',
         remark: initialData.remark ?? '',
+        bgColor: initialData.bgColor,
         metadata: initialData.metadata ? JSON.stringify(initialData.metadata, null, 2) : '',
       })
     } else if (open && mode === 'create') {
@@ -60,6 +61,7 @@ const DetailForm: React.FC<DetailFormProps> = ({
         const params: CreateLevelParams = {
           name: values.name?.trim() || undefined,
           remark: values.remark?.trim() || undefined,
+          bgColor: values.bgColor?.trim() || undefined,
           metadata,
         }
         const created = await createLevel(params)
@@ -69,6 +71,7 @@ const DetailForm: React.FC<DetailFormProps> = ({
         const params: UpdateLevelParams = {
           name: values.name?.trim() || undefined,
           remark: values.remark?.trim() || undefined,
+          bgColor: values.bgColor?.trim() || undefined,
           metadata,
         }
         await updateLevel(initialData.uid, params)
@@ -110,6 +113,20 @@ const DetailForm: React.FC<DetailFormProps> = ({
         </Form.Item>
         <Form.Item name="remark" label={t('level.form.remark.label')}>
           <Input.TextArea rows={2} placeholder={t('level.form.remark.placeholder')} allowClear />
+        </Form.Item>
+        <Form.Item
+          name="bgColor"
+          label={t('level.form.bgColor.label')}
+          extra={
+            <span className="text-xs text-gray-400">
+              {t('level.form.bgColor.placeholder')}
+            </span>
+          }
+          getValueFromEvent={(_color, css: string) =>
+            css?.trim() ? css.trim() : undefined
+          }
+        >
+          <ColorPicker format="hex" allowClear showText />
         </Form.Item>
         <Form.Item name="metadata" label={t('level.form.metadata.label')}>
           <Input.TextArea rows={4} placeholder={t('level.form.metadata.placeholder')} />
