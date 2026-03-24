@@ -53,6 +53,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
 }) => {
   const { t } = useLocale()
   const [filterForm] = Form.useForm<AlertFilterFormValues>()
+  const [recoverForm] = Form.useForm<{ recoveredReason: string }>()
   const filterStatus = Form.useWatch('status', filterForm)
   const timeRange = Form.useWatch('timeRange', filterForm)
   const keyword =
@@ -73,6 +74,8 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     null,
   )
   const [suppressUntil, setSuppressUntil] = useState<dayjs.Dayjs | null>(null)
+  const [recoverOpen, setRecoverOpen] = useState(false)
+  const [recoverRecord, setRecoverRecord] = useState<AlertEventItem | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
   const mountedRef = useRef(true)
   const fetchRequestSeqRef = useRef(0)
@@ -222,14 +225,27 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     }
   }
 
-  const handleRecover = async (record: AlertEventItem) => {
-    if (!record.uid) return
+  const openRecover = (record: AlertEventItem) => {
+    setRecoverRecord(record)
+    recoverForm.setFieldsValue({ recoveredReason: '' })
+    setRecoverOpen(true)
+  }
+
+  const handleRecoverOk = async () => {
+    if (!recoverRecord?.uid) return
     setActionLoading(true)
     try {
-      await recoverAlert(record.uid)
+      const values = await recoverForm.validateFields()
+      await recoverAlert(recoverRecord.uid, {
+        recoveredReason: values.recoveredReason.trim(),
+      })
       message.success(t('realtimeAlert.message.recover.success'))
+      setRecoverOpen(false)
+      setRecoverRecord(null)
+      recoverForm.resetFields()
       fetchData(pagination.current, pagination.pageSize)
     } catch (e) {
+      if (e && typeof e === 'object' && 'errorFields' in e) return
       console.error('恢复告警失败:', e)
     } finally {
       setActionLoading(false)
@@ -349,7 +365,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
           {
             key: 'recover',
             label: t('realtimeAlert.action.recover'),
-            onClick: () => handleRecover(record),
+            onClick: () => openRecover(record),
           },
           {
             key: 'suppress',
@@ -580,6 +596,41 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
             </Descriptions.Item>
           </Descriptions>
         )}
+      </Modal>
+
+      <Modal
+        title={t('realtimeAlert.modal.recover.title')}
+        open={recoverOpen}
+        onOk={handleRecoverOk}
+        onCancel={() => {
+          setRecoverOpen(false)
+          setRecoverRecord(null)
+          recoverForm.resetFields()
+        }}
+        confirmLoading={actionLoading}
+        okText={t('common.ok')}
+        cancelText={t('common.cancel')}
+      >
+        <Form form={recoverForm} layout='vertical' preserve={false}>
+          <Form.Item
+            name='recoveredReason'
+            label={t('realtimeAlert.modal.recover.reason')}
+            rules={[
+              {
+                required: true,
+                whitespace: true,
+                message: t('realtimeAlert.modal.recover.reason.required'),
+              },
+            ]}
+          >
+            <Input.TextArea
+              autoSize={{ minRows: 3, maxRows: 6 }}
+              maxLength={500}
+              showCount
+              placeholder={t('realtimeAlert.modal.recover.reason.placeholder')}
+            />
+          </Form.Item>
+        </Form>
       </Modal>
 
       <Modal

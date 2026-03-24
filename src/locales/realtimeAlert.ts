@@ -44,6 +44,10 @@ export const zhCN = {
   'realtimeAlert.action.deleteAlertPage': '删除告警页',
 
   'realtimeAlert.modal.detail.title': '告警详情',
+  'realtimeAlert.modal.recover.title': '恢复告警',
+  'realtimeAlert.modal.recover.reason': '恢复原因',
+  'realtimeAlert.modal.recover.reason.placeholder': '请输入恢复原因',
+  'realtimeAlert.modal.recover.reason.required': '请输入恢复原因',
   'realtimeAlert.modal.suppress.title': '抑制告警',
   'realtimeAlert.modal.suppress.until': '抑制截止时间',
 
@@ -142,6 +146,10 @@ export const enUS = {
   'realtimeAlert.action.deleteAlertPage': 'Delete alert page',
 
   'realtimeAlert.modal.detail.title': 'Alert Detail',
+  'realtimeAlert.modal.recover.title': 'Recover Alert',
+  'realtimeAlert.modal.recover.reason': 'Recovery Reason',
+  'realtimeAlert.modal.recover.reason.placeholder': 'Please enter recovery reason',
+  'realtimeAlert.modal.recover.reason.required': 'Please enter recovery reason',
   'realtimeAlert.modal.suppress.title': 'Suppress Alert',
   'realtimeAlert.modal.suppress.until': 'Suppress Until',
 
