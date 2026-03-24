@@ -117,6 +117,18 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
     path: '/marksman',
     children: [
       {
+        key: 'marksman-realtime-alerts',
+        icon: <AlertOutlined />,
+        label: t('menu.realtimeAlerts'),
+        path: '/marksman/realtime-alerts',
+        subApp: {
+          name: 'marksman-realtime-alerts',
+          devUrl: 'http://localhost:5176/realtime-alerts',
+          prodUrl: 'http://localhost:4176/realtime-alerts',
+          path: '/marksman/realtime-alerts',
+        },
+      },
+      {
         key: 'marksman-datasources',
         icon: <HddOutlined />,
         label: t('menu.datasources'),
@@ -150,18 +162,6 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
           devUrl: 'http://localhost:5176/levels',
           prodUrl: 'http://localhost:4176/levels',
           path: '/marksman/levels',
-        },
-      },
-      {
-        key: 'marksman-realtime-alerts',
-        icon: <AlertOutlined />,
-        label: t('menu.realtimeAlerts'),
-        path: '/marksman/realtime-alerts',
-        subApp: {
-          name: 'marksman-realtime-alerts',
-          devUrl: 'http://localhost:5176/realtime-alerts',
-          prodUrl: 'http://localhost:4176/realtime-alerts',
-          path: '/marksman/realtime-alerts',
         },
       },
       {

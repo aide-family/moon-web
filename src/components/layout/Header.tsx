@@ -15,6 +15,7 @@ import {
   PictureOutlined,
   LogoutOutlined,
   IdcardOutlined,
+  GithubOutlined,
 } from "@ant-design/icons";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -295,6 +296,16 @@ const Header: React.FC = () => {
         }}
       />
       <div className="flex items-center">
+        <a
+          href="https://github.com/aide-family/moon"
+          target="_blank"
+          rel="noreferrer"
+          className="flex h-8 min-w-8 items-center justify-center cursor-pointer hover:opacity-80"
+          aria-label={t("login.other.github")}
+          title={t("login.other.github")}
+        >
+          <GithubOutlined />
+        </a>
         {/* 主题切换 */}
         <Dropdown
           menu={{

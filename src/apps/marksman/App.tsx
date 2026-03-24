@@ -29,6 +29,13 @@ function AppContent() {
   const appConfig = useMemo((): AppConfigItem[] => [
     ...getSystemManagementMenuItems(t),
     {
+      key: 'realtime-alerts',
+      icon: <AlertOutlined />,
+      label: t('menu.realtimeAlerts'),
+      path: '/realtime-alerts',
+      element: <RealtimeAlertListWrapper />,
+    },
+    {
       key: 'datasources',
       icon: <HddOutlined />,
       label: t('menu.datasources'),
@@ -48,13 +55,6 @@ function AppContent() {
       label: t('menu.levels'),
       path: '/levels',
       element: <LevelListWrapper />,
-    },
-    {
-      key: 'realtime-alerts',
-      icon: <AlertOutlined />,
-      label: t('menu.realtimeAlerts'),
-      path: '/realtime-alerts',
-      element: <RealtimeAlertListWrapper />,
     },
     {
       key: 'notification-groups',
