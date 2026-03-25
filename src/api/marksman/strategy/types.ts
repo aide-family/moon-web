@@ -45,14 +45,12 @@ export interface StrategyListParams {
   driver?: DatasourceDriver
 }
 
-/** 列表响应 ListStrategyReply（兼容旧版 metadata 形状） */
+/** 列表响应 GET /v1/strategies */
 export interface StrategyListResponse {
   items?: StrategyItem[]
   total?: string
   page?: number
   pageSize?: number
-  /** @deprecated 兼容旧版，优先使用顶层 total */
-  metadata?: { total?: string; page?: number; pageSize?: number }
 }
 
 /** 策略下拉选择项 */

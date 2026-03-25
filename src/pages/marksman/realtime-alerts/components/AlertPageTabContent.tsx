@@ -12,7 +12,6 @@ import {
   Badge,
   Button,
   DatePicker,
-  Descriptions,
   Dropdown,
   Form,
   Input,
@@ -25,11 +24,12 @@ import {
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import {
   ALERT_STATUS_MAP,
   defaultListParams,
 } from './realtimeAlertHelpers'
+import { RealtimeAlertDetailModal } from './RealtimeAlertDetailModal'
 import { AlertStatus } from '@/api/common/types'
 
 /** 实时告警列表筛选表单（仅 Tab 内使用） */
@@ -56,8 +56,6 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   const [recoverForm] = Form.useForm<{ recoveredReason: string }>()
   const filterStatus = Form.useWatch('status', filterForm)
   const timeRange = Form.useWatch('timeRange', filterForm)
-  const keyword =
-    (Form.useWatch('keyword', filterForm) as string | undefined) ?? ''
   const startAt = timeRange?.[0] ?? null
   const endAt = timeRange?.[1] ?? null
   const [loading, setLoading] = useState(false)
@@ -67,8 +65,14 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     pageSize: 10,
     total: 0,
   })
-  const [detailOpen, setDetailOpen] = useState(false)
-  const [detailRecord, setDetailRecord] = useState<AlertEventItem | null>(null)
+  const paginationRef = useRef(pagination)
+  useEffect(() => {
+    paginationRef.current = pagination
+  }, [pagination])
+  const [detailModalOpen, setDetailModalOpen] = useState(false)
+  const [detailModalRecord, setDetailModalRecord] = useState<AlertEventItem | null>(
+    null,
+  )
   const [suppressOpen, setSuppressOpen] = useState(false)
   const [suppressRecord, setSuppressRecord] = useState<AlertEventItem | null>(
     null,
@@ -77,6 +81,8 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   const [recoverOpen, setRecoverOpen] = useState(false)
   const [recoverRecord, setRecoverRecord] = useState<AlertEventItem | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
+  /** 已提交给列表接口的关键字（与输入框通过「搜索」同步） */
+  const [listKeyword, setListKeyword] = useState('')
   const mountedRef = useRef(true)
   const fetchRequestSeqRef = useRef(0)
   const tableContainerRef = useRef<HTMLDivElement>(null)
@@ -89,6 +95,8 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       pageSize?: number,
       options?: {
         silent?: boolean
+        /** 本次请求使用的关键字（避免尚未 commit 的 listKeyword 状态） */
+        listKeywordSnapshot?: string
       },
     ) => {
       const silent = options?.silent ?? false
@@ -96,7 +104,12 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       if (!silent) setLoading(true)
       try {
         const currentPage = page ?? 1
-        const currentPageSize = pageSize ?? 10
+        const currentPageSize = pageSize ?? paginationRef.current.pageSize
+        const trimmedKw = (
+          options?.listKeywordSnapshot !== undefined
+            ? options.listKeywordSnapshot
+            : listKeyword
+        ).trim()
         const params: ListRealtimeAlertParams = {
           ...defaultListParams,
           page: currentPage,
@@ -104,6 +117,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
           status: filterStatus,
           startAtUnix: startAt ? String(startAt.unix()) : undefined,
           endAtUnix: endAt ? String(endAt.unix()) : undefined,
+          keyword: trimmedKw !== '' ? trimmedKw : undefined,
         }
         const res = await getRealtimeAlertList(alertPageUid, params)
         if (!mountedRef.current) return
@@ -130,7 +144,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
         }
       }
     },
-    [alertPageUid, filterStatus, startAt, endAt],
+    [alertPageUid, filterStatus, startAt, endAt, listKeyword],
   )
 
   useEffect(() => {
@@ -140,11 +154,6 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       mountedRef.current = false
     }
   }, [fetchData])
-
-  const paginationRef = useRef(pagination)
-  useEffect(() => {
-    paginationRef.current = pagination
-  }, [pagination])
 
   useEffect(() => {
     if (!autoRefreshEnabled) return
@@ -185,11 +194,19 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   }, [dataSource, pagination])
 
   const handleSearch = (overrideKeyword?: string) => {
-    setPagination((prev) => ({ ...prev, current: 1 }))
     if (overrideKeyword !== undefined) {
-      filterForm.setFieldsValue({ keyword: overrideKeyword })
+      filterForm.setFieldValue('keyword', overrideKeyword)
     }
-    fetchData(1, pagination.pageSize)
+    const raw =
+      overrideKeyword !== undefined
+        ? overrideKeyword
+        : ((filterForm.getFieldValue('keyword') as string | undefined) ?? '')
+    const trimmed = String(raw).trim()
+    setListKeyword(trimmed)
+    setPagination((prev) => ({ ...prev, current: 1 }))
+    void fetchData(1, paginationRef.current.pageSize, {
+      listKeywordSnapshot: trimmed,
+    })
   }
 
   const handleTableChange = (page: number, pageSize: number) => {
@@ -198,18 +215,9 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
 
   const handleReset = () => {
     filterForm.resetFields()
+    setListKeyword('')
     setPagination((prev) => ({ ...prev, current: 1 }))
   }
-
-  const filteredData = useMemo(() => {
-    if (!keyword.trim()) return dataSource
-    const k = keyword.trim().toLowerCase()
-    return dataSource.filter(
-      (row) =>
-        (row.summary ?? '').toLowerCase().includes(k) ||
-        (row.description ?? '').toLowerCase().includes(k),
-    )
-  }, [dataSource, keyword])
 
   const handleIntervene = async (record: AlertEventItem) => {
     if (!record.uid) return
@@ -329,11 +337,27 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       render: (v) => emptyPlaceholder(v),
     },
     {
+      title: t('realtimeAlert.table.datasourceName'),
+      dataIndex: 'datasourceName',
+      key: 'datasourceName',
+      width: 140,
+      ellipsis: true,
+      render: (v) => emptyPlaceholder(v),
+    },
+    {
       title: t('realtimeAlert.table.firedAt'),
       dataIndex: 'firedAt',
       key: 'firedAt',
       width: 170,
       render: (v: string) => (v ? dayjs(v).format('YYYY-MM-DD HH:mm:ss') : '-'),
+    },
+    {
+      title: t('realtimeAlert.table.duration'),
+      dataIndex: 'duration',
+      key: 'duration',
+      width: 100,
+      ellipsis: true,
+      render: (v) => emptyPlaceholder(v),
     },
     {
       title: t('realtimeAlert.table.value'),
@@ -379,8 +403,8 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
               type='link'
               size='small'
               onClick={() => {
-                setDetailRecord(record)
-                setDetailOpen(true)
+                setDetailModalRecord(record)
+                setDetailModalOpen(true)
               }}
             >
               {t('common.detail')}
@@ -451,7 +475,9 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
               autoComplete='off'
               placeholder={t('realtimeAlert.search.placeholder')}
               allowClear
-              onPressEnter={( e) => handleSearch((e.target as HTMLInputElement)?.value)}
+              onPressEnter={(e) =>
+                handleSearch((e.target as HTMLInputElement)?.value)
+              }
             />
           </Form.Item>
           <Form.Item
@@ -513,7 +539,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
         >
           <Table<AlertEventItem>
             columns={columns}
-            dataSource={filteredData}
+            dataSource={dataSource}
             rowKey='uid'
             loading={loading}
             size='small'
@@ -542,61 +568,18 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
         </div>
       </div>
 
-      <Modal
-        title={t('realtimeAlert.modal.detail.title')}
-        open={detailOpen}
+      <RealtimeAlertDetailModal
+        open={detailModalOpen}
+        alertPageUid={alertPageUid}
+        fallbackRecord={detailModalRecord}
+        listStatus={filterStatus}
+        listStartAtUnix={startAt ? String(startAt.unix()) : undefined}
+        listEndAtUnix={endAt ? String(endAt.unix()) : undefined}
         onCancel={() => {
-          setDetailOpen(false)
-          setDetailRecord(null)
+          setDetailModalOpen(false)
+          setDetailModalRecord(null)
         }}
-        footer={null}
-        width={640}
-      >
-        {detailRecord && (
-          <Descriptions column={1} bordered size='small'>
-            <Descriptions.Item label={t('realtimeAlert.table.uid')}>
-              {emptyPlaceholder(detailRecord.uid)}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('realtimeAlert.table.levelName')}>
-              {emptyPlaceholder(detailRecord.levelName)}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('realtimeAlert.table.summary')}>
-              {emptyPlaceholder(detailRecord.summary)}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('realtimeAlert.table.description')}>
-              {emptyPlaceholder(detailRecord.description)}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('realtimeAlert.table.firedAt')}>
-              {detailRecord.firedAt
-                ? dayjs(detailRecord.firedAt).format('YYYY-MM-DD HH:mm:ss')
-                : '-'}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('realtimeAlert.table.value')}>
-              {detailRecord.value != null ? String(detailRecord.value) : '-'}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('realtimeAlert.table.status')}>
-              {renderStatus(detailRecord.status)}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('realtimeAlert.table.intervenedAt')}>
-              {detailRecord.intervenedAt
-                ? dayjs(detailRecord.intervenedAt).format('YYYY-MM-DD HH:mm:ss')
-                : '-'}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('realtimeAlert.table.recoveredAt')}>
-              {detailRecord.recoveredAt
-                ? dayjs(detailRecord.recoveredAt).format('YYYY-MM-DD HH:mm:ss')
-                : '-'}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('realtimeAlert.table.suppressedUntil')}>
-              {detailRecord.suppressUntilAt
-                ? dayjs(detailRecord.suppressUntilAt).format(
-                    'YYYY-MM-DD HH:mm:ss',
-                  )
-                : '-'}
-            </Descriptions.Item>
-          </Descriptions>
-        )}
-      </Modal>
+      />
 
       <Modal
         title={t('realtimeAlert.modal.recover.title')}

@@ -6,6 +6,7 @@
 import { http } from '../../index'
 import type {
   AlertPageItem,
+  AlertEventItem,
   AlertPageListParams,
   AlertPageListResponse,
   CreateAlertPageParams,
@@ -13,6 +14,8 @@ import type {
   UpdateAlertPageParams,
   ListRealtimeAlertParams,
   ListRealtimeAlertResponse,
+  ListHistoryAlertParams,
+  ListHistoryAlertResponse,
   InterveneAlertParams,
   RecoverAlertParams,
   SuppressAlertParams,
@@ -33,6 +36,8 @@ export type {
   AlertEventItem,
   ListRealtimeAlertParams,
   ListRealtimeAlertResponse,
+  ListHistoryAlertParams,
+  ListHistoryAlertResponse,
   InterveneAlertParams,
   RecoverAlertParams,
   SuppressAlertParams,
@@ -92,6 +97,18 @@ export const getRealtimeAlertList = (
     `/alert/alert-pages/${alertPageUid}/realtime-alerts`,
     { ...params }
   )
+}
+
+/** 获取实时告警事件详情 GET /v1/alert/realtime-alerts/{uid} */
+export const getRealtimeAlertDetail = (uid: string): Promise<AlertEventItem> => {
+  return http.get<AlertEventItem>(`/alert/realtime-alerts/${uid}`)
+}
+
+/** 历史告警列表 GET /v1/alert/history-alerts */
+export const getHistoryAlertList = (
+  params?: ListHistoryAlertParams
+): Promise<ListHistoryAlertResponse> => {
+  return http.get<ListHistoryAlertResponse>('/alert/history-alerts', { ...params })
 }
 
 /** 介入告警 POST /v1/alert/realtime-alerts/{uid}/intervene */

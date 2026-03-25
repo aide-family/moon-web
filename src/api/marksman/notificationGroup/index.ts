@@ -16,6 +16,9 @@ import type {
   DeleteNotificationGroupReply,
   UpdateNotificationGroupStatusParams,
   UpdateNotificationGroupStatusReply,
+  GetNotificationGroupSubscriptionReply,
+  SaveNotificationGroupSubscriptionParams,
+  SaveNotificationGroupSubscriptionReply,
 } from './types'
 
 export type {
@@ -30,6 +33,11 @@ export type {
   UpdateNotificationGroupStatusParams,
   UpdateNotificationGroupStatusReply,
   NotificationMemberItem,
+  SubscriptionFilter,
+  StrategyLevelPair,
+  GetNotificationGroupSubscriptionReply,
+  SaveNotificationGroupSubscriptionParams,
+  SaveNotificationGroupSubscriptionReply,
 } from './types'
 
 /** 获取通知组列表 GET /v1/notification-groups */
@@ -84,6 +92,26 @@ export const updateNotificationGroupStatus = (
   return http.put<UpdateNotificationGroupStatusReply>(
     `/notification-groups/${params.uid}/status`,
     { ...params },
+  )
+}
+
+/** 获取通知组订阅过滤 GET /v1/notification-groups/{notificationGroupUid}/subscription */
+export const getNotificationGroupSubscription = (
+  notificationGroupUid: string,
+): Promise<GetNotificationGroupSubscriptionReply> => {
+  return http.get<GetNotificationGroupSubscriptionReply>(
+    `/notification-groups/${notificationGroupUid}/subscription`,
+  )
+}
+
+/** 保存通知组订阅过滤 PUT /v1/notification-groups/{notificationGroupUid}/subscription */
+export const saveNotificationGroupSubscription = (
+  notificationGroupUid: string,
+  params?: SaveNotificationGroupSubscriptionParams,
+): Promise<SaveNotificationGroupSubscriptionReply> => {
+  return http.put<SaveNotificationGroupSubscriptionReply>(
+    `/notification-groups/${notificationGroupUid}/subscription`,
+    { ...params, notificationGroupUid },
   )
 }
 

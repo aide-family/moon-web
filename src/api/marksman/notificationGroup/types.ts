@@ -90,3 +90,33 @@ export interface UpdateNotificationGroupStatusParams {
 /** 更新通知组状态响应 */
 export type UpdateNotificationGroupStatusReply = Record<string, never>
 
+/** 订阅过滤中的策略-等级对 */
+export interface StrategyLevelPair {
+  strategyUid?: string
+  levelUid?: string
+}
+
+/** 通知组订阅过滤条件（多维度 OR 匹配，见 OpenAPI SubscriptionFilter） */
+export interface SubscriptionFilter {
+  strategyGroupUids?: string[]
+  strategyUids?: string[]
+  strategyLevels?: StrategyLevelPair[]
+  datasourceUids?: string[]
+  labels?: Record<string, string>
+  excludeLabels?: Record<string, string>
+}
+
+/** 获取通知组订阅 GET /v1/notification-groups/{notificationGroupUid}/subscription */
+export interface GetNotificationGroupSubscriptionReply {
+  filter?: SubscriptionFilter
+}
+
+/** 保存通知组订阅请求体 PUT /v1/notification-groups/{notificationGroupUid}/subscription */
+export interface SaveNotificationGroupSubscriptionParams {
+  notificationGroupUid?: string
+  filter?: SubscriptionFilter
+}
+
+/** 保存通知组订阅响应 */
+export type SaveNotificationGroupSubscriptionReply = Record<string, never>
+

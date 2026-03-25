@@ -62,7 +62,6 @@ const RuleDetailModal: React.FC<RuleDetailModalProps> = ({
         expr: initialData.expr ?? "",
         summary: initialData.summary ?? "",
         description: initialData.description ?? "",
-        status: initialData.status,
         labels: labelsToFields(initialData.labels),
         datasourceUIDs: initialData.datasourceUIDs ?? undefined,
       });
@@ -81,7 +80,6 @@ const RuleDetailModal: React.FC<RuleDetailModalProps> = ({
         expr: values.expr?.trim() || undefined,
         summary: values.summary?.trim() || undefined,
         description: values.description?.trim() || undefined,
-        status: values.status,
         labels: labels && Object.keys(labels).length > 0 ? labels : undefined,
         datasourceUIDs:
           Array.isArray(values.datasourceUIDs) && values.datasourceUIDs.length > 0 ? values.datasourceUIDs : undefined,

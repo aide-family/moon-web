@@ -2,7 +2,7 @@
  * 告警页与实时告警相关类型（Alert API）
  * 接口文档：Alert_ListAlertPage、Alert_CreateAlertPage、Alert_GetAlertPage、Alert_UpdateAlertPage、
  * Alert_DeleteAlertPage、Alert_ListRealtimeAlert、Alert_InterveneAlert、Alert_RecoverAlert、Alert_SuppressAlert
- * Alert_GetAlertStatistics、Alert_ListUserAlertPages、Alert_SaveUserAlertPages
+ * Alert_GetAlertStatistics、Alert_ListUserAlertPages、Alert_SaveUserAlertPages、Alert_ListHistoryAlert
  */
 
 import type { AlertStatus } from '@/api/common/types'
@@ -25,7 +25,7 @@ export interface AlertPageItem {
   updatedAt?: string
 }
 
-/** 告警页列表请求参数 GET /v1/alert-pages */
+/** 告警页列表请求参数 GET /v1/alert/alert-pages */
 export interface AlertPageListParams {
   page?: number
   pageSize?: number
@@ -40,7 +40,7 @@ export interface AlertPageListResponse {
   pageSize?: number
 }
 
-/** 创建告警页请求体 POST /v1/alert-pages */
+/** 创建告警页请求体 POST /v1/alert/alert-pages */
 export interface CreateAlertPageParams {
   name?: string
   color?: string
@@ -53,7 +53,7 @@ export interface CreateAlertPageResponse {
   uid?: string
 }
 
-/** 更新告警页请求体 PUT /v1/alert-pages/{uid} */
+/** 更新告警页请求体 PUT /v1/alert/alert-pages/{uid} */
 export interface UpdateAlertPageParams {
   uid?: string
   name?: string
@@ -62,42 +62,49 @@ export interface UpdateAlertPageParams {
   filter?: AlertPageFilter
 }
 
-/** 实时告警事件单项 */
+/** 实时/历史告警事件单项（与 marksman.api.v1.AlertEventItem 一致） */
 export interface AlertEventItem {
   uid?: string
+  strategyGroupUid?: string
+  strategyGroupName?: string
   strategyUid?: string
-  namespaceUid?: string
+  strategyName?: string
   levelUid?: string
   levelName?: string
+  datasourceUid?: string
+  datasourceName?: string
   summary?: string
   description?: string
   expr?: string
   firedAt?: string
   value?: number
   labels?: Record<string, string>
-  datasourceUid?: string
   status?: AlertStatus
   intervenedAt?: string
   intervenedBy?: string
+  intervenedByName?: string
   suppressUntilAt?: string
   suppressedBy?: string
+  suppressedByName?: string
   suppressedReason?: string
   recoveredAt?: string
   recoveredBy?: string
+  recoveredByName?: string
   recoveredReason?: string
   /** 实时告警列表行背景色（与等级 bgColor 等来源一致，由后端聚合返回） */
   bgColor?: string
-  createdAt?: string
-  updatedAt?: string
+  /** 告警持续时长，如 1s、0.5s */
+  duration?: string
 }
 
-/** 实时告警列表请求参数 GET /v1/alert-pages/{alertPageUid}/realtime-alerts */
+/** 实时告警列表请求参数 GET /v1/alert/alert-pages/{alertPageUid}/realtime-alerts */
 export interface ListRealtimeAlertParams {
   page?: number
   pageSize?: number
   status?: number
   startAtUnix?: string
   endAtUnix?: string
+  keyword?: string
 }
 
 /** 实时告警列表响应 */
@@ -107,6 +114,23 @@ export interface ListRealtimeAlertResponse {
   page?: number
   pageSize?: number
 }
+
+/** 历史告警列表请求参数 GET /v1/alert/history-alerts */
+export interface ListHistoryAlertParams {
+  page?: number
+  pageSize?: number
+  startAtUnix?: string
+  endAtUnix?: string
+  status?: number
+  strategyGroupUids?: string[]
+  levelUids?: string[]
+  strategyUids?: string[]
+  datasourceUids?: string[]
+  keyword?: string
+}
+
+/** 历史告警列表响应 */
+export type ListHistoryAlertResponse = ListRealtimeAlertResponse
 
 /** 告警统计（GET /v1/alert/statistics） */
 export interface GetAlertStatisticsReply {

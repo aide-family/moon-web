@@ -26,7 +26,6 @@ import {
 import type {
   StrategyMetricItem,
   StrategyMetricLevelItem,
-  StrategyMetricLevelItemLevel,
 } from '@/api/marksman/strategyMetric/types'
 import type { SaveStrategyMetricLevelParams } from '@/api/marksman/strategyMetric'
 import { getLevelSelectList } from '@/api/marksman/level'
@@ -122,7 +121,7 @@ export default function MetricsDetailContent({
   const [ruleDetailModalOpen, setRuleDetailModalOpen] = useState(false)
   const [editingLevelKey, setEditingLevelKey] = useState<string | null>(null)
   const [editingLevelData, setEditingLevelData] =
-    useState<StrategyMetricLevelItemLevel | null>(null)
+    useState<StrategyMetricLevelItem | null>(null)
   const [levelSaving, setLevelSaving] = useState(false)
   const [levelSelectOptions, setLevelSelectOptions] = useState<
     LevelItemSelect[]
@@ -187,7 +186,7 @@ export default function MetricsDetailContent({
 
   const handleEditLevel = (index: number) => {
     const item = levels[index]
-    const row = item as StrategyMetricLevelItem & StrategyMetricLevelItemLevel
+    const row = item
     const modeRaw = row?.mode
     const conditionRaw = row?.condition
     const modeStr = normalizeMode(modeRaw) as SampleMode
@@ -342,7 +341,16 @@ export default function MetricsDetailContent({
     )
   }
 
-  const s = normalizeStatus(data.strategy.status)
+  const strategy = data.strategy
+  if (!strategy) {
+    return (
+      <div style={{ textAlign: 'center', padding: '40px 0' }}>
+        {t('common.noData')}
+      </div>
+    )
+  }
+
+  const s = normalizeStatus(strategy.status)
   const info = getStatusTagInfo(s)
 
   return (
@@ -361,7 +369,7 @@ export default function MetricsDetailContent({
               <Button
                 type='link'
                 size='small'
-                onClick={() => handleEdit(data.strategy)}
+                onClick={() => handleEdit(strategy)}
                 icon={<EditOutlined />}
               />
             </Space>
@@ -374,20 +382,20 @@ export default function MetricsDetailContent({
           >
             <Descriptions.Item label={t('strategy.detail.name')}>
               <Space>
-                <span>{emptyPlaceholder(data.strategy.name)}</span>
+                <span>{emptyPlaceholder(strategy.name)}</span>
                 <Tag color={info.color}>{t(info.textKey)}</Tag>
               </Space>
             </Descriptions.Item>
             <Descriptions.Item label={t('strategy.detail.type')}>
-              {getTypeLabel(data.strategy.type, t)} /{' '}
-              {getDriverLabel(data.strategy.driver, t)}
+              {getTypeLabel(strategy.type, t)} /{' '}
+              {getDriverLabel(strategy.driver, t)}
             </Descriptions.Item>
             <Descriptions.Item label={t('strategy.detail.remark')} span={2}>
-              {emptyPlaceholder(data.strategy.remark)}
+              {emptyPlaceholder(strategy.remark)}
             </Descriptions.Item>
             <Descriptions.Item label={t('strategy.detail.metadata')} span={2}>
-              {data.strategy.metadata &&
-              Object.keys(data.strategy.metadata).length > 0 ? (
+              {strategy.metadata &&
+              Object.keys(strategy.metadata).length > 0 ? (
                 <pre
                   style={{
                     margin: 0,
@@ -397,7 +405,7 @@ export default function MetricsDetailContent({
                     overflow: 'auto',
                   }}
                 >
-                  {JSON.stringify(data.strategy.metadata, null, 2)}
+                  {JSON.stringify(strategy.metadata, null, 2)}
                 </pre>
               ) : (
                 '-'

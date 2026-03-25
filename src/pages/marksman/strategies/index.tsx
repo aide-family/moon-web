@@ -108,10 +108,7 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
         const response = await getStrategyList(params)
         if (cancelledRef.current) return
         const items = response?.items ?? []
-        const total = parseInt(
-          String(response?.total ?? response?.metadata?.total ?? 0),
-          10,
-        )
+        const total = parseInt(String(response?.total ?? 0), 10)
         setDataSource(items)
         setPagination((prev) => ({
           ...prev,

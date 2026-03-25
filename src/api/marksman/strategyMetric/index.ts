@@ -28,8 +28,8 @@ export const getStrategyMetric = (strategyUID: string): Promise<StrategyMetricIt
 export const saveStrategyMetric = (
   strategyUID: string,
   params?: SaveStrategyMetricParams
-): Promise<StrategyMetricItem | unknown> => {
-  return http.post<StrategyMetricItem | unknown>(
+): Promise<Record<string, never>> => {
+  return http.post<Record<string, never>>(
     `/metric/strategy/${strategyUID}`,
     { ...params }
   )
@@ -39,8 +39,8 @@ export const saveStrategyMetric = (
 export const saveStrategyMetricLevel = (
   strategyUID: string,
   params?: SaveStrategyMetricLevelParams
-): Promise<unknown> => {
-  return http.post<unknown>(
+): Promise<Record<string, never>> => {
+  return http.post<Record<string, never>>(
     `/metric/strategy/${strategyUID}/level`,
     { ...params }
   )
@@ -66,11 +66,11 @@ export const deleteStrategyMetricLevel = (
   )
 }
 
-/** 修改告警等级状态 PUT /v1/metric/strategy/{strategyUID}/level/{uid}/status，传入 GlobalStatus */
+/** 修改告警等级状态 PUT /v1/metric/strategy/{strategyUID}/level/{levelUID}/status，传入 GlobalStatus */
 export const updateStrategyMetricLevelStatus = (
   params: UpdateStrategyMetricLevelStatusParams,
-): Promise<unknown> => {
-  return http.put<unknown>(
+): Promise<Record<string, never>> => {
+  return http.put<Record<string, never>>(
     `/metric/strategy/${params.strategyUID}/level/${params.uid}/status`,
     {
       strategyUID: params.strategyUID,
