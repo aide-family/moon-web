@@ -28,8 +28,7 @@ import type {
   StrategyMetricLevelItem,
 } from '@/api/marksman/strategyMetric/types'
 import type { SaveStrategyMetricLevelParams } from '@/api/marksman/strategyMetric'
-import { getLevelSelectList } from '@/api/marksman/level'
-import type { LevelItemSelect } from '@/api/marksman/level'
+import { getLevelSelectList, LevelType, type LevelItemSelect } from '@/api/marksman/level'
 import { ConditionMetric, GlobalStatus, SampleMode } from '@/api'
 import { useLocale } from '@/contexts/LocaleContext'
 import {
@@ -149,7 +148,7 @@ export default function MetricsDetailContent({
   }, [strategyUID])
 
   useEffect(() => {
-    getLevelSelectList({ limit: 100, status: GlobalStatus.ENABLED })
+    getLevelSelectList({ limit: 100, status: GlobalStatus.ENABLED, type: LevelType.ALERT })
       .then((res) => setLevelSelectOptions(res?.items ?? []))
       .catch(() => setLevelSelectOptions([]))
   }, [])

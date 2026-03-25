@@ -2,6 +2,8 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { Modal, Form, Input, Select, message } from 'antd'
 import type { CreateDatasourceParams, UpdateDatasourceParams, DatasourceItem } from '@/api/marksman/datasource/index'
 import { createDatasource, updateDatasource, DatasourceType, DatasourceDriver } from '@/api/marksman/datasource/index'
+import { getLevelSelectList, type LevelItemSelect, LevelType } from '@/api/marksman/level'
+import { GlobalStatus } from '@/api'
 import { useLocale } from '@/contexts/LocaleContext'
 
 interface DetailFormProps {
@@ -24,6 +26,7 @@ const DetailForm: React.FC<DetailFormProps> = ({
   const { t } = useLocale()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
+  const [levelSelectOptions, setLevelSelectOptions] = useState<LevelItemSelect[]>([])
 
   const typeOptions = useMemo(
     () =>
@@ -47,6 +50,7 @@ const DetailForm: React.FC<DetailFormProps> = ({
         name: initialData.name ?? '',
         type: initialData.type,
         driver: initialData.driver,
+        levelUid: initialData.levelUid,
         url: initialData.url ?? '',
         remark: initialData.remark ?? '',
         metadata: initialData.metadata
@@ -57,6 +61,27 @@ const DetailForm: React.FC<DetailFormProps> = ({
       form.resetFields()
     }
   }, [open, mode, initialData, form])
+
+  useEffect(() => {
+    if (!open) return
+    let cancelled = false
+    const run = async () => {
+      try {
+        const res = await getLevelSelectList({
+          limit: 100,
+          status: GlobalStatus.ENABLED,
+          type: LevelType.DATASOURCE,
+        })
+        if (!cancelled) setLevelSelectOptions(res?.items ?? [])
+      } catch {
+        if (!cancelled) setLevelSelectOptions([])
+      }
+    }
+    void run()
+    return () => {
+      cancelled = true
+    }
+  }, [open])
 
   const handleSubmit = async () => {
     try {
@@ -84,6 +109,7 @@ const DetailForm: React.FC<DetailFormProps> = ({
           name: values.name?.trim() || undefined,
           type: values.type,
           driver: values.driver,
+          levelUid: values.levelUid || undefined,
           url: values.url?.trim() || undefined,
           remark: values.remark?.trim() || undefined,
           metadata,
@@ -96,6 +122,7 @@ const DetailForm: React.FC<DetailFormProps> = ({
           name: values.name?.trim() || undefined,
           type: values.type,
           driver: values.driver,
+          levelUid: values.levelUid || undefined,
           url: values.url?.trim() || undefined,
           remark: values.remark?.trim() || undefined,
           metadata,
@@ -153,6 +180,22 @@ const DetailForm: React.FC<DetailFormProps> = ({
           rules={[{ required: true, message: t('datasource.form.driver.placeholder') }]}
         >
           <Select placeholder={t('datasource.form.driver.placeholder')} options={driverOptions} />
+        </Form.Item>
+        <Form.Item name="levelUid" label={t('datasource.form.levelUid.label')}>
+          <Select
+            placeholder={t('datasource.form.levelUid.placeholder')}
+            allowClear
+            showSearch
+            optionFilterProp='label'
+            filterOption={(input, opt) =>
+              (opt?.label ?? '').toString().toLowerCase().includes(input.toLowerCase())
+            }
+            options={levelSelectOptions.map((o) => ({
+              value: o.value,
+              label: o.label ?? o.value,
+              disabled: o.disabled,
+            }))}
+          />
         </Form.Item>
         <Form.Item
           name="url"

@@ -3,6 +3,7 @@
 export const zhCN = {
   'level.table.uid': '等级ID',
   'level.table.name': '名称',
+  'level.table.type': '类型',
   'level.table.bgColor': '背景色',
   'level.table.remark': '备注',
   'level.table.createdAt': '创建时间',
@@ -19,6 +20,7 @@ export const zhCN = {
 
   'level.detail.uid': '等级ID',
   'level.detail.name': '名称',
+  'level.detail.type': '类型',
   'level.detail.bgColor': '背景色',
   'level.detail.status': '状态',
   'level.detail.remark': '备注',
@@ -30,15 +32,22 @@ export const zhCN = {
   'level.form.name.placeholder': '请输入名称',
   'level.form.remark.label': '备注',
   'level.form.remark.placeholder': '请输入备注',
+  'level.form.type.label': '类型',
+  'level.form.type.placeholder': '请选择类型',
   'level.form.bgColor.label': '背景色',
   'level.form.bgColor.placeholder': '可选，用于实时告警行背景',
   'level.form.metadata.label': '元数据(JSON)',
   'level.form.metadata.placeholder': '可选，JSON 对象',
+
+  'level.type.LevelType_UNKNOWN': '未知',
+  'level.type.LevelType_ALERT': '告警',
+  'level.type.LevelType_DATASOURCE': '数据源',
 }
 
 export const enUS = {
   'level.table.uid': 'Level ID',
   'level.table.name': 'Name',
+  'level.table.type': 'Type',
   'level.table.bgColor': 'Background',
   'level.table.remark': 'Remark',
   'level.table.createdAt': 'Created At',
@@ -55,6 +64,7 @@ export const enUS = {
 
   'level.detail.uid': 'Level ID',
   'level.detail.name': 'Name',
+  'level.detail.type': 'Type',
   'level.detail.bgColor': 'Background',
   'level.detail.status': 'Status',
   'level.detail.remark': 'Remark',
@@ -66,9 +76,15 @@ export const enUS = {
   'level.form.name.placeholder': 'Enter name',
   'level.form.remark.label': 'Remark',
   'level.form.remark.placeholder': 'Enter remark',
+  'level.form.type.label': 'Type',
+  'level.form.type.placeholder': 'Select type',
   'level.form.bgColor.label': 'Background',
-  'level.form.bgColor.placeholder': 'Optional, for real-time alert row background',
+  'level.form.bgColor.placeholder':
+    'Optional, for real-time alert row background',
   'level.form.metadata.label': 'Metadata (JSON)',
   'level.form.metadata.placeholder': 'Optional, JSON object',
-}
 
+  'level.type.LevelType_UNKNOWN': 'Unknown',
+  'level.type.LevelType_ALERT': 'Alert',
+  'level.type.LevelType_DATASOURCE': 'Datasource',
+}

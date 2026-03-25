@@ -84,5 +84,6 @@ export type {
   LevelSelectResponse,
 } from './types'
 
+export { LevelType } from './types'
 export { GlobalStatus } from '../../common/types'
 

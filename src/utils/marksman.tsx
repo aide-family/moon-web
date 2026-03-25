@@ -39,6 +39,16 @@ export function getDriverLabel(
   return t(`datasource.driver.${String(value)}`) || String(value)
 }
 
+/** 告警等级类型 i18n 文案 */
+export function getLevelTypeLabel(
+  value: string | number | undefined,
+  t: (key: string) => string,
+): string {
+  if (value == null || value === '') return '-'
+
+  return t(`level.type.${String(value)}`)
+}
+
 /** 将接口返回的 status（字符串或数字）规范为 GlobalStatus */
 export function normalizeStatus(
   status: string | number | undefined,

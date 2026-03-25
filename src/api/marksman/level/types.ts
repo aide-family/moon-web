@@ -4,12 +4,20 @@
 
 import { GlobalStatus } from '../../common/types'
 
+/** 告警等级类型（LevelType） */
+export enum LevelType {
+  LevelType_UNKNOWN = 'LevelType_UNKNOWN',
+  LevelType_ALERT = 'LevelType_ALERT',
+  LevelType_DATASOURCE = 'LevelType_DATASOURCE',
+}
+
 /** 告警等级单项（列表/详情），status 为全局状态枚举 */
 export interface LevelItem {
   uid?: string
   name?: string
   remark?: string
   status?: GlobalStatus
+  type?: LevelType
   /** 等级标识色，可用于实时告警行背景等 */
   bgColor?: string
   createdAt?: string
@@ -23,6 +31,7 @@ export interface LevelListParams {
   page?: number
   pageSize?: number
   status?: GlobalStatus
+  type?: LevelType
 }
 
 /** 列表响应 */
@@ -39,6 +48,7 @@ export interface CreateLevelParams {
   remark?: string
   metadata?: Record<string, string>
   bgColor?: string
+  type?: LevelType
 }
 
 /** 创建告警等级返回值（CreateLevelReply：仅 uid） */
@@ -53,6 +63,7 @@ export interface UpdateLevelParams {
   remark?: string
   metadata?: Record<string, string>
   bgColor?: string
+  type?: LevelType
 }
 
 /** 更新状态请求参数 PUT /v1/level/{uid}/status */
@@ -75,6 +86,7 @@ export interface LevelSelectParams {
   lastUID?: string
   status?: GlobalStatus
   uids?: string[]
+  type?: LevelType
 }
 
 export interface LevelSelectResponse {
@@ -83,4 +95,3 @@ export interface LevelSelectResponse {
   lastUID?: string
   hasMore?: boolean
 }
-

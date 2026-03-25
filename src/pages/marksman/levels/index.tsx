@@ -1,28 +1,57 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { App, Badge, Button, Dropdown, Input, Radio, Space, Table, message } from 'antd'
+import {
+  App,
+  Badge,
+  Button,
+  Dropdown,
+  Input,
+  Radio,
+  Space,
+  Table,
+  message,
+} from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
 import dayjs from 'dayjs'
 import type { LevelItem, LevelListParams } from '@/api/marksman/level'
-import { deleteLevel, getLevelDetail, getLevelList, updateLevelStatus } from '@/api/marksman/level'
+import {
+  deleteLevel,
+  getLevelDetail,
+  getLevelList,
+  LevelType,
+  updateLevelStatus,
+} from '@/api/marksman/level'
 import { GlobalStatus } from '@/api'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 import PageContent from '@/components/layout/PageContent'
-import { emptyPlaceholder, renderStatusTag } from '@/utils/marksman'
+import {
+  emptyPlaceholder,
+  getLevelTypeLabel,
+  renderStatusTag,
+} from '@/utils/marksman'
 
 const defaultSearchParams: LevelListParams = {
   keyword: '',
   status: undefined,
+  type: undefined,
 }
 
 function parseSearchParamsFromUrl(params: URLSearchParams): LevelListParams {
+  const rawType = getParam(params, 'type')
+  const parsedType =
+    rawType != null && rawType !== '' ? Number(rawType) : undefined
+  const type =
+    parsedType != null && Number.isFinite(parsedType)
+      ? (parsedType as unknown as LevelType)
+      : undefined
   return {
     keyword: getParam(params, 'keyword') ?? '',
     status: (getParam(params, 'status') as GlobalStatus) ?? undefined,
+    type,
   }
 }
 
@@ -32,13 +61,19 @@ const LevelList: React.FC = () => {
   const [urlSearchParams, setUrlSearchParams] = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [dataSource, setDataSource] = useState<LevelItem[]>([])
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 })
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  })
   const [searchParams, setSearchParams] = useState<LevelListParams>(() =>
-    parseSearchParamsFromUrl(urlSearchParams)
+    parseSearchParamsFromUrl(urlSearchParams),
   )
 
   const [detailFormOpen, setDetailFormOpen] = useState(false)
-  const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>('create')
+  const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>(
+    'create',
+  )
   const [editingData, setEditingData] = useState<LevelItem | null>(null)
 
   const [detailViewOpen, setDetailViewOpen] = useState(false)
@@ -58,16 +93,19 @@ const LevelList: React.FC = () => {
     try {
       const currentPage = page ?? pagination.current
       const currentPageSize = pageSize ?? pagination.pageSize
-      const effective = override ? { ...searchParams, ...override } : searchParams
+      const effective = override
+        ? { ...searchParams, ...override }
+        : searchParams
       const params: LevelListParams = {
         page: currentPage,
         pageSize: currentPageSize,
         keyword: effective.keyword || undefined,
         status: effective.status,
+        type: effective.type,
       }
       const response = await getLevelList(params)
       setDataSource(response.items ?? [])
-      setPagination(prev => ({
+      setPagination((prev) => ({
         ...prev,
         current: currentPage,
         pageSize: currentPageSize,
@@ -81,8 +119,8 @@ const LevelList: React.FC = () => {
   }
 
   const handleSearch = (override?: Partial<LevelListParams>) => {
-    if (override) setSearchParams(prev => ({ ...prev, ...override }))
-    setPagination(prev => ({ ...prev, current: 1 }))
+    if (override) setSearchParams((prev) => ({ ...prev, ...override }))
+    setPagination((prev) => ({ ...prev, current: 1 }))
     fetchData(1, pagination.pageSize, override)
   }
 
@@ -138,7 +176,8 @@ const LevelList: React.FC = () => {
       await deleteLevel(record.uid)
       message.success(t('message.delete.success'))
       fetchData()
-      if (detailViewOpen && viewingData?.uid === record.uid) setDetailViewOpen(false)
+      if (detailViewOpen && viewingData?.uid === record.uid)
+        setDetailViewOpen(false)
     } catch (error) {
       console.error('删除失败:', error)
     }
@@ -188,13 +227,20 @@ const LevelList: React.FC = () => {
       render: (v) => emptyPlaceholder(v),
     },
     {
+      title: t('level.table.type'),
+      dataIndex: 'type',
+      key: 'type',
+      width: 120,
+      render: (v) => getLevelTypeLabel(v, t),
+    },
+    {
       title: t('level.table.bgColor'),
       dataIndex: 'bgColor',
       key: 'bgColor',
       width: 88,
       align: 'center',
       render: (v: string | undefined) =>
-        v?.trim() ? <Badge color={v} size="small" /> : '-',
+        v?.trim() ? <Badge color={v} size='small' /> : '-',
     },
     {
       title: t('table.status'),
@@ -239,8 +285,15 @@ const LevelList: React.FC = () => {
           const action = isEnabled ? t('table.disable') : t('table.enable')
           modal.confirm({
             title: t('level.confirm.status.title', { action }),
-            content: t('level.confirm.status.content', { action, name: record.name ?? record.uid ?? '' }),
-            onOk: () => handleStatusChange(record, isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED),
+            content: t('level.confirm.status.content', {
+              action,
+              name: record.name ?? record.uid ?? '',
+            }),
+            onOk: () =>
+              handleStatusChange(
+                record,
+                isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED,
+              ),
             okText: t('common.ok'),
             cancelText: t('common.cancel'),
           })
@@ -264,7 +317,9 @@ const LevelList: React.FC = () => {
             onClick: () => {
               modal.confirm({
                 title: t('level.confirm.delete.title'),
-                content: t('level.confirm.delete.content', { name: record.name ?? record.uid ?? '' }),
+                content: t('level.confirm.delete.content', {
+                  name: record.name ?? record.uid ?? '',
+                }),
                 okText: t('common.ok'),
                 cancelText: t('common.cancel'),
                 onOk: () => handleDelete(record),
@@ -274,12 +329,16 @@ const LevelList: React.FC = () => {
         ]
 
         return (
-          <Space size="small">
-            <Button type="link" size="small" onClick={() => handleViewDetail(record)}>
+          <Space size='small'>
+            <Button
+              type='link'
+              size='small'
+              onClick={() => handleViewDetail(record)}
+            >
               {t('common.detail')}
             </Button>
             <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-              <Button type="link" size="small">
+              <Button type='link' size='small'>
                 {t('common.more')}
               </Button>
             </Dropdown>
@@ -298,25 +357,37 @@ const LevelList: React.FC = () => {
   useEffect(() => {
     applySearchToUrl(
       setUrlSearchParams,
-      { keyword: searchParams.keyword, status: searchParams.status },
-      { replace: true }
+      {
+        keyword: searchParams.keyword,
+        status: searchParams.status,
+        type: searchParams.type,
+      },
+      { replace: true },
     )
-  }, [searchParams.keyword, searchParams.status])
+  }, [searchParams.keyword, searchParams.status, searchParams.type])
 
   useEffect(() => {
     fetchData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams.status])
+  }, [searchParams.status, searchParams.type])
 
   useEffect(() => {
     const updateTableHeight = () => {
       if (tableContainerRef.current && tableWrapperRef.current) {
         const containerHeight = tableContainerRef.current.clientHeight
-        const theadEl = tableWrapperRef.current.querySelector('.ant-table-thead')
-        const paginationEl = tableWrapperRef.current.querySelector('.ant-pagination')
-        const theadHeight = theadEl ? (theadEl as HTMLElement).getBoundingClientRect().height : 0
-        const paginationHeight = paginationEl ? (paginationEl as HTMLElement).getBoundingClientRect().height + 16 : 0
-        setTableHeight(Math.max(containerHeight - theadHeight - paginationHeight - 24, 100))
+        const theadEl =
+          tableWrapperRef.current.querySelector('.ant-table-thead')
+        const paginationEl =
+          tableWrapperRef.current.querySelector('.ant-pagination')
+        const theadHeight = theadEl
+          ? (theadEl as HTMLElement).getBoundingClientRect().height
+          : 0
+        const paginationHeight = paginationEl
+          ? (paginationEl as HTMLElement).getBoundingClientRect().height + 16
+          : 0
+        setTableHeight(
+          Math.max(containerHeight - theadHeight - paginationHeight - 24, 100),
+        )
       }
     }
     const timer = setTimeout(updateTableHeight, 100)
@@ -328,17 +399,19 @@ const LevelList: React.FC = () => {
   }, [dataSource, pagination])
 
   return (
-    <div className="h-full flex flex-col">
+    <div className='h-full flex flex-col'>
       {/* 搜索和操作栏（参考模板/数据源等页面表格头部搜索） */}
-      <div className="flex items-center justify-between mb-4 shrink-0">
-        <Space size="middle" wrap>
+      <div className='flex items-center justify-between mb-4 shrink-0'>
+        <Space size='middle' wrap>
           <span>{t('table.search.keyword')}:</span>
           <Input
             placeholder={t('table.search.placeholder')}
             allowClear
-            className="w-full min-w-[120px] sm:w-48 md:w-52"
+            className='w-full min-w-[120px] sm:w-48 md:w-52'
             value={searchParams.keyword ?? ''}
-            onChange={(e) => setSearchParams(prev => ({ ...prev, keyword: e.target.value }))}
+            onChange={(e) =>
+              setSearchParams((prev) => ({ ...prev, keyword: e.target.value }))
+            }
             onPressEnter={(e) =>
               handleSearch({ keyword: (e.target as HTMLInputElement).value })
             }
@@ -347,35 +420,64 @@ const LevelList: React.FC = () => {
           <Radio.Group
             value={searchParams.status}
             onChange={(e) => {
-              setSearchParams(prev => ({ ...prev, status: e.target.value }))
-              setPagination(prev => ({ ...prev, current: 1 }))
+              setSearchParams((prev) => ({ ...prev, status: e.target.value }))
+              setPagination((prev) => ({ ...prev, current: 1 }))
             }}
-            buttonStyle="solid"
+            buttonStyle='solid'
           >
-            <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
-            <Radio.Button value={GlobalStatus.ENABLED}>{t('table.search.enabled')}</Radio.Button>
-            <Radio.Button value={GlobalStatus.DISABLED}>{t('table.search.disabled')}</Radio.Button>
+            <Radio.Button value={undefined}>
+              {t('table.search.all')}
+            </Radio.Button>
+            <Radio.Button value={GlobalStatus.ENABLED}>
+              {t('table.search.enabled')}
+            </Radio.Button>
+            <Radio.Button value={GlobalStatus.DISABLED}>
+              {t('table.search.disabled')}
+            </Radio.Button>
           </Radio.Group>
-          <Button onClick={() => handleSearch()} type="primary">
+          <span>{t('level.table.type')}:</span>
+          <Radio.Group
+            value={searchParams.type}
+            onChange={(e) => {
+              setSearchParams((prev) => ({ ...prev, type: e.target.value }))
+              setPagination((prev) => ({ ...prev, current: 1 }))
+            }}
+            buttonStyle='solid'
+          >
+            <Radio.Button value={undefined}>
+              {t('table.search.all')}
+            </Radio.Button>
+            <Radio.Button value={LevelType.LevelType_ALERT}>
+              {t('level.type.LevelType_ALERT')}
+            </Radio.Button>
+            <Radio.Button value={LevelType.LevelType_DATASOURCE}>
+              {t('level.type.LevelType_DATASOURCE')}
+            </Radio.Button>
+          </Radio.Group>
+          <Button onClick={() => handleSearch()} type='primary'>
             {t('common.search')}
           </Button>
           <Button onClick={handleReset}>{t('common.reset')}</Button>
         </Space>
         <Space>
-          <Button type="primary" onClick={handleAdd}>
+          <Button type='primary' onClick={handleAdd}>
             {t('common.add')}
           </Button>
         </Space>
       </div>
 
-      <div ref={tableContainerRef} className="flex-1 flex overflow-hidden flex-col" style={{ minHeight: 0 }}>
-        <div ref={tableWrapperRef} className="h-full flex flex-col flex-1">
+      <div
+        ref={tableContainerRef}
+        className='flex-1 flex overflow-hidden flex-col'
+        style={{ minHeight: 0 }}
+      >
+        <div ref={tableWrapperRef} className='h-full flex flex-col flex-1'>
           <Table
             columns={columns}
             dataSource={dataSource}
-            rowKey="uid"
+            rowKey='uid'
             loading={loading}
-            size="small"
+            size='small'
             scroll={{ y: tableHeight, x: '100%' }}
             pagination={{
               current: pagination.current,
@@ -383,7 +485,7 @@ const LevelList: React.FC = () => {
               total: pagination.total,
               showSizeChanger: true,
               showQuickJumper: true,
-              showTotal: total => t('table.total', { total }),
+              showTotal: (total) => t('table.total', { total }),
               onChange: handleTableChange,
               onShowSizeChange: handleTableChange,
             }}
@@ -411,11 +513,10 @@ const LevelList: React.FC = () => {
 
 export default function LevelListWrapper() {
   return (
-    <App className="h-full">
+    <App className='h-full'>
       <PageContent>
         <LevelList />
       </PageContent>
     </App>
   )
 }
-

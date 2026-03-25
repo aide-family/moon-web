@@ -213,8 +213,19 @@ export const RealtimeAlertDetailModal: React.FC<RealtimeAlertDetailModalProps> =
         if (field.key === 'datasourceName') {
           const uid = d.datasourceUid
           const nameText = emptyPlaceholder(v as string | undefined)
-          if (!uid) return nameText
-          return <Tooltip title={String(uid)}>{nameText}</Tooltip>
+          const levelText = emptyPlaceholder(d.datasourceLevelName)
+          const content = (
+            <span className='inline-flex items-center gap-2 min-w-0'>
+              <span className='truncate' title={nameText}>
+                {nameText}
+              </span>
+              {levelText && levelText !== '-' ? (
+                <Tag color='default'>{levelText}</Tag>
+              ) : null}
+            </span>
+          )
+          if (!uid) return content
+          return <Tooltip title={String(uid)}>{content}</Tooltip>
         }
         if (field.key === 'intervenedByName') {
           const uid = d.intervenedBy

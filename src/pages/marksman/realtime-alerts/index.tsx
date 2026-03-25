@@ -2,7 +2,7 @@ import { GlobalStatus } from '@/api/common/types'
 import type { GetAlertStatisticsReply } from '@/api/marksman/alert'
 import { getAlertStatistics } from '@/api/marksman/alert'
 import type { LevelCount } from '@/api/marksman/alert/types'
-import { getLevelSelectList } from '@/api/marksman/level'
+import { getLevelSelectList, LevelType } from '@/api/marksman/level'
 import PageContent from '@/components/layout/PageContent'
 import { useLocale } from '@/contexts/LocaleContext'
 import { emptyPlaceholder } from '@/utils/marksman'
@@ -50,7 +50,11 @@ export default function RealtimeAlertListWrapper() {
       try {
         const [statsResult, levelsResult] = await Promise.allSettled([
           getAlertStatistics(),
-          getLevelSelectList({ limit: 10, status: GlobalStatus.ENABLED }),
+          getLevelSelectList({
+            limit: 10,
+            status: GlobalStatus.ENABLED,
+            type: LevelType.LevelType_ALERT,
+          }),
         ])
         if (cancelled) return
         if (statsResult.status === 'fulfilled') {

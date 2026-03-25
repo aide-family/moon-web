@@ -138,6 +138,17 @@ const detailContent = (data: DatasourceItem, t: (key: string) => string) => (
     <Descriptions.Item label={t('datasource.detail.driver')}>
       {getDriverLabel(data.driver, t)}
     </Descriptions.Item>
+    <Descriptions.Item label={t('datasource.detail.level')}>
+      {data.levelName ? (
+        data.levelUid ? (
+          <Tooltip title={data.levelUid}>{data.levelName}</Tooltip>
+        ) : (
+          data.levelName
+        )
+      ) : (
+        emptyPlaceholder(data.levelName)
+      )}
+    </Descriptions.Item>
     <Descriptions.Item label={t('datasource.detail.status')}>
       {emptyPlaceholder(data.status)}
     </Descriptions.Item>

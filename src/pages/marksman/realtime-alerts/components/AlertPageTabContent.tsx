@@ -369,7 +369,19 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       key: 'datasourceName',
       width: 140,
       ellipsis: true,
-      render: (v) => emptyPlaceholder(v),
+      render: (_, record) => {
+        const nameText = emptyPlaceholder(record.datasourceName)
+        const levelText = emptyPlaceholder(record.datasourceLevelName)
+        if (!levelText || levelText === '-') return nameText
+        return (
+          <Space size='small'>
+            <span className='truncate' title={nameText}>
+              {nameText}
+            </span>
+            <Tag color='default'>{levelText}</Tag>
+          </Space>
+        )
+      },
     },
     {
       title: t('realtimeAlert.table.levelName'),

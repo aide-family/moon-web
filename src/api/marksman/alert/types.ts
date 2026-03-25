@@ -73,6 +73,8 @@ export interface AlertEventItem {
   levelName?: string
   datasourceUid?: string
   datasourceName?: string
+  /** 数据源等级标识（LevelType.DATASOURCE 对应） */
+  datasourceLevelName?: string
   summary?: string
   description?: string
   expr?: string

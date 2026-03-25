@@ -1,4 +1,7 @@
-import type { AlertPageItem, GetAlertStatisticsReply } from '@/api/marksman/alert'
+import type {
+  AlertPageItem,
+  GetAlertStatisticsReply,
+} from '@/api/marksman/alert'
 import {
   createAlertPage,
   deleteAlertPage,
@@ -8,11 +11,12 @@ import {
   saveUserAlertPages,
   updateAlertPage,
 } from '@/api/marksman/alert'
-import { getLevelSelectList } from '@/api/marksman/level'
+import { getLevelSelectList, LevelType } from '@/api/marksman/level'
 import { getStrategySelectList } from '@/api/marksman/strategy'
 import { getStrategyGroupSelectList } from '@/api/marksman/strategyGroup'
 import { useLocale } from '@/contexts/LocaleContext'
 import { emptyPlaceholder } from '@/utils/marksman'
+import { GlobalStatus } from '@/api'
 import { LinkOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons'
 import {
   Badge,
@@ -160,7 +164,11 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
       try {
         const [sgRes, lvRes, stRes] = await Promise.all([
           getStrategyGroupSelectList({ limit: 100 }),
-          getLevelSelectList({ limit: 100 }),
+          getLevelSelectList({
+            limit: 100,
+            status: GlobalStatus.ENABLED,
+            type: LevelType.LevelType_ALERT,
+          }),
           getStrategySelectList({ limit: 100 }),
         ])
         if (cancelled || !mountedRef.current) return
@@ -687,7 +695,9 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
               name='filterStrategyGroupUids'
               label={t('realtimeAlert.form.alertPageFilter.strategyGroups')}
               getValueFromEvent={(v?: string[]) =>
-                (v ?? []).filter((value) => !disabledStrategyGroupSet.has(value))
+                (v ?? []).filter(
+                  (value) => !disabledStrategyGroupSet.has(value),
+                )
               }
             >
               <Select

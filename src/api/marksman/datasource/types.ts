@@ -29,6 +29,9 @@ export interface DatasourceItem {
   name?: string
   type?: DatasourceType
   driver?: DatasourceDriver
+  /** 绑定的数据源等级（LevelType.DATASOURCE） */
+  levelUid?: string
+  levelName?: string
   status?: number
   createdAt?: string
   updatedAt?: string
@@ -93,6 +96,8 @@ export interface CreateDatasourceParams {
   url?: string
   remark?: string
   metadata?: Record<string, string>
+  /** 绑定的数据源等级 uid（LevelType.DATASOURCE） */
+  levelUid?: string
 }
 
 /** 创建数据源返回值（CreateDatasourceReply：仅 uid） */
@@ -109,6 +114,8 @@ export interface UpdateDatasourceParams {
   url?: string
   remark?: string
   metadata?: Record<string, string>
+  /** 绑定的数据源等级 uid（LevelType.DATASOURCE） */
+  levelUid?: string
 }
 
 /** 指标元数据项（ListMetrics 接口返回，与后端 help 对齐） */
