@@ -3,7 +3,7 @@ import { getRealtimeAlertDetail, getRealtimeAlertList } from '@/api/marksman/ale
 import type { AlertStatus } from '@/api/common/types'
 import { useLocale } from '@/contexts/LocaleContext'
 import { emptyPlaceholder } from '@/utils/marksman'
-import { Badge, Descriptions, Modal, Spin, Tag, message } from 'antd'
+import { Badge, Descriptions, Modal, Spin, Tag, Tooltip, message } from 'antd'
 import dayjs from 'dayjs'
 import React, { useEffect, useRef, useState } from 'react'
 import { ALERT_STATUS_MAP } from './realtimeAlertHelpers'
@@ -30,27 +30,19 @@ interface DetailField {
 
 const DETAIL_FIELDS: DetailField[] = [
   { key: 'uid', labelKey: 'realtimeAlert.table.uid', kind: 'text', span: 2 },
-  { key: 'strategyGroupUid', labelKey: 'realtimeAlert.detail.strategyGroupUid', kind: 'text' },
   { key: 'strategyGroupName', labelKey: 'realtimeAlert.detail.strategyGroupName', kind: 'text' },
-  { key: 'strategyUid', labelKey: 'realtimeAlert.detail.strategyUid', kind: 'text' },
   { key: 'strategyName', labelKey: 'realtimeAlert.detail.strategyName', kind: 'text' },
-  { key: 'levelUid', labelKey: 'realtimeAlert.detail.levelUid', kind: 'text' },
   { key: 'levelName', labelKey: 'realtimeAlert.table.levelName', kind: 'text' },
-  { key: 'datasourceUid', labelKey: 'realtimeAlert.detail.datasourceUid', kind: 'text' },
   { key: 'datasourceName', labelKey: 'realtimeAlert.table.datasourceName', kind: 'text' },
   { key: 'firedAt', labelKey: 'realtimeAlert.table.firedAt', kind: 'time' },
   { key: 'duration', labelKey: 'realtimeAlert.table.duration', kind: 'text' },
   { key: 'status', labelKey: 'realtimeAlert.table.status', kind: 'status' },
   { key: 'value', labelKey: 'realtimeAlert.table.value', kind: 'number' },
-  { key: 'bgColor', labelKey: 'realtimeAlert.detail.bgColor', kind: 'bgColor' },
   { key: 'intervenedAt', labelKey: 'realtimeAlert.table.intervenedAt', kind: 'time' },
-  { key: 'intervenedBy', labelKey: 'realtimeAlert.detail.intervenedBy', kind: 'text' },
   { key: 'intervenedByName', labelKey: 'realtimeAlert.detail.intervenedByName', kind: 'text' },
   { key: 'suppressUntilAt', labelKey: 'realtimeAlert.table.suppressedUntil', kind: 'time' },
-  { key: 'suppressedBy', labelKey: 'realtimeAlert.detail.suppressedBy', kind: 'text' },
   { key: 'suppressedByName', labelKey: 'realtimeAlert.detail.suppressedByName', kind: 'text' },
   { key: 'recoveredAt', labelKey: 'realtimeAlert.table.recoveredAt', kind: 'time' },
-  { key: 'recoveredBy', labelKey: 'realtimeAlert.detail.recoveredBy', kind: 'text' },
   { key: 'recoveredByName', labelKey: 'realtimeAlert.detail.recoveredByName', kind: 'text' },
   { key: 'summary', labelKey: 'realtimeAlert.table.summary', kind: 'text', span: 2 },
   { key: 'description', labelKey: 'realtimeAlert.table.description', kind: 'text', span: 2 },
@@ -199,6 +191,50 @@ export const RealtimeAlertDetailModal: React.FC<RealtimeAlertDetailModalProps> =
         )
       }
       default:
+        // 只展示名称；id 用 Tooltip 展示
+        if (field.key === 'strategyGroupName') {
+          const uid = d.strategyGroupUid
+          const nameText = emptyPlaceholder(v as string | undefined)
+          if (!uid) return nameText
+          return <Tooltip title={String(uid)}>{nameText}</Tooltip>
+        }
+        if (field.key === 'strategyName') {
+          const uid = d.strategyUid
+          const nameText = emptyPlaceholder(v as string | undefined)
+          if (!uid) return nameText
+          return <Tooltip title={String(uid)}>{nameText}</Tooltip>
+        }
+        if (field.key === 'levelName') {
+          const uid = d.levelUid
+          const nameText = emptyPlaceholder(v as string | undefined)
+          if (!uid) return nameText
+          return <Tooltip title={String(uid)}>{nameText}</Tooltip>
+        }
+        if (field.key === 'datasourceName') {
+          const uid = d.datasourceUid
+          const nameText = emptyPlaceholder(v as string | undefined)
+          if (!uid) return nameText
+          return <Tooltip title={String(uid)}>{nameText}</Tooltip>
+        }
+        if (field.key === 'intervenedByName') {
+          const uid = d.intervenedBy
+          const nameText = emptyPlaceholder(v as string | undefined)
+          if (!uid) return nameText
+          return <Tooltip title={String(uid)}>{nameText}</Tooltip>
+        }
+        if (field.key === 'suppressedByName') {
+          const uid = d.suppressedBy
+          const nameText = emptyPlaceholder(v as string | undefined)
+          if (!uid) return nameText
+          return <Tooltip title={String(uid)}>{nameText}</Tooltip>
+        }
+        if (field.key === 'recoveredByName') {
+          const uid = d.recoveredBy
+          const nameText = emptyPlaceholder(v as string | undefined)
+          if (!uid) return nameText
+          return <Tooltip title={String(uid)}>{nameText}</Tooltip>
+        }
+
         return emptyPlaceholder(v as string | undefined)
     }
   }

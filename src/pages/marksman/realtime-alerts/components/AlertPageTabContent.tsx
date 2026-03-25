@@ -1,4 +1,7 @@
-import type { AlertEventItem, ListRealtimeAlertParams } from '@/api/marksman/alert'
+import type {
+  AlertEventItem,
+  ListRealtimeAlertParams,
+} from '@/api/marksman/alert'
 import {
   getRealtimeAlertList,
   interveneAlert,
@@ -6,17 +9,15 @@ import {
   suppressAlert,
 } from '@/api/marksman/alert'
 import { useLocale } from '@/contexts/LocaleContext'
-import { emptyPlaceholder } from '@/utils/marksman'
+import { emptyPlaceholder, renderSummary } from '@/utils/marksman'
 import type { MenuProps } from 'antd'
 import {
-  Badge,
   Button,
   DatePicker,
   Dropdown,
   Form,
   Input,
   Modal,
-  Select,
   Space,
   Table,
   Tag,
@@ -25,12 +26,9 @@ import {
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import {
-  ALERT_STATUS_MAP,
-  defaultListParams,
-} from './realtimeAlertHelpers'
+import { defaultListParams } from './realtimeAlertHelpers'
 import { RealtimeAlertDetailModal } from './RealtimeAlertDetailModal'
-import { AlertStatus } from '@/api/common/types'
+import { useDebounceFn } from 'ahooks'
 
 /** 实时告警列表筛选表单（仅 Tab 内使用） */
 interface AlertFilterFormValues {
@@ -54,6 +52,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   const { t } = useLocale()
   const [filterForm] = Form.useForm<AlertFilterFormValues>()
   const [recoverForm] = Form.useForm<{ recoveredReason: string }>()
+  const [suppressForm] = Form.useForm<{ suppressedReason: string }>()
   const filterStatus = Form.useWatch('status', filterForm)
   const timeRange = Form.useWatch('timeRange', filterForm)
   const startAt = timeRange?.[0] ?? null
@@ -62,7 +61,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   const [dataSource, setDataSource] = useState<AlertEventItem[]>([])
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 10,
+    pageSize: 50,
     total: 0,
   })
   const paginationRef = useRef(pagination)
@@ -70,16 +69,17 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     paginationRef.current = pagination
   }, [pagination])
   const [detailModalOpen, setDetailModalOpen] = useState(false)
-  const [detailModalRecord, setDetailModalRecord] = useState<AlertEventItem | null>(
-    null,
-  )
+  const [detailModalRecord, setDetailModalRecord] =
+    useState<AlertEventItem | null>(null)
   const [suppressOpen, setSuppressOpen] = useState(false)
   const [suppressRecord, setSuppressRecord] = useState<AlertEventItem | null>(
     null,
   )
   const [suppressUntil, setSuppressUntil] = useState<dayjs.Dayjs | null>(null)
   const [recoverOpen, setRecoverOpen] = useState(false)
-  const [recoverRecord, setRecoverRecord] = useState<AlertEventItem | null>(null)
+  const [recoverRecord, setRecoverRecord] = useState<AlertEventItem | null>(
+    null,
+  )
   const [actionLoading, setActionLoading] = useState(false)
   /** 已提交给列表接口的关键字（与输入框通过「搜索」同步） */
   const [listKeyword, setListKeyword] = useState('')
@@ -139,7 +139,11 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
           setDataSource([])
         }
       } finally {
-        if (!silent && mountedRef.current && seq === fetchRequestSeqRef.current) {
+        if (
+          !silent &&
+          mountedRef.current &&
+          seq === fetchRequestSeqRef.current
+        ) {
           setLoading(false)
         }
       }
@@ -147,13 +151,53 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     [alertPageUid, filterStatus, startAt, endAt, listKeyword],
   )
 
+  // 仅在组件卸载时控制 mountedRef：不在 filter 变化时把它置为 false
   useEffect(() => {
     mountedRef.current = true
-    fetchData(undefined, undefined, { silent: false })
     return () => {
       mountedRef.current = false
     }
+  }, [])
+
+  // 防抖请求：避免用户切时间范围时短时间内触发多次列表拉取
+  const fetchDataRef = useRef(fetchData)
+  useEffect(() => {
+    fetchDataRef.current = fetchData
   }, [fetchData])
+
+  const skipNextEffectFetchRef = useRef(false)
+  const hasInitialFetchedRef = useRef(false)
+
+  const { run: debouncedFetchData, cancel: cancelDebouncedFetchData } =
+    useDebounceFn(
+    () => {
+      void fetchDataRef.current(undefined, undefined, { silent: false })
+    },
+    { wait: 300 },
+  )
+
+  // 组件卸载时取消防抖，避免卸载后仍触发 setLoading
+  useEffect(() => {
+    return () => {
+      cancelDebouncedFetchData()
+    }
+  }, [cancelDebouncedFetchData])
+
+  useEffect(() => {
+    if (!hasInitialFetchedRef.current) {
+      hasInitialFetchedRef.current = true
+      void fetchData(undefined, undefined, { silent: false })
+      return
+    }
+
+    // 点击「搜索」时会显式 fetchData；这里跳过紧随其后的 filter 变化触发
+    if (skipNextEffectFetchRef.current) {
+      skipNextEffectFetchRef.current = false
+      return
+    }
+
+    debouncedFetchData()
+  }, [fetchData, debouncedFetchData])
 
   useEffect(() => {
     if (!autoRefreshEnabled) return
@@ -194,6 +238,9 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   }, [dataSource, pagination])
 
   const handleSearch = (overrideKeyword?: string) => {
+    // 避免「已排队的防抖请求」与本次点击「搜索」立即请求重复
+    cancelDebouncedFetchData()
+    skipNextEffectFetchRef.current = true
     if (overrideKeyword !== undefined) {
       filterForm.setFieldValue('keyword', overrideKeyword)
     }
@@ -263,6 +310,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   const openSuppress = (record: AlertEventItem) => {
     setSuppressRecord(record)
     setSuppressUntil(dayjs().add(1, 'hour'))
+    suppressForm.setFieldsValue({ suppressedReason: '' })
     setSuppressOpen(true)
   }
 
@@ -270,71 +318,50 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     if (!suppressRecord?.uid || !suppressUntil) return
     setActionLoading(true)
     try {
+      const values = await suppressForm.validateFields()
       await suppressAlert(suppressRecord.uid, {
         suppressUntilUnix: String(suppressUntil.unix()),
+        suppressedReason: values.suppressedReason.trim(),
       })
       message.success(t('realtimeAlert.message.suppress.success'))
       setSuppressOpen(false)
       setSuppressRecord(null)
       setSuppressUntil(null)
+      suppressForm.resetFields()
       fetchData(pagination.current, pagination.pageSize)
     } catch (e) {
+      if (e && typeof e === 'object' && 'errorFields' in e) return
       console.error('抑制告警失败:', e)
     } finally {
       setActionLoading(false)
     }
   }
 
-  const renderStatus = (status?: AlertStatus) => {
-    if (status == null) return emptyPlaceholder(status)
-    const info = ALERT_STATUS_MAP[status] ?? {
-      key: 'table.unknown',
-      color: 'default',
-    }
-    return <Tag color={info.color}>{t(info.key)}</Tag>
+  const renderInterveneInfo = (record: AlertEventItem) => {
+    const intervenedByText = emptyPlaceholder(record.intervenedByName)
+    const intervenedAtText = record.intervenedAt
+      ? dayjs(record.intervenedAt).format('YYYY-MM-DD HH:mm:ss')
+      : '-'
+
+    return (
+      <div className='flex flex-col min-w-0'>
+        <div className='text-xs truncate'>
+          {t('realtimeAlert.table.intervenedBy')}: {intervenedByText}
+        </div>
+        <div className='text-xs truncate'>
+          {t('realtimeAlert.table.intervenedAt')}: {intervenedAtText}
+        </div>
+      </div>
+    )
   }
 
   const columns: ColumnsType<AlertEventItem> = [
     {
-      title: t('realtimeAlert.table.uid'),
-      dataIndex: 'uid',
-      key: 'uid',
-      width: 120,
-      ellipsis: true,
-      render: (v) => emptyPlaceholder(v),
-    },
-    {
-      title: t('realtimeAlert.table.levelName'),
-      dataIndex: 'levelName',
-      key: 'levelName',
-      width: rowBgColorEnabled ? 100 : 128,
-      ellipsis: true,
-      render: (_, record) => {
-        const nameText = emptyPlaceholder(record.levelName)
-        const levelColor = record.bgColor?.trim()
-        if (!rowBgColorEnabled && levelColor) {
-          return (
-            <span className='inline-flex max-w-full min-w-0 items-center gap-1'>
-              <Badge color={levelColor} size='small' className='shrink-0' />
-              <span
-                className='truncate min-w-0'
-                title={record.levelName ?? undefined}
-              >
-                {nameText}
-              </span>
-            </span>
-          )
-        }
-        return nameText
-      },
-    },
-    {
-      title: t('realtimeAlert.table.summary'),
-      dataIndex: 'summary',
-      key: 'summary',
-      width: 180,
-      ellipsis: true,
-      render: (v) => emptyPlaceholder(v),
+      title: t('realtimeAlert.table.firedAt'),
+      dataIndex: 'firedAt',
+      key: 'firedAt',
+      width: 150,
+      render: (v: string) => (v ? dayjs(v).format('YYYY-MM-DD HH:mm:ss') : '-'),
     },
     {
       title: t('realtimeAlert.table.datasourceName'),
@@ -345,12 +372,25 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       render: (v) => emptyPlaceholder(v),
     },
     {
-      title: t('realtimeAlert.table.firedAt'),
-      dataIndex: 'firedAt',
-      key: 'firedAt',
-      width: 170,
-      render: (v: string) => (v ? dayjs(v).format('YYYY-MM-DD HH:mm:ss') : '-'),
+      title: t('realtimeAlert.table.levelName'),
+      dataIndex: 'levelName',
+      key: 'levelName',
+      width: 128,
+      ellipsis: true,
+      render: (_, record) => {
+        const nameText = emptyPlaceholder(record.levelName)
+        const levelColor = record.bgColor?.trim()
+        return <Tag color={levelColor}>{nameText}</Tag>
+      },
     },
+    {
+      title: t('realtimeAlert.table.summary'),
+      dataIndex: 'summary',
+      key: 'summary',
+      ellipsis: true,
+      render: (_, record) => renderSummary(record),
+    },
+
     {
       title: t('realtimeAlert.table.duration'),
       dataIndex: 'duration',
@@ -367,11 +407,11 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       render: (v) => (v != null ? String(v) : '-'),
     },
     {
-      title: t('realtimeAlert.table.status'),
-      dataIndex: 'status',
-      key: 'status',
-      width: 90,
-      render: renderStatus,
+      title: t('realtimeAlert.table.intervenedInfo'),
+      dataIndex: 'intervenedAt',
+      key: 'intervenedAt',
+      width: 200,
+      render: (_, record) => renderInterveneInfo(record),
     },
     {
       title: t('table.action'),
@@ -463,14 +503,13 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
           layout='inline'
           initialValues={{
             keyword: '',
-            status: undefined,
-            timeRange: [
-              dayjs().subtract(7, 'day'),
-              dayjs(),
-            ],
           }}
         >
-          <Form.Item className='w-full max-w-sm' name='keyword' label={t('realtimeAlert.search.label')}>
+          <Form.Item
+            className='w-full max-w-sm'
+            name='keyword'
+            label={t('realtimeAlert.search.label')}
+          >
             <Input
               autoComplete='off'
               placeholder={t('realtimeAlert.search.placeholder')}
@@ -478,32 +517,6 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
               onPressEnter={(e) =>
                 handleSearch((e.target as HTMLInputElement)?.value)
               }
-            />
-          </Form.Item>
-          <Form.Item
-            className='min-w-[200px]'
-            label={t('realtimeAlert.filter.status')}
-            name='status'
-          >
-            <Select
-              className='w-full'
-              allowClear
-              placeholder={t('realtimeAlert.filter.status.all')}
-              options={[
-                {
-                  label: t('realtimeAlert.filter.status.unknown'),
-                  value: 0,
-                },
-                { label: t('realtimeAlert.filter.status.firing'), value: 1 },
-                {
-                  label: t('realtimeAlert.filter.status.recovered'),
-                  value: 2,
-                },
-                {
-                  label: t('realtimeAlert.filter.status.recoveredByManual'),
-                  value: 3,
-                },
-              ]}
             />
           </Form.Item>
           <Form.Item
@@ -624,21 +637,41 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
           setSuppressOpen(false)
           setSuppressRecord(null)
           setSuppressUntil(null)
+          suppressForm.resetFields()
         }}
         confirmLoading={actionLoading}
         okText={t('common.ok')}
         cancelText={t('common.cancel')}
       >
-        <Space direction='vertical' style={{ width: '100%' }}>
-          <span>{t('realtimeAlert.modal.suppress.until')}:</span>
-          <DatePicker
-            showTime
-            value={suppressUntil}
-            onChange={(v) => setSuppressUntil(v)}
-            format='YYYY-MM-DD HH:mm:ss'
-            className='w-full'
-          />
-        </Space>
+        <Form form={suppressForm} layout='vertical' preserve={false}>
+          <Form.Item
+            name='suppressedReason'
+            label={t('realtimeAlert.modal.suppress.reason')}
+            rules={[
+              {
+                required: true,
+                whitespace: true,
+                message: t('realtimeAlert.modal.suppress.reason.required'),
+              },
+            ]}
+          >
+            <Input.TextArea
+              autoSize={{ minRows: 3, maxRows: 6 }}
+              maxLength={500}
+              showCount
+              placeholder={t('realtimeAlert.modal.suppress.reason.placeholder')}
+            />
+          </Form.Item>
+          <Form.Item label={t('realtimeAlert.modal.suppress.until')}>
+            <DatePicker
+              showTime
+              value={suppressUntil}
+              onChange={(v) => setSuppressUntil(v)}
+              format='YYYY-MM-DD HH:mm:ss'
+              className='w-full'
+            />
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   )

@@ -33,6 +33,8 @@ export const zhCN = {
   'realtimeAlert.table.value': '数值',
   'realtimeAlert.table.status': '状态',
   'realtimeAlert.table.intervenedAt': '介入时间',
+  'realtimeAlert.table.intervenedBy': '介入人',
+  'realtimeAlert.table.intervenedInfo': '介入信息',
   'realtimeAlert.table.recoveredAt': '恢复时间',
   'realtimeAlert.table.suppressedUntil': '抑制至',
 
@@ -72,6 +74,9 @@ export const zhCN = {
   'realtimeAlert.modal.recover.reason.required': '请输入恢复原因',
   'realtimeAlert.modal.suppress.title': '抑制告警',
   'realtimeAlert.modal.suppress.until': '抑制截止时间',
+  'realtimeAlert.modal.suppress.reason': '抑制原因',
+  'realtimeAlert.modal.suppress.reason.placeholder': '请输入抑制原因',
+  'realtimeAlert.modal.suppress.reason.required': '请输入抑制原因',
 
   'realtimeAlert.message.selectAlertPage': '请先选择告警页',
   'realtimeAlert.message.noAlertPages': '暂无告警页，请先创建告警页',
@@ -157,6 +162,8 @@ export const enUS = {
   'realtimeAlert.table.value': 'Value',
   'realtimeAlert.table.status': 'Status',
   'realtimeAlert.table.intervenedAt': 'Intervened At',
+  'realtimeAlert.table.intervenedBy': 'Intervened By',
+  'realtimeAlert.table.intervenedInfo': 'Intervention Info',
   'realtimeAlert.table.recoveredAt': 'Recovered At',
   'realtimeAlert.table.suppressedUntil': 'Suppressed Until',
 
@@ -197,6 +204,9 @@ export const enUS = {
   'realtimeAlert.modal.recover.reason.required': 'Please enter recovery reason',
   'realtimeAlert.modal.suppress.title': 'Suppress Alert',
   'realtimeAlert.modal.suppress.until': 'Suppress Until',
+  'realtimeAlert.modal.suppress.reason': 'Suppression Reason',
+  'realtimeAlert.modal.suppress.reason.placeholder': 'Please enter suppression reason',
+  'realtimeAlert.modal.suppress.reason.required': 'Please enter suppression reason',
 
   'realtimeAlert.message.selectAlertPage': 'Please select an alert page first',
   'realtimeAlert.message.noAlertPages': 'No alert pages. Create one first.',
