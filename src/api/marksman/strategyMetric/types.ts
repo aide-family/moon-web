@@ -21,7 +21,7 @@ export interface StrategyMetricLevelItem {
   condition?: ConditionMetric
   /** 格式如 -?(\d+)(\.\d{1,9})?s */
   duration?: string
-  status?: number
+  status?: GlobalStatus
   values?: number[]
 }
 
@@ -57,7 +57,7 @@ export interface SaveStrategyMetricLevelParams {
   condition?: ConditionMetric
   /** 格式如 1s、0.5s，正则：^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$ */
   duration?: string
-  status?: number
+  status?: GlobalStatus
   values?: number[]
 }
 

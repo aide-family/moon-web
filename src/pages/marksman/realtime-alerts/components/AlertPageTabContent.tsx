@@ -749,7 +749,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
         confirmLoading={interveneMemberSaving}
         okText={t('common.ok')}
         cancelText={t('common.cancel')}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={interveneMemberForm} layout='vertical' preserve={false}>
           <Form.Item

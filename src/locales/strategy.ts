@@ -83,7 +83,7 @@ export const zhCN = {
   'strategy.alertLevel.duration.pattern': '格式需为数字+s，如 1s、0.5s',
   'strategy.alertLevel.status.placeholder': '请输入状态',
   'strategy.alertLevel.values': '阈值/数值',
-  'strategy.alertLevel.values.placeholder': '逗号分隔的数字，如 1, 2, 3',
+  'strategy.alertLevel.values.placeholder': '请输入阈值/数值',
   'strategy.alertLevel.values.rangeMin': '下限',
   'strategy.alertLevel.values.rangeMax': '上限',
   'strategy.alertLevel.confirm.status.title': '确定要{action}该告警等级吗？',
@@ -191,8 +191,7 @@ export const enUS = {
   'strategy.alertLevel.duration.pattern': 'Format: number + s, e.g. 1s, 0.5s',
   'strategy.alertLevel.status.placeholder': 'Enter status',
   'strategy.alertLevel.values': 'Values / Threshold',
-  'strategy.alertLevel.values.placeholder':
-    'Comma-separated numbers, e.g. 1, 2, 3',
+  'strategy.alertLevel.values.placeholder': 'Enter values / threshold',
   'strategy.alertLevel.values.rangeMin': 'Min',
   'strategy.alertLevel.values.rangeMax': 'Max',
   'strategy.alertLevel.confirm.status.title':

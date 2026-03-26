@@ -1,10 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { App, Button, Dropdown, Input, Radio, Space, Table, message } from 'antd'
+import {
+  App,
+  Button,
+  Dropdown,
+  Input,
+  Radio,
+  Space,
+  Table,
+  message,
+} from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
 import dayjs from 'dayjs'
-import type { StrategyGroupItem, StrategyGroupListParams } from '@/api/marksman/strategyGroup'
+import type {
+  StrategyGroupItem,
+  StrategyGroupListParams,
+} from '@/api/marksman/strategyGroup'
 import {
   deleteStrategyGroup,
   getStrategyGroupDetail,
@@ -24,7 +36,9 @@ const defaultSearchParams: StrategyGroupListParams = {
   status: undefined,
 }
 
-function parseSearchParamsFromUrl(params: URLSearchParams): StrategyGroupListParams {
+function parseSearchParamsFromUrl(
+  params: URLSearchParams,
+): StrategyGroupListParams {
   const statusParam = getParam(params, 'status')
   const status =
     statusParam === GlobalStatus.ENABLED
@@ -44,13 +58,19 @@ export const StrategyGroupList: React.FC = () => {
   const [urlSearchParams, setUrlSearchParams] = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [dataSource, setDataSource] = useState<StrategyGroupItem[]>([])
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 })
-  const [searchParams, setSearchParams] = useState<StrategyGroupListParams>(() =>
-    parseSearchParamsFromUrl(urlSearchParams)
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 50,
+    total: 0,
+  })
+  const [searchParams, setSearchParams] = useState<StrategyGroupListParams>(
+    () => parseSearchParamsFromUrl(urlSearchParams),
   )
 
   const [detailFormOpen, setDetailFormOpen] = useState(false)
-  const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>('create')
+  const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>(
+    'create',
+  )
   const [editingData, setEditingData] = useState<StrategyGroupItem | null>(null)
 
   const [detailViewOpen, setDetailViewOpen] = useState(false)
@@ -70,7 +90,9 @@ export const StrategyGroupList: React.FC = () => {
     try {
       const currentPage = page ?? pagination.current
       const currentPageSize = pageSize ?? pagination.pageSize
-      const effective = override ? { ...searchParams, ...override } : searchParams
+      const effective = override
+        ? { ...searchParams, ...override }
+        : searchParams
       const params: StrategyGroupListParams = {
         page: currentPage,
         pageSize: currentPageSize,
@@ -101,7 +123,7 @@ export const StrategyGroupList: React.FC = () => {
   const handleReset = () => {
     setSearchParams(defaultSearchParams)
     setUrlSearchParams({})
-    setPagination({ current: 1, pageSize: 10, total: 0 })
+    setPagination({ current: 1, pageSize: 50, total: 0 })
     fetchData()
   }
 
@@ -150,7 +172,8 @@ export const StrategyGroupList: React.FC = () => {
       await deleteStrategyGroup(record.uid)
       message.success(t('message.delete.success'))
       fetchData()
-      if (detailViewOpen && viewingData?.uid === record.uid) setDetailViewOpen(false)
+      if (detailViewOpen && viewingData?.uid === record.uid)
+        setDetailViewOpen(false)
     } catch (error) {
       console.error('删除失败:', error)
     }
@@ -177,7 +200,9 @@ export const StrategyGroupList: React.FC = () => {
     setDetailFormOpen(false)
     fetchData()
     if (detailViewOpen && viewingData?.uid) {
-      getStrategyGroupDetail(viewingData.uid).then(setViewingData).catch(() => {})
+      getStrategyGroupDetail(viewingData.uid)
+        .then(setViewingData)
+        .catch(() => {})
     }
   }
 
@@ -198,7 +223,7 @@ export const StrategyGroupList: React.FC = () => {
       render: (v) => emptyPlaceholder(v),
     },
     {
-      title: t('table.status'),
+      title: t('strategyGroup.table.status'),
       dataIndex: 'status',
       key: 'status',
       width: 100,
@@ -234,7 +259,9 @@ export const StrategyGroupList: React.FC = () => {
       align: 'center',
       render: (_, record) => {
         const isEnabled = record.status === GlobalStatus.ENABLED
-        const action = isEnabled ? t(`common.status.${GlobalStatus.DISABLED}`) : t(`common.status.${GlobalStatus.ENABLED}`)
+        const action = isEnabled
+          ? t(`common.status.${GlobalStatus.DISABLED}`)
+          : t(`common.status.${GlobalStatus.ENABLED}`)
 
         const handleStatusClick = () => {
           modal.confirm({
@@ -246,7 +273,7 @@ export const StrategyGroupList: React.FC = () => {
             onOk: () =>
               handleStatusChange(
                 record,
-                isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED
+                isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED,
               ),
             okText: t('common.ok'),
             cancelText: t('common.cancel'),
@@ -283,12 +310,16 @@ export const StrategyGroupList: React.FC = () => {
         ]
 
         return (
-          <Space size="small">
-            <Button type="link" size="small" onClick={() => handleViewDetail(record)}>
+          <Space size='small'>
+            <Button
+              type='link'
+              size='small'
+              onClick={() => handleViewDetail(record)}
+            >
               {t('common.detail')}
             </Button>
             <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-              <Button type="link" size="small">
+              <Button type='link' size='small'>
                 {t('common.more')}
               </Button>
             </Dropdown>
@@ -312,7 +343,7 @@ export const StrategyGroupList: React.FC = () => {
         keyword: searchParams.keyword,
         status: searchParams.status,
       },
-      { replace: true }
+      { replace: true },
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.keyword, searchParams.status])
@@ -326,13 +357,19 @@ export const StrategyGroupList: React.FC = () => {
     const updateTableHeight = () => {
       if (tableContainerRef.current && tableWrapperRef.current) {
         const containerHeight = tableContainerRef.current.clientHeight
-        const theadEl = tableWrapperRef.current.querySelector('.ant-table-thead')
-        const paginationEl = tableWrapperRef.current.querySelector('.ant-pagination')
-        const theadHeight = theadEl ? (theadEl as HTMLElement).getBoundingClientRect().height : 0
+        const theadEl =
+          tableWrapperRef.current.querySelector('.ant-table-thead')
+        const paginationEl =
+          tableWrapperRef.current.querySelector('.ant-pagination')
+        const theadHeight = theadEl
+          ? (theadEl as HTMLElement).getBoundingClientRect().height
+          : 0
         const paginationHeight = paginationEl
           ? (paginationEl as HTMLElement).getBoundingClientRect().height + 16
           : 0
-        setTableHeight(Math.max(containerHeight - theadHeight - paginationHeight - 24, 100))
+        setTableHeight(
+          Math.max(containerHeight - theadHeight - paginationHeight - 24, 100),
+        )
       }
     }
     const timer = setTimeout(updateTableHeight, 100)
@@ -344,14 +381,14 @@ export const StrategyGroupList: React.FC = () => {
   }, [dataSource, pagination])
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between mb-4 shrink-0">
-        <Space size="middle" wrap>
+    <div className='h-full flex flex-col'>
+      <div className='flex items-center justify-between mb-4 shrink-0'>
+        <Space size='middle' wrap>
           <span>{t('table.search.keyword')}:</span>
           <Input
             placeholder={t('table.search.placeholder')}
             allowClear
-            className="w-full min-w-[120px] sm:w-48 md:w-52"
+            className='w-full min-w-[120px] sm:w-48 md:w-52'
             value={searchParams.keyword ?? ''}
             onChange={(e) =>
               setSearchParams((prev) => ({ ...prev, keyword: e.target.value }))
@@ -367,9 +404,11 @@ export const StrategyGroupList: React.FC = () => {
               setSearchParams((prev) => ({ ...prev, status: e.target.value }))
               setPagination((prev) => ({ ...prev, current: 1 }))
             }}
-            buttonStyle="solid"
+            buttonStyle='solid'
           >
-            <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
+            <Radio.Button value={undefined}>
+              {t('table.search.all')}
+            </Radio.Button>
             <Radio.Button value={GlobalStatus.ENABLED}>
               {t(`common.status.${GlobalStatus.ENABLED}`)}
             </Radio.Button>
@@ -377,13 +416,13 @@ export const StrategyGroupList: React.FC = () => {
               {t(`common.status.${GlobalStatus.DISABLED}`)}
             </Radio.Button>
           </Radio.Group>
-          <Button onClick={() => handleSearch()} type="primary">
+          <Button onClick={() => handleSearch()} type='primary'>
             {t('common.search')}
           </Button>
           <Button onClick={handleReset}>{t('common.reset')}</Button>
         </Space>
         <Space>
-          <Button type="primary" onClick={handleAdd}>
+          <Button type='primary' onClick={handleAdd}>
             {t('common.add')}
           </Button>
         </Space>
@@ -391,16 +430,16 @@ export const StrategyGroupList: React.FC = () => {
 
       <div
         ref={tableContainerRef}
-        className="flex-1 flex overflow-hidden flex-col"
+        className='flex-1 flex overflow-hidden flex-col'
         style={{ minHeight: 0 }}
       >
-        <div ref={tableWrapperRef} className="h-full flex flex-col flex-1">
+        <div ref={tableWrapperRef} className='h-full flex flex-col flex-1'>
           <Table
             columns={columns}
             dataSource={dataSource}
-            rowKey="uid"
+            rowKey='uid'
             loading={loading}
-            size="small"
+            size='small'
             scroll={{ y: tableHeight, x: '100%' }}
             pagination={{
               current: pagination.current,
@@ -436,7 +475,7 @@ export const StrategyGroupList: React.FC = () => {
 
 export default function StrategyGroupListWrapper() {
   return (
-    <App className="h-full">
+    <App className='h-full'>
       <PageContent>
         <StrategyGroupList />
       </PageContent>

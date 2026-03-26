@@ -14,19 +14,12 @@ interface AlertLevelModalProps {
   onSuccess: () => void
 }
 
-/** 将逗号分隔的字符串解析为 number[]，过滤非法值 */
-function parseValuesString(str: string | undefined): number[] | undefined {
-  if (str == null || String(str).trim() === '') return undefined
-  const parts = String(str).split(/[,，\s]+/).map((s) => s.trim()).filter(Boolean)
-  const nums: number[] = []
-  for (const p of parts) {
-    const n = Number(p)
-    if (Number.isFinite(n)) nums.push(n)
-  }
-  return nums.length > 0 ? nums : undefined
-}
-
-const AlertLevelModal: React.FC<AlertLevelModalProps> = ({ open, strategyUID, onCancel, onSuccess }) => {
+const AlertLevelModal: React.FC<AlertLevelModalProps> = ({
+  open,
+  strategyUID,
+  onCancel,
+  onSuccess,
+}) => {
   const { t } = useLocale()
   const [form] = Form.useForm()
   const [saving, setSaving] = useState(false)
@@ -53,8 +46,8 @@ const AlertLevelModal: React.FC<AlertLevelModalProps> = ({ open, strategyUID, on
             ? (values.condition as ConditionMetric)
             : undefined,
         duration: values.duration?.trim() || undefined,
-        status: values.status != null && values.status !== '' ? Number(values.status) : undefined,
-        values: parseValuesString(values.values),
+        status: values.status,
+        values: values.values,
       }
       setSaving(true)
       await saveStrategyMetricLevel(strategyUID, params)
@@ -85,30 +78,36 @@ const AlertLevelModal: React.FC<AlertLevelModalProps> = ({ open, strategyUID, on
       destroyOnHidden
       width={520}
     >
-      <Form form={form} layout="vertical" className="mt-4">
-        <Form.Item name="levelUID" label={t('strategy.detail.level')}>
+      <Form form={form} layout='vertical' className='mt-4'>
+        <Form.Item name='levelUID' label={t('strategy.detail.level')}>
           <Input placeholder={t('strategy.alertLevel.levelUID.placeholder')} />
         </Form.Item>
-        <Form.Item name="mode" label={t('strategy.detail.mode')}>
+        <Form.Item name='mode' label={t('strategy.detail.mode')}>
           <Select
             placeholder={t('strategy.alertLevel.mode.placeholder')}
             allowClear
             options={Object.values(SampleMode)
               .filter((m) => m !== SampleMode.SAMPLE_MODE_UNKNOWN)
-              .map((value) => ({ value, label: t(`strategy.sampleMode.${value}`) }))}
+              .map((value) => ({
+                value,
+                label: t(`strategy.sampleMode.${value}`),
+              }))}
           />
         </Form.Item>
-        <Form.Item name="condition" label={t('strategy.detail.condition')}>
+        <Form.Item name='condition' label={t('strategy.detail.condition')}>
           <Select
             placeholder={t('strategy.alertLevel.condition.placeholder')}
             allowClear
             options={Object.values(ConditionMetric)
               .filter((c) => c !== ConditionMetric.CONDITION_METRIC_UNKNOWN)
-              .map((value) => ({ value, label: t(`strategy.conditionMetric.${value}`) }))}
+              .map((value) => ({
+                value,
+                label: t(`strategy.conditionMetric.${value}`),
+              }))}
           />
         </Form.Item>
         <Form.Item
-          name="duration"
+          name='duration'
           label={t('strategy.detail.duration')}
           rules={[
             {
@@ -119,10 +118,13 @@ const AlertLevelModal: React.FC<AlertLevelModalProps> = ({ open, strategyUID, on
         >
           <Input placeholder={t('strategy.alertLevel.duration.placeholder')} />
         </Form.Item>
-        <Form.Item name="status" label={t('strategy.detail.status')}>
-          <Input type="number" placeholder={t('strategy.alertLevel.status.placeholder')} />
+        <Form.Item name='status' label={t('strategy.detail.status')}>
+          <Input
+            type='number'
+            placeholder={t('strategy.alertLevel.status.placeholder')}
+          />
         </Form.Item>
-        <Form.Item name="values" label={t('strategy.alertLevel.values')}>
+        <Form.Item name='values' label={t('strategy.alertLevel.values')}>
           <Input.TextArea
             rows={2}
             placeholder={t('strategy.alertLevel.values.placeholder')}

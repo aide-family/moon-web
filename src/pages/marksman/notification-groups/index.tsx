@@ -36,7 +36,11 @@ import {
   type UpdateNotificationGroupParams,
   type NotificationMemberItem,
 } from '@/api/marksman/notificationGroup'
-import { selectMembers, type SelectMemberItem, type SelectMembersParams } from '@/api/account/member'
+import {
+  selectMembers,
+  type SelectMemberItem,
+  type SelectMembersParams,
+} from '@/api/account/member'
 import { emptyPlaceholder, renderStatusTag } from '@/utils/marksman'
 
 const defaultSearchParams: NotificationGroupListParams = {
@@ -44,14 +48,18 @@ const defaultSearchParams: NotificationGroupListParams = {
   status: undefined,
 }
 
-const parseMetadata = (
-  raw: unknown,
-): Record<string, string> | undefined => {
+const parseMetadata = (raw: unknown): Record<string, string> | undefined => {
   const text = raw != null ? String(raw).trim() : ''
   if (!text) return undefined
   const parsed = JSON.parse(text) as unknown
-  if (typeof parsed !== 'object' || parsed == null || Array.isArray(parsed)) return undefined
-  return Object.fromEntries(Object.entries(parsed as Record<string, unknown>).map(([k, v]) => [k, String(v)]))
+  if (typeof parsed !== 'object' || parsed == null || Array.isArray(parsed))
+    return undefined
+  return Object.fromEntries(
+    Object.entries(parsed as Record<string, unknown>).map(([k, v]) => [
+      k,
+      String(v),
+    ]),
+  )
 }
 
 interface NotificationMemberTableRow extends NotificationMemberItem {
@@ -76,7 +84,9 @@ const NotificationGroupDetailModal: React.FC<{
       form.setFieldsValue({
         name: initialData?.name ?? '',
         remark: initialData?.remark ?? '',
-        metadata: initialData?.metadata ? JSON.stringify(initialData.metadata, null, 2) : '',
+        metadata: initialData?.metadata
+          ? JSON.stringify(initialData.metadata, null, 2)
+          : '',
       })
     } else {
       form.resetFields()
@@ -135,7 +145,11 @@ const NotificationGroupDetailModal: React.FC<{
 
   return (
     <Modal
-      title={mode === 'create' ? t('notificationGroup.modal.create.title') : t('notificationGroup.modal.edit.title')}
+      title={
+        mode === 'create'
+          ? t('notificationGroup.modal.create.title')
+          : t('notificationGroup.modal.edit.title')
+      }
       open={open}
       onOk={handleSubmit}
       onCancel={() => {
@@ -147,19 +161,40 @@ const NotificationGroupDetailModal: React.FC<{
       confirmLoading={submitting || loading}
       okText={t('common.submit')}
     >
-      <Form form={form} layout="vertical" preserve={false}>
+      <Form form={form} layout='vertical' preserve={false}>
         <Form.Item
-          name="name"
+          name='name'
           label={t('notificationGroup.form.name.label')}
-          rules={[{ required: true, message: t('notificationGroup.form.name.placeholder') }]}
+          rules={[
+            {
+              required: true,
+              message: t('notificationGroup.form.name.placeholder'),
+            },
+          ]}
         >
-          <Input placeholder={t('notificationGroup.form.name.placeholder')} allowClear />
+          <Input
+            placeholder={t('notificationGroup.form.name.placeholder')}
+            allowClear
+          />
         </Form.Item>
-        <Form.Item name="remark" label={t('notificationGroup.form.remark.label')}>
-          <Input.TextArea rows={2} placeholder={t('notificationGroup.form.remark.placeholder')} allowClear />
+        <Form.Item
+          name='remark'
+          label={t('notificationGroup.form.remark.label')}
+        >
+          <Input.TextArea
+            rows={2}
+            placeholder={t('notificationGroup.form.remark.placeholder')}
+            allowClear
+          />
         </Form.Item>
-        <Form.Item name="metadata" label={t('notificationGroup.form.metadata.label')}>
-          <Input.TextArea rows={4} placeholder={t('notificationGroup.form.metadata.placeholder')} />
+        <Form.Item
+          name='metadata'
+          label={t('notificationGroup.form.metadata.label')}
+        >
+          <Input.TextArea
+            rows={4}
+            placeholder={t('notificationGroup.form.metadata.placeholder')}
+          />
         </Form.Item>
       </Form>
     </Modal>
@@ -223,7 +258,9 @@ const NotificationMemberSelectModal: React.FC<{
       const isPhone = Boolean(values.isPhone)
       if (!memberUid) return
       if (!isEmail && !isPhone) {
-        message.warning(t('notificationGroup.memberModal.validation.atLeastOneChannel'))
+        message.warning(
+          t('notificationGroup.memberModal.validation.atLeastOneChannel'),
+        )
         return
       }
       if (existingMemberUids.has(memberUid)) {
@@ -252,16 +289,30 @@ const NotificationMemberSelectModal: React.FC<{
       okText={t('common.ok')}
       cancelText={t('common.cancel')}
     >
-      <Form form={form} layout="vertical" preserve={false} initialValues={{ isEmail: false, isPhone: false }}>
+      <Form
+        form={form}
+        layout='vertical'
+        preserve={false}
+        initialValues={{ isEmail: false, isPhone: false }}
+      >
         <Form.Item
-          name="memberUid"
+          name='memberUid'
           label={t('notificationGroup.memberModal.form.memberUid.label')}
-          rules={[{ required: true, message: t('notificationGroup.memberModal.validation.memberRequired') }]}
+          rules={[
+            {
+              required: true,
+              message: t(
+                'notificationGroup.memberModal.validation.memberRequired',
+              ),
+            },
+          ]}
         >
           <Select
             showSearch
             allowClear
-            placeholder={t('notificationGroup.memberModal.form.memberUid.placeholder')}
+            placeholder={t(
+              'notificationGroup.memberModal.form.memberUid.placeholder',
+            )}
             filterOption={false}
             loading={optionsLoading}
             options={options
@@ -277,16 +328,16 @@ const NotificationMemberSelectModal: React.FC<{
         </Form.Item>
 
         <Form.Item
-          name="isEmail"
-          valuePropName="checked"
+          name='isEmail'
+          valuePropName='checked'
           label={t('notificationGroup.memberModal.form.isEmail')}
         >
           <Checkbox />
         </Form.Item>
 
         <Form.Item
-          name="isPhone"
-          valuePropName="checked"
+          name='isPhone'
+          valuePropName='checked'
           label={t('notificationGroup.memberModal.form.isPhone')}
         >
           <Checkbox />
@@ -341,7 +392,13 @@ const NotificationMemberSubscriptionTable: React.FC<{
       fixed: 'right',
       align: 'center',
       render: (_, record) => (
-        <Button type="link" danger size="small" onClick={() => onRemove(record.memberUid ?? '')} disabled={!record.memberUid}>
+        <Button
+          type='link'
+          danger
+          size='small'
+          onClick={() => onRemove(record.memberUid ?? '')}
+          disabled={!record.memberUid}
+        >
           {t('common.delete')}
         </Button>
       ),
@@ -350,8 +407,8 @@ const NotificationMemberSubscriptionTable: React.FC<{
 
   return (
     <Table
-      rowKey="uid"
-      size="small"
+      rowKey='uid'
+      size='small'
       columns={columns}
       dataSource={data}
       pagination={false}
@@ -366,12 +423,19 @@ const NotificationGroupPage: React.FC = () => {
 
   const [loading, setLoading] = useState(false)
   const [dataSource, setDataSource] = useState<NotificationGroupItem[]>([])
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 })
-  const [searchParams, setSearchParams] = useState<NotificationGroupListParams>(defaultSearchParams)
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 50,
+    total: 0,
+  })
+  const [searchParams, setSearchParams] =
+    useState<NotificationGroupListParams>(defaultSearchParams)
 
   const [selectedUid, setSelectedUid] = useState<string | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
-  const [detailData, setDetailData] = useState<NotificationGroupItem | null>(null)
+  const [detailData, setDetailData] = useState<NotificationGroupItem | null>(
+    null,
+  )
   const [detailViewOpen, setDetailViewOpen] = useState(false)
   const [subscriptionViewOpen, setSubscriptionViewOpen] = useState(false)
 
@@ -382,12 +446,18 @@ const NotificationGroupPage: React.FC = () => {
   const cancelledRef = useRef(false)
 
   const fetchList = useCallback(
-    async (page?: number, pageSize?: number, override?: Partial<NotificationGroupListParams>) => {
+    async (
+      page?: number,
+      pageSize?: number,
+      override?: Partial<NotificationGroupListParams>,
+    ) => {
       setLoading(true)
       try {
         const currentPage = page ?? pagination.current
         const currentPageSize = pageSize ?? pagination.pageSize
-        const effective = override ? { ...searchParams, ...override } : searchParams
+        const effective = override
+          ? { ...searchParams, ...override }
+          : searchParams
 
         const params: NotificationGroupListParams = {
           page: currentPage,
@@ -409,7 +479,6 @@ const NotificationGroupPage: React.FC = () => {
           pageSize: currentPageSize,
           total,
         }))
-
       } catch (e) {
         if (cancelledRef.current) return
         console.error('获取通知组列表失败:', e)
@@ -417,7 +486,7 @@ const NotificationGroupPage: React.FC = () => {
         if (!cancelledRef.current) setLoading(false)
       }
     },
-    [pagination.current, pagination.pageSize, searchParams, selectedUid],
+    [pagination, searchParams],
   )
 
   const fetchDetail = useCallback(async (uid: string) => {
@@ -463,7 +532,7 @@ const NotificationGroupPage: React.FC = () => {
 
   const handleReset = () => {
     setSearchParams(defaultSearchParams)
-    setPagination({ current: 1, pageSize: 10, total: 0 })
+    setPagination({ current: 1, pageSize: 50, total: 0 })
     fetchList(1, 10, defaultSearchParams)
   }
 
@@ -478,36 +547,50 @@ const NotificationGroupPage: React.FC = () => {
     setSubscriptionViewOpen(false)
   }
 
-  const handleStatusChange = async (record: NotificationGroupItem, newStatus: GlobalStatus) => {
-    if (!record.uid) return
-    try {
-      await updateNotificationGroupStatus({ uid: record.uid, status: newStatus })
-      message.success(t('message.update.success'))
-      if (selectedUid === record.uid) setDetailData((prev) => (prev ? { ...prev, status: newStatus } : prev))
-      fetchList(pagination.current, pagination.pageSize)
-    } catch (e) {
-      console.error('修改状态失败:', e)
-    }
-  }
-
-  const handleDelete = async (record: NotificationGroupItem) => {
-    if (!record.uid) return
-    try {
-      await deleteNotificationGroup(record.uid)
-      message.success(t('message.delete.success'))
-      if (selectedUid === record.uid) {
-        setSelectedUid(null)
-        setDetailData(null)
+  const handleStatusChange = useCallback(
+    async (record: NotificationGroupItem, newStatus: GlobalStatus) => {
+      if (!record.uid) return
+      try {
+        await updateNotificationGroupStatus({
+          uid: record.uid,
+          status: newStatus,
+        })
+        message.success(t('message.update.success'))
+        if (selectedUid === record.uid)
+          setDetailData((prev) =>
+            prev ? { ...prev, status: newStatus } : prev,
+          )
+        fetchList(pagination.current, pagination.pageSize)
+      } catch (e) {
+        console.error('修改状态失败:', e)
       }
-      fetchList(1, pagination.pageSize)
-    } catch (e) {
-      console.error('删除失败:', e)
-    }
-  }
+    },
+    [fetchList, pagination, selectedUid, t],
+  )
+
+  const handleDelete = useCallback(
+    async (record: NotificationGroupItem) => {
+      if (!record.uid) return
+      try {
+        await deleteNotificationGroup(record.uid)
+        message.success(t('message.delete.success'))
+        if (selectedUid === record.uid) {
+          setSelectedUid(null)
+          setDetailData(null)
+        }
+        fetchList(1, pagination.pageSize)
+      } catch (e) {
+        console.error('删除失败:', e)
+      }
+    },
+    [fetchList, pagination, selectedUid, t],
+  )
 
   const [upsertOpen, setUpsertOpen] = useState(false)
   const [upsertMode, setUpsertMode] = useState<'create' | 'edit'>('create')
-  const [upsertData, setUpsertData] = useState<NotificationGroupItem | null>(null)
+  const [upsertData, setUpsertData] = useState<NotificationGroupItem | null>(
+    null,
+  )
   const [upsertLoading, setUpsertLoading] = useState(false)
 
   const openCreateModal = () => {
@@ -537,7 +620,11 @@ const NotificationGroupPage: React.FC = () => {
     fetchList(pagination.current, pagination.pageSize)
   }
 
-  const existingMemberUids = useMemo(() => new Set(draftMembers.map((m) => m.memberUid).filter(Boolean) as string[]), [draftMembers])
+  const existingMemberUids = useMemo(
+    () =>
+      new Set(draftMembers.map((m) => m.memberUid).filter(Boolean) as string[]),
+    [draftMembers],
+  )
 
   const handleRemoveMember = (memberUid: string) => {
     setDraftMembers((prev) => prev.filter((m) => m.memberUid !== memberUid))
@@ -545,7 +632,8 @@ const NotificationGroupPage: React.FC = () => {
 
   const handleAddMemberConfirm = (item: NotificationMemberItem) => {
     setDraftMembers((prev) => {
-      if (item.memberUid && prev.some((m) => m.memberUid === item.memberUid)) return prev
+      if (item.memberUid && prev.some((m) => m.memberUid === item.memberUid))
+        return prev
       return [...prev, item]
     })
   }
@@ -615,14 +703,16 @@ const NotificationGroupPage: React.FC = () => {
         dataIndex: 'createdAt',
         key: 'createdAt',
         width: 170,
-        render: (v: string) => (v ? dayjs(v).format('YYYY-MM-DD HH:mm:ss') : '-'),
+        render: (v: string) =>
+          v ? dayjs(v).format('YYYY-MM-DD HH:mm:ss') : '-',
       },
       {
         title: t('notificationGroup.table.updatedAt'),
         dataIndex: 'updatedAt',
         key: 'updatedAt',
         width: 170,
-        render: (v: string) => (v ? dayjs(v).format('YYYY-MM-DD HH:mm:ss') : '-'),
+        render: (v: string) =>
+          v ? dayjs(v).format('YYYY-MM-DD HH:mm:ss') : '-',
       },
       {
         title: t('table.action'),
@@ -632,7 +722,9 @@ const NotificationGroupPage: React.FC = () => {
         align: 'center',
         render: (_, record) => {
           const isEnabled = record.status === GlobalStatus.ENABLED
-          const action = isEnabled ? t(`common.status.${GlobalStatus.DISABLED}`) : t(`common.status.${GlobalStatus.ENABLED}`)
+          const action = isEnabled
+            ? t(`common.status.${GlobalStatus.DISABLED}`)
+            : t(`common.status.${GlobalStatus.ENABLED}`)
           const menuItems: MenuProps['items'] = [
             {
               key: 'detail',
@@ -673,7 +765,11 @@ const NotificationGroupPage: React.FC = () => {
                   }),
                   okText: t('common.ok'),
                   cancelText: t('common.cancel'),
-                  onOk: () => handleStatusChange(record, isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED),
+                  onOk: () =>
+                    handleStatusChange(
+                      record,
+                      isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED,
+                    ),
                 }),
             },
             {
@@ -695,12 +791,17 @@ const NotificationGroupPage: React.FC = () => {
           ]
 
           return (
-            <Space size="small">
-              <Button type="link" size="small" onClick={() => handleSelectGroup(record)} disabled={!record.uid}>
+            <Space size='small'>
+              <Button
+                type='link'
+                size='small'
+                onClick={() => handleSelectGroup(record)}
+                disabled={!record.uid}
+              >
                 {t('common.detail')}
               </Button>
               <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-                <Button type="link" size="small">
+                <Button type='link' size='small'>
                   {t('common.more')}
                 </Button>
               </Dropdown>
@@ -709,42 +810,64 @@ const NotificationGroupPage: React.FC = () => {
         },
       },
     ],
-    [modal, pagination.current, pagination.pageSize, t, upsertData],
+    [handleDelete, handleStatusChange, modal, t],
   )
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex-1 min-h-0">
-        <PageContent className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-4 shrink-0">
-            <Space size="middle" wrap>
+    <div className='h-full flex flex-col'>
+      <div className='flex-1 min-h-0'>
+        <PageContent className='flex-1 min-w-0'>
+          <div className='flex items-center justify-between mb-4 shrink-0'>
+            <Space size='middle' wrap>
               <span>{t('table.search.keyword')}:</span>
               <Input
                 placeholder={t('table.search.placeholder')}
                 allowClear
-                className="w-full min-w-[120px] sm:w-48 md:w-52"
+                className='w-full min-w-[120px] sm:w-48 md:w-52'
                 value={searchParams.keyword ?? ''}
-                onChange={(e) => setSearchParams((prev) => ({ ...prev, keyword: e.target.value }))}
-                onPressEnter={(e) => handleSearch({ keyword: (e.target as HTMLInputElement).value })}
+                onChange={(e) =>
+                  setSearchParams((prev) => ({
+                    ...prev,
+                    keyword: e.target.value,
+                  }))
+                }
+                onPressEnter={(e) =>
+                  handleSearch({
+                    keyword: (e.target as HTMLInputElement).value,
+                  })
+                }
               />
               <span>{t('common.status')}:</span>
               <Radio.Group
                 value={searchParams.status}
                 onChange={(e) => {
-                  setSearchParams((prev) => ({ ...prev, status: e.target.value }))
+                  setSearchParams((prev) => ({
+                    ...prev,
+                    status: e.target.value,
+                  }))
                 }}
-                buttonStyle="solid"
+                buttonStyle='solid'
               >
-                <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
-                <Radio.Button value={GlobalStatus.ENABLED}>{t(`common.status.${GlobalStatus.ENABLED}`)}</Radio.Button>
-                <Radio.Button value={GlobalStatus.DISABLED}>{t(`common.status.${GlobalStatus.DISABLED}`)}</Radio.Button>
+                <Radio.Button value={undefined}>
+                  {t('table.search.all')}
+                </Radio.Button>
+                <Radio.Button value={GlobalStatus.ENABLED}>
+                  {t(`common.status.${GlobalStatus.ENABLED}`)}
+                </Radio.Button>
+                <Radio.Button value={GlobalStatus.DISABLED}>
+                  {t(`common.status.${GlobalStatus.DISABLED}`)}
+                </Radio.Button>
               </Radio.Group>
-              <Button onClick={() => handleSearch()} type="primary">
+              <Button onClick={() => handleSearch()} type='primary'>
                 {t('common.search')}
               </Button>
               <Button onClick={handleReset}>{t('common.reset')}</Button>
             </Space>
-            <Button type="primary" onClick={openCreateModal} icon={<PlusOutlined />}>
+            <Button
+              type='primary'
+              onClick={openCreateModal}
+              icon={<PlusOutlined />}
+            >
               {t('common.add')}
             </Button>
           </div>
@@ -752,9 +875,9 @@ const NotificationGroupPage: React.FC = () => {
           <Table
             columns={columns}
             dataSource={dataSource}
-            rowKey="uid"
+            rowKey='uid'
             loading={loading}
-            size="small"
+            size='small'
             scroll={{ y: 520, x: 'max-content' }}
             pagination={{
               current: pagination.current,
@@ -796,7 +919,7 @@ const NotificationGroupPage: React.FC = () => {
                 setSubscriptionViewOpen(true)
               }}
               disabled={!detailData}
-              type="primary"
+              type='primary'
             >
               {t('notificationGroup.subscription.action.addMember')}
             </Button>
@@ -817,28 +940,47 @@ const NotificationGroupPage: React.FC = () => {
       >
         {detailLoading ? (
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
-            <Spin size="large" />
+            <Spin size='large' />
           </div>
         ) : detailData ? (
           <Descriptions
             column={1}
             bordered
-            size="small"
+            size='small'
             styles={{ label: { width: 140, minWidth: 140 } }}
           >
-            <Descriptions.Item label={t('notificationGroup.detail.uid')}>{emptyPlaceholder(detailData.uid)}</Descriptions.Item>
-            <Descriptions.Item label={t('notificationGroup.detail.name')}>{emptyPlaceholder(detailData.name)}</Descriptions.Item>
-            <Descriptions.Item label={t('notificationGroup.detail.status')}>{renderStatusTag(detailData.status ?? GlobalStatus.UNKNOWN, t)}</Descriptions.Item>
-            <Descriptions.Item label={t('notificationGroup.detail.remark')}>{emptyPlaceholder(detailData.remark)}</Descriptions.Item>
+            <Descriptions.Item label={t('notificationGroup.detail.uid')}>
+              {emptyPlaceholder(detailData.uid)}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('notificationGroup.detail.name')}>
+              {emptyPlaceholder(detailData.name)}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('notificationGroup.detail.status')}>
+              {renderStatusTag(detailData.status ?? GlobalStatus.UNKNOWN, t)}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('notificationGroup.detail.remark')}>
+              {emptyPlaceholder(detailData.remark)}
+            </Descriptions.Item>
             <Descriptions.Item label={t('notificationGroup.detail.createdAt')}>
-              {detailData.createdAt ? dayjs(detailData.createdAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
+              {detailData.createdAt
+                ? dayjs(detailData.createdAt).format('YYYY-MM-DD HH:mm:ss')
+                : '-'}
             </Descriptions.Item>
             <Descriptions.Item label={t('notificationGroup.detail.updatedAt')}>
-              {detailData.updatedAt ? dayjs(detailData.updatedAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
+              {detailData.updatedAt
+                ? dayjs(detailData.updatedAt).format('YYYY-MM-DD HH:mm:ss')
+                : '-'}
             </Descriptions.Item>
             <Descriptions.Item label={t('notificationGroup.detail.metadata')}>
-              {detailData.metadata && Object.keys(detailData.metadata).length > 0 ? (
-                <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+              {detailData.metadata &&
+              Object.keys(detailData.metadata).length > 0 ? (
+                <pre
+                  style={{
+                    margin: 0,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                  }}
+                >
                   {JSON.stringify(detailData.metadata, null, 2)}
                 </pre>
               ) : (
@@ -848,14 +990,18 @@ const NotificationGroupPage: React.FC = () => {
             <Descriptions.Item label={t('notificationGroup.tab.subscription')}>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {(detailData.members ?? []).map((m, idx) => (
-                  <Tag key={`${m.memberUid ?? 'm'}-${idx}`}>{m.memberUid ?? '-'}</Tag>
+                  <Tag key={`${m.memberUid ?? 'm'}-${idx}`}>
+                    {m.memberUid ?? '-'}
+                  </Tag>
                 ))}
                 {(detailData.members ?? []).length === 0 ? '-' : null}
               </div>
             </Descriptions.Item>
           </Descriptions>
         ) : (
-          <div style={{ textAlign: 'center', padding: '40px 0' }}>{t('common.noData')}</div>
+          <div style={{ textAlign: 'center', padding: '40px 0' }}>
+            {t('common.noData')}
+          </div>
         )}
       </Modal>
 
@@ -885,7 +1031,7 @@ const NotificationGroupPage: React.FC = () => {
               {t('common.close')}
             </Button>
             <Button
-              type="primary"
+              type='primary'
               loading={memberSaving}
               onClick={handleSaveSubscription}
               disabled={!detailData}
@@ -895,10 +1041,12 @@ const NotificationGroupPage: React.FC = () => {
           </Space>
         }
       >
-        <div className="flex justify-between items-center mb-3">
-          <div style={{ fontWeight: 600 }}>{t('notificationGroup.tab.subscription')}</div>
+        <div className='flex justify-between items-center mb-3'>
+          <div style={{ fontWeight: 600 }}>
+            {t('notificationGroup.tab.subscription')}
+          </div>
           <Button
-            type="primary"
+            type='primary'
             onClick={() => setMemberModalOpen(true)}
             disabled={!selectedUid}
           >
@@ -908,7 +1056,7 @@ const NotificationGroupPage: React.FC = () => {
 
         {detailLoading ? (
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
-            <Spin size="large" />
+            <Spin size='large' />
           </div>
         ) : (
           <NotificationMemberSubscriptionTable
@@ -917,7 +1065,7 @@ const NotificationGroupPage: React.FC = () => {
           />
         )}
 
-        <div className="flex justify-end mt-4 gap-2">
+        <div className='flex justify-end mt-4 gap-2'>
           <Button
             onClick={() => setDraftMembers(detailData?.members ?? [])}
             disabled={!detailData || memberSaving}
@@ -939,9 +1087,8 @@ const NotificationGroupPage: React.FC = () => {
 
 export default function NotificationGroupListWrapper() {
   return (
-    <App className="h-full">
+    <App className='h-full'>
       <NotificationGroupPage />
     </App>
   )
 }
-

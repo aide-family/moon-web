@@ -1,6 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App } from 'antd'
+import {
+  Table,
+  Input,
+  Radio,
+  Button,
+  Space,
+  message,
+  Tag,
+  Dropdown,
+  App,
+} from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
 import {
@@ -46,11 +56,11 @@ const UsersList: React.FC = () => {
   const [dataSource, setDataSource] = useState<UserItem[]>([])
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 10,
+    pageSize: 50,
     total: 0,
   })
   const [searchParams, setSearchParams] = useState<ListUsersParams>(() =>
-    parseSearchParamsFromUrl(urlSearchParams)
+    parseSearchParamsFromUrl(urlSearchParams),
   )
   const [tableHeight, setTableHeight] = useState<number>(0)
   const tableContainerRef = useRef<HTMLDivElement>(null)
@@ -61,7 +71,10 @@ const UsersList: React.FC = () => {
   const getStatusInfo = (status?: UserStatus | string) => {
     const s = parseUserStatus(status)
     const map: Record<UserStatus, { textKey: string; color: string }> = {
-      [UserStatus.UserStatus_UNKNOWN]: { textKey: 'user.status.UserStatus_UNKNOWN', color: 'default' },
+      [UserStatus.UserStatus_UNKNOWN]: {
+        textKey: 'user.status.UserStatus_UNKNOWN',
+        color: 'default',
+      },
       [UserStatus.ACTIVE]: { textKey: 'user.status.ACTIVE', color: 'success' },
       [UserStatus.BANNED]: { textKey: 'user.status.BANNED', color: 'error' },
     }
@@ -69,7 +82,11 @@ const UsersList: React.FC = () => {
     return { text: t(info.textKey), color: info.color }
   }
 
-  const fetchData = async (page?: number, pageSize?: number, override?: Partial<ListUsersParams>) => {
+  const fetchData = async (
+    page?: number,
+    pageSize?: number,
+    override?: Partial<ListUsersParams>,
+  ) => {
     setLoading(true)
     try {
       const currentPage = page ?? pagination.current
@@ -77,14 +94,23 @@ const UsersList: React.FC = () => {
       const params: ListUsersParams = {
         page: currentPage,
         pageSize: currentPageSize,
-        keyword: override?.keyword !== undefined ? (override.keyword || undefined) : (searchParams.keyword || undefined),
-        email: override?.email !== undefined ? (override.email || undefined) : (searchParams.email || undefined),
-        status: override?.status !== undefined ? override.status : searchParams.status,
+        keyword:
+          override?.keyword !== undefined
+            ? override.keyword || undefined
+            : searchParams.keyword || undefined,
+        email:
+          override?.email !== undefined
+            ? override.email || undefined
+            : searchParams.email || undefined,
+        status:
+          override?.status !== undefined
+            ? override.status
+            : searchParams.status,
       }
       const response = await listUsers(params)
       if (response) {
         setDataSource(response.items ?? [])
-        setPagination(prev => ({
+        setPagination((prev) => ({
           ...prev,
           current: currentPage,
           pageSize: currentPageSize,
@@ -100,7 +126,7 @@ const UsersList: React.FC = () => {
 
   useEffect(() => {
     setSearchParams(parseSearchParamsFromUrl(urlSearchParams))
-  }, [urlSearchParams.toString()])
+  }, [urlSearchParams])
 
   useEffect(() => {
     applySearchToUrl(
@@ -110,22 +136,27 @@ const UsersList: React.FC = () => {
         email: searchParams.email,
         status: searchParams.status,
       },
-      { replace: true }
+      { replace: true },
     )
-  }, [searchParams.keyword, searchParams.email, searchParams.status])
+  }, [
+    searchParams.keyword,
+    searchParams.email,
+    searchParams.status,
+    setUrlSearchParams,
+  ])
 
   const handleSearch = (override?: Partial<ListUsersParams>) => {
     if (override) {
-      setSearchParams(prev => ({ ...prev, ...override }))
+      setSearchParams((prev) => ({ ...prev, ...override }))
     }
-    setPagination(prev => ({ ...prev, current: 1 }))
+    setPagination((prev) => ({ ...prev, current: 1 }))
     fetchData(1, pagination.pageSize, override)
   }
 
   const handleReset = () => {
     setSearchParams(defaultSearchParams)
     setUrlSearchParams({})
-    setPagination({ current: 1, pageSize: 10, total: 0 })
+    setPagination({ current: 1, pageSize: 50, total: 0 })
     fetchData()
   }
 
@@ -145,7 +176,8 @@ const UsersList: React.FC = () => {
   }
 
   const handleBan = (record: UserItem) => {
-    const name = record.name || record.nickname || record.email || record.uid || ''
+    const name =
+      record.name || record.nickname || record.email || record.uid || ''
     modal.confirm({
       title: t('user.confirm.ban.title'),
       content: t('user.confirm.ban.content', { name }),
@@ -156,7 +188,8 @@ const UsersList: React.FC = () => {
   }
 
   const handlePermit = (record: UserItem) => {
-    const name = record.name || record.nickname || record.email || record.uid || ''
+    const name =
+      record.name || record.nickname || record.email || record.uid || ''
     modal.confirm({
       title: t('user.confirm.permit.title'),
       content: t('user.confirm.permit.content', { name }),
@@ -172,7 +205,9 @@ const UsersList: React.FC = () => {
       message.success(t('message.update.success'))
       fetchData()
       if (detailOpen && viewingData?.uid === uid) {
-        setViewingData(prev => (prev ? { ...prev, status: UserStatus.BANNED } : null))
+        setViewingData((prev) =>
+          prev ? { ...prev, status: UserStatus.BANNED } : null,
+        )
       }
     } catch (error) {
       console.error('封禁失败:', error)
@@ -185,21 +220,56 @@ const UsersList: React.FC = () => {
       message.success(t('message.update.success'))
       fetchData()
       if (detailOpen && viewingData?.uid === uid) {
-        setViewingData(prev => (prev ? { ...prev, status: UserStatus.ACTIVE } : null))
+        setViewingData((prev) =>
+          prev ? { ...prev, status: UserStatus.ACTIVE } : null,
+        )
       }
     } catch (error) {
       console.error('解封失败:', error)
     }
   }
 
-  const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : text
+  const emptyPlaceholder = (text: unknown) =>
+    text == null || text === '' ? '-' : text
 
   const columns: ColumnsType<UserItem> = [
-    { title: t('user.table.uid'), dataIndex: 'uid', key: 'uid', width: 160, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
-    { title: t('user.table.email'), dataIndex: 'email', key: 'email', minWidth: 160, ellipsis: true, render: (txt) => emptyPlaceholder(txt) },
-    { title: t('user.table.name'), dataIndex: 'name', key: 'name', minWidth: 100, render: (txt) => emptyPlaceholder(txt) },
-    { title: t('user.table.nickname'), dataIndex: 'nickname', key: 'nickname', minWidth: 100, render: (txt) => emptyPlaceholder(txt) },
-    { title: t('user.table.phone'), dataIndex: 'phone', key: 'phone', minWidth: 120, render: (txt) => emptyPlaceholder(txt) },
+    {
+      title: t('user.table.uid'),
+      dataIndex: 'uid',
+      key: 'uid',
+      width: 160,
+      ellipsis: true,
+      render: (txt) => emptyPlaceholder(txt),
+    },
+    {
+      title: t('user.table.email'),
+      dataIndex: 'email',
+      key: 'email',
+      minWidth: 160,
+      ellipsis: true,
+      render: (txt) => emptyPlaceholder(txt),
+    },
+    {
+      title: t('user.table.name'),
+      dataIndex: 'name',
+      key: 'name',
+      minWidth: 100,
+      render: (txt) => emptyPlaceholder(txt),
+    },
+    {
+      title: t('user.table.nickname'),
+      dataIndex: 'nickname',
+      key: 'nickname',
+      minWidth: 100,
+      render: (txt) => emptyPlaceholder(txt),
+    },
+    {
+      title: t('user.table.phone'),
+      dataIndex: 'phone',
+      key: 'phone',
+      minWidth: 120,
+      render: (txt) => emptyPlaceholder(txt),
+    },
     {
       title: t('user.table.status'),
       dataIndex: 'status',
@@ -216,7 +286,8 @@ const UsersList: React.FC = () => {
       dataIndex: 'createdAt',
       key: 'createdAt',
       minWidth: 160,
-      render: (text: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
+      render: (text: string) =>
+        text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-',
     },
     {
       title: t('table.action'),
@@ -242,12 +313,16 @@ const UsersList: React.FC = () => {
           },
         ]
         return (
-          <Space size="small">
-            <Button type="link" size="small" onClick={() => handleViewDetail(record)}>
+          <Space size='small'>
+            <Button
+              type='link'
+              size='small'
+              onClick={() => handleViewDetail(record)}
+            >
               {t('common.detail')}
             </Button>
             <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-              <Button type="link" size="small">
+              <Button type='link' size='small'>
                 {t('common.more')}
               </Button>
             </Dropdown>
@@ -266,33 +341,47 @@ const UsersList: React.FC = () => {
     const updateTableHeight = () => {
       if (tableContainerRef.current && tableWrapperRef.current) {
         const containerHeight = tableContainerRef.current.clientHeight
-        const theadElement = tableWrapperRef.current.querySelector('.ant-table-thead')
+        const theadElement =
+          tableWrapperRef.current.querySelector('.ant-table-thead')
         let theadHeight = 0
         if (theadElement) {
           const theadRect = theadElement.getBoundingClientRect()
           const theadStyle = window.getComputedStyle(theadElement)
-          theadHeight = theadRect.height + (parseFloat(theadStyle.marginBottom) || 0)
+          theadHeight =
+            theadRect.height + (parseFloat(theadStyle.marginBottom) || 0)
         }
-        const paginationElement = tableWrapperRef.current.querySelector('.ant-pagination')
+        const paginationElement =
+          tableWrapperRef.current.querySelector('.ant-pagination')
         let paginationHeight = 0
         if (paginationElement) {
           const rect = paginationElement.getBoundingClientRect()
           const style = window.getComputedStyle(paginationElement)
-          paginationHeight = rect.height + (parseFloat(style.marginTop) || 0) + (parseFloat(style.marginBottom) || 0)
+          paginationHeight =
+            rect.height +
+            (parseFloat(style.marginTop) || 0) +
+            (parseFloat(style.marginBottom) || 0)
         }
         const bodyEl = tableWrapperRef.current.querySelector('.ant-table-body')
         let bodyPadding = 0
         if (bodyEl) {
           const s = window.getComputedStyle(bodyEl)
-          bodyPadding = (parseFloat(s.paddingTop) || 0) + (parseFloat(s.paddingBottom) || 0)
+          bodyPadding =
+            (parseFloat(s.paddingTop) || 0) + (parseFloat(s.paddingBottom) || 0)
         }
-        setTableHeight(Math.max(containerHeight - theadHeight - paginationHeight - bodyPadding, 100))
+        setTableHeight(
+          Math.max(
+            containerHeight - theadHeight - paginationHeight - bodyPadding,
+            100,
+          ),
+        )
       }
     }
     const timer = setTimeout(updateTableHeight, 100)
     let resizeObserver: ResizeObserver | null = null
     if (tableContainerRef.current) {
-      resizeObserver = new ResizeObserver(() => setTimeout(updateTableHeight, 0))
+      resizeObserver = new ResizeObserver(() =>
+        setTimeout(updateTableHeight, 0),
+      )
       resizeObserver.observe(tableContainerRef.current)
     }
     window.addEventListener('resize', updateTableHeight)
@@ -304,58 +393,78 @@ const UsersList: React.FC = () => {
   }, [dataSource, pagination])
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="mb-4 flex justify-between items-start shrink-0">
-        <Space size="middle" wrap>
+    <div className='h-full flex flex-col'>
+      <div className='mb-4 flex justify-between items-start shrink-0'>
+        <Space size='middle' wrap>
           <span>{t('table.search.keyword')}:</span>
           <Input
             placeholder={t('table.search.placeholder')}
             allowClear
-            className="w-full min-w-[120px] sm:w-48 md:w-52"
+            className='w-full min-w-[120px] sm:w-48 md:w-52'
             value={searchParams.keyword ?? ''}
-            onChange={e => setSearchParams(prev => ({ ...prev, keyword: e.target.value }))}
-            onPressEnter={e => handleSearch({ keyword: (e.target as HTMLInputElement).value })}
+            onChange={(e) =>
+              setSearchParams((prev) => ({ ...prev, keyword: e.target.value }))
+            }
+            onPressEnter={(e) =>
+              handleSearch({ keyword: (e.target as HTMLInputElement).value })
+            }
           />
           <span>{t('user.search.email')}:</span>
           <Input
             placeholder={t('table.search.placeholder')}
             allowClear
-            className="w-full min-w-[120px] sm:w-48"
+            className='w-full min-w-[120px] sm:w-48'
             value={searchParams.email ?? ''}
-            onChange={e => setSearchParams(prev => ({ ...prev, email: e.target.value }))}
-            onPressEnter={e => handleSearch({ email: (e.target as HTMLInputElement).value })}
+            onChange={(e) =>
+              setSearchParams((prev) => ({ ...prev, email: e.target.value }))
+            }
+            onPressEnter={(e) =>
+              handleSearch({ email: (e.target as HTMLInputElement).value })
+            }
           />
           <span>{t('common.status')}:</span>
           <Radio.Group
             value={searchParams.status}
-            onChange={e => setSearchParams(prev => ({ ...prev, status: e.target.value }))}
-            buttonStyle="solid"
+            onChange={(e) =>
+              setSearchParams((prev) => ({ ...prev, status: e.target.value }))
+            }
+            buttonStyle='solid'
           >
-            <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
-            <Radio.Button value={UserStatus.ACTIVE}>{t('user.status.ACTIVE')}</Radio.Button>
-            <Radio.Button value={UserStatus.BANNED}>{t('user.status.BANNED')}</Radio.Button>
+            <Radio.Button value={undefined}>
+              {t('table.search.all')}
+            </Radio.Button>
+            <Radio.Button value={UserStatus.ACTIVE}>
+              {t('user.status.ACTIVE')}
+            </Radio.Button>
+            <Radio.Button value={UserStatus.BANNED}>
+              {t('user.status.BANNED')}
+            </Radio.Button>
           </Radio.Group>
-          <Button onClick={() => handleSearch()} type="primary">
+          <Button onClick={() => handleSearch()} type='primary'>
             {t('common.search')}
           </Button>
           <Button onClick={handleReset}>{t('common.reset')}</Button>
         </Space>
       </div>
-      <div ref={tableContainerRef} className="flex-1 flex overflow-hidden flex-col" style={{ minHeight: 0 }}>
-        <div ref={tableWrapperRef} className="h-full flex flex-col flex-1">
+      <div
+        ref={tableContainerRef}
+        className='flex-1 flex overflow-hidden flex-col'
+        style={{ minHeight: 0 }}
+      >
+        <div ref={tableWrapperRef} className='h-full flex flex-col flex-1'>
           <Table
             columns={columns}
             dataSource={dataSource}
-            rowKey="uid"
+            rowKey='uid'
             loading={loading}
-            size="small"
+            size='small'
             scroll={{ y: tableHeight, x: 'max-content' }}
             pagination={{
               current: pagination.current,
               pageSize: pagination.pageSize,
               total: pagination.total,
               showSizeChanger: true,
-              showTotal: total => t('table.total', { total }),
+              showTotal: (total) => t('table.total', { total }),
               onChange: handleTableChange,
               onShowSizeChange: handleTableChange,
             }}
@@ -373,7 +482,7 @@ const UsersList: React.FC = () => {
 
 export default function UsersListWrapper() {
   return (
-    <App className="h-full">
+    <App className='h-full'>
       <PageContent>
         <UsersList />
       </PageContent>

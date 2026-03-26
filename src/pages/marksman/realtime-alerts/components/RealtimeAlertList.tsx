@@ -96,9 +96,8 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
   const [datasourceSelectOptions, setDatasourceSelectOptions] = useState<
     { value: string; label: string; disabled?: boolean }[]
   >([])
-  const [datasourceLevelSelectOptions, setDatasourceLevelSelectOptions] = useState<
-    { value: string; label: string; disabled?: boolean }[]
-  >([])
+  const [datasourceLevelSelectOptions, setDatasourceLevelSelectOptions] =
+    useState<{ value: string; label: string; disabled?: boolean }[]>([])
   const [form] = Form.useForm()
   const [bindForm] = Form.useForm()
   const mountedRef = useRef(true)
@@ -138,7 +137,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
   const fetchAvailableAlertPages = useCallback(async () => {
     setAvailableAlertPagesLoading(true)
     try {
-      const res = await getAlertPageList({ page: 1, pageSize: 100 })
+      const res = await getAlertPageList({ page: 1, pageSize: 50 })
       if (!mountedRef.current) return
       const items = res.items ?? []
       setAvailableAlertPages(items)
@@ -404,8 +403,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
           filterLevelUids: detail.filter?.levelUids ?? [],
           filterStrategyUids: detail.filter?.strategyUids ?? [],
           filterDatasourceUids: detail.filter?.datasourceUids ?? [],
-          filterDatasourceLevelUids:
-            detail.filter?.datasourceLevelUids ?? [],
+          filterDatasourceLevelUids: detail.filter?.datasourceLevelUids ?? [],
         })
       } catch (e) {
         console.error('获取告警页详情失败:', e)
@@ -677,7 +675,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
         okButtonProps={{ disabled: alertPageDetailLoading }}
         okText={t('common.ok')}
         cancelText={t('common.cancel')}
-        destroyOnClose
+        destroyOnHidden
         width={560}
       >
         <Spin spinning={alertPageDetailLoading}>
@@ -869,7 +867,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
         confirmLoading={bindLoading}
         okText={t('common.ok')}
         cancelText={t('common.cancel')}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={bindForm} layout='vertical' preserve={false}>
           <Form.Item

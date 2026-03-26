@@ -28,7 +28,11 @@ import type {
   StrategyMetricLevelItem,
 } from '@/api/marksman/strategyMetric/types'
 import type { SaveStrategyMetricLevelParams } from '@/api/marksman/strategyMetric'
-import { getLevelSelectList, LevelType, type LevelItemSelect } from '@/api/marksman/level'
+import {
+  getLevelSelectList,
+  LevelType,
+  type LevelItemSelect,
+} from '@/api/marksman/level'
 import { ConditionMetric, GlobalStatus, SampleMode } from '@/api'
 import { useLocale } from '@/contexts/LocaleContext'
 import {
@@ -62,26 +66,6 @@ function normalizeLevelStatus(raw: number | string | undefined): GlobalStatus {
   return GlobalStatus.UNKNOWN
 }
 
-function globalStatusToLevelStatus(s: GlobalStatus): number {
-  if (s === GlobalStatus.ENABLED) return 1
-  if (s === GlobalStatus.DISABLED) return 0
-  return 0
-}
-
-function parseValuesString(str: string | undefined): number[] | undefined {
-  if (str == null || String(str).trim() === '') return undefined
-  const parts = String(str)
-    .split(/[,，\s]+/)
-    .map((s) => s.trim())
-    .filter(Boolean)
-  const nums: number[] = []
-  for (const p of parts) {
-    const n = Number(p)
-    if (Number.isFinite(n)) nums.push(n)
-  }
-  return nums.length > 0 ? nums : undefined
-}
-
 /** 接口可能返回数字，前端统一按枚举字符串展示与提交 */
 function normalizeMode(raw: number | string | undefined): string {
   if (raw == null || raw === '') return SampleMode.SAMPLE_MODE_UNKNOWN
@@ -90,17 +74,10 @@ function normalizeMode(raw: number | string | undefined): string {
   return s || SampleMode.SAMPLE_MODE_UNKNOWN
 }
 
-function normalizeCondition(raw: number | string | undefined): string {
-  if (raw == null || raw === '') return ConditionMetric.CONDITION_METRIC_UNKNOWN
-  const s = String(raw)
-  if (Object.values(ConditionMetric).includes(s as ConditionMetric)) return s
-  return s || ConditionMetric.CONDITION_METRIC_UNKNOWN
-}
-
 /** 条件为「范围」时显示两个阈值输入框 */
 const RANGE_CONDITION = [
-  ConditionMetric.CONDITION_METRIC_GTE,
-  ConditionMetric.CONDITION_METRIC_LTE,
+  ConditionMetric.CONDITION_METRIC_IN,
+  ConditionMetric.CONDITION_METRIC_NOT_IN,
 ]
 
 export interface MetricsDetailContentProps {
@@ -147,7 +124,11 @@ export default function MetricsDetailContent({
   }, [strategyUID])
 
   useEffect(() => {
-    getLevelSelectList({ limit: 100, status: GlobalStatus.ENABLED, type: LevelType.LEVEL_TYPE_ALERT })
+    getLevelSelectList({
+      limit: 100,
+      status: GlobalStatus.ENABLED,
+      type: LevelType.LEVEL_TYPE_ALERT,
+    })
       .then((res) => setLevelSelectOptions(res?.items ?? []))
       .catch(() => setLevelSelectOptions([]))
   }, [])
@@ -178,25 +159,18 @@ export default function MetricsDetailContent({
     setLevels((prev) => [...prev, { level: {} }])
     setEditingLevelKey(`level-${levels.length}`)
     setEditingLevelData({
-      status: globalStatusToLevelStatus(GlobalStatus.ENABLED),
+      status: GlobalStatus.ENABLED,
     })
   }
 
   const handleEditLevel = (index: number) => {
     const item = levels[index]
     const row = item
-    const modeRaw = row?.mode
-    const conditionRaw = row?.condition
-    const modeStr = normalizeMode(modeRaw) as SampleMode
-    const conditionStr = normalizeCondition(conditionRaw) as ConditionMetric
     setEditingLevelKey(`level-${index}`)
     setEditingLevelData({
       levelUID: item?.levelUID,
-      mode: modeStr !== SampleMode.SAMPLE_MODE_UNKNOWN ? modeStr : undefined,
-      condition:
-        conditionStr !== ConditionMetric.CONDITION_METRIC_UNKNOWN
-          ? conditionStr
-          : undefined,
+      mode: row?.mode,
+      condition: row?.condition,
       values: row?.values,
       duration: row?.duration,
       status: row?.status,
@@ -265,7 +239,9 @@ export default function MetricsDetailContent({
         ? GlobalStatus.DISABLED
         : GlobalStatus.ENABLED
     const action =
-      current === GlobalStatus.ENABLED ? t(`common.status.${GlobalStatus.DISABLED}`) : t(`common.status.${GlobalStatus.ENABLED}`)
+      current === GlobalStatus.ENABLED
+        ? t(`common.status.${GlobalStatus.DISABLED}`)
+        : t(`common.status.${GlobalStatus.ENABLED}`)
     const levelName =
       levelSelectOptions.find((o) => o.value === level.uid)?.label ?? level.uid
     Modal.confirm({
@@ -512,7 +488,6 @@ export default function MetricsDetailContent({
                       )
                       return (
                         <Select
-                          size='small'
                           className='w-full'
                           placeholder={t(
                             'strategy.alertLevel.levelUID.placeholder',
@@ -553,7 +528,7 @@ export default function MetricsDetailContent({
                   title: t('strategy.detail.mode'),
                   dataIndex: ['mode'],
                   key: 'mode',
-                  width: 100,
+                  minWidth: 140,
                   align: 'center',
                   render: (
                     v: number | string | undefined,
@@ -566,7 +541,6 @@ export default function MetricsDetailContent({
                     if (isEditing) {
                       return (
                         <Select
-                          size='small'
                           className='w-full'
                           placeholder={t(
                             'strategy.alertLevel.mode.placeholder',
@@ -601,7 +575,7 @@ export default function MetricsDetailContent({
                   title: t('strategy.detail.condition'),
                   dataIndex: ['condition'],
                   key: 'condition',
-                  width: 100,
+                  minWidth: 140,
                   align: 'center',
                   render: (
                     v: number | string | undefined,
@@ -610,20 +584,14 @@ export default function MetricsDetailContent({
                   ) => {
                     const isEditing = editingLevelKey === `level-${index}`
                     const rawVal = isEditing ? editingLevelData?.condition : v
-                    const strVal = normalizeCondition(rawVal)
                     if (isEditing) {
                       return (
                         <Select
-                          size='small'
                           className='w-full'
                           placeholder={t(
                             'strategy.alertLevel.condition.placeholder',
                           )}
-                          value={
-                            strVal === ConditionMetric.CONDITION_METRIC_UNKNOWN
-                              ? undefined
-                              : strVal
-                          }
+                          value={rawVal}
                           onChange={(s) =>
                             setEditingLevelData((prev) =>
                               prev
@@ -644,7 +612,7 @@ export default function MetricsDetailContent({
                       )
                     }
                     return (
-                      t(`strategy.conditionMetric.${strVal}`) ||
+                      t(`strategy.conditionMetric.${rawVal}`) ||
                       emptyPlaceholder(v)
                     )
                   },
@@ -653,7 +621,7 @@ export default function MetricsDetailContent({
                   title: t('strategy.detail.threshold'),
                   dataIndex: ['values'],
                   key: 'values',
-                  width: 200,
+                  minWidth: 200,
                   align: 'right',
                   render: (
                     v: number[] | undefined,
@@ -662,32 +630,22 @@ export default function MetricsDetailContent({
                   ) => {
                     const isEditing = editingLevelKey === `level-${index}`
                     const val = isEditing ? editingLevelData?.values : v
-                    const condition = normalizeCondition(
-                      isEditing
-                        ? editingLevelData?.condition
-                        : (
-                            _r as StrategyMetricLevelItem & {
-                              condition?: number | string
-                            }
-                          )?.condition,
-                    )
+                    const condition = isEditing
+                      ? editingLevelData?.condition
+                      : ConditionMetric.CONDITION_METRIC_UNKNOWN
                     const isRange = RANGE_CONDITION.includes(
-                      condition as ConditionMetric,
+                      condition ?? ConditionMetric.CONDITION_METRIC_UNKNOWN,
                     )
-                    const strVal = val?.length ? val.join(', ') : ''
                     if (isEditing && isRange) {
-                      const v0 = val?.[0]
-                      const v1 = val?.[1]
                       return (
-                        <Space.Compact size='small' className='w-full'>
+                        <Space.Compact className='w-full'>
                           <InputNumber
-                            size='small'
                             controls={false}
                             className='flex-1'
                             placeholder={t(
                               'strategy.alertLevel.values.rangeMin',
                             )}
-                            value={v0}
+                            value={val?.[0]}
                             onChange={(n) =>
                               setEditingLevelData((prev) => {
                                 const cur = prev?.values ?? []
@@ -705,13 +663,12 @@ export default function MetricsDetailContent({
                             }
                           />
                           <InputNumber
-                            size='small'
                             controls={false}
                             className='flex-1'
                             placeholder={t(
                               'strategy.alertLevel.values.rangeMax',
                             )}
-                            value={v1}
+                            value={val?.[1]}
                             onChange={(n) =>
                               setEditingLevelData((prev) => {
                                 const cur = prev?.values ?? []
@@ -733,24 +690,31 @@ export default function MetricsDetailContent({
                     }
                     if (isEditing) {
                       return (
-                        <Input
-                          size='small'
-                          value={strVal}
-                          onChange={(e) => {
-                            const parsed = parseValuesString(e.target.value)
-                            setEditingLevelData((prev) =>
-                              prev
-                                ? { ...prev, values: parsed }
-                                : { values: parsed },
-                            )
-                          }}
-                          placeholder={t(
-                            'strategy.alertLevel.values.placeholder',
-                          )}
-                        />
+                        <Space.Compact className='w-full'>
+                          <InputNumber
+                            controls={false}
+                            value={val?.[0]}
+                            onChange={(e) =>
+                              setEditingLevelData((prev) => {
+                                const cur = prev?.values ?? []
+                                const next = [e ?? cur[0], cur[1]].filter(
+                                  (x): x is number =>
+                                    x != null && Number.isFinite(x),
+                                )
+                                return prev
+                                  ? { ...prev, values: next }
+                                  : { values: next }
+                              })
+                            }
+                            className='flex-1'
+                            placeholder={t(
+                              'strategy.alertLevel.values.placeholder',
+                            )}
+                          />
+                        </Space.Compact>
                       )
                     }
-                    return strVal || '-'
+                    return val?.length ? val.join(', ') : emptyPlaceholder(v)
                   },
                 },
                 {
@@ -769,7 +733,6 @@ export default function MetricsDetailContent({
                     if (isEditing) {
                       return (
                         <Input
-                          size='small'
                           value={val ?? ''}
                           onChange={(e) =>
                             setEditingLevelData((prev) =>
@@ -807,7 +770,9 @@ export default function MetricsDetailContent({
                     const checked = globalVal === GlobalStatus.ENABLED
                     return (
                       <Tag color={checked ? 'green' : 'red'}>
-                        {checked ? t(`common.status.${GlobalStatus.ENABLED}`) : t(`common.status.${GlobalStatus.DISABLED}`)}
+                        {checked
+                          ? t(`common.status.${GlobalStatus.ENABLED}`)
+                          : t(`common.status.${GlobalStatus.DISABLED}`)}
                       </Tag>
                     )
                   },
@@ -815,7 +780,7 @@ export default function MetricsDetailContent({
                 {
                   title: t('table.action'),
                   key: 'action',
-                  width: 160,
+                  width: 200,
                   fixed: 'right',
                   align: 'center',
                   render: (

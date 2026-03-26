@@ -8,6 +8,7 @@ export const zhCN = {
   'email.table.host': '主机',
   'email.table.port': '端口',
   'email.table.username': '用户名',
+  'email.table.status': '状态',
   'email.table.createdAt': '创建时间',
   'email.table.updatedAt': '更新时间',
   // 确认对话框
@@ -45,17 +46,19 @@ export const zhCN = {
   'email.detail.port': '端口',
   'email.detail.username': '用户名',
   'email.detail.password': '密码',
+  'email.detail.status': '状态',
   'email.detail.createdAt': '创建时间',
   'email.detail.updatedAt': '更新时间',
-} as const;
+} as const
 
 export const enUS = {
   // Table related (Email module specific)
-  'email.table.uid': 'Config ID',
+  'email.table.uid': 'Email ID',
   'email.table.name': 'Name',
   'email.table.host': 'Host',
   'email.table.port': 'Port',
   'email.table.username': 'Username',
+  'email.table.status': 'Status',
   'email.table.createdAt': 'Created At',
   'email.table.updatedAt': 'Updated At',
   // Confirm dialog
@@ -73,7 +76,8 @@ export const enUS = {
   'email.form.name.maxLength': 'Name cannot exceed 100 characters',
   'email.form.name.required': 'Please enter name',
   'email.form.host.label': 'Host',
-  'email.form.host.placeholder': 'Please enter SMTP host address, e.g.: smtp.example.com',
+  'email.form.host.placeholder':
+    'Please enter SMTP host address, e.g.: smtp.example.com',
   'email.form.host.required': 'Please enter host address',
   'email.form.port.label': 'Port',
   'email.form.port.placeholder': 'Please enter port number',
@@ -93,6 +97,7 @@ export const enUS = {
   'email.detail.port': 'Port',
   'email.detail.username': 'Username',
   'email.detail.password': 'Password',
+  'email.detail.status': 'Status',
   'email.detail.createdAt': 'Created At',
   'email.detail.updatedAt': 'Updated At',
-} as const;
+} as const

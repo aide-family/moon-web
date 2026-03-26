@@ -10,6 +10,7 @@ export const zhCN = {
   'webhook.table.app': '应用',
   'webhook.table.url': 'URL',
   'webhook.table.method': '方法',
+  'webhook.table.status': '状态',
   'webhook.table.createdAt': '创建时间',
   'webhook.table.updatedAt': '更新时间',
   // 确认对话框
@@ -30,7 +31,8 @@ export const zhCN = {
   'webhook.form.app.placeholder': '请选择应用',
   'webhook.form.app.required': '请选择应用',
   'webhook.form.url.label': 'URL',
-  'webhook.form.url.placeholder': '请输入Webhook URL，例如：https://api.example.com/webhook',
+  'webhook.form.url.placeholder':
+    '请输入Webhook URL，例如：https://api.example.com/webhook',
   'webhook.form.url.required': '请输入URL',
   'webhook.form.url.invalid': '请输入有效的URL格式',
   'webhook.form.method.label': 'HTTP方法',
@@ -40,9 +42,11 @@ export const zhCN = {
   'webhook.form.secret.placeholder': '请输入Webhook密钥',
   'webhook.form.secret.required': '请输入密钥',
   'webhook.form.headers.label': '请求头',
-  'webhook.form.headers.placeholder': '请输入JSON格式的请求头，例如：{"Content-Type": "application/json"}',
+  'webhook.form.headers.placeholder':
+    '请输入JSON格式的请求头，例如：{"Content-Type": "application/json"}',
   'webhook.form.headers.invalid': '请输入有效的JSON格式',
-  'webhook.form.headers.help': '请求头为JSON格式，可以为空。例如：{"Content-Type": "application/json", "X-Custom-Header": "value"}',
+  'webhook.form.headers.help':
+    '请求头为JSON格式，可以为空。例如：{"Content-Type": "application/json", "X-Custom-Header": "value"}',
   // 详情相关
   'webhook.detail.uid': '配置ID',
   'webhook.detail.name': '名称',
@@ -51,6 +55,7 @@ export const zhCN = {
   'webhook.detail.method': 'HTTP方法',
   'webhook.detail.secret': '密钥',
   'webhook.detail.headers': '请求头',
+  'webhook.detail.status': '状态',
   'webhook.detail.createdAt': '创建时间',
   'webhook.detail.updatedAt': '更新时间',
   // 搜索相关
@@ -68,7 +73,7 @@ export const zhCN = {
   'webhook.app.DINGTALK': '钉钉',
   'webhook.app.WECHAT': '企业微信',
   'webhook.app.FEISHU': '飞书',
-} as const;
+}
 
 export const enUS = {
   // Menu title
@@ -79,6 +84,7 @@ export const enUS = {
   'webhook.table.app': 'App',
   'webhook.table.url': 'URL',
   'webhook.table.method': 'Method',
+  'webhook.table.status': 'Status',
   'webhook.table.createdAt': 'Created At',
   'webhook.table.updatedAt': 'Updated At',
   // Confirm dialog
@@ -99,7 +105,8 @@ export const enUS = {
   'webhook.form.app.placeholder': 'Please select app',
   'webhook.form.app.required': 'Please select app',
   'webhook.form.url.label': 'URL',
-  'webhook.form.url.placeholder': 'Please enter webhook URL, e.g.: https://api.example.com/webhook',
+  'webhook.form.url.placeholder':
+    'Please enter webhook URL, e.g.: https://api.example.com/webhook',
   'webhook.form.url.required': 'Please enter URL',
   'webhook.form.url.invalid': 'Please enter a valid URL format',
   'webhook.form.method.label': 'HTTP Method',
@@ -109,9 +116,11 @@ export const enUS = {
   'webhook.form.secret.placeholder': 'Please enter webhook secret',
   'webhook.form.secret.required': 'Please enter secret',
   'webhook.form.headers.label': 'Headers',
-  'webhook.form.headers.placeholder': 'Please enter headers in JSON format, e.g.: {"Content-Type": "application/json"}',
+  'webhook.form.headers.placeholder':
+    'Please enter headers in JSON format, e.g.: {"Content-Type": "application/json"}',
   'webhook.form.headers.invalid': 'Please enter valid JSON format',
-  'webhook.form.headers.help': 'Headers are in JSON format and can be empty. E.g.: {"Content-Type": "application/json", "X-Custom-Header": "value"}',
+  'webhook.form.headers.help':
+    'Headers are in JSON format and can be empty. E.g.: {"Content-Type": "application/json", "X-Custom-Header": "value"}',
   // Detail related
   'webhook.detail.uid': 'Config ID',
   'webhook.detail.name': 'Name',
@@ -120,6 +129,7 @@ export const enUS = {
   'webhook.detail.method': 'HTTP Method',
   'webhook.detail.secret': 'Secret',
   'webhook.detail.headers': 'Headers',
+  'webhook.detail.status': 'Status',
   'webhook.detail.createdAt': 'Created At',
   'webhook.detail.updatedAt': 'Updated At',
   // Search related
@@ -137,4 +147,4 @@ export const enUS = {
   'webhook.app.DINGTALK': 'DingTalk',
   'webhook.app.WECHAT': 'WeChat',
   'webhook.app.FEISHU': 'Feishu',
-} as const;
+}

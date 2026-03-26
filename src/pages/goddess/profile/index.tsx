@@ -506,7 +506,7 @@ const ProfilePage: React.FC = () => {
         onOk={handleEmailOk}
         onCancel={handleEmailCancel}
         confirmLoading={emailSubmitting}
-        destroyOnClose
+        destroyOnHidden
         okText={t('common.ok')}
         cancelText={t('common.cancel')}
       >
@@ -527,7 +527,7 @@ const ProfilePage: React.FC = () => {
         onOk={handleAvatarOk}
         onCancel={handleAvatarCancel}
         confirmLoading={avatarSubmitting}
-        destroyOnClose
+        destroyOnHidden
         okText={t('common.ok')}
         cancelText={t('common.cancel')}
       >
@@ -548,7 +548,7 @@ const ProfilePage: React.FC = () => {
         onOk={handlePhoneOk}
         onCancel={handlePhoneCancel}
         confirmLoading={phoneSubmitting}
-        destroyOnClose
+        destroyOnHidden
         okText={t('common.ok')}
         cancelText={t('common.cancel')}
       >
@@ -569,7 +569,7 @@ const ProfilePage: React.FC = () => {
         onOk={handleRemarkOk}
         onCancel={handleRemarkCancel}
         confirmLoading={remarkSubmitting}
-        destroyOnClose
+        destroyOnHidden
         okText={t('common.ok')}
         cancelText={t('common.cancel')}
       >

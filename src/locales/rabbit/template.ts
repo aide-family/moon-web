@@ -8,6 +8,7 @@ export const zhCN = {
   'template.table.uid': '模板ID',
   'template.table.name': '名称',
   'template.table.app': '应用',
+  'template.table.status': '状态',
   'template.table.createdAt': '创建时间',
   'template.table.updatedAt': '更新时间',
   // 确认对话框
@@ -28,19 +29,22 @@ export const zhCN = {
   'template.form.app.placeholder': '请选择应用',
   'template.form.app.required': '请选择应用',
   'template.form.jsonData.label': 'JSON数据',
-  'template.form.jsonData.placeholder': '请输入JSON格式的数据，例如：{"subject": "邮件主题", "body": "邮件内容"}',
+  'template.form.jsonData.placeholder':
+    '请输入JSON格式的数据，例如：{"subject": "邮件主题", "body": "邮件内容"}',
   'template.form.jsonData.invalid': '请输入有效的JSON格式',
-  'template.form.jsonData.help': 'JSON数据为JSON格式，可以为空。支持邮件、短信、Webhook等不同类型的模板数据结构',
+  'template.form.jsonData.help':
+    'JSON数据为JSON格式，可以为空。支持邮件、短信、Webhook等不同类型的模板数据结构',
   // 详情相关
   'template.detail.uid': '模板ID',
   'template.detail.name': '名称',
   'template.detail.app': '应用',
+  'template.detail.status': '状态',
   'template.detail.createdAt': '创建时间',
   'template.detail.updatedAt': '更新时间',
   'template.detail.jsonData': 'JSON数据',
   // 搜索相关
   'template.search.app.placeholder': '应用',
-} as const;
+}
 
 export const enUS = {
   // Menu title
@@ -49,6 +53,7 @@ export const enUS = {
   'template.table.uid': 'Template ID',
   'template.table.name': 'Name',
   'template.table.app': 'App',
+  'template.table.status': 'Status',
   'template.table.createdAt': 'Created At',
   'template.table.updatedAt': 'Updated At',
   // Confirm dialog
@@ -69,16 +74,19 @@ export const enUS = {
   'template.form.app.placeholder': 'Please select app',
   'template.form.app.required': 'Please select app',
   'template.form.jsonData.label': 'JSON Data',
-  'template.form.jsonData.placeholder': 'Please enter JSON data, e.g.: {"subject": "Email Subject", "body": "Email Body"}',
+  'template.form.jsonData.placeholder':
+    'Please enter JSON data, e.g.: {"subject": "Email Subject", "body": "Email Body"}',
   'template.form.jsonData.invalid': 'Please enter valid JSON format',
-  'template.form.jsonData.help': 'JSON data is in JSON format and can be empty. Supports different template data structures for Email, SMS, Webhook, etc.',
+  'template.form.jsonData.help':
+    'JSON data is in JSON format and can be empty. Supports different template data structures for Email, SMS, Webhook, etc.',
   // Detail related
   'template.detail.uid': 'Template ID',
   'template.detail.name': 'Name',
   'template.detail.app': 'App',
+  'template.detail.status': 'Status',
   'template.detail.createdAt': 'Created At',
   'template.detail.updatedAt': 'Updated At',
   'template.detail.jsonData': 'JSON Data',
   // Search related
   'template.search.app.placeholder': 'App',
-} as const;
+}

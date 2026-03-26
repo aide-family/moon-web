@@ -41,7 +41,6 @@ import {
   message,
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import dayjs from 'dayjs'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import DetailForm from './components/DetailForm'
@@ -66,7 +65,7 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
   const [dataSource, setDataSource] = useState<StrategyItem[]>([])
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 10,
+    pageSize: 50,
     total: 0,
   })
   const [searchParams, setSearchParams] =
@@ -203,9 +202,10 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
       fixed: 'right',
       align: 'center',
       render: (_, record) => {
-        const isEnabled =
-          record.status === GlobalStatus.ENABLED
-          const action = isEnabled ? t(`common.status.${GlobalStatus.DISABLED}`) : t(`common.status.${GlobalStatus.ENABLED}`)
+        const isEnabled = record.status === GlobalStatus.ENABLED
+        const action = isEnabled
+          ? t(`common.status.${GlobalStatus.DISABLED}`)
+          : t(`common.status.${GlobalStatus.ENABLED}`)
         const handleStatusClick = () => {
           modal.confirm({
             title: t('strategy.confirm.status.title', { action }),
@@ -471,7 +471,7 @@ const StrategyGroupSidebar: React.FC<{
   const [dataSource, setDataSource] = useState<StrategyGroupItem[]>([])
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 20,
+    pageSize: 50,
     total: 0,
   })
   const [detailFormOpen, setDetailFormOpen] = useState(false)
@@ -682,7 +682,9 @@ const StrategyGroupSidebar: React.FC<{
               {dataSource.map((item) => {
                 const isSelected = selectedUid === item.uid
                 const isEnabled = item.status === GlobalStatus.ENABLED
-                const action = isEnabled ? t(`common.status.${GlobalStatus.DISABLED}`) : t(`common.status.${GlobalStatus.ENABLED}`)
+                const action = isEnabled
+                  ? t(`common.status.${GlobalStatus.DISABLED}`)
+                  : t(`common.status.${GlobalStatus.ENABLED}`)
                 const menuItems: MenuProps['items'] = [
                   {
                     key: 'edit',
@@ -758,7 +760,9 @@ const StrategyGroupSidebar: React.FC<{
                         }}
                         title={t(`common.status.${item.status}`)}
                       />
-                      <div className='truncate min-w-0'>{item.name || item.uid || '-'}</div>
+                      <div className='truncate min-w-0'>
+                        {item.name || item.uid || '-'}
+                      </div>
                     </div>
                     <span onClick={(e) => e.stopPropagation()}>
                       <Dropdown menu={{ items: menuItems }} trigger={['click']}>

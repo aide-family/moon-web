@@ -13,7 +13,6 @@ import {
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
-import dayjs from 'dayjs'
 import type { LevelItem, LevelListParams } from '@/api/marksman/level'
 import {
   deleteLevel,
@@ -63,7 +62,7 @@ const LevelList: React.FC = () => {
   const [dataSource, setDataSource] = useState<LevelItem[]>([])
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 10,
+    pageSize: 50,
     total: 0,
   })
   const [searchParams, setSearchParams] = useState<LevelListParams>(() =>
@@ -127,7 +126,7 @@ const LevelList: React.FC = () => {
   const handleReset = () => {
     setSearchParams(defaultSearchParams)
     setUrlSearchParams({})
-    setPagination({ current: 1, pageSize: 10, total: 0 })
+    setPagination({ current: 1, pageSize: 50, total: 0 })
     fetchData()
   }
 
@@ -229,7 +228,7 @@ const LevelList: React.FC = () => {
       title: t('level.table.type'),
       dataIndex: 'type',
       key: 'type',
-      width: 80,
+      minWidth: 100,
       align: 'center',
       render: (v) => getLevelTypeLabel(v, t),
     },
@@ -237,16 +236,16 @@ const LevelList: React.FC = () => {
       title: t('level.table.bgColor'),
       dataIndex: 'bgColor',
       key: 'bgColor',
-      width: 88,
-      align: 'center',
-      render: (v: string | undefined) =>
-        v?.trim() ? <Badge color={v} size='small' /> : '-',
+      minWidth: 140,
+      render: (v: string | undefined) => (
+        <Badge color={v} size='small' text={v || '-'} />
+      ),
     },
     {
       title: t('level.table.status'),
       dataIndex: 'status',
       key: 'status',
-      width: 80,
+      width: 100,
       align: 'center',
       render: (v: GlobalStatus) => renderStatusTag(v, t),
     },
@@ -298,7 +297,9 @@ const LevelList: React.FC = () => {
           },
           {
             key: 'status',
-            label: isEnabled ? t(`common.status.${GlobalStatus.DISABLED}`) : t(`common.status.${GlobalStatus.ENABLED}`),
+            label: isEnabled
+              ? t(`common.status.${GlobalStatus.DISABLED}`)
+              : t(`common.status.${GlobalStatus.ENABLED}`),
             onClick: handleStatusClick,
           },
           {
@@ -342,7 +343,7 @@ const LevelList: React.FC = () => {
   // URL 变化时（如浏览器后退）同步到表单
   useEffect(() => {
     setSearchParams(parseSearchParamsFromUrl(urlSearchParams))
-  }, [urlSearchParams.toString()])
+  }, [urlSearchParams])
 
   // 搜索条件变化即同步到 URL（replace 避免每次输入都产生历史记录）
   useEffect(() => {
@@ -355,7 +356,12 @@ const LevelList: React.FC = () => {
       },
       { replace: true },
     )
-  }, [searchParams.keyword, searchParams.status, searchParams.type])
+  }, [
+    searchParams.keyword,
+    searchParams.status,
+    searchParams.type,
+    setUrlSearchParams,
+  ])
 
   useEffect(() => {
     fetchData()

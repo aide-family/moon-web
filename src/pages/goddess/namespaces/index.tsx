@@ -1,9 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App, Image } from 'antd'
+import {
+  Table,
+  Input,
+  Radio,
+  Button,
+  Space,
+  message,
+  Tag,
+  Dropdown,
+  App,
+  Image,
+} from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
-import { type NamespaceItem, type NamespaceListParams, getNamespaceTableList, getNamespaceDetail, deleteNamespace, updateNamespaceStatus } from '@/api/account/namespace/index'
+import {
+  type NamespaceItem,
+  type NamespaceListParams,
+  getNamespaceTableList,
+  getNamespaceDetail,
+  deleteNamespace,
+  updateNamespaceStatus,
+} from '@/api/account/namespace/index'
 import { GlobalStatus } from '@/api/common/types'
 import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
@@ -18,7 +36,9 @@ const defaultSearchParams: NamespaceListParams = {
   status: undefined,
 }
 
-function parseSearchParamsFromUrl(params: URLSearchParams): NamespaceListParams {
+function parseSearchParamsFromUrl(
+  params: URLSearchParams,
+): NamespaceListParams {
   return {
     keyword: getParam(params, 'keyword') ?? '',
     status: (getParam(params, 'status') as GlobalStatus) ?? undefined,
@@ -34,24 +54,30 @@ const NamespaceList: React.FC = () => {
   const [dataSource, setDataSource] = useState<NamespaceItem[]>([])
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 10,
+    pageSize: 50,
     total: 0,
   })
   const [searchParams, setSearchParams] = useState<NamespaceListParams>(() =>
-    parseSearchParamsFromUrl(urlSearchParams)
+    parseSearchParamsFromUrl(urlSearchParams),
   )
   const [tableHeight, setTableHeight] = useState<number>(0)
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const tableWrapperRef = useRef<HTMLDivElement>(null)
   const [detailFormOpen, setDetailFormOpen] = useState(false)
-  const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>('create')
+  const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>(
+    'create',
+  )
   const [editingData, setEditingData] = useState<NamespaceItem | null>(null)
   const [detailViewOpen, setDetailViewOpen] = useState(false)
   const [viewingData, setViewingData] = useState<NamespaceItem | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
 
   // 获取数据（override 用于回车搜索时传入当前输入值，避免 state 未更新）
-  const fetchData = async (page?: number, pageSize?: number, override?: Partial<NamespaceListParams>) => {
+  const fetchData = async (
+    page?: number,
+    pageSize?: number,
+    override?: Partial<NamespaceListParams>,
+  ) => {
     setLoading(true)
     try {
       const currentPage = page ?? pagination.current
@@ -59,13 +85,19 @@ const NamespaceList: React.FC = () => {
       const params: NamespaceListParams = {
         page: currentPage,
         pageSize: currentPageSize,
-        keyword: override?.keyword !== undefined ? (override.keyword || undefined) : (searchParams.keyword || undefined),
-        status: override?.status !== undefined ? override.status : searchParams.status,
+        keyword:
+          override?.keyword !== undefined
+            ? override.keyword || undefined
+            : searchParams.keyword || undefined,
+        status:
+          override?.status !== undefined
+            ? override.status
+            : searchParams.status,
       }
       const response = await getNamespaceTableList(params)
       if (response) {
         setDataSource(response.items || [])
-        setPagination(prev => ({
+        setPagination((prev) => ({
           ...prev,
           current: currentPage,
           pageSize: currentPageSize,
@@ -81,28 +113,28 @@ const NamespaceList: React.FC = () => {
 
   useEffect(() => {
     setSearchParams(parseSearchParamsFromUrl(urlSearchParams))
-  }, [urlSearchParams.toString()])
+  }, [urlSearchParams])
 
   useEffect(() => {
     applySearchToUrl(
       setUrlSearchParams,
       { keyword: searchParams.keyword, status: searchParams.status },
-      { replace: true }
+      { replace: true },
     )
-  }, [searchParams.keyword, searchParams.status])
+  }, [searchParams.keyword, searchParams.status, setUrlSearchParams])
 
   const handleSearch = (override?: Partial<NamespaceListParams>) => {
     if (override) {
-      setSearchParams(prev => ({ ...prev, ...override }))
+      setSearchParams((prev) => ({ ...prev, ...override }))
     }
-    setPagination(prev => ({ ...prev, current: 1 }))
+    setPagination((prev) => ({ ...prev, current: 1 }))
     fetchData(1, pagination.pageSize, override)
   }
 
   const handleReset = () => {
     setSearchParams(defaultSearchParams)
     setUrlSearchParams({})
-    setPagination({ current: 1, pageSize: 10, total: 0 })
+    setPagination({ current: 1, pageSize: 50, total: 0 })
     fetchData()
   }
 
@@ -112,7 +144,8 @@ const NamespaceList: React.FC = () => {
     fetchData(page, pageSize)
   }
 
-  const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : text
+  const emptyPlaceholder = (text: unknown) =>
+    text == null || text === '' ? '-' : text
 
   // 表格列定义
   const columns: ColumnsType<NamespaceItem> = [
@@ -147,7 +180,7 @@ const NamespaceList: React.FC = () => {
         logo ? (
           <Image
             src={logo}
-            alt=""
+            alt=''
             width={40}
             height={40}
             style={{ objectFit: 'contain' }}
@@ -166,13 +199,13 @@ const NamespaceList: React.FC = () => {
           <Image.PreviewGroup>
             <Image
               src={banners[0]}
-              alt=""
+              alt=''
               width={40}
               height={40}
               style={{ objectFit: 'contain', borderRadius: 4 }}
             />
             {banners.slice(1, 3).map((url, i) => (
-              <Image key={i} src={url} alt="" style={{ display: 'none' }} />
+              <Image key={i} src={url} alt='' style={{ display: 'none' }} />
             ))}
           </Image.PreviewGroup>
         ) : (
@@ -186,11 +219,21 @@ const NamespaceList: React.FC = () => {
       minWidth: 60,
       align: 'center',
       render: (status: GlobalStatus) => {
-        const statusMap: Record<GlobalStatus, { text: string; color: string }> = {
-          [GlobalStatus.UNKNOWN]: { text: t(`common.status.${GlobalStatus.UNKNOWN}`), color: 'default' },
-          [GlobalStatus.ENABLED]: { text: t(`common.status.${GlobalStatus.ENABLED}`), color: 'success' },
-          [GlobalStatus.DISABLED]: { text: t(`common.status.${GlobalStatus.DISABLED}`), color: 'error' },
-        }
+        const statusMap: Record<GlobalStatus, { text: string; color: string }> =
+          {
+            [GlobalStatus.UNKNOWN]: {
+              text: t(`common.status.${GlobalStatus.UNKNOWN}`),
+              color: 'default',
+            },
+            [GlobalStatus.ENABLED]: {
+              text: t(`common.status.${GlobalStatus.ENABLED}`),
+              color: 'success',
+            },
+            [GlobalStatus.DISABLED]: {
+              text: t(`common.status.${GlobalStatus.DISABLED}`),
+              color: 'error',
+            },
+          }
         const statusInfo = statusMap[status]
         return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>
       },
@@ -200,14 +243,16 @@ const NamespaceList: React.FC = () => {
       dataIndex: 'createdAt',
       key: 'createdAt',
       minWidth: 100,
-      render: (text: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
+      render: (text: string) =>
+        text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-',
     },
     {
       title: t('namespace.table.updatedAt'),
       dataIndex: 'updatedAt',
       key: 'updatedAt',
       minWidth: 100,
-      render: (text: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
+      render: (text: string) =>
+        text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-',
     },
     {
       title: t('table.action'),
@@ -218,11 +263,20 @@ const NamespaceList: React.FC = () => {
       render: (_, record) => {
         const handleStatusClick = () => {
           const isEnabled = record.status === GlobalStatus.ENABLED
-          const action = isEnabled ? t(`common.status.${GlobalStatus.DISABLED}`) : t(`common.status.${GlobalStatus.ENABLED}`)
+          const action = isEnabled
+            ? t(`common.status.${GlobalStatus.DISABLED}`)
+            : t(`common.status.${GlobalStatus.ENABLED}`)
           modal.confirm({
             title: t('namespace.confirm.status.title', { action }),
-            content: t('namespace.confirm.status.content', { action, name: record.name }),
-            onOk: () => handleStatusChange(record, isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED),
+            content: t('namespace.confirm.status.content', {
+              action,
+              name: record.name,
+            }),
+            onOk: () =>
+              handleStatusChange(
+                record,
+                isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED,
+              ),
             okText: t('common.ok'),
             cancelText: t('common.cancel'),
           })
@@ -246,7 +300,9 @@ const NamespaceList: React.FC = () => {
             onClick: () => {
               modal.confirm({
                 title: t('namespace.confirm.delete.title'),
-                content: t('namespace.confirm.delete.content', { name: record.name }),
+                content: t('namespace.confirm.delete.content', {
+                  name: record.name,
+                }),
                 okText: t('common.ok'),
                 cancelText: t('common.cancel'),
                 onOk: () => handleDelete(record),
@@ -256,12 +312,16 @@ const NamespaceList: React.FC = () => {
         ]
 
         return (
-          <Space size="small">
-            <Button type="link" size="small" onClick={() => handleViewDetail(record)}>
+          <Space size='small'>
+            <Button
+              type='link'
+              size='small'
+              onClick={() => handleViewDetail(record)}
+            >
               {t('common.detail')}
             </Button>
             <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-              <Button type="link" size="small">
+              <Button type='link' size='small'>
                 {t('common.more')}
               </Button>
             </Dropdown>
@@ -323,7 +383,10 @@ const NamespaceList: React.FC = () => {
   }
 
   // 处理修改状态
-  const handleStatusChange = async (record: NamespaceItem, newStatus: GlobalStatus) => {
+  const handleStatusChange = async (
+    record: NamespaceItem,
+    newStatus: GlobalStatus,
+  ) => {
     try {
       await updateNamespaceStatus({ uid: record.uid, status: newStatus })
       message.success(t('message.update.success'))
@@ -382,7 +445,8 @@ const NamespaceList: React.FC = () => {
         const containerHeight = tableContainerRef.current.clientHeight
 
         // 查找表头元素（Ant Design Table 的表头）
-        const theadElement = tableWrapperRef.current.querySelector('.ant-table-thead')
+        const theadElement =
+          tableWrapperRef.current.querySelector('.ant-table-thead')
         let theadHeight = 0
         if (theadElement) {
           const theadRect = theadElement.getBoundingClientRect()
@@ -392,7 +456,8 @@ const NamespaceList: React.FC = () => {
         }
 
         // 查找分页器元素（Ant Design Table 的分页器）
-        const paginationElement = tableWrapperRef.current.querySelector('.ant-pagination')
+        const paginationElement =
+          tableWrapperRef.current.querySelector('.ant-pagination')
         let paginationHeight = 0
 
         if (paginationElement) {
@@ -405,7 +470,8 @@ const NamespaceList: React.FC = () => {
         }
 
         // 查找表格主体容器，获取其 padding
-        const tableBodyElement = tableWrapperRef.current.querySelector('.ant-table-body')
+        const tableBodyElement =
+          tableWrapperRef.current.querySelector('.ant-table-body')
         let tableBodyPadding = 0
         if (tableBodyElement) {
           const bodyStyle = window.getComputedStyle(tableBodyElement)
@@ -415,7 +481,8 @@ const NamespaceList: React.FC = () => {
         }
 
         // 计算表格可用的滚动高度 = 容器高度 - 表头高度 - 分页器高度 - 表格主体 padding
-        const calculatedHeight = containerHeight - theadHeight - paginationHeight - tableBodyPadding
+        const calculatedHeight =
+          containerHeight - theadHeight - paginationHeight - tableBodyPadding
         setTableHeight(Math.max(calculatedHeight, 100)) // 最小高度100px
       }
     }
@@ -463,52 +530,64 @@ const NamespaceList: React.FC = () => {
   }, [dataSource, pagination]) // 当数据或分页变化时重新计算
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="mb-4 flex justify-between items-start shrink-0">
-        <Space size="middle" wrap>
+    <div className='h-full flex flex-col'>
+      <div className='mb-4 flex justify-between items-start shrink-0'>
+        <Space size='middle' wrap>
           <span>{t('table.search.keyword')}:</span>
           <Input
             placeholder={t('table.search.placeholder')}
             allowClear
-            className="w-full min-w-[120px] sm:w-48 md:w-52"
+            className='w-full min-w-[120px] sm:w-48 md:w-52'
             value={searchParams.keyword}
-            onChange={(e) => setSearchParams(prev => ({ ...prev, keyword: e.target.value }))}
-            onPressEnter={(e) => handleSearch({ keyword: (e.target as HTMLInputElement).value })}
+            onChange={(e) =>
+              setSearchParams((prev) => ({ ...prev, keyword: e.target.value }))
+            }
+            onPressEnter={(e) =>
+              handleSearch({ keyword: (e.target as HTMLInputElement).value })
+            }
           />
           <span>{t('common.status')}:</span>
           <Radio.Group
             value={searchParams.status}
-            onChange={(e) => setSearchParams(prev => ({ ...prev, status: e.target.value }))}
-            buttonStyle="solid"
+            onChange={(e) =>
+              setSearchParams((prev) => ({ ...prev, status: e.target.value }))
+            }
+            buttonStyle='solid'
           >
-            <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
-            <Radio.Button value={GlobalStatus.ENABLED}>{t(`common.status.${GlobalStatus.ENABLED}`)}</Radio.Button>
-            <Radio.Button value={GlobalStatus.DISABLED}>{t(`common.status.${GlobalStatus.DISABLED}`)}</Radio.Button>
+            <Radio.Button value={undefined}>
+              {t('table.search.all')}
+            </Radio.Button>
+            <Radio.Button value={GlobalStatus.ENABLED}>
+              {t(`common.status.${GlobalStatus.ENABLED}`)}
+            </Radio.Button>
+            <Radio.Button value={GlobalStatus.DISABLED}>
+              {t(`common.status.${GlobalStatus.DISABLED}`)}
+            </Radio.Button>
           </Radio.Group>
-          <Button onClick={() => handleSearch()} type="primary">
+          <Button onClick={() => handleSearch()} type='primary'>
             {t('common.search')}
           </Button>
-          <Button onClick={handleReset}>
-            {t('common.reset')}
-          </Button>
+          <Button onClick={handleReset}>{t('common.reset')}</Button>
         </Space>
         <Space>
-          <Button type="primary" onClick={handleAdd}>
+          <Button type='primary' onClick={handleAdd}>
             {t('common.add')}
           </Button>
-          <Button onClick={handleExport}>
-            {t('common.export')}
-          </Button>
+          <Button onClick={handleExport}>{t('common.export')}</Button>
         </Space>
       </div>
-      <div ref={tableContainerRef} className="flex-1 flex overflow-hidden flex-col" style={{ minHeight: 0 }}>
-        <div ref={tableWrapperRef} className="h-full flex flex-col flex-1">
+      <div
+        ref={tableContainerRef}
+        className='flex-1 flex overflow-hidden flex-col'
+        style={{ minHeight: 0 }}
+      >
+        <div ref={tableWrapperRef} className='h-full flex flex-col flex-1'>
           <Table
             columns={columns}
             dataSource={dataSource}
-            rowKey="uid"
+            rowKey='uid'
             loading={loading}
-            size="small"
+            size='small'
             scroll={{ y: tableHeight, x: 'max-content' }}
             pagination={{
               current: pagination.current,

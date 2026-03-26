@@ -1,6 +1,16 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Table, Input, Radio, Button, Space, message, Dropdown, App, Select } from 'antd'
+import {
+  Table,
+  Input,
+  Radio,
+  Button,
+  Space,
+  message,
+  Dropdown,
+  App,
+  Select,
+} from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
 import {
@@ -15,7 +25,12 @@ import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
 import PageContent from '@/components/layout/PageContent'
-import { getAppOptions, getAppLabel, getAppIconType, getMethodLabel } from './constants'
+import {
+  getAppOptions,
+  getAppLabel,
+  getAppIconType,
+  getMethodLabel,
+} from './constants'
 import { IconFont } from '@/components/Icon/IconFont'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 import { renderStatusTag } from '@/utils/marksman'
@@ -29,7 +44,8 @@ const defaultSearchParams: WebhookListParams = {
 function parseSearchParamsFromUrl(params: URLSearchParams): WebhookListParams {
   return {
     keyword: getParam(params, 'keyword') ?? '',
-    status: (getParam(params, 'status') as WebhookListParams['status']) ?? undefined,
+    status:
+      (getParam(params, 'status') as WebhookListParams['status']) ?? undefined,
     app: (getParam(params, 'app') as WebhookListParams['app']) ?? undefined,
   }
 }
@@ -42,17 +58,19 @@ const WebhookListContent: React.FC = () => {
   const [dataSource, setDataSource] = useState<WebhookItem[]>([])
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 10,
+    pageSize: 50,
     total: 0,
   })
   const [searchParams, setSearchParams] = useState<WebhookListParams>(() =>
-    parseSearchParamsFromUrl(urlSearchParams)
+    parseSearchParamsFromUrl(urlSearchParams),
   )
   const [tableHeight, setTableHeight] = useState<number>(0)
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const tableWrapperRef = useRef<HTMLDivElement>(null)
   const [detailFormOpen, setDetailFormOpen] = useState(false)
-  const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>('create')
+  const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>(
+    'create',
+  )
   const [editingData, setEditingData] = useState<WebhookItem | null>(null)
   const [detailViewOpen, setDetailViewOpen] = useState(false)
   const [viewingData, setViewingData] = useState<WebhookItem | null>(null)
@@ -67,7 +85,10 @@ const WebhookListContent: React.FC = () => {
         const cur = paginationRef.current
         const currentPage = page ?? cur.current
         const currentPageSize = pageSize ?? cur.pageSize
-        const keyword = keywordOverride !== undefined ? (keywordOverride || undefined) : (searchParams.keyword || undefined)
+        const keyword =
+          keywordOverride !== undefined
+            ? keywordOverride || undefined
+            : searchParams.keyword || undefined
         const params: WebhookListParams = {
           page: currentPage,
           pageSize: currentPageSize,
@@ -78,7 +99,7 @@ const WebhookListContent: React.FC = () => {
         const response = await getWebhookTableList(params)
         if (!mountedRef.current) return
         setDataSource(response?.items ?? [])
-        setPagination(prev => ({
+        setPagination((prev) => ({
           ...prev,
           current: currentPage,
           pageSize: currentPageSize,
@@ -91,176 +112,238 @@ const WebhookListContent: React.FC = () => {
         if (mountedRef.current) setLoading(false)
       }
     },
-    [searchParams.keyword, searchParams.status, searchParams.app]
+    [searchParams.keyword, searchParams.status, searchParams.app],
   )
 
   useEffect(() => {
     setSearchParams(parseSearchParamsFromUrl(urlSearchParams))
-  }, [urlSearchParams.toString()])
+  }, [urlSearchParams])
 
   useEffect(() => {
     applySearchToUrl(
       setUrlSearchParams,
-      { keyword: searchParams.keyword, status: searchParams.status, app: searchParams.app },
-      { replace: true }
+      {
+        keyword: searchParams.keyword,
+        status: searchParams.status,
+        app: searchParams.app,
+      },
+      { replace: true },
     )
-  }, [searchParams.keyword, searchParams.status, searchParams.app])
+  }, [
+    searchParams.keyword,
+    searchParams.status,
+    searchParams.app,
+    setUrlSearchParams,
+  ])
 
-  const handleSearch = useCallback((keywordFromInput?: string) => {
-    if (keywordFromInput !== undefined) {
-      setSearchParams(prev => ({ ...prev, keyword: keywordFromInput }))
-    }
-    setPagination(prev => ({ ...prev, current: 1 }))
-    fetchData(1, paginationRef.current.pageSize, keywordFromInput)
-  }, [fetchData])
+  const handleSearch = useCallback(
+    (keywordFromInput?: string) => {
+      if (keywordFromInput !== undefined) {
+        setSearchParams((prev) => ({ ...prev, keyword: keywordFromInput }))
+      }
+      setPagination((prev) => ({ ...prev, current: 1 }))
+      fetchData(1, paginationRef.current.pageSize, keywordFromInput)
+    },
+    [fetchData],
+  )
 
   const handleReset = useCallback(() => {
     setSearchParams(defaultSearchParams)
     setUrlSearchParams({})
-    setPagination({ current: 1, pageSize: 10, total: 0 })
-    fetchData(1, 10)
-  }, [fetchData])
+    setPagination({ current: 1, pageSize: 50, total: 0 })
+    fetchData(1, 50)
+  }, [fetchData, setUrlSearchParams])
 
   const handleTableChange = useCallback(
     (page: number, pageSize: number) => {
       fetchData(page, pageSize)
     },
-    [fetchData]
+    [fetchData],
+  )
+
+  // 处理删除
+  const handleDelete = useCallback(
+    async (record: WebhookItem) => {
+      try {
+        await deleteWebhook(record.uid)
+        message.success(t('message.delete.success'))
+        fetchData()
+      } catch (error) {
+        console.error('删除失败:', error)
+      }
+    },
+    [fetchData, t],
+  )
+
+  // 处理修改状态
+  const handleStatusChange = useCallback(
+    async (record: WebhookItem, newStatus: GlobalStatus) => {
+      try {
+        await updateWebhookStatus({ uid: record.uid, status: newStatus })
+        message.success(t('message.update.success'))
+        fetchData()
+        if (viewingData && viewingData.uid === record.uid) {
+          setViewingData({ ...viewingData, status: newStatus })
+        }
+      } catch (error) {
+        console.error('修改状态失败:', error)
+      }
+    },
+    [fetchData, t, viewingData],
   )
 
   const columns: ColumnsType<WebhookItem> = useMemo(() => {
-    const emptyPlaceholder = (text: unknown) => (text == null || text === '') ? '-' : String(text)
+    const emptyPlaceholder = (text: unknown) =>
+      text == null || text === '' ? '-' : String(text)
     return [
-    {
-      title: t('webhook.table.uid'),
-      dataIndex: 'uid',
-      key: 'uid',
-      width: 160,
-      render: (txt) => emptyPlaceholder(txt),
-    },
-    {
-      title: t('webhook.table.name'),
-      dataIndex: 'name',
-      key: 'name',
-      minWidth: 100,
-      render: (txt) => emptyPlaceholder(txt),
-    },
-    {
-      title: t('webhook.table.app'),
-      dataIndex: 'app',
-      key: 'app',
-      minWidth: 60,
-      render: (app: number | string) =>
-        app != null && app !== '' ? (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-            <IconFont type={getAppIconType(app)} />
-            {getAppLabel(app, t)}
-          </span>
-        ) : (
-          '-'
-        ),
-    },
-    {
-      title: t('webhook.table.url'),
-      dataIndex: 'url',
-      key: 'url',
-      minWidth: 150,
-      ellipsis: true,
-      render: (txt) => emptyPlaceholder(txt),
-    },
-    {
-      title: t('webhook.table.method'),
-      dataIndex: 'method',
-      key: 'method',
-      minWidth: 60,
-      render: (method: number | string) => (method != null && method !== '') ? getMethodLabel(method, t) : '-',
-    },
-    {
-      title: t('table.status'),
-      dataIndex: 'status',
-      key: 'status',
-      minWidth: 60,
-      align: 'center',
-      render: (status: GlobalStatus) => {
-       return renderStatusTag(status, t)
+      {
+        title: t('webhook.table.uid'),
+        dataIndex: 'uid',
+        key: 'uid',
+        width: 160,
+        render: (txt) => emptyPlaceholder(txt),
       },
-    },
-    {
-      title: t('webhook.table.createdAt'),
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      minWidth: 100,
-    },
-    {
-      title: t('webhook.table.updatedAt'),
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      minWidth: 100,
-    },
-    {
-      title: t('table.action'),
-      key: 'action',
-      width: 140,
-      fixed: 'right',
-      align: 'center',
-      render: (_, record) => {
-        const isEnabled = record.status === GlobalStatus.ENABLED
-        const action = isEnabled ? t(`common.status.${GlobalStatus.DISABLED}`) : t(`common.status.${GlobalStatus.ENABLED}`)
-        const handleStatusClick = () => {
-          modal.confirm({
-            title: t('webhook.confirm.status.title', { action }),
-            content: t('webhook.confirm.status.content', { action, name: record.name }),
-            onOk: () => handleStatusChange(record, isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED),
-            okText: t('common.ok'),
-            cancelText: t('common.cancel'),
-          })
-        }
+      {
+        title: t('webhook.table.name'),
+        dataIndex: 'name',
+        key: 'name',
+        minWidth: 100,
+        render: (txt) => emptyPlaceholder(txt),
+      },
+      {
+        title: t('webhook.table.app'),
+        dataIndex: 'app',
+        key: 'app',
+        minWidth: 60,
+        render: (app: number | string) =>
+          app != null && app !== '' ? (
+            <span
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+            >
+              <IconFont type={getAppIconType(app)} />
+              {getAppLabel(app, t)}
+            </span>
+          ) : (
+            '-'
+          ),
+      },
+      {
+        title: t('webhook.table.url'),
+        dataIndex: 'url',
+        key: 'url',
+        minWidth: 150,
+        ellipsis: true,
+        render: (txt) => emptyPlaceholder(txt),
+      },
+      {
+        title: t('webhook.table.method'),
+        dataIndex: 'method',
+        key: 'method',
+        minWidth: 60,
+        render: (method: number | string) =>
+          method != null && method !== '' ? getMethodLabel(method, t) : '-',
+      },
+      {
+        title: t('webhook.table.status'),
+        dataIndex: 'status',
+        key: 'status',
+        minWidth: 60,
+        align: 'center',
+        render: (status: GlobalStatus) => {
+          return renderStatusTag(status, t)
+        },
+      },
+      {
+        title: t('webhook.table.createdAt'),
+        dataIndex: 'createdAt',
+        key: 'createdAt',
+        minWidth: 100,
+      },
+      {
+        title: t('webhook.table.updatedAt'),
+        dataIndex: 'updatedAt',
+        key: 'updatedAt',
+        minWidth: 100,
+      },
+      {
+        title: t('table.action'),
+        key: 'action',
+        width: 140,
+        fixed: 'right',
+        align: 'center',
+        render: (_, record) => {
+          const isEnabled = record.status === GlobalStatus.ENABLED
+          const action = isEnabled
+            ? t(`common.status.${GlobalStatus.DISABLED}`)
+            : t(`common.status.${GlobalStatus.ENABLED}`)
+          const handleStatusClick = () => {
+            modal.confirm({
+              title: t('webhook.confirm.status.title', { action }),
+              content: t('webhook.confirm.status.content', {
+                action,
+                name: record.name,
+              }),
+              onOk: () =>
+                handleStatusChange(
+                  record,
+                  isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED,
+                ),
+              okText: t('common.ok'),
+              cancelText: t('common.cancel'),
+            })
+          }
 
-        const handleDeleteClick = () => {
-          modal.confirm({
-            title: t('webhook.confirm.delete.title'),
-            content: t('webhook.confirm.delete.content', { name: record.name }),
-            okText: t('common.ok'),
-            cancelText: t('common.cancel'),
-            onOk: () => handleDelete(record),
-          })
-        }
+          const handleDeleteClick = () => {
+            modal.confirm({
+              title: t('webhook.confirm.delete.title'),
+              content: t('webhook.confirm.delete.content', {
+                name: record.name,
+              }),
+              okText: t('common.ok'),
+              cancelText: t('common.cancel'),
+              onOk: () => handleDelete(record),
+            })
+          }
 
-        const menuItems: MenuProps['items'] = [
-          {
-            key: 'edit',
-            label: t('common.edit'),
-            onClick: () => handleEdit(record),
-          },
-          {
-            key: 'status',
-            label: action,
-            onClick: handleStatusClick,
-          },
-          {
-            key: 'delete',
-            label: t('common.delete'),
-            danger: true,
-            onClick: handleDeleteClick,
-          },
-        ]
+          const menuItems: MenuProps['items'] = [
+            {
+              key: 'edit',
+              label: t('common.edit'),
+              onClick: () => handleEdit(record),
+            },
+            {
+              key: 'status',
+              label: action,
+              onClick: handleStatusClick,
+            },
+            {
+              key: 'delete',
+              label: t('common.delete'),
+              danger: true,
+              onClick: handleDeleteClick,
+            },
+          ]
 
-        return (
-          <Space size="small">
-            <Button type="link" size="small" onClick={() => handleViewDetail(record)}>
-              {t('common.detail')}
-            </Button>
-            <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-              <Button type="link" size="small">
-                {t('common.more')}
+          return (
+            <Space size='small'>
+              <Button
+                type='link'
+                size='small'
+                onClick={() => handleViewDetail(record)}
+              >
+                {t('common.detail')}
               </Button>
-            </Dropdown>
-          </Space>
-        )
+              <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+                <Button type='link' size='small'>
+                  {t('common.more')}
+                </Button>
+              </Dropdown>
+            </Space>
+          )
+        },
       },
-    },
-  ]
-  }, [t])
+    ]
+  }, [handleDelete, handleStatusChange, modal, t])
 
   // 处理新增
   const handleAdd = () => {
@@ -288,31 +371,6 @@ const WebhookListContent: React.FC = () => {
     setDetailFormMode('edit')
     setEditingData(data)
     setDetailFormOpen(true)
-  }
-
-  // 处理删除
-  const handleDelete = async (record: WebhookItem) => {
-    try {
-      await deleteWebhook(record.uid)
-      message.success(t('message.delete.success'))
-      fetchData()
-    } catch (error) {
-      console.error('删除失败:', error)
-    }
-  }
-
-  // 处理修改状态
-  const handleStatusChange = async (record: WebhookItem, newStatus: GlobalStatus) => {
-    try {
-      await updateWebhookStatus({ uid: record.uid, status: newStatus })
-      message.success(t('message.update.success'))
-      fetchData()
-      if (viewingData && viewingData.uid === record.uid) {
-        setViewingData({ ...viewingData, status: newStatus })
-      }
-    } catch (error) {
-      console.error('修改状态失败:', error)
-    }
   }
 
   // 处理导出
@@ -343,14 +401,18 @@ const WebhookListContent: React.FC = () => {
       if (tableContainerRef.current && tableWrapperRef.current) {
         const containerHeight = tableContainerRef.current.clientHeight
         const thead = tableWrapperRef.current.querySelector('.ant-table-thead')
-        const pagination = tableWrapperRef.current.querySelector('.ant-pagination')
-        
+        const pagination =
+          tableWrapperRef.current.querySelector('.ant-pagination')
+
         const theadHeight = thead ? (thead as HTMLElement).offsetHeight : 0
-        const paginationHeight = pagination ? (pagination as HTMLElement).offsetHeight : 0
+        const paginationHeight = pagination
+          ? (pagination as HTMLElement).offsetHeight
+          : 0
         const tableBodyPadding = 16 * 2 // 上下各16px
-        
+
         // 计算表格可用的滚动高度 = 容器高度 - 表头高度 - 分页器高度 - 表格主体 padding
-        const calculatedHeight = containerHeight - theadHeight - paginationHeight - tableBodyPadding
+        const calculatedHeight =
+          containerHeight - theadHeight - paginationHeight - tableBodyPadding
         setTableHeight(Math.max(calculatedHeight, 100)) // 最小高度100px
       }
     }
@@ -363,47 +425,66 @@ const WebhookListContent: React.FC = () => {
   }, [dataSource])
 
   return (
-    <div className="flex flex-col h-full">
+    <div className='flex flex-col h-full'>
       {/* 搜索和操作栏 */}
-      <div className="flex items-center justify-between mb-4 shrink-0">
-        <Space size="middle" wrap>
+      <div className='flex items-center justify-between mb-4 shrink-0'>
+        <Space size='middle' wrap>
           <span>{t('table.search.keyword')}:</span>
           <Input
             placeholder={t('table.search.placeholder')}
             value={searchParams.keyword}
-            onChange={(e) => setSearchParams(prev => ({ ...prev, keyword: e.target.value }))}
-            onPressEnter={(e) => handleSearch((e.target as HTMLInputElement).value)}
-            className="w-full min-w-[120px] sm:w-48 md:w-52"
+            onChange={(e) =>
+              setSearchParams((prev) => ({ ...prev, keyword: e.target.value }))
+            }
+            onPressEnter={(e) =>
+              handleSearch((e.target as HTMLInputElement).value)
+            }
+            className='w-full min-w-[120px] sm:w-48 md:w-52'
           />
           <span>{t('common.status')}:</span>
           <Radio.Group
             value={searchParams.status}
             onChange={(e) => {
-              setSearchParams(prev => ({ ...prev, status: e.target.value }))
-              setPagination(prev => ({ ...prev, current: 1 }))
+              setSearchParams((prev) => ({ ...prev, status: e.target.value }))
+              setPagination((prev) => ({ ...prev, current: 1 }))
             }}
-            buttonStyle="solid"
+            buttonStyle='solid'
           >
-            <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
-            <Radio.Button value={GlobalStatus.ENABLED}>{t(`common.status.${GlobalStatus.ENABLED}`)}</Radio.Button>
-            <Radio.Button value={GlobalStatus.DISABLED}>{t(`common.status.${GlobalStatus.DISABLED}`)}</Radio.Button>
+            <Radio.Button value={undefined}>
+              {t('table.search.all')}
+            </Radio.Button>
+            <Radio.Button value={GlobalStatus.ENABLED}>
+              {t(`common.status.${GlobalStatus.ENABLED}`)}
+            </Radio.Button>
+            <Radio.Button value={GlobalStatus.DISABLED}>
+              {t(`common.status.${GlobalStatus.DISABLED}`)}
+            </Radio.Button>
           </Radio.Group>
           <span>{t('webhook.table.app')}:</span>
           <Select
             placeholder={t('webhook.search.app.placeholder')}
             value={searchParams.app ?? null}
             onChange={(value) => {
-              setSearchParams(prev => ({ ...prev, app: value === '' ? undefined : value }))
-              setPagination(prev => ({ ...prev, current: 1 }))
+              setSearchParams((prev) => ({
+                ...prev,
+                app: value === '' ? undefined : value,
+              }))
+              setPagination((prev) => ({ ...prev, current: 1 }))
             }}
             className='w-30'
             allowClear
             options={[
               { label: t('table.search.all'), value: '' },
-              ...getAppOptions(t).map(opt => ({
+              ...getAppOptions(t).map((opt) => ({
                 value: opt.value,
                 label: (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 8,
+                    }}
+                  >
                     <IconFont type={getAppIconType(opt.value)} />
                     {opt.label}
                   </span>
@@ -411,28 +492,28 @@ const WebhookListContent: React.FC = () => {
               })),
             ]}
           />
-          <Button onClick={() => handleSearch()} type="primary">
+          <Button onClick={() => handleSearch()} type='primary'>
             {t('common.search')}
           </Button>
-          <Button onClick={handleReset}>
-            {t('common.reset')}
-          </Button>
+          <Button onClick={handleReset}>{t('common.reset')}</Button>
         </Space>
         <Space>
-          <Button type="primary" onClick={handleAdd}>
+          <Button type='primary' onClick={handleAdd}>
             {t('common.add')}
           </Button>
-          <Button onClick={handleExport}>
-            {t('common.export')}
-          </Button>
+          <Button onClick={handleExport}>{t('common.export')}</Button>
         </Space>
       </div>
-      <div ref={tableContainerRef} className="flex-1 flex overflow-hidden flex-col" style={{ minHeight: 0 }}>
-        <div ref={tableWrapperRef} className="h-full flex flex-col">
+      <div
+        ref={tableContainerRef}
+        className='flex-1 flex overflow-hidden flex-col'
+        style={{ minHeight: 0 }}
+      >
+        <div ref={tableWrapperRef} className='h-full flex flex-col'>
           <Table
             columns={columns}
             dataSource={dataSource}
-            rowKey="uid"
+            rowKey='uid'
             loading={loading}
             pagination={{
               current: pagination.current,
@@ -445,7 +526,7 @@ const WebhookListContent: React.FC = () => {
               onShowSizeChange: handleTableChange,
             }}
             scroll={{ y: tableHeight, x: 'max-content' }}
-            size="middle"
+            size='middle'
           />
         </div>
       </div>
