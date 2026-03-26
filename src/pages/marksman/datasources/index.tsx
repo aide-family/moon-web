@@ -242,8 +242,11 @@ const DatasourceList: React.FC = () => {
                       onClick={() => handleSelectItem(item)}
                     >
                       <div className="min-w-0 flex-1">
-                        <div className="truncate">{item.name || item.uid || "-"}</div>
-                        <div className="text-xs text-(--ant-color-text-secondary)">
+                        <div className="flex items-center gap-2">
+                          <div className="text-xs text-(--ant-color-text-secondary) whitespace-nowrap" style={{ color: item.level?.bgColor ?? '#000' }}>{item.level?.name}</div>
+                          <span className="truncate">{item.name || item.uid || "-"}</span>
+                        </div>
+                        <div className="text-xs text-(--ant-color-text-secondary) whitespace-nowrap">
                           {getTypeLabel(item.type, t)} / {getDriverLabel(item.driver, t)}
                         </div>
                       </div>

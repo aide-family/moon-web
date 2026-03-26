@@ -360,7 +360,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       title: t('realtimeAlert.table.firedAt'),
       dataIndex: 'firedAt',
       key: 'firedAt',
-      width: 150,
+      minWidth: 150,
       render: (v: string) => (v ? dayjs(v).format('YYYY-MM-DD HH:mm:ss') : '-'),
     },
     {
@@ -375,10 +375,10 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
         if (!levelText || levelText === '-') return nameText
         return (
           <Space size='small'>
+            <Tag color='default'>{levelText}</Tag>
             <span className='truncate' title={nameText}>
               {nameText}
             </span>
-            <Tag color='default'>{levelText}</Tag>
           </Space>
         )
       },
@@ -389,6 +389,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       key: 'levelName',
       width: 128,
       ellipsis: true,
+      align: 'center',
       render: (_, record) => {
         const nameText = emptyPlaceholder(record.levelName)
         const levelColor = record.bgColor?.trim()
@@ -416,6 +417,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       dataIndex: 'value',
       key: 'value',
       width: 90,
+      align: 'right',
       render: (v) => (v != null ? String(v) : '-'),
     },
     {

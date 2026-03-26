@@ -164,25 +164,19 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
       render: (txt) => emptyPlaceholder(txt),
     },
     {
-      title: t('strategy.table.remark'),
-      dataIndex: 'remark',
-      key: 'remark',
-      minWidth: 120,
-      ellipsis: true,
-      render: (txt) => emptyPlaceholder(txt),
-    },
-    {
       title: t('strategy.table.type'),
       dataIndex: 'type',
       key: 'type',
-      width: 100,
+      width: 80,
+      align: 'center',
       render: (v: string) => getTypeLabel(v, t),
     },
     {
       title: t('strategy.table.driver'),
       dataIndex: 'driver',
       key: 'driver',
-      width: 120,
+      width: 80,
+      align: 'center',
       render: (v: string) => getDriverLabel(v, t),
     },
     {
@@ -197,20 +191,10 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
       },
     },
     {
-      title: t('strategy.table.createdAt'),
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      width: 160,
-      render: (text: string) =>
-        text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-',
-    },
-    {
       title: t('strategy.table.updatedAt'),
       dataIndex: 'updatedAt',
       key: 'updatedAt',
       width: 160,
-      render: (text: string) =>
-        text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-',
     },
     {
       title: t('table.action'),

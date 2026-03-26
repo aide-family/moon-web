@@ -216,12 +216,12 @@ export const RealtimeAlertDetailModal: React.FC<RealtimeAlertDetailModalProps> =
           const levelText = emptyPlaceholder(d.datasourceLevelName)
           const content = (
             <span className='inline-flex items-center gap-2 min-w-0'>
+               {levelText && levelText !== '-' ? (
+                <Tag color='default'>{levelText}</Tag>
+              ) : null}
               <span className='truncate' title={nameText}>
                 {nameText}
               </span>
-              {levelText && levelText !== '-' ? (
-                <Tag color='default'>{levelText}</Tag>
-              ) : null}
             </span>
           )
           if (!uid) return content

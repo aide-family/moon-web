@@ -3,7 +3,6 @@
 export const zhCN = {
   'strategy.table.uid': '策略ID',
   'strategy.table.name': '名称',
-  'strategy.table.remark': '备注',
   'strategy.table.type': '类型',
   'strategy.table.driver': '驱动',
   'strategy.table.status': '状态',
@@ -111,7 +110,6 @@ export const zhCN = {
 export const enUS = {
   'strategy.table.uid': 'Strategy ID',
   'strategy.table.name': 'Name',
-  'strategy.table.remark': 'Remark',
   'strategy.table.type': 'Type',
   'strategy.table.driver': 'Driver',
   'strategy.table.status': 'Status',

@@ -142,14 +142,13 @@ const detailContent = (data: DatasourceItem, t: (key: string) => string) => (
       {getDriverLabel(data.driver, t)}
     </Descriptions.Item>
     <Descriptions.Item label={t('datasource.detail.level')}>
-      {data.levelName ? (
-        data.levelUid ? (
-          <Tooltip title={data.levelUid}>{data.levelName}</Tooltip>
-        ) : (
-          data.levelName
-        )
+      {data.level ? (
+        <div className="flex items-center gap-2">
+          <b className="text-xs text-(--ant-color-text-secondary) whitespace-nowrap" style={{ color: data.level?.bgColor ?? '#000' }}>{data.level?.name}</b>
+          <span className="truncate">{data.level?.remark}</span>
+        </div>
       ) : (
-        emptyPlaceholder(data.levelName)
+        '-'
       )}
     </Descriptions.Item>
     <Descriptions.Item label={t('datasource.detail.status')}>
