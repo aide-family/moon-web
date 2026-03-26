@@ -143,18 +143,16 @@ export const enUS = {
 - `common.confirm` - 确认
 - `common.loading` - 加载中...
 - `common.noData` - 暂无数据
+- `common.status` - 状态
+- `common.status.ENABLED` - 启用
+- `common.status.DISABLED` - 禁用
+- `common.status.UNKNOWN` - 未知
 
 ### 表格通用（所有表格页面共用）
 
-- `table.status` - 状态
 - `table.action` - 操作
-- `table.enable` - 启用
-- `table.disable` - 禁用
-- `table.unknown` - 未知
 - `table.search.placeholder` - 请输入
 - `table.search.all` - 全部
-- `table.search.enabled` - 启用
-- `table.search.disabled` - 禁用
 - `table.total` - 共 {total} 条
 
 ## 参数替换

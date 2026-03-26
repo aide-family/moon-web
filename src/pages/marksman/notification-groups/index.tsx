@@ -608,7 +608,7 @@ const NotificationGroupPage: React.FC = () => {
         key: 'status',
         width: 120,
         align: 'center',
-        render: (v: GlobalStatus | string | undefined) => renderStatusTag(v as string, t),
+        render: (v: GlobalStatus) => renderStatusTag(v, t),
       },
       {
         title: t('notificationGroup.table.createdAt'),
@@ -632,6 +632,7 @@ const NotificationGroupPage: React.FC = () => {
         align: 'center',
         render: (_, record) => {
           const isEnabled = record.status === GlobalStatus.ENABLED
+          const action = isEnabled ? t(`common.status.${GlobalStatus.DISABLED}`) : t(`common.status.${GlobalStatus.ENABLED}`)
           const menuItems: MenuProps['items'] = [
             {
               key: 'detail',
@@ -660,14 +661,14 @@ const NotificationGroupPage: React.FC = () => {
             },
             {
               key: 'status',
-              label: isEnabled ? t('table.disable') : t('table.enable'),
+              label: action,
               onClick: () =>
                 modal.confirm({
                   title: t('notificationGroup.confirm.status.title', {
-                    action: isEnabled ? t('table.disable') : t('table.enable'),
+                    action,
                   }),
                   content: t('notificationGroup.confirm.status.content', {
-                    action: isEnabled ? t('table.disable') : t('table.enable'),
+                    action,
                     name: record.name ?? record.uid ?? '',
                   }),
                   okText: t('common.ok'),
@@ -726,7 +727,7 @@ const NotificationGroupPage: React.FC = () => {
                 onChange={(e) => setSearchParams((prev) => ({ ...prev, keyword: e.target.value }))}
                 onPressEnter={(e) => handleSearch({ keyword: (e.target as HTMLInputElement).value })}
               />
-              <span>{t('table.search.status')}:</span>
+              <span>{t('common.status')}:</span>
               <Radio.Group
                 value={searchParams.status}
                 onChange={(e) => {
@@ -735,8 +736,8 @@ const NotificationGroupPage: React.FC = () => {
                 buttonStyle="solid"
               >
                 <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
-                <Radio.Button value={GlobalStatus.ENABLED}>{t('table.search.enabled')}</Radio.Button>
-                <Radio.Button value={GlobalStatus.DISABLED}>{t('table.search.disabled')}</Radio.Button>
+                <Radio.Button value={GlobalStatus.ENABLED}>{t(`common.status.${GlobalStatus.ENABLED}`)}</Radio.Button>
+                <Radio.Button value={GlobalStatus.DISABLED}>{t(`common.status.${GlobalStatus.DISABLED}`)}</Radio.Button>
               </Radio.Group>
               <Button onClick={() => handleSearch()} type="primary">
                 {t('common.search')}
@@ -827,7 +828,7 @@ const NotificationGroupPage: React.FC = () => {
           >
             <Descriptions.Item label={t('notificationGroup.detail.uid')}>{emptyPlaceholder(detailData.uid)}</Descriptions.Item>
             <Descriptions.Item label={t('notificationGroup.detail.name')}>{emptyPlaceholder(detailData.name)}</Descriptions.Item>
-            <Descriptions.Item label={t('notificationGroup.detail.status')}>{renderStatusTag(detailData.status, t)}</Descriptions.Item>
+            <Descriptions.Item label={t('notificationGroup.detail.status')}>{renderStatusTag(detailData.status ?? GlobalStatus.UNKNOWN, t)}</Descriptions.Item>
             <Descriptions.Item label={t('notificationGroup.detail.remark')}>{emptyPlaceholder(detailData.remark)}</Descriptions.Item>
             <Descriptions.Item label={t('notificationGroup.detail.createdAt')}>
               {detailData.createdAt ? dayjs(detailData.createdAt).format('YYYY-MM-DD HH:mm:ss') : '-'}

@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { Modal, Descriptions, Button, Space, Spin, Tooltip } from 'antd'
+import { Modal, Descriptions, Button, Space, Spin, Tooltip, message } from 'antd'
 import {
   type DatasourceItem,
   getDatasourceStatus,
   type GetDatasourceStatusResponse,
+  updateDatasourceStatus,
 } from '@/api/marksman/datasource/index'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
-import { emptyPlaceholder, getTypeLabel, getDriverLabel } from '@/utils/marksman'
+import { emptyPlaceholder, getTypeLabel, getDriverLabel, getGlobalStatusLabel } from '@/utils/marksman'
+import { GlobalStatus } from '@/api'
 
 interface DetailViewProps {
   open?: boolean
@@ -15,6 +17,7 @@ interface DetailViewProps {
   loading?: boolean
   onCancel?: () => void
   onEdit?: (data: DatasourceItem) => void
+  onStatusUpdated?: () => void
   /** 内嵌模式：在右侧面板展示，不用 Modal */
   embedded?: boolean
 }
@@ -150,7 +153,7 @@ const detailContent = (data: DatasourceItem, t: (key: string) => string) => (
       )}
     </Descriptions.Item>
     <Descriptions.Item label={t('datasource.detail.status')}>
-      {emptyPlaceholder(data.status)}
+      {getGlobalStatusLabel(data.status ?? GlobalStatus.UNKNOWN, t)}
     </Descriptions.Item>
     <Descriptions.Item label={t('datasource.detail.url')}>
       <span style={{ wordBreak: 'break-all' }}>{emptyPlaceholder(data.url)}</span>
@@ -188,12 +191,44 @@ const DetailView: React.FC<DetailViewProps> = ({
   loading = false,
   onCancel,
   onEdit,
+  onStatusUpdated,
   embedded = false,
 }) => {
   const { t } = useLocale()
   const [statusRes, setStatusRes] =
     useState<GetDatasourceStatusResponse | null>(null)
   const [statusLoading, setStatusLoading] = useState(false)
+  const [updatingStatus, setUpdatingStatus] = useState(false)
+
+  const handleToggleStatus = () => {
+    const uid = data?.uid
+    if (!uid) return
+
+    const raw = data?.status
+    const isEnabled = raw === GlobalStatus.ENABLED
+    const nextStatus = isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED
+    const actionText = isEnabled ? t('common.status.DISABLED') : t('common.status.ENABLED')
+    const name = data?.name ?? uid
+
+    Modal.confirm({
+      title: t('datasource.confirm.status.title', { action: actionText }),
+      content: t('datasource.confirm.status.content', { action: actionText, name }),
+      okText: t('common.ok'),
+      cancelText: t('common.cancel'),
+      onOk: async () => {
+        setUpdatingStatus(true)
+        try {
+          await updateDatasourceStatus({ uid, status: nextStatus })
+          message.success(t('message.update.success'))
+          onStatusUpdated?.()
+        } catch (e) {
+          console.error('修改数据源状态失败:', e)
+        } finally {
+          setUpdatingStatus(false)
+        }
+      },
+    })
+  }
 
   useEffect(() => {
     if (!data?.uid) {
@@ -264,11 +299,23 @@ const DetailView: React.FC<DetailViewProps> = ({
     return (
       <div className='flex flex-col h-full'>
         <div className='flex justify-end shrink-0 mb-2'>
-          {data && onEdit && (
-            <Button type='primary' size='small' onClick={handleEdit}>
-              {t('common.edit')}
+          <Space>
+            <Button
+              size='small'
+              loading={updatingStatus}
+              disabled={!data?.uid}
+              onClick={handleToggleStatus}
+              type='primary'
+              danger={data?.status === GlobalStatus.ENABLED}
+            >
+              {t(`common.status.${data?.status}`)}
             </Button>
-          )}
+            {data && onEdit && (
+              <Button type='primary' size='small' onClick={handleEdit}>
+                {t('common.edit')}
+              </Button>
+            )}
+          </Space>
         </div>
         <div className='flex-1 min-h-0 overflow-auto'>{body}</div>
       </div>
@@ -283,6 +330,14 @@ const DetailView: React.FC<DetailViewProps> = ({
       footer={
         <Space>
           <Button onClick={onCancel}>{t('common.close')}</Button>
+          <Button
+            size='small'
+            loading={updatingStatus}
+            disabled={!data?.uid}
+            onClick={handleToggleStatus}
+          >
+            {t(`common.status.${data?.status}`)}
+          </Button>
           {data && onEdit && (
             <Button type='primary' onClick={handleEdit}>
               {t('common.edit')}

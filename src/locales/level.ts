@@ -8,6 +8,7 @@ export const zhCN = {
   'level.table.remark': '备注',
   'level.table.createdAt': '创建时间',
   'level.table.updatedAt': '更新时间',
+  'level.table.status': '状态',
 
   'level.confirm.delete.title': '确定要删除吗？',
   'level.confirm.delete.content': '删除告警等级 "{name}"',
@@ -52,6 +53,7 @@ export const enUS = {
   'level.table.remark': 'Remark',
   'level.table.createdAt': 'Created At',
   'level.table.updatedAt': 'Updated At',
+  'level.table.status': 'Status',
 
   'level.confirm.delete.title': 'Confirm delete?',
   'level.confirm.delete.content': 'Delete alert level "{name}"',

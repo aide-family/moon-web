@@ -180,18 +180,18 @@ const NamespaceList: React.FC = () => {
         ),
     },
     {
-      title: t('table.status'),
+      title: t('common.status'),
       dataIndex: 'status',
       key: 'status',
       minWidth: 60,
       align: 'center',
-      render: (status: string) => {
-        const statusMap: Record<string, { text: string; color: string }> = {
-          [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
-          [GlobalStatus.ENABLED]: { text: t('table.enable'), color: 'success' },
-          [GlobalStatus.DISABLED]: { text: t('table.disable'), color: 'error' },
+      render: (status: GlobalStatus) => {
+        const statusMap: Record<GlobalStatus, { text: string; color: string }> = {
+          [GlobalStatus.UNKNOWN]: { text: t(`common.status.${GlobalStatus.UNKNOWN}`), color: 'default' },
+          [GlobalStatus.ENABLED]: { text: t(`common.status.${GlobalStatus.ENABLED}`), color: 'success' },
+          [GlobalStatus.DISABLED]: { text: t(`common.status.${GlobalStatus.DISABLED}`), color: 'error' },
         }
-        const statusInfo = statusMap[status] || statusMap[GlobalStatus.UNKNOWN]
+        const statusInfo = statusMap[status]
         return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>
       },
     },
@@ -218,7 +218,7 @@ const NamespaceList: React.FC = () => {
       render: (_, record) => {
         const handleStatusClick = () => {
           const isEnabled = record.status === GlobalStatus.ENABLED
-          const action = isEnabled ? t('table.disable') : t('table.enable')
+          const action = isEnabled ? t(`common.status.${GlobalStatus.DISABLED}`) : t(`common.status.${GlobalStatus.ENABLED}`)
           modal.confirm({
             title: t('namespace.confirm.status.title', { action }),
             content: t('namespace.confirm.status.content', { action, name: record.name }),
@@ -228,7 +228,6 @@ const NamespaceList: React.FC = () => {
           })
         }
 
-        const isEnabled = record.status === GlobalStatus.ENABLED
         const menuItems: MenuProps['items'] = [
           {
             key: 'edit',
@@ -237,7 +236,7 @@ const NamespaceList: React.FC = () => {
           },
           {
             key: 'status',
-            label: isEnabled ? t('table.disable') : t('table.enable'),
+            label: t(`common.status.${record.status}`),
             onClick: handleStatusClick,
           },
           {
@@ -324,7 +323,7 @@ const NamespaceList: React.FC = () => {
   }
 
   // 处理修改状态
-  const handleStatusChange = async (record: NamespaceItem, newStatus: GlobalStatus | string) => {
+  const handleStatusChange = async (record: NamespaceItem, newStatus: GlobalStatus) => {
     try {
       await updateNamespaceStatus({ uid: record.uid, status: newStatus })
       message.success(t('message.update.success'))
@@ -476,15 +475,15 @@ const NamespaceList: React.FC = () => {
             onChange={(e) => setSearchParams(prev => ({ ...prev, keyword: e.target.value }))}
             onPressEnter={(e) => handleSearch({ keyword: (e.target as HTMLInputElement).value })}
           />
-          <span>{t('table.search.status')}:</span>
+          <span>{t('common.status')}:</span>
           <Radio.Group
             value={searchParams.status}
             onChange={(e) => setSearchParams(prev => ({ ...prev, status: e.target.value }))}
             buttonStyle="solid"
           >
             <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
-            <Radio.Button value={GlobalStatus.ENABLED}>{t('table.search.enabled')}</Radio.Button>
-            <Radio.Button value={GlobalStatus.DISABLED}>{t('table.search.disabled')}</Radio.Button>
+            <Radio.Button value={GlobalStatus.ENABLED}>{t(`common.status.${GlobalStatus.ENABLED}`)}</Radio.Button>
+            <Radio.Button value={GlobalStatus.DISABLED}>{t(`common.status.${GlobalStatus.DISABLED}`)}</Radio.Button>
           </Radio.Group>
           <Button onClick={() => handleSearch()} type="primary">
             {t('common.search')}

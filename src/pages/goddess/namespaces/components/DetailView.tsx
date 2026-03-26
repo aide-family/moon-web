@@ -24,13 +24,13 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, loading = false, on
   }
 
   // 状态映射
-  const getStatusInfo = (status: string) => {
-    const statusMap: Record<string, { text: string; color: string }> = {
-      [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
-      [GlobalStatus.ENABLED]: { text: t('table.enable'), color: 'success' },
-      [GlobalStatus.DISABLED]: { text: t('table.disable'), color: 'error' },
+  const getStatusInfo = (status: GlobalStatus) => {
+    const statusMap: Record<GlobalStatus, { text: string; color: string }> = {
+      [GlobalStatus.UNKNOWN]: { text: t(`common.status.${GlobalStatus.UNKNOWN}`), color: 'default' },
+      [GlobalStatus.ENABLED]: { text: t(`common.status.${GlobalStatus.ENABLED}`), color: 'success' },
+      [GlobalStatus.DISABLED]: { text: t(`common.status.${GlobalStatus.DISABLED}`), color: 'error' },
     }
-    return statusMap[status] || statusMap[GlobalStatus.UNKNOWN]
+    return statusMap[status]
   }
 
   return (
@@ -90,7 +90,7 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, loading = false, on
               </Image.PreviewGroup>
             ) : '-'}
           </Descriptions.Item>
-          <Descriptions.Item label={t('table.status')}>
+          <Descriptions.Item label={t('common.status')}>
             <Tag color={getStatusInfo(data.status).color}>
               {getStatusInfo(data.status).text}
             </Tag>

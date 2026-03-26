@@ -243,12 +243,12 @@ const LevelList: React.FC = () => {
         v?.trim() ? <Badge color={v} size='small' /> : '-',
     },
     {
-      title: t('table.status'),
+      title: t('level.table.status'),
       dataIndex: 'status',
       key: 'status',
       width: 100,
       align: 'center',
-      render: (v: string) => renderStatusTag(v, t),
+      render: (v: GlobalStatus) => renderStatusTag(v, t),
     },
     {
       title: t('level.table.remark'),
@@ -280,9 +280,8 @@ const LevelList: React.FC = () => {
       align: 'center',
       render: (_, record) => {
         const isEnabled = record.status === GlobalStatus.ENABLED
-
         const handleStatusClick = () => {
-          const action = isEnabled ? t('table.disable') : t('table.enable')
+          const action = t(`common.status.${record.status}`)
           modal.confirm({
             title: t('level.confirm.status.title', { action }),
             content: t('level.confirm.status.content', {
@@ -307,7 +306,7 @@ const LevelList: React.FC = () => {
           },
           {
             key: 'status',
-            label: isEnabled ? t('table.disable') : t('table.enable'),
+            label: isEnabled ? t(`common.status.${GlobalStatus.DISABLED}`) : t(`common.status.${GlobalStatus.ENABLED}`),
             onClick: handleStatusClick,
           },
           {
@@ -416,7 +415,7 @@ const LevelList: React.FC = () => {
               handleSearch({ keyword: (e.target as HTMLInputElement).value })
             }
           />
-          <span>{t('table.search.status')}:</span>
+          <span>{t('common.status')}:</span>
           <Radio.Group
             value={searchParams.status}
             onChange={(e) => {
@@ -429,10 +428,10 @@ const LevelList: React.FC = () => {
               {t('table.search.all')}
             </Radio.Button>
             <Radio.Button value={GlobalStatus.ENABLED}>
-              {t('table.search.enabled')}
+              {t(`common.status.${GlobalStatus.ENABLED}`)}
             </Radio.Button>
             <Radio.Button value={GlobalStatus.DISABLED}>
-              {t('table.search.disabled')}
+              {t(`common.status.${GlobalStatus.DISABLED}`)}
             </Radio.Button>
           </Radio.Group>
           <span>{t('level.table.type')}:</span>

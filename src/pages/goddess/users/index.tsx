@@ -325,7 +325,7 @@ const UsersList: React.FC = () => {
             onChange={e => setSearchParams(prev => ({ ...prev, email: e.target.value }))}
             onPressEnter={e => handleSearch({ email: (e.target as HTMLInputElement).value })}
           />
-          <span>{t('table.search.status')}:</span>
+          <span>{t('common.status')}:</span>
           <Radio.Group
             value={searchParams.status}
             onChange={e => setSearchParams(prev => ({ ...prev, status: e.target.value }))}

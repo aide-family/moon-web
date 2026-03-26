@@ -82,7 +82,7 @@ const DatasourceList: React.FC = () => {
         setLoadingMore(false);
       }
     },
-    [searchParams.keyword, searchParams.type, searchParams.driver, searchParams.status],
+    [searchParams],
   );
 
   const loadMore = useCallback(() => {
@@ -164,6 +164,13 @@ const DatasourceList: React.FC = () => {
         .catch(() => {});
     }
   };
+
+  const refreshViewingData = useCallback(() => {
+    if (!viewingData?.uid) return
+    getDatasourceDetail(viewingData.uid)
+      .then(setViewingData)
+      .catch(() => {})
+  }, [viewingData?.uid])
 
   useEffect(() => {
     fetchData(1, false);
@@ -274,7 +281,13 @@ const DatasourceList: React.FC = () => {
                   label: t("datasource.tab.detail"),
                   children: (
                     <div className="h-full overflow-auto p-4">
-                      <DetailView embedded data={viewingData} loading={detailLoading} onEdit={handleEditFromDetail} />
+                      <DetailView
+                        embedded
+                        data={viewingData}
+                        loading={detailLoading}
+                        onEdit={handleEditFromDetail}
+                        onStatusUpdated={refreshViewingData}
+                      />
                     </div>
                   ),
                 },

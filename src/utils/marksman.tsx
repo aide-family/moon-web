@@ -21,6 +21,11 @@ export function renderSummary(record: AlertEventItem): ReactNode {
   )
 }
 
+/** 全局状态 i18n 文案 */
+export function getGlobalStatusLabel(status: GlobalStatus, t: (key: string) => string): string {
+  return t(`common.status.${status}`)
+}
+
 /** 数据源类型 i18n 文案（接口可能返回 string | number） */
 export function getTypeLabel(
   value: string | number | undefined,
@@ -47,21 +52,11 @@ export function getLevelTypeLabel(
   return t(`level.type.${String(value)}`)
 }
 
-/** 将接口返回的 status（字符串或数字）规范为 GlobalStatus */
-export function normalizeStatus(
-  status: string | number | undefined,
-): GlobalStatus {
-  const s = status != null ? String(status) : undefined
-  if (s === GlobalStatus.ENABLED) return GlobalStatus.ENABLED
-  if (s === GlobalStatus.DISABLED) return GlobalStatus.DISABLED
-  return GlobalStatus.UNKNOWN
-}
-
 const STATUS_TAG_MAP: Record<GlobalStatus, { textKey: string; color: string }> =
   {
-    [GlobalStatus.UNKNOWN]: { textKey: 'table.unknown', color: 'default' },
-    [GlobalStatus.ENABLED]: { textKey: 'table.enable', color: 'success' },
-    [GlobalStatus.DISABLED]: { textKey: 'table.disable', color: 'error' },
+    [GlobalStatus.UNKNOWN]: { textKey: `common.status.${GlobalStatus.UNKNOWN}`, color: 'default' },
+    [GlobalStatus.ENABLED]: { textKey: `common.status.${GlobalStatus.ENABLED}`, color: 'success' },
+    [GlobalStatus.DISABLED]: { textKey: `common.status.${GlobalStatus.DISABLED}`, color: 'error' },
   }
 
 /** 根据 GlobalStatus 取 Tag 的文案 key 与 color */
@@ -74,10 +69,9 @@ export function getStatusTagInfo(status: GlobalStatus): {
 
 /** 渲染状态 Tag（用于表格列或详情描述） */
 export function renderStatusTag(
-  status: string | number | undefined,
+  status: GlobalStatus,
   t: (key: string) => string,
 ): ReactNode {
-  const s = normalizeStatus(status)
-  const info = getStatusTagInfo(s)
+  const info = getStatusTagInfo(status)
   return <Tag color={info.color}>{t(info.textKey)}</Tag>
 }

@@ -2,6 +2,8 @@
  * 数据源相关类型定义（策略管理服务 Datasource API）
  */
 
+import { GlobalStatus } from "@/api"
+
 /**
  * 数据源类型枚举（与后端 DatasourceType 一致，传字符串给后端）
  */
@@ -32,7 +34,7 @@ export interface DatasourceItem {
   /** 绑定的数据源等级（LevelType.DATASOURCE） */
   levelUid?: string
   levelName?: string
-  status?: number
+  status?: GlobalStatus
   createdAt?: string
   updatedAt?: string
   url?: string
@@ -170,3 +172,12 @@ export interface GetDatasourceStatusParams {
 export interface GetDatasourceStatusResponse {
   series?: DatasourceStatusSeries[]
 }
+
+/** 更新数据源状态请求参数 PUT /v1/datasource/{uid}/status */
+export interface UpdateDatasourceStatusParams {
+  uid: string
+  status: GlobalStatus
+}
+
+/** 更新数据源状态响应 PUT /v1/datasource/{uid}/status */
+export type UpdateDatasourceStatusReply = Record<string, never>

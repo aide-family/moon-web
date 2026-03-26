@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Table, Input, Radio, Button, Space, message, Tag, Dropdown, App, Select } from 'antd'
+import { Table, Input, Radio, Button, Space, message, Dropdown, App, Select } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
 import {
@@ -11,7 +11,6 @@ import {
   updateWebhookStatus,
 } from '@/api/rabbit/webhook/index'
 import { GlobalStatus } from '@/api'
-import dayjs from 'dayjs'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -19,6 +18,7 @@ import PageContent from '@/components/layout/PageContent'
 import { getAppOptions, getAppLabel, getAppIconType, getMethodLabel } from './constants'
 import { IconFont } from '@/components/Icon/IconFont'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
+import { renderStatusTag } from '@/utils/marksman'
 
 const defaultSearchParams: WebhookListParams = {
   keyword: '',
@@ -32,13 +32,6 @@ function parseSearchParamsFromUrl(params: URLSearchParams): WebhookListParams {
     status: (getParam(params, 'status') as WebhookListParams['status']) ?? undefined,
     app: (getParam(params, 'app') as WebhookListParams['app']) ?? undefined,
   }
-}
-
-// 将接口返回的 status（数字或字符串）转为 GlobalStatus，用于展示与筛选
-const normalizeStatus = (status: number | string | undefined): GlobalStatus | string => {
-  if (status === 1 || status === GlobalStatus.ENABLED) return GlobalStatus.ENABLED
-  if (status === 2 || status === GlobalStatus.DISABLED) return GlobalStatus.DISABLED
-  return GlobalStatus.UNKNOWN
 }
 
 const WebhookListContent: React.FC = () => {
@@ -188,14 +181,8 @@ const WebhookListContent: React.FC = () => {
       key: 'status',
       minWidth: 60,
       align: 'center',
-      render: (status: number | string) => {
-        const statusMap: Record<string, { text: string; color: string }> = {
-          [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
-          [GlobalStatus.ENABLED]: { text: t('table.enable'), color: 'success' },
-          [GlobalStatus.DISABLED]: { text: t('table.disable'), color: 'error' },
-        }
-        const statusInfo = statusMap[normalizeStatus(status)] || statusMap[GlobalStatus.UNKNOWN]
-        return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>
+      render: (status: GlobalStatus) => {
+       return renderStatusTag(status, t)
       },
     },
     {
@@ -203,14 +190,12 @@ const WebhookListContent: React.FC = () => {
       dataIndex: 'createdAt',
       key: 'createdAt',
       minWidth: 100,
-      render: (text: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
     },
     {
       title: t('webhook.table.updatedAt'),
       dataIndex: 'updatedAt',
       key: 'updatedAt',
       minWidth: 100,
-      render: (text: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
     },
     {
       title: t('table.action'),
@@ -219,9 +204,9 @@ const WebhookListContent: React.FC = () => {
       fixed: 'right',
       align: 'center',
       render: (_, record) => {
-        const isEnabled = normalizeStatus(record.status) === GlobalStatus.ENABLED
+        const isEnabled = record.status === GlobalStatus.ENABLED
+        const action = isEnabled ? t(`common.status.${GlobalStatus.DISABLED}`) : t(`common.status.${GlobalStatus.ENABLED}`)
         const handleStatusClick = () => {
-          const action = isEnabled ? t('table.disable') : t('table.enable')
           modal.confirm({
             title: t('webhook.confirm.status.title', { action }),
             content: t('webhook.confirm.status.content', { action, name: record.name }),
@@ -249,7 +234,7 @@ const WebhookListContent: React.FC = () => {
           },
           {
             key: 'status',
-            label: isEnabled ? t('table.disable') : t('table.enable'),
+            label: action,
             onClick: handleStatusClick,
           },
           {
@@ -317,7 +302,7 @@ const WebhookListContent: React.FC = () => {
   }
 
   // 处理修改状态
-  const handleStatusChange = async (record: WebhookItem, newStatus: GlobalStatus | string) => {
+  const handleStatusChange = async (record: WebhookItem, newStatus: GlobalStatus) => {
     try {
       await updateWebhookStatus({ uid: record.uid, status: newStatus })
       message.success(t('message.update.success'))
@@ -390,7 +375,7 @@ const WebhookListContent: React.FC = () => {
             onPressEnter={(e) => handleSearch((e.target as HTMLInputElement).value)}
             className="w-full min-w-[120px] sm:w-48 md:w-52"
           />
-          <span>{t('table.search.status')}:</span>
+          <span>{t('common.status')}:</span>
           <Radio.Group
             value={searchParams.status}
             onChange={(e) => {
@@ -400,13 +385,13 @@ const WebhookListContent: React.FC = () => {
             buttonStyle="solid"
           >
             <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
-            <Radio.Button value={GlobalStatus.ENABLED}>{t('table.search.enabled')}</Radio.Button>
-            <Radio.Button value={GlobalStatus.DISABLED}>{t('table.search.disabled')}</Radio.Button>
+            <Radio.Button value={GlobalStatus.ENABLED}>{t(`common.status.${GlobalStatus.ENABLED}`)}</Radio.Button>
+            <Radio.Button value={GlobalStatus.DISABLED}>{t(`common.status.${GlobalStatus.DISABLED}`)}</Radio.Button>
           </Radio.Group>
           <span>{t('webhook.table.app')}:</span>
           <Select
             placeholder={t('webhook.search.app.placeholder')}
-            value={searchParams.app ?? ''}
+            value={searchParams.app ?? null}
             onChange={(value) => {
               setSearchParams(prev => ({ ...prev, app: value === '' ? undefined : value }))
               setPagination(prev => ({ ...prev, current: 1 }))

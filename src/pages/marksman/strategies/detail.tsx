@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { Button, App, Descriptions, Divider, Space, Spin, Tag } from "antd";
+import { Button, App, Descriptions, Divider, Space, Spin } from "antd";
 import { ArrowLeftOutlined, EditOutlined } from "@ant-design/icons";
 import { getStrategyDetail } from "@/api/marksman/strategy/index";
 import type { StrategyItem } from "@/api/marksman/strategy/index";
@@ -12,9 +12,9 @@ import {
   emptyPlaceholder,
   getTypeLabel,
   getDriverLabel,
-  normalizeStatus,
-  getStatusTagInfo,
+  renderStatusTag,
 } from "@/utils/marksman";
+import { GlobalStatus } from "@/api";
 
 const labelWidth = 140;
 
@@ -122,8 +122,6 @@ export default function StrategyDetailPage() {
       return <div style={{ textAlign: "center", padding: "40px 0" }}>{t("common.noData")}</div>;
     }
 
-    const s = normalizeStatus(data.status);
-    const info = getStatusTagInfo(s);
 
     return (
       <div className="space-y-6">
@@ -144,7 +142,7 @@ export default function StrategyDetailPage() {
             <Descriptions.Item label={t("strategy.detail.name")}>
               <Space>
                 <span>{emptyPlaceholder(data.name)}</span>
-                <Tag color={info.color}>{t(info.textKey)}</Tag>
+                {renderStatusTag(data.status ?? GlobalStatus.UNKNOWN, t)}
               </Space>
             </Descriptions.Item>
             <Descriptions.Item label={t("strategy.detail.type")}>{getTypeLabel(data.type, t)}</Descriptions.Item>

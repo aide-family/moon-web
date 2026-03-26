@@ -1,17 +1,13 @@
 import React from 'react'
-import { Modal, Descriptions, Tag, Button, Space } from 'antd'
+import { Modal, Descriptions, Button, Space } from 'antd'
 import type { WebhookItem } from '@/api/rabbit/webhook/index'
 import { GlobalStatus } from '@/api'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
 import { getAppLabel, getAppIconType, getMethodLabel } from '../constants'
 import { IconFont } from '@/components/Icon/IconFont'
+import { renderStatusTag } from '@/utils/marksman'
 
-const normalizeStatus = (status: number | string | undefined): GlobalStatus | string => {
-  if (status === 1 || status === GlobalStatus.ENABLED) return GlobalStatus.ENABLED
-  if (status === 2 || status === GlobalStatus.DISABLED) return GlobalStatus.DISABLED
-  return GlobalStatus.UNKNOWN
-}
 
 interface DetailViewProps {
   open: boolean
@@ -30,15 +26,6 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
     }
   }
 
-  // 状态映射（与全局 GlobalStatus 一致）
-  const getStatusInfo = (status: number | string) => {
-    const statusMap: Record<string, { text: string; color: string }> = {
-      [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
-      [GlobalStatus.ENABLED]: { text: t('table.enable'), color: 'success' },
-      [GlobalStatus.DISABLED]: { text: t('table.disable'), color: 'error' },
-    }
-    return statusMap[normalizeStatus(status)] || statusMap[GlobalStatus.UNKNOWN]
-  }
 
   // 格式化 headers
   const formatHeaders = (headers?: Record<string, string>) => {
@@ -80,9 +67,7 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
           <Descriptions.Item label={t('webhook.detail.method')}>{data.method ? getMethodLabel(data.method, t) : '-'}</Descriptions.Item>
           <Descriptions.Item label={t('webhook.detail.secret')}>******</Descriptions.Item>
           <Descriptions.Item label={t('table.status')}>
-            <Tag color={getStatusInfo(data.status).color}>
-              {getStatusInfo(data.status).text}
-            </Tag>
+            {renderStatusTag(data.status ?? GlobalStatus.UNKNOWN, t)}
           </Descriptions.Item>
           <Descriptions.Item label={t('webhook.detail.headers')}>
             {data.headers && Object.keys(data.headers).length > 0 ? (

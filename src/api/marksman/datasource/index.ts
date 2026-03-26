@@ -17,6 +17,8 @@ import type {
   MetricDetailItem,
   GetDatasourceStatusParams,
   GetDatasourceStatusResponse,
+  UpdateDatasourceStatusParams,
+  UpdateDatasourceStatusReply,
 } from './types'
 export type {
   DatasourceItem,
@@ -29,6 +31,8 @@ export type {
   MetricLabelItem,
   GetDatasourceStatusParams,
   GetDatasourceStatusResponse,
+  UpdateDatasourceStatusParams,
+  UpdateDatasourceStatusReply,
 } from './types'
 export { DatasourceType, DatasourceDriver } from './types'
 
@@ -100,6 +104,16 @@ export const getDatasourceStatus = (
   return http.get<GetDatasourceStatusResponse>(
     `/datasource/${uid}/status`,
     { ...params }
+  )
+}
+
+/** 更新数据源状态 PUT /v1/datasource/{uid}/status */
+export const updateDatasourceStatus = (
+  params: UpdateDatasourceStatusParams,
+): Promise<UpdateDatasourceStatusReply> => {
+  return http.put<UpdateDatasourceStatusReply>(
+    `/datasource/${params.uid}/status`,
+    { ...params },
   )
 }
 

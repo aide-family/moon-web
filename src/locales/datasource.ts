@@ -2,9 +2,9 @@
 
 export const zhCN = {
   'datasource.type.DatasourceType_UNKNOWN': '未知',
-  'datasource.type.METRICS': 'METRICS',
-  'datasource.type.LOGS': 'LOGS',
-  'datasource.type.TRACE': 'TRACE',
+  'datasource.type.METRICS': '指标',
+  'datasource.type.LOGS': '日志',
+  'datasource.type.TRACE': '链路',
   'datasource.driver.DatasourceDriver_UNKNOWN': '未知',
   'datasource.driver.METRICS_PROMETHEUS': 'Prometheus',
   'datasource.driver.METRICS_VICTORIA_METRICS': 'VictoriaMetrics',
@@ -65,6 +65,8 @@ export const zhCN = {
   'datasource.form.metadata.placeholder': '可选，JSON 对象',
   'datasource.status.up': '正常',
   'datasource.status.down': '异常',
+  'datasource.confirm.status.title': '确定要{action}吗？',
+  'datasource.confirm.status.content': '{action}数据源 "{name}"',
 }
 
 export const enUS = {
@@ -133,4 +135,6 @@ export const enUS = {
   'datasource.form.metadata.placeholder': 'Optional, JSON object',
   'datasource.status.up': 'Up',
   'datasource.status.down': 'Down',
+  'datasource.confirm.status.title': 'Confirm to {action}?',
+  'datasource.confirm.status.content': '{action} datasource "{name}"',
 }

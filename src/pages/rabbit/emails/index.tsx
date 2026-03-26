@@ -17,6 +17,7 @@ import { useLocale } from '@/contexts/LocaleContext'
 import PageContent from '@/components/layout/PageContent'
 import { GlobalStatus } from '@/api'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
+import { renderStatusTag } from '@/utils/marksman'
 
 const defaultSearchParams: EmailListParams = {
   keyword: '',
@@ -169,13 +170,7 @@ const EmailListContent: React.FC = () => {
       minWidth: 60,
       align: 'center',
       render: (status: GlobalStatus) => {
-        const statusMap: Record<GlobalStatus, { text: string; color: string }> = {
-          [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
-          [GlobalStatus.ENABLED]: { text: t('table.enable'), color: 'success' },
-          [GlobalStatus.DISABLED]: { text: t('table.disable'), color: 'error' },
-        }
-        const statusInfo = statusMap[status] || statusMap[GlobalStatus.UNKNOWN]
-        return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>
+       return renderStatusTag(status, t)
       },
     },
     {
@@ -200,8 +195,8 @@ const EmailListContent: React.FC = () => {
       align: 'center',
       render: (_, record) => {
         const isEnabled = record.status === GlobalStatus.ENABLED
+        const action = isEnabled ? t(`common.status.${GlobalStatus.DISABLED}`) : t(`common.status.${GlobalStatus.ENABLED}`)
         const handleStatusClick = () => {
-          const action = isEnabled ? t('table.disable') : t('table.enable')
           modal.confirm({
             title: t('email.confirm.status.title', { action }),
             content: t('email.confirm.status.content', { action, name: record.name }),
@@ -229,7 +224,7 @@ const EmailListContent: React.FC = () => {
           },
           {
             key: 'status',
-            label: isEnabled ? t('table.disable') : t('table.enable'),
+            label: action,
             onClick: handleStatusClick,
           },
           {
@@ -370,7 +365,7 @@ const EmailListContent: React.FC = () => {
             onPressEnter={(e) => handleSearch((e.target as HTMLInputElement).value)}
             className="w-full min-w-[120px] sm:w-48 md:w-52"
           />
-          <span>{t('table.search.status')}:</span>
+          <span>{t('common.status')}:</span>
           <Radio.Group
             value={searchParams.status}
             onChange={(e) => {
@@ -380,8 +375,8 @@ const EmailListContent: React.FC = () => {
             buttonStyle="solid"
           >
             <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
-            <Radio.Button value={GlobalStatus.ENABLED}>{t('table.search.enabled')}</Radio.Button>
-            <Radio.Button value={GlobalStatus.DISABLED}>{t('table.search.disabled')}</Radio.Button>
+            <Radio.Button value={GlobalStatus.ENABLED}>{t(`common.status.${GlobalStatus.ENABLED}`)}</Radio.Button>
+            <Radio.Button value={GlobalStatus.DISABLED}>{t(`common.status.${GlobalStatus.DISABLED}`)}</Radio.Button>
           </Radio.Group>
           <Button onClick={() => handleSearch()} type="primary">
             {t('common.search')}

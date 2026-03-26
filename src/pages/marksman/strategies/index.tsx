@@ -25,7 +25,6 @@ import {
   getDriverLabel,
   getStatusTagInfo,
   getTypeLabel,
-  normalizeStatus,
 } from '@/utils/marksman'
 import { EllipsisOutlined, PlusOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
@@ -187,14 +186,13 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
       render: (v: string) => getDriverLabel(v, t),
     },
     {
-      title: t('table.status'),
+      title: t('strategy.table.status'),
       dataIndex: 'status',
       key: 'status',
       width: 90,
       align: 'center',
-      render: (status: string | undefined) => {
-        const s = normalizeStatus(status)
-        const info = getStatusTagInfo(s)
+      render: (status: GlobalStatus) => {
+        const info = getStatusTagInfo(status)
         return <Tag color={info.color}>{t(info.textKey)}</Tag>
       },
     },
@@ -222,9 +220,9 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
       align: 'center',
       render: (_, record) => {
         const isEnabled =
-          normalizeStatus(record.status) === GlobalStatus.ENABLED
+          record.status === GlobalStatus.ENABLED
+          const action = isEnabled ? t(`common.status.${GlobalStatus.DISABLED}`) : t(`common.status.${GlobalStatus.ENABLED}`)
         const handleStatusClick = () => {
-          const action = isEnabled ? t('table.disable') : t('table.enable')
           modal.confirm({
             title: t('strategy.confirm.status.title', { action }),
             content: t('strategy.confirm.status.content', {
@@ -248,7 +246,7 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
           },
           {
             key: 'status',
-            label: isEnabled ? t('table.disable') : t('table.enable'),
+            label: action,
             onClick: handleStatusClick,
           },
           {
@@ -404,7 +402,7 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
             }
             className='w-full min-w-[120px] sm:w-48 md:w-52'
           />
-          <span>{t('table.search.status')}:</span>
+          <span>{t('common.status')}:</span>
           <Radio.Group
             value={searchParams.status}
             onChange={(e) =>
@@ -416,10 +414,10 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
               {t('table.search.all')}
             </Radio.Button>
             <Radio.Button value={GlobalStatus.ENABLED}>
-              {t('table.search.enabled')}
+              {t(`common.status.${GlobalStatus.ENABLED}`)}
             </Radio.Button>
             <Radio.Button value={GlobalStatus.DISABLED}>
-              {t('table.search.disabled')}
+              {t(`common.status.${GlobalStatus.DISABLED}`)}
             </Radio.Button>
           </Radio.Group>
           <Button onClick={() => handleSearch()} type='primary'>
@@ -671,11 +669,6 @@ const StrategyGroupSidebar: React.FC<{
     }
   }
 
-  const getStatusText = (status: string | undefined) => {
-    const info = getStatusTagInfo(normalizeStatus(status))
-    return t(info.textKey)
-  }
-
   return (
     <>
       <div className='flex flex-col h-full'>
@@ -705,6 +698,7 @@ const StrategyGroupSidebar: React.FC<{
               {dataSource.map((item) => {
                 const isSelected = selectedUid === item.uid
                 const isEnabled = item.status === GlobalStatus.ENABLED
+                const action = isEnabled ? t(`common.status.${GlobalStatus.DISABLED}`) : t(`common.status.${GlobalStatus.ENABLED}`)
                 const menuItems: MenuProps['items'] = [
                   {
                     key: 'edit',
@@ -718,11 +712,8 @@ const StrategyGroupSidebar: React.FC<{
                   },
                   {
                     key: 'status',
-                    label: isEnabled ? t('table.disable') : t('table.enable'),
+                    label: action,
                     onClick: () => {
-                      const action = isEnabled
-                        ? t('table.disable')
-                        : t('table.enable')
                       modal.confirm({
                         title: t('strategyGroup.confirm.status.title', {
                           action,
@@ -781,12 +772,9 @@ const StrategyGroupSidebar: React.FC<{
                                 ? 'var(--ant-color-error)'
                                 : 'var(--ant-color-text-tertiary)',
                         }}
-                        title={getStatusText(normalizeStatus(item.status))}
+                        title={t(`common.status.${item.status}`)}
                       />
-                      <div className='truncate min-w-0'>
-                        {item.name || item.uid || '-'}
-                      </div>
-                      {/* <div className="text-xs text-(--ant-color-text-secondary)">{getStatusText(item.status)}</div> */}
+                      <div className='truncate min-w-0'>{item.name || item.uid || '-'}</div>
                     </div>
                     <span onClick={(e) => e.stopPropagation()}>
                       <Dropdown menu={{ items: menuItems }} trigger={['click']}>

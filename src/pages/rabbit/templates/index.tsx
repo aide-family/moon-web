@@ -13,6 +13,8 @@ import { getMessageTypeOptions, getMessageTypeLabel } from './constants'
 import { getMessageTypeIconType } from '@/pages/rabbit/constants/appIcons'
 import { IconFont } from '@/components/Icon/IconFont'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
+import { MessageType } from '@/api'
+import { renderStatusTag } from '@/utils/marksman'
 
 const defaultSearchParams: TemplateListParams = {
   keyword: '',
@@ -23,8 +25,8 @@ const defaultSearchParams: TemplateListParams = {
 function parseSearchParamsFromUrl(params: URLSearchParams): TemplateListParams {
   return {
     keyword: getParam(params, 'keyword') ?? '',
-    status: (getParam(params, 'status') as GlobalStatus) ?? undefined,
-    messageType: getParam(params, 'messageType') ?? undefined,
+    status: (getParam(params, 'status') as GlobalStatus) ,
+    messageType: getParam(params, 'messageType') as MessageType,
   }
 }
 
@@ -168,14 +170,8 @@ const TemplateListContent: React.FC = () => {
       key: 'status',
       minWidth: 60,
       align: 'center',
-      render: (status: string) => {
-        const statusMap: Record<string, { text: string; color: string }> = {
-          [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
-          [GlobalStatus.ENABLED]: { text: t('table.enable'), color: 'success' },
-          [GlobalStatus.DISABLED]: { text: t('table.disable'), color: 'error' },
-        }
-        const statusInfo = statusMap[status] || statusMap[GlobalStatus.UNKNOWN]
-        return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>
+      render: (status: GlobalStatus) => {
+       return renderStatusTag(status, t)
       },
     },
     {
@@ -199,9 +195,9 @@ const TemplateListContent: React.FC = () => {
       width: 140,
       align: 'center',
       render: (_, record) => {
+        const isEnabled = record.status === GlobalStatus.ENABLED
+        const action = isEnabled ? t(`common.status.${GlobalStatus.DISABLED}`) : t(`common.status.${GlobalStatus.ENABLED}`)
         const handleStatusClick = () => {
-          const isEnabled = record.status === GlobalStatus.ENABLED
-          const action = isEnabled ? t('table.disable') : t('table.enable')
           modal.confirm({
             title: t('template.confirm.status.title', { action }),
             content: t('template.confirm.status.content', { action, name: record.name }),
@@ -221,7 +217,7 @@ const TemplateListContent: React.FC = () => {
           })
         }
 
-        const isEnabled = record.status === GlobalStatus.ENABLED
+      
         const menuItems: MenuProps['items'] = [
           {
             key: 'edit',
@@ -230,7 +226,7 @@ const TemplateListContent: React.FC = () => {
           },
           {
             key: 'status',
-            label: isEnabled ? t('table.disable') : t('table.enable'),
+            label: action,
             onClick: handleStatusClick,
           },
           {
@@ -299,7 +295,7 @@ const TemplateListContent: React.FC = () => {
   }
 
   // 处理修改状态
-  const handleStatusChange = async (record: TemplateItem, newStatus: GlobalStatus | string) => {
+  const handleStatusChange = async (record: TemplateItem, newStatus: GlobalStatus) => {
     try {
       await updateTemplateStatus({ uid: record.uid, status: newStatus })
       message.success(t('message.update.success'))
@@ -375,7 +371,7 @@ const TemplateListContent: React.FC = () => {
             onPressEnter={(e) => handleSearch((e.target as HTMLInputElement).value)}
             className="w-full min-w-[120px] sm:w-48 md:w-52"
           />
-          <span>{t('table.search.status')}:</span>
+          <span>{t('common.status')}:</span>
           <Radio.Group
             value={searchParams.status}
             onChange={(e) => {
@@ -385,20 +381,20 @@ const TemplateListContent: React.FC = () => {
             buttonStyle="solid"
           >
             <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
-            <Radio.Button value={GlobalStatus.ENABLED}>{t('table.search.enabled')}</Radio.Button>
-            <Radio.Button value={GlobalStatus.DISABLED}>{t('table.search.disabled')}</Radio.Button>
+            <Radio.Button value={GlobalStatus.ENABLED}>{t(`common.status.${GlobalStatus.ENABLED}`)}</Radio.Button>
+            <Radio.Button value={GlobalStatus.DISABLED}>{t(`common.status.${GlobalStatus.DISABLED}`)}</Radio.Button>
           </Radio.Group>
           <span>{t('template.table.app')}:</span>
           <Select
             placeholder={t('template.search.app.placeholder')}
-            value={searchParams.messageType ?? ''}
-            onChange={(value) => {
-              setSearchParams(prev => ({ ...prev, messageType: value === '' ? undefined : value }))
+            value={searchParams.messageType ?? null}
+            onChange={(value:MessageType) => {
+              setSearchParams(prev => ({ ...prev, messageType: value  }))
               setPagination(prev => ({ ...prev, current: 1 }))
             }}
             className='w-45'
             options={[
-              { label: t('table.search.all'), value: '' },
+              { label: t('table.search.all'), value: null },
               ...getMessageTypeOptions(t).map(opt => ({
                 value: opt.value,
                 label: (

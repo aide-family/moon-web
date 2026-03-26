@@ -35,7 +35,6 @@ import {
   emptyPlaceholder,
   getTypeLabel,
   getDriverLabel,
-  normalizeStatus,
   getStatusTagInfo,
 } from '@/utils/marksman'
 import DetailForm from './DetailForm'
@@ -148,7 +147,7 @@ export default function MetricsDetailContent({
   }, [strategyUID])
 
   useEffect(() => {
-    getLevelSelectList({ limit: 100, status: GlobalStatus.ENABLED, type: LevelType.ALERT })
+    getLevelSelectList({ limit: 100, status: GlobalStatus.ENABLED, type: LevelType.LEVEL_TYPE_ALERT })
       .then((res) => setLevelSelectOptions(res?.items ?? []))
       .catch(() => setLevelSelectOptions([]))
   }, [])
@@ -266,7 +265,7 @@ export default function MetricsDetailContent({
         ? GlobalStatus.DISABLED
         : GlobalStatus.ENABLED
     const action =
-      current === GlobalStatus.ENABLED ? t('table.disable') : t('table.enable')
+      current === GlobalStatus.ENABLED ? t(`common.status.${GlobalStatus.DISABLED}`) : t(`common.status.${GlobalStatus.ENABLED}`)
     const levelName =
       levelSelectOptions.find((o) => o.value === level.uid)?.label ?? level.uid
     Modal.confirm({
@@ -349,8 +348,7 @@ export default function MetricsDetailContent({
     )
   }
 
-  const s = normalizeStatus(strategy.status)
-  const info = getStatusTagInfo(s)
+  const info = getStatusTagInfo(strategy.status ?? GlobalStatus.UNKNOWN)
 
   return (
     <>
@@ -809,7 +807,7 @@ export default function MetricsDetailContent({
                     const checked = globalVal === GlobalStatus.ENABLED
                     return (
                       <Tag color={checked ? 'green' : 'red'}>
-                        {checked ? t('table.enable') : t('table.disable')}
+                        {checked ? t(`common.status.${GlobalStatus.ENABLED}`) : t(`common.status.${GlobalStatus.DISABLED}`)}
                       </Tag>
                     )
                   },
@@ -873,8 +871,8 @@ export default function MetricsDetailContent({
                               onClick={() => handleToggleLevelStatus(index)}
                             >
                               {isEnabled
-                                ? t('table.disable')
-                                : t('table.enable')}
+                                ? t(`common.status.${GlobalStatus.DISABLED}`)
+                                : t(`common.status.${GlobalStatus.ENABLED}`)}
                             </Button>
                             <Button
                               type='link'

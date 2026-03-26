@@ -19,7 +19,7 @@ export interface WebhookItem {
   createdAt: string
   updatedAt: string
   /** 状态（全局 GlobalStatus 字符串或接口返回的数字） */
-  status: number | string
+  status: GlobalStatus
 }
 
 /**
@@ -77,7 +77,7 @@ export interface UpdateWebhookParams {
  */
 export interface UpdateWebhookStatusParams {
   uid: string
-  status: number | string
+  status: GlobalStatus
 }
 
 /**

@@ -7,6 +7,7 @@ import { useLocale } from '@/contexts/LocaleContext'
 import { getMessageTypeLabel } from '../constants'
 import { getMessageTypeIconType } from '@/pages/rabbit/constants/appIcons'
 import { IconFont } from '@/components/Icon/IconFont'
+import { renderStatusTag } from '@/utils/marksman'
 
 interface DetailViewProps {
   open: boolean
@@ -23,16 +24,6 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
     if (data && onEdit) {
       onEdit(data)
     }
-  }
-
-  // 状态映射
-  const getStatusInfo = (status: string) => {
-    const statusMap: Record<string, { text: string; color: string }> = {
-      [GlobalStatus.UNKNOWN]: { text: t('table.unknown'), color: 'default' },
-      [GlobalStatus.ENABLED]: { text: t('table.enable'), color: 'success' },
-      [GlobalStatus.DISABLED]: { text: t('table.disable'), color: 'error' },
-    }
-    return statusMap[status] || statusMap[GlobalStatus.UNKNOWN]
   }
 
   // 解析并格式化 jsonData
@@ -69,7 +60,7 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
           <Descriptions.Item label={t('template.detail.uid')}>{data.uid || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('template.detail.name')}>{data.name || '-'}</Descriptions.Item>
           <Descriptions.Item label={t('template.detail.app')}>
-            {data.messageType != null && data.messageType !== '' ? (
+            {data.messageType != null ? (
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                 <IconFont type={getMessageTypeIconType(data.messageType)} />
                 {getMessageTypeLabel(data.messageType, t)}
@@ -77,9 +68,7 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, onCancel, onEdit })
             ) : '-'}
           </Descriptions.Item>
           <Descriptions.Item label={t('table.status')}>
-            <Tag color={getStatusInfo(data.status).color}>
-              {getStatusInfo(data.status).text}
-            </Tag>
+            {renderStatusTag(data.status, t)}
           </Descriptions.Item>
           <Descriptions.Item label={t('template.detail.createdAt')}>
             {data.createdAt ? dayjs(data.createdAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
