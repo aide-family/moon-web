@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { Modal, Descriptions, Button, Space, Spin, Tooltip, message } from 'antd'
+import {
+  Modal,
+  Descriptions,
+  Button,
+  Space,
+  Spin,
+  Tooltip,
+  message,
+} from 'antd'
 import {
   type DatasourceItem,
   getDatasourceStatus,
@@ -8,7 +16,12 @@ import {
 } from '@/api/marksman/datasource/index'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
-import { emptyPlaceholder, getTypeLabel, getDriverLabel, getGlobalStatusLabel } from '@/utils/marksman'
+import {
+  emptyPlaceholder,
+  getTypeLabel,
+  getDriverLabel,
+  getGlobalStatusLabel,
+} from '@/utils/marksman'
 import { GlobalStatus } from '@/api'
 
 interface DetailViewProps {
@@ -143,9 +156,14 @@ const detailContent = (data: DatasourceItem, t: (key: string) => string) => (
     </Descriptions.Item>
     <Descriptions.Item label={t('datasource.detail.level')}>
       {data.level ? (
-        <div className="flex items-center gap-2">
-          <b className="text-xs text-(--ant-color-text-secondary) whitespace-nowrap" style={{ color: data.level?.bgColor ?? '#000' }}>{data.level?.name}</b>
-          <span className="truncate">{data.level?.remark}</span>
+        <div className='flex items-center gap-2'>
+          <b
+            className='text-xs text-(--ant-color-text-secondary) whitespace-nowrap'
+            style={{ color: data.level?.bgColor ?? '#000' }}
+          >
+            {data.level?.name}
+          </b>
+          <span className='truncate'>{data.level?.remark}</span>
         </div>
       ) : (
         '-'
@@ -155,7 +173,9 @@ const detailContent = (data: DatasourceItem, t: (key: string) => string) => (
       {getGlobalStatusLabel(data.status ?? GlobalStatus.UNKNOWN, t)}
     </Descriptions.Item>
     <Descriptions.Item label={t('datasource.detail.url')}>
-      <span style={{ wordBreak: 'break-all' }}>{emptyPlaceholder(data.url)}</span>
+      <span style={{ wordBreak: 'break-all' }}>
+        {emptyPlaceholder(data.url)}
+      </span>
     </Descriptions.Item>
     <Descriptions.Item label={t('datasource.detail.remark')}>
       {emptyPlaceholder(data.remark)}
@@ -206,12 +226,17 @@ const DetailView: React.FC<DetailViewProps> = ({
     const raw = data?.status
     const isEnabled = raw === GlobalStatus.ENABLED
     const nextStatus = isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED
-    const actionText = isEnabled ? t('common.status.DISABLED') : t('common.status.ENABLED')
+    const actionText = isEnabled
+      ? t('common.status.DISABLED')
+      : t('common.status.ENABLED')
     const name = data?.name ?? uid
 
     Modal.confirm({
       title: t('datasource.confirm.status.title', { action: actionText }),
-      content: t('datasource.confirm.status.content', { action: actionText, name }),
+      content: t('datasource.confirm.status.content', {
+        action: actionText,
+        name,
+      }),
       okText: t('common.ok'),
       cancelText: t('common.cancel'),
       onOk: async () => {
@@ -307,7 +332,9 @@ const DetailView: React.FC<DetailViewProps> = ({
               type='primary'
               danger={data?.status === GlobalStatus.ENABLED}
             >
-              {t(`common.status.${data?.status}`)}
+              {t(
+                `common.status.${data?.status === GlobalStatus.ENABLED ? GlobalStatus.DISABLED : GlobalStatus.ENABLED}`,
+              )}
             </Button>
             {data && onEdit && (
               <Button type='primary' size='small' onClick={handleEdit}>

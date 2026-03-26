@@ -30,10 +30,10 @@ export const zhCN = {
   'realtimeAlert.table.firedAt': '触发时间',
   'realtimeAlert.table.datasourceName': '数据源',
   'realtimeAlert.table.duration': '持续时间',
-  'realtimeAlert.table.value': '数值',
+  'realtimeAlert.table.value': '最新数值',
   'realtimeAlert.table.status': '状态',
-  'realtimeAlert.table.intervenedAt': '介入时间',
-  'realtimeAlert.table.intervenedBy': '介入人',
+  'realtimeAlert.table.intervenedAt': '时间',
+  'realtimeAlert.table.intervenedBy': '人员',
   'realtimeAlert.table.intervenedInfo': '介入信息',
   'realtimeAlert.table.recoveredAt': '恢复时间',
   'realtimeAlert.table.suppressedUntil': '抑制至',
@@ -51,12 +51,16 @@ export const zhCN = {
   'realtimeAlert.modal.detail.title': '告警详情',
   'realtimeAlert.modal.interveneMember.title': '选择介入成员（{count} 条）',
   'realtimeAlert.modal.interveneMember.form.memberUid.label': '介入成员',
-  'realtimeAlert.modal.interveneMember.form.memberUid.placeholder': '请选择成员',
-  'realtimeAlert.modal.interveneMember.form.memberUid.required': '请选择介入成员',
+  'realtimeAlert.modal.interveneMember.form.memberUid.placeholder':
+    '请选择成员',
+  'realtimeAlert.modal.interveneMember.form.memberUid.required':
+    '请选择介入成员',
   'realtimeAlert.confirm.batchIntervene.title': '确定要介入所选告警吗？',
-  'realtimeAlert.confirm.batchIntervene.content': '将对 {count} 条告警执行介入操作。',
+  'realtimeAlert.confirm.batchIntervene.content':
+    '将对 {count} 条告警执行介入操作。',
   'realtimeAlert.message.batchIntervene.successAll': '批量介入成功（{count}）',
-  'realtimeAlert.message.batchIntervene.partial': '批量介入部分成功（成功 {successCount} / {count}）',
+  'realtimeAlert.message.batchIntervene.partial':
+    '批量介入部分成功（成功 {successCount} / {count}）',
 
   'realtimeAlert.detail.strategyGroupUid': '策略组 UID',
   'realtimeAlert.detail.strategyGroupName': '策略组名称',
@@ -76,7 +80,8 @@ export const zhCN = {
   'realtimeAlert.detail.recoveredReason': '恢复原因',
   'realtimeAlert.detail.bgColor': '行背景色',
 
-  'realtimeAlert.message.detailFallback': '无法获取最新详情，已展示列表中的数据',
+  'realtimeAlert.message.detailFallback':
+    '无法获取最新详情，已展示列表中的数据',
   'realtimeAlert.modal.recover.title': '恢复告警',
   'realtimeAlert.modal.recover.reason': '恢复原因',
   'realtimeAlert.modal.recover.reason.placeholder': '请输入恢复原因',
@@ -107,12 +112,14 @@ export const zhCN = {
   'realtimeAlert.form.alertPageName.placeholder': '请输入告警页名称',
   'realtimeAlert.form.alertPageColor': '标识颜色',
   'realtimeAlert.form.alertPageSortOrder': '排序序号',
-  'realtimeAlert.form.alertPageSortOrder.placeholder': '数字越小越靠前，留空为默认',
+  'realtimeAlert.form.alertPageSortOrder.placeholder':
+    '数字越小越靠前，留空为默认',
   'realtimeAlert.form.alertPageFilter.section': '告警范围（可选）',
   'realtimeAlert.form.alertPageFilter.hint':
     '不选表示不按该项筛选；任一条件匹配即归入本告警页（与后端 filter 一致）。',
   'realtimeAlert.form.alertPageFilter.strategyGroups': '策略组',
-  'realtimeAlert.form.alertPageFilter.strategyGroups.placeholder': '请选择策略组',
+  'realtimeAlert.form.alertPageFilter.strategyGroups.placeholder':
+    '请选择策略组',
   'realtimeAlert.form.alertPageFilter.levels': '告警等级',
   'realtimeAlert.form.alertPageFilter.levels.placeholder': '请选择告警等级',
   'realtimeAlert.form.alertPageFilter.strategies': '策略',
@@ -124,7 +131,8 @@ export const zhCN = {
     '请选择数据源等级',
   'realtimeAlert.message.recover.success': '恢复成功',
   'realtimeAlert.message.suppress.success': '抑制成功',
-  'realtimeAlert.message.noBoundAlertPages': '你还没有绑定任何告警页，请先绑定。',
+  'realtimeAlert.message.noBoundAlertPages':
+    '你还没有绑定任何告警页，请先绑定。',
   'realtimeAlert.modal.bindAlertPages.title': '绑定个人告警页',
   'realtimeAlert.form.bindAlertPages.label': '选择要展示的告警页',
   'realtimeAlert.form.bindAlertPages.placeholder': '请选择告警页',
@@ -140,7 +148,8 @@ export const zhCN = {
   'realtimeAlert.autoRefresh.label': '自动刷新',
   'realtimeAlert.autoRefresh.interval': '每{minutes}分钟刷新一次',
   'realtimeAlert.rowBgColor.label': '行背景色',
-  'realtimeAlert.rowBgColor.tooltip': '关闭后实时告警表格不再使用等级/告警返回的背景色',
+  'realtimeAlert.rowBgColor.tooltip':
+    '关闭后实时告警表格不再使用等级/告警返回的背景色',
 }
 
 export const enUS = {
@@ -173,10 +182,10 @@ export const enUS = {
   'realtimeAlert.table.firedAt': 'Fired At',
   'realtimeAlert.table.datasourceName': 'Datasource',
   'realtimeAlert.table.duration': 'Duration',
-  'realtimeAlert.table.value': 'Value',
+  'realtimeAlert.table.value': 'Latest value',
   'realtimeAlert.table.status': 'Status',
-  'realtimeAlert.table.intervenedAt': 'Intervened At',
-  'realtimeAlert.table.intervenedBy': 'Intervened By',
+  'realtimeAlert.table.intervenedAt': 'Time',
+  'realtimeAlert.table.intervenedBy': 'Person',
   'realtimeAlert.table.intervenedInfo': 'Intervention Info',
   'realtimeAlert.table.recoveredAt': 'Recovered At',
   'realtimeAlert.table.suppressedUntil': 'Suppressed Until',
@@ -192,14 +201,22 @@ export const enUS = {
   'realtimeAlert.action.deleteAlertPage': 'Delete alert page',
 
   'realtimeAlert.modal.detail.title': 'Alert Detail',
-  'realtimeAlert.modal.interveneMember.title': 'Select intervening member ({count} alerts)',
-  'realtimeAlert.modal.interveneMember.form.memberUid.label': 'Intervening member',
-  'realtimeAlert.modal.interveneMember.form.memberUid.placeholder': 'Select member',
-  'realtimeAlert.modal.interveneMember.form.memberUid.required': 'Please select an intervening member',
-  'realtimeAlert.confirm.batchIntervene.title': 'Are you sure to intervene the selected alerts?',
-  'realtimeAlert.confirm.batchIntervene.content': 'This will intervene {count} alerts.',
-  'realtimeAlert.message.batchIntervene.successAll': 'Batch intervene succeeded ({count})',
-  'realtimeAlert.message.batchIntervene.partial': 'Batch intervene partially succeeded (success {successCount} / {count})',
+  'realtimeAlert.modal.interveneMember.title':
+    'Select intervening member ({count} alerts)',
+  'realtimeAlert.modal.interveneMember.form.memberUid.label':
+    'Intervening member',
+  'realtimeAlert.modal.interveneMember.form.memberUid.placeholder':
+    'Select member',
+  'realtimeAlert.modal.interveneMember.form.memberUid.required':
+    'Please select an intervening member',
+  'realtimeAlert.confirm.batchIntervene.title':
+    'Are you sure to intervene the selected alerts?',
+  'realtimeAlert.confirm.batchIntervene.content':
+    'This will intervene {count} alerts.',
+  'realtimeAlert.message.batchIntervene.successAll':
+    'Batch intervene succeeded ({count})',
+  'realtimeAlert.message.batchIntervene.partial':
+    'Batch intervene partially succeeded (success {successCount} / {count})',
 
   'realtimeAlert.detail.strategyGroupUid': 'Strategy group UID',
   'realtimeAlert.detail.strategyGroupName': 'Strategy group name',
@@ -219,24 +236,31 @@ export const enUS = {
   'realtimeAlert.detail.recoveredReason': 'Recovery reason',
   'realtimeAlert.detail.bgColor': 'Row background color',
 
-  'realtimeAlert.message.detailFallback': 'Could not load the latest detail; showing list snapshot',
+  'realtimeAlert.message.detailFallback':
+    'Could not load the latest detail; showing list snapshot',
 
   'realtimeAlert.modal.recover.title': 'Recover Alert',
   'realtimeAlert.modal.recover.reason': 'Recovery Reason',
-  'realtimeAlert.modal.recover.reason.placeholder': 'Please enter recovery reason',
+  'realtimeAlert.modal.recover.reason.placeholder':
+    'Please enter recovery reason',
   'realtimeAlert.modal.recover.reason.required': 'Please enter recovery reason',
   'realtimeAlert.modal.suppress.title': 'Suppress Alert',
   'realtimeAlert.modal.suppress.until': 'Suppress Until',
   'realtimeAlert.modal.suppress.reason': 'Suppression Reason',
-  'realtimeAlert.modal.suppress.reason.placeholder': 'Please enter suppression reason',
-  'realtimeAlert.modal.suppress.reason.required': 'Please enter suppression reason',
+  'realtimeAlert.modal.suppress.reason.placeholder':
+    'Please enter suppression reason',
+  'realtimeAlert.modal.suppress.reason.required':
+    'Please enter suppression reason',
 
   'realtimeAlert.message.selectAlertPage': 'Please select an alert page first',
   'realtimeAlert.message.noAlertPages': 'No alert pages. Create one first.',
   'realtimeAlert.message.intervene.success': 'Intervened successfully',
-  'realtimeAlert.message.createAlertPage.success': 'Alert page created successfully',
-  'realtimeAlert.message.updateAlertPage.success': 'Alert page updated successfully',
-  'realtimeAlert.message.deleteAlertPage.success': 'Alert page deleted successfully',
+  'realtimeAlert.message.createAlertPage.success':
+    'Alert page created successfully',
+  'realtimeAlert.message.updateAlertPage.success':
+    'Alert page updated successfully',
+  'realtimeAlert.message.deleteAlertPage.success':
+    'Alert page deleted successfully',
   'realtimeAlert.confirm.deleteAlertPage.title': 'Delete this alert page?',
   'realtimeAlert.confirm.deleteAlertPage.description':
     'This cannot be undone. If it was bound, it will be removed from your list.',
@@ -251,28 +275,35 @@ export const enUS = {
   'realtimeAlert.form.alertPageName.placeholder': 'Enter alert page name',
   'realtimeAlert.form.alertPageColor': 'Accent color',
   'realtimeAlert.form.alertPageSortOrder': 'Sort order',
-  'realtimeAlert.form.alertPageSortOrder.placeholder': 'Lower numbers first; leave empty for default',
+  'realtimeAlert.form.alertPageSortOrder.placeholder':
+    'Lower numbers first; leave empty for default',
   'realtimeAlert.form.alertPageFilter.section': 'Alert scope (optional)',
   'realtimeAlert.form.alertPageFilter.hint':
     'Leave empty to ignore that dimension; matches if any selected condition applies (same as backend filter).',
   'realtimeAlert.form.alertPageFilter.strategyGroups': 'Strategy groups',
-  'realtimeAlert.form.alertPageFilter.strategyGroups.placeholder': 'Select strategy groups',
+  'realtimeAlert.form.alertPageFilter.strategyGroups.placeholder':
+    'Select strategy groups',
   'realtimeAlert.form.alertPageFilter.levels': 'Alert levels',
-  'realtimeAlert.form.alertPageFilter.levels.placeholder': 'Select alert levels',
+  'realtimeAlert.form.alertPageFilter.levels.placeholder':
+    'Select alert levels',
   'realtimeAlert.form.alertPageFilter.strategies': 'Strategies',
-  'realtimeAlert.form.alertPageFilter.strategies.placeholder': 'Select strategies',
+  'realtimeAlert.form.alertPageFilter.strategies.placeholder':
+    'Select strategies',
   'realtimeAlert.form.alertPageFilter.datasources': 'Datasources',
-  'realtimeAlert.form.alertPageFilter.datasources.placeholder': 'Select datasources',
+  'realtimeAlert.form.alertPageFilter.datasources.placeholder':
+    'Select datasources',
   'realtimeAlert.form.alertPageFilter.datasourceLevels': 'Datasource levels',
   'realtimeAlert.form.alertPageFilter.datasourceLevels.placeholder':
     'Select datasource levels',
   'realtimeAlert.message.recover.success': 'Recovered successfully',
   'realtimeAlert.message.suppress.success': 'Suppressed successfully',
-  'realtimeAlert.message.noBoundAlertPages': 'You have not bound any alert pages. Please bind first.',
+  'realtimeAlert.message.noBoundAlertPages':
+    'You have not bound any alert pages. Please bind first.',
   'realtimeAlert.modal.bindAlertPages.title': 'Bind alert pages',
   'realtimeAlert.form.bindAlertPages.label': 'Select alert pages to display',
   'realtimeAlert.form.bindAlertPages.placeholder': 'Select alert pages',
-  'realtimeAlert.form.bindAlertPages.required': 'Please select at least one alert page',
+  'realtimeAlert.form.bindAlertPages.required':
+    'Please select at least one alert page',
   'realtimeAlert.message.bind.success': 'Bind successfully',
   'realtimeAlert.drawer.statistics.title': 'Today Alert Event Statistics',
   'realtimeAlert.drawer.statistics.button.open': 'Today Stats',
