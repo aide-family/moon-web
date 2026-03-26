@@ -53,7 +53,7 @@ export default function RealtimeAlertListWrapper() {
           getLevelSelectList({
             limit: 10,
             status: GlobalStatus.ENABLED,
-            type: LevelType.LevelType_ALERT,
+            type: LevelType.LEVEL_TYPE_ALERT,
           }),
         ])
         if (cancelled) return

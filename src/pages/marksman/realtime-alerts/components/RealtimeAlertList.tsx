@@ -167,7 +167,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
           getLevelSelectList({
             limit: 100,
             status: GlobalStatus.ENABLED,
-            type: LevelType.LevelType_ALERT,
+            type: LevelType.LEVEL_TYPE_ALERT,
           }),
           getStrategySelectList({ limit: 100 }),
         ])

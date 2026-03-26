@@ -32,16 +32,12 @@ const DetailForm: React.FC<DetailFormProps> = ({
   const typeOptions = useMemo(
     () => [
       {
-        value: LevelType.LevelType_UNKNOWN,
-        label: getLevelTypeLabel(LevelType.LevelType_UNKNOWN, t),
+        value: LevelType.LEVEL_TYPE_ALERT,
+        label: getLevelTypeLabel(LevelType.LEVEL_TYPE_ALERT, t),
       },
       {
-        value: LevelType.LevelType_ALERT,
-        label: getLevelTypeLabel(LevelType.LevelType_ALERT, t),
-      },
-      {
-        value: LevelType.LevelType_DATASOURCE,
-        label: getLevelTypeLabel(LevelType.LevelType_DATASOURCE, t),
+        value: LevelType.LEVEL_TYPE_DATASOURCE,
+        label: getLevelTypeLabel(LevelType.LEVEL_TYPE_DATASOURCE, t),
       },
     ],
     [t],
@@ -61,7 +57,7 @@ const DetailForm: React.FC<DetailFormProps> = ({
     } else if (open && mode === 'create') {
       form.resetFields()
       // 默认使用告警等级，便于减少误配置
-      form.setFieldsValue({ type: LevelType.LevelType_ALERT })
+      form.setFieldsValue({ type: LevelType.LEVEL_TYPE_ALERT })
     }
   }, [open, mode, initialData, form])
 

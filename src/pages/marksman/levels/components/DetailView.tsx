@@ -1,6 +1,6 @@
 import React from 'react'
 import { Badge, Button, Descriptions, Modal, Space, Spin } from 'antd'
-import type { LevelItem } from '@/api/marksman/level'
+import { LevelType, type LevelItem } from '@/api/marksman/level'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
 import { emptyPlaceholder, getLevelTypeLabel, renderStatusTag } from '@/utils/marksman'
@@ -47,7 +47,7 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, loading = false, on
         <Descriptions column={1} bordered styles={{ label: { width: 120, minWidth: 120 } }}>
           <Descriptions.Item label={t('level.detail.uid')}>{emptyPlaceholder(data.uid)}</Descriptions.Item>
           <Descriptions.Item label={t('level.detail.name')}>{emptyPlaceholder(data.name)}</Descriptions.Item>
-          <Descriptions.Item label={t('level.detail.type')}>{getLevelTypeLabel(data.type, t)}</Descriptions.Item>
+          <Descriptions.Item label={t('level.detail.type')}>{getLevelTypeLabel(data.type ?? LevelType.LEVEL_TYPE_UNKNOWN, t)}</Descriptions.Item>
           <Descriptions.Item label={t('level.detail.bgColor')}>
             {data.bgColor?.trim() ? (
               <span className="inline-flex items-center gap-2">

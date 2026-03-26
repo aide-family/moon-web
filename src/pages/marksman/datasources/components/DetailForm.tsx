@@ -70,7 +70,7 @@ const DetailForm: React.FC<DetailFormProps> = ({
         const res = await getLevelSelectList({
           limit: 100,
           status: GlobalStatus.ENABLED,
-          type: LevelType.DATASOURCE,
+          type: LevelType.LEVEL_TYPE_DATASOURCE,
         })
         if (!cancelled) setLevelSelectOptions(res?.items ?? [])
       } catch {

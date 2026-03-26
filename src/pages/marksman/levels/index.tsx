@@ -447,11 +447,11 @@ const LevelList: React.FC = () => {
             <Radio.Button value={undefined}>
               {t('table.search.all')}
             </Radio.Button>
-            <Radio.Button value={LevelType.LevelType_ALERT}>
-              {t('level.type.LevelType_ALERT')}
+            <Radio.Button value={LevelType.LEVEL_TYPE_ALERT}>
+              {getLevelTypeLabel(LevelType.LEVEL_TYPE_ALERT, t)}
             </Radio.Button>
-            <Radio.Button value={LevelType.LevelType_DATASOURCE}>
-              {t('level.type.LevelType_DATASOURCE')}
+            <Radio.Button value={LevelType.LEVEL_TYPE_DATASOURCE}>
+              {getLevelTypeLabel(LevelType.LEVEL_TYPE_DATASOURCE, t)}
             </Radio.Button>
           </Radio.Group>
           <Button onClick={() => handleSearch()} type='primary'>

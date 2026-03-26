@@ -39,9 +39,9 @@ export const zhCN = {
   'level.form.metadata.label': '元数据(JSON)',
   'level.form.metadata.placeholder': '可选，JSON 对象',
 
-  'level.type.LevelType_UNKNOWN': '未知',
-  'level.type.LevelType_ALERT': '告警',
-  'level.type.LevelType_DATASOURCE': '数据源',
+  'level.type.LEVEL_TYPE_UNKNOWN': '未知',
+  'level.type.LEVEL_TYPE_ALERT': '告警',
+  'level.type.LEVEL_TYPE_DATASOURCE': '数据源',
 }
 
 export const enUS = {
@@ -84,7 +84,7 @@ export const enUS = {
   'level.form.metadata.label': 'Metadata (JSON)',
   'level.form.metadata.placeholder': 'Optional, JSON object',
 
-  'level.type.LevelType_UNKNOWN': 'Unknown',
-  'level.type.LevelType_ALERT': 'Alert',
-  'level.type.LevelType_DATASOURCE': 'Datasource',
+  'level.type.LEVEL_TYPE_UNKNOWN': 'Unknown',
+  'level.type.LEVEL_TYPE_ALERT': 'Alert',
+  'level.type.LEVEL_TYPE_DATASOURCE': 'Datasource',
 }

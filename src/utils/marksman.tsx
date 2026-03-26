@@ -5,7 +5,7 @@
 
 import type { ReactNode } from 'react'
 import { Tag, Tooltip } from 'antd'
-import { AlertEventItem, GlobalStatus } from '@/api'
+import { AlertEventItem, GlobalStatus, LevelType } from '@/api'
 
 /** 表格单元格空值占位 */
 export function emptyPlaceholder(text: unknown): string {
@@ -41,11 +41,9 @@ export function getDriverLabel(
 
 /** 告警等级类型 i18n 文案 */
 export function getLevelTypeLabel(
-  value: string | number | undefined,
+  value: LevelType,
   t: (key: string) => string,
 ): string {
-  if (value == null || value === '') return '-'
-
   return t(`level.type.${String(value)}`)
 }
 
