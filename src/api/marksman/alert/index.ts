@@ -17,6 +17,7 @@ import type {
   ListHistoryAlertParams,
   ListHistoryAlertResponse,
   InterveneAlertParams,
+  BatchInterveneAlertParams,
   RecoverAlertParams,
   SuppressAlertParams,
   GetAlertStatisticsReply,
@@ -39,6 +40,7 @@ export type {
   ListHistoryAlertParams,
   ListHistoryAlertResponse,
   InterveneAlertParams,
+  BatchInterveneAlertParams,
   RecoverAlertParams,
   SuppressAlertParams,
   GetAlertStatisticsReply,
@@ -119,6 +121,16 @@ export const interveneAlert = (
   return http.post<Record<string, never>>(
     `/alert/realtime-alerts/${uid}/intervene`,
     { ...params }
+  )
+}
+
+/** 批量介入告警 POST /v1/alert/realtime-alerts/batch-intervene */
+export const batchInterveneAlert = (
+  params: BatchInterveneAlertParams,
+): Promise<Record<string, never>> => {
+  return http.post<Record<string, never>>(
+    `/alert/realtime-alerts/batch-intervene`,
+    { ...params },
   )
 }
 

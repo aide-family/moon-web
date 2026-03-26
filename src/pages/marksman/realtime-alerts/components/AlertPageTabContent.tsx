@@ -5,6 +5,7 @@ import type {
 import {
   getRealtimeAlertList,
   interveneAlert,
+  batchInterveneAlert,
   recoverAlert,
   suppressAlert,
 } from '@/api/marksman/alert'
@@ -21,6 +22,7 @@ import {
   Space,
   Table,
   Tag,
+  Select,
   message,
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
@@ -29,6 +31,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { defaultListParams } from './realtimeAlertHelpers'
 import { RealtimeAlertDetailModal } from './RealtimeAlertDetailModal'
 import { useDebounceFn } from 'ahooks'
+import {
+  selectMembers,
+  type SelectMemberItem,
+  type SelectMembersParams,
+} from '@/api/account/member'
 
 /** 实时告警列表筛选表单（仅 Tab 内使用） */
 interface AlertFilterFormValues {
@@ -64,6 +71,8 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     pageSize: 50,
     total: 0,
   })
+  const [selectedUids, setSelectedUids] = useState<string[]>([])
+  const [batchInterveneLoading, setBatchInterveneLoading] = useState(false)
   const paginationRef = useRef(pagination)
   useEffect(() => {
     paginationRef.current = pagination
@@ -81,6 +90,17 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     null,
   )
   const [actionLoading, setActionLoading] = useState(false)
+
+  const [interveneMemberModalOpen, setInterveneMemberModalOpen] =
+    useState(false)
+  const [interveneTargetUids, setInterveneTargetUids] = useState<string[]>(
+    [],
+  )
+  const [interveneMemberSaving, setInterveneMemberSaving] = useState(false)
+  const [memberOptions, setMemberOptions] = useState<SelectMemberItem[]>([])
+  const [memberOptionsLoading, setMemberOptionsLoading] = useState(false)
+  const [interveneMemberForm] = Form.useForm<{ memberUid?: string }>()
+
   /** 已提交给列表接口的关键字（与输入框通过「搜索」同步） */
   const [listKeyword, setListKeyword] = useState('')
   const mountedRef = useRef(true)
@@ -266,6 +286,54 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     setPagination((prev) => ({ ...prev, current: 1 }))
   }
 
+  const fetchInterveneMemberOptions = useCallback(
+    async (keyword?: string) => {
+      setMemberOptionsLoading(true)
+      try {
+        const params: SelectMembersParams = {
+          keyword: keyword?.trim() || undefined,
+          limit: 20,
+        }
+        const res = await selectMembers(params)
+        setMemberOptions(res.items ?? [])
+      } catch (e) {
+        console.error('拉取成员下拉失败:', e)
+        setMemberOptions([])
+      } finally {
+        setMemberOptionsLoading(false)
+      }
+    },
+    [],
+  )
+
+  const { run: debouncedFetchInterveneMembers, cancel: cancelDebounceMembers } =
+    useDebounceFn(
+      (keyword?: string) => {
+        void fetchInterveneMemberOptions(keyword)
+      },
+      { wait: 300 },
+    )
+
+  useEffect(() => {
+    if (!interveneMemberModalOpen) return
+    void fetchInterveneMemberOptions()
+    return () => {
+      cancelDebounceMembers()
+    }
+  }, [interveneMemberModalOpen, fetchInterveneMemberOptions, cancelDebounceMembers])
+
+  const openInterveneMemberModal = (uids: string[]) => {
+    const cleaned = (uids ?? []).map(String).filter(Boolean)
+    if (cleaned.length === 0) return
+    setInterveneTargetUids(cleaned)
+    setMemberOptions([])
+    setMemberOptionsLoading(false)
+    setInterveneMemberSaving(false)
+    setBatchInterveneLoading(false)
+    interveneMemberForm.resetFields()
+    setInterveneMemberModalOpen(true)
+  }
+
   const handleIntervene = async (record: AlertEventItem) => {
     if (!record.uid) return
     setActionLoading(true)
@@ -277,6 +345,45 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       console.error('介入告警失败:', e)
     } finally {
       setActionLoading(false)
+    }
+  }
+
+  const handleBatchIntervene = async () => {
+    if (selectedUids.length === 0) return
+    openInterveneMemberModal(selectedUids)
+  }
+
+  const handleInterveneMemberOk = async () => {
+    const count = interveneTargetUids.length
+    if (count === 0) return
+
+    try {
+      const values = await interveneMemberForm.validateFields()
+      const memberUid = values.memberUid as string | undefined
+      if (!memberUid) return
+
+      setBatchInterveneLoading(true)
+      setInterveneMemberSaving(true)
+
+      await batchInterveneAlert({
+        uids: interveneTargetUids,
+        intervenedMemberUid: memberUid,
+      })
+      message.success(
+        t('realtimeAlert.message.batchIntervene.successAll', { count }),
+      )
+
+      setSelectedUids([])
+      setInterveneTargetUids([])
+      setInterveneMemberModalOpen(false)
+      interveneMemberForm.resetFields()
+      fetchData(pagination.current, pagination.pageSize)
+    } catch (e) {
+      console.error('介入失败:', e)
+      message.error(t('message.error'))
+    } finally {
+      setBatchInterveneLoading(false)
+      setInterveneMemberSaving(false)
     }
   }
 
@@ -550,6 +657,13 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
               <Button type='primary' onClick={() => handleSearch()}>
                 {t('common.search')}
               </Button>
+              <Button
+                onClick={() => void handleBatchIntervene()}
+                disabled={selectedUids.length === 0}
+                loading={batchInterveneLoading}
+              >
+                {t('realtimeAlert.action.batchIntervene')}
+              </Button>
               <Button onClick={handleReset}>{t('common.reset')}</Button>
             </Space>
           </Form.Item>
@@ -570,6 +684,18 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
             rowKey='uid'
             loading={loading}
             size='small'
+            rowSelection={{
+              selectedRowKeys: selectedUids,
+              onChange: (keys) => {
+                setSelectedUids(
+                  (keys ?? []).map((k) => String(k)).filter(Boolean),
+                )
+              },
+              preserveSelectedRowKeys: false,
+              getCheckboxProps: (record) => ({
+                disabled: !record.uid,
+              }),
+            }}
             onRow={
               rowBgColorEnabled
                 ? (record) => {
@@ -607,6 +733,56 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
           setDetailModalRecord(null)
         }}
       />
+
+      <Modal
+        title={t('realtimeAlert.modal.interveneMember.title', {
+          count: interveneTargetUids.length,
+        })}
+        open={interveneMemberModalOpen}
+        onOk={handleInterveneMemberOk}
+        onCancel={() => {
+          setInterveneMemberModalOpen(false)
+          setInterveneTargetUids([])
+          interveneMemberForm.resetFields()
+          setMemberOptions([])
+        }}
+        confirmLoading={interveneMemberSaving}
+        okText={t('common.ok')}
+        cancelText={t('common.cancel')}
+        destroyOnClose
+      >
+        <Form form={interveneMemberForm} layout='vertical' preserve={false}>
+          <Form.Item
+            name='memberUid'
+            label={t('realtimeAlert.modal.interveneMember.form.memberUid.label')}
+            rules={[
+              {
+                required: true,
+                message: t(
+                  'realtimeAlert.modal.interveneMember.form.memberUid.required',
+                ),
+              },
+            ]}
+          >
+            <Select
+              showSearch
+              allowClear
+              placeholder={t('realtimeAlert.modal.interveneMember.form.memberUid.placeholder')}
+              filterOption={false}
+              loading={memberOptionsLoading}
+              onSearch={(value) => debouncedFetchInterveneMembers(value)}
+              options={memberOptions
+                .filter((i) => Boolean(i.value))
+                .map((i) => ({
+                  value: i.value!,
+                  label: i.label ?? i.value!,
+                  disabled: i.disabled,
+                  title: i.tooltip,
+                }))}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
 
       <Modal
         title={t('realtimeAlert.modal.recover.title')}

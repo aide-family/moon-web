@@ -340,8 +340,20 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
 
   const tabItems = useMemo(
     () =>
-      boundAlertPages
+      [...boundAlertPages]
         .filter((page) => page.uid)
+        .sort((a, b) => {
+          const ao = Number.isFinite(Number(a.sortOrder))
+            ? Number(a.sortOrder)
+            : Number.NEGATIVE_INFINITY
+          const bo = Number.isFinite(Number(b.sortOrder))
+            ? Number(b.sortOrder)
+            : Number.NEGATIVE_INFINITY
+          if (ao !== bo) return bo - ao
+          return (a.name ?? '').localeCompare(b.name ?? '', undefined, {
+            numeric: true,
+          })
+        })
         .map((page) => {
           const uid = page.uid as string
           const count = alertPageCountMap.get(uid)

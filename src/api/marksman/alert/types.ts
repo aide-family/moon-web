@@ -176,6 +176,14 @@ export interface InterveneAlertParams {
   uid?: string
 }
 
+/** 批量介入告警请求体 POST /v1/alert/realtime-alerts/batch-intervene */
+export interface BatchInterveneAlertParams {
+  /** 需要介入的实时告警 uid 列表 */
+  uids?: string[]
+  /** 介入成员（on-call 代理）uid */
+  intervenedMemberUid?: string
+}
+
 /** 恢复告警请求体 POST /v1/realtime-alerts/{uid}/recover */
 export interface RecoverAlertParams {
   uid?: string

@@ -39,6 +39,7 @@ export const zhCN = {
   'realtimeAlert.table.suppressedUntil': '抑制至',
 
   'realtimeAlert.action.intervene': '介入',
+  'realtimeAlert.action.batchIntervene': '批量介入',
   'realtimeAlert.action.recover': '恢复',
   'realtimeAlert.action.suppress': '抑制',
   'realtimeAlert.action.detail': '详情',
@@ -48,6 +49,14 @@ export const zhCN = {
   'realtimeAlert.action.deleteAlertPage': '删除告警页',
 
   'realtimeAlert.modal.detail.title': '告警详情',
+  'realtimeAlert.modal.interveneMember.title': '选择介入成员（{count} 条）',
+  'realtimeAlert.modal.interveneMember.form.memberUid.label': '介入成员',
+  'realtimeAlert.modal.interveneMember.form.memberUid.placeholder': '请选择成员',
+  'realtimeAlert.modal.interveneMember.form.memberUid.required': '请选择介入成员',
+  'realtimeAlert.confirm.batchIntervene.title': '确定要介入所选告警吗？',
+  'realtimeAlert.confirm.batchIntervene.content': '将对 {count} 条告警执行介入操作。',
+  'realtimeAlert.message.batchIntervene.successAll': '批量介入成功（{count}）',
+  'realtimeAlert.message.batchIntervene.partial': '批量介入部分成功（成功 {successCount} / {count}）',
 
   'realtimeAlert.detail.strategyGroupUid': '策略组 UID',
   'realtimeAlert.detail.strategyGroupName': '策略组名称',
@@ -173,6 +182,7 @@ export const enUS = {
   'realtimeAlert.table.suppressedUntil': 'Suppressed Until',
 
   'realtimeAlert.action.intervene': 'Intervene',
+  'realtimeAlert.action.batchIntervene': 'Batch Intervene',
   'realtimeAlert.action.recover': 'Recover',
   'realtimeAlert.action.suppress': 'Suppress',
   'realtimeAlert.action.detail': 'Detail',
@@ -182,6 +192,14 @@ export const enUS = {
   'realtimeAlert.action.deleteAlertPage': 'Delete alert page',
 
   'realtimeAlert.modal.detail.title': 'Alert Detail',
+  'realtimeAlert.modal.interveneMember.title': 'Select intervening member ({count} alerts)',
+  'realtimeAlert.modal.interveneMember.form.memberUid.label': 'Intervening member',
+  'realtimeAlert.modal.interveneMember.form.memberUid.placeholder': 'Select member',
+  'realtimeAlert.modal.interveneMember.form.memberUid.required': 'Please select an intervening member',
+  'realtimeAlert.confirm.batchIntervene.title': 'Are you sure to intervene the selected alerts?',
+  'realtimeAlert.confirm.batchIntervene.content': 'This will intervene {count} alerts.',
+  'realtimeAlert.message.batchIntervene.successAll': 'Batch intervene succeeded ({count})',
+  'realtimeAlert.message.batchIntervene.partial': 'Batch intervene partially succeeded (success {successCount} / {count})',
 
   'realtimeAlert.detail.strategyGroupUid': 'Strategy group UID',
   'realtimeAlert.detail.strategyGroupName': 'Strategy group name',
