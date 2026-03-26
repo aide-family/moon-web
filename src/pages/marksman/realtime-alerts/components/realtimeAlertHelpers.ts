@@ -23,16 +23,24 @@ export function buildCreateAlertPageFilter(values: {
   filterStrategyGroupUids?: string[]
   filterLevelUids?: string[]
   filterStrategyUids?: string[]
+  filterDatasourceUids?: string[]
+  filterDatasourceLevelUids?: string[]
 }): AlertPageFilter | undefined {
   const strategyGroupUids = (values.filterStrategyGroupUids ?? []).filter(
     Boolean,
   )
   const levelUids = (values.filterLevelUids ?? []).filter(Boolean)
   const strategyUids = (values.filterStrategyUids ?? []).filter(Boolean)
+  const datasourceUids = (values.filterDatasourceUids ?? []).filter(Boolean)
+  const datasourceLevelUids = (values.filterDatasourceLevelUids ?? []).filter(
+    Boolean,
+  )
   if (
     strategyGroupUids.length === 0 &&
     levelUids.length === 0 &&
-    strategyUids.length === 0
+    strategyUids.length === 0 &&
+    datasourceUids.length === 0 &&
+    datasourceLevelUids.length === 0
   ) {
     return undefined
   }
@@ -40,5 +48,8 @@ export function buildCreateAlertPageFilter(values: {
   if (strategyGroupUids.length > 0) out.strategyGroupUids = strategyGroupUids
   if (levelUids.length > 0) out.levelUids = levelUids
   if (strategyUids.length > 0) out.strategyUids = strategyUids
+  if (datasourceUids.length > 0) out.datasourceUids = datasourceUids
+  if (datasourceLevelUids.length > 0)
+    out.datasourceLevelUids = datasourceLevelUids
   return out
 }

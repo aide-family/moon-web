@@ -41,6 +41,7 @@ import type { ColumnsType } from 'antd/es/table'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertPageTabContent } from './AlertPageTabContent'
 import { buildCreateAlertPageFilter } from './realtimeAlertHelpers'
+import { getDatasourceSelectList } from '@/api/marksman/datasource'
 
 type AlertPageFormMode = 'create' | 'edit'
 
@@ -92,6 +93,12 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
   const [strategySelectOptions, setStrategySelectOptions] = useState<
     { value: string; label: string; disabled?: boolean }[]
   >([])
+  const [datasourceSelectOptions, setDatasourceSelectOptions] = useState<
+    { value: string; label: string; disabled?: boolean }[]
+  >([])
+  const [datasourceLevelSelectOptions, setDatasourceLevelSelectOptions] = useState<
+    { value: string; label: string; disabled?: boolean }[]
+  >([])
   const [form] = Form.useForm()
   const [bindForm] = Form.useForm()
   const mountedRef = useRef(true)
@@ -113,6 +120,20 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
       strategySelectOptions.filter((o) => o.disabled).map((o) => o.value),
     )
   }, [strategySelectOptions])
+
+  const disabledDatasourceSet = useMemo(() => {
+    return new Set(
+      datasourceSelectOptions.filter((o) => o.disabled).map((o) => o.value),
+    )
+  }, [datasourceSelectOptions])
+
+  const disabledDatasourceLevelSet = useMemo(() => {
+    return new Set(
+      datasourceLevelSelectOptions
+        .filter((o) => o.disabled)
+        .map((o) => o.value),
+    )
+  }, [datasourceLevelSelectOptions])
 
   const fetchAvailableAlertPages = useCallback(async () => {
     setAvailableAlertPagesLoading(true)
@@ -162,7 +183,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
     const loadFilterSelects = async () => {
       setCreateFilterOptionsLoading(true)
       try {
-        const [sgRes, lvRes, stRes] = await Promise.all([
+        const [sgRes, lvRes, stRes, dsRes, dsLevelRes] = await Promise.all([
           getStrategyGroupSelectList({ limit: 100 }),
           getLevelSelectList({
             limit: 100,
@@ -170,6 +191,12 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
             type: LevelType.LEVEL_TYPE_ALERT,
           }),
           getStrategySelectList({ limit: 100 }),
+          getDatasourceSelectList({ limit: 100 }),
+          getLevelSelectList({
+            limit: 100,
+            status: GlobalStatus.ENABLED,
+            type: LevelType.LEVEL_TYPE_DATASOURCE,
+          }),
         ])
         if (cancelled || !mountedRef.current) return
 
@@ -188,12 +215,16 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
         setStrategyGroupSelectOptions(mapItems(sgRes.items ?? []))
         setLevelSelectOptions(mapItems(lvRes.items ?? []))
         setStrategySelectOptions(mapItems(stRes.items ?? []))
+        setDatasourceSelectOptions(mapItems(dsRes.items ?? []))
+        setDatasourceLevelSelectOptions(mapItems(dsLevelRes.items ?? []))
       } catch (e) {
         console.error('加载告警页筛选项失败:', e)
         if (!cancelled && mountedRef.current) {
           setStrategyGroupSelectOptions([])
           setLevelSelectOptions([])
           setStrategySelectOptions([])
+          setDatasourceSelectOptions([])
+          setDatasourceLevelSelectOptions([])
         }
       } finally {
         if (!cancelled && mountedRef.current)
@@ -360,6 +391,9 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
           filterStrategyGroupUids: detail.filter?.strategyGroupUids ?? [],
           filterLevelUids: detail.filter?.levelUids ?? [],
           filterStrategyUids: detail.filter?.strategyUids ?? [],
+          filterDatasourceUids: detail.filter?.datasourceUids ?? [],
+          filterDatasourceLevelUids:
+            detail.filter?.datasourceLevelUids ?? [],
         })
       } catch (e) {
         console.error('获取告警页详情失败:', e)
@@ -748,6 +782,46 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
                   'realtimeAlert.form.alertPageFilter.strategies.placeholder',
                 )}
                 options={strategySelectOptions}
+              />
+            </Form.Item>
+            <Form.Item
+              name='filterDatasourceUids'
+              label={t('realtimeAlert.form.alertPageFilter.datasources')}
+              getValueFromEvent={(v?: string[]) =>
+                (v ?? []).filter((value) => !disabledDatasourceSet.has(value))
+              }
+            >
+              <Select
+                mode='multiple'
+                allowClear
+                showSearch
+                optionFilterProp='label'
+                loading={createFilterOptionsLoading}
+                placeholder={t(
+                  'realtimeAlert.form.alertPageFilter.datasources.placeholder',
+                )}
+                options={datasourceSelectOptions}
+              />
+            </Form.Item>
+            <Form.Item
+              name='filterDatasourceLevelUids'
+              label={t('realtimeAlert.form.alertPageFilter.datasourceLevels')}
+              getValueFromEvent={(v?: string[]) =>
+                (v ?? []).filter(
+                  (value) => !disabledDatasourceLevelSet.has(value),
+                )
+              }
+            >
+              <Select
+                mode='multiple'
+                allowClear
+                showSearch
+                optionFilterProp='label'
+                loading={createFilterOptionsLoading}
+                placeholder={t(
+                  'realtimeAlert.form.alertPageFilter.datasourceLevels.placeholder',
+                )}
+                options={datasourceLevelSelectOptions}
               />
             </Form.Item>
           </Form>

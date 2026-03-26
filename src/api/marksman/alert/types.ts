@@ -12,6 +12,8 @@ export interface AlertPageFilter {
   strategyGroupUids?: string[]
   levelUids?: string[]
   strategyUids?: string[]
+  datasourceUids?: string[]
+  datasourceLevelUids?: string[]
 }
 
 /** 告警页单项（视图/分类） */

@@ -108,6 +108,11 @@ export const zhCN = {
   'realtimeAlert.form.alertPageFilter.levels.placeholder': '请选择告警等级',
   'realtimeAlert.form.alertPageFilter.strategies': '策略',
   'realtimeAlert.form.alertPageFilter.strategies.placeholder': '请选择策略',
+  'realtimeAlert.form.alertPageFilter.datasources': '数据源',
+  'realtimeAlert.form.alertPageFilter.datasources.placeholder': '请选择数据源',
+  'realtimeAlert.form.alertPageFilter.datasourceLevels': '数据源等级',
+  'realtimeAlert.form.alertPageFilter.datasourceLevels.placeholder':
+    '请选择数据源等级',
   'realtimeAlert.message.recover.success': '恢复成功',
   'realtimeAlert.message.suppress.success': '抑制成功',
   'realtimeAlert.message.noBoundAlertPages': '你还没有绑定任何告警页，请先绑定。',
@@ -238,6 +243,11 @@ export const enUS = {
   'realtimeAlert.form.alertPageFilter.levels.placeholder': 'Select alert levels',
   'realtimeAlert.form.alertPageFilter.strategies': 'Strategies',
   'realtimeAlert.form.alertPageFilter.strategies.placeholder': 'Select strategies',
+  'realtimeAlert.form.alertPageFilter.datasources': 'Datasources',
+  'realtimeAlert.form.alertPageFilter.datasources.placeholder': 'Select datasources',
+  'realtimeAlert.form.alertPageFilter.datasourceLevels': 'Datasource levels',
+  'realtimeAlert.form.alertPageFilter.datasourceLevels.placeholder':
+    'Select datasource levels',
   'realtimeAlert.message.recover.success': 'Recovered successfully',
   'realtimeAlert.message.suppress.success': 'Suppressed successfully',
   'realtimeAlert.message.noBoundAlertPages': 'You have not bound any alert pages. Please bind first.',
