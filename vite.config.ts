@@ -65,6 +65,7 @@ export default defineConfig(({ mode }) => {
         include: [
           '@ant-design/icons',
           'antd',
+          'ahooks',
           'dayjs',
           'react',
           'react-dom',
