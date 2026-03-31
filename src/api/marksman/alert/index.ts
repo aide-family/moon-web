@@ -19,6 +19,7 @@ import type {
   InterveneAlertParams,
   BatchInterveneAlertParams,
   RecoverAlertParams,
+  BatchRecoverAlertParams,
   SuppressAlertParams,
   GetAlertStatisticsReply,
   ListUserAlertPagesReply,
@@ -42,6 +43,7 @@ export type {
   InterveneAlertParams,
   BatchInterveneAlertParams,
   RecoverAlertParams,
+  BatchRecoverAlertParams,
   SuppressAlertParams,
   GetAlertStatisticsReply,
   ListUserAlertPagesReply,
@@ -142,6 +144,16 @@ export const recoverAlert = (
   return http.post<Record<string, never>>(
     `/alert/realtime-alerts/${uid}/recover`,
     { ...params }
+  )
+}
+
+/** 批量恢复告警 POST /v1/alert/realtime-alerts/batch-recover */
+export const batchRecoverAlert = (
+  params: BatchRecoverAlertParams,
+): Promise<Record<string, never>> => {
+  return http.post<Record<string, never>>(
+    `/alert/realtime-alerts/batch-recover`,
+    { ...params },
   )
 }
 

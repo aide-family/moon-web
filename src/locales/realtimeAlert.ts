@@ -39,7 +39,9 @@ export const zhCN = {
   'realtimeAlert.table.suppressedUntil': '抑制至',
 
   'realtimeAlert.action.intervene': '介入',
+  'realtimeAlert.action.batchAction': '批量操作',
   'realtimeAlert.action.batchIntervene': '批量介入',
+  'realtimeAlert.action.batchRecover': '批量恢复',
   'realtimeAlert.action.recover': '恢复',
   'realtimeAlert.action.suppress': '抑制',
   'realtimeAlert.action.detail': '详情',
@@ -55,12 +57,14 @@ export const zhCN = {
     '请选择成员',
   'realtimeAlert.modal.interveneMember.form.memberUid.required':
     '请选择介入成员',
+  'realtimeAlert.modal.batchRecover.title': '批量恢复（{count} 条）',
   'realtimeAlert.confirm.batchIntervene.title': '确定要介入所选告警吗？',
   'realtimeAlert.confirm.batchIntervene.content':
     '将对 {count} 条告警执行介入操作。',
   'realtimeAlert.message.batchIntervene.successAll': '批量介入成功（{count}）',
   'realtimeAlert.message.batchIntervene.partial':
     '批量介入部分成功（成功 {successCount} / {count}）',
+  'realtimeAlert.message.batchRecover.successAll': '批量恢复成功（{count}）',
 
   'realtimeAlert.detail.strategyGroupUid': '策略组 UID',
   'realtimeAlert.detail.strategyGroupName': '策略组名称',
@@ -191,7 +195,9 @@ export const enUS = {
   'realtimeAlert.table.suppressedUntil': 'Suppressed Until',
 
   'realtimeAlert.action.intervene': 'Intervene',
+  'realtimeAlert.action.batchAction': 'Batch Actions',
   'realtimeAlert.action.batchIntervene': 'Batch Intervene',
+  'realtimeAlert.action.batchRecover': 'Batch Recover',
   'realtimeAlert.action.recover': 'Recover',
   'realtimeAlert.action.suppress': 'Suppress',
   'realtimeAlert.action.detail': 'Detail',
@@ -209,6 +215,7 @@ export const enUS = {
     'Select member',
   'realtimeAlert.modal.interveneMember.form.memberUid.required':
     'Please select an intervening member',
+  'realtimeAlert.modal.batchRecover.title': 'Batch Recover ({count} alerts)',
   'realtimeAlert.confirm.batchIntervene.title':
     'Are you sure to intervene the selected alerts?',
   'realtimeAlert.confirm.batchIntervene.content':
@@ -217,6 +224,8 @@ export const enUS = {
     'Batch intervene succeeded ({count})',
   'realtimeAlert.message.batchIntervene.partial':
     'Batch intervene partially succeeded (success {successCount} / {count})',
+  'realtimeAlert.message.batchRecover.successAll':
+    'Batch recover succeeded ({count})',
 
   'realtimeAlert.detail.strategyGroupUid': 'Strategy group UID',
   'realtimeAlert.detail.strategyGroupName': 'Strategy group name',

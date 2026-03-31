@@ -4,6 +4,7 @@ import {
   App,
   Button,
   Dropdown,
+  Form,
   Input,
   Radio,
   Space,
@@ -66,6 +67,7 @@ export const StrategyGroupList: React.FC = () => {
   const [searchParams, setSearchParams] = useState<StrategyGroupListParams>(
     () => parseSearchParamsFromUrl(urlSearchParams),
   )
+  const [searchForm] = Form.useForm<StrategyGroupListParams>()
 
   const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>(
@@ -331,7 +333,9 @@ export const StrategyGroupList: React.FC = () => {
 
   // URL 变化时（如浏览器后退）同步到表单
   useEffect(() => {
-    setSearchParams(parseSearchParamsFromUrl(urlSearchParams))
+    const next = parseSearchParamsFromUrl(urlSearchParams)
+    setSearchParams(next)
+    searchForm.setFieldsValue(next)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlSearchParams.toString()])
 
@@ -352,6 +356,13 @@ export const StrategyGroupList: React.FC = () => {
     fetchData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.status])
+
+  useEffect(() => {
+    searchForm.setFieldsValue({
+      keyword: searchParams.keyword ?? '',
+      status: searchParams.status,
+    })
+  }, [searchParams.keyword, searchParams.status, searchForm])
 
   useEffect(() => {
     const updateTableHeight = () => {
@@ -383,44 +394,50 @@ export const StrategyGroupList: React.FC = () => {
   return (
     <div className='h-full flex flex-col'>
       <div className='flex items-center justify-between mb-4 shrink-0'>
-        <Space size='middle' wrap>
-          <span>{t('table.search.keyword')}:</span>
-          <Input
-            placeholder={t('table.search.placeholder')}
-            allowClear
-            className='w-full min-w-[120px] sm:w-48 md:w-52'
-            value={searchParams.keyword ?? ''}
-            onChange={(e) =>
-              setSearchParams((prev) => ({ ...prev, keyword: e.target.value }))
-            }
-            onPressEnter={(e) =>
-              handleSearch({ keyword: (e.target as HTMLInputElement).value })
-            }
-          />
-          <span>{t('common.status')}:</span>
-          <Radio.Group
-            value={searchParams.status}
-            onChange={(e) => {
-              setSearchParams((prev) => ({ ...prev, status: e.target.value }))
-              setPagination((prev) => ({ ...prev, current: 1 }))
-            }}
-            buttonStyle='solid'
-          >
-            <Radio.Button value={undefined}>
-              {t('table.search.all')}
-            </Radio.Button>
-            <Radio.Button value={GlobalStatus.ENABLED}>
-              {t(`common.status.${GlobalStatus.ENABLED}`)}
-            </Radio.Button>
-            <Radio.Button value={GlobalStatus.DISABLED}>
-              {t(`common.status.${GlobalStatus.DISABLED}`)}
-            </Radio.Button>
-          </Radio.Group>
-          <Button onClick={() => handleSearch()} type='primary'>
-            {t('common.search')}
-          </Button>
-          <Button onClick={handleReset}>{t('common.reset')}</Button>
-        </Space>
+        <Form
+          form={searchForm}
+          layout='inline'
+          onValuesChange={(_, allValues) => {
+            setSearchParams((prev) => ({
+              ...prev,
+              keyword: allValues.keyword ?? '',
+              status: allValues.status,
+            }))
+            setPagination((prev) => ({ ...prev, current: 1 }))
+          }}
+        >
+          <Space size='middle' wrap>
+            <span>{t('table.search.keyword')}:</span>
+            <Form.Item name='keyword' className='mb-0'>
+              <Input
+                placeholder={t('table.search.placeholder')}
+                allowClear
+                className='w-full min-w-[120px] sm:w-48 md:w-52'
+                onPressEnter={(e) =>
+                  handleSearch({ keyword: (e.target as HTMLInputElement).value })
+                }
+              />
+            </Form.Item>
+            <span>{t('common.status')}:</span>
+            <Form.Item name='status' className='mb-0'>
+              <Radio.Group buttonStyle='solid'>
+                <Radio.Button value={undefined}>
+                  {t('table.search.all')}
+                </Radio.Button>
+                <Radio.Button value={GlobalStatus.ENABLED}>
+                  {t(`common.status.${GlobalStatus.ENABLED}`)}
+                </Radio.Button>
+                <Radio.Button value={GlobalStatus.DISABLED}>
+                  {t(`common.status.${GlobalStatus.DISABLED}`)}
+                </Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+            <Button onClick={() => handleSearch()} type='primary'>
+              {t('common.search')}
+            </Button>
+            <Button onClick={handleReset}>{t('common.reset')}</Button>
+          </Space>
+        </Form>
         <Space>
           <Button type='primary' onClick={handleAdd}>
             {t('common.add')}

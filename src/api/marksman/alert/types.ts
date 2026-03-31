@@ -190,6 +190,13 @@ export interface RecoverAlertParams {
   recoveredReason?: string
 }
 
+/** 批量恢复告警请求体 POST /v1/alert/realtime-alerts/batch-recover */
+export interface BatchRecoverAlertParams {
+  /** 需要恢复的实时告警 uid 列表 */
+  uids?: string[]
+  recoveredReason?: string
+}
+
 /** 抑制告警请求体 POST /v1/alert/realtime-alerts/{uid}/suppress，suppressUntilUnix 为 Unix 秒（string） */
 export interface SuppressAlertParams {
   uid?: string

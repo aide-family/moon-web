@@ -53,6 +53,7 @@ description: Develops feature pages and modules in React + TypeScript using Ant 
 
 ### 新增/编辑弹窗表单（必做）
 
+- **表单必须使用 `Form` 管理**：所有业务表单（含筛选表单、弹窗表单、设置表单）必须使用 `Form` + `Form.Item` 托管字段值与校验；禁止用 `useState` 直接逐字段管理输入值后再手工拼装提交参数。
 - **先关闭弹窗，再重置表单**：提交成功回调中只调用 `onSuccess()` 与 `onCancel()`，**不要**在成功路径里调用会执行 `form.resetFields()` 的 `handleCancel()`，否则用户会先看到表单清空再关闭。表单重置仅在用户点击取消/遮罩关闭时在 `onCancel` 中执行，或依赖再次打开时（如 create 模式）的 `useEffect` 里 `resetFields()`。
 
 ### 国际化（若项目已启用）
@@ -72,6 +73,7 @@ description: Develops feature pages and modules in React + TypeScript using Ant 
 - [ ] 类型完整、无不必要的 `any`；Props 与状态类型清晰。
 - [ ] 异步请求有取消/清理，无卸载后 setState。
 - [ ] 列表/空态/错误态有明确 UI；表单与 API 参数一致。
+- [ ] 所有业务表单均由 `Form` 管理（`Form` + `Form.Item` + `form.validateFields/setFieldsValue`），无散落的字段级 `useState` 直绑输入。
 - [ ] 列表搜索：回车触发查询时使用当前输入值（override 入参或 ref），不依赖未刷新的 state。
 - [ ] 新增/编辑弹窗：提交成功后只调用 onSuccess + onCancel，不在成功路径中先 resetFields 再关闭。
 - [ ] 代码结构清晰、可维护，符合高级前端工程师标准。

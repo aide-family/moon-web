@@ -5,6 +5,7 @@ import {
   Badge,
   Button,
   Dropdown,
+  Form,
   Input,
   Radio,
   Space,
@@ -68,6 +69,7 @@ const LevelList: React.FC = () => {
   const [searchParams, setSearchParams] = useState<LevelListParams>(() =>
     parseSearchParamsFromUrl(urlSearchParams),
   )
+  const [searchForm] = Form.useForm<LevelListParams>()
 
   const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>(
@@ -342,8 +344,10 @@ const LevelList: React.FC = () => {
 
   // URL 变化时（如浏览器后退）同步到表单
   useEffect(() => {
-    setSearchParams(parseSearchParamsFromUrl(urlSearchParams))
-  }, [urlSearchParams])
+    const next = parseSearchParamsFromUrl(urlSearchParams)
+    setSearchParams(next)
+    searchForm.setFieldsValue(next)
+  }, [urlSearchParams, searchForm])
 
   // 搜索条件变化即同步到 URL（replace 避免每次输入都产生历史记录）
   useEffect(() => {
@@ -367,6 +371,14 @@ const LevelList: React.FC = () => {
     fetchData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.status, searchParams.type])
+
+  useEffect(() => {
+    searchForm.setFieldsValue({
+      keyword: searchParams.keyword ?? '',
+      status: searchParams.status,
+      type: searchParams.type,
+    })
+  }, [searchParams.keyword, searchParams.status, searchParams.type, searchForm])
 
   useEffect(() => {
     const updateTableHeight = () => {
@@ -399,63 +411,65 @@ const LevelList: React.FC = () => {
     <div className='h-full flex flex-col'>
       {/* 搜索和操作栏（参考模板/数据源等页面表格头部搜索） */}
       <div className='flex items-center justify-between mb-4 shrink-0'>
-        <Space size='middle' wrap>
-          <span>{t('table.search.keyword')}:</span>
-          <Input
-            placeholder={t('table.search.placeholder')}
-            allowClear
-            className='w-full min-w-[120px] sm:w-48 md:w-52'
-            value={searchParams.keyword ?? ''}
-            onChange={(e) =>
-              setSearchParams((prev) => ({ ...prev, keyword: e.target.value }))
-            }
-            onPressEnter={(e) =>
-              handleSearch({ keyword: (e.target as HTMLInputElement).value })
-            }
-          />
-          <span>{t('common.status')}:</span>
-          <Radio.Group
-            value={searchParams.status}
-            onChange={(e) => {
-              setSearchParams((prev) => ({ ...prev, status: e.target.value }))
-              setPagination((prev) => ({ ...prev, current: 1 }))
-            }}
-            buttonStyle='solid'
-          >
-            <Radio.Button value={undefined}>
-              {t('table.search.all')}
-            </Radio.Button>
-            <Radio.Button value={GlobalStatus.ENABLED}>
-              {t(`common.status.${GlobalStatus.ENABLED}`)}
-            </Radio.Button>
-            <Radio.Button value={GlobalStatus.DISABLED}>
-              {t(`common.status.${GlobalStatus.DISABLED}`)}
-            </Radio.Button>
-          </Radio.Group>
-          <span>{t('level.table.type')}:</span>
-          <Radio.Group
-            value={searchParams.type}
-            onChange={(e) => {
-              setSearchParams((prev) => ({ ...prev, type: e.target.value }))
-              setPagination((prev) => ({ ...prev, current: 1 }))
-            }}
-            buttonStyle='solid'
-          >
-            <Radio.Button value={undefined}>
-              {t('table.search.all')}
-            </Radio.Button>
-            <Radio.Button value={LevelType.LEVEL_TYPE_ALERT}>
-              {getLevelTypeLabel(LevelType.LEVEL_TYPE_ALERT, t)}
-            </Radio.Button>
-            <Radio.Button value={LevelType.LEVEL_TYPE_DATASOURCE}>
-              {getLevelTypeLabel(LevelType.LEVEL_TYPE_DATASOURCE, t)}
-            </Radio.Button>
-          </Radio.Group>
-          <Button onClick={() => handleSearch()} type='primary'>
-            {t('common.search')}
-          </Button>
-          <Button onClick={handleReset}>{t('common.reset')}</Button>
-        </Space>
+        <Form
+          form={searchForm}
+          layout='inline'
+          onValuesChange={(_, allValues) => {
+            setSearchParams((prev) => ({
+              ...prev,
+              keyword: allValues.keyword ?? '',
+              status: allValues.status,
+              type: allValues.type,
+            }))
+            setPagination((prev) => ({ ...prev, current: 1 }))
+          }}
+        >
+          <Space size='middle' wrap>
+            <span>{t('table.search.keyword')}:</span>
+            <Form.Item name='keyword' className='mb-0'>
+              <Input
+                placeholder={t('table.search.placeholder')}
+                allowClear
+                className='w-full min-w-[120px] sm:w-48 md:w-52'
+                onPressEnter={(e) =>
+                  handleSearch({ keyword: (e.target as HTMLInputElement).value })
+                }
+              />
+            </Form.Item>
+            <span>{t('common.status')}:</span>
+            <Form.Item name='status' className='mb-0'>
+              <Radio.Group buttonStyle='solid'>
+                <Radio.Button value={undefined}>
+                  {t('table.search.all')}
+                </Radio.Button>
+                <Radio.Button value={GlobalStatus.ENABLED}>
+                  {t(`common.status.${GlobalStatus.ENABLED}`)}
+                </Radio.Button>
+                <Radio.Button value={GlobalStatus.DISABLED}>
+                  {t(`common.status.${GlobalStatus.DISABLED}`)}
+                </Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+            <span>{t('level.table.type')}:</span>
+            <Form.Item name='type' className='mb-0'>
+              <Radio.Group buttonStyle='solid'>
+                <Radio.Button value={undefined}>
+                  {t('table.search.all')}
+                </Radio.Button>
+                <Radio.Button value={LevelType.LEVEL_TYPE_ALERT}>
+                  {getLevelTypeLabel(LevelType.LEVEL_TYPE_ALERT, t)}
+                </Radio.Button>
+                <Radio.Button value={LevelType.LEVEL_TYPE_DATASOURCE}>
+                  {getLevelTypeLabel(LevelType.LEVEL_TYPE_DATASOURCE, t)}
+                </Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+            <Button onClick={() => handleSearch()} type='primary'>
+              {t('common.search')}
+            </Button>
+            <Button onClick={handleReset}>{t('common.reset')}</Button>
+          </Space>
+        </Form>
         <Space>
           <Button type='primary' onClick={handleAdd}>
             {t('common.add')}

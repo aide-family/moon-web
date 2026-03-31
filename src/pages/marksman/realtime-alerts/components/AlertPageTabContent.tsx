@@ -6,6 +6,7 @@ import {
   getRealtimeAlertList,
   interveneAlert,
   batchInterveneAlert,
+  batchRecoverAlert,
   recoverAlert,
   suppressAlert,
 } from '@/api/marksman/alert'
@@ -59,7 +60,10 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   const { t } = useLocale()
   const [filterForm] = Form.useForm<AlertFilterFormValues>()
   const [recoverForm] = Form.useForm<{ recoveredReason: string }>()
-  const [suppressForm] = Form.useForm<{ suppressedReason: string }>()
+  const [suppressForm] = Form.useForm<{
+    suppressedReason: string
+    suppressUntil?: dayjs.Dayjs | null
+  }>()
   const filterStatus = Form.useWatch('status', filterForm)
   const timeRange = Form.useWatch('timeRange', filterForm)
   const startAt = timeRange?.[0] ?? null
@@ -72,7 +76,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     total: 0,
   })
   const [selectedUids, setSelectedUids] = useState<string[]>([])
-  const [batchInterveneLoading, setBatchInterveneLoading] = useState(false)
+  const [batchActionLoading, setBatchActionLoading] = useState(false)
   const paginationRef = useRef(pagination)
   useEffect(() => {
     paginationRef.current = pagination
@@ -84,7 +88,6 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   const [suppressRecord, setSuppressRecord] = useState<AlertEventItem | null>(
     null,
   )
-  const [suppressUntil, setSuppressUntil] = useState<dayjs.Dayjs | null>(null)
   const [recoverOpen, setRecoverOpen] = useState(false)
   const [recoverRecord, setRecoverRecord] = useState<AlertEventItem | null>(
     null,
@@ -97,6 +100,9 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     [],
   )
   const [interveneMemberSaving, setInterveneMemberSaving] = useState(false)
+  const [batchRecoverOpen, setBatchRecoverOpen] = useState(false)
+  const [batchRecoverSaving, setBatchRecoverSaving] = useState(false)
+  const [batchRecoverForm] = Form.useForm<{ recoveredReason?: string }>()
   const [memberOptions, setMemberOptions] = useState<SelectMemberItem[]>([])
   const [memberOptionsLoading, setMemberOptionsLoading] = useState(false)
   const [interveneMemberForm] = Form.useForm<{ memberUid?: string }>()
@@ -329,7 +335,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     setMemberOptions([])
     setMemberOptionsLoading(false)
     setInterveneMemberSaving(false)
-    setBatchInterveneLoading(false)
+    setBatchActionLoading(false)
     interveneMemberForm.resetFields()
     setInterveneMemberModalOpen(true)
   }
@@ -362,7 +368,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       const memberUid = values.memberUid as string | undefined
       if (!memberUid) return
 
-      setBatchInterveneLoading(true)
+      setBatchActionLoading(true)
       setInterveneMemberSaving(true)
 
       await batchInterveneAlert({
@@ -382,8 +388,35 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       console.error('介入失败:', e)
       message.error(t('message.error'))
     } finally {
-      setBatchInterveneLoading(false)
+      setBatchActionLoading(false)
       setInterveneMemberSaving(false)
+    }
+  }
+
+  const handleBatchRecoverOk = async () => {
+    const count = selectedUids.length
+    if (count === 0) return
+    try {
+      const values = await batchRecoverForm.validateFields()
+      const recoveredReason = String(values.recoveredReason ?? '').trim()
+      setBatchActionLoading(true)
+      setBatchRecoverSaving(true)
+      await batchRecoverAlert({
+        uids: selectedUids,
+        recoveredReason,
+      })
+      message.success(t('realtimeAlert.message.batchRecover.successAll', { count }))
+      setSelectedUids([])
+      setBatchRecoverOpen(false)
+      batchRecoverForm.resetFields()
+      fetchData(pagination.current, pagination.pageSize)
+    } catch (e) {
+      if (e && typeof e === 'object' && 'errorFields' in e) return
+      console.error('批量恢复失败:', e)
+      message.error(t('message.error'))
+    } finally {
+      setBatchActionLoading(false)
+      setBatchRecoverSaving(false)
     }
   }
 
@@ -416,16 +449,20 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
 
   const openSuppress = (record: AlertEventItem) => {
     setSuppressRecord(record)
-    setSuppressUntil(dayjs().add(1, 'hour'))
-    suppressForm.setFieldsValue({ suppressedReason: '' })
+    suppressForm.setFieldsValue({
+      suppressedReason: '',
+      suppressUntil: dayjs().add(1, 'hour'),
+    })
     setSuppressOpen(true)
   }
 
   const handleSuppressOk = async () => {
-    if (!suppressRecord?.uid || !suppressUntil) return
+    if (!suppressRecord?.uid) return
     setActionLoading(true)
     try {
       const values = await suppressForm.validateFields()
+      const suppressUntil = values.suppressUntil
+      if (!suppressUntil) return
       await suppressAlert(suppressRecord.uid, {
         suppressUntilUnix: String(suppressUntil.unix()),
         suppressedReason: values.suppressedReason.trim(),
@@ -433,7 +470,6 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       message.success(t('realtimeAlert.message.suppress.success'))
       setSuppressOpen(false)
       setSuppressRecord(null)
-      setSuppressUntil(null)
       suppressForm.resetFields()
       fetchData(pagination.current, pagination.pageSize)
     } catch (e) {
@@ -461,6 +497,25 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       </div>
     )
   }
+
+  const batchMenuItems: MenuProps['items'] = [
+    {
+      key: 'intervene',
+      label: t('realtimeAlert.action.batchIntervene'),
+      onClick: () => {
+        void handleBatchIntervene()
+      },
+    },
+    {
+      key: 'recover',
+      label: t('realtimeAlert.action.batchRecover'),
+      onClick: () => {
+        if (selectedUids.length === 0) return
+        setBatchRecoverOpen(true)
+        batchRecoverForm.setFieldsValue({ recoveredReason: '' })
+      },
+    },
+  ]
 
   const columns: ColumnsType<AlertEventItem> = [
     {
@@ -657,13 +712,11 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
               <Button type='primary' onClick={() => handleSearch()}>
                 {t('common.search')}
               </Button>
-              <Button
-                onClick={() => void handleBatchIntervene()}
-                disabled={selectedUids.length === 0}
-                loading={batchInterveneLoading}
-              >
-                {t('realtimeAlert.action.batchIntervene')}
-              </Button>
+              <Dropdown menu={{ items: batchMenuItems }} trigger={['click']}>
+                <Button disabled={selectedUids.length === 0} loading={batchActionLoading}>
+                  {t('realtimeAlert.action.batchAction')}
+                </Button>
+              </Dropdown>
               <Button onClick={handleReset}>{t('common.reset')}</Button>
             </Space>
           </Form.Item>
@@ -785,6 +838,41 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       </Modal>
 
       <Modal
+        title={t('realtimeAlert.modal.batchRecover.title', { count: selectedUids.length })}
+        open={batchRecoverOpen}
+        onOk={handleBatchRecoverOk}
+        onCancel={() => {
+          setBatchRecoverOpen(false)
+          batchRecoverForm.resetFields()
+        }}
+        confirmLoading={batchRecoverSaving}
+        okText={t('common.ok')}
+        cancelText={t('common.cancel')}
+        destroyOnHidden
+      >
+        <Form form={batchRecoverForm} layout='vertical' preserve={false}>
+          <Form.Item
+            name='recoveredReason'
+            label={t('realtimeAlert.modal.recover.reason')}
+            rules={[
+              {
+                required: true,
+                whitespace: true,
+                message: t('realtimeAlert.modal.recover.reason.required'),
+              },
+            ]}
+          >
+            <Input.TextArea
+              autoSize={{ minRows: 3, maxRows: 6 }}
+              maxLength={500}
+              showCount
+              placeholder={t('realtimeAlert.modal.recover.reason.placeholder')}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
         title={t('realtimeAlert.modal.recover.title')}
         open={recoverOpen}
         onOk={handleRecoverOk}
@@ -826,7 +914,6 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
         onCancel={() => {
           setSuppressOpen(false)
           setSuppressRecord(null)
-          setSuppressUntil(null)
           suppressForm.resetFields()
         }}
         confirmLoading={actionLoading}
@@ -852,11 +939,13 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
               placeholder={t('realtimeAlert.modal.suppress.reason.placeholder')}
             />
           </Form.Item>
-          <Form.Item label={t('realtimeAlert.modal.suppress.until')}>
+          <Form.Item
+            name='suppressUntil'
+            label={t('realtimeAlert.modal.suppress.until')}
+          >
             <DatePicker
               showTime
-              value={suppressUntil}
-              onChange={(v) => setSuppressUntil(v)}
+              allowClear
               format='YYYY-MM-DD HH:mm:ss'
               className='w-full'
             />

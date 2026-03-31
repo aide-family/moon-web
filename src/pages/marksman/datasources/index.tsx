@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Input, Button, message, App, Dropdown, Spin, Tabs } from "antd";
+import { Input, Button, message, App, Dropdown, Form, Spin, Tabs } from "antd";
 import type { MenuProps } from "antd";
 import {
   type DatasourceItem,
@@ -27,6 +27,7 @@ const DatasourceList: React.FC = () => {
   const [dataSource, setDataSource] = useState<DatasourceItem[]>([]);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 20, total: 0 });
   const [searchParams, setSearchParams] = useState<DatasourceListParams>(defaultSearchParams);
+  const [searchForm] = Form.useForm<DatasourceListParams>();
   const [detailFormOpen, setDetailFormOpen] = useState(false);
   const [detailFormMode, setDetailFormMode] = useState<"create" | "edit">("create");
   const [editingData, setEditingData] = useState<DatasourceItem | null>(null);
@@ -177,24 +178,40 @@ const DatasourceList: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    searchForm.setFieldsValue({
+      keyword: searchParams.keyword ?? "",
+    });
+  }, [searchParams.keyword, searchForm]);
+
   return (
     <div className="h-full flex flex-col">
       <div className="flex-1 flex min-h-0 gap-4">
         {/* 左侧：数据源列表 */}
         <PageContent className="h-full">
           <div className="flex items-center gap-2 px-3 h-14 py-2 border-b border-(--ant-color-border-secondary) shrink-0">
-            <Input
-              placeholder={t("table.search.placeholder")}
-              allowClear
+            <Form
+              form={searchForm}
+              layout="inline"
               className="flex-1 min-w-0"
-              value={searchParams.keyword ?? ""}
-              onChange={(e) =>
-                setSearchParams((prev: DatasourceListParams) => ({ ...prev, keyword: e.target.value }))
-              }
-              onPressEnter={(e) =>
-                handleSearch({ keyword: (e.target as HTMLInputElement).value })
-              }
-            />
+              onValuesChange={(_, allValues) => {
+                setSearchParams((prev: DatasourceListParams) => ({
+                  ...prev,
+                  keyword: allValues.keyword ?? "",
+                }));
+              }}
+            >
+              <Form.Item name="keyword" className="mb-0 w-full">
+                <Input
+                  placeholder={t("table.search.placeholder")}
+                  allowClear
+                  className="flex-1 min-w-0"
+                  onPressEnter={(e) =>
+                    handleSearch({ keyword: (e.target as HTMLInputElement).value })
+                  }
+                />
+              </Form.Item>
+            </Form>
             <Button type="primary" onClick={handleAdd}>
               {t("common.add")}
             </Button>

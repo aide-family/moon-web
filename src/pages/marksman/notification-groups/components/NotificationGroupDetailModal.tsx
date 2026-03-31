@@ -81,7 +81,9 @@ export const NotificationGroupDetailModal: React.FC<Props> = ({
   const { t } = useLocale()
   const [form] = Form.useForm()
   const [submitting, setSubmitting] = useState(false)
-  const [draftMembers, setDraftMembers] = useState<NotificationMemberItem[]>([])
+  const members = Form.useWatch('members', form) as
+    | NotificationMemberItem[]
+    | undefined
   const memberFetchInFlightRef = useRef<Set<string>>(new Set())
 
   useEffect(() => {
@@ -95,11 +97,13 @@ export const NotificationGroupDetailModal: React.FC<Props> = ({
           : '',
         webhooks: initialData?.webhooks ?? [],
         templates: initialData?.templates ?? [],
+        members: initialData?.members ?? [],
       })
-      setDraftMembers(initialData?.members ?? [])
     } else {
       form.resetFields()
-      setDraftMembers([])
+      form.setFieldsValue({
+        members: [],
+      })
     }
   }, [open, mode, initialData, form])
 
@@ -107,11 +111,12 @@ export const NotificationGroupDetailModal: React.FC<Props> = ({
   useEffect(() => {
     if (!open) return
 
-    const uidsToFetch = (draftMembers ?? [])
+    const currentMembers = members ?? []
+    const uidsToFetch = currentMembers
       .map((m) => m.memberUid?.trim())
       .filter((u): u is string => Boolean(u))
       .filter((uid) => {
-        const member = draftMembers.find((m) => m.memberUid === uid)
+        const member = currentMembers.find((m) => m.memberUid === uid)
         if (!member) return false
         return (
           !member.memberName &&
@@ -140,26 +145,31 @@ export const NotificationGroupDetailModal: React.FC<Props> = ({
           })
         })
 
-        setDraftMembers((prev) =>
-          prev.map((m) => {
-            const uid = m.memberUid?.trim()
-            if (!uid) return m
-            const info = infoByUid.get(uid)
-            if (!info) return m
-            return {
-              ...m,
-              memberName: m.memberName ?? info.name,
-              memberAvatar: m.memberAvatar ?? info.avatar,
-            }
-          }),
-        )
+        const updatedMembers = (form.getFieldValue('members') ??
+          []) as NotificationMemberItem[]
+
+        const nextMembers = updatedMembers.map((m) => {
+          const uid = m.memberUid?.trim()
+          if (!uid) return m
+          const info = infoByUid.get(uid)
+          if (!info) return m
+          return {
+            ...m,
+            memberName: m.memberName ?? info.name,
+            memberAvatar: m.memberAvatar ?? info.avatar,
+          }
+        })
+
+        form.setFieldsValue({
+          members: nextMembers,
+        })
       } finally {
         for (const uid of uidsToFetch) {
           memberFetchInFlightRef.current.delete(uid)
         }
       }
     })()
-  }, [open, draftMembers])
+  }, [open, members, form])
 
   const existingMemberMap = useMemo(
     () => toMemberMap(initialData?.members),
@@ -180,10 +190,10 @@ export const NotificationGroupDetailModal: React.FC<Props> = ({
       }
       const name = values.name?.trim() || undefined
       const remark = values.remark?.trim() || undefined
-      const members = (draftMembers ?? []).filter((i) =>
+      const membersForRequest = (members ?? []).filter((i) =>
         (i.memberUid ?? '').trim(),
       )
-      const membersRequest = members.map((m) => ({
+      const membersRequest = membersForRequest.map((m) => ({
         memberUid: m.memberUid,
         isEmail: m.isEmail,
         isPhone: m.isPhone,
@@ -237,7 +247,6 @@ export const NotificationGroupDetailModal: React.FC<Props> = ({
       onOk={handleSubmit}
       onCancel={() => {
         form.resetFields()
-        setDraftMembers([])
         onCancel()
       }}
       destroyOnHidden
@@ -268,6 +277,9 @@ export const NotificationGroupDetailModal: React.FC<Props> = ({
             allowClear
           />
         </Form.Item>
+        <Form.Item name='members' hidden>
+          <Input type='hidden' />
+        </Form.Item>
         <Form.Item label={t('notificationGroup.form.members.label')}>
           <Space direction='vertical' className='w-full' size='small'>
             <Select
@@ -276,21 +288,21 @@ export const NotificationGroupDetailModal: React.FC<Props> = ({
               placeholder={t('notificationGroup.form.members.placeholder')}
               options={memberOptions}
               onSelect={(memberUid: string) => {
-                setDraftMembers((prev) => {
-                  if (prev.some((i) => i.memberUid === memberUid)) return prev
-                  const existing = existingMemberMap[memberUid]
-                  return [
-                    ...prev,
-                    existing ?? {
-                      memberUid,
-                      isEmail: true,
-                      isPhone: true,
-                    },
-                  ]
-                })
+                const prevMembers = (form.getFieldValue('members') ??
+                  []) as NotificationMemberItem[]
+                if (prevMembers.some((i) => i.memberUid === memberUid)) return
+                const existing = existingMemberMap[memberUid]
+                form.setFieldValue('members', [
+                  ...prevMembers,
+                  existing ?? {
+                    memberUid,
+                    isEmail: true,
+                    isPhone: true,
+                  },
+                ])
               }}
             />
-            {(draftMembers ?? []).map((member, idx) => {
+            {(members ?? []).map((member, idx) => {
               const uid = member.memberUid ?? ''
               const option = memberOptions.find((i) => i.value === uid)
               return (
@@ -304,25 +316,35 @@ export const NotificationGroupDetailModal: React.FC<Props> = ({
                   </div>
                   <Checkbox
                     checked={Boolean(member.isEmail)}
-                    onChange={(e) =>
-                      setDraftMembers((prev) =>
-                        prev.map((m, i) =>
-                          i === idx ? { ...m, isEmail: e.target.checked } : m,
+                    onChange={(e) => {
+                      const prevMembers =
+                        (form.getFieldValue('members') ?? []) as NotificationMemberItem[]
+                      form.setFieldValue(
+                        'members',
+                        prevMembers.map((m) =>
+                          m.memberUid === uid
+                            ? { ...m, isEmail: e.target.checked }
+                            : m,
                         ),
                       )
-                    }
+                    }}
                   >
                     {t('notificationGroup.memberModal.form.isEmail')}
                   </Checkbox>
                   <Checkbox
                     checked={Boolean(member.isPhone)}
-                    onChange={(e) =>
-                      setDraftMembers((prev) =>
-                        prev.map((m, i) =>
-                          i === idx ? { ...m, isPhone: e.target.checked } : m,
+                    onChange={(e) => {
+                      const prevMembers =
+                        (form.getFieldValue('members') ?? []) as NotificationMemberItem[]
+                      form.setFieldValue(
+                        'members',
+                        prevMembers.map((m) =>
+                          m.memberUid === uid
+                            ? { ...m, isPhone: e.target.checked }
+                            : m,
                         ),
                       )
-                    }
+                    }}
                   >
                     {t('notificationGroup.memberModal.form.isPhone')}
                   </Checkbox>
@@ -330,9 +352,14 @@ export const NotificationGroupDetailModal: React.FC<Props> = ({
                     type='link'
                     danger
                     size='small'
-                    onClick={() =>
-                      setDraftMembers((prev) => prev.filter((_, i) => i !== idx))
-                    }
+                    onClick={() => {
+                      const prevMembers =
+                        (form.getFieldValue('members') ?? []) as NotificationMemberItem[]
+                      form.setFieldValue(
+                        'members',
+                        prevMembers.filter((_, i) => i !== idx),
+                      )
+                    }}
                   >
                     {t('common.delete')}
                   </Button>

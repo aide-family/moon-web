@@ -6,6 +6,7 @@ import {
   Avatar,
   Descriptions,
   Dropdown,
+  Form,
   Input,
   message,
   Modal,
@@ -72,6 +73,16 @@ interface SelectOption {
   title?: string
 }
 
+interface SubscriptionFormValues {
+  strategyGroupUids?: string[]
+  strategyUids?: string[]
+  datasourceUids?: string[]
+  levelUids?: string[]
+  datasourceLevelUids?: string[]
+  labelsText?: string
+  excludeLabelsText?: string
+}
+
 const NotificationGroupPage: React.FC = () => {
   const { modal } = App.useApp()
   const { t } = useLocale()
@@ -85,20 +96,21 @@ const NotificationGroupPage: React.FC = () => {
   })
   const [searchParams, setSearchParams] =
     useState<NotificationGroupListParams>(defaultSearchParams)
+  const [searchForm] = Form.useForm<NotificationGroupListParams>()
 
   const [selectedUid, setSelectedUid] = useState<string | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
+  const detailLoadingRef = useRef(detailLoading)
   const [detailData, setDetailData] = useState<NotificationGroupItem | null>(
     null,
   )
   const [detailViewOpen, setDetailViewOpen] = useState(false)
   const [subscriptionViewOpen, setSubscriptionViewOpen] = useState(false)
+  const subscriptionViewOpenRef = useRef(subscriptionViewOpen)
 
   const [memberSaving, setMemberSaving] = useState(false)
   const [subscriptionLoading, setSubscriptionLoading] = useState(false)
-  const [draftFilter, setDraftFilter] = useState<SubscriptionFilter>({})
-  const [labelsText, setLabelsText] = useState('')
-  const [excludeLabelsText, setExcludeLabelsText] = useState('')
+  const [subscriptionForm] = Form.useForm<SubscriptionFormValues>()
   const [strategyGroupOptions, setStrategyGroupOptions] = useState<SelectOption[]>(
     [],
   )
@@ -185,27 +197,30 @@ const NotificationGroupPage: React.FC = () => {
       const data = await getNotificationGroupSubscription(uid)
       if (cancelledRef.current) return
       const filter = data.filter ?? {}
-      setDraftFilter(filter)
-      setLabelsText(
-        filter.labels && Object.keys(filter.labels).length > 0
-          ? JSON.stringify(filter.labels, null, 2)
-          : '',
-      )
-      setExcludeLabelsText(
-        filter.excludeLabels && Object.keys(filter.excludeLabels).length > 0
-          ? JSON.stringify(filter.excludeLabels, null, 2)
-          : '',
-      )
+      subscriptionForm.setFieldsValue({
+        strategyGroupUids: filter.strategyGroupUids ?? [],
+        strategyUids: filter.strategyUids ?? [],
+        datasourceUids: filter.datasourceUids ?? [],
+        levelUids: filter.levelUids ?? [],
+        datasourceLevelUids: filter.datasourceLevelUids ?? [],
+        labelsText:
+          filter.labels && Object.keys(filter.labels).length > 0
+            ? JSON.stringify(filter.labels, null, 2)
+            : '',
+        excludeLabelsText:
+          filter.excludeLabels && Object.keys(filter.excludeLabels).length > 0
+            ? JSON.stringify(filter.excludeLabels, null, 2)
+            : '',
+      })
     } catch (e) {
       if (cancelledRef.current) return
       console.error('获取通知组订阅失败:', e)
-      setDraftFilter({})
-      setLabelsText('')
-      setExcludeLabelsText('')
+      // 此处不要无条件 resetFields：当订阅弹窗处于 loading 状态时 Form 可能未挂载
+      // 会触发 antd 的 useForm 未连接警告；只保留当前值即可。
     } finally {
       if (!cancelledRef.current) setSubscriptionLoading(false)
     }
-  }, [])
+  }, [subscriptionForm])
 
   const loadSelectOptions = useCallback(async () => {
     try {
@@ -268,19 +283,41 @@ const NotificationGroupPage: React.FC = () => {
   useEffect(() => {
     if (!selectedUid) {
       setDetailData(null)
-      setDraftFilter({})
-      setLabelsText('')
-      setExcludeLabelsText('')
+      if (subscriptionViewOpen && !detailLoading && !subscriptionLoading)
+        subscriptionForm.resetFields()
       return
     }
     fetchDetail(selectedUid)
     fetchSubscription(selectedUid)
-  }, [selectedUid, fetchDetail, fetchSubscription])
+  }, [
+    selectedUid,
+    fetchDetail,
+    fetchSubscription,
+    subscriptionForm,
+    subscriptionViewOpen,
+    detailLoading,
+    subscriptionLoading,
+  ])
 
   useEffect(() => {
     if (!subscriptionViewOpen) return
     void loadSelectOptions()
   }, [subscriptionViewOpen, loadSelectOptions])
+
+  useEffect(() => {
+    subscriptionViewOpenRef.current = subscriptionViewOpen
+  }, [subscriptionViewOpen])
+
+  useEffect(() => {
+    detailLoadingRef.current = detailLoading
+  }, [detailLoading])
+
+  useEffect(() => {
+    searchForm.setFieldsValue({
+      keyword: searchParams.keyword ?? '',
+      status: searchParams.status,
+    })
+  }, [searchParams.keyword, searchParams.status, searchForm])
 
 
   const handleSearch = (override?: Partial<NotificationGroupListParams>) => {
@@ -388,36 +425,33 @@ const NotificationGroupPage: React.FC = () => {
     if (!selectedUid) return
     setMemberSaving(true)
     try {
+      const values = await subscriptionForm.validateFields()
       let labels: Record<string, string> | undefined
       let excludeLabels: Record<string, string> | undefined
       try {
-        labels = parseJsonRecord(labelsText)
-        excludeLabels = parseJsonRecord(excludeLabelsText)
+        labels = parseJsonRecord(values.labelsText)
+        excludeLabels = parseJsonRecord(values.excludeLabelsText)
       } catch {
         message.error(t('message.error'))
         return
       }
 
       const cleanedFilter: SubscriptionFilter = {
-        strategyGroupUids:
-          (draftFilter.strategyGroupUids ?? []).filter(Boolean).length > 0
-            ? (draftFilter.strategyGroupUids ?? []).filter(Boolean)
+        strategyGroupUids: (values.strategyGroupUids ?? []).filter(Boolean).length > 0
+            ? (values.strategyGroupUids ?? []).filter(Boolean)
             : undefined,
-        strategyUids:
-          (draftFilter.strategyUids ?? []).filter(Boolean).length > 0
-            ? (draftFilter.strategyUids ?? []).filter(Boolean)
+        strategyUids: (values.strategyUids ?? []).filter(Boolean).length > 0
+            ? (values.strategyUids ?? []).filter(Boolean)
             : undefined,
-        levelUids:
-          (draftFilter.levelUids ?? []).filter(Boolean).length > 0
-            ? (draftFilter.levelUids ?? []).filter(Boolean)
+        levelUids: (values.levelUids ?? []).filter(Boolean).length > 0
+            ? (values.levelUids ?? []).filter(Boolean)
             : undefined,
-        datasourceUids:
-          (draftFilter.datasourceUids ?? []).filter(Boolean).length > 0
-            ? (draftFilter.datasourceUids ?? []).filter(Boolean)
+        datasourceUids: (values.datasourceUids ?? []).filter(Boolean).length > 0
+            ? (values.datasourceUids ?? []).filter(Boolean)
             : undefined,
         datasourceLevelUids:
-          (draftFilter.datasourceLevelUids ?? []).filter(Boolean).length > 0
-            ? (draftFilter.datasourceLevelUids ?? []).filter(Boolean)
+          (values.datasourceLevelUids ?? []).filter(Boolean).length > 0
+            ? (values.datasourceLevelUids ?? []).filter(Boolean)
             : undefined,
         strategyLevels: undefined,
         labels,
@@ -593,51 +627,51 @@ const NotificationGroupPage: React.FC = () => {
       <div className='flex-1 min-h-0'>
         <PageContent className='flex-1 min-w-0'>
           <div className='flex items-center justify-between mb-4 shrink-0'>
-            <Space size='middle' wrap>
-              <span>{t('table.search.keyword')}:</span>
-              <Input
-                placeholder={t('table.search.placeholder')}
-                allowClear
-                className='w-full min-w-[120px] sm:w-48 md:w-52'
-                value={searchParams.keyword ?? ''}
-                onChange={(e) =>
-                  setSearchParams((prev) => ({
-                    ...prev,
-                    keyword: e.target.value,
-                  }))
-                }
-                onPressEnter={(e) =>
-                  handleSearch({
-                    keyword: (e.target as HTMLInputElement).value,
-                  })
-                }
-              />
-              <span>{t('common.status')}:</span>
-              <Radio.Group
-                value={searchParams.status}
-                onChange={(e) => {
-                  setSearchParams((prev) => ({
-                    ...prev,
-                    status: e.target.value,
-                  }))
-                }}
-                buttonStyle='solid'
-              >
-                <Radio.Button value={undefined}>
-                  {t('table.search.all')}
-                </Radio.Button>
-                <Radio.Button value={GlobalStatus.ENABLED}>
-                  {t(`common.status.${GlobalStatus.ENABLED}`)}
-                </Radio.Button>
-                <Radio.Button value={GlobalStatus.DISABLED}>
-                  {t(`common.status.${GlobalStatus.DISABLED}`)}
-                </Radio.Button>
-              </Radio.Group>
-              <Button onClick={() => handleSearch()} type='primary'>
-                {t('common.search')}
-              </Button>
-              <Button onClick={handleReset}>{t('common.reset')}</Button>
-            </Space>
+            <Form
+              form={searchForm}
+              layout='inline'
+              onValuesChange={(_, allValues) => {
+                setSearchParams((prev) => ({
+                  ...prev,
+                  keyword: allValues.keyword ?? '',
+                  status: allValues.status,
+                }))
+              }}
+            >
+              <Space size='middle' wrap>
+                <span>{t('table.search.keyword')}:</span>
+                <Form.Item name='keyword' className='mb-0'>
+                  <Input
+                    placeholder={t('table.search.placeholder')}
+                    allowClear
+                    className='w-full min-w-[120px] sm:w-48 md:w-52'
+                    onPressEnter={(e) =>
+                      handleSearch({
+                        keyword: (e.target as HTMLInputElement).value,
+                      })
+                    }
+                  />
+                </Form.Item>
+                <span>{t('common.status')}:</span>
+                <Form.Item name='status' className='mb-0'>
+                  <Radio.Group buttonStyle='solid'>
+                    <Radio.Button value={undefined}>
+                      {t('table.search.all')}
+                    </Radio.Button>
+                    <Radio.Button value={GlobalStatus.ENABLED}>
+                      {t(`common.status.${GlobalStatus.ENABLED}`)}
+                    </Radio.Button>
+                    <Radio.Button value={GlobalStatus.DISABLED}>
+                      {t(`common.status.${GlobalStatus.DISABLED}`)}
+                    </Radio.Button>
+                  </Radio.Group>
+                </Form.Item>
+                <Button onClick={() => handleSearch()} type='primary'>
+                  {t('common.search')}
+                </Button>
+                <Button onClick={handleReset}>{t('common.reset')}</Button>
+              </Space>
+            </Form>
             <Button
               type='primary'
               onClick={openCreateModal}
@@ -859,11 +893,11 @@ const NotificationGroupPage: React.FC = () => {
                 <Spin />
               </div>
             ) : (
-              <Space direction='vertical' size='middle' className='w-full'>
-                <div>
-                  <div className='mb-1'>
-                    {t('notificationGroup.subscription.filter.strategyGroups')}
-                  </div>
+              <Form form={subscriptionForm} layout='vertical' preserve={false}>
+                <Form.Item
+                  name='strategyGroupUids'
+                  label={t('notificationGroup.subscription.filter.strategyGroups')}
+                >
                   <Select
                     mode='multiple'
                     allowClear
@@ -872,20 +906,12 @@ const NotificationGroupPage: React.FC = () => {
                       'notificationGroup.subscription.filter.strategyGroups.placeholder',
                     )}
                     options={strategyGroupOptions}
-                    value={draftFilter.strategyGroupUids ?? []}
-                    onChange={(value) =>
-                      setDraftFilter((prev) => ({
-                        ...prev,
-                        strategyGroupUids: value,
-                      }))
-                    }
                   />
-                </div>
-
-                <div>
-                  <div className='mb-1'>
-                    {t('notificationGroup.subscription.filter.strategies')}
-                  </div>
+                </Form.Item>
+                <Form.Item
+                  name='strategyUids'
+                  label={t('notificationGroup.subscription.filter.strategies')}
+                >
                   <Select
                     mode='multiple'
                     allowClear
@@ -894,17 +920,12 @@ const NotificationGroupPage: React.FC = () => {
                       'notificationGroup.subscription.filter.strategies.placeholder',
                     )}
                     options={strategyOptions}
-                    value={draftFilter.strategyUids ?? []}
-                    onChange={(value) =>
-                      setDraftFilter((prev) => ({ ...prev, strategyUids: value }))
-                    }
                   />
-                </div>
-
-                <div>
-                  <div className='mb-1'>
-                    {t('notificationGroup.subscription.filter.datasources')}
-                  </div>
+                </Form.Item>
+                <Form.Item
+                  name='datasourceUids'
+                  label={t('notificationGroup.subscription.filter.datasources')}
+                >
                   <Select
                     mode='multiple'
                     allowClear
@@ -913,20 +934,12 @@ const NotificationGroupPage: React.FC = () => {
                       'notificationGroup.subscription.filter.datasources.placeholder',
                     )}
                     options={datasourceOptions}
-                    value={draftFilter.datasourceUids ?? []}
-                    onChange={(value) =>
-                      setDraftFilter((prev) => ({
-                        ...prev,
-                        datasourceUids: value,
-                      }))
-                    }
                   />
-                </div>
-
-                <div>
-                  <div className='mb-1'>
-                    {t('notificationGroup.subscription.filter.levels')}
-                  </div>
+                </Form.Item>
+                <Form.Item
+                  name='levelUids'
+                  label={t('notificationGroup.subscription.filter.levels')}
+                >
                   <Select
                     mode='multiple'
                     allowClear
@@ -935,17 +948,12 @@ const NotificationGroupPage: React.FC = () => {
                       'notificationGroup.subscription.filter.levels.placeholder',
                     )}
                     options={levelOptions}
-                    value={draftFilter.levelUids ?? []}
-                    onChange={(value) =>
-                      setDraftFilter((prev) => ({ ...prev, levelUids: value }))
-                    }
                   />
-                </div>
-
-                <div>
-                  <div className='mb-1'>
-                    {t('notificationGroup.subscription.filter.datasourceLevels')}
-                  </div>
+                </Form.Item>
+                <Form.Item
+                  name='datasourceLevelUids'
+                  label={t('notificationGroup.subscription.filter.datasourceLevels')}
+                >
                   <Select
                     mode='multiple'
                     allowClear
@@ -954,44 +962,31 @@ const NotificationGroupPage: React.FC = () => {
                       'notificationGroup.subscription.filter.datasourceLevels.placeholder',
                     )}
                     options={datasourceLevelOptions}
-                    value={draftFilter.datasourceLevelUids ?? []}
-                    onChange={(value) =>
-                      setDraftFilter((prev) => ({
-                        ...prev,
-                        datasourceLevelUids: value,
-                      }))
-                    }
                   />
-                </div>
-
-                <div>
-                  <div className='mb-1'>
-                    {t('notificationGroup.subscription.filter.labels')}
-                  </div>
+                </Form.Item>
+                <Form.Item
+                  name='labelsText'
+                  label={t('notificationGroup.subscription.filter.labels')}
+                >
                   <Input.TextArea
                     rows={3}
-                    value={labelsText}
-                    onChange={(e) => setLabelsText(e.target.value)}
                     placeholder={t(
                       'notificationGroup.subscription.filter.labels.placeholder',
                     )}
                   />
-                </div>
-
-                <div>
-                  <div className='mb-1'>
-                    {t('notificationGroup.subscription.filter.excludeLabels')}
-                  </div>
+                </Form.Item>
+                <Form.Item
+                  name='excludeLabelsText'
+                  label={t('notificationGroup.subscription.filter.excludeLabels')}
+                >
                   <Input.TextArea
                     rows={3}
-                    value={excludeLabelsText}
-                    onChange={(e) => setExcludeLabelsText(e.target.value)}
                     placeholder={t(
                       'notificationGroup.subscription.filter.excludeLabels.placeholder',
                     )}
                   />
-                </div>
-              </Space>
+                </Form.Item>
+              </Form>
             )}
           </>
         )}
@@ -999,7 +994,13 @@ const NotificationGroupPage: React.FC = () => {
         <div className='flex justify-end mt-4 gap-2'>
           <Button
             onClick={() => {
-              if (selectedUid) void fetchSubscription(selectedUid)
+              if (selectedUid) {
+                void fetchSubscription(selectedUid)
+              } else {
+                if (!detailLoading && !subscriptionLoading) {
+                  subscriptionForm.resetFields()
+                }
+              }
             }}
             disabled={memberSaving}
           >

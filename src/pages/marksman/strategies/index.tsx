@@ -32,6 +32,7 @@ import {
   App,
   Button,
   Dropdown,
+  Form,
   Input,
   Radio,
   Space,
@@ -70,6 +71,7 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
   })
   const [searchParams, setSearchParams] =
     useState<StrategyListParams>(defaultSearchParams)
+  const [searchForm] = Form.useForm<StrategyListParams>()
   const [tableHeight, setTableHeight] = useState<number>(0)
   const tableContainerRef = useRef<HTMLDivElement>(null)
   const tableWrapperRef = useRef<HTMLDivElement>(null)
@@ -370,45 +372,58 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
     return () => window.removeEventListener('resize', calculateTableHeight)
   }, [dataSource])
 
+  useEffect(() => {
+    searchForm.setFieldsValue({
+      keyword: searchParams.keyword ?? '',
+      status: searchParams.status,
+    })
+  }, [searchParams.keyword, searchParams.status, searchForm])
+
   return (
     <div className='flex flex-col h-full'>
       <div className='flex items-center justify-between mb-4 shrink-0'>
-        <Space size='middle' wrap>
-          <span>{t('table.search.keyword')}:</span>
-          <Input
-            placeholder={t('table.search.placeholder')}
-            value={searchParams.keyword ?? ''}
-            onChange={(e) =>
-              setSearchParams((prev) => ({ ...prev, keyword: e.target.value }))
-            }
-            onPressEnter={(e) =>
-              handleSearch({ keyword: (e.target as HTMLInputElement).value })
-            }
-            className='w-full min-w-[120px] sm:w-48 md:w-52'
-          />
-          <span>{t('common.status')}:</span>
-          <Radio.Group
-            value={searchParams.status}
-            onChange={(e) =>
-              setSearchParams((prev) => ({ ...prev, status: e.target.value }))
-            }
-            buttonStyle='solid'
-          >
-            <Radio.Button value={undefined}>
-              {t('table.search.all')}
-            </Radio.Button>
-            <Radio.Button value={GlobalStatus.ENABLED}>
-              {t(`common.status.${GlobalStatus.ENABLED}`)}
-            </Radio.Button>
-            <Radio.Button value={GlobalStatus.DISABLED}>
-              {t(`common.status.${GlobalStatus.DISABLED}`)}
-            </Radio.Button>
-          </Radio.Group>
-          <Button onClick={() => handleSearch()} type='primary'>
-            {t('common.search')}
-          </Button>
-          <Button onClick={handleReset}>{t('common.reset')}</Button>
-        </Space>
+        <Form
+          form={searchForm}
+          layout='inline'
+          onValuesChange={(_, allValues) => {
+            setSearchParams((prev) => ({
+              ...prev,
+              keyword: allValues.keyword ?? '',
+              status: allValues.status,
+            }))
+          }}
+        >
+          <Space size='middle' wrap>
+            <span>{t('table.search.keyword')}:</span>
+            <Form.Item name='keyword' className='mb-0'>
+              <Input
+                placeholder={t('table.search.placeholder')}
+                onPressEnter={(e) =>
+                  handleSearch({ keyword: (e.target as HTMLInputElement).value })
+                }
+                className='w-full min-w-[120px] sm:w-48 md:w-52'
+              />
+            </Form.Item>
+            <span>{t('common.status')}:</span>
+            <Form.Item name='status' className='mb-0'>
+              <Radio.Group buttonStyle='solid'>
+                <Radio.Button value={undefined}>
+                  {t('table.search.all')}
+                </Radio.Button>
+                <Radio.Button value={GlobalStatus.ENABLED}>
+                  {t(`common.status.${GlobalStatus.ENABLED}`)}
+                </Radio.Button>
+                <Radio.Button value={GlobalStatus.DISABLED}>
+                  {t(`common.status.${GlobalStatus.DISABLED}`)}
+                </Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+            <Button onClick={() => handleSearch()} type='primary'>
+              {t('common.search')}
+            </Button>
+            <Button onClick={handleReset}>{t('common.reset')}</Button>
+          </Space>
+        </Form>
         <Button type='primary' onClick={handleAdd}>
           {t('common.add')}
         </Button>
@@ -466,6 +481,7 @@ const StrategyGroupSidebar: React.FC<{
   const { modal } = App.useApp()
   const { t } = useLocale()
   const [keyword, setKeyword] = useState('')
+  const [sidebarSearchForm] = Form.useForm<{ keyword?: string }>()
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
   const [dataSource, setDataSource] = useState<StrategyGroupItem[]>([])
@@ -540,6 +556,10 @@ const StrategyGroupSidebar: React.FC<{
     fetchData(1, false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    sidebarSearchForm.setFieldsValue({ keyword })
+  }, [keyword, sidebarSearchForm])
 
   const handleSearch = (override?: { keyword?: string }) => {
     if (override?.keyword !== undefined) setKeyword(override.keyword)
@@ -657,16 +677,25 @@ const StrategyGroupSidebar: React.FC<{
     <>
       <div className='flex flex-col h-full'>
         <div className='flex items-center gap-2 px-3 h-14 py-2 shrink-0'>
-          <Input
-            placeholder={t('strategyGroup.search.placeholder')}
-            allowClear
+          <Form
+            form={sidebarSearchForm}
+            layout='inline'
             className='flex-1 min-w-0'
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            onPressEnter={(e) =>
-              handleSearch({ keyword: (e.target as HTMLInputElement).value })
-            }
-          />
+            onValuesChange={(_, allValues) => {
+              setKeyword(allValues.keyword ?? '')
+            }}
+          >
+            <Form.Item name='keyword' className='mb-0 w-full'>
+              <Input
+                placeholder={t('strategyGroup.search.placeholder')}
+                allowClear
+                className='flex-1 min-w-0'
+                onPressEnter={(e) =>
+                  handleSearch({ keyword: (e.target as HTMLInputElement).value })
+                }
+              />
+            </Form.Item>
+          </Form>
           <Button type='primary' onClick={handleAdd} icon={<PlusOutlined />} />
         </div>
         <div
