@@ -3,10 +3,9 @@ import dayjs from 'dayjs'
 import {
   App,
   Button,
-  Checkbox,
+  Avatar,
   Descriptions,
   Dropdown,
-  Form,
   Input,
   message,
   Modal,
@@ -24,397 +23,53 @@ import { useLocale } from '@/contexts/LocaleContext'
 import PageContent from '@/components/layout/PageContent'
 import { GlobalStatus } from '@/api'
 import {
-  createNotificationGroup,
   deleteNotificationGroup,
   getNotificationGroupDetail,
   getNotificationGroupList,
-  updateNotificationGroup,
+  getNotificationGroupSubscription,
+  saveNotificationGroupSubscription,
   updateNotificationGroupStatus,
   type NotificationGroupItem,
   type NotificationGroupListParams,
-  type CreateNotificationGroupParams,
-  type UpdateNotificationGroupParams,
-  type NotificationMemberItem,
+  type SubscriptionFilter,
 } from '@/api/marksman/notificationGroup'
 import {
-  selectMembers,
-  type SelectMemberItem,
-  type SelectMembersParams,
-} from '@/api/account/member'
+  getWebhookConfigSelectList,
+} from '@/api/rabbit/webhook'
+import { getTemplateSelectList } from '@/api/rabbit/template'
+import { selectMembers } from '@/api/account/member'
+import { getStrategyGroupSelectList } from '@/api/marksman/strategyGroup'
+import { getStrategySelectList } from '@/api/marksman/strategy'
+import { getDatasourceSelectList } from '@/api/marksman/datasource'
+import { getLevelSelectList, LevelType } from '@/api/marksman/level'
 import { emptyPlaceholder, renderStatusTag } from '@/utils/marksman'
+import { NotificationGroupDetailModal } from './components/NotificationGroupDetailModal'
 
 const defaultSearchParams: NotificationGroupListParams = {
   keyword: '',
   status: undefined,
 }
 
-const parseMetadata = (raw: unknown): Record<string, string> | undefined => {
+const parseJsonRecord = (raw: unknown): Record<string, string> | undefined => {
   const text = raw != null ? String(raw).trim() : ''
   if (!text) return undefined
   const parsed = JSON.parse(text) as unknown
-  if (typeof parsed !== 'object' || parsed == null || Array.isArray(parsed))
+  if (typeof parsed !== 'object' || parsed == null || Array.isArray(parsed)) {
     return undefined
+  }
   return Object.fromEntries(
     Object.entries(parsed as Record<string, unknown>).map(([k, v]) => [
-      k,
+      String(k),
       String(v),
     ]),
   )
 }
 
-interface NotificationMemberTableRow extends NotificationMemberItem {
-  uid: string
-}
-
-const NotificationGroupDetailModal: React.FC<{
-  open: boolean
-  mode: 'create' | 'edit'
-  initialData?: NotificationGroupItem | null
-  loading?: boolean
-  onCancel: () => void
-  onSuccess: (uid?: string) => void
-}> = ({ open, mode, initialData, loading = false, onCancel, onSuccess }) => {
-  const { t } = useLocale()
-  const [form] = Form.useForm()
-  const [submitting, setSubmitting] = useState(false)
-
-  useEffect(() => {
-    if (!open) return
-    if (mode === 'edit') {
-      form.setFieldsValue({
-        name: initialData?.name ?? '',
-        remark: initialData?.remark ?? '',
-        metadata: initialData?.metadata
-          ? JSON.stringify(initialData.metadata, null, 2)
-          : '',
-      })
-    } else {
-      form.resetFields()
-    }
-  }, [open, mode, initialData, form])
-
-  const handleSubmit = async () => {
-    try {
-      const values = await form.validateFields()
-      setSubmitting(true)
-
-      let metadata: Record<string, string> | undefined
-      try {
-        metadata = parseMetadata(values.metadata)
-      } catch {
-        message.error(t('message.error'))
-        return
-      }
-      const name = values.name?.trim() || undefined
-      const remark = values.remark?.trim() || undefined
-
-      if (mode === 'create') {
-        const params: CreateNotificationGroupParams = {
-          name,
-          remark,
-          metadata,
-        }
-        const created = await createNotificationGroup(params)
-        message.success(t('message.create.success'))
-        onSuccess(created.uid)
-      } else if (mode === 'edit' && initialData?.uid) {
-        const params: UpdateNotificationGroupParams = {
-          uid: initialData.uid,
-          name,
-          remark,
-          metadata,
-          // 关键：编辑时保持订阅/配置不被覆盖
-          members: initialData.members ?? [],
-          webhooks: initialData.webhooks ?? [],
-          templates: initialData.templates ?? [],
-        }
-        await updateNotificationGroup(initialData.uid, params)
-        message.success(t('message.update.success'))
-        onSuccess(initialData.uid)
-      } else {
-        onSuccess(initialData?.uid)
-      }
-      onCancel()
-    } catch (e) {
-      if (e && typeof e === 'object' && 'errorFields' in e) return
-      console.error('提交通知组失败:', e)
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  return (
-    <Modal
-      title={
-        mode === 'create'
-          ? t('notificationGroup.modal.create.title')
-          : t('notificationGroup.modal.edit.title')
-      }
-      open={open}
-      onOk={handleSubmit}
-      onCancel={() => {
-        form.resetFields()
-        onCancel()
-      }}
-      destroyOnHidden
-      maskClosable
-      confirmLoading={submitting || loading}
-      okText={t('common.submit')}
-    >
-      <Form form={form} layout='vertical' preserve={false}>
-        <Form.Item
-          name='name'
-          label={t('notificationGroup.form.name.label')}
-          rules={[
-            {
-              required: true,
-              message: t('notificationGroup.form.name.placeholder'),
-            },
-          ]}
-        >
-          <Input
-            placeholder={t('notificationGroup.form.name.placeholder')}
-            allowClear
-          />
-        </Form.Item>
-        <Form.Item
-          name='remark'
-          label={t('notificationGroup.form.remark.label')}
-        >
-          <Input.TextArea
-            rows={2}
-            placeholder={t('notificationGroup.form.remark.placeholder')}
-            allowClear
-          />
-        </Form.Item>
-        <Form.Item
-          name='metadata'
-          label={t('notificationGroup.form.metadata.label')}
-        >
-          <Input.TextArea
-            rows={4}
-            placeholder={t('notificationGroup.form.metadata.placeholder')}
-          />
-        </Form.Item>
-      </Form>
-    </Modal>
-  )
-}
-
-const NotificationMemberSelectModal: React.FC<{
-  open: boolean
-  onCancel: () => void
-  onConfirm: (item: NotificationMemberItem) => void
-  existingMemberUids: Set<string>
-}> = ({ open, onCancel, onConfirm, existingMemberUids }) => {
-  const { t } = useLocale()
-  const [form] = Form.useForm()
-  const [options, setOptions] = useState<SelectMemberItem[]>([])
-  const [optionsLoading, setOptionsLoading] = useState(false)
-  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const fetchOptions = useCallback(async (keyword?: string) => {
-    setOptionsLoading(true)
-    try {
-      const params: SelectMembersParams = {
-        keyword: keyword?.trim() || undefined,
-        limit: 20,
-      }
-      const res = await selectMembers(params)
-      setOptions(res.items ?? [])
-    } catch (e) {
-      console.error('拉取成员下拉失败:', e)
-      setOptions([])
-    } finally {
-      setOptionsLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!open) return
-    fetchOptions()
-    return () => {
-      if (searchTimerRef.current) clearTimeout(searchTimerRef.current)
-    }
-  }, [open, fetchOptions])
-
-  useEffect(() => {
-    if (!open) return
-    form.resetFields()
-  }, [open, form])
-
-  const handleSearch = (value: string) => {
-    if (searchTimerRef.current) clearTimeout(searchTimerRef.current)
-    searchTimerRef.current = setTimeout(() => {
-      fetchOptions(value)
-    }, 300)
-  }
-
-  const handleOk = async () => {
-    try {
-      const values = await form.validateFields()
-      const memberUid = values.memberUid as string | undefined
-      const isEmail = Boolean(values.isEmail)
-      const isPhone = Boolean(values.isPhone)
-      if (!memberUid) return
-      if (!isEmail && !isPhone) {
-        message.warning(
-          t('notificationGroup.memberModal.validation.atLeastOneChannel'),
-        )
-        return
-      }
-      if (existingMemberUids.has(memberUid)) {
-        message.warning(t('notificationGroup.subscription.member.duplicate'))
-        return
-      }
-      onConfirm({ memberUid, isEmail, isPhone })
-      onCancel()
-    } catch (e) {
-      if (e && typeof e === 'object' && 'errorFields' in e) return
-      console.error('添加成员失败:', e)
-    }
-  }
-
-  return (
-    <Modal
-      title={t('notificationGroup.memberModal.title')}
-      open={open}
-      onOk={handleOk}
-      onCancel={() => {
-        form.resetFields()
-        onCancel()
-      }}
-      destroyOnHidden
-      maskClosable
-      okText={t('common.ok')}
-      cancelText={t('common.cancel')}
-    >
-      <Form
-        form={form}
-        layout='vertical'
-        preserve={false}
-        initialValues={{ isEmail: false, isPhone: false }}
-      >
-        <Form.Item
-          name='memberUid'
-          label={t('notificationGroup.memberModal.form.memberUid.label')}
-          rules={[
-            {
-              required: true,
-              message: t(
-                'notificationGroup.memberModal.validation.memberRequired',
-              ),
-            },
-          ]}
-        >
-          <Select
-            showSearch
-            allowClear
-            placeholder={t(
-              'notificationGroup.memberModal.form.memberUid.placeholder',
-            )}
-            filterOption={false}
-            loading={optionsLoading}
-            options={options
-              .filter((i) => (i.value ?? '') !== '')
-              .map((i) => ({
-                value: i.value!,
-                label: i.label ?? i.value!,
-                disabled: i.disabled,
-                title: i.tooltip,
-              }))}
-            onSearch={handleSearch}
-          />
-        </Form.Item>
-
-        <Form.Item
-          name='isEmail'
-          valuePropName='checked'
-          label={t('notificationGroup.memberModal.form.isEmail')}
-        >
-          <Checkbox />
-        </Form.Item>
-
-        <Form.Item
-          name='isPhone'
-          valuePropName='checked'
-          label={t('notificationGroup.memberModal.form.isPhone')}
-        >
-          <Checkbox />
-        </Form.Item>
-
-        {/* 通道校验在 onOk 里强校验，避免规则项不生效 */}
-      </Form>
-    </Modal>
-  )
-}
-
-const NotificationMemberSubscriptionTable: React.FC<{
-  members: NotificationMemberItem[]
-  onRemove: (memberUid: string) => void
-}> = ({ members, onRemove }) => {
-  const { t } = useLocale()
-  const data = useMemo<NotificationMemberTableRow[]>(() => {
-    return (members ?? []).map((m, idx) => ({
-      ...m,
-      uid: m.memberUid ? String(m.memberUid) : `row-${idx}`,
-    }))
-  }, [members])
-
-  const columns: ColumnsType<NotificationMemberTableRow> = [
-    {
-      title: t('notificationGroup.subscription.table.member'),
-      dataIndex: 'memberUid',
-      key: 'memberUid',
-      width: 260,
-      render: (v) => emptyPlaceholder(v),
-    },
-    {
-      title: t('notificationGroup.subscription.table.email'),
-      dataIndex: 'isEmail',
-      key: 'isEmail',
-      width: 120,
-      align: 'center',
-      render: (v) => <Checkbox checked={Boolean(v)} disabled />,
-    },
-    {
-      title: t('notificationGroup.subscription.table.phone'),
-      dataIndex: 'isPhone',
-      key: 'isPhone',
-      width: 120,
-      align: 'center',
-      render: (v) => <Checkbox checked={Boolean(v)} disabled />,
-    },
-    {
-      title: t('notificationGroup.subscription.table.action'),
-      key: 'action',
-      width: 120,
-      fixed: 'right',
-      align: 'center',
-      render: (_, record) => (
-        <Button
-          type='link'
-          danger
-          size='small'
-          onClick={() => onRemove(record.memberUid ?? '')}
-          disabled={!record.memberUid}
-        >
-          {t('common.delete')}
-        </Button>
-      ),
-    },
-  ]
-
-  return (
-    <Table
-      rowKey='uid'
-      size='small'
-      columns={columns}
-      dataSource={data}
-      pagination={false}
-      locale={{ emptyText: t('notificationGroup.subscription.empty') }}
-    />
-  )
+interface SelectOption {
+  value: string
+  label: string
+  disabled?: boolean
+  title?: string
 }
 
 const NotificationGroupPage: React.FC = () => {
@@ -439,9 +94,29 @@ const NotificationGroupPage: React.FC = () => {
   const [detailViewOpen, setDetailViewOpen] = useState(false)
   const [subscriptionViewOpen, setSubscriptionViewOpen] = useState(false)
 
-  const [draftMembers, setDraftMembers] = useState<NotificationMemberItem[]>([])
-  const [memberModalOpen, setMemberModalOpen] = useState(false)
   const [memberSaving, setMemberSaving] = useState(false)
+  const [subscriptionLoading, setSubscriptionLoading] = useState(false)
+  const [draftFilter, setDraftFilter] = useState<SubscriptionFilter>({})
+  const [labelsText, setLabelsText] = useState('')
+  const [excludeLabelsText, setExcludeLabelsText] = useState('')
+  const [strategyGroupOptions, setStrategyGroupOptions] = useState<SelectOption[]>(
+    [],
+  )
+  const [strategyOptions, setStrategyOptions] = useState<SelectOption[]>([])
+  const [datasourceOptions, setDatasourceOptions] = useState<SelectOption[]>([])
+  const [levelOptions, setLevelOptions] = useState<SelectOption[]>([])
+  const [datasourceLevelOptions, setDatasourceLevelOptions] = useState<
+    SelectOption[]
+  >([])
+  const [memberSelectOptions, setMemberSelectOptions] = useState<SelectOption[]>(
+    [],
+  )
+  const [webhookSelectOptions, setWebhookSelectOptions] = useState<SelectOption[]>(
+    [],
+  )
+  const [templateSelectOptions, setTemplateSelectOptions] = useState<SelectOption[]>(
+    [],
+  )
 
   const cancelledRef = useRef(false)
 
@@ -495,14 +170,89 @@ const NotificationGroupPage: React.FC = () => {
       const data = await getNotificationGroupDetail(uid)
       if (cancelledRef.current) return
       setDetailData(data)
-      setDraftMembers(data.members ?? [])
     } catch (e) {
       if (cancelledRef.current) return
       console.error('获取通知组详情失败:', e)
       setDetailData(null)
-      setDraftMembers([])
     } finally {
       if (!cancelledRef.current) setDetailLoading(false)
+    }
+  }, [])
+
+  const fetchSubscription = useCallback(async (uid: string) => {
+    setSubscriptionLoading(true)
+    try {
+      const data = await getNotificationGroupSubscription(uid)
+      if (cancelledRef.current) return
+      const filter = data.filter ?? {}
+      setDraftFilter(filter)
+      setLabelsText(
+        filter.labels && Object.keys(filter.labels).length > 0
+          ? JSON.stringify(filter.labels, null, 2)
+          : '',
+      )
+      setExcludeLabelsText(
+        filter.excludeLabels && Object.keys(filter.excludeLabels).length > 0
+          ? JSON.stringify(filter.excludeLabels, null, 2)
+          : '',
+      )
+    } catch (e) {
+      if (cancelledRef.current) return
+      console.error('获取通知组订阅失败:', e)
+      setDraftFilter({})
+      setLabelsText('')
+      setExcludeLabelsText('')
+    } finally {
+      if (!cancelledRef.current) setSubscriptionLoading(false)
+    }
+  }, [])
+
+  const loadSelectOptions = useCallback(async () => {
+    try {
+      const [sgRes, sRes, dRes, lRes, dlRes, mRes, wRes, tRes] =
+        await Promise.all([
+        getStrategyGroupSelectList({ limit: 100 }),
+        getStrategySelectList({ limit: 100 }),
+        getDatasourceSelectList({ limit: 100 }),
+        getLevelSelectList({ limit: 100, type: LevelType.LEVEL_TYPE_ALERT }),
+        getLevelSelectList({ limit: 100, type: LevelType.LEVEL_TYPE_DATASOURCE }),
+        selectMembers({ limit: 100, status: 'JOINED' }),
+        getWebhookConfigSelectList({ limit: 100, status: GlobalStatus.ENABLED }),
+        getTemplateSelectList({ limit: 100, status: GlobalStatus.ENABLED }),
+      ])
+      if (cancelledRef.current) return
+
+      const toOptions = (
+        items?: { value?: string; label?: string; disabled?: boolean; tooltip?: string }[],
+      ): SelectOption[] =>
+        (items ?? [])
+          .filter((i) => Boolean(i.value))
+          .map((i) => ({
+            value: i.value!,
+            label: i.label ?? i.value!,
+            disabled: i.disabled,
+            title: i.tooltip,
+          }))
+
+      setStrategyGroupOptions(toOptions(sgRes.items))
+      setStrategyOptions(toOptions(sRes.items))
+      setDatasourceOptions(toOptions(dRes.items))
+      setLevelOptions(toOptions(lRes.items))
+      setDatasourceLevelOptions(toOptions(dlRes.items))
+      setMemberSelectOptions(toOptions(mRes.items))
+      setWebhookSelectOptions(toOptions(wRes.items))
+      setTemplateSelectOptions(toOptions(tRes.items))
+    } catch (e) {
+      if (cancelledRef.current) return
+      console.error('获取订阅筛选下拉失败:', e)
+      setStrategyGroupOptions([])
+      setStrategyOptions([])
+      setDatasourceOptions([])
+      setLevelOptions([])
+      setDatasourceLevelOptions([])
+      setMemberSelectOptions([])
+      setWebhookSelectOptions([])
+      setTemplateSelectOptions([])
     }
   }, [])
 
@@ -518,11 +268,20 @@ const NotificationGroupPage: React.FC = () => {
   useEffect(() => {
     if (!selectedUid) {
       setDetailData(null)
-      setDraftMembers([])
+      setDraftFilter({})
+      setLabelsText('')
+      setExcludeLabelsText('')
       return
     }
     fetchDetail(selectedUid)
-  }, [selectedUid, fetchDetail])
+    fetchSubscription(selectedUid)
+  }, [selectedUid, fetchDetail, fetchSubscription])
+
+  useEffect(() => {
+    if (!subscriptionViewOpen) return
+    void loadSelectOptions()
+  }, [subscriptionViewOpen, loadSelectOptions])
+
 
   const handleSearch = (override?: Partial<NotificationGroupListParams>) => {
     if (override) setSearchParams((prev) => ({ ...prev, ...override }))
@@ -593,6 +352,11 @@ const NotificationGroupPage: React.FC = () => {
   )
   const [upsertLoading, setUpsertLoading] = useState(false)
 
+  useEffect(() => {
+    if (!upsertOpen) return
+    void loadSelectOptions()
+  }, [upsertOpen, loadSelectOptions])
+
   const openCreateModal = () => {
     setUpsertMode('create')
     setUpsertData(null)
@@ -620,42 +384,53 @@ const NotificationGroupPage: React.FC = () => {
     fetchList(pagination.current, pagination.pageSize)
   }
 
-  const existingMemberUids = useMemo(
-    () =>
-      new Set(draftMembers.map((m) => m.memberUid).filter(Boolean) as string[]),
-    [draftMembers],
-  )
-
-  const handleRemoveMember = (memberUid: string) => {
-    setDraftMembers((prev) => prev.filter((m) => m.memberUid !== memberUid))
-  }
-
-  const handleAddMemberConfirm = (item: NotificationMemberItem) => {
-    setDraftMembers((prev) => {
-      if (item.memberUid && prev.some((m) => m.memberUid === item.memberUid))
-        return prev
-      return [...prev, item]
-    })
-  }
-
   const handleSaveSubscription = async () => {
-    if (!selectedUid || !detailData) return
+    if (!selectedUid) return
     setMemberSaving(true)
     try {
-      const params: UpdateNotificationGroupParams = {
-        uid: selectedUid,
-        name: detailData.name,
-        remark: detailData.remark,
-        metadata: detailData.metadata,
-        members: draftMembers,
-        webhooks: detailData.webhooks ?? [],
-        templates: detailData.templates ?? [],
+      let labels: Record<string, string> | undefined
+      let excludeLabels: Record<string, string> | undefined
+      try {
+        labels = parseJsonRecord(labelsText)
+        excludeLabels = parseJsonRecord(excludeLabelsText)
+      } catch {
+        message.error(t('message.error'))
+        return
       }
-      await updateNotificationGroup(selectedUid, params)
+
+      const cleanedFilter: SubscriptionFilter = {
+        strategyGroupUids:
+          (draftFilter.strategyGroupUids ?? []).filter(Boolean).length > 0
+            ? (draftFilter.strategyGroupUids ?? []).filter(Boolean)
+            : undefined,
+        strategyUids:
+          (draftFilter.strategyUids ?? []).filter(Boolean).length > 0
+            ? (draftFilter.strategyUids ?? []).filter(Boolean)
+            : undefined,
+        levelUids:
+          (draftFilter.levelUids ?? []).filter(Boolean).length > 0
+            ? (draftFilter.levelUids ?? []).filter(Boolean)
+            : undefined,
+        datasourceUids:
+          (draftFilter.datasourceUids ?? []).filter(Boolean).length > 0
+            ? (draftFilter.datasourceUids ?? []).filter(Boolean)
+            : undefined,
+        datasourceLevelUids:
+          (draftFilter.datasourceLevelUids ?? []).filter(Boolean).length > 0
+            ? (draftFilter.datasourceLevelUids ?? []).filter(Boolean)
+            : undefined,
+        strategyLevels: undefined,
+        labels,
+        excludeLabels,
+      }
+
+      await saveNotificationGroupSubscription(selectedUid, {
+        notificationGroupUid: selectedUid,
+        filter: cleanedFilter,
+      })
+
       message.success(t('message.update.success'))
-      const fresh = await getNotificationGroupDetail(selectedUid)
-      setDetailData(fresh)
-      setDraftMembers(fresh.members ?? [])
+      await fetchSubscription(selectedUid)
     } catch (e) {
       console.error('保存订阅失败:', e)
       message.error(t('message.error'))
@@ -898,6 +673,9 @@ const NotificationGroupPage: React.FC = () => {
         mode={upsertMode}
         initialData={upsertData}
         loading={upsertLoading}
+        memberOptions={memberSelectOptions}
+        webhookOptions={webhookSelectOptions}
+        templateOptions={templateSelectOptions}
         onCancel={() => setUpsertOpen(false)}
         onSuccess={handleUpsertSuccess}
       />
@@ -909,7 +687,6 @@ const NotificationGroupPage: React.FC = () => {
           setDetailViewOpen(false)
           setSelectedUid(null)
           setDetailData(null)
-          setDraftMembers([])
         }}
         footer={
           <Space>
@@ -928,7 +705,6 @@ const NotificationGroupPage: React.FC = () => {
                 setDetailViewOpen(false)
                 setSelectedUid(null)
                 setDetailData(null)
-                setDraftMembers([])
               }}
             >
               {t('common.close')}
@@ -987,14 +763,45 @@ const NotificationGroupPage: React.FC = () => {
                 '-'
               )}
             </Descriptions.Item>
-            <Descriptions.Item label={t('notificationGroup.tab.subscription')}>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <Descriptions.Item label={t('notificationGroup.detail.members')}>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 {(detailData.members ?? []).map((m, idx) => (
-                  <Tag key={`${m.memberUid ?? 'm'}-${idx}`}>
-                    {m.memberUid ?? '-'}
-                  </Tag>
+                  <Space key={`${m.memberUid ?? 'm'}-${idx}`} size='small' align='center'>
+                    <Avatar size='small' src={m.memberAvatar}>
+                      {m.memberName ? String(m.memberName).slice(0, 1) : undefined}
+                    </Avatar>
+                    <span>{m.memberName ?? m.memberUid ?? '-'}</span>
+                    {m.isEmail ? (
+                      <Tag color='blue'>{t('notificationGroup.subscription.table.email')}</Tag>
+                    ) : null}
+                    {m.isPhone ? (
+                      <Tag color='green'>{t('notificationGroup.subscription.table.phone')}</Tag>
+                    ) : null}
+                  </Space>
                 ))}
                 {(detailData.members ?? []).length === 0 ? '-' : null}
+              </div>
+            </Descriptions.Item>
+
+            <Descriptions.Item label={t('notificationGroup.detail.webhooks')}>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {(detailData.webhookItems ?? []).map((w, idx) => (
+                  <Tag key={`${w.uid ?? w.name ?? 'webhook'}-${idx}`}>
+                    {w.name ?? w.uid ?? '-'}
+                  </Tag>
+                ))}
+                {(detailData.webhookItems ?? []).length === 0 ? '-' : null}
+              </div>
+            </Descriptions.Item>
+
+            <Descriptions.Item label={t('notificationGroup.detail.templates')}>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {(detailData.templateItems ?? []).map((tpl, idx) => (
+                  <Tag key={`${tpl.uid ?? tpl.name ?? 'template'}-${idx}`}>
+                    {tpl.name ?? tpl.uid ?? '-'}
+                  </Tag>
+                ))}
+                {(detailData.templateItems ?? []).length === 0 ? '-' : null}
               </div>
             </Descriptions.Item>
           </Descriptions>
@@ -1012,8 +819,6 @@ const NotificationGroupPage: React.FC = () => {
           setSubscriptionViewOpen(false)
           setSelectedUid(null)
           setDetailData(null)
-          setDraftMembers([])
-          setMemberModalOpen(false)
         }}
         width={980}
         destroyOnHidden
@@ -1024,8 +829,6 @@ const NotificationGroupPage: React.FC = () => {
                 setSubscriptionViewOpen(false)
                 setSelectedUid(null)
                 setDetailData(null)
-                setDraftMembers([])
-                setMemberModalOpen(false)
               }}
             >
               {t('common.close')}
@@ -1041,46 +844,169 @@ const NotificationGroupPage: React.FC = () => {
           </Space>
         }
       >
-        <div className='flex justify-between items-center mb-3'>
-          <div style={{ fontWeight: 600 }}>
-            {t('notificationGroup.tab.subscription')}
-          </div>
-          <Button
-            type='primary'
-            onClick={() => setMemberModalOpen(true)}
-            disabled={!selectedUid}
-          >
-            {t('notificationGroup.subscription.action.addMember')}
-          </Button>
-        </div>
-
         {detailLoading ? (
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
             <Spin size='large' />
           </div>
         ) : (
-          <NotificationMemberSubscriptionTable
-            members={draftMembers}
-            onRemove={(uid) => uid && handleRemoveMember(uid)}
-          />
+          <>
+            <div className='mt-4 mb-2 font-semibold'>
+              {t('notificationGroup.subscription.filter.title')}
+            </div>
+
+            {subscriptionLoading ? (
+              <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                <Spin />
+              </div>
+            ) : (
+              <Space direction='vertical' size='middle' className='w-full'>
+                <div>
+                  <div className='mb-1'>
+                    {t('notificationGroup.subscription.filter.strategyGroups')}
+                  </div>
+                  <Select
+                    mode='multiple'
+                    allowClear
+                    className='w-full'
+                    placeholder={t(
+                      'notificationGroup.subscription.filter.strategyGroups.placeholder',
+                    )}
+                    options={strategyGroupOptions}
+                    value={draftFilter.strategyGroupUids ?? []}
+                    onChange={(value) =>
+                      setDraftFilter((prev) => ({
+                        ...prev,
+                        strategyGroupUids: value,
+                      }))
+                    }
+                  />
+                </div>
+
+                <div>
+                  <div className='mb-1'>
+                    {t('notificationGroup.subscription.filter.strategies')}
+                  </div>
+                  <Select
+                    mode='multiple'
+                    allowClear
+                    className='w-full'
+                    placeholder={t(
+                      'notificationGroup.subscription.filter.strategies.placeholder',
+                    )}
+                    options={strategyOptions}
+                    value={draftFilter.strategyUids ?? []}
+                    onChange={(value) =>
+                      setDraftFilter((prev) => ({ ...prev, strategyUids: value }))
+                    }
+                  />
+                </div>
+
+                <div>
+                  <div className='mb-1'>
+                    {t('notificationGroup.subscription.filter.datasources')}
+                  </div>
+                  <Select
+                    mode='multiple'
+                    allowClear
+                    className='w-full'
+                    placeholder={t(
+                      'notificationGroup.subscription.filter.datasources.placeholder',
+                    )}
+                    options={datasourceOptions}
+                    value={draftFilter.datasourceUids ?? []}
+                    onChange={(value) =>
+                      setDraftFilter((prev) => ({
+                        ...prev,
+                        datasourceUids: value,
+                      }))
+                    }
+                  />
+                </div>
+
+                <div>
+                  <div className='mb-1'>
+                    {t('notificationGroup.subscription.filter.levels')}
+                  </div>
+                  <Select
+                    mode='multiple'
+                    allowClear
+                    className='w-full'
+                    placeholder={t(
+                      'notificationGroup.subscription.filter.levels.placeholder',
+                    )}
+                    options={levelOptions}
+                    value={draftFilter.levelUids ?? []}
+                    onChange={(value) =>
+                      setDraftFilter((prev) => ({ ...prev, levelUids: value }))
+                    }
+                  />
+                </div>
+
+                <div>
+                  <div className='mb-1'>
+                    {t('notificationGroup.subscription.filter.datasourceLevels')}
+                  </div>
+                  <Select
+                    mode='multiple'
+                    allowClear
+                    className='w-full'
+                    placeholder={t(
+                      'notificationGroup.subscription.filter.datasourceLevels.placeholder',
+                    )}
+                    options={datasourceLevelOptions}
+                    value={draftFilter.datasourceLevelUids ?? []}
+                    onChange={(value) =>
+                      setDraftFilter((prev) => ({
+                        ...prev,
+                        datasourceLevelUids: value,
+                      }))
+                    }
+                  />
+                </div>
+
+                <div>
+                  <div className='mb-1'>
+                    {t('notificationGroup.subscription.filter.labels')}
+                  </div>
+                  <Input.TextArea
+                    rows={3}
+                    value={labelsText}
+                    onChange={(e) => setLabelsText(e.target.value)}
+                    placeholder={t(
+                      'notificationGroup.subscription.filter.labels.placeholder',
+                    )}
+                  />
+                </div>
+
+                <div>
+                  <div className='mb-1'>
+                    {t('notificationGroup.subscription.filter.excludeLabels')}
+                  </div>
+                  <Input.TextArea
+                    rows={3}
+                    value={excludeLabelsText}
+                    onChange={(e) => setExcludeLabelsText(e.target.value)}
+                    placeholder={t(
+                      'notificationGroup.subscription.filter.excludeLabels.placeholder',
+                    )}
+                  />
+                </div>
+              </Space>
+            )}
+          </>
         )}
 
         <div className='flex justify-end mt-4 gap-2'>
           <Button
-            onClick={() => setDraftMembers(detailData?.members ?? [])}
-            disabled={!detailData || memberSaving}
+            onClick={() => {
+              if (selectedUid) void fetchSubscription(selectedUid)
+            }}
+            disabled={memberSaving}
           >
             {t('common.reset')}
           </Button>
         </div>
       </Modal>
-
-      <NotificationMemberSelectModal
-        open={memberModalOpen}
-        onCancel={() => setMemberModalOpen(false)}
-        existingMemberUids={existingMemberUids}
-        onConfirm={(item) => handleAddMemberConfirm(item)}
-      />
     </div>
   )
 }

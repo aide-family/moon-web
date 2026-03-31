@@ -17,6 +17,10 @@ export interface NotificationMemberItem {
   memberUid?: string
   isEmail?: boolean
   isPhone?: boolean
+  /** 成员名称（通知组详情/成员项） */
+  memberName?: string
+  /** 成员头像（通知组详情/成员项） */
+  memberAvatar?: string
 }
 
 /** 通知组单项（列表/详情），status 为全局状态枚举 */
@@ -29,8 +33,22 @@ export interface NotificationGroupItem {
   members?: NotificationMemberItem[]
   webhooks?: string[]
   templates?: string[]
+  /** webhook 详情项（通知组详情） */
+  webhookItems?: NotificationResourceItem[]
+  /** template 详情项（通知组详情） */
+  templateItems?: NotificationResourceItem[]
+  /** email config 详情项（通知组详情） */
+  emailConfigItems?: NotificationResourceItem[]
+  /** email config uid 列表（通知组详情/请求） */
+  emailConfigs?: string[]
   createdAt?: string
   updatedAt?: string
+}
+
+/** 通知资源项（webhook/template/email config 统一形态） */
+export interface NotificationResourceItem {
+  uid?: string
+  name?: string
 }
 
 /** 通知组列表请求参数 GET /v1/notification-groups */
@@ -57,6 +75,7 @@ export interface CreateNotificationGroupParams {
   members?: NotificationMemberItem[]
   webhooks?: string[]
   templates?: string[]
+  emailConfigs?: string[]
 }
 
 /** 创建通知组响应 */
@@ -73,6 +92,7 @@ export interface UpdateNotificationGroupParams {
   members?: NotificationMemberItem[]
   webhooks?: string[]
   templates?: string[]
+  emailConfigs?: string[]
 }
 
 /** 更新通知组响应：成功返回空对象 */
@@ -100,6 +120,10 @@ export interface StrategyLevelPair {
 export interface SubscriptionFilter {
   strategyGroupUids?: string[]
   strategyUids?: string[]
+  /** 独立告警等级过滤 */
+  levelUids?: string[]
+  /** 独立数据源等级过滤 */
+  datasourceLevelUids?: string[]
   strategyLevels?: StrategyLevelPair[]
   datasourceUids?: string[]
   labels?: Record<string, string>
