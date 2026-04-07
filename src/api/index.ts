@@ -38,3 +38,8 @@ export * from './rabbit/email/index'
 export * from './rabbit/webhook/index'
 export * from './rabbit/template/index'
 export * from './rabbit/message-log/index'
+
+// jade_tree：机器信息、探测任务、SSH命令
+export * from './jade_tree/machineInfo/index'
+export * from './jade_tree/probeTask/index'
+export * from './jade_tree/sshCommand/index'

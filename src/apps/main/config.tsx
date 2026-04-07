@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react'
 import { Route } from 'react-router-dom'
-import { AppstoreOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined, SafetyCertificateOutlined, HddOutlined, BellOutlined, ThunderboltOutlined, AlertOutlined, HistoryOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined, SafetyCertificateOutlined, HddOutlined, BellOutlined, ThunderboltOutlined, AlertOutlined, HistoryOutlined, ClusterOutlined } from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
 import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
 import { SubAppContainer } from '@/components/SubAppContainer'
@@ -174,6 +174,62 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
           devUrl: 'http://localhost:5176/notification-groups',
           prodUrl: 'http://localhost:4176/notification-groups',
           path: '/marksman/notification-groups',
+        },
+      },
+    ],
+  },
+  {
+    key: 'jade-tree',
+    icon: <ClusterOutlined />,
+    label: t('menu.jadeTree'),
+    path: '/jade-tree',
+    children: [
+      {
+        key: 'jade-tree-ssh-commands',
+        icon: <ClusterOutlined />,
+        label: t('menu.jadeTreeCommands'),
+        path: '/jade-tree/ssh-commands',
+        subApp: {
+          name: 'jade-tree-ssh-commands',
+          devUrl: 'http://localhost:5177/ssh-commands',
+          prodUrl: 'http://localhost:4177/ssh-commands',
+          path: '/jade-tree/ssh-commands',
+        },
+      },
+      {
+        key: 'jade-tree-audits',
+        icon: <HistoryOutlined />,
+        label: t('menu.jadeTreeAudits'),
+        path: '/jade-tree/audits',
+        subApp: {
+          name: 'jade-tree-audits',
+          devUrl: 'http://localhost:5177/audits',
+          prodUrl: 'http://localhost:4177/audits',
+          path: '/jade-tree/audits',
+        },
+      },
+      {
+        key: 'jade-tree-probe-tasks',
+        icon: <ApiOutlined />,
+        label: t('menu.jadeTreeProbes'),
+        path: '/jade-tree/probe-tasks',
+        subApp: {
+          name: 'jade-tree-probe-tasks',
+          devUrl: 'http://localhost:5177/probe-tasks',
+          prodUrl: 'http://localhost:4177/probe-tasks',
+          path: '/jade-tree/probe-tasks',
+        },
+      },
+      {
+        key: 'jade-tree-machines',
+        icon: <ClusterOutlined />,
+        label: t('menu.jadeTreeMachines'),
+        path: '/jade-tree/machines',
+        subApp: {
+          name: 'jade-tree-machines',
+          devUrl: 'http://localhost:5177/machines',
+          prodUrl: 'http://localhost:4177/machines',
+          path: '/jade-tree/machines',
         },
       },
     ],
