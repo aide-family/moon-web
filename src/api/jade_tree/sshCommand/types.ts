@@ -5,6 +5,12 @@ export enum SSHCommandAuditStatus {
   REJECTED = 'SSHCommandAuditStatus_REJECTED',
 }
 
+export enum SSHCommandAuditKind {
+  UNKNOWN = 'SSHCommandAuditKind_UNKNOWN',
+  CREATE = 'SSHCommandAuditKind_CREATE',
+  UPDATE = 'SSHCommandAuditKind_UPDATE',
+}
+
 export interface SSHCommandItem {
   uid?: string
   name?: string
@@ -20,7 +26,7 @@ export interface SSHCommandItem {
 export interface SSHCommandAuditItem {
   uid?: string
   targetCommandUid?: string
-  kind?: string
+  kind?: SSHCommandAuditKind
   status?: SSHCommandAuditStatus
   name?: string
   description?: string
@@ -51,6 +57,8 @@ export interface SSHCommandAuditListParams {
   page?: number
   pageSize?: number
   statusFilter?: SSHCommandAuditStatus
+  keyword?: string
+  kind?: SSHCommandAuditKind
 }
 
 export interface SSHCommandAuditListResponse {

@@ -13,7 +13,10 @@ import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
 import { NamespaceProvider, NoopNamespaceProvider } from '@/contexts/NamespaceContext'
 import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
 import { convertToMenuItems, generateRoutes, getAllSubAppConfigs, getDefaultPath, type AppConfigItem } from '../main/config'
-import JadeTreeDashboardWrapper from '@/pages/jade_tree/dashboard'
+import SSHCommandsPage from '@/pages/jade_tree/ssh-commands'
+import AuditsPage from '@/pages/jade_tree/audits'
+import ProbeTasksPage from '@/pages/jade_tree/probe-tasks'
+import MachinesPage from '@/pages/jade_tree/machines'
 
 const getJadeTreeConfig = (t: (key: string) => string): AppConfigItem[] => [
   {
@@ -21,28 +24,28 @@ const getJadeTreeConfig = (t: (key: string) => string): AppConfigItem[] => [
     icon: <ClusterOutlined />,
     label: t('menu.jadeTreeCommands'),
     path: '/ssh-commands',
-    element: <JadeTreeDashboardWrapper fixedTab='ssh-commands' />,
+    element: <SSHCommandsPage />,
   },
   {
     key: 'jade-tree-audits',
     icon: <AuditOutlined />,
     label: t('menu.jadeTreeAudits'),
     path: '/audits',
-    element: <JadeTreeDashboardWrapper fixedTab='audits' />,
+    element: <AuditsPage />,
   },
   {
     key: 'jade-tree-probes',
     icon: <ApiOutlined />,
     label: t('menu.jadeTreeProbes'),
     path: '/probe-tasks',
-    element: <JadeTreeDashboardWrapper fixedTab='probe-tasks' />,
+    element: <ProbeTasksPage />,
   },
   {
     key: 'jade-tree-machines',
     icon: <ClusterOutlined />,
     label: t('menu.jadeTreeMachines'),
     path: '/machines',
-    element: <JadeTreeDashboardWrapper fixedTab='machines' />,
+    element: <MachinesPage />,
   },
   {
     key: 'jade-tree-goddess',

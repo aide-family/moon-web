@@ -1,14 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   App,
   Button,
+  Dropdown,
   Form,
-  Popconfirm,
   Space,
   Tabs,
   Tag,
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
+import type { MenuProps } from 'antd'
 import PageContent from '@/components/layout/PageContent'
 import { useLocale } from '@/contexts/LocaleContext'
 import {
@@ -22,7 +23,6 @@ import {
   getSSHCommandAuditList,
   getSSHCommandList,
   ProbeTaskStatus,
-  reportMachineInfos,
   rejectSSHCommandAudit,
   SSHCommandAuditStatus,
   submitCreateSSHCommand,
@@ -33,26 +33,32 @@ import {
 import type {
   MachineInfoItem,
   ProbeTaskItem,
+  ProbeTaskListParams,
   SSHCommandAuditItem,
+  SSHCommandAuditListParams,
   SSHCommandItem,
 } from '@/api'
-import {
-  AuditsTab,
-  MachinesTab,
-  ProbeTasksTab,
-  SSHCommandsTab,
-} from './components'
-import {
-  ExecuteSSHModal,
-  ProbeTaskFormModal,
-  RejectAuditModal,
-  SSHCommandFormModal,
-  type ExecuteFormValues,
-  type ProbeTaskFormValues,
-  type RejectFormValues,
+import SSHCommandsTab from '../ssh-commands/components/SSHCommandsTab'
+import AuditsTab from '../audits/components/AuditsTab'
+import ProbeTasksTab from '../probe-tasks/components/ProbeTasksTab'
+import MachinesTab from '../machines/components/MachinesTab'
+import SSHCommandFormModal, {
   type SSHCommandFormValues,
-} from './components/modals'
-import { DEFAULT_PAGE_SIZE, usePaginationState } from './hooks/usePaginationState'
+} from '../ssh-commands/components/modals/SSHCommandFormModal'
+import ExecuteSSHModal, {
+  type ExecuteFormValues,
+} from '../ssh-commands/components/modals/ExecuteSSHModal'
+import SSHCommandDetailModal from '../ssh-commands/components/modals/SSHCommandDetailModal'
+import RejectAuditModal, {
+  type RejectFormValues,
+} from '../audits/components/modals/RejectAuditModal'
+import AuditDetailModal from '../audits/components/modals/AuditDetailModal'
+import ProbeTaskFormModal, {
+  type ProbeTaskFormValues,
+} from '../probe-tasks/components/modals/ProbeTaskFormModal'
+import ProbeTaskDetailModal from '../probe-tasks/components/modals/ProbeTaskDetailModal'
+import MachineDetailModal from '../machines/components/modals/MachineDetailModal'
+import { DEFAULT_PAGE_SIZE, usePaginationState } from '@/utils/hooks/usePaginationState'
 
 const formatTotal = (value?: string): number => Number.parseInt(value ?? '0', 10) || 0
 
@@ -76,7 +82,7 @@ interface DashboardPageProps {
 }
 
 const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
-  const { message } = App.useApp()
+  const { message, modal } = App.useApp()
   const { t } = useLocale()
 
   const [sshCommands, setSSHCommands] = useState<SSHCommandItem[]>([])
@@ -86,17 +92,28 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
 
   const [audits, setAudits] = useState<SSHCommandAuditItem[]>([])
   const [auditLoading, setAuditLoading] = useState(false)
-  const [auditStatusFilter, setAuditStatusFilter] = useState<SSHCommandAuditStatus | undefined>(undefined)
+  const [auditSearchParams, setAuditSearchParams] = useState<SSHCommandAuditListParams>({
+    statusFilter: undefined,
+    keyword: '',
+    kind: undefined,
+  })
   const [auditPagination, setAuditPagination] = usePaginationState()
 
   const [probeTasks, setProbeTasks] = useState<ProbeTaskItem[]>([])
   const [probeLoading, setProbeLoading] = useState(false)
   const [probePagination, setProbePagination] = usePaginationState()
+  const [probeSearchParams, setProbeSearchParams] = useState<ProbeTaskListParams>({
+    keyword: '',
+    type: undefined,
+    status: undefined,
+  })
 
   const [localMachine, setLocalMachine] = useState<MachineInfoItem>()
   const [clusterMachines, setClusterMachines] = useState<MachineInfoItem[]>([])
   const [machineLoading, setMachineLoading] = useState(false)
   const [machinePagination, setMachinePagination] = usePaginationState()
+  const [machineDetailOpen, setMachineDetailOpen] = useState(false)
+  const [machineDetailData, setMachineDetailData] = useState<MachineInfoItem>()
 
   const [sshFormOpen, setSSHFormOpen] = useState(false)
   const [sshEditing, setSSHEditing] = useState<SSHCommandItem>()
@@ -106,70 +123,130 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
   const [executeTarget, setExecuteTarget] = useState<SSHCommandItem>()
   const [executeResult, setExecuteResult] = useState<{ stdout?: string; stderr?: string; exitCode?: number }>()
   const [executeForm] = Form.useForm<ExecuteFormValues>()
+  const [commandDetailOpen, setCommandDetailOpen] = useState(false)
+  const [commandDetailData, setCommandDetailData] = useState<SSHCommandItem>()
 
   const [rejectOpen, setRejectOpen] = useState(false)
   const [rejectTarget, setRejectTarget] = useState<SSHCommandAuditItem>()
   const [rejectForm] = Form.useForm<RejectFormValues>()
+  const [auditDetailOpen, setAuditDetailOpen] = useState(false)
+  const [auditDetailData, setAuditDetailData] = useState<SSHCommandAuditItem>()
 
   const [probeOpen, setProbeOpen] = useState(false)
   const [probeEditing, setProbeEditing] = useState<ProbeTaskItem>()
   const [probeForm] = Form.useForm<ProbeTaskFormValues>()
+  const [probeDetailOpen, setProbeDetailOpen] = useState(false)
+  const [probeDetailData, setProbeDetailData] = useState<ProbeTaskItem>()
 
-  const fetchSSHCommands = async (page = sshPagination.current, pageSize = sshPagination.pageSize, keyword = sshKeyword) => {
-    setSSHLoading(true)
-    try {
-      const res = await getSSHCommandList({ page, pageSize, keyword: keyword || undefined })
-      setSSHCommands(res.items ?? [])
-      setSSHPagination({ current: page, pageSize, total: formatTotal(res.total) })
-    } catch (error) {
-      console.error('获取 SSH 命令列表失败', error)
-      setSSHCommands([])
-    } finally {
-      setSSHLoading(false)
-    }
-  }
+  const fetchSSHCommands = useCallback(
+    async (
+      page = sshPagination.current,
+      pageSize = sshPagination.pageSize,
+      keyword = sshKeyword,
+    ) => {
+      setSSHLoading(true)
+      try {
+        const res = await getSSHCommandList({ page, pageSize, keyword: keyword || undefined })
+        setSSHCommands(res.items ?? [])
+        setSSHPagination({ current: page, pageSize, total: formatTotal(res.total) })
+      } catch (error) {
+        console.error('获取 SSH 命令列表失败', error)
+        setSSHCommands([])
+      } finally {
+        setSSHLoading(false)
+      }
+    },
+    [setSSHPagination, sshKeyword, sshPagination],
+  )
 
-  const fetchAudits = async (page = auditPagination.current, pageSize = auditPagination.pageSize, statusFilter = auditStatusFilter) => {
-    setAuditLoading(true)
-    try {
-      const res = await getSSHCommandAuditList({ page, pageSize, statusFilter })
-      setAudits(res.items ?? [])
-      setAuditPagination({ current: page, pageSize, total: formatTotal(res.total) })
-    } catch (error) {
-      console.error('获取审核列表失败', error)
-      setAudits([])
-    } finally {
-      setAuditLoading(false)
-    }
-  }
+  const fetchAudits = useCallback(
+    async (
+      page = auditPagination.current,
+      pageSize = auditPagination.pageSize,
+      override?: Partial<SSHCommandAuditListParams>,
+    ) => {
+      setAuditLoading(true)
+      try {
+        const effective = override
+          ? { ...auditSearchParams, ...override }
+          : auditSearchParams
+        const res = await getSSHCommandAuditList({
+          page,
+          pageSize,
+          statusFilter: effective.statusFilter,
+          keyword: effective.keyword || undefined,
+          kind: effective.kind,
+        })
+        setAudits(res.items ?? [])
+        setAuditPagination({ current: page, pageSize, total: formatTotal(res.total) })
+      } catch (error) {
+        console.error('获取审核列表失败', error)
+        setAudits([])
+      } finally {
+        setAuditLoading(false)
+      }
+    },
+    [auditPagination, auditSearchParams, setAuditPagination],
+  )
 
-  const fetchProbeTasks = async (page = probePagination.current, pageSize = probePagination.pageSize) => {
-    setProbeLoading(true)
-    try {
-      const res = await getProbeTaskList({ page, pageSize })
-      setProbeTasks(res.items ?? [])
-      setProbePagination({ current: page, pageSize, total: formatTotal(res.total) })
-    } catch (error) {
-      console.error('获取探测任务失败', error)
-      setProbeTasks([])
-    } finally {
-      setProbeLoading(false)
-    }
-  }
+  const fetchProbeTasks = useCallback(
+    async (
+      page = probePagination.current,
+      pageSize = probePagination.pageSize,
+      override?: Partial<ProbeTaskListParams>,
+    ) => {
+      setProbeLoading(true)
+      try {
+        const effective = override
+          ? { ...probeSearchParams, ...override }
+          : probeSearchParams
+        const res = await getProbeTaskList({
+          page,
+          pageSize,
+          type: effective.type || undefined,
+          keyword: effective.keyword || undefined,
+          status: effective.status,
+        })
+        setProbeTasks(res.items ?? [])
+        setProbePagination({ current: page, pageSize, total: formatTotal(res.total) })
+      } catch (error) {
+        console.error('获取探测任务失败', error)
+        setProbeTasks([])
+      } finally {
+        setProbeLoading(false)
+      }
+    },
+    [probePagination, probeSearchParams, setProbePagination],
+  )
 
   const fetchMachines = async (page = machinePagination.current, pageSize = machinePagination.pageSize) => {
     setMachineLoading(true)
     try {
-      const [local, cluster] = await Promise.all([
+      const [localResult, clusterResult] = await Promise.allSettled([
         getMachineInfo(),
         getClusterMachineInfoList({ page, pageSize }),
       ])
-      setLocalMachine(local)
-      setClusterMachines(cluster.machines ?? [])
-      setMachinePagination({ current: page, pageSize, total: formatTotal(cluster.total) })
+      if (localResult.status === 'fulfilled') {
+        setLocalMachine(localResult.value)
+      } else {
+        setLocalMachine(undefined)
+      }
+      if (clusterResult.status === 'fulfilled') {
+        setClusterMachines(clusterResult.value.machines ?? [])
+        setMachinePagination({
+          current: page,
+          pageSize,
+          total: formatTotal(clusterResult.value.total),
+        })
+      } else {
+        setClusterMachines([])
+        setMachinePagination({ current: page, pageSize, total: 0 })
+      }
     } catch (error) {
       console.error('获取机器信息失败', error)
+      setLocalMachine(undefined)
       setClusterMachines([])
+      setMachinePagination({ current: page, pageSize, total: 0 })
     } finally {
       setMachineLoading(false)
     }
@@ -193,34 +270,58 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
       {
         title: t('table.action'),
         key: 'action',
-        width: 200,
+        width: 140,
+        fixed: 'right',
+        align: 'center',
         render: (_, row) => (
-          <Space>
-            <Button type='link' onClick={() => {
-              setExecuteTarget(row)
-              setExecuteResult(undefined)
-              executeForm.resetFields()
-              setExecuteOpen(true)
-            }}>
-              {t('jadeTree.command.execute')}
+          <Space size='small'>
+            <Button
+              type='link'
+              onClick={() => {
+                setCommandDetailData(row)
+                setCommandDetailOpen(true)
+              }}
+            >
+              {t('common.detail')}
             </Button>
-            <Button type='link' onClick={() => {
-              sshForm.setFieldsValue({
-                name: row.name || '',
-                description: row.description,
-                content: row.content || '',
-                workDir: row.workDir,
-              })
-              setSSHEditing(row)
-              setSSHFormOpen(true)
-            }}>
-              {t('common.edit')}
-            </Button>
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: 'execute',
+                    label: t('jadeTree.command.execute'),
+                    onClick: () => {
+                      setExecuteTarget(row)
+                      setExecuteResult(undefined)
+                      executeForm.resetFields()
+                      setExecuteOpen(true)
+                    },
+                  },
+                  {
+                    key: 'edit',
+                    label: t('common.edit'),
+                    onClick: () => {
+                      sshForm.setFieldsValue({
+                        name: row.name || '',
+                        description: row.description,
+                        content: row.content || '',
+                        workDir: row.workDir,
+                      })
+                      setSSHEditing(row)
+                      setSSHFormOpen(true)
+                    },
+                  },
+                ] as MenuProps['items'],
+              }}
+              trigger={['click']}
+            >
+              <Button type='link'>{t('common.more')}</Button>
+            </Dropdown>
           </Space>
         ),
       },
     ],
-    [executeForm, t],
+    [executeForm, sshForm, t],
   )
 
   const auditColumns: ColumnsType<SSHCommandAuditItem> = useMemo(
@@ -249,39 +350,57 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
       {
         title: t('table.action'),
         key: 'action',
-        width: 160,
+        width: 140,
+        fixed: 'right',
+        align: 'center',
         render: (_, row) => (
-          <Space>
+          <Space size='small'>
             <Button
               type='link'
-              disabled={row.status !== SSHCommandAuditStatus.PENDING}
-              onClick={async () => {
-                if (!row.uid) return
-                await approveSSHCommandAudit(row.uid, { uid: row.uid })
-                message.success(t('message.update.success'))
-                void fetchAudits()
-                void fetchSSHCommands()
-              }}
-            >
-              {t('jadeTree.audit.approve')}
-            </Button>
-            <Button
-              type='link'
-              danger
-              disabled={row.status !== SSHCommandAuditStatus.PENDING}
               onClick={() => {
-                setRejectTarget(row)
-                rejectForm.resetFields()
-                setRejectOpen(true)
+                setAuditDetailData(row)
+                setAuditDetailOpen(true)
               }}
             >
-              {t('jadeTree.audit.reject')}
+              {t('common.detail')}
             </Button>
+            {row.status === SSHCommandAuditStatus.PENDING ? (
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: 'approve',
+                      label: t('jadeTree.audit.approve'),
+                      onClick: async () => {
+                        if (!row.uid) return
+                        await approveSSHCommandAudit(row.uid, { uid: row.uid })
+                        message.success(t('message.update.success'))
+                        void fetchAudits()
+                        void fetchSSHCommands()
+                      },
+                    },
+                    {
+                      key: 'reject',
+                      label: t('jadeTree.audit.reject'),
+                      danger: true,
+                      onClick: () => {
+                        setRejectTarget(row)
+                        rejectForm.resetFields()
+                        setRejectOpen(true)
+                      },
+                    },
+                  ] as MenuProps['items'],
+                }}
+                trigger={['click']}
+              >
+                <Button type='link'>{t('common.more')}</Button>
+              </Dropdown>
+            ) : null}
           </Space>
         ),
       },
     ],
-    [message, rejectForm, t],
+    [fetchAudits, fetchSSHCommands, message, rejectForm, t],
   )
 
   const probeColumns: ColumnsType<ProbeTaskItem> = useMemo(
@@ -306,59 +425,87 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
       {
         title: t('table.action'),
         key: 'action',
-        width: 220,
+        width: 140,
+        fixed: 'right',
+        align: 'center',
         render: (_, row) => (
-          <Space>
+          <Space size='small'>
             <Button
               type='link'
               onClick={() => {
-                setProbeEditing(row)
-                probeForm.setFieldsValue({
-                  type: row.type || '',
-                  name: row.name,
-                  host: row.host,
-                  port: row.port,
-                  url: row.url,
-                  timeoutSeconds: row.timeoutSeconds,
-                })
-                setProbeOpen(true)
+                setProbeDetailData(row)
+                setProbeDetailOpen(true)
               }}
             >
-              {t('common.edit')}
+              {t('common.detail')}
             </Button>
-            <Button
-              type='link'
-              onClick={async () => {
-                if (!row.uid) return
-                await updateProbeTaskStatus(row.uid, {
-                  uid: row.uid,
-                  status:
-                    row.status === ProbeTaskStatus.ENABLED
-                      ? ProbeTaskStatus.DISABLED
-                      : ProbeTaskStatus.ENABLED,
-                })
-                message.success(t('message.update.success'))
-                void fetchProbeTasks()
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: 'edit',
+                    label: t('common.edit'),
+                    onClick: () => {
+                      setProbeEditing(row)
+                      probeForm.setFieldsValue({
+                        type: row.type || '',
+                        name: row.name,
+                        host: row.host,
+                        port: row.port,
+                        url: row.url,
+                        timeoutSeconds: row.timeoutSeconds,
+                      })
+                      setProbeOpen(true)
+                    },
+                  },
+                  {
+                    key: 'status',
+                    label:
+                      row.status === ProbeTaskStatus.ENABLED
+                        ? t('common.status.DISABLED')
+                        : t('common.status.ENABLED'),
+                    onClick: async () => {
+                      if (!row.uid) return
+                      await updateProbeTaskStatus(row.uid, {
+                        uid: row.uid,
+                        status:
+                          row.status === ProbeTaskStatus.ENABLED
+                            ? ProbeTaskStatus.DISABLED
+                            : ProbeTaskStatus.ENABLED,
+                      })
+                      message.success(t('message.update.success'))
+                      void fetchProbeTasks()
+                    },
+                  },
+                  {
+                    key: 'delete',
+                    label: t('common.delete'),
+                    danger: true,
+                    onClick: () => {
+                      modal.confirm({
+                        title: t('jadeTree.probe.deleteConfirm'),
+                        okText: t('common.ok'),
+                        cancelText: t('common.cancel'),
+                        onOk: async () => {
+                          if (!row.uid) return
+                          await deleteProbeTask(row.uid)
+                          message.success(t('message.delete.success'))
+                          void fetchProbeTasks()
+                        },
+                      })
+                    },
+                  },
+                ] as MenuProps['items'],
               }}
+              trigger={['click']}
             >
-              {row.status === ProbeTaskStatus.ENABLED ? t('common.status.DISABLED') : t('common.status.ENABLED')}
-            </Button>
-            <Popconfirm
-              title={t('jadeTree.probe.deleteConfirm')}
-              onConfirm={async () => {
-                if (!row.uid) return
-                await deleteProbeTask(row.uid)
-                message.success(t('message.delete.success'))
-                void fetchProbeTasks()
-              }}
-            >
-              <Button type='link' danger>{t('common.delete')}</Button>
-            </Popconfirm>
+              <Button type='link'>{t('common.more')}</Button>
+            </Dropdown>
           </Space>
         ),
       },
     ],
-    [message, probeForm, t],
+    [fetchProbeTasks, message, modal, probeForm, t],
   )
 
   const machineColumns: ColumnsType<MachineInfoItem> = useMemo(
@@ -369,6 +516,25 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
       { title: t('jadeTree.machine.os'), dataIndex: ['system', 'os'], key: 'os', width: 120, render: (v?: string) => v || '-' },
       { title: t('jadeTree.machine.version'), dataIndex: ['system', 'version'], key: 'version', width: 160, render: (v?: string) => v || '-' },
       { title: t('jadeTree.machine.kernel'), dataIndex: ['system', 'kernel'], key: 'kernel', width: 180, render: (v?: string) => v || '-' },
+      {
+        title: t('table.action'),
+        key: 'action',
+        width: 120,
+        fixed: 'right',
+        align: 'center',
+        render: (_, row) => (
+          <Button
+            type='link'
+            size='small'
+            onClick={() => {
+              setMachineDetailData(row)
+              setMachineDetailOpen(true)
+            }}
+          >
+            {t('common.detail')}
+          </Button>
+        ),
+      },
     ],
     [t],
   )
@@ -494,8 +660,8 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
       label: t('jadeTree.tabs.audits'),
       children: (
         <AuditsTab
-          auditStatusFilter={auditStatusFilter}
-          setAuditStatusFilter={setAuditStatusFilter}
+          auditSearchParams={auditSearchParams}
+          setAuditSearchParams={setAuditSearchParams}
           auditPagination={auditPagination}
           auditColumns={auditColumns}
           audits={audits}
@@ -510,6 +676,8 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
       children: (
         <ProbeTasksTab
           probePagination={probePagination}
+          probeSearchParams={probeSearchParams}
+          setProbeSearchParams={setProbeSearchParams}
           probeColumns={probeColumns}
           probeTasks={probeTasks}
           probeLoading={probeLoading}
@@ -533,18 +701,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
           machinePagination={machinePagination}
           machineColumns={machineColumns}
           onFetchMachines={fetchMachines}
-          onReportLocalMachine={() => {
-            void (async () => {
-              try {
-                if (!localMachine) return
-                await reportMachineInfos({ machines: [localMachine] })
-                message.success(t('message.success'))
-                await fetchMachines()
-              } catch (error) {
-                console.error('上报机器信息失败', error)
-              }
-            })()
-          }}
         />
       ),
     },
@@ -578,11 +734,23 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
         onSubmit={() => void handleSubmitExecute()}
       />
 
+      <SSHCommandDetailModal
+        open={commandDetailOpen}
+        data={commandDetailData}
+        onCancel={() => setCommandDetailOpen(false)}
+      />
+
       <RejectAuditModal
         open={rejectOpen}
         form={rejectForm}
         onCancel={() => setRejectOpen(false)}
         onSubmit={() => void handleSubmitRejectAudit()}
+      />
+
+      <AuditDetailModal
+        open={auditDetailOpen}
+        data={auditDetailData}
+        onCancel={() => setAuditDetailOpen(false)}
       />
 
       <ProbeTaskFormModal
@@ -595,17 +763,29 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
         }}
         onSubmit={() => void handleSubmitProbeTask()}
       />
+
+      <ProbeTaskDetailModal
+        open={probeDetailOpen}
+        data={probeDetailData}
+        onCancel={() => setProbeDetailOpen(false)}
+      />
+
+      <MachineDetailModal
+        open={machineDetailOpen}
+        data={machineDetailData}
+        onCancel={() => setMachineDetailOpen(false)}
+      />
     </PageContent>
   )
 }
 
-interface JadeTreeDashboardWrapperProps {
+interface JadeTreeConsoleWrapperProps {
   fixedTab?: JadeTreeTabKey
 }
 
-export default function JadeTreeDashboardWrapper({
+export default function JadeTreeConsoleWrapper({
   fixedTab,
-}: JadeTreeDashboardWrapperProps) {
+}: JadeTreeConsoleWrapperProps) {
   return (
     <App className='h-full'>
       <DashboardPage fixedTab={fixedTab} />

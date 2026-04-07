@@ -3,6 +3,7 @@ import { Button, Input, Space, Table } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { useLocale } from '@/contexts/LocaleContext'
 import type { SSHCommandItem } from '@/api'
+import { useAdaptiveTableHeight } from '@/utils/hooks/useAdaptiveTableHeight'
 
 interface SSHCommandsTabProps {
   sshKeyword: string
@@ -30,8 +31,13 @@ const SSHCommandsTab: React.FC<SSHCommandsTabProps> = ({
   onCreate,
 }) => {
   const { t } = useLocale()
+  const { tableContainerRef, tableWrapperRef, tableHeight } = useAdaptiveTableHeight([
+    sshCommands,
+    sshPagination,
+  ])
+
   return (
-    <>
+    <div className='h-full flex flex-col'>
       <Space className='mb-4'>
         <Input
           allowClear
@@ -45,31 +51,36 @@ const SSHCommandsTab: React.FC<SSHCommandsTabProps> = ({
           placeholder={t('jadeTree.command.searchPlaceholder')}
           style={{ width: 260 }}
         />
-        <Button
-          type='primary'
-          onClick={() => void onSearch(1, sshPagination.pageSize, sshKeyword)}
-        >
+        <Button type='primary' onClick={() => void onSearch(1, sshPagination.pageSize, sshKeyword)}>
           {t('common.search')}
         </Button>
         <Button onClick={onCreate} type='primary'>
           {t('common.add')}
         </Button>
       </Space>
-      <Table
-        rowKey='uid'
-        columns={sshColumns}
-        dataSource={sshCommands}
-        loading={sshLoading}
-        pagination={{
-          current: sshPagination.current,
-          pageSize: sshPagination.pageSize,
-          total: sshPagination.total,
-          showSizeChanger: true,
-          showTotal: (total) => t('table.total', { total }),
-          onChange: (current, pageSize) => void onSearch(current, pageSize, sshKeyword),
-        }}
-      />
-    </>
+      <div ref={tableContainerRef} className='flex-1 flex overflow-hidden flex-col' style={{ minHeight: 0 }}>
+        <div ref={tableWrapperRef} className='h-full flex flex-col flex-1'>
+          <Table
+            rowKey='uid'
+            columns={sshColumns}
+            dataSource={sshCommands}
+            loading={sshLoading}
+            size='small'
+            scroll={{ y: tableHeight, x: '100%' }}
+            pagination={{
+              current: sshPagination.current,
+              pageSize: sshPagination.pageSize,
+              total: sshPagination.total,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total) => t('table.total', { total }),
+              onChange: (current, pageSize) => void onSearch(current, pageSize, sshKeyword),
+              onShowSizeChange: (current, pageSize) => void onSearch(current, pageSize, sshKeyword),
+            }}
+          />
+        </div>
+      </div>
+    </div>
   )
 }
 

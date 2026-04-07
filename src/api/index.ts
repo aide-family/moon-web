@@ -2,7 +2,11 @@
  * API 模块统一导出（按大类：common / account / marksman / rabbit）
  */
 export { default as request, http } from './common/request'
-export type { ApiResponse, PaginatedResponse, RequestConfig } from './common/types'
+export type {
+  ApiResponse,
+  PaginatedResponse,
+  RequestConfig,
+} from './common/types'
 export {
   GlobalStatus,
   WebhookAPP,

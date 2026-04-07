@@ -20,6 +20,9 @@ export interface ProbeTaskItem {
 export interface ProbeTaskListParams {
   page?: number
   pageSize?: number
+  type?: string
+  keyword?: string
+  status?: ProbeTaskStatus
 }
 
 export interface ProbeTaskListResponse {

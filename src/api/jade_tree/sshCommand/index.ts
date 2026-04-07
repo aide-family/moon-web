@@ -120,4 +120,4 @@ export type {
   ExecuteSSHCommandParams,
   ExecuteSSHCommandReply,
 } from './types'
-export { SSHCommandAuditStatus } from './types'
+export { SSHCommandAuditStatus, SSHCommandAuditKind } from './types'
