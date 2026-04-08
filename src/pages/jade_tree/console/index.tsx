@@ -31,6 +31,7 @@ import {
   updateProbeTaskStatus,
 } from '@/api'
 import type {
+  ClusterMachineInfoListParams,
   MachineInfoItem,
   ProbeTaskItem,
   ProbeTaskListParams,
@@ -112,6 +113,12 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
   const [clusterMachines, setClusterMachines] = useState<MachineInfoItem[]>([])
   const [machineLoading, setMachineLoading] = useState(false)
   const [machinePagination, setMachinePagination] = usePaginationState()
+  const [machineSearchParams, setMachineSearchParams] =
+    useState<ClusterMachineInfoListParams>({
+      keywords: '',
+      ip: '',
+      hostname: '',
+    })
   const [machineDetailOpen, setMachineDetailOpen] = useState(false)
   const [machineDetailData, setMachineDetailData] = useState<MachineInfoItem>()
 
@@ -219,12 +226,25 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
     [probePagination, probeSearchParams, setProbePagination],
   )
 
-  const fetchMachines = async (page = machinePagination.current, pageSize = machinePagination.pageSize) => {
+  const fetchMachines = async (
+    page = machinePagination.current,
+    pageSize = machinePagination.pageSize,
+    override?: Partial<ClusterMachineInfoListParams>,
+  ) => {
     setMachineLoading(true)
     try {
+      const effective = override
+        ? { ...machineSearchParams, ...override }
+        : machineSearchParams
       const [localResult, clusterResult] = await Promise.allSettled([
         getMachineInfo(),
-        getClusterMachineInfoList({ page, pageSize }),
+        getClusterMachineInfoList({
+          page,
+          pageSize,
+          keywords: effective.keywords || undefined,
+          ip: effective.ip || undefined,
+          hostname: effective.hostname || undefined,
+        }),
       ])
       if (localResult.status === 'fulfilled') {
         setLocalMachine(localResult.value)
@@ -699,6 +719,8 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
           clusterMachines={clusterMachines}
           machineLoading={machineLoading}
           machinePagination={machinePagination}
+          machineSearchParams={machineSearchParams}
+          setMachineSearchParams={setMachineSearchParams}
           machineColumns={machineColumns}
           onFetchMachines={fetchMachines}
         />

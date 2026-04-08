@@ -88,6 +88,9 @@ export interface MachineInfoItem {
 export interface ClusterMachineInfoListParams {
   page?: number
   pageSize?: number
+  keywords?: string
+  ip?: string
+  hostname?: string
 }
 
 export interface ClusterMachineInfoListResponse {
