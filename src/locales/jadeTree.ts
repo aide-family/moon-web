@@ -203,7 +203,7 @@ export const enUS = {
   'jadeTree.probe.deleteConfirm': 'Delete this probe task?',
   'jadeTree.machine.local': 'Local Summary',
   'jadeTree.machine.report': 'Report Local Machine',
-  'jadeTree.machine.hostName': 'Host Name',
+  'jadeTree.machine.hostName': 'Hostname',
   'jadeTree.machine.machineUuid': 'Machine UUID',
   'jadeTree.machine.localIp': 'Local IP',
   'jadeTree.machine.os': 'OS',

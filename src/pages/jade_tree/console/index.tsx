@@ -1,13 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import {
-  App,
-  Button,
-  Dropdown,
-  Form,
-  Space,
-  Tabs,
-  Tag,
-} from 'antd'
+import { App, Button, Dropdown, Form, Space, Tabs, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
 import PageContent from '@/components/layout/PageContent'
@@ -59,9 +51,13 @@ import ProbeTaskFormModal, {
 } from '../probe-tasks/components/modals/ProbeTaskFormModal'
 import ProbeTaskDetailModal from '../probe-tasks/components/modals/ProbeTaskDetailModal'
 import MachineDetailModal from '../machines/components/modals/MachineDetailModal'
-import { DEFAULT_PAGE_SIZE, usePaginationState } from '@/utils/hooks/usePaginationState'
+import {
+  DEFAULT_PAGE_SIZE,
+  usePaginationState,
+} from '@/utils/hooks/usePaginationState'
 
-const formatTotal = (value?: string): number => Number.parseInt(value ?? '0', 10) || 0
+const formatTotal = (value?: string): number =>
+  Number.parseInt(value ?? '0', 10) || 0
 
 const getSSHAuditTagColor = (status?: SSHCommandAuditStatus): string => {
   if (status === SSHCommandAuditStatus.APPROVED) return 'success'
@@ -93,21 +89,23 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
 
   const [audits, setAudits] = useState<SSHCommandAuditItem[]>([])
   const [auditLoading, setAuditLoading] = useState(false)
-  const [auditSearchParams, setAuditSearchParams] = useState<SSHCommandAuditListParams>({
-    statusFilter: undefined,
-    keyword: '',
-    kind: undefined,
-  })
+  const [auditSearchParams, setAuditSearchParams] =
+    useState<SSHCommandAuditListParams>({
+      statusFilter: undefined,
+      keyword: '',
+      kind: undefined,
+    })
   const [auditPagination, setAuditPagination] = usePaginationState()
 
   const [probeTasks, setProbeTasks] = useState<ProbeTaskItem[]>([])
   const [probeLoading, setProbeLoading] = useState(false)
   const [probePagination, setProbePagination] = usePaginationState()
-  const [probeSearchParams, setProbeSearchParams] = useState<ProbeTaskListParams>({
-    keyword: '',
-    type: undefined,
-    status: undefined,
-  })
+  const [probeSearchParams, setProbeSearchParams] =
+    useState<ProbeTaskListParams>({
+      keyword: '',
+      type: undefined,
+      status: undefined,
+    })
 
   const [localMachine, setLocalMachine] = useState<MachineInfoItem>()
   const [clusterMachines, setClusterMachines] = useState<MachineInfoItem[]>([])
@@ -128,7 +126,11 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
 
   const [executeOpen, setExecuteOpen] = useState(false)
   const [executeTarget, setExecuteTarget] = useState<SSHCommandItem>()
-  const [executeResult, setExecuteResult] = useState<{ stdout?: string; stderr?: string; exitCode?: number }>()
+  const [executeResult, setExecuteResult] = useState<{
+    stdout?: string
+    stderr?: string
+    exitCode?: number
+  }>()
   const [executeForm] = Form.useForm<ExecuteFormValues>()
   const [commandDetailOpen, setCommandDetailOpen] = useState(false)
   const [commandDetailData, setCommandDetailData] = useState<SSHCommandItem>()
@@ -153,9 +155,17 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
     ) => {
       setSSHLoading(true)
       try {
-        const res = await getSSHCommandList({ page, pageSize, keyword: keyword || undefined })
+        const res = await getSSHCommandList({
+          page,
+          pageSize,
+          keyword: keyword || undefined,
+        })
         setSSHCommands(res.items ?? [])
-        setSSHPagination({ current: page, pageSize, total: formatTotal(res.total) })
+        setSSHPagination({
+          current: page,
+          pageSize,
+          total: formatTotal(res.total),
+        })
       } catch (error) {
         console.error('获取 SSH 命令列表失败', error)
         setSSHCommands([])
@@ -185,7 +195,11 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
           kind: effective.kind,
         })
         setAudits(res.items ?? [])
-        setAuditPagination({ current: page, pageSize, total: formatTotal(res.total) })
+        setAuditPagination({
+          current: page,
+          pageSize,
+          total: formatTotal(res.total),
+        })
       } catch (error) {
         console.error('获取审核列表失败', error)
         setAudits([])
@@ -215,7 +229,11 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
           status: effective.status,
         })
         setProbeTasks(res.items ?? [])
-        setProbePagination({ current: page, pageSize, total: formatTotal(res.total) })
+        setProbePagination({
+          current: page,
+          pageSize,
+          total: formatTotal(res.total),
+        })
       } catch (error) {
         console.error('获取探测任务失败', error)
         setProbeTasks([])
@@ -282,11 +300,39 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
 
   const sshColumns: ColumnsType<SSHCommandItem> = useMemo(
     () => [
-      { title: t('jadeTree.command.uid'), dataIndex: 'uid', key: 'uid', width: 160 },
-      { title: t('jadeTree.command.name'), dataIndex: 'name', key: 'name', width: 180 },
-      { title: t('jadeTree.command.description'), dataIndex: 'description', key: 'description', ellipsis: true },
-      { title: t('jadeTree.command.workDir'), dataIndex: 'workDir', key: 'workDir', width: 180, render: (value?: string) => value || '-' },
-      { title: t('jadeTree.command.updatedAt'), dataIndex: 'updatedAt', key: 'updatedAt', width: 180 },
+      {
+        title: t('jadeTree.command.uid'),
+        dataIndex: 'uid',
+        key: 'uid',
+        width: 160,
+      },
+      {
+        title: t('jadeTree.command.name'),
+        dataIndex: 'name',
+        key: 'name',
+        width: 180,
+      },
+      {
+        title: t('jadeTree.command.description'),
+        dataIndex: 'description',
+        key: 'description',
+        ellipsis: true,
+        minWidth: 180,
+        render: (value?: string) => value || '-',
+      },
+      {
+        title: t('jadeTree.command.workDir'),
+        dataIndex: 'workDir',
+        key: 'workDir',
+        width: 180,
+        render: (value?: string) => value || '-',
+      },
+      {
+        title: t('jadeTree.command.updatedAt'),
+        dataIndex: 'updatedAt',
+        key: 'updatedAt',
+        width: 180,
+      },
       {
         title: t('table.action'),
         key: 'action',
@@ -346,8 +392,18 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
 
   const auditColumns: ColumnsType<SSHCommandAuditItem> = useMemo(
     () => [
-      { title: t('jadeTree.audit.uid'), dataIndex: 'uid', key: 'uid', width: 160 },
-      { title: t('jadeTree.audit.name'), dataIndex: 'name', key: 'name', width: 160 },
+      {
+        title: t('jadeTree.audit.uid'),
+        dataIndex: 'uid',
+        key: 'uid',
+        width: 160,
+      },
+      {
+        title: t('jadeTree.audit.name'),
+        dataIndex: 'name',
+        key: 'name',
+        width: 160,
+      },
       {
         title: t('common.status'),
         dataIndex: 'status',
@@ -365,8 +421,19 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
           </Tag>
         ),
       },
-      { title: t('jadeTree.audit.rejectReason'), dataIndex: 'rejectReason', key: 'rejectReason', ellipsis: true, render: (v?: string) => v || '-' },
-      { title: t('jadeTree.audit.updatedAt'), dataIndex: 'updatedAt', key: 'updatedAt', width: 180 },
+      {
+        title: t('jadeTree.audit.rejectReason'),
+        dataIndex: 'rejectReason',
+        key: 'rejectReason',
+        ellipsis: true,
+        render: (v?: string) => v || '-',
+      },
+      {
+        title: t('jadeTree.audit.updatedAt'),
+        dataIndex: 'updatedAt',
+        key: 'updatedAt',
+        width: 180,
+      },
       {
         title: t('table.action'),
         key: 'action',
@@ -425,12 +492,49 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
 
   const probeColumns: ColumnsType<ProbeTaskItem> = useMemo(
     () => [
-      { title: t('jadeTree.probe.uid'), dataIndex: 'uid', key: 'uid', width: 160 },
-      { title: t('table.search.type'), dataIndex: 'type', key: 'type', width: 120, render: (v?: string) => v || '-' },
-      { title: t('jadeTree.probe.name'), dataIndex: 'name', key: 'name', width: 140, render: (v?: string) => v || '-' },
-      { title: t('jadeTree.probe.host'), dataIndex: 'host', key: 'host', width: 140, render: (v?: string) => v || '-' },
-      { title: t('jadeTree.probe.port'), dataIndex: 'port', key: 'port', width: 100, render: (v?: string) => v || '-' },
-      { title: t('jadeTree.probe.url'), dataIndex: 'url', key: 'url', ellipsis: true, render: (v?: string) => v || '-' },
+      {
+        title: t('jadeTree.probe.uid'),
+        dataIndex: 'uid',
+        key: 'uid',
+        width: 160,
+      },
+      {
+        title: t('table.search.type'),
+        dataIndex: 'type',
+        key: 'type',
+        width: 120,
+        align: 'center',
+        render: (v?: string) => v || '-',
+      },
+      {
+        title: t('jadeTree.probe.name'),
+        dataIndex: 'name',
+        key: 'name',
+        width: 140,
+        render: (v?: string) => v || '-',
+      },
+      {
+        title: t('jadeTree.probe.host'),
+        dataIndex: 'host',
+        key: 'host',
+        width: 140,
+        render: (v?: string) => v || '-',
+      },
+      {
+        title: t('jadeTree.probe.port'),
+        dataIndex: 'port',
+        key: 'port',
+        width: 100,
+        render: (v?: string) => v || '-',
+      },
+      {
+        title: t('jadeTree.probe.url'),
+        dataIndex: 'url',
+        key: 'url',
+        ellipsis: true,
+        minWidth: 180,
+        render: (v?: string) => v || '-',
+      },
       {
         title: t('common.status'),
         dataIndex: 'status',
@@ -438,7 +542,11 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
         width: 120,
         render: (status?: ProbeTaskStatus) => (
           <Tag color={getProbeStatusTagColor(status)}>
-            {status === ProbeTaskStatus.ENABLED ? t('common.status.ENABLED') : status === ProbeTaskStatus.DISABLED ? t('common.status.DISABLED') : t('common.status.UNKNOWN')}
+            {status === ProbeTaskStatus.ENABLED
+              ? t('common.status.ENABLED')
+              : status === ProbeTaskStatus.DISABLED
+                ? t('common.status.DISABLED')
+                : t('common.status.UNKNOWN')}
           </Tag>
         ),
       },
@@ -530,12 +638,42 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
 
   const machineColumns: ColumnsType<MachineInfoItem> = useMemo(
     () => [
-      { title: t('jadeTree.machine.hostName'), dataIndex: ['host', 'hostName'], key: 'hostName', width: 180, render: (v?: string) => v || '-' },
-      { title: t('jadeTree.machine.machineUuid'), dataIndex: ['host', 'machineUuid'], key: 'machineUuid', width: 220, ellipsis: true, render: (v?: string) => v || '-' },
-      { title: t('jadeTree.machine.localIp'), dataIndex: ['network', 'localIp'], key: 'localIp', width: 160, render: (v?: string) => v || '-' },
-      { title: t('jadeTree.machine.os'), dataIndex: ['system', 'os'], key: 'os', width: 120, render: (v?: string) => v || '-' },
-      { title: t('jadeTree.machine.version'), dataIndex: ['system', 'version'], key: 'version', width: 160, render: (v?: string) => v || '-' },
-      { title: t('jadeTree.machine.kernel'), dataIndex: ['system', 'kernel'], key: 'kernel', width: 180, render: (v?: string) => v || '-' },
+      {
+        title: t('jadeTree.machine.hostName'),
+        dataIndex: ['host', 'hostName'],
+        key: 'hostName',
+        minWidth: 180,
+        render: (v?: string) => v || '-',
+      },
+      // { title: t('jadeTree.machine.machineUuid'), dataIndex: ['host', 'machineUuid'], key: 'machineUuid', width: 220, ellipsis: true, render: (v?: string) => v || '-' },
+      {
+        title: t('jadeTree.machine.localIp'),
+        dataIndex: ['network', 'localIp'],
+        key: 'localIp',
+        width: 160,
+        render: (v?: string) => v || '-',
+      },
+      {
+        title: t('jadeTree.machine.os'),
+        dataIndex: ['system', 'os'],
+        key: 'os',
+        width: 120,
+        render: (v?: string) => v || '-',
+      },
+      {
+        title: t('jadeTree.machine.version'),
+        dataIndex: ['system', 'version'],
+        key: 'version',
+        width: 160,
+        render: (v?: string) => v || '-',
+      },
+      {
+        title: t('jadeTree.machine.kernel'),
+        dataIndex: ['system', 'kernel'],
+        key: 'kernel',
+        minWidth: 180,
+        render: (v?: string) => v || '-',
+      },
       {
         title: t('table.action'),
         key: 'action',
@@ -728,9 +866,11 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ fixedTab }) => {
     },
   ]
 
-  const content = fixedTab
-    ? tabItems.find((item) => item.key === fixedTab)?.children
-    : <Tabs items={tabItems} />
+  const content = fixedTab ? (
+    tabItems.find((item) => item.key === fixedTab)?.children
+  ) : (
+    <Tabs items={tabItems} />
+  )
 
   return (
     <PageContent>
