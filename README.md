@@ -176,6 +176,7 @@ moon-web/
 - **Data fetching**: Handle `loading` state; complete `try/catch/finally`; avoid setState after unmount.
 - **Path alias**: `@/` maps to `src/`.
 - **Formatting**: Prettier (`prettier.config.js`); run `pnpm format` before commit or use format-on-save (see `.vscode/settings.json`).
+- **Hover docs**: Only `/** JSDoc */` and types appear on hover—not `//` line comments. Workspace uses the project TypeScript SDK (`.vscode/settings.json`).
 - Page conventions: `.cursor/rules/moon-web-pages-conventions.mdc`.
 
 ### Build & Deploy

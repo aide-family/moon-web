@@ -72,14 +72,20 @@ try {
 - 使用项目根目录 `prettier.config.js`（单引号、无分号、`trailingComma: all` 等）；提交前执行 `pnpm format` 或依赖编辑器保存时格式化。
 - ESLint 与 Prettier 分工：样式由 Prettier 处理，逻辑由 ESLint；勿在 ESLint 中重复配置与 Prettier 冲突的规则。
 
-## 5) 类型与可维护性（高优先级）
+## 5) 编辑器悬停文档（JSDoc）
+
+- TypeScript / Cursor **悬停提示只识别 `/** JSDoc */`**，普通 `//` 行注释不会出现在悬停里。
+- 需要悬停展示说明的函数、变量、接口字段、类型，请写在紧邻声明上方的 JSDoc 中。
+- 第三方库（如 antd）的类型说明来自 `node_modules` 中的 `.d.ts`，需保证工作区使用项目内 TypeScript（见 `.vscode/settings.json` 中 `typescript.tsdk`）。
+
+## 6) 类型与可维护性（高优先级）
 
 - 使用项目已有的类型：例如 `AlertEventItem`、`ListRealtimeAlertParams` 等；不要用 `any`。
 - 函数/组件的返回值类型要清晰（能推导就推导，涉及复杂对象尽量显式类型）。
 - 不要把“通用常量/映射表”写进组件内部：如状态映射、mock 列表等应放在文件作用域常量区。
 - 避免在生产页面保留大段 mock 逻辑：如需 mock，只能通过明确的开关（如仅 dev/测试、环境变量或 feature flag）。
 
-## 6) 额外质量门槛（建议）
+## 7) 额外质量门槛（建议）
 
 - 不要在 `catch` 后继续执行依赖成功数据的逻辑；确保失败时 UI 能正确降级。
 - 组件拆分：当页面超过单一职责（例如“列表 + 详情 + 抑制弹窗 + 创建弹窗”）且代码超过可读阈值时，拆成小组件/子组件（如 `AlertPageTabContent`）。

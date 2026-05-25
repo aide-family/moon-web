@@ -176,6 +176,7 @@ moon-web/
 - **数据请求**：必须处理 `loading` 状态；`try/catch/finally` 闭环；组件卸载时避免 setState。
 - **路径别名**：`@/` 指向 `src/` 目录。
 - **代码格式**：使用 Prettier（`prettier.config.js`）；提交前建议执行 `pnpm format` 或开启编辑器保存时格式化。
+- **悬停文档**：编辑器悬停仅显示 `/** JSDoc */` 与类型信息，普通 `//` 注释不会出现；需悬停说明时请写 JSDoc。工作区已配置使用项目内 TypeScript（`.vscode/settings.json`）。
 - 页面级规范详见 `.cursor/rules/moon-web-pages-conventions.mdc`。
 
 ### 构建与部署

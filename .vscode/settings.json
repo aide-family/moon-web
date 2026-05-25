@@ -1,11 +1,27 @@
 {
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsserver.experimental.useBundledTypeScriptVersion": false,
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "typescript.suggest.enabled": true,
+  "typescript.validate.enable": true,
+  "typescript.hover.maximumLength": 5000,
+  "javascript.hover.maximumLength": 5000,
+  "editor.hover.enabled": true,
+  "editor.hover.delay": 300,
+  "editor.parameterHints.enabled": true,
+  "typescript.suggest.jsdoc.generateOnTyping": true,
+  "javascript.suggest.jsdoc.generateOnTyping": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.hover.enabled": true
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.hover.enabled": true
   },
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -27,5 +43,10 @@
     "javascriptreact",
     "typescript",
     "typescriptreact"
-  ]
+  ],
+  "vetur.enable": false,
+  "vetur.validation.template": false,
+  "vetur.validation.script": false,
+  "vetur.validation.style": false,
+  "cSpell.words": ["Sider"]
 }

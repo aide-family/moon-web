@@ -15,7 +15,8 @@ export interface MenuItem {
   key: string
   icon?: React.ReactNode
   label: string
-  path?: string // 有子菜单时，path 可以为空
+  /** 有子菜单时，path 可以为空 */
+  path?: string
   children?: MenuItem[]
 }
 
@@ -24,7 +25,7 @@ interface LayoutProps {
   header?: React.ReactNode
 }
 
-// 递归查找菜单项（包括子菜单），精确匹配 path
+/** 递归查找菜单项（包括子菜单），精确匹配 path */
 const findMenuItemByPath = (
   items: MenuItem[],
   path: string,
@@ -43,7 +44,9 @@ const findMenuItemByPath = (
   return null
 }
 
-// 递归查找：当前路径以该菜单 path 为前缀时也视为命中（用于详情等子路由仍高亮父级菜单）
+/**
+ * 递归查找：当前路径以该菜单 path 为前缀时也视为命中（用于详情等子路由仍高亮父级菜单）
+ */
 const findMenuItemByPathOrPrefix = (
   items: MenuItem[],
   currentPath: string,
@@ -71,7 +74,7 @@ const findMenuItemByPathOrPrefix = (
   return best
 }
 
-// 递归查找菜单项（通过 key）
+/** 递归查找菜单项（通过 key） */
 const findMenuItemByKey = (items: MenuItem[], key: string): MenuItem | null => {
   for (const item of items) {
     if (item.key === key) {
@@ -87,7 +90,7 @@ const findMenuItemByKey = (items: MenuItem[], key: string): MenuItem | null => {
   return null
 }
 
-// 递归获取所有父菜单的 key（用于展开）
+/** 递归获取所有父菜单的 key（用于展开） */
 const getParentKeys = (
   items: MenuItem[],
   targetKey: string,
@@ -108,7 +111,7 @@ const getParentKeys = (
   return []
 }
 
-// 递归获取面包屑路径（精确匹配 path）
+/** 递归获取面包屑路径（精确匹配 path） */
 const getBreadcrumbItems = (
   items: MenuItem[],
   targetPath: string,
@@ -129,7 +132,7 @@ const getBreadcrumbItems = (
   return []
 }
 
-// 根据菜单 key 从根到该项收集面包屑（用于子路由无精确 path 时）
+/** 根据菜单 key 从根到该项收集面包屑（用于子路由无精确 path 时） */
 const getBreadcrumbItemsByKey = (
   items: MenuItem[],
   targetKey: string,
@@ -150,7 +153,7 @@ const getBreadcrumbItemsByKey = (
   return []
 }
 
-// Ant Design lg 断点为 1024px
+/** Ant Design lg 断点为 1024px */
 const LG_BREAKPOINT = 1024
 
 const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
