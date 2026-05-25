@@ -19,6 +19,7 @@ import { emptyPlaceholder } from '@/utils/marksman'
 import { GlobalStatus } from '@/api'
 import { LinkOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons'
 import {
+  App,
   Badge,
   Button,
   Col,
@@ -35,7 +36,6 @@ import {
   Tabs,
   Tag,
   Tooltip,
-  message,
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -56,6 +56,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
   autoRefreshEnabled,
   rowBgColorEnabled,
 }) => {
+  const { message } = App.useApp()
   const { t } = useLocale()
   const [availableAlertPages, setAvailableAlertPages] = useState<
     AlertPageItem[]

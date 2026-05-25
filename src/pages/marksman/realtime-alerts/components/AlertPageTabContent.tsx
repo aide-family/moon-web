@@ -14,6 +14,7 @@ import { useLocale } from '@/contexts/LocaleContext'
 import { emptyPlaceholder, renderSummary } from '@/utils/marksman'
 import type { MenuProps } from 'antd'
 import {
+  App,
   Button,
   DatePicker,
   Dropdown,
@@ -24,7 +25,6 @@ import {
   Table,
   Tag,
   Select,
-  message,
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
@@ -57,6 +57,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   autoRefreshEnabled = false,
   rowBgColorEnabled = true,
 }) => {
+  const { message } = App.useApp()
   const { t } = useLocale()
   const [filterForm] = Form.useForm<AlertFilterFormValues>()
   const [recoverForm] = Form.useForm<{ recoveredReason: string }>()
