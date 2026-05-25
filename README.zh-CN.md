@@ -216,4 +216,4 @@ Preview 端口：
 
 ## License
 
-Private project — see repository owner for licensing terms.
+本项目采用 [MIT License](./LICENSE) 开源协议。

@@ -2,6 +2,7 @@
   "name": "vite-react-typescript-starter",
   "private": true,
   "version": "0.0.0",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "clean": "node -e \"require('fs').rmSync('node_modules/.vite',{recursive:true,force:true})\"",

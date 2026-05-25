@@ -216,4 +216,4 @@ Preview ports:
 
 ## License
 
-Private project — see repository owner for licensing terms.
+This project is licensed under the [MIT License](./LICENSE).
