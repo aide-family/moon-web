@@ -59,7 +59,8 @@ export const enUS = {
 
   'strategyGroup.search.placeholder': 'Enter strategy group',
   'strategyGroup.list.scrollToLoadMore': 'Scroll to load more',
-  'strategyGroup.detail.selectHint': 'Select a strategy group from the list to view details',
+  'strategyGroup.detail.selectHint':
+    'Select a strategy group from the list to view details',
   'strategyGroup.tab.detail': 'Detail',
   'strategyGroup.tab.metadata': 'Metadata',
   'strategyGroup.metadata.empty': 'No metadata',

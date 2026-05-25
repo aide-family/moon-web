@@ -65,6 +65,12 @@ try {
 ### Dropdown
 
 - `Dropdown` 使用 `menu={{ items: ... }}`（v6），并避免在 render 中创建会变化但不必要的 handler（可在上层 memo/回调中稳定）。
+- 删除/危险操作前使用 `MENU_DIVIDER`（`@/utils/menu`）与常规菜单项分隔。
+
+### 代码格式
+
+- 使用项目根目录 `prettier.config.js`（单引号、无分号、`trailingComma: all` 等）；提交前执行 `pnpm format` 或依赖编辑器保存时格式化。
+- ESLint 与 Prettier 分工：样式由 Prettier 处理，逻辑由 ESLint；勿在 ESLint 中重复配置与 Prettier 冲突的规则。
 
 ## 5) 类型与可维护性（高优先级）
 

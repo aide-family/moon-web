@@ -37,11 +37,10 @@ export type {
 export { DatasourceType, DatasourceDriver } from './types'
 
 /** 获取数据源列表 GET /v1/datasources */
-export const getDatasourceList = (params?: DatasourceListParams): Promise<DatasourceListResponse> => {
-  return http.get<DatasourceListResponse>(
-    '/datasources',
-    { ...params }
-  )
+export const getDatasourceList = (
+  params?: DatasourceListParams,
+): Promise<DatasourceListResponse> => {
+  return http.get<DatasourceListResponse>('/datasources', { ...params })
 }
 
 /** 获取数据源详情 GET /v1/datasource/{uid} */
@@ -53,10 +52,7 @@ export const getDatasourceDetail = (uid: string): Promise<DatasourceItem> => {
 export const createDatasource = (
   params?: CreateDatasourceParams,
 ): Promise<CreateDatasourceReply> => {
-  return http.post<CreateDatasourceReply>(
-    '/datasource',
-    { ...params }
-  )
+  return http.post<CreateDatasourceReply>('/datasource', { ...params })
 }
 
 /** 更新数据源 PUT /v1/datasource/{uid} */
@@ -64,47 +60,50 @@ export const updateDatasource = (
   uid: string,
   params?: UpdateDatasourceParams,
 ): Promise<Record<string, never>> => {
-  return http.put<Record<string, never>>(
-    `/datasource/${uid}`,
-    { ...params }
-  )
+  return http.put<Record<string, never>>(`/datasource/${uid}`, { ...params })
 }
 
 /** 删除数据源 DELETE /v1/datasource/{uid} */
-export const deleteDatasource = (uid: string): Promise<Record<string, never>> => {
+export const deleteDatasource = (
+  uid: string,
+): Promise<Record<string, never>> => {
   return http.delete<Record<string, never>>(`/datasource/${uid}`)
 }
 
 /** 数据源选择列表（下拉等）GET /v1/datasources/select */
-export const getDatasourceSelectList = (params?: DatasourceSelectParams): Promise<DatasourceSelectResponse> => {
-  return http.get<DatasourceSelectResponse>(
-    '/datasources/select',
-    { ...params }
-  )
+export const getDatasourceSelectList = (
+  params?: DatasourceSelectParams,
+): Promise<DatasourceSelectResponse> => {
+  return http.get<DatasourceSelectResponse>('/datasources/select', {
+    ...params,
+  })
 }
 
 /** 获取数据源指标元数据 GET /v1/datasource/{uid}/metrics */
-export const getDatasourceMetrics = (uid: string): Promise<DatasourceMetricsResponse> => {
+export const getDatasourceMetrics = (
+  uid: string,
+): Promise<DatasourceMetricsResponse> => {
   return http.get<DatasourceMetricsResponse>(`/datasource/${uid}/metrics`)
 }
 
 /** 获取单指标标签详情 GET /v1/datasource/{uid}/metric/{metric} */
 export const getDatasourceMetricDetail = (
   uid: string,
-  metric: string
+  metric: string,
 ): Promise<MetricDetailItem> => {
-  return http.get<MetricDetailItem>(`/datasource/${uid}/metric/${encodeURIComponent(metric)}`)
+  return http.get<MetricDetailItem>(
+    `/datasource/${uid}/metric/${encodeURIComponent(metric)}`,
+  )
 }
 
 /** 获取数据源状态序列 GET /v1/datasource/{uid}/status */
 export const getDatasourceStatus = (
   uid: string,
-  params?: GetDatasourceStatusParams
+  params?: GetDatasourceStatusParams,
 ): Promise<GetDatasourceStatusResponse> => {
-  return http.get<GetDatasourceStatusResponse>(
-    `/datasource/${uid}/status`,
-    { ...params }
-  )
+  return http.get<GetDatasourceStatusResponse>(`/datasource/${uid}/status`, {
+    ...params,
+  })
 }
 
 /** 更新数据源状态 PUT /v1/datasource/{uid}/status */
@@ -116,4 +115,3 @@ export const updateDatasourceStatus = (
     { ...params },
   )
 }
-

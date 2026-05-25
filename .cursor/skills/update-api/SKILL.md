@@ -71,8 +71,13 @@ import { http } from '../../index'
 import type { XxxItem, XxxListParams, XxxListResponse } from './types'
 
 /** 获取列表 GET /v1/xxxs */
-export const getXxxList = (params?: XxxListParams): Promise<XxxListResponse> => {
-  return http.get<XxxListResponse>('/xxxs', params as unknown as Record<string, unknown>)
+export const getXxxList = (
+  params?: XxxListParams,
+): Promise<XxxListResponse> => {
+  return http.get<XxxListResponse>(
+    '/xxxs',
+    params as unknown as Record<string, unknown>,
+  )
 }
 
 /** 获取详情 GET /v1/xxx/{uid} */
@@ -86,7 +91,10 @@ export const createXxx = (params?: CreateXxxParams): Promise<XxxItem> => {
 }
 
 /** 更新 PUT /v1/xxx/{uid} */
-export const updateXxx = (uid: string, params?: UpdateXxxParams): Promise<XxxItem> => {
+export const updateXxx = (
+  uid: string,
+  params?: UpdateXxxParams,
+): Promise<XxxItem> => {
   return http.put<XxxItem>(`/xxx/${uid}`, params as Record<string, unknown>)
 }
 
@@ -95,7 +103,12 @@ export const deleteXxx = (uid: string): Promise<Record<string, never>> => {
   return http.delete<Record<string, never>>(`/xxx/${uid}`)
 }
 
-export type { XxxItem, XxxListParams, CreateXxxParams, UpdateXxxParams } from './types'
+export type {
+  XxxItem,
+  XxxListParams,
+  CreateXxxParams,
+  UpdateXxxParams,
+} from './types'
 export { XxxStatus } from './types'
 ```
 

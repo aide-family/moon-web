@@ -51,7 +51,7 @@ const APP_NUMBER_TO_KEY: Record<number, string> = {
  * @returns HTTP 方法选项列表
  */
 export const getMethodOptions = (t: (key: string) => string) => {
-  return HTTP_METHOD_VALUES.map(value => ({
+  return HTTP_METHOD_VALUES.map((value) => ({
     label: getMethodLabel(value, t),
     value,
   }))
@@ -63,7 +63,10 @@ export const getMethodOptions = (t: (key: string) => string) => {
  * @param t 翻译函数
  * @returns 方法标签
  */
-export const getMethodLabel = (value: number | string, t: (key: string) => string): string => {
+export const getMethodLabel = (
+  value: number | string,
+  t: (key: string) => string,
+): string => {
   const key = typeof value === 'string' ? value : METHOD_NUMBER_TO_KEY[value]
   if (key) {
     return t(`webhook.method.${key}`)
@@ -77,7 +80,7 @@ export const getMethodLabel = (value: number | string, t: (key: string) => strin
  * @returns 应用选项列表
  */
 export const getAppOptions = (t: (key: string) => string) => {
-  return APP_VALUES.map(value => ({
+  return APP_VALUES.map((value) => ({
     label: getAppLabel(value, t),
     value,
   }))
@@ -89,7 +92,10 @@ export const getAppOptions = (t: (key: string) => string) => {
  * @param t 翻译函数
  * @returns 应用标签
  */
-export const getAppLabel = (value: number | string, t: (key: string) => string): string => {
+export const getAppLabel = (
+  value: number | string,
+  t: (key: string) => string,
+): string => {
   const key = typeof value === 'string' ? value : APP_NUMBER_TO_KEY[value]
   if (key) {
     return t(`webhook.app.${key}`)

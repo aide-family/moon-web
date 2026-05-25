@@ -6,9 +6,9 @@ import { GlobalStatus } from '../../common/types'
 
 /** 告警等级类型（LevelType） */
 export enum LevelType {
-	LEVEL_TYPE_UNKNOWN = "LEVEL_TYPE_UNKNOWN",
-	LEVEL_TYPE_ALERT = "LEVEL_TYPE_ALERT",
-	LEVEL_TYPE_DATASOURCE = "LEVEL_TYPE_DATASOURCE",
+  LEVEL_TYPE_UNKNOWN = 'LEVEL_TYPE_UNKNOWN',
+  LEVEL_TYPE_ALERT = 'LEVEL_TYPE_ALERT',
+  LEVEL_TYPE_DATASOURCE = 'LEVEL_TYPE_DATASOURCE',
 }
 
 /** 告警等级单项（列表/详情），status 为全局状态枚举 */

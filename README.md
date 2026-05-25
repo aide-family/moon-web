@@ -14,25 +14,25 @@
 
 ### Modules
 
-| Sub-app | Description | Key Features |
-|---------|-------------|--------------|
-| **main** | Shell application | Login, layout, menu, OAuth, token refresh, sub-app loading |
-| **goddess** | System management | Namespaces, users, members, profile |
-| **rabbit** | Messaging | Templates, emails, webhooks, message logs, message sending |
-| **marksman** | Strategy management | Real-time alerts, datasources, strategies, alert levels, notification groups |
-| **jade_tree** | Node probing | SSH commands, audit records, probe tasks, machine info |
+| Sub-app       | Description         | Key Features                                                                 |
+| ------------- | ------------------- | ---------------------------------------------------------------------------- |
+| **main**      | Shell application   | Login, layout, menu, OAuth, token refresh, sub-app loading                   |
+| **goddess**   | System management   | Namespaces, users, members, profile                                          |
+| **rabbit**    | Messaging           | Templates, emails, webhooks, message logs, message sending                   |
+| **marksman**  | Strategy management | Real-time alerts, datasources, strategies, alert levels, notification groups |
+| **jade_tree** | Node probing        | SSH commands, audit records, probe tasks, machine info                       |
 
 ### Tech Stack
 
-| Category | Technology |
-|----------|------------|
-| Framework | React 19 + TypeScript 5 |
-| Build | Vite 7 |
-| UI | Ant Design 6 + Tailwind CSS 4 |
-| Routing | React Router 7 |
+| Category       | Technology                                                     |
+| -------------- | -------------------------------------------------------------- |
+| Framework      | React 19 + TypeScript 5                                        |
+| Build          | Vite 7                                                         |
+| UI             | Ant Design 6 + Tailwind CSS 4                                  |
+| Routing        | React Router 7                                                 |
 | Micro-frontend | [@micro-zoe/micro-app](https://micro-zoe.github.io/micro-app/) |
-| HTTP | Axios |
-| Utilities | ahooks, dayjs, Monaco Editor |
+| HTTP           | Axios                                                          |
+| Utilities      | ahooks, dayjs, Monaco Editor                                   |
 
 ### Architecture
 
@@ -73,44 +73,46 @@ pnpm dev
 
 Access URLs:
 
-| App | Dev URL | Notes |
-|-----|---------|-------|
-| main | http://localhost:5172 | Main entry (recommended) |
-| goddess | http://localhost:5174 | System management |
-| rabbit | http://localhost:5175 | Messaging |
-| marksman | http://localhost:5176 | Strategy management |
-| jade_tree | http://localhost:5177 | Node probing |
+| App       | Dev URL               | Notes                    |
+| --------- | --------------------- | ------------------------ |
+| main      | http://localhost:5172 | Main entry (recommended) |
+| goddess   | http://localhost:5174 | System management        |
+| rabbit    | http://localhost:5175 | Messaging                |
+| marksman  | http://localhost:5176 | Strategy management      |
+| jade_tree | http://localhost:5177 | Node probing             |
 
 > When using the shell app, **all sub-apps must be running** for embedded micro-frontend pages to load.
 
 ### Scripts
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start all 5 sub-apps in parallel |
-| `pnpm dev:main` | Start shell app only |
-| `pnpm dev:goddess` | Start goddess sub-app only |
-| `pnpm dev:rabbit` | Start rabbit sub-app only |
-| `pnpm dev:marksman` | Start marksman sub-app only |
-| `pnpm dev:jade_tree` | Start jade_tree sub-app only |
-| `pnpm build` | Build all sub-apps |
-| `pnpm build:main` | Build shell app only (same pattern for others) |
-| `pnpm preview` | Preview all build outputs |
-| `pnpm lint` | Run ESLint |
-| `pnpm typecheck` | Run TypeScript type check |
+| Command              | Description                                    |
+| -------------------- | ---------------------------------------------- |
+| `pnpm dev`           | Start all 5 sub-apps in parallel               |
+| `pnpm dev:main`      | Start shell app only                           |
+| `pnpm dev:goddess`   | Start goddess sub-app only                     |
+| `pnpm dev:rabbit`    | Start rabbit sub-app only                      |
+| `pnpm dev:marksman`  | Start marksman sub-app only                    |
+| `pnpm dev:jade_tree` | Start jade_tree sub-app only                   |
+| `pnpm build`         | Build all sub-apps                             |
+| `pnpm build:main`    | Build shell app only (same pattern for others) |
+| `pnpm preview`       | Preview all build outputs                      |
+| `pnpm lint`          | Run ESLint                                     |
+| `pnpm format`        | Format code with Prettier                      |
+| `pnpm format:check`  | Check formatting (for CI)                      |
+| `pnpm typecheck`     | Run TypeScript type check                      |
 
 ### Environment Variables
 
 Development config: `.env.development`. Production config: `.env.production`. Each sub-app is identified by the `APP_NAME` env var; Vite proxies `/v1`, `/oauth2`, and `/health` to the corresponding backend.
 
-| Variable | Description | Dev Default |
-|----------|-------------|-------------|
-| `VITE_V1_MAIN_API` | Shell / auth API | `http://localhost:8000` |
-| `VITE_V1_GODDESS_API` | System management API | `http://localhost:8000` |
-| `VITE_V1_RABBIT_API` | Messaging API | `http://localhost:8001` |
-| `VITE_V1_MARKSMAN_API` | Strategy API | `http://localhost:8003` |
-| `VITE_V1_JADE_TREE_API` | Node probe API | `http://localhost:8004` |
-| `VITE_HEALTH_*_API` | Health check API | Per-service address |
+| Variable                | Description           | Dev Default             |
+| ----------------------- | --------------------- | ----------------------- |
+| `VITE_V1_MAIN_API`      | Shell / auth API      | `http://localhost:8000` |
+| `VITE_V1_GODDESS_API`   | System management API | `http://localhost:8000` |
+| `VITE_V1_RABBIT_API`    | Messaging API         | `http://localhost:8001` |
+| `VITE_V1_MARKSMAN_API`  | Strategy API          | `http://localhost:8003` |
+| `VITE_V1_JADE_TREE_API` | Node probe API        | `http://localhost:8004` |
+| `VITE_HEALTH_*_API`     | Health check API      | Per-service address     |
 
 Ensure the corresponding backend services are running locally, otherwise API requests will fail.
 
@@ -173,6 +175,7 @@ moon-web/
 - **Ant Design v6**: Use `open` on Modal (not `visible`); use `menu={{ items }}` on Dropdown; always set `rowKey` on Table.
 - **Data fetching**: Handle `loading` state; complete `try/catch/finally`; avoid setState after unmount.
 - **Path alias**: `@/` maps to `src/`.
+- **Formatting**: Prettier (`prettier.config.js`); run `pnpm format` before commit or use format-on-save (see `.vscode/settings.json`).
 - Page conventions: `.cursor/rules/moon-web-pages-conventions.mdc`.
 
 ### Build & Deploy
@@ -194,19 +197,19 @@ Each sub-app output is independent and can be deployed to separate paths or doma
 
 Preview ports:
 
-| App | Preview URL |
-|-----|-------------|
-| main | http://localhost:4172 |
-| goddess | http://localhost:4174 |
-| rabbit | http://localhost:4175 |
-| marksman | http://localhost:4176 |
+| App       | Preview URL           |
+| --------- | --------------------- |
+| main      | http://localhost:4172 |
+| goddess   | http://localhost:4174 |
+| rabbit    | http://localhost:4175 |
+| marksman  | http://localhost:4176 |
 | jade_tree | http://localhost:4177 |
 
 ### Contributing
 
 1. Fork the repo and create a feature branch
 2. Follow existing code style and i18n conventions
-3. Run `pnpm lint` and `pnpm typecheck` before submitting
+3. Run `pnpm format:check`, `pnpm lint`, and `pnpm typecheck` before submitting
 4. Open a Pull Request
 
 ---

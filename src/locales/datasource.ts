@@ -55,7 +55,8 @@ export const zhCN = {
   'datasource.form.levelUid.label': '数据源等级',
   'datasource.form.url.label': '连接地址',
   'datasource.form.url.placeholder': '请输入连接地址',
-  'datasource.form.url.invalid': '请输入有效的连接地址（如 http:// 或 https:// 开头）',
+  'datasource.form.url.invalid':
+    '请输入有效的连接地址（如 http:// 或 https:// 开头）',
   'datasource.form.type.placeholder': '请选择类型',
   'datasource.form.driver.placeholder': '请选择驱动',
   'datasource.form.levelUid.placeholder': '请选择数据源等级',
@@ -125,7 +126,8 @@ export const enUS = {
   'datasource.form.levelUid.label': 'Datasource Level',
   'datasource.form.url.label': 'URL',
   'datasource.form.url.placeholder': 'Enter URL',
-  'datasource.form.url.invalid': 'Please enter a valid URL (e.g. starting with http:// or https://)',
+  'datasource.form.url.invalid':
+    'Please enter a valid URL (e.g. starting with http:// or https://)',
   'datasource.form.type.placeholder': 'Select type',
   'datasource.form.driver.placeholder': 'Select driver',
   'datasource.form.levelUid.placeholder': 'Select datasource level',

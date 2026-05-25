@@ -14,25 +14,25 @@
 
 ### 功能模块
 
-| 子应用 | 说明 | 主要功能 |
-|--------|------|----------|
-| **main** | 主应用（Shell） | 登录、布局、菜单、OAuth、Token 刷新、子应用加载 |
-| **goddess** | 系统管理 | 命名空间、用户管理、成员管理、个人中心 |
-| **rabbit** | 消息管理 | 消息模板、邮件、Webhook、消息日志、消息发送 |
-| **marksman** | 策略管理 | 实时告警、数据源、策略列表、告警等级、通知组 |
-| **jade_tree** | 节点探针 | SSH 命令、审核记录、探测任务、机器信息 |
+| 子应用        | 说明            | 主要功能                                        |
+| ------------- | --------------- | ----------------------------------------------- |
+| **main**      | 主应用（Shell） | 登录、布局、菜单、OAuth、Token 刷新、子应用加载 |
+| **goddess**   | 系统管理        | 命名空间、用户管理、成员管理、个人中心          |
+| **rabbit**    | 消息管理        | 消息模板、邮件、Webhook、消息日志、消息发送     |
+| **marksman**  | 策略管理        | 实时告警、数据源、策略列表、告警等级、通知组    |
+| **jade_tree** | 节点探针        | SSH 命令、审核记录、探测任务、机器信息          |
 
 ### 技术栈
 
-| 类别 | 技术 |
-|------|------|
-| 框架 | React 19 + TypeScript 5 |
-| 构建 | Vite 7 |
-| UI | Ant Design 6 + Tailwind CSS 4 |
-| 路由 | React Router 7 |
+| 类别   | 技术                                                           |
+| ------ | -------------------------------------------------------------- |
+| 框架   | React 19 + TypeScript 5                                        |
+| 构建   | Vite 7                                                         |
+| UI     | Ant Design 6 + Tailwind CSS 4                                  |
+| 路由   | React Router 7                                                 |
 | 微前端 | [@micro-zoe/micro-app](https://micro-zoe.github.io/micro-app/) |
-| HTTP | Axios |
-| 工具库 | ahooks、dayjs、Monaco Editor |
+| HTTP   | Axios                                                          |
+| 工具库 | ahooks、dayjs、Monaco Editor                                   |
 
 ### 架构概览
 
@@ -73,44 +73,46 @@ pnpm dev
 
 启动后访问：
 
-| 应用 | 开发地址 | 说明 |
-|------|----------|------|
-| main | http://localhost:5172 | 主应用入口（推荐） |
-| goddess | http://localhost:5174 | 系统管理 |
-| rabbit | http://localhost:5175 | 消息管理 |
-| marksman | http://localhost:5176 | 策略管理 |
-| jade_tree | http://localhost:5177 | 节点探针 |
+| 应用      | 开发地址              | 说明               |
+| --------- | --------------------- | ------------------ |
+| main      | http://localhost:5172 | 主应用入口（推荐） |
+| goddess   | http://localhost:5174 | 系统管理           |
+| rabbit    | http://localhost:5175 | 消息管理           |
+| marksman  | http://localhost:5176 | 策略管理           |
+| jade_tree | http://localhost:5177 | 节点探针           |
 
 > 使用主应用时需**同时启动所有子应用**，否则微前端嵌入页面无法加载。
 
 ### 常用脚本
 
-| 命令 | 说明 |
-|------|------|
-| `pnpm dev` | 并行启动全部 5 个子应用 |
-| `pnpm dev:main` | 仅启动主应用 |
-| `pnpm dev:goddess` | 仅启动 goddess 子应用 |
-| `pnpm dev:rabbit` | 仅启动 rabbit 子应用 |
-| `pnpm dev:marksman` | 仅启动 marksman 子应用 |
-| `pnpm dev:jade_tree` | 仅启动 jade_tree 子应用 |
-| `pnpm build` | 构建全部子应用 |
-| `pnpm build:main` | 仅构建主应用（其他子应用同理） |
-| `pnpm preview` | 预览全部构建产物 |
-| `pnpm lint` | ESLint 检查 |
-| `pnpm typecheck` | TypeScript 类型检查 |
+| 命令                 | 说明                           |
+| -------------------- | ------------------------------ |
+| `pnpm dev`           | 并行启动全部 5 个子应用        |
+| `pnpm dev:main`      | 仅启动主应用                   |
+| `pnpm dev:goddess`   | 仅启动 goddess 子应用          |
+| `pnpm dev:rabbit`    | 仅启动 rabbit 子应用           |
+| `pnpm dev:marksman`  | 仅启动 marksman 子应用         |
+| `pnpm dev:jade_tree` | 仅启动 jade_tree 子应用        |
+| `pnpm build`         | 构建全部子应用                 |
+| `pnpm build:main`    | 仅构建主应用（其他子应用同理） |
+| `pnpm preview`       | 预览全部构建产物               |
+| `pnpm lint`          | ESLint 检查                    |
+| `pnpm format`        | Prettier 格式化项目代码        |
+| `pnpm format:check`  | 检查代码格式（CI 可用）        |
+| `pnpm typecheck`     | TypeScript 类型检查            |
 
 ### 环境变量
 
 开发环境配置见 `.env.development`，生产环境见 `.env.production`。各子应用通过 `APP_NAME` 环境变量区分，Vite 代理将 `/v1`、`/oauth2`、`/health` 转发至对应后端。
 
-| 变量 | 说明 | 开发默认值 |
-|------|------|------------|
-| `VITE_V1_MAIN_API` | 主应用 / 认证 API | `http://localhost:8000` |
-| `VITE_V1_GODDESS_API` | 系统管理 API | `http://localhost:8000` |
-| `VITE_V1_RABBIT_API` | 消息服务 API | `http://localhost:8001` |
-| `VITE_V1_MARKSMAN_API` | 策略服务 API | `http://localhost:8003` |
-| `VITE_V1_JADE_TREE_API` | 节点探针 API | `http://localhost:8004` |
-| `VITE_HEALTH_*_API` | 健康检查 API | 各服务对应地址 |
+| 变量                    | 说明              | 开发默认值              |
+| ----------------------- | ----------------- | ----------------------- |
+| `VITE_V1_MAIN_API`      | 主应用 / 认证 API | `http://localhost:8000` |
+| `VITE_V1_GODDESS_API`   | 系统管理 API      | `http://localhost:8000` |
+| `VITE_V1_RABBIT_API`    | 消息服务 API      | `http://localhost:8001` |
+| `VITE_V1_MARKSMAN_API`  | 策略服务 API      | `http://localhost:8003` |
+| `VITE_V1_JADE_TREE_API` | 节点探针 API      | `http://localhost:8004` |
+| `VITE_HEALTH_*_API`     | 健康检查 API      | 各服务对应地址          |
 
 本地开发时需确保对应后端服务已启动，否则 API 请求将失败。
 
@@ -173,6 +175,7 @@ moon-web/
 - **Ant Design v6**：Modal 使用 `open`（非 `visible`）；Dropdown 使用 `menu={{ items }}`；Table 必须设置 `rowKey`。
 - **数据请求**：必须处理 `loading` 状态；`try/catch/finally` 闭环；组件卸载时避免 setState。
 - **路径别名**：`@/` 指向 `src/` 目录。
+- **代码格式**：使用 Prettier（`prettier.config.js`）；提交前建议执行 `pnpm format` 或开启编辑器保存时格式化。
 - 页面级规范详见 `.cursor/rules/moon-web-pages-conventions.mdc`。
 
 ### 构建与部署
@@ -194,19 +197,19 @@ dist/
 
 Preview 端口：
 
-| 应用 | Preview 地址 |
-|------|-------------|
-| main | http://localhost:4172 |
-| goddess | http://localhost:4174 |
-| rabbit | http://localhost:4175 |
-| marksman | http://localhost:4176 |
+| 应用      | Preview 地址          |
+| --------- | --------------------- |
+| main      | http://localhost:4172 |
+| goddess   | http://localhost:4174 |
+| rabbit    | http://localhost:4175 |
+| marksman  | http://localhost:4176 |
 | jade_tree | http://localhost:4177 |
 
 ### 贡献
 
 1. Fork 本仓库并创建功能分支
 2. 遵循现有代码风格与 i18n 规范
-3. 提交前运行 `pnpm lint` 与 `pnpm typecheck`
+3. 提交前运行 `pnpm format:check`、`pnpm lint` 与 `pnpm typecheck`
 4. 发起 Pull Request
 
 ---

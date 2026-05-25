@@ -212,11 +212,10 @@ const ProfilePage: React.FC = () => {
   if (loading) {
     return (
       <PageContent>
-        <div
-          className='flex items-center justify-center w-full'
-          style={{ minHeight: 420 }}
-        >
-          <Spin size='large' tip={t('common.loading')} />
+        <div className='w-full' style={{ minHeight: 420 }}>
+          <Spin size='large' tip={t('common.loading')}>
+            <div className='w-full' style={{ minHeight: 420 }} />
+          </Spin>
         </div>
       </PageContent>
     )

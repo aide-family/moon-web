@@ -9,7 +9,7 @@ import {
   TranslationOutlined,
 } from '@ant-design/icons'
 import { useLocale } from '@/contexts/LocaleContext'
-import { useTheme } from '@/contexts/ThemeContext'
+import { useTheme } from '@/contexts/useTheme'
 import { sendEmailLoginCode, emailLogin } from '@/api/account/auth'
 import { getCaptcha } from '@/api/account/captcha'
 import { getOauth2Reports, type OAuth2ReportItem } from '@/api/account/oauth'

@@ -19,7 +19,10 @@ import type {
  * POST /sender/email/{uid}
  * Path: uid (string, 必需)；Body(application/json, 必需): uid, subject, body, contentType?, to?, cc?, headers?
  */
-export function sendEmail(uid: string, params: SendEmailParams): Promise<unknown> {
+export function sendEmail(
+  uid: string,
+  params: SendEmailParams,
+): Promise<unknown> {
   return http.post<unknown>(`/sender/email/${uid}`, { ...params })
 }
 
@@ -30,7 +33,7 @@ export function sendEmail(uid: string, params: SendEmailParams): Promise<unknown
  */
 export function sendEmailWithTemplate(
   uid: string,
-  params?: SendEmailWithTemplateParams
+  params?: SendEmailWithTemplateParams,
 ): Promise<unknown> {
   return http.post<unknown>(`/sender/email/${uid}/template`, { ...params })
 }
@@ -49,7 +52,10 @@ export function sendMessage(params: SendMessageParams): Promise<unknown> {
  * POST /sender/webhook/{uid}
  * Path: uid (string)；Body(application/json, 必需): uid?, data?
  */
-export function sendWebhook(uid: string, params?: SendWebhookParams): Promise<unknown> {
+export function sendWebhook(
+  uid: string,
+  params?: SendWebhookParams,
+): Promise<unknown> {
   return http.post<unknown>(`/sender/webhook/${uid}`, { ...params })
 }
 
@@ -60,7 +66,7 @@ export function sendWebhook(uid: string, params?: SendWebhookParams): Promise<un
  */
 export function sendWebhookWithTemplate(
   uid: string,
-  params?: SendWebhookWithTemplateParams
+  params?: SendWebhookWithTemplateParams,
 ): Promise<unknown> {
   return http.post<unknown>(`/sender/webhook/${uid}/template`, { ...params })
 }

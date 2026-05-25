@@ -19,11 +19,10 @@ import type {
  * GET /users
  * Query: page, pageSize, email, keyword, status
  */
-export function listUsers(params?: ListUsersParams): Promise<ListUsersResponse> {
-  return http.get<ListUsersResponse>(
-    '/users',
-    { ...params }
-  )
+export function listUsers(
+  params?: ListUsersParams,
+): Promise<ListUsersResponse> {
+  return http.get<ListUsersResponse>('/users', { ...params })
 }
 
 /**
@@ -32,12 +31,9 @@ export function listUsers(params?: ListUsersParams): Promise<ListUsersResponse> 
  * Query: keyword, limit, lastUID, status
  */
 export function selectUsers(
-  params?: SelectUsersParams
+  params?: SelectUsersParams,
 ): Promise<SelectUsersResponse> {
-  return http.get<SelectUsersResponse>(
-    '/users/select',
-    { ...params }
-  )
+  return http.get<SelectUsersResponse>('/users/select', { ...params })
 }
 
 /**
@@ -55,12 +51,9 @@ export function getUser(uid: string): Promise<UserItem> {
  */
 export function permitUser(
   uid: string,
-  body?: UserPermitOrBanBody
+  body?: UserPermitOrBanBody,
 ): Promise<{ message?: string }> {
-  return http.put<{ message?: string }>(
-    `/user/permit/${uid}`,
-    { ...body }
-  )
+  return http.put<{ message?: string }>(`/user/permit/${uid}`, { ...body })
 }
 
 /**
@@ -70,12 +63,9 @@ export function permitUser(
  */
 export function banUser(
   uid: string,
-  body?: UserPermitOrBanBody
+  body?: UserPermitOrBanBody,
 ): Promise<{ message?: string }> {
-  return http.put<{ message?: string }>(
-    `/user/ban/${uid}`,
-    { ...body }
-  )
+  return http.put<{ message?: string }>(`/user/ban/${uid}`, { ...body })
 }
 
 export type {

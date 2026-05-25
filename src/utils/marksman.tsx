@@ -22,7 +22,10 @@ export function renderSummary(record: AlertEventItem): ReactNode {
 }
 
 /** 全局状态 i18n 文案 */
-export function getGlobalStatusLabel(status: GlobalStatus, t: (key: string) => string): string {
+export function getGlobalStatusLabel(
+  status: GlobalStatus,
+  t: (key: string) => string,
+): string {
   return t(`common.status.${status}`)
 }
 
@@ -54,9 +57,18 @@ export function getLevelTypeLabel(
 
 const STATUS_TAG_MAP: Record<GlobalStatus, { textKey: string; color: string }> =
   {
-    [GlobalStatus.UNKNOWN]: { textKey: `common.status.${GlobalStatus.UNKNOWN}`, color: 'default' },
-    [GlobalStatus.ENABLED]: { textKey: `common.status.${GlobalStatus.ENABLED}`, color: 'success' },
-    [GlobalStatus.DISABLED]: { textKey: `common.status.${GlobalStatus.DISABLED}`, color: 'error' },
+    [GlobalStatus.UNKNOWN]: {
+      textKey: `common.status.${GlobalStatus.UNKNOWN}`,
+      color: 'default',
+    },
+    [GlobalStatus.ENABLED]: {
+      textKey: `common.status.${GlobalStatus.ENABLED}`,
+      color: 'success',
+    },
+    [GlobalStatus.DISABLED]: {
+      textKey: `common.status.${GlobalStatus.DISABLED}`,
+      color: 'error',
+    },
   }
 
 /** 根据 GlobalStatus 取 Tag 的文案 key 与 color */

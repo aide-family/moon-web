@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import microApp from '@micro-zoe/micro-app'
 import { useLocale } from '@/contexts/LocaleContext'
-import { useTheme } from '@/contexts/ThemeContext'
+import { useTheme } from '@/contexts/useTheme'
 import type { SubAppConfig } from '@/types/subApp'
 
 export interface SubAppContainerProps {
@@ -13,7 +13,10 @@ export interface SubAppContainerProps {
 /**
  * 微前端子应用容器，主应用与子系统（rabbit、goddess）均可使用
  */
-export function SubAppContainer({ appName, subAppConfigMap }: SubAppContainerProps) {
+export function SubAppContainer({
+  appName,
+  subAppConfigMap,
+}: SubAppContainerProps) {
   const navigate = useNavigate()
   const location = useLocation()
   const microAppRef = useRef<HTMLElement>(null)
@@ -21,11 +24,20 @@ export function SubAppContainer({ appName, subAppConfigMap }: SubAppContainerPro
   const { themeMode } = useTheme()
 
   const config = subAppConfigMap[appName]
-  const url = config ? (import.meta.env.DEV ? config.devUrl : config.prodUrl) : ''
+  const url = config
+    ? import.meta.env.DEV
+      ? config.devUrl
+      : config.prodUrl
+    : ''
 
   useEffect(() => {
     if (!config) return
-    const handleData = (data: { type?: string; data?: { app?: string; path?: string }; pathname?: string; [key: string]: unknown }) => {
+    const handleData = (data: {
+      type?: string
+      data?: { app?: string; path?: string }
+      pathname?: string
+      [key: string]: unknown
+    }) => {
       if (data.type === 'navigate' && data.data) {
         const targetApp = data.data.app
         const targetPath = data.data.path || '/'
@@ -42,9 +54,18 @@ export function SubAppContainer({ appName, subAppConfigMap }: SubAppContainerPro
       locale,
       theme: themeMode,
     })
-    const dataListener = (data: { type?: string; data?: { app?: string; path?: string }; pathname?: string; [key: string]: unknown }) => { handleData(data) }
+    const dataListener = (data: {
+      type?: string
+      data?: { app?: string; path?: string }
+      pathname?: string
+      [key: string]: unknown
+    }) => {
+      handleData(data)
+    }
     microApp.addDataListener(config.name, dataListener)
-    return () => { microApp.removeDataListener(config.name, dataListener) }
+    return () => {
+      microApp.removeDataListener(config.name, dataListener)
+    }
   }, [config, navigate, location.pathname, locale, themeMode])
 
   useEffect(() => {
@@ -73,7 +94,7 @@ export function SubAppContainer({ appName, subAppConfigMap }: SubAppContainerPro
   }
 
   return (
-    <div className="h-full w-full">
+    <div className='h-full w-full'>
       {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
       {/* @ts-ignore - micro-app 是自定义元素 */}
       <micro-app ref={microAppRef} name={config.name} url={url} iframe />

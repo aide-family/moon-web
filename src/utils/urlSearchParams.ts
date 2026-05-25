@@ -7,7 +7,9 @@
 import type { SetURLSearchParams } from 'react-router-dom'
 
 /** 将当前搜索条件序列化为 URL 参数（只包含有值的字段） */
-export function searchParamsToRecord(params: Record<string, string | number | undefined>): Record<string, string> {
+export function searchParamsToRecord(
+  params: Record<string, string | number | undefined>,
+): Record<string, string> {
   const record: Record<string, string> = {}
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined && value !== null && String(value).trim() !== '') {
@@ -21,14 +23,17 @@ export function searchParamsToRecord(params: Record<string, string | number | un
 export function applySearchToUrl(
   setUrlSearchParams: SetURLSearchParams,
   currentParams: Record<string, string | number | undefined>,
-  options?: { replace?: boolean }
+  options?: { replace?: boolean },
 ) {
   const record = searchParamsToRecord(currentParams)
   setUrlSearchParams(record, options)
 }
 
 /** 从 URLSearchParams 读取字符串（空则返回 undefined） */
-export function getParam(params: URLSearchParams, key: string): string | undefined {
+export function getParam(
+  params: URLSearchParams,
+  key: string,
+): string | undefined {
   const v = params.get(key)
   return v === null || v === '' ? undefined : v
 }

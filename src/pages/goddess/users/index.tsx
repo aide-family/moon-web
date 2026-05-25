@@ -27,6 +27,7 @@ import dayjs from 'dayjs'
 import UserDetailView from './components/UserDetailView'
 import { useLocale } from '@/contexts/LocaleContext'
 import PageContent from '@/components/layout/PageContent'
+import { MENU_DIVIDER } from '@/utils/menu'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 
 const defaultSearchParams: ListUsersParams = {
@@ -304,6 +305,7 @@ const UsersList: React.FC = () => {
             onClick: () => handlePermit(record),
             disabled: !isBanned,
           },
+          MENU_DIVIDER,
           {
             key: 'ban',
             label: t('user.action.ban'),

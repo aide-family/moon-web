@@ -29,6 +29,7 @@ import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
 import PageContent from '@/components/layout/PageContent'
+import { MENU_DIVIDER } from '@/utils/menu'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 import { emptyPlaceholder, renderStatusTag } from '@/utils/marksman'
 
@@ -293,6 +294,7 @@ export const StrategyGroupList: React.FC = () => {
             label: action,
             onClick: handleStatusClick,
           },
+          MENU_DIVIDER,
           {
             key: 'delete',
             label: t('common.delete'),
@@ -414,7 +416,9 @@ export const StrategyGroupList: React.FC = () => {
                 allowClear
                 className='w-full min-w-[120px] sm:w-48 md:w-52'
                 onPressEnter={(e) =>
-                  handleSearch({ keyword: (e.target as HTMLInputElement).value })
+                  handleSearch({
+                    keyword: (e.target as HTMLInputElement).value,
+                  })
                 }
               />
             </Form.Item>

@@ -50,7 +50,7 @@ export default defineConfig(({ mode }) => {
   if (appName && apps.includes(appName)) {
     const appHtmlPath = path.resolve(
       __dirname,
-      `src/apps/${appName}/index.html`
+      `src/apps/${appName}/index.html`,
     )
     const appRoot = path.resolve(__dirname, `src/apps/${appName}`)
     const srcRoot = path.resolve(__dirname, './src')

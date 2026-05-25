@@ -34,15 +34,14 @@ import {
   type NotificationGroupListParams,
   type SubscriptionFilter,
 } from '@/api/marksman/notificationGroup'
-import {
-  getWebhookConfigSelectList,
-} from '@/api/rabbit/webhook'
+import { getWebhookConfigSelectList } from '@/api/rabbit/webhook'
 import { getTemplateSelectList } from '@/api/rabbit/template'
 import { selectMembers } from '@/api/account/member'
 import { getStrategyGroupSelectList } from '@/api/marksman/strategyGroup'
 import { getStrategySelectList } from '@/api/marksman/strategy'
 import { getDatasourceSelectList } from '@/api/marksman/datasource'
 import { getLevelSelectList, LevelType } from '@/api/marksman/level'
+import { MENU_DIVIDER } from '@/utils/menu'
 import { emptyPlaceholder, renderStatusTag } from '@/utils/marksman'
 import { NotificationGroupDetailModal } from './components/NotificationGroupDetailModal'
 
@@ -111,24 +110,24 @@ const NotificationGroupPage: React.FC = () => {
   const [memberSaving, setMemberSaving] = useState(false)
   const [subscriptionLoading, setSubscriptionLoading] = useState(false)
   const [subscriptionForm] = Form.useForm<SubscriptionFormValues>()
-  const [strategyGroupOptions, setStrategyGroupOptions] = useState<SelectOption[]>(
-    [],
-  )
+  const [strategyGroupOptions, setStrategyGroupOptions] = useState<
+    SelectOption[]
+  >([])
   const [strategyOptions, setStrategyOptions] = useState<SelectOption[]>([])
   const [datasourceOptions, setDatasourceOptions] = useState<SelectOption[]>([])
   const [levelOptions, setLevelOptions] = useState<SelectOption[]>([])
   const [datasourceLevelOptions, setDatasourceLevelOptions] = useState<
     SelectOption[]
   >([])
-  const [memberSelectOptions, setMemberSelectOptions] = useState<SelectOption[]>(
-    [],
-  )
-  const [webhookSelectOptions, setWebhookSelectOptions] = useState<SelectOption[]>(
-    [],
-  )
-  const [templateSelectOptions, setTemplateSelectOptions] = useState<SelectOption[]>(
-    [],
-  )
+  const [memberSelectOptions, setMemberSelectOptions] = useState<
+    SelectOption[]
+  >([])
+  const [webhookSelectOptions, setWebhookSelectOptions] = useState<
+    SelectOption[]
+  >([])
+  const [templateSelectOptions, setTemplateSelectOptions] = useState<
+    SelectOption[]
+  >([])
 
   const cancelledRef = useRef(false)
 
@@ -191,54 +190,68 @@ const NotificationGroupPage: React.FC = () => {
     }
   }, [])
 
-  const fetchSubscription = useCallback(async (uid: string) => {
-    setSubscriptionLoading(true)
-    try {
-      const data = await getNotificationGroupSubscription(uid)
-      if (cancelledRef.current) return
-      const filter = data.filter ?? {}
-      subscriptionForm.setFieldsValue({
-        strategyGroupUids: filter.strategyGroupUids ?? [],
-        strategyUids: filter.strategyUids ?? [],
-        datasourceUids: filter.datasourceUids ?? [],
-        levelUids: filter.levelUids ?? [],
-        datasourceLevelUids: filter.datasourceLevelUids ?? [],
-        labelsText:
-          filter.labels && Object.keys(filter.labels).length > 0
-            ? JSON.stringify(filter.labels, null, 2)
-            : '',
-        excludeLabelsText:
-          filter.excludeLabels && Object.keys(filter.excludeLabels).length > 0
-            ? JSON.stringify(filter.excludeLabels, null, 2)
-            : '',
-      })
-    } catch (e) {
-      if (cancelledRef.current) return
-      console.error('获取通知组订阅失败:', e)
-      // 此处不要无条件 resetFields：当订阅弹窗处于 loading 状态时 Form 可能未挂载
-      // 会触发 antd 的 useForm 未连接警告；只保留当前值即可。
-    } finally {
-      if (!cancelledRef.current) setSubscriptionLoading(false)
-    }
-  }, [subscriptionForm])
+  const fetchSubscription = useCallback(
+    async (uid: string) => {
+      setSubscriptionLoading(true)
+      try {
+        const data = await getNotificationGroupSubscription(uid)
+        if (cancelledRef.current) return
+        const filter = data.filter ?? {}
+        subscriptionForm.setFieldsValue({
+          strategyGroupUids: filter.strategyGroupUids ?? [],
+          strategyUids: filter.strategyUids ?? [],
+          datasourceUids: filter.datasourceUids ?? [],
+          levelUids: filter.levelUids ?? [],
+          datasourceLevelUids: filter.datasourceLevelUids ?? [],
+          labelsText:
+            filter.labels && Object.keys(filter.labels).length > 0
+              ? JSON.stringify(filter.labels, null, 2)
+              : '',
+          excludeLabelsText:
+            filter.excludeLabels && Object.keys(filter.excludeLabels).length > 0
+              ? JSON.stringify(filter.excludeLabels, null, 2)
+              : '',
+        })
+      } catch (e) {
+        if (cancelledRef.current) return
+        console.error('获取通知组订阅失败:', e)
+        // 此处不要无条件 resetFields：当订阅弹窗处于 loading 状态时 Form 可能未挂载
+        // 会触发 antd 的 useForm 未连接警告；只保留当前值即可。
+      } finally {
+        if (!cancelledRef.current) setSubscriptionLoading(false)
+      }
+    },
+    [subscriptionForm],
+  )
 
   const loadSelectOptions = useCallback(async () => {
     try {
       const [sgRes, sRes, dRes, lRes, dlRes, mRes, wRes, tRes] =
         await Promise.all([
-        getStrategyGroupSelectList({ limit: 100 }),
-        getStrategySelectList({ limit: 100 }),
-        getDatasourceSelectList({ limit: 100 }),
-        getLevelSelectList({ limit: 100, type: LevelType.LEVEL_TYPE_ALERT }),
-        getLevelSelectList({ limit: 100, type: LevelType.LEVEL_TYPE_DATASOURCE }),
-        selectMembers({ limit: 100, status: 'JOINED' }),
-        getWebhookConfigSelectList({ limit: 100, status: GlobalStatus.ENABLED }),
-        getTemplateSelectList({ limit: 100, status: GlobalStatus.ENABLED }),
-      ])
+          getStrategyGroupSelectList({ limit: 100 }),
+          getStrategySelectList({ limit: 100 }),
+          getDatasourceSelectList({ limit: 100 }),
+          getLevelSelectList({ limit: 100, type: LevelType.LEVEL_TYPE_ALERT }),
+          getLevelSelectList({
+            limit: 100,
+            type: LevelType.LEVEL_TYPE_DATASOURCE,
+          }),
+          selectMembers({ limit: 100, status: 'JOINED' }),
+          getWebhookConfigSelectList({
+            limit: 100,
+            status: GlobalStatus.ENABLED,
+          }),
+          getTemplateSelectList({ limit: 100, status: GlobalStatus.ENABLED }),
+        ])
       if (cancelledRef.current) return
 
       const toOptions = (
-        items?: { value?: string; label?: string; disabled?: boolean; tooltip?: string }[],
+        items?: {
+          value?: string
+          label?: string
+          disabled?: boolean
+          tooltip?: string
+        }[],
       ): SelectOption[] =>
         (items ?? [])
           .filter((i) => Boolean(i.value))
@@ -318,7 +331,6 @@ const NotificationGroupPage: React.FC = () => {
       status: searchParams.status,
     })
   }, [searchParams.keyword, searchParams.status, searchForm])
-
 
   const handleSearch = (override?: Partial<NotificationGroupListParams>) => {
     if (override) setSearchParams((prev) => ({ ...prev, ...override }))
@@ -437,16 +449,20 @@ const NotificationGroupPage: React.FC = () => {
       }
 
       const cleanedFilter: SubscriptionFilter = {
-        strategyGroupUids: (values.strategyGroupUids ?? []).filter(Boolean).length > 0
+        strategyGroupUids:
+          (values.strategyGroupUids ?? []).filter(Boolean).length > 0
             ? (values.strategyGroupUids ?? []).filter(Boolean)
             : undefined,
-        strategyUids: (values.strategyUids ?? []).filter(Boolean).length > 0
+        strategyUids:
+          (values.strategyUids ?? []).filter(Boolean).length > 0
             ? (values.strategyUids ?? []).filter(Boolean)
             : undefined,
-        levelUids: (values.levelUids ?? []).filter(Boolean).length > 0
+        levelUids:
+          (values.levelUids ?? []).filter(Boolean).length > 0
             ? (values.levelUids ?? []).filter(Boolean)
             : undefined,
-        datasourceUids: (values.datasourceUids ?? []).filter(Boolean).length > 0
+        datasourceUids:
+          (values.datasourceUids ?? []).filter(Boolean).length > 0
             ? (values.datasourceUids ?? []).filter(Boolean)
             : undefined,
         datasourceLevelUids:
@@ -581,6 +597,7 @@ const NotificationGroupPage: React.FC = () => {
                     ),
                 }),
             },
+            MENU_DIVIDER,
             {
               key: 'delete',
               label: t('common.delete'),
@@ -800,16 +817,26 @@ const NotificationGroupPage: React.FC = () => {
             <Descriptions.Item label={t('notificationGroup.detail.members')}>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 {(detailData.members ?? []).map((m, idx) => (
-                  <Space key={`${m.memberUid ?? 'm'}-${idx}`} size='small' align='center'>
+                  <Space
+                    key={`${m.memberUid ?? 'm'}-${idx}`}
+                    size='small'
+                    align='center'
+                  >
                     <Avatar size='small' src={m.memberAvatar}>
-                      {m.memberName ? String(m.memberName).slice(0, 1) : undefined}
+                      {m.memberName
+                        ? String(m.memberName).slice(0, 1)
+                        : undefined}
                     </Avatar>
                     <span>{m.memberName ?? m.memberUid ?? '-'}</span>
                     {m.isEmail ? (
-                      <Tag color='blue'>{t('notificationGroup.subscription.table.email')}</Tag>
+                      <Tag color='blue'>
+                        {t('notificationGroup.subscription.table.email')}
+                      </Tag>
                     ) : null}
                     {m.isPhone ? (
-                      <Tag color='green'>{t('notificationGroup.subscription.table.phone')}</Tag>
+                      <Tag color='green'>
+                        {t('notificationGroup.subscription.table.phone')}
+                      </Tag>
                     ) : null}
                   </Space>
                 ))}
@@ -896,7 +923,9 @@ const NotificationGroupPage: React.FC = () => {
               <Form form={subscriptionForm} layout='vertical' preserve={false}>
                 <Form.Item
                   name='strategyGroupUids'
-                  label={t('notificationGroup.subscription.filter.strategyGroups')}
+                  label={t(
+                    'notificationGroup.subscription.filter.strategyGroups',
+                  )}
                 >
                   <Select
                     mode='multiple'
@@ -952,7 +981,9 @@ const NotificationGroupPage: React.FC = () => {
                 </Form.Item>
                 <Form.Item
                   name='datasourceLevelUids'
-                  label={t('notificationGroup.subscription.filter.datasourceLevels')}
+                  label={t(
+                    'notificationGroup.subscription.filter.datasourceLevels',
+                  )}
                 >
                   <Select
                     mode='multiple'
@@ -977,7 +1008,9 @@ const NotificationGroupPage: React.FC = () => {
                 </Form.Item>
                 <Form.Item
                   name='excludeLabelsText'
-                  label={t('notificationGroup.subscription.filter.excludeLabels')}
+                  label={t(
+                    'notificationGroup.subscription.filter.excludeLabels',
+                  )}
                 >
                   <Input.TextArea
                     rows={3}

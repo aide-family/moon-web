@@ -4,8 +4,8 @@
  */
 
 import { http } from '../../index'
-import type { 
-  EmailListResponse, 
+import type {
+  EmailListResponse,
   EmailListParams,
   EmailItem,
   CreateEmailParams,
@@ -20,7 +20,9 @@ import type {
  * @param params 查询参数
  * @returns 邮件配置列表
  */
-export const getEmailTableList = (params?: EmailListParams): Promise<EmailListResponse> => {
+export const getEmailTableList = (
+  params?: EmailListParams,
+): Promise<EmailListResponse> => {
   return http.get<EmailListResponse>('/email/configs', { ...params })
 }
 
@@ -48,7 +50,10 @@ export const createEmail = (params?: CreateEmailParams): Promise<EmailItem> => {
  * @param params 更新参数
  * @returns 更新后的邮件配置
  */
-export const updateEmail = (uid: string, params?: UpdateEmailParams): Promise<EmailItem> => {
+export const updateEmail = (
+  uid: string,
+  params?: UpdateEmailParams,
+): Promise<EmailItem> => {
   return http.put<EmailItem>(`/email/config/${uid}`, { ...params })
 }
 
@@ -67,8 +72,12 @@ export const deleteEmail = (uid: string): Promise<void> => {
  * @param status 状态值
  * @returns 更新后的邮件配置
  */
-export const updateEmailStatus = (params: UpdateEmailStatusParams): Promise<EmailItem> => {
-  return http.put<EmailItem>(`/email/config/${params.uid}/status`, { status: params.status })
+export const updateEmailStatus = (
+  params: UpdateEmailStatusParams,
+): Promise<EmailItem> => {
+  return http.put<EmailItem>(`/email/config/${params.uid}/status`, {
+    status: params.status,
+  })
 }
 
 /**
@@ -76,16 +85,15 @@ export const updateEmailStatus = (params: UpdateEmailStatusParams): Promise<Emai
  * GET /email/configs/select，用于下拉选择，支持 keyword/limit/lastUID/status
  */
 export const getEmailConfigSelectList = (
-  params?: EmailConfigSelectParams
+  params?: EmailConfigSelectParams,
 ): Promise<EmailConfigSelectResponse> => {
-  return http.get<EmailConfigSelectResponse>(
-    '/email/configs/select',
-    { ...params }
-  )
+  return http.get<EmailConfigSelectResponse>('/email/configs/select', {
+    ...params,
+  })
 }
 
 // 导出类型
-export type { 
+export type {
   EmailItem,
   EmailListResponse,
   EmailListParams,

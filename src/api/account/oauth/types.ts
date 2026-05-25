@@ -3,6 +3,6 @@
  */
 
 export interface OAuth2ReportItem {
-  app: string;
-  loginUrl: string;
+  app: string
+  loginUrl: string
 }

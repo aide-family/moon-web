@@ -52,36 +52,42 @@ export const zhCN = {
   'notificationGroup.subscription.action.save': '保存订阅',
   'notificationGroup.subscription.filter.title': '告警事件过滤订阅',
   'notificationGroup.subscription.filter.strategyGroups': '策略组',
-  'notificationGroup.subscription.filter.strategyGroups.placeholder': '请选择策略组',
+  'notificationGroup.subscription.filter.strategyGroups.placeholder':
+    '请选择策略组',
   'notificationGroup.subscription.filter.strategies': '策略',
   'notificationGroup.subscription.filter.strategies.placeholder': '请选择策略',
   'notificationGroup.subscription.filter.datasources': '数据源',
-  'notificationGroup.subscription.filter.datasources.placeholder': '请选择数据源',
+  'notificationGroup.subscription.filter.datasources.placeholder':
+    '请选择数据源',
   'notificationGroup.subscription.filter.levels': '告警等级',
   'notificationGroup.subscription.filter.levels.placeholder': '请选择告警等级',
   'notificationGroup.subscription.filter.datasourceLevels': '数据源等级',
   'notificationGroup.subscription.filter.datasourceLevels.placeholder':
     '请选择数据源等级',
   'notificationGroup.subscription.filter.strategyLevels': '策略-等级',
-  'notificationGroup.subscription.filter.strategyLevels.empty': '暂无策略-等级条件',
+  'notificationGroup.subscription.filter.strategyLevels.empty':
+    '暂无策略-等级条件',
   'notificationGroup.subscription.filter.strategy.placeholder': '请选择策略',
   'notificationGroup.subscription.filter.level.placeholder': '请选择告警等级',
   'notificationGroup.subscription.filter.labels': '包含标签 (JSON)',
-  'notificationGroup.subscription.filter.labels.placeholder': '可选，JSON 对象，例如 {\"env\":\"prod\"}',
+  'notificationGroup.subscription.filter.labels.placeholder':
+    '可选，JSON 对象，例如 {"env":"prod"}',
   'notificationGroup.subscription.filter.excludeLabels': '排除标签 (JSON)',
   'notificationGroup.subscription.filter.excludeLabels.placeholder':
-    '可选，JSON 对象，例如 {\"region\":\"test\"}',
+    '可选，JSON 对象，例如 {"region":"test"}',
 
   'notificationGroup.memberModal.title': '添加订阅成员',
   'notificationGroup.memberModal.form.memberUid.label': '成员',
   'notificationGroup.memberModal.form.memberUid.placeholder': '搜索并选择成员',
   'notificationGroup.memberModal.form.isEmail': '邮件订阅',
   'notificationGroup.memberModal.form.isPhone': '电话订阅',
-  'notificationGroup.memberModal.validation.atLeastOneChannel': '至少选择一个订阅通道（邮件或电话）',
+  'notificationGroup.memberModal.validation.atLeastOneChannel':
+    '至少选择一个订阅通道（邮件或电话）',
   'notificationGroup.memberModal.validation.memberRequired': '请选择成员',
 
   'notificationGroup.subscription.empty': '暂无订阅成员',
-  'notificationGroup.subscription.member.duplicate': '该成员已存在于当前通知组订阅中',
+  'notificationGroup.subscription.member.duplicate':
+    '该成员已存在于当前通知组订阅中',
 }
 
 export const enUS = {
@@ -93,9 +99,11 @@ export const enUS = {
   'notificationGroup.table.updatedAt': 'Updated At',
 
   'notificationGroup.confirm.delete.title': 'Confirm delete?',
-  'notificationGroup.confirm.delete.content': 'Delete notification group "{name}"',
+  'notificationGroup.confirm.delete.content':
+    'Delete notification group "{name}"',
   'notificationGroup.confirm.status.title': 'Confirm to {action}?',
-  'notificationGroup.confirm.status.content': '{action} notification group "{name}"',
+  'notificationGroup.confirm.status.content':
+    '{action} notification group "{name}"',
 
   'notificationGroup.modal.create.title': 'Create Notification Group',
   'notificationGroup.modal.edit.title': 'Edit Notification Group',
@@ -134,38 +142,51 @@ export const enUS = {
 
   'notificationGroup.subscription.action.addMember': 'Add Member',
   'notificationGroup.subscription.action.save': 'Save Subscription',
-  'notificationGroup.subscription.filter.title': 'Alert Event Subscription Filter',
+  'notificationGroup.subscription.filter.title':
+    'Alert Event Subscription Filter',
   'notificationGroup.subscription.filter.strategyGroups': 'Strategy Groups',
-  'notificationGroup.subscription.filter.strategyGroups.placeholder': 'Select strategy groups',
+  'notificationGroup.subscription.filter.strategyGroups.placeholder':
+    'Select strategy groups',
   'notificationGroup.subscription.filter.strategies': 'Strategies',
-  'notificationGroup.subscription.filter.strategies.placeholder': 'Select strategies',
+  'notificationGroup.subscription.filter.strategies.placeholder':
+    'Select strategies',
   'notificationGroup.subscription.filter.datasources': 'Datasources',
-  'notificationGroup.subscription.filter.datasources.placeholder': 'Select datasources',
+  'notificationGroup.subscription.filter.datasources.placeholder':
+    'Select datasources',
   'notificationGroup.subscription.filter.levels': 'Alert Levels',
-  'notificationGroup.subscription.filter.levels.placeholder': 'Select alert levels',
+  'notificationGroup.subscription.filter.levels.placeholder':
+    'Select alert levels',
   'notificationGroup.subscription.filter.datasourceLevels': 'Datasource Levels',
   'notificationGroup.subscription.filter.datasourceLevels.placeholder':
     'Select datasource levels',
-  'notificationGroup.subscription.filter.strategyLevels': 'Strategy-Level Pairs',
-  'notificationGroup.subscription.filter.strategyLevels.empty': 'No strategy-level conditions',
-  'notificationGroup.subscription.filter.strategy.placeholder': 'Select strategy',
-  'notificationGroup.subscription.filter.level.placeholder': 'Select alert level',
+  'notificationGroup.subscription.filter.strategyLevels':
+    'Strategy-Level Pairs',
+  'notificationGroup.subscription.filter.strategyLevels.empty':
+    'No strategy-level conditions',
+  'notificationGroup.subscription.filter.strategy.placeholder':
+    'Select strategy',
+  'notificationGroup.subscription.filter.level.placeholder':
+    'Select alert level',
   'notificationGroup.subscription.filter.labels': 'Include Labels (JSON)',
   'notificationGroup.subscription.filter.labels.placeholder':
     'Optional JSON object, e.g. {"env":"prod"}',
-  'notificationGroup.subscription.filter.excludeLabels': 'Exclude Labels (JSON)',
+  'notificationGroup.subscription.filter.excludeLabels':
+    'Exclude Labels (JSON)',
   'notificationGroup.subscription.filter.excludeLabels.placeholder':
     'Optional JSON object, e.g. {"region":"test"}',
 
   'notificationGroup.memberModal.title': 'Add Subscription Member',
   'notificationGroup.memberModal.form.memberUid.label': 'Member',
-  'notificationGroup.memberModal.form.memberUid.placeholder': 'Search and select member',
+  'notificationGroup.memberModal.form.memberUid.placeholder':
+    'Search and select member',
   'notificationGroup.memberModal.form.isEmail': 'Email subscription',
   'notificationGroup.memberModal.form.isPhone': 'Phone subscription',
-  'notificationGroup.memberModal.validation.atLeastOneChannel': 'Select at least one channel (email or phone)',
-  'notificationGroup.memberModal.validation.memberRequired': 'Please select a member',
+  'notificationGroup.memberModal.validation.atLeastOneChannel':
+    'Select at least one channel (email or phone)',
+  'notificationGroup.memberModal.validation.memberRequired':
+    'Please select a member',
 
   'notificationGroup.subscription.empty': 'No subscription members',
-  'notificationGroup.subscription.member.duplicate': 'This member already exists in current subscription',
+  'notificationGroup.subscription.member.duplicate':
+    'This member already exists in current subscription',
 }
-

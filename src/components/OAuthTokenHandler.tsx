@@ -24,7 +24,13 @@ export function OAuthTokenHandler({ children }: { children: React.ReactNode }) {
       const from = (location.state as { from?: string } | null)?.from
       navigate(from || location.pathname || '/', { replace: true })
     }
-  }, [location.search, location.pathname, location.hash, location.state, navigate])
+  }, [
+    location.search,
+    location.pathname,
+    location.hash,
+    location.state,
+    navigate,
+  ])
 
   return <>{children}</>
 }

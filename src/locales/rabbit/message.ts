@@ -83,7 +83,8 @@ export const enUS = {
   'messageLog.action.retry': 'Retry',
   'messageLog.action.cancel': 'Cancel',
   'messageLog.confirm.cancel.title': 'Confirm cancel?',
-  'messageLog.confirm.cancel.content': 'Message "{uid}" cannot be recovered after cancel.',
+  'messageLog.confirm.cancel.content':
+    'Message "{uid}" cannot be recovered after cancel.',
   'messageLog.confirm.retry.title': 'Confirm retry?',
   'messageLog.confirm.retry.content': 'Message "{uid}" will be resent.',
   'messageLog.search.status': 'Status',

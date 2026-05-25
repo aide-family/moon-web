@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Form, Input, Select, message } from 'antd'
-import type { CreateWebhookParams, UpdateWebhookParams, WebhookItem } from '@/api/rabbit/webhook/index'
+import type {
+  CreateWebhookParams,
+  UpdateWebhookParams,
+  WebhookItem,
+} from '@/api/rabbit/webhook/index'
 import { createWebhook, updateWebhook } from '@/api/rabbit/webhook/index'
 import { useLocale } from '@/contexts/LocaleContext'
 import { getAppOptions, getAppIconType, getMethodOptions } from '../constants'
@@ -14,7 +18,13 @@ interface DetailFormProps {
   onSuccess: () => void
 }
 
-const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCancel, onSuccess }) => {
+const DetailForm: React.FC<DetailFormProps> = ({
+  open,
+  mode,
+  initialData,
+  onCancel,
+  onSuccess,
+}) => {
   const { t } = useLocale()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
@@ -28,7 +38,9 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         url: initialData.url,
         method: initialData.method,
         secret: initialData.secret === '******' ? '' : initialData.secret,
-        headers: initialData.headers ? JSON.stringify(initialData.headers, null, 2) : '',
+        headers: initialData.headers
+          ? JSON.stringify(initialData.headers, null, 2)
+          : '',
       })
     } else if (open && mode === 'create') {
       // 新增模式，重置表单
@@ -48,7 +60,11 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         try {
           const parsed = JSON.parse(values.headers.trim())
           // 确保解析后是对象
-          if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+          if (
+            typeof parsed !== 'object' ||
+            parsed === null ||
+            Array.isArray(parsed)
+          ) {
             message.error(t('webhook.form.headers.invalid'))
             setLoading(false)
             return
@@ -116,7 +132,11 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
 
   return (
     <Modal
-      title={mode === 'create' ? t('webhook.modal.create.title') : t('webhook.modal.edit.title')}
+      title={
+        mode === 'create'
+          ? t('webhook.modal.create.title')
+          : t('webhook.modal.edit.title')
+      }
       open={open}
       onOk={handleSubmit}
       onCancel={handleCancel}
@@ -126,14 +146,10 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
       width={700}
       destroyOnHidden
     >
-      <Form
-        form={form}
-        layout="vertical"
-        autoComplete="off"
-      >
+      <Form form={form} layout='vertical' autoComplete='off'>
         <Form.Item
           label={t('webhook.form.name.label')}
-          name="name"
+          name='name'
           rules={[
             {
               required: true,
@@ -149,7 +165,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         </Form.Item>
         <Form.Item
           label={t('webhook.form.app.label')}
-          name="app"
+          name='app'
           rules={[
             {
               required: true,
@@ -160,10 +176,16 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
           <Select
             placeholder={t('webhook.form.app.placeholder')}
             style={{ width: '100%' }}
-            options={getAppOptions(t).map(opt => ({
+            options={getAppOptions(t).map((opt) => ({
               value: opt.value,
               label: (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                  }}
+                >
                   <IconFont type={getAppIconType(opt.value)} />
                   {opt.label}
                 </span>
@@ -173,7 +195,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         </Form.Item>
         <Form.Item
           label={t('webhook.form.url.label')}
-          name="url"
+          name='url'
           rules={[
             {
               required: true,
@@ -189,7 +211,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         </Form.Item>
         <Form.Item
           label={t('webhook.form.method.label')}
-          name="method"
+          name='method'
           rules={[
             {
               required: true,
@@ -205,7 +227,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         </Form.Item>
         <Form.Item
           label={t('webhook.form.secret.label')}
-          name="secret"
+          name='secret'
           rules={[
             {
               required: mode === 'create',
@@ -217,7 +239,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         </Form.Item>
         <Form.Item
           label={t('webhook.form.headers.label')}
-          name="headers"
+          name='headers'
           help={t('webhook.form.headers.help')}
           rules={[
             {
@@ -227,12 +249,20 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
                 }
                 try {
                   const parsed = JSON.parse(value.trim())
-                  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-                    return Promise.reject(new Error(t('webhook.form.headers.invalid')))
+                  if (
+                    typeof parsed !== 'object' ||
+                    parsed === null ||
+                    Array.isArray(parsed)
+                  ) {
+                    return Promise.reject(
+                      new Error(t('webhook.form.headers.invalid')),
+                    )
                   }
                   return Promise.resolve()
                 } catch {
-                  return Promise.reject(new Error(t('webhook.form.headers.invalid')))
+                  return Promise.reject(
+                    new Error(t('webhook.form.headers.invalid')),
+                  )
                 }
               },
             },

@@ -96,9 +96,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
 
   const [interveneMemberModalOpen, setInterveneMemberModalOpen] =
     useState(false)
-  const [interveneTargetUids, setInterveneTargetUids] = useState<string[]>(
-    [],
-  )
+  const [interveneTargetUids, setInterveneTargetUids] = useState<string[]>([])
   const [interveneMemberSaving, setInterveneMemberSaving] = useState(false)
   const [batchRecoverOpen, setBatchRecoverOpen] = useState(false)
   const [batchRecoverSaving, setBatchRecoverSaving] = useState(false)
@@ -196,11 +194,11 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
 
   const { run: debouncedFetchData, cancel: cancelDebouncedFetchData } =
     useDebounceFn(
-    () => {
-      void fetchDataRef.current(undefined, undefined, { silent: false })
-    },
-    { wait: 300 },
-  )
+      () => {
+        void fetchDataRef.current(undefined, undefined, { silent: false })
+      },
+      { wait: 300 },
+    )
 
   // 组件卸载时取消防抖，避免卸载后仍触发 setLoading
   useEffect(() => {
@@ -292,25 +290,22 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     setPagination((prev) => ({ ...prev, current: 1 }))
   }
 
-  const fetchInterveneMemberOptions = useCallback(
-    async (keyword?: string) => {
-      setMemberOptionsLoading(true)
-      try {
-        const params: SelectMembersParams = {
-          keyword: keyword?.trim() || undefined,
-          limit: 20,
-        }
-        const res = await selectMembers(params)
-        setMemberOptions(res.items ?? [])
-      } catch (e) {
-        console.error('拉取成员下拉失败:', e)
-        setMemberOptions([])
-      } finally {
-        setMemberOptionsLoading(false)
+  const fetchInterveneMemberOptions = useCallback(async (keyword?: string) => {
+    setMemberOptionsLoading(true)
+    try {
+      const params: SelectMembersParams = {
+        keyword: keyword?.trim() || undefined,
+        limit: 20,
       }
-    },
-    [],
-  )
+      const res = await selectMembers(params)
+      setMemberOptions(res.items ?? [])
+    } catch (e) {
+      console.error('拉取成员下拉失败:', e)
+      setMemberOptions([])
+    } finally {
+      setMemberOptionsLoading(false)
+    }
+  }, [])
 
   const { run: debouncedFetchInterveneMembers, cancel: cancelDebounceMembers } =
     useDebounceFn(
@@ -326,7 +321,11 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     return () => {
       cancelDebounceMembers()
     }
-  }, [interveneMemberModalOpen, fetchInterveneMemberOptions, cancelDebounceMembers])
+  }, [
+    interveneMemberModalOpen,
+    fetchInterveneMemberOptions,
+    cancelDebounceMembers,
+  ])
 
   const openInterveneMemberModal = (uids: string[]) => {
     const cleaned = (uids ?? []).map(String).filter(Boolean)
@@ -405,7 +404,9 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
         uids: selectedUids,
         recoveredReason,
       })
-      message.success(t('realtimeAlert.message.batchRecover.successAll', { count }))
+      message.success(
+        t('realtimeAlert.message.batchRecover.successAll', { count }),
+      )
       setSelectedUids([])
       setBatchRecoverOpen(false)
       batchRecoverForm.resetFields()
@@ -713,7 +714,10 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
                 {t('common.search')}
               </Button>
               <Dropdown menu={{ items: batchMenuItems }} trigger={['click']}>
-                <Button disabled={selectedUids.length === 0} loading={batchActionLoading}>
+                <Button
+                  disabled={selectedUids.length === 0}
+                  loading={batchActionLoading}
+                >
                   {t('realtimeAlert.action.batchAction')}
                 </Button>
               </Dropdown>
@@ -807,7 +811,9 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
         <Form form={interveneMemberForm} layout='vertical' preserve={false}>
           <Form.Item
             name='memberUid'
-            label={t('realtimeAlert.modal.interveneMember.form.memberUid.label')}
+            label={t(
+              'realtimeAlert.modal.interveneMember.form.memberUid.label',
+            )}
             rules={[
               {
                 required: true,
@@ -820,7 +826,9 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
             <Select
               showSearch
               allowClear
-              placeholder={t('realtimeAlert.modal.interveneMember.form.memberUid.placeholder')}
+              placeholder={t(
+                'realtimeAlert.modal.interveneMember.form.memberUid.placeholder',
+              )}
               filterOption={false}
               loading={memberOptionsLoading}
               onSearch={(value) => debouncedFetchInterveneMembers(value)}
@@ -838,7 +846,9 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       </Modal>
 
       <Modal
-        title={t('realtimeAlert.modal.batchRecover.title', { count: selectedUids.length })}
+        title={t('realtimeAlert.modal.batchRecover.title', {
+          count: selectedUids.length,
+        })}
         open={batchRecoverOpen}
         onOk={handleBatchRecoverOk}
         onCancel={() => {

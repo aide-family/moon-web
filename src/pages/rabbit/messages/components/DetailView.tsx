@@ -14,7 +14,12 @@ interface DetailViewProps {
   onCancel: () => void
 }
 
-const DetailView: React.FC<DetailViewProps> = ({ open, data, loading, onCancel }) => {
+const DetailView: React.FC<DetailViewProps> = ({
+  open,
+  data,
+  loading,
+  onCancel,
+}) => {
   const { t } = useLocale()
 
   return (
@@ -27,14 +32,23 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, loading, onCancel }
       destroyOnHidden
     >
       {loading ? (
-        <div className="flex justify-center items-center py-12">
+        <div className='flex justify-center items-center py-12'>
           <Spin />
         </div>
       ) : data ? (
-        <Descriptions column={1} bordered size="small" styles={{ label: { width: 120, minWidth: 120 } }}>
-          <Descriptions.Item label={t('messageLog.detail.uid')}>{data.uid || '-'}</Descriptions.Item>
+        <Descriptions
+          column={1}
+          bordered
+          size='small'
+          styles={{ label: { width: 120, minWidth: 120 } }}
+        >
+          <Descriptions.Item label={t('messageLog.detail.uid')}>
+            {data.uid || '-'}
+          </Descriptions.Item>
           <Descriptions.Item label={t('messageLog.detail.type')}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <span
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+            >
               <IconFont type={getMessageTypeIconType(data.messageType ?? '')} />
               {getTypeLabel(data.messageType, t)}
             </span>
@@ -45,7 +59,9 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, loading, onCancel }
             </Tag>
           </Descriptions.Item>
           <Descriptions.Item label={t('messageLog.detail.sendAt')}>
-            {data.sendAt ? dayjs(data.sendAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
+            {data.sendAt
+              ? dayjs(data.sendAt).format('YYYY-MM-DD HH:mm:ss')
+              : '-'}
           </Descriptions.Item>
           <Descriptions.Item label={t('messageLog.detail.message')}>
             {data.message || '-'}
@@ -60,11 +76,15 @@ const DetailView: React.FC<DetailViewProps> = ({ open, data, loading, onCancel }
             {data.lastError || '-'}
           </Descriptions.Item>
           <Descriptions.Item label={t('messageLog.detail.updatedAt')}>
-            {data.updatedAt ? dayjs(data.updatedAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
+            {data.updatedAt
+              ? dayjs(data.updatedAt).format('YYYY-MM-DD HH:mm:ss')
+              : '-'}
           </Descriptions.Item>
         </Descriptions>
       ) : (
-        <div style={{ textAlign: 'center', padding: '40px 0' }}>{t('common.noData')}</div>
+        <div style={{ textAlign: 'center', padding: '40px 0' }}>
+          {t('common.noData')}
+        </div>
       )}
     </Modal>
   )

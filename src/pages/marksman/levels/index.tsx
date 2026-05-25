@@ -26,6 +26,7 @@ import { GlobalStatus } from '@/api'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
+import { MENU_DIVIDER } from '@/utils/menu'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 import PageContent from '@/components/layout/PageContent'
 import {
@@ -304,6 +305,7 @@ const LevelList: React.FC = () => {
               : t(`common.status.${GlobalStatus.ENABLED}`),
             onClick: handleStatusClick,
           },
+          MENU_DIVIDER,
           {
             key: 'delete',
             label: t('common.delete'),
@@ -432,7 +434,9 @@ const LevelList: React.FC = () => {
                 allowClear
                 className='w-full min-w-[120px] sm:w-48 md:w-52'
                 onPressEnter={(e) =>
-                  handleSearch({ keyword: (e.target as HTMLInputElement).value })
+                  handleSearch({
+                    keyword: (e.target as HTMLInputElement).value,
+                  })
                 }
               />
             </Form.Item>

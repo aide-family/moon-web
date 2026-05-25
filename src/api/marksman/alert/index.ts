@@ -53,22 +53,16 @@ export type {
 
 /** 告警页列表 GET /v1/alert/alert-pages */
 export const getAlertPageList = (
-  params?: AlertPageListParams
+  params?: AlertPageListParams,
 ): Promise<AlertPageListResponse> => {
-  return http.get<AlertPageListResponse>(
-    '/alert/alert-pages',
-    { ...params }
-  )
+  return http.get<AlertPageListResponse>('/alert/alert-pages', { ...params })
 }
 
 /** 创建告警页 POST /v1/alert/alert-pages */
 export const createAlertPage = (
-  params?: CreateAlertPageParams
+  params?: CreateAlertPageParams,
 ): Promise<CreateAlertPageResponse> => {
-  return http.post<CreateAlertPageResponse>(
-    '/alert/alert-pages',
-    { ...params }
-  )
+  return http.post<CreateAlertPageResponse>('/alert/alert-pages', { ...params })
 }
 
 /** 告警页详情 GET /v1/alert/alert-pages/{uid} */
@@ -79,50 +73,55 @@ export const getAlertPage = (uid: string): Promise<AlertPageItem> => {
 /** 更新告警页 PUT /v1/alert/alert-pages/{uid} */
 export const updateAlertPage = (
   uid: string,
-  params?: UpdateAlertPageParams
+  params?: UpdateAlertPageParams,
 ): Promise<Record<string, never>> => {
-  return http.put<Record<string, never>>(
-    `/alert/alert-pages/${uid}`,
-    { ...params }
-  )
+  return http.put<Record<string, never>>(`/alert/alert-pages/${uid}`, {
+    ...params,
+  })
 }
 
 /** 删除告警页 DELETE /v1/alert/alert-pages/{uid} */
-export const deleteAlertPage = (uid: string): Promise<Record<string, never>> => {
+export const deleteAlertPage = (
+  uid: string,
+): Promise<Record<string, never>> => {
   return http.delete<Record<string, never>>(`/alert/alert-pages/${uid}`)
 }
 
 /** 实时告警列表 GET /v1/alert/alert-pages/{alertPageUid}/realtime-alerts */
 export const getRealtimeAlertList = (
   alertPageUid: string,
-  params?: ListRealtimeAlertParams
+  params?: ListRealtimeAlertParams,
 ): Promise<ListRealtimeAlertResponse> => {
   return http.get<ListRealtimeAlertResponse>(
     `/alert/alert-pages/${alertPageUid}/realtime-alerts`,
-    { ...params }
+    { ...params },
   )
 }
 
 /** 获取实时告警事件详情 GET /v1/alert/realtime-alerts/{uid} */
-export const getRealtimeAlertDetail = (uid: string): Promise<AlertEventItem> => {
+export const getRealtimeAlertDetail = (
+  uid: string,
+): Promise<AlertEventItem> => {
   return http.get<AlertEventItem>(`/alert/realtime-alerts/${uid}`)
 }
 
 /** 历史告警列表 GET /v1/alert/history-alerts */
 export const getHistoryAlertList = (
-  params?: ListHistoryAlertParams
+  params?: ListHistoryAlertParams,
 ): Promise<ListHistoryAlertResponse> => {
-  return http.get<ListHistoryAlertResponse>('/alert/history-alerts', { ...params })
+  return http.get<ListHistoryAlertResponse>('/alert/history-alerts', {
+    ...params,
+  })
 }
 
 /** 介入告警 POST /v1/alert/realtime-alerts/{uid}/intervene */
 export const interveneAlert = (
   uid: string,
-  params?: InterveneAlertParams
+  params?: InterveneAlertParams,
 ): Promise<Record<string, never>> => {
   return http.post<Record<string, never>>(
     `/alert/realtime-alerts/${uid}/intervene`,
-    { ...params }
+    { ...params },
   )
 }
 
@@ -139,11 +138,11 @@ export const batchInterveneAlert = (
 /** 恢复告警 POST /v1/alert/realtime-alerts/{uid}/recover */
 export const recoverAlert = (
   uid: string,
-  params?: RecoverAlertParams
+  params?: RecoverAlertParams,
 ): Promise<Record<string, never>> => {
   return http.post<Record<string, never>>(
     `/alert/realtime-alerts/${uid}/recover`,
-    { ...params }
+    { ...params },
   )
 }
 
@@ -160,11 +159,11 @@ export const batchRecoverAlert = (
 /** 抑制告警 POST /v1/alert/realtime-alerts/{uid}/suppress */
 export const suppressAlert = (
   uid: string,
-  params?: SuppressAlertParams
+  params?: SuppressAlertParams,
 ): Promise<Record<string, never>> => {
   return http.post<Record<string, never>>(
     `/alert/realtime-alerts/${uid}/suppress`,
-    { ...params }
+    { ...params },
   )
 }
 
@@ -180,10 +179,9 @@ export const listUserAlertPages = (): Promise<ListUserAlertPagesReply> => {
 
 /** 保存用户告警页列表 PUT /v1/alert/user/alert-pages */
 export const saveUserAlertPages = (
-  params?: SaveUserAlertPagesRequest
+  params?: SaveUserAlertPagesRequest,
 ): Promise<SaveUserAlertPagesReply> => {
-  return http.put<SaveUserAlertPagesReply>(
-    '/alert/user/alert-pages',
-    { ...params }
-  )
+  return http.put<SaveUserAlertPagesReply>('/alert/user/alert-pages', {
+    ...params,
+  })
 }

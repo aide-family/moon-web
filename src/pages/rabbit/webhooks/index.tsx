@@ -32,6 +32,7 @@ import {
   getMethodLabel,
 } from './constants'
 import { IconFont } from '@/components/Icon/IconFont'
+import { MENU_DIVIDER } from '@/utils/menu'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 import { renderStatusTag } from '@/utils/marksman'
 
@@ -316,6 +317,7 @@ const WebhookListContent: React.FC = () => {
               label: action,
               onClick: handleStatusClick,
             },
+            MENU_DIVIDER,
             {
               key: 'delete',
               label: t('common.delete'),

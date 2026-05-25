@@ -32,8 +32,7 @@ request.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     // 添加 token（如果存在）
     const token =
-      localStorage.getItem('token') ||
-      sessionStorage.getItem('token') ||''
+      localStorage.getItem('token') || sessionStorage.getItem('token') || ''
     const namespace = localStorage.getItem('namespace') || ''
     if (token && !config.skipAuth) {
       config.headers.Authorization = `Bearer ${token}`
@@ -46,7 +45,7 @@ request.interceptors.request.use(
   (error: AxiosError) => {
     console.error('请求错误:', error)
     return Promise.reject(error)
-  }
+  },
 )
 
 /**
@@ -134,7 +133,7 @@ request.interceptors.response.use(
     }
 
     return Promise.reject(error)
-  }
+  },
 )
 
 /**
@@ -148,7 +147,7 @@ export const http = {
   get<T = unknown>(
     url: string,
     params?: Record<string, unknown>,
-    config?: AxiosRequestConfig & RequestConfig
+    config?: AxiosRequestConfig & RequestConfig,
   ): Promise<T> {
     // 响应拦截器已经处理了数据，所以这里需要类型断言
     return request.get<ApiResponse<T>>(url, { ...config, params }) as Promise<T>
@@ -160,7 +159,7 @@ export const http = {
   post<T = unknown>(
     url: string,
     data?: Record<string, unknown>,
-    config?: AxiosRequestConfig & RequestConfig
+    config?: AxiosRequestConfig & RequestConfig,
   ): Promise<T> {
     // 响应拦截器已经处理了数据，所以这里需要类型断言
     return request.post<ApiResponse<T>>(url, data, config) as Promise<T>
@@ -172,7 +171,7 @@ export const http = {
   put<T = unknown>(
     url: string,
     data?: Record<string, unknown>,
-    config?: AxiosRequestConfig & RequestConfig
+    config?: AxiosRequestConfig & RequestConfig,
   ): Promise<T> {
     // 响应拦截器已经处理了数据，所以这里需要类型断言
     return request.put<ApiResponse<T>>(url, data, config) as Promise<T>
@@ -183,7 +182,7 @@ export const http = {
    */
   delete<T = unknown>(
     url: string,
-    config?: AxiosRequestConfig & RequestConfig
+    config?: AxiosRequestConfig & RequestConfig,
   ): Promise<T> {
     // 响应拦截器已经处理了数据，所以这里需要类型断言
     return request.delete<ApiResponse<T>>(url, config) as Promise<T>
@@ -195,7 +194,7 @@ export const http = {
   patch<T = unknown>(
     url: string,
     data?: Record<string, unknown>,
-    config?: AxiosRequestConfig & RequestConfig
+    config?: AxiosRequestConfig & RequestConfig,
   ): Promise<T> {
     // 响应拦截器已经处理了数据，所以这里需要类型断言
     return request.patch<ApiResponse<T>>(url, data, config) as Promise<T>

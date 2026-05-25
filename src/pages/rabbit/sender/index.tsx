@@ -39,39 +39,64 @@ export default function SenderManagement() {
   const [form] = Form.useForm()
   const [sendType, setSendType] = useState<SendType>('email')
   const [submitting, setSubmitting] = useState(false)
-  const [templateOptions, setTemplateOptions] = useState<TemplateItemSelect[]>([])
+  const [templateOptions, setTemplateOptions] = useState<TemplateItemSelect[]>(
+    [],
+  )
   const [templateLoading, setTemplateLoading] = useState(false)
-  const [emailConfigOptions, setEmailConfigOptions] = useState<EmailItemSelect[]>([])
+  const [emailConfigOptions, setEmailConfigOptions] = useState<
+    EmailItemSelect[]
+  >([])
   const [emailConfigLoading, setEmailConfigLoading] = useState(false)
   const [emailConfigKeyword, setEmailConfigKeyword] = useState('')
-  const emailConfigSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [webhookConfigOptions, setWebhookConfigOptions] = useState<WebhookItemSelect[]>([])
+  const emailConfigSearchTimerRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null)
+  const [webhookConfigOptions, setWebhookConfigOptions] = useState<
+    WebhookItemSelect[]
+  >([])
   const [webhookConfigLoading, setWebhookConfigLoading] = useState(false)
   const [webhookConfigKeyword, setWebhookConfigKeyword] = useState('')
-  const webhookConfigSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [webhookTemplateType, setWebhookTemplateType] = useState<MessageType | undefined>(undefined)
+  const webhookConfigSearchTimerRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null)
+  const [webhookTemplateType, setWebhookTemplateType] = useState<
+    MessageType | undefined
+  >(undefined)
 
-  const needTemplate = sendType === 'emailTemplate' || sendType === 'webhookTemplate'
+  const needTemplate =
+    sendType === 'emailTemplate' || sendType === 'webhookTemplate'
   const needEmailConfig = sendType === 'email' || sendType === 'emailTemplate'
-  const needWebhookConfig = sendType === 'webhook' || sendType === 'webhookTemplate'
+  const needWebhookConfig =
+    sendType === 'webhook' || sendType === 'webhookTemplate'
 
   useEffect(() => {
     if (sendType !== 'webhookTemplate') setWebhookTemplateType(undefined)
   }, [sendType])
 
   const handleEmailConfigSearch = useCallback((value: string) => {
-    if (emailConfigSearchTimerRef.current) clearTimeout(emailConfigSearchTimerRef.current)
-    emailConfigSearchTimerRef.current = setTimeout(() => setEmailConfigKeyword(value), 300)
+    if (emailConfigSearchTimerRef.current)
+      clearTimeout(emailConfigSearchTimerRef.current)
+    emailConfigSearchTimerRef.current = setTimeout(
+      () => setEmailConfigKeyword(value),
+      300,
+    )
   }, [])
 
   const handleWebhookConfigSearch = useCallback((value: string) => {
-    if (webhookConfigSearchTimerRef.current) clearTimeout(webhookConfigSearchTimerRef.current)
-    webhookConfigSearchTimerRef.current = setTimeout(() => setWebhookConfigKeyword(value), 300)
+    if (webhookConfigSearchTimerRef.current)
+      clearTimeout(webhookConfigSearchTimerRef.current)
+    webhookConfigSearchTimerRef.current = setTimeout(
+      () => setWebhookConfigKeyword(value),
+      300,
+    )
   }, [])
 
   const fetchWebhookConfigOptions = useCallback((keyword?: string) => {
     setWebhookConfigLoading(true)
-    getWebhookConfigSelectList({ keyword: keyword?.trim() || undefined, limit: 20 })
+    getWebhookConfigSelectList({
+      keyword: keyword?.trim() || undefined,
+      limit: 20,
+    })
       .then((res) => setWebhookConfigOptions(res.items ?? []))
       .catch(() => setWebhookConfigOptions([]))
       .finally(() => setWebhookConfigLoading(false))
@@ -101,7 +126,10 @@ export default function SenderManagement() {
 
   const fetchEmailConfigOptions = useCallback((keyword?: string) => {
     setEmailConfigLoading(true)
-    getEmailConfigSelectList({ keyword: keyword?.trim() || undefined, limit: 100 })
+    getEmailConfigSelectList({
+      keyword: keyword?.trim() || undefined,
+      limit: 100,
+    })
       .then((res) => setEmailConfigOptions(res.items ?? []))
       .catch(() => setEmailConfigOptions([]))
       .finally(() => setEmailConfigLoading(false))
@@ -125,13 +153,16 @@ export default function SenderManagement() {
         case 'email': {
           const toStr = values.to?.trim()
           const ccStr = values.cc?.trim()
-          const headersList = (values.headers ?? []) as { key?: string; value?: string }[]
+          const headersList = (values.headers ?? []) as {
+            key?: string
+            value?: string
+          }[]
           const headers: Record<string, string> | undefined =
             headersList.length > 0
               ? Object.fromEntries(
                   headersList
                     .filter((h) => (h.key ?? '').trim())
-                    .map((h) => [(h.key ?? '').trim(), (h.value ?? '').trim()])
+                    .map((h) => [(h.key ?? '').trim(), (h.value ?? '').trim()]),
                 )
               : undefined
           await sendEmail(uid, {
@@ -139,8 +170,18 @@ export default function SenderManagement() {
             subject: values.subject?.trim() ?? '',
             body: values.body?.trim() ?? '',
             contentType: values.contentType?.trim(),
-            to: toStr ? toStr.split(',').map((s: string) => s.trim()).filter(Boolean) : undefined,
-            cc: ccStr ? ccStr.split(',').map((s: string) => s.trim()).filter(Boolean) : undefined,
+            to: toStr
+              ? toStr
+                  .split(',')
+                  .map((s: string) => s.trim())
+                  .filter(Boolean)
+              : undefined,
+            cc: ccStr
+              ? ccStr
+                  .split(',')
+                  .map((s: string) => s.trim())
+                  .filter(Boolean)
+              : undefined,
             headers,
           })
           break
@@ -151,8 +192,18 @@ export default function SenderManagement() {
           await sendEmailWithTemplate(uid, {
             templateUID: values.templateUID?.trim(),
             jsonData: values.jsonData?.trim(),
-            to: toStr ? toStr.split(',').map((s: string) => s.trim()).filter(Boolean) : undefined,
-            cc: ccStr ? ccStr.split(',').map((s: string) => s.trim()).filter(Boolean) : undefined,
+            to: toStr
+              ? toStr
+                  .split(',')
+                  .map((s: string) => s.trim())
+                  .filter(Boolean)
+              : undefined,
+            cc: ccStr
+              ? ccStr
+                  .split(',')
+                  .map((s: string) => s.trim())
+                  .filter(Boolean)
+              : undefined,
           })
           break
         }
@@ -184,14 +235,14 @@ export default function SenderManagement() {
   /** 四种发送方式各自的表单项渲染 */
   const renderUidEmail = () => (
     <Form.Item
-      name="uid"
-      label={t("sender.form.uidEmail")}
+      name='uid'
+      label={t('sender.form.uidEmail')}
       rules={[
-        { required: true, message: t("sender.form.uidEmailPlaceholder") },
+        { required: true, message: t('sender.form.uidEmailPlaceholder') },
       ]}
     >
       <Select
-        placeholder={t("sender.form.uidEmailPlaceholder")}
+        placeholder={t('sender.form.uidEmailPlaceholder')}
         allowClear
         showSearch={{ onSearch: handleEmailConfigSearch }}
         loading={emailConfigLoading}
@@ -202,32 +253,30 @@ export default function SenderManagement() {
           )
           .map((item) => {
             const value =
-              item.value ?? (item as unknown as { uid?: string }).uid ?? "";
+              item.value ?? (item as unknown as { uid?: string }).uid ?? ''
             const label =
-              item.label ??
-              (item as unknown as { name?: string }).name ??
-              value;
+              item.label ?? (item as unknown as { name?: string }).name ?? value
             return {
               value,
               label,
               disabled: item.disabled,
               title: item.tooltip,
-            };
+            }
           })}
       />
     </Form.Item>
-  );
+  )
 
   const renderUidWebhook = () => (
     <Form.Item
-      name="uid"
-      label={t("sender.form.uidWebhook")}
+      name='uid'
+      label={t('sender.form.uidWebhook')}
       rules={[
-        { required: true, message: t("sender.form.uidWebhookPlaceholder") },
+        { required: true, message: t('sender.form.uidWebhookPlaceholder') },
       ]}
     >
       <Select
-        placeholder={t("sender.form.uidWebhookPlaceholder")}
+        placeholder={t('sender.form.uidWebhookPlaceholder')}
         allowClear
         showSearch={{ onSearch: handleWebhookConfigSearch }}
         loading={webhookConfigLoading}
@@ -238,296 +287,317 @@ export default function SenderManagement() {
           )
           .map((item) => {
             const value =
-              item.value ?? (item as unknown as { uid?: string }).uid ?? "";
+              item.value ?? (item as unknown as { uid?: string }).uid ?? ''
             const label =
-              item.label ??
-              (item as unknown as { name?: string }).name ??
-              value;
+              item.label ?? (item as unknown as { name?: string }).name ?? value
             return {
               ...item,
               value,
               label,
               disabled: item.disabled,
               title: item.tooltip,
-            };
+            }
           })}
         onChange={(value) => {
           const item = webhookConfigOptions.find((i) => i.value === value)
           if (item) {
-            setWebhookTemplateType(('WEBHOOK_' + String(item.app)) as MessageType)
+            setWebhookTemplateType(
+              ('WEBHOOK_' + String(item.app)) as MessageType,
+            )
           }
         }}
       />
     </Form.Item>
-  );
+  )
 
   return (
-    <App className="h-full min-h-0 flex flex-col">
-      <div className="flex flex-1 min-h-0">
-      <div className="flex flex-1 min-h-0 gap-4">
-        {/* 左侧：发送方式 */}
-     
-        <PageContent
-          className="w-56 shrink-0 overflow-auto"
-        >
-          <div className="flex items-center gap-2 px-3 h-10 font-bold whitespace-nowrap">
-            {t("sender.sendType")}
-          </div>
-          <div className="flex flex-col gap-2 pt-2">
-            {SEND_TYPES.map(({ value, labelKey }) => (
-              <div
-                key={value}
-                onClick={() => {
-                  if (value !== sendType) {
-                    setSendType(value);
-                    form.resetFields();
-                  }
-                }}
-                className={`
+    <App className='h-full min-h-0 flex flex-col'>
+      <div className='flex flex-1 min-h-0'>
+        <div className='flex flex-1 min-h-0 gap-4'>
+          {/* 左侧：发送方式 */}
+
+          <PageContent className='w-56 shrink-0 overflow-auto'>
+            <div className='flex items-center gap-2 px-3 h-10 font-bold whitespace-nowrap'>
+              {t('sender.sendType')}
+            </div>
+            <div className='flex flex-col gap-2 pt-2'>
+              {SEND_TYPES.map(({ value, labelKey }) => (
+                <div
+                  key={value}
+                  onClick={() => {
+                    if (value !== sendType) {
+                      setSendType(value)
+                      form.resetFields()
+                    }
+                  }}
+                  className={`
                   w-full text-left px-3 py-2.5 rounded-md transition-colors
                   whitespace-nowrap overflow-hidden text-ellipsis
                   ${
                     sendType === value
-                      ? "bg-(--ant-color-primary-bg) text-(--ant-color-primary)"
-                      : "bg-transparent hover:bg-(--ant-color-fill-tertiary)"
+                      ? 'bg-(--ant-color-primary-bg) text-(--ant-color-primary)'
+                      : 'bg-transparent hover:bg-(--ant-color-fill-tertiary)'
                   }
                 `}
+                >
+                  {t(labelKey)}
+                </div>
+              ))}
+            </div>
+          </PageContent>
+
+          {/* 右侧：表单 */}
+          <PageContent className='flex-1 min-w-0 min-h-0 overflow-auto'>
+            <div className='flex justify-end mb-4'>
+              <Button
+                type='primary'
+                loading={submitting}
+                onClick={() => form.submit()}
               >
-                {t(labelKey)}
-              </div>
-            ))}
-          </div>
-        </PageContent>
-
-        {/* 右侧：表单 */}
-        <PageContent className="flex-1 min-w-0 min-h-0 overflow-auto">
-          <div className="flex justify-end mb-4">
-            <Button
-              type="primary"
-              loading={submitting}
-              onClick={() => form.submit()}
-            >
-              {t("sender.submit")}
-            </Button>
-          </div>
-          <Form form={form} layout="vertical" onFinish={handleSubmit}>
-            {/* 1. 邮件 - 直接发送 */}
-            {sendType === "email" && (
-              <>
-                <Row gutter={16}>
-                  <Col span={12}>{renderUidEmail()}</Col>
-                  <Col span={12}>
-                    <Form.Item
-                      name="subject"
-                      label={t("sender.form.subject")}
-                      rules={[
-                        {
-                          required: true,
-                          message: t("sender.form.subjectPlaceholder"),
-                        },
-                      ]}
-                    >
-                      <Input
-                        placeholder={t("sender.form.subjectPlaceholder")}
-                        allowClear
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item
-                      name="contentType"
-                      label={t("sender.form.contentType")}
-                    >
-                      <AutoComplete
-                        placeholder={t("sender.form.contentTypePlaceholder")}
-                        allowClear
-                        options={[
-                          { value: "text/plain", label: "text/plain" },
-                          { value: "text/html", label: "text/html" },
+                {t('sender.submit')}
+              </Button>
+            </div>
+            <Form form={form} layout='vertical' onFinish={handleSubmit}>
+              {/* 1. 邮件 - 直接发送 */}
+              {sendType === 'email' && (
+                <>
+                  <Row gutter={16}>
+                    <Col span={12}>{renderUidEmail()}</Col>
+                    <Col span={12}>
+                      <Form.Item
+                        name='subject'
+                        label={t('sender.form.subject')}
+                        rules={[
+                          {
+                            required: true,
+                            message: t('sender.form.subjectPlaceholder'),
+                          },
                         ]}
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col span={16}>
-                    <Form.Item name="to" label={t("sender.form.to")}>
-                      <Input
-                        placeholder={t("sender.form.toPlaceholder")}
-                        allowClear
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Form.Item name="cc" label={t("sender.form.cc")}>
-                  <Input
-                    placeholder={t("sender.form.ccPlaceholder")}
-                    allowClear
-                  />
-                </Form.Item>
-                <Form.Item label={t("sender.form.headers")}>
-                  <Form.List name="headers">
-                    {(fields, { add, remove }) => (
-                      <>
-                        {fields.map(({ key, name, ...rest }) => (
-                          <Row key={key} gutter={8} align="middle" className="mb-2">
-                            <Col flex="1">
-                              <Form.Item
-                                {...rest}
-                                name={[name, "key"]}
-                                rules={[{ required: true, message: t("sender.form.headerKeyRequired") }]}
-                                style={{ marginBottom: 0 }}
-                              >
-                                <Input
-                                  placeholder={t("sender.form.headerKeyPlaceholder")}
-                                  allowClear
-                                />
-                              </Form.Item>
-                            </Col>
-                            <Col flex="1">
-                              <Form.Item
-                                {...rest}
-                                name={[name, "value"]}
-                                style={{ marginBottom: 0 }}
-                                rules={[{ required: true, message: t("sender.form.headerValueRequired") }]}
-                              >
-                                <Input
-                                  placeholder={t("sender.form.headerValuePlaceholder")}
-                                  allowClear
-                                />
-                              </Form.Item>
-                            </Col>
-                            <Col>
-                              <Button
-                                type="text"
-                                danger
-                                onClick={() => remove(name)}
-                              >
-                                {t("sender.form.headerRemove")}
-                              </Button>
-                            </Col>
-                          </Row>
-                        ))}
-                        <Button type="dashed" onClick={() => add()} block>
-                          {t("sender.form.headersAdd")}
-                        </Button>
-                      </>
-                    )}
-                  </Form.List>
-                </Form.Item>
-                <Form.Item
-                  name="body"
-                  label={t("sender.form.body")}
-                  rules={[
-                    {
-                      required: true,
-                      message: t("sender.form.bodyPlaceholder"),
-                    },
-                  ]}
-                >
-                  <Input.TextArea
-                    placeholder={t("sender.form.bodyPlaceholder")}
-                    rows={8}
-                    allowClear
-                  />
-                </Form.Item>
-              </>
-            )}
+                      >
+                        <Input
+                          placeholder={t('sender.form.subjectPlaceholder')}
+                          allowClear
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                      <Form.Item
+                        name='contentType'
+                        label={t('sender.form.contentType')}
+                      >
+                        <AutoComplete
+                          placeholder={t('sender.form.contentTypePlaceholder')}
+                          allowClear
+                          options={[
+                            { value: 'text/plain', label: 'text/plain' },
+                            { value: 'text/html', label: 'text/html' },
+                          ]}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={16}>
+                      <Form.Item name='to' label={t('sender.form.to')}>
+                        <Input
+                          placeholder={t('sender.form.toPlaceholder')}
+                          allowClear
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Form.Item name='cc' label={t('sender.form.cc')}>
+                    <Input
+                      placeholder={t('sender.form.ccPlaceholder')}
+                      allowClear
+                    />
+                  </Form.Item>
+                  <Form.Item label={t('sender.form.headers')}>
+                    <Form.List name='headers'>
+                      {(fields, { add, remove }) => (
+                        <>
+                          {fields.map(({ key, name, ...rest }) => (
+                            <Row
+                              key={key}
+                              gutter={8}
+                              align='middle'
+                              className='mb-2'
+                            >
+                              <Col flex='1'>
+                                <Form.Item
+                                  {...rest}
+                                  name={[name, 'key']}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: t(
+                                        'sender.form.headerKeyRequired',
+                                      ),
+                                    },
+                                  ]}
+                                  style={{ marginBottom: 0 }}
+                                >
+                                  <Input
+                                    placeholder={t(
+                                      'sender.form.headerKeyPlaceholder',
+                                    )}
+                                    allowClear
+                                  />
+                                </Form.Item>
+                              </Col>
+                              <Col flex='1'>
+                                <Form.Item
+                                  {...rest}
+                                  name={[name, 'value']}
+                                  style={{ marginBottom: 0 }}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: t(
+                                        'sender.form.headerValueRequired',
+                                      ),
+                                    },
+                                  ]}
+                                >
+                                  <Input
+                                    placeholder={t(
+                                      'sender.form.headerValuePlaceholder',
+                                    )}
+                                    allowClear
+                                  />
+                                </Form.Item>
+                              </Col>
+                              <Col>
+                                <Button
+                                  type='text'
+                                  danger
+                                  onClick={() => remove(name)}
+                                >
+                                  {t('sender.form.headerRemove')}
+                                </Button>
+                              </Col>
+                            </Row>
+                          ))}
+                          <Button type='dashed' onClick={() => add()} block>
+                            {t('sender.form.headersAdd')}
+                          </Button>
+                        </>
+                      )}
+                    </Form.List>
+                  </Form.Item>
+                  <Form.Item
+                    name='body'
+                    label={t('sender.form.body')}
+                    rules={[
+                      {
+                        required: true,
+                        message: t('sender.form.bodyPlaceholder'),
+                      },
+                    ]}
+                  >
+                    <Input.TextArea
+                      placeholder={t('sender.form.bodyPlaceholder')}
+                      rows={8}
+                      allowClear
+                    />
+                  </Form.Item>
+                </>
+              )}
 
-            {/* 2. 邮件 - 模板发送 */}
-            {sendType === "emailTemplate" && (
-              <>
-                {renderUidEmail()}
-                <Form.Item
-                  name="templateUID"
-                  label={t("sender.form.templateUID")}
-                >
-                  <Select
-                    placeholder={t("sender.form.templateUIDPlaceholder")}
-                    allowClear
-                    showSearch
-                    loading={templateLoading}
-                    options={templateOptions
-                      .filter((item) => item.value != null)
-                      .map((item) => ({
-                        value: item.value!,
-                        label: item.label ?? item.value,
-                        disabled: item.disabled,
-                        title: item.tooltip,
-                      }))}
-                  />
-                </Form.Item>
-                <Form.Item name="jsonData" label={t("sender.form.jsonData")}>
-                  <Input.TextArea
-                    placeholder={t("sender.form.jsonDataPlaceholder")}
-                    rows={8}
-                    allowClear
-                  />
-                </Form.Item>
-                <Form.Item name="to" label={t("sender.form.to")}>
-                  <Input
-                    placeholder={t("sender.form.toPlaceholder")}
-                    allowClear
-                  />
-                </Form.Item>
-                <Form.Item name="cc" label={t("sender.form.cc")}>
-                  <Input
-                    placeholder={t("sender.form.ccPlaceholder")}
-                    allowClear
-                  />
-                </Form.Item>
-              </>
-            )}
+              {/* 2. 邮件 - 模板发送 */}
+              {sendType === 'emailTemplate' && (
+                <>
+                  {renderUidEmail()}
+                  <Form.Item
+                    name='templateUID'
+                    label={t('sender.form.templateUID')}
+                  >
+                    <Select
+                      placeholder={t('sender.form.templateUIDPlaceholder')}
+                      allowClear
+                      showSearch
+                      loading={templateLoading}
+                      options={templateOptions
+                        .filter((item) => item.value != null)
+                        .map((item) => ({
+                          value: item.value!,
+                          label: item.label ?? item.value,
+                          disabled: item.disabled,
+                          title: item.tooltip,
+                        }))}
+                    />
+                  </Form.Item>
+                  <Form.Item name='jsonData' label={t('sender.form.jsonData')}>
+                    <Input.TextArea
+                      placeholder={t('sender.form.jsonDataPlaceholder')}
+                      rows={8}
+                      allowClear
+                    />
+                  </Form.Item>
+                  <Form.Item name='to' label={t('sender.form.to')}>
+                    <Input
+                      placeholder={t('sender.form.toPlaceholder')}
+                      allowClear
+                    />
+                  </Form.Item>
+                  <Form.Item name='cc' label={t('sender.form.cc')}>
+                    <Input
+                      placeholder={t('sender.form.ccPlaceholder')}
+                      allowClear
+                    />
+                  </Form.Item>
+                </>
+              )}
 
-            {/* 3. Webhook - 直接发送 */}
-            {sendType === "webhook" && (
-              <>
-                {renderUidWebhook()}
-                <Form.Item name="data" label={t("sender.form.data")}>
-                  <Input.TextArea
-                    placeholder={t("sender.form.dataPlaceholder")}
-                    rows={8}
-                    allowClear
-                  />
-                </Form.Item>
-              </>
-            )}
+              {/* 3. Webhook - 直接发送 */}
+              {sendType === 'webhook' && (
+                <>
+                  {renderUidWebhook()}
+                  <Form.Item name='data' label={t('sender.form.data')}>
+                    <Input.TextArea
+                      placeholder={t('sender.form.dataPlaceholder')}
+                      rows={8}
+                      allowClear
+                    />
+                  </Form.Item>
+                </>
+              )}
 
-            {/* 4. Webhook - 模板发送 */}
-            {sendType === 'webhookTemplate' && (
-              <>
-                {renderUidWebhook()}
-                <Form.Item
-                  name="templateUID"
-                  label={t("sender.form.templateUID")}
-                >
-                  <Select
-                    placeholder={t("sender.form.templateUIDPlaceholder")}
-                    allowClear
-                    showSearch
-                    loading={templateLoading}
-                    disabled={!webhookTemplateType}
-                    options={templateOptions
-                      .filter((item) => item.value != null)
-                      .map((item) => ({
-                        value: item.value!,
-                        label: item.label ?? item.value,
-                        disabled: item.disabled,
-                        title: item.tooltip,
-                      }))}
-                  />
-                </Form.Item>
-                <Form.Item name="jsonData" label={t("sender.form.jsonData")}>
-                  <Input.TextArea
-                    placeholder={t("sender.form.jsonDataPlaceholder")}
-                    rows={8}
-                    allowClear
-                  />
-                </Form.Item>
-              </>
-            )}
-          </Form>
-        </PageContent>
-      </div>
+              {/* 4. Webhook - 模板发送 */}
+              {sendType === 'webhookTemplate' && (
+                <>
+                  {renderUidWebhook()}
+                  <Form.Item
+                    name='templateUID'
+                    label={t('sender.form.templateUID')}
+                  >
+                    <Select
+                      placeholder={t('sender.form.templateUIDPlaceholder')}
+                      allowClear
+                      showSearch
+                      loading={templateLoading}
+                      disabled={!webhookTemplateType}
+                      options={templateOptions
+                        .filter((item) => item.value != null)
+                        .map((item) => ({
+                          value: item.value!,
+                          label: item.label ?? item.value,
+                          disabled: item.disabled,
+                          title: item.tooltip,
+                        }))}
+                    />
+                  </Form.Item>
+                  <Form.Item name='jsonData' label={t('sender.form.jsonData')}>
+                    <Input.TextArea
+                      placeholder={t('sender.form.jsonDataPlaceholder')}
+                      rows={8}
+                      allowClear
+                    />
+                  </Form.Item>
+                </>
+              )}
+            </Form>
+          </PageContent>
+        </div>
       </div>
     </App>
-  );
+  )
 }

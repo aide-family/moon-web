@@ -5,7 +5,10 @@ import type {
   UpdateStrategyGroupParams,
   StrategyGroupItem,
 } from '@/api/marksman/strategyGroup'
-import { createStrategyGroup, updateStrategyGroup } from '@/api/marksman/strategyGroup'
+import {
+  createStrategyGroup,
+  updateStrategyGroup,
+} from '@/api/marksman/strategyGroup'
 import { useLocale } from '@/contexts/LocaleContext'
 
 interface DetailFormProps {
@@ -34,7 +37,9 @@ const DetailForm: React.FC<DetailFormProps> = ({
       form.setFieldsValue({
         name: initialData.name ?? '',
         remark: initialData.remark ?? '',
-        metadata: initialData.metadata ? JSON.stringify(initialData.metadata, null, 2) : '',
+        metadata: initialData.metadata
+          ? JSON.stringify(initialData.metadata, null, 2)
+          : '',
       })
     } else if (open && mode === 'create') {
       form.resetFields()
@@ -50,9 +55,13 @@ const DetailForm: React.FC<DetailFormProps> = ({
       if (values.metadata && String(values.metadata).trim()) {
         try {
           const parsed = JSON.parse(String(values.metadata).trim())
-          if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+          if (
+            typeof parsed === 'object' &&
+            parsed !== null &&
+            !Array.isArray(parsed)
+          ) {
             metadata = Object.fromEntries(
-              Object.entries(parsed).map(([k, v]) => [k, String(v)])
+              Object.entries(parsed).map(([k, v]) => [k, String(v)]),
             )
           }
         } catch {
@@ -113,22 +122,33 @@ const DetailForm: React.FC<DetailFormProps> = ({
       okText={t('common.submit')}
       cancelButtonProps={closable ? undefined : { style: { display: 'none' } }}
     >
-      <Form form={form} layout="vertical" preserve={false}>
+      <Form form={form} layout='vertical' preserve={false}>
         <Form.Item
-          name="name"
+          name='name'
           label={t('strategyGroup.form.name.label')}
-          rules={[{ required: true, message: t('strategyGroup.form.name.placeholder') }]}
+          rules={[
+            {
+              required: true,
+              message: t('strategyGroup.form.name.placeholder'),
+            },
+          ]}
         >
-          <Input placeholder={t('strategyGroup.form.name.placeholder')} allowClear />
+          <Input
+            placeholder={t('strategyGroup.form.name.placeholder')}
+            allowClear
+          />
         </Form.Item>
-        <Form.Item name="remark" label={t('strategyGroup.form.remark.label')}>
+        <Form.Item name='remark' label={t('strategyGroup.form.remark.label')}>
           <Input.TextArea
             rows={2}
             placeholder={t('strategyGroup.form.remark.placeholder')}
             allowClear
           />
         </Form.Item>
-        <Form.Item name="metadata" label={t('strategyGroup.form.metadata.label')}>
+        <Form.Item
+          name='metadata'
+          label={t('strategyGroup.form.metadata.label')}
+        >
           <Input.TextArea
             rows={4}
             placeholder={t('strategyGroup.form.metadata.placeholder')}

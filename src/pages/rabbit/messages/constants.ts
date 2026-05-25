@@ -31,18 +31,28 @@ const TYPE_TO_I18N_KEY: Record<MessageType, string> = {
   [MessageType.WEBHOOK_FEISHU]: 'WEBHOOK_FEISHU',
 }
 
-export function getStatusLabel(status: MessageStatus | string | undefined, t: (key: string) => string): string {
+export function getStatusLabel(
+  status: MessageStatus | string | undefined,
+  t: (key: string) => string,
+): string {
   if (status === undefined) return t('messageLog.status.unknown')
   const suffix = STATUS_TO_I18N_SUFFIX[status as MessageStatus]
-  return suffix ? t(`messageLog.status.${suffix}`) : t('messageLog.status.unknown')
+  return suffix
+    ? t(`messageLog.status.${suffix}`)
+    : t('messageLog.status.unknown')
 }
 
-export function getStatusColor(status: MessageStatus | string | undefined): string {
+export function getStatusColor(
+  status: MessageStatus | string | undefined,
+): string {
   if (status === undefined) return 'default'
   return STATUS_TO_COLOR[status as MessageStatus] ?? 'default'
 }
 
-export function getTypeLabel(type: MessageType | string | undefined, t: (key: string) => string): string {
+export function getTypeLabel(
+  type: MessageType | string | undefined,
+  t: (key: string) => string,
+): string {
   if (type === undefined) return t('messageType.UNKNOWN')
   const i18nKey = TYPE_TO_I18N_KEY[type as MessageType]
   return i18nKey ? t(`messageType.${i18nKey}`) : String(type)

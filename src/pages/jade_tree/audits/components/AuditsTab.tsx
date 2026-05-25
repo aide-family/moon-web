@@ -93,7 +93,9 @@ const AuditsTab: React.FC<AuditsTabProps> = ({
               <Radio.Group
                 buttonStyle='solid'
                 onChange={(e) => {
-                  handleSearch({ kind: e.target.value as SSHCommandAuditKind | undefined })
+                  handleSearch({
+                    kind: e.target.value as SSHCommandAuditKind | undefined,
+                  })
                 }}
               >
                 <Radio.Button value={SSHCommandAuditKind.UNKNOWN}>
@@ -116,7 +118,9 @@ const AuditsTab: React.FC<AuditsTabProps> = ({
                 buttonStyle='solid'
                 onChange={(e) => {
                   handleSearch({
-                    statusFilter: e.target.value as SSHCommandAuditStatus | undefined,
+                    statusFilter: e.target.value as
+                      | SSHCommandAuditStatus
+                      | undefined,
                   })
                 }}
               >

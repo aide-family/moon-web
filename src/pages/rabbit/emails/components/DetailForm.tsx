@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Form, Input, InputNumber, message } from 'antd'
-import type { CreateEmailParams, UpdateEmailParams, EmailItem } from '@/api/rabbit/email/index'
+import type {
+  CreateEmailParams,
+  UpdateEmailParams,
+  EmailItem,
+} from '@/api/rabbit/email/index'
 import { createEmail, updateEmail } from '@/api/rabbit/email/index'
 import { useLocale } from '@/contexts/LocaleContext'
 
@@ -12,7 +16,13 @@ interface DetailFormProps {
   onSuccess: () => void
 }
 
-const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCancel, onSuccess }) => {
+const DetailForm: React.FC<DetailFormProps> = ({
+  open,
+  mode,
+  initialData,
+  onCancel,
+  onSuccess,
+}) => {
   const { t } = useLocale()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
@@ -83,7 +93,11 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
 
   return (
     <Modal
-      title={mode === 'create' ? t('email.modal.create.title') : t('email.modal.edit.title')}
+      title={
+        mode === 'create'
+          ? t('email.modal.create.title')
+          : t('email.modal.edit.title')
+      }
       open={open}
       onOk={handleSubmit}
       onCancel={handleCancel}
@@ -93,14 +107,10 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
       width={700}
       destroyOnHidden
     >
-      <Form
-        form={form}
-        layout="vertical"
-        autoComplete="off"
-      >
+      <Form form={form} layout='vertical' autoComplete='off'>
         <Form.Item
           label={t('email.form.name.label')}
-          name="name"
+          name='name'
           rules={[
             {
               required: true,
@@ -116,7 +126,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         </Form.Item>
         <Form.Item
           label={t('email.form.host.label')}
-          name="host"
+          name='host'
           rules={[
             {
               required: true,
@@ -128,7 +138,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         </Form.Item>
         <Form.Item
           label={t('email.form.port.label')}
-          name="port"
+          name='port'
           rules={[
             {
               required: true,
@@ -151,7 +161,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         </Form.Item>
         <Form.Item
           label={t('email.form.username.label')}
-          name="username"
+          name='username'
           rules={[
             {
               required: true,
@@ -167,7 +177,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         </Form.Item>
         <Form.Item
           label={t('email.form.password.label')}
-          name="password"
+          name='password'
           rules={[
             {
               required: mode === 'create',
@@ -175,7 +185,10 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
             },
           ]}
         >
-          <Input.Password autoComplete="new-password" placeholder={t('email.form.password.placeholder')} />
+          <Input.Password
+            autoComplete='new-password'
+            placeholder={t('email.form.password.placeholder')}
+          />
         </Form.Item>
       </Form>
     </Modal>

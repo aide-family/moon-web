@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Form, Input, Select, message } from 'antd'
-import type { CreateTemplateParams, UpdateTemplateParams, TemplateItem } from '@/api/rabbit/template/index'
+import type {
+  CreateTemplateParams,
+  UpdateTemplateParams,
+  TemplateItem,
+} from '@/api/rabbit/template/index'
 import { createTemplate, updateTemplate } from '@/api/rabbit/template/index'
 import { useLocale } from '@/contexts/LocaleContext'
 import { getMessageTypeOptions } from '../constants'
@@ -15,7 +19,13 @@ interface DetailFormProps {
   onSuccess: () => void
 }
 
-const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCancel, onSuccess }) => {
+const DetailForm: React.FC<DetailFormProps> = ({
+  open,
+  mode,
+  initialData,
+  onCancel,
+  onSuccess,
+}) => {
   const { t } = useLocale()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
@@ -26,7 +36,9 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
       form.setFieldsValue({
         name: initialData.name,
         messageType: initialData.messageType,
-        jsonData: initialData.jsonData ? JSON.stringify(JSON.parse(initialData.jsonData), null, 2) : '',
+        jsonData: initialData.jsonData
+          ? JSON.stringify(JSON.parse(initialData.jsonData), null, 2)
+          : '',
       })
     } else if (open && mode === 'create') {
       // 新增模式，重置表单
@@ -43,7 +55,11 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
       if (values.jsonData && values.jsonData.trim()) {
         try {
           const parsed = JSON.parse(values.jsonData.trim())
-          if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+          if (
+            typeof parsed !== 'object' ||
+            parsed === null ||
+            Array.isArray(parsed)
+          ) {
             message.error(t('template.form.jsonData.invalid'))
             setLoading(false)
             return
@@ -94,7 +110,11 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
 
   return (
     <Modal
-      title={mode === 'create' ? t('template.modal.create.title') : t('template.modal.edit.title')}
+      title={
+        mode === 'create'
+          ? t('template.modal.create.title')
+          : t('template.modal.edit.title')
+      }
       open={open}
       onOk={handleSubmit}
       onCancel={handleCancel}
@@ -104,14 +124,10 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
       width={700}
       destroyOnHidden
     >
-      <Form
-        form={form}
-        layout="vertical"
-        autoComplete="off"
-      >
+      <Form form={form} layout='vertical' autoComplete='off'>
         <Form.Item
           label={t('template.form.name.label')}
-          name="name"
+          name='name'
           rules={[
             {
               required: true,
@@ -127,7 +143,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         </Form.Item>
         <Form.Item
           label={t('template.form.app.label')}
-          name="messageType"
+          name='messageType'
           rules={[
             {
               required: true,
@@ -138,10 +154,16 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
           <Select
             placeholder={t('template.form.app.placeholder')}
             style={{ width: '100%' }}
-            options={getMessageTypeOptions(t).map(opt => ({
+            options={getMessageTypeOptions(t).map((opt) => ({
               value: opt.value,
               label: (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                  }}
+                >
                   <IconFont type={getMessageTypeIconType(opt.value)} />
                   {opt.label}
                 </span>
@@ -151,7 +173,7 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
         </Form.Item>
         <Form.Item
           label={t('template.form.jsonData.label')}
-          name="jsonData"
+          name='jsonData'
           help={t('template.form.jsonData.help')}
           rules={[
             {
@@ -161,12 +183,20 @@ const DetailForm: React.FC<DetailFormProps> = ({ open, mode, initialData, onCanc
                 }
                 try {
                   const parsed = JSON.parse(value.trim())
-                  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-                    return Promise.reject(new Error(t('template.form.jsonData.invalid')))
+                  if (
+                    typeof parsed !== 'object' ||
+                    parsed === null ||
+                    Array.isArray(parsed)
+                  ) {
+                    return Promise.reject(
+                      new Error(t('template.form.jsonData.invalid')),
+                    )
                   }
                   return Promise.resolve()
                 } catch {
-                  return Promise.reject(new Error(t('template.form.jsonData.invalid')))
+                  return Promise.reject(
+                    new Error(t('template.form.jsonData.invalid')),
+                  )
                 }
               },
             },

@@ -4,8 +4,8 @@
  */
 
 import { http } from '../../index'
-import type { 
-  TemplateListResponse, 
+import type {
+  TemplateListResponse,
   TemplateListParams,
   TemplateItem,
   CreateTemplateParams,
@@ -20,7 +20,9 @@ import type {
  * @param params 查询参数
  * @returns 模板列表
  */
-export const getTemplateTableList = (params?: TemplateListParams): Promise<TemplateListResponse> => {
+export const getTemplateTableList = (
+  params?: TemplateListParams,
+): Promise<TemplateListResponse> => {
   return http.get<TemplateListResponse>('/templates', { ...params })
 }
 
@@ -38,7 +40,9 @@ export const getTemplateDetail = (uid: string): Promise<TemplateItem> => {
  * @param params 创建参数
  * @returns 创建的模板
  */
-export const createTemplate = (params?: CreateTemplateParams): Promise<TemplateItem> => {
+export const createTemplate = (
+  params?: CreateTemplateParams,
+): Promise<TemplateItem> => {
   return http.post<TemplateItem>('/template', { ...params })
 }
 
@@ -48,7 +52,10 @@ export const createTemplate = (params?: CreateTemplateParams): Promise<TemplateI
  * @param params 更新参数
  * @returns 更新后的模板
  */
-export const updateTemplate = (uid: string, params?: UpdateTemplateParams): Promise<TemplateItem> => {
+export const updateTemplate = (
+  uid: string,
+  params?: UpdateTemplateParams,
+): Promise<TemplateItem> => {
   return http.put<TemplateItem>(`/template/${uid}`, { ...params })
 }
 
@@ -70,10 +77,9 @@ export const deleteTemplate = (uid: string): Promise<void> => {
 export const updateTemplateStatus = (
   params: UpdateTemplateStatusParams,
 ): Promise<TemplateItem> => {
-  return http.put<TemplateItem>(
-    `/template/${params.uid}/status`,
-    { status: params.status },
-  )
+  return http.put<TemplateItem>(`/template/${params.uid}/status`, {
+    status: params.status,
+  })
 }
 
 /**
@@ -81,16 +87,13 @@ export const updateTemplateStatus = (
  * GET /templates/select，用于下拉选择
  */
 export const getTemplateSelectList = (
-  params?: TemplateSelectParams
+  params?: TemplateSelectParams,
 ): Promise<TemplateSelectResponse> => {
-  return http.get<TemplateSelectResponse>(
-    '/templates/select',
-    { ...params }
-  )
+  return http.get<TemplateSelectResponse>('/templates/select', { ...params })
 }
 
 // 导出类型
-export type { 
+export type {
   TemplateItem,
   TemplateListResponse,
   TemplateListParams,

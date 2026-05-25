@@ -4,8 +4,8 @@
  */
 
 import { http } from '../../index'
-import type { 
-  WebhookListResponse, 
+import type {
+  WebhookListResponse,
   WebhookListParams,
   WebhookItem,
   CreateWebhookParams,
@@ -20,7 +20,9 @@ import type {
  * @param params 查询参数
  * @returns Webhook 列表
  */
-export const getWebhookTableList = (params?: WebhookListParams): Promise<WebhookListResponse> => {
+export const getWebhookTableList = (
+  params?: WebhookListParams,
+): Promise<WebhookListResponse> => {
   return http.get<WebhookListResponse>('/webhook/configs', { ...params })
 }
 
@@ -38,7 +40,9 @@ export const getWebhookDetail = (uid: string): Promise<WebhookItem> => {
  * @param params 创建参数
  * @returns 创建的 Webhook
  */
-export const createWebhook = (params?: CreateWebhookParams): Promise<WebhookItem> => {
+export const createWebhook = (
+  params?: CreateWebhookParams,
+): Promise<WebhookItem> => {
   return http.post<WebhookItem>('/webhook/config', { ...params })
 }
 
@@ -48,7 +52,10 @@ export const createWebhook = (params?: CreateWebhookParams): Promise<WebhookItem
  * @param params 更新参数
  * @returns 更新后的 Webhook
  */
-export const updateWebhook = (uid: string, params?: UpdateWebhookParams): Promise<WebhookItem> => {
+export const updateWebhook = (
+  uid: string,
+  params?: UpdateWebhookParams,
+): Promise<WebhookItem> => {
   return http.put<WebhookItem>(`/webhook/config/${uid}`, { ...params })
 }
 
@@ -67,8 +74,12 @@ export const deleteWebhook = (uid: string): Promise<void> => {
  * @param status 状态值（全局状态 GlobalStatus.ENABLED/DISABLED 或数字 1/2）
  * @returns 更新后的 Webhook
  */
-export const updateWebhookStatus = (params: UpdateWebhookStatusParams): Promise<WebhookItem> => {
-  return http.put<WebhookItem>(`/webhook/config/${params.uid}/status`, { status: params.status })
+export const updateWebhookStatus = (
+  params: UpdateWebhookStatusParams,
+): Promise<WebhookItem> => {
+  return http.put<WebhookItem>(`/webhook/config/${params.uid}/status`, {
+    status: params.status,
+  })
 }
 
 /**
@@ -76,16 +87,15 @@ export const updateWebhookStatus = (params: UpdateWebhookStatusParams): Promise<
  * GET /webhook/configs/select，用于下拉选择，支持 app/keyword/limit/lastUID/status
  */
 export const getWebhookConfigSelectList = (
-  params?: WebhookConfigSelectParams
+  params?: WebhookConfigSelectParams,
 ): Promise<WebhookConfigSelectResponse> => {
-  return http.get<WebhookConfigSelectResponse>(
-    '/webhook/configs/select',
-    { ...params }
-  )
+  return http.get<WebhookConfigSelectResponse>('/webhook/configs/select', {
+    ...params,
+  })
 }
 
 // 导出类型
-export type { 
+export type {
   WebhookItem,
   WebhookListResponse,
   WebhookListParams,

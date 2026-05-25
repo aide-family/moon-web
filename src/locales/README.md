@@ -23,27 +23,27 @@ src/locales/
 ```typescript
 // src/locales/users.ts
 export const zhCN = {
-  "users.title": "用户管理",
-  "users.action.add": "添加用户",
+  'users.title': '用户管理',
+  'users.action.add': '添加用户',
   // ... 更多中文翻译
-} as const;
+} as const
 
 export const enUS = {
-  "users.title": "User Management",
-  "users.action.add": "Add User",
+  'users.title': 'User Management',
+  'users.action.add': 'Add User',
   // ... 更多英文翻译
-} as const;
+} as const
 ```
 
 ### 步骤 2: 在 index.ts 中导入并合并
 
 ```typescript
 // src/locales/index.ts
-import { zhCN as usersZh, enUS as usersEn } from "./users";
+import { zhCN as usersZh, enUS as usersEn } from './users'
 
 // 在 mergeResources 中添加
-const zhCN = mergeResources(commonZh, namespacesZh, usersZh);
-const enUS = mergeResources(commonEn, namespacesEn, usersEn);
+const zhCN = mergeResources(commonZh, namespacesZh, usersZh)
+const enUS = mergeResources(commonEn, namespacesEn, usersEn)
 ```
 
 ### 步骤 3: 在组件中使用
@@ -72,17 +72,17 @@ const MyComponent = () => {
 // src/locales/users.ts
 export const zhCN = {
   // 中文翻译
-  "users.title": "用户管理",
-  "users.action.add": "添加用户",
+  'users.title': '用户管理',
+  'users.action.add': '添加用户',
   // ...
-} as const;
+} as const
 
 export const enUS = {
   // 英文翻译
-  "users.title": "User Management",
-  "users.action.add": "Add User",
+  'users.title': 'User Management',
+  'users.action.add': 'Add User',
   // ...
-} as const;
+} as const
 ```
 
 **注意**：

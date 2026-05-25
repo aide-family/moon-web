@@ -26,6 +26,7 @@ import {
   getStatusTagInfo,
   getTypeLabel,
 } from '@/utils/marksman'
+import { MENU_DIVIDER } from '@/utils/menu'
 import { EllipsisOutlined, PlusOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import {
@@ -235,6 +236,7 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
             label: action,
             onClick: handleStatusClick,
           },
+          MENU_DIVIDER,
           {
             key: 'delete',
             label: t('common.delete'),
@@ -399,7 +401,9 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
               <Input
                 placeholder={t('table.search.placeholder')}
                 onPressEnter={(e) =>
-                  handleSearch({ keyword: (e.target as HTMLInputElement).value })
+                  handleSearch({
+                    keyword: (e.target as HTMLInputElement).value,
+                  })
                 }
                 className='w-full min-w-[120px] sm:w-48 md:w-52'
               />
@@ -691,7 +695,9 @@ const StrategyGroupSidebar: React.FC<{
                 allowClear
                 className='flex-1 min-w-0'
                 onPressEnter={(e) =>
-                  handleSearch({ keyword: (e.target as HTMLInputElement).value })
+                  handleSearch({
+                    keyword: (e.target as HTMLInputElement).value,
+                  })
                 }
               />
             </Form.Item>
@@ -749,6 +755,7 @@ const StrategyGroupSidebar: React.FC<{
                       })
                     },
                   },
+                  MENU_DIVIDER,
                   {
                     key: 'delete',
                     label: t('common.delete'),

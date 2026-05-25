@@ -2,7 +2,11 @@ import React from 'react'
 import { Button, Form, Input, Radio, Select, Space, Table } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { useLocale } from '@/contexts/LocaleContext'
-import { ProbeTaskStatus, type ProbeTaskItem, type ProbeTaskListParams } from '@/api'
+import {
+  ProbeTaskStatus,
+  type ProbeTaskItem,
+  type ProbeTaskListParams,
+} from '@/api'
 import { useAdaptiveTableHeight } from '@/utils/hooks/useAdaptiveTableHeight'
 
 interface ProbeTasksTabProps {
@@ -13,7 +17,9 @@ interface ProbeTasksTabProps {
   }
   probeSearchParams: ProbeTaskListParams
   setProbeSearchParams: (
-    value: ProbeTaskListParams | ((prev: ProbeTaskListParams) => ProbeTaskListParams),
+    value:
+      | ProbeTaskListParams
+      | ((prev: ProbeTaskListParams) => ProbeTaskListParams),
   ) => void
   probeColumns: ColumnsType<ProbeTaskItem>
   probeTasks: ProbeTaskItem[]
@@ -38,11 +44,8 @@ const ProbeTasksTab: React.FC<ProbeTasksTabProps> = ({
 }) => {
   const { t } = useLocale()
   const [searchForm] = Form.useForm<ProbeTaskListParams>()
-  const { tableContainerRef, tableWrapperRef, tableHeight } = useAdaptiveTableHeight([
-    probeTasks,
-    probePagination,
-    probeSearchParams,
-  ])
+  const { tableContainerRef, tableWrapperRef, tableHeight } =
+    useAdaptiveTableHeight([probeTasks, probePagination, probeSearchParams])
 
   return (
     <div className='h-full flex flex-col'>
@@ -90,18 +93,33 @@ const ProbeTasksTab: React.FC<ProbeTasksTabProps> = ({
             <span>{t('common.status')}:</span>
             <Form.Item name='status' className='mb-0'>
               <Radio.Group buttonStyle='solid'>
-                <Radio.Button value={undefined}>{t('table.search.all')}</Radio.Button>
-                <Radio.Button value={ProbeTaskStatus.ENABLED}>{t('common.status.ENABLED')}</Radio.Button>
-                <Radio.Button value={ProbeTaskStatus.DISABLED}>{t('common.status.DISABLED')}</Radio.Button>
+                <Radio.Button value={undefined}>
+                  {t('table.search.all')}
+                </Radio.Button>
+                <Radio.Button value={ProbeTaskStatus.ENABLED}>
+                  {t('common.status.ENABLED')}
+                </Radio.Button>
+                <Radio.Button value={ProbeTaskStatus.DISABLED}>
+                  {t('common.status.DISABLED')}
+                </Radio.Button>
               </Radio.Group>
             </Form.Item>
-            <Button type='primary' onClick={() => void onFetchProbeTasks(1, probePagination.pageSize)}>
+            <Button
+              type='primary'
+              onClick={() =>
+                void onFetchProbeTasks(1, probePagination.pageSize)
+              }
+            >
               {t('common.search')}
             </Button>
             <Button
               onClick={() => {
                 searchForm.resetFields()
-                setProbeSearchParams({ keyword: '', type: undefined, status: undefined })
+                setProbeSearchParams({
+                  keyword: '',
+                  type: undefined,
+                  status: undefined,
+                })
                 void onFetchProbeTasks(1, probePagination.pageSize, {
                   keyword: '',
                   type: undefined,
@@ -119,7 +137,11 @@ const ProbeTasksTab: React.FC<ProbeTasksTabProps> = ({
           </Button>
         </Space>
       </div>
-      <div ref={tableContainerRef} className='flex-1 flex overflow-hidden flex-col' style={{ minHeight: 0 }}>
+      <div
+        ref={tableContainerRef}
+        className='flex-1 flex overflow-hidden flex-col'
+        style={{ minHeight: 0 }}
+      >
         <div ref={tableWrapperRef} className='h-full flex flex-col flex-1'>
           <Table
             rowKey='uid'
@@ -135,8 +157,10 @@ const ProbeTasksTab: React.FC<ProbeTasksTabProps> = ({
               showSizeChanger: true,
               showQuickJumper: true,
               showTotal: (total) => t('table.total', { total }),
-              onChange: (current, pageSize) => void onFetchProbeTasks(current, pageSize),
-              onShowSizeChange: (current, pageSize) => void onFetchProbeTasks(current, pageSize),
+              onChange: (current, pageSize) =>
+                void onFetchProbeTasks(current, pageSize),
+              onShowSizeChange: (current, pageSize) =>
+                void onFetchProbeTasks(current, pageSize),
             }}
           />
         </div>

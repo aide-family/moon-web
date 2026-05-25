@@ -1,5 +1,6 @@
 import React from 'react'
 import { Modal, Descriptions, Button, Space, Spin } from 'antd'
+import { GlobalStatus } from '@/api'
 import type { StrategyGroupItem } from '@/api/marksman/strategyGroup'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -15,14 +16,11 @@ interface DetailViewProps {
   embedded?: boolean
 }
 
-const detailContent = (
-  data: StrategyGroupItem,
-  t: (key: string) => string
-) => (
+const detailContent = (data: StrategyGroupItem, t: (key: string) => string) => (
   <Descriptions
     column={1}
     bordered
-    size="small"
+    size='small'
     styles={{ label: { width: 120, minWidth: 120 } }}
   >
     <Descriptions.Item label={t('strategyGroup.detail.uid')}>
@@ -32,16 +30,20 @@ const detailContent = (
       {emptyPlaceholder(data.name)}
     </Descriptions.Item>
     <Descriptions.Item label={t('strategyGroup.detail.status')}>
-      {renderStatusTag(data.status, t)}
+      {renderStatusTag(data.status ?? GlobalStatus.UNKNOWN, t)}
     </Descriptions.Item>
     <Descriptions.Item label={t('strategyGroup.detail.remark')}>
       {emptyPlaceholder(data.remark)}
     </Descriptions.Item>
     <Descriptions.Item label={t('strategyGroup.detail.createdAt')}>
-      {data.createdAt ? dayjs(data.createdAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
+      {data.createdAt
+        ? dayjs(data.createdAt).format('YYYY-MM-DD HH:mm:ss')
+        : '-'}
     </Descriptions.Item>
     <Descriptions.Item label={t('strategyGroup.detail.updatedAt')}>
-      {data.updatedAt ? dayjs(data.updatedAt).format('YYYY-MM-DD HH:mm:ss') : '-'}
+      {data.updatedAt
+        ? dayjs(data.updatedAt).format('YYYY-MM-DD HH:mm:ss')
+        : '-'}
     </Descriptions.Item>
     <Descriptions.Item label={t('strategyGroup.detail.metadata')}>
       {data.metadata && Object.keys(data.metadata).length > 0 ? (
@@ -77,7 +79,7 @@ const DetailView: React.FC<DetailViewProps> = ({
 
   const body = loading ? (
     <div style={{ textAlign: 'center', padding: '40px 0' }}>
-      <Spin size="large" />
+      <Spin size='large' />
     </div>
   ) : data ? (
     detailContent(data, t)
@@ -89,15 +91,15 @@ const DetailView: React.FC<DetailViewProps> = ({
 
   if (embedded) {
     return (
-      <div className="flex flex-col h-full">
-        <div className="flex justify-end shrink-0 mb-2">
+      <div className='flex flex-col h-full'>
+        <div className='flex justify-end shrink-0 mb-2'>
           {data && onEdit && (
-            <Button type="primary" size="small" onClick={handleEdit}>
+            <Button type='primary' size='small' onClick={handleEdit}>
               {t('common.edit')}
             </Button>
           )}
         </div>
-        <div className="flex-1 min-h-0 overflow-auto">{body}</div>
+        <div className='flex-1 min-h-0 overflow-auto'>{body}</div>
       </div>
     )
   }
@@ -111,7 +113,7 @@ const DetailView: React.FC<DetailViewProps> = ({
         <Space>
           <Button onClick={onCancel}>{t('common.close')}</Button>
           {data && onEdit && (
-            <Button type="primary" onClick={handleEdit}>
+            <Button type='primary' onClick={handleEdit}>
               {t('common.edit')}
             </Button>
           )}

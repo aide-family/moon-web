@@ -21,7 +21,7 @@ export const MESSAGE_TYPE_OPTIONS: MessageType[] = [
  * @returns 消息类型选项列表
  */
 export const getMessageTypeOptions = (t: (key: string) => string) => {
-  return MESSAGE_TYPE_OPTIONS.map(value => ({
+  return MESSAGE_TYPE_OPTIONS.map((value) => ({
     label: t(`messageType.${getMessageTypeI18nKey(value)}`),
     value,
   }))
@@ -38,7 +38,10 @@ function getMessageTypeI18nKey(value: string): string {
  * @param t 翻译函数
  * @returns 显示标签
  */
-export const getMessageTypeLabel = (value: MessageType | string | undefined, t: (key: string) => string): string => {
+export const getMessageTypeLabel = (
+  value: MessageType | string | undefined,
+  t: (key: string) => string,
+): string => {
   if (value === undefined || value === null || value === '') return '-'
   return t(`messageType.${getMessageTypeI18nKey(value)}`)
 }

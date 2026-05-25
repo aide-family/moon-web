@@ -6,10 +6,17 @@ import { AuthGuard } from '@/components/AuthGuard'
 import { TokenRefreshHandler } from '@/components/TokenRefreshHandler'
 import LayoutComponent from '@/components/layout/Layout'
 import LoginPage from '@/pages/main/login'
-import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
+import { useTheme } from '@/contexts/useTheme'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
 import { NamespaceProvider } from '@/contexts/NamespaceContext'
-import { getAppConfig, convertToMenuItems, getAllSubAppConfigs, getDefaultPath, generateRoutes } from './config'
+import {
+  getAppConfig,
+  convertToMenuItems,
+  getAllSubAppConfigs,
+  getDefaultPath,
+  generateRoutes,
+} from './config'
 
 function AppContent() {
   const { themeConfig } = useTheme()
@@ -17,21 +24,24 @@ function AppContent() {
 
   const appConfig = useMemo(() => getAppConfig(t), [t])
   const menuItems = useMemo(() => convertToMenuItems(appConfig), [appConfig])
-  const subAppConfigMap = useMemo(() => getAllSubAppConfigs(appConfig), [appConfig])
+  const subAppConfigMap = useMemo(
+    () => getAllSubAppConfigs(appConfig),
+    [appConfig],
+  )
   const defaultPath = useMemo(() => getDefaultPath(appConfig), [appConfig])
-  const routes = useMemo(() => generateRoutes(appConfig, subAppConfigMap), [appConfig, subAppConfigMap])
+  const routes = useMemo(
+    () => generateRoutes(appConfig, subAppConfigMap),
+    [appConfig, subAppConfigMap],
+  )
 
   return (
-    <ConfigProvider
-      locale={antdLocale}
-      theme={themeConfig}
-    >
+    <ConfigProvider locale={antdLocale} theme={themeConfig}>
       <BrowserRouter>
         <OAuthTokenHandler>
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
+            <Route path='/login' element={<LoginPage />} />
             <Route
-              path="/"
+              path='/'
               element={
                 <NamespaceProvider>
                   <AuthGuard>
@@ -42,11 +52,11 @@ function AppContent() {
                 </NamespaceProvider>
               }
             >
-                <Route index element={<Navigate to={defaultPath} replace />} />
-                {routes}
-              </Route>
-            </Routes>
-          </OAuthTokenHandler>
+              <Route index element={<Navigate to={defaultPath} replace />} />
+              {routes}
+            </Route>
+          </Routes>
+        </OAuthTokenHandler>
       </BrowserRouter>
     </ConfigProvider>
   )
@@ -63,4 +73,3 @@ function App() {
 }
 
 export default App
-

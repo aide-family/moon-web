@@ -1,6 +1,20 @@
 import React, { ReactNode } from 'react'
 import { Route } from 'react-router-dom'
-import { AppstoreOutlined, FileTextOutlined, MailOutlined, ApiOutlined, MessageOutlined, SendOutlined, SafetyCertificateOutlined, HddOutlined, BellOutlined, ThunderboltOutlined, AlertOutlined, HistoryOutlined, ClusterOutlined } from '@ant-design/icons'
+import {
+  AppstoreOutlined,
+  FileTextOutlined,
+  MailOutlined,
+  ApiOutlined,
+  MessageOutlined,
+  SendOutlined,
+  SafetyCertificateOutlined,
+  HddOutlined,
+  BellOutlined,
+  ThunderboltOutlined,
+  AlertOutlined,
+  HistoryOutlined,
+  ClusterOutlined,
+} from '@ant-design/icons'
 import type { MenuItem } from '@/components/layout/Layout'
 import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
 import { SubAppContainer } from '@/components/SubAppContainer'
@@ -39,7 +53,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
     icon: <AppstoreOutlined />,
     label: t('menu.goddess'),
     path: '/goddess',
-    children: [...getSystemManagementMenuItems(t) as AppConfigItem[]],
+    children: [...(getSystemManagementMenuItems(t) as AppConfigItem[])],
   },
   {
     key: 'rabbit',
@@ -106,7 +120,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
           prodUrl: 'http://localhost:4175/sender',
           path: '/rabbit/sender',
         },
-      }
+      },
     ],
   },
   // 策略管理服务（后端端口 8003，微前端嵌套）
@@ -240,7 +254,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
  * 将应用配置转换为菜单项
  */
 export function convertToMenuItems(config: AppConfigItem[]): MenuItem[] {
-  return config.map(item => ({
+  return config.map((item) => ({
     key: item.key,
     icon: item.icon,
     label: item.label,
@@ -252,9 +266,11 @@ export function convertToMenuItems(config: AppConfigItem[]): MenuItem[] {
 /**
  * 获取所有子应用配置（扁平化）
  */
-export function getAllSubAppConfigs(config: AppConfigItem[]): Record<string, SubAppConfig> {
+export function getAllSubAppConfigs(
+  config: AppConfigItem[],
+): Record<string, SubAppConfig> {
   const result: Record<string, SubAppConfig> = {}
-  
+
   function traverse(items: AppConfigItem[]) {
     for (const item of items) {
       if (item.subApp) {
@@ -265,7 +281,7 @@ export function getAllSubAppConfigs(config: AppConfigItem[]): Record<string, Sub
       }
     }
   }
-  
+
   traverse(config)
   return result
 }
@@ -286,7 +302,7 @@ export function getDefaultPath(config: AppConfigItem[]): string {
     }
     return null
   }
-  
+
   return findFirstPath(config) || '/'
 }
 
@@ -296,7 +312,7 @@ export function getDefaultPath(config: AppConfigItem[]): string {
  */
 export function generateRoutes(
   config: AppConfigItem[],
-  subAppConfigMap: Record<string, SubAppConfig>
+  subAppConfigMap: Record<string, SubAppConfig>,
 ): React.ReactNode[] {
   const routes: React.ReactNode[] = []
   function traverse(items: AppConfigItem[]) {
@@ -307,18 +323,25 @@ export function generateRoutes(
             <Route
               key={item.subApp.name}
               path={item.path}
-              element={<SubAppContainer appName={item.subApp.name} subAppConfigMap={subAppConfigMap} />}
-            />
+              element={
+                <SubAppContainer
+                  appName={item.subApp.name}
+                  subAppConfigMap={subAppConfigMap}
+                />
+              }
+            />,
           )
         } else if (item.element) {
-          routes.push(<Route key={item.key} path={item.path} element={item.element} />)
+          routes.push(
+            <Route key={item.key} path={item.path} element={item.element} />,
+          )
         } else if (!item.children) {
           routes.push(
             <Route
               key={item.key}
               path={item.path}
               element={<PlaceholderPage label={item.label} path={item.path} />}
-            />
+            />,
           )
         }
       }

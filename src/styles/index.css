@@ -1,37 +1,37 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @source "../**/*.{js,ts,jsx,tsx,html}";
 
 /* 平板、手机适配：禁止 iOS 自动放大字体 */
 html {
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 html,
 body {
-    margin: 0;
-    padding: 0;
-    font-size: 16px;
-    width: 100%;
-    height: 100%;
-    /* 安全区域：适配刘海屏、底部横条 */
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  width: 100%;
+  height: 100%;
+  /* 安全区域：适配刘海屏、底部横条 */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: border-box;
 }
 
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 #root {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 /* 响应式断点参考（与 Tailwind / Ant Design 一致）：
@@ -42,96 +42,97 @@ body {
    xl: ≥1280px 桌面
 */
 
-
 /* 确保关闭状态的父菜单在子菜单被选中时也保持高亮 */
-.ant-menu-dark .ant-menu-submenu:not(.ant-menu-submenu-open).ant-menu-submenu-selected > .ant-menu-submenu-title {
-    background-color: var(--ant-menu-dark-item-selected-bg) !important;
+.ant-menu-dark
+  .ant-menu-submenu:not(.ant-menu-submenu-open).ant-menu-submenu-selected
+  > .ant-menu-submenu-title {
+  background-color: var(--ant-menu-dark-item-selected-bg) !important;
 }
 
 /* micro-app 元素样式 */
 micro-app {
-    display: block;
-    width: 100%;
-    height: 100%;
-    min-height: 500px;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
 }
 
 /* micro-app 在 iframe 模式下的样式 */
 micro-app iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
 }
 
 /* 全局滚动条样式 */
 /* WebKit 浏览器（Chrome、Safari、Edge） */
 * {
-    scrollbar-width: thin; /* Firefox */
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent; /* Firefox */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent; /* Firefox */
 }
 
 *::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+  width: 8px;
+  height: 8px;
 }
 
 *::-webkit-scrollbar-track {
-    background: transparent;
-    border-radius: 4px;
+  background: transparent;
+  border-radius: 4px;
 }
 
 *::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-    border: 2px solid transparent;
-    background-clip: content-box;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(0, 0, 0, 0.3);
-    background-clip: content-box;
+  background-color: rgba(0, 0, 0, 0.3);
+  background-clip: content-box;
 }
 
 *::-webkit-scrollbar-corner {
-    background: transparent;
+  background: transparent;
 }
 
 /* 暗黑主题下的滚动条样式 */
 [data-theme='dark'] *,
 .dark *,
 .ant-theme-dark * {
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* Firefox */
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* Firefox */
 }
 
 [data-theme='dark'] *::-webkit-scrollbar-thumb,
 .dark *::-webkit-scrollbar-thumb,
 .ant-theme-dark *::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 [data-theme='dark'] *::-webkit-scrollbar-thumb:hover,
 .dark *::-webkit-scrollbar-thumb:hover,
 .ant-theme-dark *::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.3);
 }
 
 /* 头部命名空间选择器：圆角、下拉宽度与选项间距 */
 .namespace-select-header.ant-select .ant-select-selector {
-    border-radius: var(--ant-border-radius-lg) !important;
-    padding-inline: 10px 24px !important;
+  border-radius: var(--ant-border-radius-lg) !important;
+  padding-inline: 10px 24px !important;
 }
 .namespace-select-dropdown.ant-select-dropdown {
-    min-width: 200px !important;
-    border-radius: var(--ant-border-radius-lg);
-    padding: 6px 0;
+  min-width: 200px !important;
+  border-radius: var(--ant-border-radius-lg);
+  padding: 6px 0;
 }
 .namespace-select-dropdown .ant-select-item-option {
-    padding-inline: 12px;
-    min-height: 40px;
-    align-items: center;
+  padding-inline: 12px;
+  min-height: 40px;
+  align-items: center;
 }
 .namespace-select-dropdown .ant-select-item-option-content {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }

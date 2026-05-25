@@ -13,7 +13,8 @@ import { TokenRefreshHandler } from '@/components/TokenRefreshHandler'
 import LayoutComponent from '@/components/layout/Layout'
 import LoginPage from '@/pages/main/login'
 import { isInMicroApp } from '@/utils'
-import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
+import { useTheme } from '@/contexts/useTheme'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
 import {
   NamespaceProvider,

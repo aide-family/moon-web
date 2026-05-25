@@ -26,7 +26,8 @@ export const zhCN = {
   'member.modal.detail.title': '成员详情',
   'member.modal.invite.title': '邀请成员',
   'member.confirm.dismiss.title': '确定移除该成员吗？',
-  'member.confirm.dismiss.content': '移除成员 "{name}" 后，该成员将无法访问当前命名空间。',
+  'member.confirm.dismiss.content':
+    '移除成员 "{name}" 后，该成员将无法访问当前命名空间。',
   'member.action.updateStatus': '更新状态',
   'member.action.dismiss': '移除成员',
   'member.action.invite': '邀请成员',
@@ -39,7 +40,7 @@ export const zhCN = {
   'member.form.invite.emailPlaceholder': '请输入被邀请人邮箱',
   'member.form.invite.roleUID': '角色ID',
   'member.form.invite.roleUIDPlaceholder': '请输入角色ID',
-} as const;
+} as const
 
 export const enUS = {
   'member.table.uid': 'Member ID',
@@ -67,7 +68,8 @@ export const enUS = {
   'member.modal.detail.title': 'Member Detail',
   'member.modal.invite.title': 'Invite Member',
   'member.confirm.dismiss.title': 'Remove this member?',
-  'member.confirm.dismiss.content': 'After removing "{name}", the member will no longer have access to this namespace.',
+  'member.confirm.dismiss.content':
+    'After removing "{name}", the member will no longer have access to this namespace.',
   'member.action.updateStatus': 'Update Status',
   'member.action.dismiss': 'Remove',
   'member.action.invite': 'Invite Member',
@@ -80,4 +82,4 @@ export const enUS = {
   'member.form.invite.emailPlaceholder': 'Enter invitee email',
   'member.form.invite.roleUID': 'Role ID',
   'member.form.invite.roleUIDPlaceholder': 'Enter role ID',
-} as const;
+} as const

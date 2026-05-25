@@ -2,7 +2,7 @@
  * 数据源相关类型定义（策略管理服务 Datasource API）
  */
 
-import { GlobalStatus, LevelItem } from "@/api"
+import { GlobalStatus, LevelItem } from '@/api'
 
 /**
  * 数据源类型枚举（与后端 DatasourceType 一致，传字符串给后端）

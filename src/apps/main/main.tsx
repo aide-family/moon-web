@@ -6,9 +6,14 @@ import microApp from '@micro-zoe/micro-app'
 
 // 初始化 micro-app（只执行一次）
 // 对于 Vite 开发环境，需要禁用沙箱以支持 ES 模块
-if (!(window as Window & { __MICRO_APP_STARTED__?: boolean }).__MICRO_APP_STARTED__) {
+if (
+  !(window as Window & { __MICRO_APP_STARTED__?: boolean })
+    .__MICRO_APP_STARTED__
+) {
   microApp.start()
-  ;(window as Window & { __MICRO_APP_STARTED__?: boolean }).__MICRO_APP_STARTED__ = true
+  ;(
+    window as Window & { __MICRO_APP_STARTED__?: boolean }
+  ).__MICRO_APP_STARTED__ = true
 }
 
 // 初始化 rem 等比例缩放（平板/手机下保证最小字号可读）
@@ -20,4 +25,3 @@ initRem({
 })
 
 createRoot(document.getElementById('root')!).render(<App />)
-

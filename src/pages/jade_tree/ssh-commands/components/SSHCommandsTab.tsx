@@ -16,7 +16,11 @@ interface SSHCommandsTabProps {
   sshColumns: ColumnsType<SSHCommandItem>
   sshCommands: SSHCommandItem[]
   sshLoading: boolean
-  onSearch: (page: number, pageSize: number, keyword: string) => Promise<void> | void
+  onSearch: (
+    page: number,
+    pageSize: number,
+    keyword: string,
+  ) => Promise<void> | void
   onCreate: () => void
 }
 
@@ -31,10 +35,8 @@ const SSHCommandsTab: React.FC<SSHCommandsTabProps> = ({
   onCreate,
 }) => {
   const { t } = useLocale()
-  const { tableContainerRef, tableWrapperRef, tableHeight } = useAdaptiveTableHeight([
-    sshCommands,
-    sshPagination,
-  ])
+  const { tableContainerRef, tableWrapperRef, tableHeight } =
+    useAdaptiveTableHeight([sshCommands, sshPagination])
 
   return (
     <div className='h-full flex flex-col'>
@@ -51,14 +53,21 @@ const SSHCommandsTab: React.FC<SSHCommandsTabProps> = ({
           placeholder={t('jadeTree.command.searchPlaceholder')}
           style={{ width: 260 }}
         />
-        <Button type='primary' onClick={() => void onSearch(1, sshPagination.pageSize, sshKeyword)}>
+        <Button
+          type='primary'
+          onClick={() => void onSearch(1, sshPagination.pageSize, sshKeyword)}
+        >
           {t('common.search')}
         </Button>
         <Button onClick={onCreate} type='primary'>
           {t('common.add')}
         </Button>
       </Space>
-      <div ref={tableContainerRef} className='flex-1 flex overflow-hidden flex-col' style={{ minHeight: 0 }}>
+      <div
+        ref={tableContainerRef}
+        className='flex-1 flex overflow-hidden flex-col'
+        style={{ minHeight: 0 }}
+      >
         <div ref={tableWrapperRef} className='h-full flex flex-col flex-1'>
           <Table
             rowKey='uid'
@@ -74,8 +83,10 @@ const SSHCommandsTab: React.FC<SSHCommandsTabProps> = ({
               showSizeChanger: true,
               showQuickJumper: true,
               showTotal: (total) => t('table.total', { total }),
-              onChange: (current, pageSize) => void onSearch(current, pageSize, sshKeyword),
-              onShowSizeChange: (current, pageSize) => void onSearch(current, pageSize, sshKeyword),
+              onChange: (current, pageSize) =>
+                void onSearch(current, pageSize, sshKeyword),
+              onShowSizeChange: (current, pageSize) =>
+                void onSearch(current, pageSize, sshKeyword),
             }}
           />
         </div>

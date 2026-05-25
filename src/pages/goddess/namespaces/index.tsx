@@ -1,35 +1,36 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import {
-  Table,
-  Input,
-  Radio,
-  Button,
-  Space,
-  message,
-  Tag,
-  Dropdown,
-  App,
-  Image,
-} from 'antd'
-import type { ColumnsType } from 'antd/es/table'
-import type { MenuProps } from 'antd'
 import {
   type NamespaceItem,
   type NamespaceListParams,
-  getNamespaceTableList,
-  getNamespaceDetail,
   deleteNamespace,
+  getNamespaceDetail,
+  getNamespaceTableList,
   updateNamespaceStatus,
 } from '@/api/account/namespace/index'
 import { GlobalStatus } from '@/api/common/types'
+import PageContent from '@/components/layout/PageContent'
+import { useLocale } from '@/contexts/LocaleContext'
+import { useNamespace } from '@/contexts/useNamespace'
+import { MENU_DIVIDER } from '@/utils/menu'
+import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
+import type { MenuProps } from 'antd'
+import {
+  App,
+  Button,
+  Dropdown,
+  Image,
+  Input,
+  Radio,
+  Space,
+  Table,
+  Tag,
+  message,
+} from 'antd'
+import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
+import React, { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
-import { useLocale } from '@/contexts/LocaleContext'
-import PageContent from '@/components/layout/PageContent'
-import { useNamespace } from '@/contexts/NamespaceContext'
-import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 
 const defaultSearchParams: NamespaceListParams = {
   keyword: '',
@@ -261,11 +262,11 @@ const NamespaceList: React.FC = () => {
       fixed: 'right',
       align: 'center',
       render: (_, record) => {
+        const isEnabled = record.status === GlobalStatus.ENABLED
+        const action = isEnabled
+          ? t(`common.status.${GlobalStatus.DISABLED}`)
+          : t(`common.status.${GlobalStatus.ENABLED}`)
         const handleStatusClick = () => {
-          const isEnabled = record.status === GlobalStatus.ENABLED
-          const action = isEnabled
-            ? t(`common.status.${GlobalStatus.DISABLED}`)
-            : t(`common.status.${GlobalStatus.ENABLED}`)
           modal.confirm({
             title: t('namespace.confirm.status.title', { action }),
             content: t('namespace.confirm.status.content', {
@@ -290,9 +291,10 @@ const NamespaceList: React.FC = () => {
           },
           {
             key: 'status',
-            label: t(`common.status.${record.status}`),
+            label: action,
             onClick: handleStatusClick,
           },
+          MENU_DIVIDER,
           {
             key: 'delete',
             label: t('common.delete'),

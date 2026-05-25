@@ -1,10 +1,23 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+} from 'react-router-dom'
 import { ConfigProvider } from 'antd'
 import { useMemo } from 'react'
 import { OAuthTokenHandler } from '@/components/OAuthTokenHandler'
 import { AuthGuard } from '@/components/AuthGuard'
 import { TokenRefreshHandler } from '@/components/TokenRefreshHandler'
-import { FileTextOutlined, ApiOutlined, MessageOutlined, SendOutlined, MailOutlined, UserOutlined } from '@ant-design/icons'
+import {
+  FileTextOutlined,
+  ApiOutlined,
+  MessageOutlined,
+  SendOutlined,
+  MailOutlined,
+  UserOutlined,
+} from '@ant-design/icons'
 import TemplateManagement from '@/pages/rabbit/templates'
 import EmailManagement from '@/pages/rabbit/emails'
 import WebhookManagement from '@/pages/rabbit/webhooks'
@@ -13,11 +26,21 @@ import SenderManagement from '@/pages/rabbit/sender'
 import LayoutComponent from '@/components/layout/Layout'
 import LoginPage from '@/pages/main/login'
 import { isInMicroApp } from '@/utils'
-import { ThemeProvider, useTheme } from '@/contexts/ThemeContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
+import { useTheme } from '@/contexts/useTheme'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
-import { NamespaceProvider, NoopNamespaceProvider } from '@/contexts/NamespaceContext'
+import {
+  NamespaceProvider,
+  NoopNamespaceProvider,
+} from '@/contexts/NamespaceContext'
 import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
-import { type AppConfigItem, convertToMenuItems, getAllSubAppConfigs, generateRoutes, getDefaultPath } from '../main/config'
+import {
+  type AppConfigItem,
+  convertToMenuItems,
+  getAllSubAppConfigs,
+  generateRoutes,
+  getDefaultPath,
+} from '../main/config'
 
 function getRabbitAppConfig(t: (key: string) => string): AppConfigItem[] {
   return [
@@ -73,24 +96,36 @@ function AppContent() {
 
   const appConfig = useMemo(() => getRabbitAppConfig(t), [t])
   const menuItems = useMemo(() => convertToMenuItems(appConfig), [appConfig])
-  const subAppConfigMap = useMemo(() => getAllSubAppConfigs(appConfig), [appConfig])
-  const routes = useMemo(() => generateRoutes(appConfig, subAppConfigMap), [appConfig, subAppConfigMap])
+  const subAppConfigMap = useMemo(
+    () => getAllSubAppConfigs(appConfig),
+    [appConfig],
+  )
+  const routes = useMemo(
+    () => generateRoutes(appConfig, subAppConfigMap),
+    [appConfig, subAppConfigMap],
+  )
   const defaultPath = useMemo(() => getDefaultPath(appConfig), [appConfig])
 
-  const NamespaceWrapper = inMicroApp ? NoopNamespaceProvider : NamespaceProvider
+  const NamespaceWrapper = inMicroApp
+    ? NoopNamespaceProvider
+    : NamespaceProvider
   return (
     <ConfigProvider locale={antdLocale} theme={themeConfig}>
       <BrowserRouter>
         <OAuthTokenHandler>
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
+            <Route path='/login' element={<LoginPage />} />
             <Route
-              path="/"
+              path='/'
               element={
                 <NamespaceWrapper>
                   <AuthGuard>
                     <TokenRefreshHandler>
-                      {inMicroApp ? <Outlet /> : <LayoutComponent menuItems={menuItems} />}
+                      {inMicroApp ? (
+                        <Outlet />
+                      ) : (
+                        <LayoutComponent menuItems={menuItems} />
+                      )}
                     </TokenRefreshHandler>
                   </AuthGuard>
                 </NamespaceWrapper>

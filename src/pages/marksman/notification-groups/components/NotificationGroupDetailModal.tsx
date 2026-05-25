@@ -270,7 +270,10 @@ export const NotificationGroupDetailModal: React.FC<Props> = ({
             allowClear
           />
         </Form.Item>
-        <Form.Item name='remark' label={t('notificationGroup.form.remark.label')}>
+        <Form.Item
+          name='remark'
+          label={t('notificationGroup.form.remark.label')}
+        >
           <Input.TextArea
             rows={2}
             placeholder={t('notificationGroup.form.remark.placeholder')}
@@ -317,8 +320,8 @@ export const NotificationGroupDetailModal: React.FC<Props> = ({
                   <Checkbox
                     checked={Boolean(member.isEmail)}
                     onChange={(e) => {
-                      const prevMembers =
-                        (form.getFieldValue('members') ?? []) as NotificationMemberItem[]
+                      const prevMembers = (form.getFieldValue('members') ??
+                        []) as NotificationMemberItem[]
                       form.setFieldValue(
                         'members',
                         prevMembers.map((m) =>
@@ -334,8 +337,8 @@ export const NotificationGroupDetailModal: React.FC<Props> = ({
                   <Checkbox
                     checked={Boolean(member.isPhone)}
                     onChange={(e) => {
-                      const prevMembers =
-                        (form.getFieldValue('members') ?? []) as NotificationMemberItem[]
+                      const prevMembers = (form.getFieldValue('members') ??
+                        []) as NotificationMemberItem[]
                       form.setFieldValue(
                         'members',
                         prevMembers.map((m) =>
@@ -353,8 +356,8 @@ export const NotificationGroupDetailModal: React.FC<Props> = ({
                     danger
                     size='small'
                     onClick={() => {
-                      const prevMembers =
-                        (form.getFieldValue('members') ?? []) as NotificationMemberItem[]
+                      const prevMembers = (form.getFieldValue('members') ??
+                        []) as NotificationMemberItem[]
                       form.setFieldValue(
                         'members',
                         prevMembers.filter((_, i) => i !== idx),
@@ -403,4 +406,3 @@ export const NotificationGroupDetailModal: React.FC<Props> = ({
     </Modal>
   )
 }
-

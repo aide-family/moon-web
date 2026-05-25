@@ -80,3 +80,4 @@ description: Develops feature pages and modules in React + TypeScript using Ant 
 - [ ] 新增/编辑弹窗：提交成功后只调用 onSuccess + onCancel，不在成功路径中先 resetFields 再关闭。
 - [ ] 代码结构清晰、可维护，符合高级前端工程师标准。
 - [ ] 复杂页面已将子组件与页内专用辅助逻辑放在同模块 `components/` 下，入口页保持精简。
+- [ ] 代码已符合 `prettier.config.js`（可运行 `pnpm format`）；Dropdown 删除项前有 `MENU_DIVIDER`。

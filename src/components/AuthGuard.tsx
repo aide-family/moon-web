@@ -17,7 +17,13 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const token = getToken()
 
   if (!token) {
-    return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />
+    return (
+      <Navigate
+        to='/login'
+        replace
+        state={{ from: location.pathname + location.search }}
+      />
+    )
   }
 
   return <>{children}</>

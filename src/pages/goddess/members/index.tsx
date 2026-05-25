@@ -32,6 +32,7 @@ import dayjs from 'dayjs'
 import MemberDetailView from './components/MemberDetailView'
 import { useLocale } from '@/contexts/LocaleContext'
 import PageContent from '@/components/layout/PageContent'
+import { MENU_DIVIDER } from '@/utils/menu'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 
 const defaultSearchParams: ListMembersParams = {
@@ -344,7 +345,7 @@ const MembersList: React.FC = () => {
             onClick: () => handleUpdateStatus(record, opt.value),
             disabled: currentStatus === opt.value,
           })),
-          { type: 'divider' },
+          MENU_DIVIDER,
           {
             key: 'dismiss',
             label: t('member.action.dismiss'),

@@ -35,10 +35,26 @@ const ProbeTaskFormModal: React.FC<ProbeTaskFormModalProps> = ({
   ]
 
   return (
-    <Modal title={isEditing ? t('jadeTree.probe.editTitle') : t('jadeTree.probe.createTitle')} open={open} onCancel={onCancel} onOk={onSubmit}>
+    <Modal
+      title={
+        isEditing
+          ? t('jadeTree.probe.editTitle')
+          : t('jadeTree.probe.createTitle')
+      }
+      open={open}
+      onCancel={onCancel}
+      onOk={onSubmit}
+    >
       <Form form={form} layout='vertical'>
-        <Form.Item name='type' label={t('table.search.type')} rules={[{ required: true, message: t('jadeTree.form.required') }]}>
-          <Select options={probeTypeOptions} placeholder={t('jadeTree.probe.typePlaceholder')} />
+        <Form.Item
+          name='type'
+          label={t('table.search.type')}
+          rules={[{ required: true, message: t('jadeTree.form.required') }]}
+        >
+          <Select
+            options={probeTypeOptions}
+            placeholder={t('jadeTree.probe.typePlaceholder')}
+          />
         </Form.Item>
         <Form.Item name='name' label={t('jadeTree.probe.name')}>
           <Input placeholder={t('jadeTree.probe.namePlaceholder')} />
@@ -53,7 +69,11 @@ const ProbeTaskFormModal: React.FC<ProbeTaskFormModalProps> = ({
           <Input placeholder={t('jadeTree.probe.urlPlaceholder')} />
         </Form.Item>
         <Form.Item name='timeoutSeconds' label={t('jadeTree.probe.timeout')}>
-          <InputNumber min={1} className='w-full' placeholder={t('jadeTree.probe.timeoutPlaceholder')} />
+          <InputNumber
+            min={1}
+            className='w-full'
+            placeholder={t('jadeTree.probe.timeoutPlaceholder')}
+          />
         </Form.Item>
       </Form>
     </Modal>

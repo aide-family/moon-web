@@ -22,12 +22,9 @@ import type {
  * Query: page, pageSize, keyword, status, userUID, email, phone, uids
  */
 export function listMembers(
-  params?: ListMembersParams
+  params?: ListMembersParams,
 ): Promise<ListMembersResponse> {
-  return http.get<ListMembersResponse>(
-    '/members',
-    { ...params }
-  )
+  return http.get<ListMembersResponse>('/members', { ...params })
 }
 
 /**
@@ -36,12 +33,9 @@ export function listMembers(
  * Query: keyword, limit, lastUID, status, uids
  */
 export function selectMembers(
-  params?: SelectMembersParams
+  params?: SelectMembersParams,
 ): Promise<SelectMembersResponse> {
-  return http.get<SelectMembersResponse>(
-    '/members/select',
-    { ...params }
-  )
+  return http.get<SelectMembersResponse>('/members/select', { ...params })
 }
 
 /**
@@ -58,7 +52,7 @@ export function getMember(uid: string): Promise<MemberItem> {
  * Body(application/json): uid?, status (string 枚举)
  */
 export function updateMemberStatus(
-  params: UpdateMemberStatusParams
+  params: UpdateMemberStatusParams,
 ): Promise<unknown> {
   return http.put<unknown>(`/member/${params.uid}/status`, { ...params })
 }
@@ -76,7 +70,9 @@ export function dismissMember(uid: string): Promise<unknown> {
  * POST /v1/member/invite
  * Body(application/json): email, role（整数枚举）
  */
-export function inviteMember(body: InviteMemberBody): Promise<{ message?: string }> {
+export function inviteMember(
+  body: InviteMemberBody,
+): Promise<{ message?: string }> {
   return http.post<{ message?: string }>('/member/invite', { ...body })
 }
 

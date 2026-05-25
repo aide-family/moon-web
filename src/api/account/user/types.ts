@@ -14,8 +14,11 @@ const USER_STATUS_VALUES = Object.values(UserStatus) as string[]
 
 /** 将接口返回的 status 规范为 UserStatus */
 export function parseUserStatus(s?: UserStatus | string | null): UserStatus {
-  if (s === undefined || s === null || s === '') return UserStatus.UserStatus_UNKNOWN
-  return USER_STATUS_VALUES.includes(s) ? (s as UserStatus) : UserStatus.UserStatus_UNKNOWN
+  if (s === undefined || s === null || s === '')
+    return UserStatus.UserStatus_UNKNOWN
+  return USER_STATUS_VALUES.includes(s)
+    ? (s as UserStatus)
+    : UserStatus.UserStatus_UNKNOWN
 }
 
 /** 用户列表项（User_ListUser / User_GetUser 返回，status 为枚举字符串） */

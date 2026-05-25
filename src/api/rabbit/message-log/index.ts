@@ -26,12 +26,9 @@ export function getMessageLog(uid: string): Promise<MessageLogItem> {
  * Query: page, pageSize, status, messageType, startAtUnix, endAtUnix
  */
 export function listMessageLogs(
-  params?: ListMessageLogsParams
+  params?: ListMessageLogsParams,
 ): Promise<ListMessageLogsResponse> {
-  return http.get<ListMessageLogsResponse>(
-    '/message-logs',
-    { ...params }
-  )
+  return http.get<ListMessageLogsResponse>('/message-logs', { ...params })
 }
 
 /**
@@ -41,7 +38,7 @@ export function listMessageLogs(
  */
 export function cancelMessage(
   uid: string,
-  body?: { uid?: string }
+  body?: { uid?: string },
 ): Promise<unknown> {
   return http.put<unknown>(`/message-log/${uid}/cancel`, { ...body })
 }
@@ -53,9 +50,13 @@ export function cancelMessage(
  */
 export function retryMessage(
   uid: string,
-  body?: { uid?: string }
+  body?: { uid?: string },
 ): Promise<unknown> {
   return http.put<unknown>(`/message-log/${uid}/retry`, { ...body })
 }
 
-export type { MessageLogItem, ListMessageLogsParams, ListMessageLogsResponse } from './types'
+export type {
+  MessageLogItem,
+  ListMessageLogsParams,
+  ListMessageLogsResponse,
+} from './types'

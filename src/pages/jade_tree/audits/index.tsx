@@ -11,6 +11,7 @@ import {
   DEFAULT_PAGE_SIZE,
   usePaginationState,
 } from '@/utils/hooks/usePaginationState'
+import { MENU_DIVIDER } from '@/utils/menu'
 import type { MenuProps } from 'antd'
 import { App, Button, Dropdown, Form, Space, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
@@ -165,6 +166,7 @@ const AuditsPage: React.FC = () => {
                         void fetchAudits()
                       },
                     },
+                    MENU_DIVIDER,
                     {
                       key: 'reject',
                       label: t('jadeTree.audit.reject'),

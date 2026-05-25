@@ -30,7 +30,7 @@ export const zhCN = {
   'user.status.ACTIVE': '正常',
   'user.status.BANNED': '封禁',
   'user.search.email': '邮箱',
-} as const;
+} as const
 
 export const enUS = {
   'user.table.uid': 'User ID',
@@ -53,13 +53,15 @@ export const enUS = {
   'user.detail.updatedAt': 'Updated At',
   'user.modal.detail.title': 'User Detail',
   'user.confirm.ban.title': 'Ban this user?',
-  'user.confirm.ban.content': 'After banning "{name}", the user will not be able to use the system normally.',
+  'user.confirm.ban.content':
+    'After banning "{name}", the user will not be able to use the system normally.',
   'user.confirm.permit.title': 'Unban this user?',
-  'user.confirm.permit.content': 'After unbanning "{name}", the user will be able to use the system again.',
+  'user.confirm.permit.content':
+    'After unbanning "{name}", the user will be able to use the system again.',
   'user.action.ban': 'Ban',
   'user.action.permit': 'Unban',
   'user.status.UserStatus_UNKNOWN': 'Unknown',
   'user.status.ACTIVE': 'Active',
   'user.status.BANNED': 'Banned',
   'user.search.email': 'Email',
-} as const;
+} as const

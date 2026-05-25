@@ -34,7 +34,8 @@ export const zhCN = {
   'namespace.form.banners.placeholder': '请输入横幅地址',
   'namespace.form.banners.add': '添加横幅',
   'namespace.form.metadata.label': '元数据',
-  'namespace.form.metadata.placeholder': '请输入JSON格式的元数据，例如：{"description": "描述信息", "owner": "所有者"}',
+  'namespace.form.metadata.placeholder':
+    '请输入JSON格式的元数据，例如：{"description": "描述信息", "owner": "所有者"}',
   'namespace.form.metadata.invalid': '请输入有效的JSON格式',
   'namespace.form.metadata.help': '元数据为JSON格式，可以为空',
   // 详情相关
@@ -46,7 +47,7 @@ export const zhCN = {
   'namespace.detail.createdAt': '创建时间',
   'namespace.detail.updatedAt': '更新时间',
   'namespace.detail.metadata': '元数据',
-} as const;
+} as const
 
 export const enUS = {
   // Table related (Namespace module specific)
@@ -81,7 +82,8 @@ export const enUS = {
   'namespace.form.banners.placeholder': 'Enter banner URL',
   'namespace.form.banners.add': 'Add banner',
   'namespace.form.metadata.label': 'Metadata',
-  'namespace.form.metadata.placeholder': 'Please enter metadata in JSON format, e.g.: {"description": "Description", "owner": "Owner"}',
+  'namespace.form.metadata.placeholder':
+    'Please enter metadata in JSON format, e.g.: {"description": "Description", "owner": "Owner"}',
   'namespace.form.metadata.invalid': 'Please enter valid JSON format',
   'namespace.form.metadata.help': 'Metadata is in JSON format and can be empty',
   // Detail related
@@ -93,4 +95,4 @@ export const enUS = {
   'namespace.detail.createdAt': 'Created At',
   'namespace.detail.updatedAt': 'Updated At',
   'namespace.detail.metadata': 'Metadata',
-} as const;
+} as const

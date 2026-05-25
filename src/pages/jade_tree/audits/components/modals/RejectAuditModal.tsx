@@ -22,10 +22,22 @@ const RejectAuditModal: React.FC<RejectAuditModalProps> = ({
   const { t } = useLocale()
 
   return (
-    <Modal title={t('jadeTree.audit.rejectTitle')} open={open} onCancel={onCancel} onOk={onSubmit}>
+    <Modal
+      title={t('jadeTree.audit.rejectTitle')}
+      open={open}
+      onCancel={onCancel}
+      onOk={onSubmit}
+    >
       <Form form={form} layout='vertical'>
-        <Form.Item name='reason' label={t('jadeTree.audit.rejectReason')} rules={[{ required: true, message: t('jadeTree.form.required') }]}>
-          <Input.TextArea rows={4} placeholder={t('jadeTree.audit.rejectReasonPlaceholder')} />
+        <Form.Item
+          name='reason'
+          label={t('jadeTree.audit.rejectReason')}
+          rules={[{ required: true, message: t('jadeTree.form.required') }]}
+        >
+          <Input.TextArea
+            rows={4}
+            placeholder={t('jadeTree.audit.rejectReasonPlaceholder')}
+          />
         </Form.Item>
       </Form>
     </Modal>

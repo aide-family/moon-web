@@ -1,5 +1,11 @@
-import type { AlertEventItem, ListRealtimeAlertParams } from '@/api/marksman/alert'
-import { getRealtimeAlertDetail, getRealtimeAlertList } from '@/api/marksman/alert'
+import type {
+  AlertEventItem,
+  ListRealtimeAlertParams,
+} from '@/api/marksman/alert'
+import {
+  getRealtimeAlertDetail,
+  getRealtimeAlertList,
+} from '@/api/marksman/alert'
 import type { AlertStatus } from '@/api/common/types'
 import { useLocale } from '@/contexts/LocaleContext'
 import { emptyPlaceholder } from '@/utils/marksman'
@@ -30,26 +36,87 @@ interface DetailField {
 
 const DETAIL_FIELDS: DetailField[] = [
   { key: 'uid', labelKey: 'realtimeAlert.table.uid', kind: 'text', span: 2 },
-  { key: 'strategyGroupName', labelKey: 'realtimeAlert.detail.strategyGroupName', kind: 'text' },
-  { key: 'strategyName', labelKey: 'realtimeAlert.detail.strategyName', kind: 'text' },
+  {
+    key: 'strategyGroupName',
+    labelKey: 'realtimeAlert.detail.strategyGroupName',
+    kind: 'text',
+  },
+  {
+    key: 'strategyName',
+    labelKey: 'realtimeAlert.detail.strategyName',
+    kind: 'text',
+  },
   { key: 'levelName', labelKey: 'realtimeAlert.table.levelName', kind: 'text' },
-  { key: 'datasourceName', labelKey: 'realtimeAlert.table.datasourceName', kind: 'text' },
+  {
+    key: 'datasourceName',
+    labelKey: 'realtimeAlert.table.datasourceName',
+    kind: 'text',
+  },
   { key: 'firedAt', labelKey: 'realtimeAlert.table.firedAt', kind: 'time' },
   { key: 'duration', labelKey: 'realtimeAlert.table.duration', kind: 'text' },
   { key: 'status', labelKey: 'realtimeAlert.table.status', kind: 'status' },
   { key: 'value', labelKey: 'realtimeAlert.table.value', kind: 'number' },
-  { key: 'intervenedAt', labelKey: 'realtimeAlert.table.intervenedAt', kind: 'time' },
-  { key: 'intervenedByName', labelKey: 'realtimeAlert.detail.intervenedByName', kind: 'text' },
-  { key: 'suppressUntilAt', labelKey: 'realtimeAlert.table.suppressedUntil', kind: 'time' },
-  { key: 'suppressedByName', labelKey: 'realtimeAlert.detail.suppressedByName', kind: 'text' },
-  { key: 'recoveredAt', labelKey: 'realtimeAlert.table.recoveredAt', kind: 'time' },
-  { key: 'recoveredByName', labelKey: 'realtimeAlert.detail.recoveredByName', kind: 'text' },
-  { key: 'summary', labelKey: 'realtimeAlert.table.summary', kind: 'text', span: 2 },
-  { key: 'description', labelKey: 'realtimeAlert.table.description', kind: 'text', span: 2 },
+  {
+    key: 'intervenedAt',
+    labelKey: 'realtimeAlert.table.intervenedAt',
+    kind: 'time',
+  },
+  {
+    key: 'intervenedByName',
+    labelKey: 'realtimeAlert.detail.intervenedByName',
+    kind: 'text',
+  },
+  {
+    key: 'suppressUntilAt',
+    labelKey: 'realtimeAlert.table.suppressedUntil',
+    kind: 'time',
+  },
+  {
+    key: 'suppressedByName',
+    labelKey: 'realtimeAlert.detail.suppressedByName',
+    kind: 'text',
+  },
+  {
+    key: 'recoveredAt',
+    labelKey: 'realtimeAlert.table.recoveredAt',
+    kind: 'time',
+  },
+  {
+    key: 'recoveredByName',
+    labelKey: 'realtimeAlert.detail.recoveredByName',
+    kind: 'text',
+  },
+  {
+    key: 'summary',
+    labelKey: 'realtimeAlert.table.summary',
+    kind: 'text',
+    span: 2,
+  },
+  {
+    key: 'description',
+    labelKey: 'realtimeAlert.table.description',
+    kind: 'text',
+    span: 2,
+  },
   { key: 'expr', labelKey: 'realtimeAlert.detail.expr', kind: 'text', span: 2 },
-  { key: 'labels', labelKey: 'realtimeAlert.detail.labels', kind: 'labels', span: 2 },
-  { key: 'suppressedReason', labelKey: 'realtimeAlert.detail.suppressedReason', kind: 'text', span: 2 },
-  { key: 'recoveredReason', labelKey: 'realtimeAlert.detail.recoveredReason', kind: 'text', span: 2 },
+  {
+    key: 'labels',
+    labelKey: 'realtimeAlert.detail.labels',
+    kind: 'labels',
+    span: 2,
+  },
+  {
+    key: 'suppressedReason',
+    labelKey: 'realtimeAlert.detail.suppressedReason',
+    kind: 'text',
+    span: 2,
+  },
+  {
+    key: 'recoveredReason',
+    labelKey: 'realtimeAlert.detail.recoveredReason',
+    kind: 'text',
+    span: 2,
+  },
 ]
 
 function formatLabelsJson(labels: Record<string, string> | undefined): string {
@@ -64,7 +131,10 @@ function formatLabelsJson(labels: Record<string, string> | undefined): string {
 async function fetchLatestAlertEvent(params: {
   alertPageUid: string
   uid: string
-  listFilter: Pick<ListRealtimeAlertParams, 'status' | 'startAtUnix' | 'endAtUnix'>
+  listFilter: Pick<
+    ListRealtimeAlertParams,
+    'status' | 'startAtUnix' | 'endAtUnix'
+  >
 }): Promise<AlertEventItem> {
   const { alertPageUid, uid, listFilter } = params
   try {
@@ -82,7 +152,9 @@ async function fetchLatestAlertEvent(params: {
   }
 }
 
-export const RealtimeAlertDetailModal: React.FC<RealtimeAlertDetailModalProps> = ({
+export const RealtimeAlertDetailModal: React.FC<
+  RealtimeAlertDetailModalProps
+> = ({
   open,
   onCancel,
   alertPageUid,
@@ -216,7 +288,7 @@ export const RealtimeAlertDetailModal: React.FC<RealtimeAlertDetailModalProps> =
           const levelText = emptyPlaceholder(d.datasourceLevelName)
           const content = (
             <span className='inline-flex items-center gap-2 min-w-0'>
-               {levelText && levelText !== '-' ? (
+              {levelText && levelText !== '-' ? (
                 <Tag color='default'>{levelText}</Tag>
               ) : null}
               <span className='truncate' title={nameText}>

@@ -8,7 +8,11 @@ const REFRESH_INTERVAL_MS = 3 * 60 * 1000 // 10 分钟
  * 登录后每隔 10 分钟调用 GET /v1/self/refresh-token 刷新 token，
  * 需放在 AuthGuard 内部，仅在已登录时挂载。
  */
-export function TokenRefreshHandler({ children }: { children: React.ReactNode }) {
+export function TokenRefreshHandler({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   useEffect(() => {
     const timer = setInterval(() => {
       refreshToken().catch(() => {

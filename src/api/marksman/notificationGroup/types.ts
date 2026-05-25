@@ -143,4 +143,3 @@ export interface SaveNotificationGroupSubscriptionParams {
 
 /** 保存通知组订阅响应 */
 export type SaveNotificationGroupSubscriptionReply = Record<string, never>
-

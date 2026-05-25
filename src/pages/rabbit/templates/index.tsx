@@ -29,6 +29,7 @@ import PageContent from '@/components/layout/PageContent'
 import { getMessageTypeOptions, getMessageTypeLabel } from './constants'
 import { getMessageTypeIconType } from '@/pages/rabbit/constants/appIcons'
 import { IconFont } from '@/components/Icon/IconFont'
+import { MENU_DIVIDER } from '@/utils/menu'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 import { MessageType } from '@/api'
 import { renderStatusTag } from '@/utils/marksman'
@@ -304,6 +305,7 @@ const TemplateListContent: React.FC = () => {
               label: action,
               onClick: handleStatusClick,
             },
+            MENU_DIVIDER,
             {
               key: 'delete',
               label: t('common.delete'),

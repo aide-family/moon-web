@@ -9,8 +9,10 @@ export function useAdaptiveTableHeight(deps: unknown[] = []) {
     const updateTableHeight = () => {
       if (tableContainerRef.current && tableWrapperRef.current) {
         const containerHeight = tableContainerRef.current.clientHeight
-        const theadEl = tableWrapperRef.current.querySelector('.ant-table-thead')
-        const paginationEl = tableWrapperRef.current.querySelector('.ant-pagination')
+        const theadEl =
+          tableWrapperRef.current.querySelector('.ant-table-thead')
+        const paginationEl =
+          tableWrapperRef.current.querySelector('.ant-pagination')
         const theadHeight = theadEl
           ? (theadEl as HTMLElement).getBoundingClientRect().height
           : 0

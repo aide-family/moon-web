@@ -24,28 +24,25 @@ export type {
 
 /** 代理请求到数据源 POST /v1/metric-query/proxy */
 export const metricQueryProxy = (
-  params?: MetricQueryProxyParams
+  params?: MetricQueryProxyParams,
 ): Promise<MetricQueryProxyResponse> => {
-  return http.post<MetricQueryProxyResponse>(
-    '/metric-query/proxy',
-    { ...params }
-  )
+  return http.post<MetricQueryProxyResponse>('/metric-query/proxy', {
+    ...params,
+  })
 }
 
 /** 即时查询 POST /v1/metric-query/query */
-export const metricQuery = (params?: MetricQueryParams): Promise<MetricQueryResponse> => {
-  return http.post<MetricQueryResponse>(
-    '/metric-query/query',
-    { ...params }
-  )
+export const metricQuery = (
+  params?: MetricQueryParams,
+): Promise<MetricQueryResponse> => {
+  return http.post<MetricQueryResponse>('/metric-query/query', { ...params })
 }
 
 /** 区间查询 POST /v1/metric-query/query-range */
 export const metricQueryRange = (
-  params?: MetricQueryRangeParams
+  params?: MetricQueryRangeParams,
 ): Promise<MetricQueryRangeResponse> => {
-  return http.post<MetricQueryRangeResponse>(
-    '/metric-query/query-range',
-    { ...params }
-  )
+  return http.post<MetricQueryRangeResponse>('/metric-query/query-range', {
+    ...params,
+  })
 }

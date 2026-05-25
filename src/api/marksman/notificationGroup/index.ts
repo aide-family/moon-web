@@ -44,10 +44,9 @@ export type {
 export const getNotificationGroupList = (
   params?: NotificationGroupListParams,
 ): Promise<NotificationGroupListResponse> => {
-  return http.get<NotificationGroupListResponse>(
-    '/notification-groups',
-    { ...params },
-  )
+  return http.get<NotificationGroupListResponse>('/notification-groups', {
+    ...params,
+  })
 }
 
 /** 获取通知组详情 GET /v1/notification-groups/{uid} */
@@ -61,10 +60,9 @@ export const getNotificationGroupDetail = (
 export const createNotificationGroup = (
   params?: CreateNotificationGroupParams,
 ): Promise<CreateNotificationGroupReply> => {
-  return http.post<CreateNotificationGroupReply>(
-    '/notification-groups',
-    { ...params },
-  )
+  return http.post<CreateNotificationGroupReply>('/notification-groups', {
+    ...params,
+  })
 }
 
 /** 更新通知组 PUT /v1/notification-groups/{uid} */
@@ -72,17 +70,18 @@ export const updateNotificationGroup = (
   uid: string,
   params?: UpdateNotificationGroupParams,
 ): Promise<UpdateNotificationGroupReply> => {
-  return http.put<UpdateNotificationGroupReply>(
-    `/notification-groups/${uid}`,
-    { ...params },
-  )
+  return http.put<UpdateNotificationGroupReply>(`/notification-groups/${uid}`, {
+    ...params,
+  })
 }
 
 /** 删除通知组 DELETE /v1/notification-groups/{uid} */
 export const deleteNotificationGroup = (
   uid: string,
 ): Promise<DeleteNotificationGroupReply> => {
-  return http.delete<DeleteNotificationGroupReply>(`/notification-groups/${uid}`)
+  return http.delete<DeleteNotificationGroupReply>(
+    `/notification-groups/${uid}`,
+  )
 }
 
 /** 更新通知组状态 PUT /v1/notification-groups/{uid}/status */
@@ -114,4 +113,3 @@ export const saveNotificationGroupSubscription = (
     { ...params, notificationGroupUid },
   )
 }
-

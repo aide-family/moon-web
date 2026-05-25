@@ -1,8 +1,21 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { Modal, Form, Input, Select, message } from 'antd'
-import type { CreateDatasourceParams, UpdateDatasourceParams, DatasourceItem } from '@/api/marksman/datasource/index'
-import { createDatasource, updateDatasource, DatasourceType, DatasourceDriver } from '@/api/marksman/datasource/index'
-import { getLevelSelectList, type LevelItemSelect, LevelType } from '@/api/marksman/level'
+import type {
+  CreateDatasourceParams,
+  UpdateDatasourceParams,
+  DatasourceItem,
+} from '@/api/marksman/datasource/index'
+import {
+  createDatasource,
+  updateDatasource,
+  DatasourceType,
+  DatasourceDriver,
+} from '@/api/marksman/datasource/index'
+import {
+  getLevelSelectList,
+  type LevelItemSelect,
+  LevelType,
+} from '@/api/marksman/level'
 import { GlobalStatus } from '@/api'
 import { useLocale } from '@/contexts/LocaleContext'
 
@@ -26,14 +39,16 @@ const DetailForm: React.FC<DetailFormProps> = ({
   const { t } = useLocale()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-  const [levelSelectOptions, setLevelSelectOptions] = useState<LevelItemSelect[]>([])
+  const [levelSelectOptions, setLevelSelectOptions] = useState<
+    LevelItemSelect[]
+  >([])
 
   const typeOptions = useMemo(
     () =>
       Object.values(DatasourceType)
         .filter((v) => v !== DatasourceType.DatasourceType_UNKNOWN)
         .map((value) => ({ value, label: t(`datasource.type.${value}`) })),
-    [t]
+    [t],
   )
 
   const driverOptions = useMemo(
@@ -41,7 +56,7 @@ const DetailForm: React.FC<DetailFormProps> = ({
       Object.values(DatasourceDriver)
         .filter((v) => v !== DatasourceDriver.DatasourceDriver_UNKNOWN)
         .map((value) => ({ value, label: t(`datasource.driver.${value}`) })),
-    [t]
+    [t],
   )
 
   useEffect(() => {
@@ -92,9 +107,13 @@ const DetailForm: React.FC<DetailFormProps> = ({
       if (values.metadata && String(values.metadata).trim()) {
         try {
           const parsed = JSON.parse(String(values.metadata).trim())
-          if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+          if (
+            typeof parsed === 'object' &&
+            parsed !== null &&
+            !Array.isArray(parsed)
+          ) {
             metadata = Object.fromEntries(
-              Object.entries(parsed).map(([k, v]) => [k, String(v)])
+              Object.entries(parsed).map(([k, v]) => [k, String(v)]),
             )
           }
         } catch {
@@ -148,7 +167,11 @@ const DetailForm: React.FC<DetailFormProps> = ({
 
   return (
     <Modal
-      title={mode === 'create' ? t('datasource.modal.create.title') : t('datasource.modal.edit.title')}
+      title={
+        mode === 'create'
+          ? t('datasource.modal.create.title')
+          : t('datasource.modal.edit.title')
+      }
       open={open}
       onOk={handleSubmit}
       onCancel={closable ? handleCancel : undefined}
@@ -159,36 +182,57 @@ const DetailForm: React.FC<DetailFormProps> = ({
       okText={t('common.submit')}
       cancelButtonProps={closable ? undefined : { style: { display: 'none' } }}
     >
-      <Form form={form} layout="vertical" preserve={false}>
+      <Form form={form} layout='vertical' preserve={false}>
         <Form.Item
-          name="name"
+          name='name'
           label={t('datasource.form.name.label')}
-          rules={[{ required: true, message: t('datasource.form.name.placeholder') }]}
+          rules={[
+            { required: true, message: t('datasource.form.name.placeholder') },
+          ]}
         >
-          <Input placeholder={t('datasource.form.name.placeholder')} allowClear />
+          <Input
+            placeholder={t('datasource.form.name.placeholder')}
+            allowClear
+          />
         </Form.Item>
         <Form.Item
-          name="type"
+          name='type'
           label={t('datasource.form.type.label')}
-          rules={[{ required: true, message: t('datasource.form.type.placeholder') }]}
+          rules={[
+            { required: true, message: t('datasource.form.type.placeholder') },
+          ]}
         >
-          <Select placeholder={t('datasource.form.type.placeholder')} options={typeOptions} />
+          <Select
+            placeholder={t('datasource.form.type.placeholder')}
+            options={typeOptions}
+          />
         </Form.Item>
         <Form.Item
-          name="driver"
+          name='driver'
           label={t('datasource.form.driver.label')}
-          rules={[{ required: true, message: t('datasource.form.driver.placeholder') }]}
+          rules={[
+            {
+              required: true,
+              message: t('datasource.form.driver.placeholder'),
+            },
+          ]}
         >
-          <Select placeholder={t('datasource.form.driver.placeholder')} options={driverOptions} />
+          <Select
+            placeholder={t('datasource.form.driver.placeholder')}
+            options={driverOptions}
+          />
         </Form.Item>
-        <Form.Item name="levelUid" label={t('datasource.form.levelUid.label')}>
+        <Form.Item name='levelUid' label={t('datasource.form.levelUid.label')}>
           <Select
             placeholder={t('datasource.form.levelUid.placeholder')}
             allowClear
             showSearch
             optionFilterProp='label'
             filterOption={(input, opt) =>
-              (opt?.label ?? '').toString().toLowerCase().includes(input.toLowerCase())
+              (opt?.label ?? '')
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
             }
             options={levelSelectOptions.map((o) => ({
               value: o.value,
@@ -198,35 +242,53 @@ const DetailForm: React.FC<DetailFormProps> = ({
           />
         </Form.Item>
         <Form.Item
-          name="url"
+          name='url'
           label={t('datasource.form.url.label')}
           rules={[
             { required: true, message: t('datasource.form.url.placeholder') },
             {
               validator: (_, value) => {
-                if (!value || typeof value !== 'string') return Promise.resolve()
+                if (!value || typeof value !== 'string')
+                  return Promise.resolve()
                 const trimmed = value.trim()
-                if (!trimmed) return Promise.reject(new Error(t('datasource.form.url.placeholder')))
+                if (!trimmed)
+                  return Promise.reject(
+                    new Error(t('datasource.form.url.placeholder')),
+                  )
                 try {
                   const u = new URL(trimmed)
                   if (u.protocol !== 'http:' && u.protocol !== 'https:') {
-                    return Promise.reject(new Error(t('datasource.form.url.invalid')))
+                    return Promise.reject(
+                      new Error(t('datasource.form.url.invalid')),
+                    )
                   }
                   return Promise.resolve()
                 } catch {
-                  return Promise.reject(new Error(t('datasource.form.url.invalid')))
+                  return Promise.reject(
+                    new Error(t('datasource.form.url.invalid')),
+                  )
                 }
               },
             },
           ]}
         >
-          <Input placeholder={t('datasource.form.url.placeholder')} allowClear />
+          <Input
+            placeholder={t('datasource.form.url.placeholder')}
+            allowClear
+          />
         </Form.Item>
-        <Form.Item name="remark" label={t('datasource.form.remark.label')}>
-          <Input.TextArea rows={2} placeholder={t('datasource.form.remark.placeholder')} allowClear />
+        <Form.Item name='remark' label={t('datasource.form.remark.label')}>
+          <Input.TextArea
+            rows={2}
+            placeholder={t('datasource.form.remark.placeholder')}
+            allowClear
+          />
         </Form.Item>
-        <Form.Item name="metadata" label={t('datasource.form.metadata.label')}>
-          <Input.TextArea rows={4} placeholder={t('datasource.form.metadata.placeholder')} />
+        <Form.Item name='metadata' label={t('datasource.form.metadata.label')}>
+          <Input.TextArea
+            rows={4}
+            placeholder={t('datasource.form.metadata.placeholder')}
+          />
         </Form.Item>
       </Form>
     </Modal>

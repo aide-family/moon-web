@@ -20,49 +20,50 @@ export type {
 } from './types'
 
 /** 获取策略指标 GET /v1/metric/strategy/{strategyUID} */
-export const getStrategyMetric = (strategyUID: string): Promise<StrategyMetricItem> => {
+export const getStrategyMetric = (
+  strategyUID: string,
+): Promise<StrategyMetricItem> => {
   return http.get<StrategyMetricItem>(`/metric/strategy/${strategyUID}`)
 }
 
 /** 保存策略指标 POST /v1/metric/strategy/{strategyUID} */
 export const saveStrategyMetric = (
   strategyUID: string,
-  params?: SaveStrategyMetricParams
+  params?: SaveStrategyMetricParams,
 ): Promise<Record<string, never>> => {
-  return http.post<Record<string, never>>(
-    `/metric/strategy/${strategyUID}`,
-    { ...params }
-  )
+  return http.post<Record<string, never>>(`/metric/strategy/${strategyUID}`, {
+    ...params,
+  })
 }
 
 /** 保存策略指标等级 POST /v1/metric/strategy/{strategyUID}/level */
 export const saveStrategyMetricLevel = (
   strategyUID: string,
-  params?: SaveStrategyMetricLevelParams
+  params?: SaveStrategyMetricLevelParams,
 ): Promise<Record<string, never>> => {
   return http.post<Record<string, never>>(
     `/metric/strategy/${strategyUID}/level`,
-    { ...params }
+    { ...params },
   )
 }
 
 /** 获取策略指标等级详情 GET /v1/metric/strategy/{strategyUID}/level/{levelUID} */
 export const getStrategyMetricLevel = (
   strategyUID: string,
-  levelUID: string
+  levelUID: string,
 ): Promise<StrategyMetricLevelItem> => {
   return http.get<StrategyMetricLevelItem>(
-    `/metric/strategy/${strategyUID}/level/${levelUID}`
+    `/metric/strategy/${strategyUID}/level/${levelUID}`,
   )
 }
 
 /** 删除策略指标等级 DELETE /v1/metric/strategy/{strategyUID}/level/{levelUID} */
 export const deleteStrategyMetricLevel = (
   strategyUID: string,
-  levelUID: string
+  levelUID: string,
 ): Promise<Record<string, never>> => {
   return http.delete<Record<string, never>>(
-    `/metric/strategy/${strategyUID}/level/${levelUID}`
+    `/metric/strategy/${strategyUID}/level/${levelUID}`,
   )
 }
 
@@ -79,4 +80,3 @@ export const updateStrategyMetricLevelStatus = (
     },
   )
 }
-

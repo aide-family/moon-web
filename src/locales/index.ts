@@ -14,8 +14,14 @@ import {
   zhCN as strategyGroupZh,
   enUS as strategyGroupEn,
 } from './strategyGroup'
-import { zhCN as realtimeAlertZh, enUS as realtimeAlertEn } from './realtimeAlert'
-import { zhCN as notificationGroupZh, enUS as notificationGroupEn } from './notificationGroup'
+import {
+  zhCN as realtimeAlertZh,
+  enUS as realtimeAlertEn,
+} from './realtimeAlert'
+import {
+  zhCN as notificationGroupZh,
+  enUS as notificationGroupEn,
+} from './notificationGroup'
 import { zhCN as jadeTreeZh, enUS as jadeTreeEn } from './jadeTree'
 import type { LocaleType } from '@/contexts/LocaleContext'
 

@@ -5,19 +5,32 @@ import type {
 import { AlertStatus } from '@/api/common/types'
 
 /** 告警状态与前端展示映射（后端 status 为数字，此处仅做展示用） */
-export const ALERT_STATUS_MAP: Record<AlertStatus, { key: string; color: string }> =
-  {
-    [AlertStatus.ALERT_STATUS_UNKNOWN]: { key: 'realtimeAlert.filter.status.unknown', color: 'default' },
-    [AlertStatus.ALERT_EVENT_STATUS_FIRING]: { key: 'realtimeAlert.filter.status.firing', color: 'error' },
-    [AlertStatus.ALERT_EVENT_STATUS_RECOVERED]: { key: 'realtimeAlert.filter.status.recovered', color: 'success' },
-    [AlertStatus.ALERT_EVENT_STATUS_RECOVERED_BY_MANUAL]: { key: 'realtimeAlert.filter.status.recoveredByManual', color: 'processing' },
-  }
+export const ALERT_STATUS_MAP: Record<
+  AlertStatus,
+  { key: string; color: string }
+> = {
+  [AlertStatus.ALERT_STATUS_UNKNOWN]: {
+    key: 'realtimeAlert.filter.status.unknown',
+    color: 'default',
+  },
+  [AlertStatus.ALERT_EVENT_STATUS_FIRING]: {
+    key: 'realtimeAlert.filter.status.firing',
+    color: 'error',
+  },
+  [AlertStatus.ALERT_EVENT_STATUS_RECOVERED]: {
+    key: 'realtimeAlert.filter.status.recovered',
+    color: 'success',
+  },
+  [AlertStatus.ALERT_EVENT_STATUS_RECOVERED_BY_MANUAL]: {
+    key: 'realtimeAlert.filter.status.recoveredByManual',
+    color: 'processing',
+  },
+}
 
 export const defaultListParams: ListRealtimeAlertParams = {
   page: 1,
   pageSize: 50,
 }
-
 
 export function buildCreateAlertPageFilter(values: {
   filterStrategyGroupUids?: string[]
