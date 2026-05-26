@@ -2,15 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   App,
   Button,
-  Checkbox,
   Descriptions,
-  Divider,
   Dropdown,
-  Form,
   Input,
   Modal,
   Radio,
-  Select,
   Space,
   Table,
   Tag,
@@ -20,29 +16,20 @@ import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
 import dayjs from 'dayjs'
 import CopyButton from '@/components/CopyButton'
-import KeyValueEditor, {
-  formatRecordJson,
-  keyValueRowsToRecord,
-  recordToKeyValueRows,
-  type KeyValueRow,
-} from '@/components/KeyValueEditor'
+import { formatRecordJson } from '@/components/KeyValueEditor'
+import AlertSubscriptionDetailForm from './components/DetailForm'
 import PageContent from '@/components/layout/PageContent'
 import { useLocale } from '@/contexts/LocaleContext'
 import { MENU_DIVIDER } from '@/utils/menu'
 import { emptyPlaceholder, renderStatusTag } from '@/utils/marksman'
 import { GlobalStatus } from '@/api/common/types'
 import {
-  createAlertSubscription,
   deleteAlertSubscription,
   getAlertSubscriptionDetail,
   getAlertSubscriptionList,
-  updateAlertSubscription,
   updateAlertSubscriptionStatus,
   type AlertSubscriptionItem,
-  type AlertSubscriptionMemberRequest,
-  type CreateAlertSubscriptionParams,
   type ListAlertSubscriptionsParams,
-  type UpdateAlertSubscriptionParams,
 } from '@/api/rabbit/alert'
 import { getRecipientGroupSelectList } from '@/api/rabbit/recipient-group'
 import { getEmailConfigSelectList } from '@/api/rabbit/email'
@@ -51,31 +38,12 @@ import { selectMembers } from '@/api/account/member'
 import { MemberStatus } from '@/api/account/member'
 
 const { Text } = Typography
-const { TextArea } = Input
 
 interface SelectOption {
   value: string
   label: string
   disabled?: boolean
   tooltip?: string
-}
-
-interface SubscriptionMemberFormValue {
-  memberUid?: string
-  isEmail?: boolean
-  isSms?: boolean
-  isPhone?: boolean
-}
-
-interface AlertSubscriptionFormValues {
-  name?: string
-  remark?: string
-  labelsPairs?: KeyValueRow[]
-  excludeLabelsPairs?: KeyValueRow[]
-  recipientGroupUids?: string[]
-  members?: SubscriptionMemberFormValue[]
-  directMemberEmailConfigUid?: string
-  directMemberTemplateUid?: string
 }
 
 const defaultSearchParams: ListAlertSubscriptionsParams = {
@@ -100,10 +68,9 @@ const toSelectOptions = (
       tooltip: item.tooltip,
     }))
 
-export default function AlertSubscriptionsPage() {
+function AlertSubscriptionsContent() {
   const { modal, message } = App.useApp()
   const { t } = useLocale()
-  const [form] = Form.useForm<AlertSubscriptionFormValues>()
 
   const [loading, setLoading] = useState(false)
   const [dataSource, setDataSource] = useState<AlertSubscriptionItem[]>([])
@@ -121,10 +88,9 @@ export default function AlertSubscriptionsPage() {
     null,
   )
 
-  const [formOpen, setFormOpen] = useState(false)
+  const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create')
   const [formLoading, setFormLoading] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
   const [editingData, setEditingData] = useState<AlertSubscriptionItem | null>(
     null,
   )
@@ -137,7 +103,6 @@ export default function AlertSubscriptionsPage() {
   const [templateOptions, setTemplateOptions] = useState<SelectOption[]>([])
   const paginationRef = useRef(pagination)
   paginationRef.current = pagination
-  const watchedMembers = Form.useWatch('members', form) ?? []
 
   const groupLabelMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -211,46 +176,25 @@ export default function AlertSubscriptionsPage() {
     void fetchData(1, pagination.pageSize)
   }, [fetchData, pagination.pageSize])
 
-  const openCreateModal = async () => {
+  const openCreateModal = () => {
     setFormMode('create')
     setEditingData(null)
-    form.resetFields()
-    form.setFieldsValue({
-      labelsPairs: [],
-      excludeLabelsPairs: [],
-      members: [],
-    })
-    setFormOpen(true)
-    await loadOptions()
+    setFormLoading(false)
+    setDetailFormOpen(true)
   }
 
   const openEditModal = async (record: AlertSubscriptionItem) => {
     if (!record.uid) return
     setFormMode('edit')
+    setEditingData(null)
     setFormLoading(true)
-    setFormOpen(true)
+    setDetailFormOpen(true)
     try {
-      await loadOptions()
       const detail = await getAlertSubscriptionDetail(record.uid)
       setEditingData(detail)
-      form.setFieldsValue({
-        name: detail.name,
-        remark: detail.remark,
-        labelsPairs: recordToKeyValueRows(detail.labels),
-        excludeLabelsPairs: recordToKeyValueRows(detail.excludeLabels),
-        recipientGroupUids: detail.recipientGroupUids ?? [],
-        directMemberEmailConfigUid: detail.directMemberEmailConfigUid,
-        directMemberTemplateUid: detail.directMemberTemplateUid,
-        members: (detail.members ?? []).map((item) => ({
-          memberUid: item.memberUid,
-          isEmail: item.isEmail,
-          isSms: item.isSms,
-          isPhone: item.isPhone,
-        })),
-      })
     } catch (error) {
       console.error('获取告警订阅详情失败:', error)
-      setFormOpen(false)
+      setDetailFormOpen(false)
     } finally {
       setFormLoading(false)
     }
@@ -302,61 +246,6 @@ export default function AlertSubscriptionsPage() {
     void fetchData()
     if (detailData?.uid === record.uid) {
       setDetailData((prev) => (prev ? { ...prev, status } : prev))
-    }
-  }
-
-  const normalizeMembers = (
-    members?: SubscriptionMemberFormValue[],
-  ): AlertSubscriptionMemberRequest[] => {
-    return (members ?? [])
-      .filter((item) => item.memberUid)
-      .map((item) => ({
-        memberUid: item.memberUid,
-        isEmail: Boolean(item.isEmail),
-        isSms: Boolean(item.isSms),
-        isPhone: Boolean(item.isPhone),
-      }))
-      .filter((item) => item.isEmail || item.isSms || item.isPhone)
-  }
-
-  const handleSubmit = async () => {
-    try {
-      const values = await form.validateFields()
-      const members = normalizeMembers(values.members)
-      const payload:
-        | CreateAlertSubscriptionParams
-        | UpdateAlertSubscriptionParams = {
-        name: values.name?.trim(),
-        remark: values.remark?.trim(),
-        labels: keyValueRowsToRecord(values.labelsPairs),
-        excludeLabels: keyValueRowsToRecord(values.excludeLabelsPairs),
-        recipientGroupUids: values.recipientGroupUids ?? [],
-        members,
-        directMemberEmailConfigUid: values.directMemberEmailConfigUid,
-        directMemberTemplateUid: values.directMemberTemplateUid,
-      }
-
-      setSubmitting(true)
-      if (formMode === 'create') {
-        await createAlertSubscription(payload)
-        message.success(t('message.create.success'))
-      } else if (editingData?.uid) {
-        await updateAlertSubscription(editingData.uid, {
-          ...payload,
-          uid: editingData.uid,
-        })
-        message.success(t('message.update.success'))
-      }
-      setFormOpen(false)
-      setEditingData(null)
-      form.resetFields()
-      void fetchData()
-    } catch (error) {
-      if (error && typeof error === 'object' && 'errorFields' in error) return
-      console.error('保存告警订阅失败:', error)
-      message.error(t('message.error'))
-    } finally {
-      setSubmitting(false)
     }
   }
 
@@ -534,9 +423,8 @@ export default function AlertSubscriptionsPage() {
   ]
 
   return (
-    <App className='h-full'>
-      <PageContent>
-        <div className='flex flex-col gap-4 h-full'>
+    <>
+      <div className='flex flex-col gap-4 h-full'>
           <div className='flex items-center justify-between gap-3'>
             <Space wrap>
               <Input
@@ -570,9 +458,17 @@ export default function AlertSubscriptionsPage() {
                   {t(`common.status.${GlobalStatus.DISABLED}`)}
                 </Radio.Button>
               </Radio.Group>
+              <Button
+                type='primary'
+                onClick={() =>
+                  handleSearch({ keyword: searchParams.keyword ?? '' })
+                }
+              >
+                {t('common.search')}
+              </Button>
               <Button onClick={handleReset}>{t('common.reset')}</Button>
             </Space>
-            <Button type='primary' onClick={() => void openCreateModal()}>
+            <Button type='primary' onClick={openCreateModal}>
               {t('common.add')}
             </Button>
           </div>
@@ -595,230 +491,19 @@ export default function AlertSubscriptionsPage() {
           />
         </div>
 
-        <Modal
-          title={
-            formMode === 'create'
-              ? t('alertSubscription.modal.create.title')
-              : t('alertSubscription.modal.edit.title')
-          }
-          open={formOpen}
-          onOk={() => void handleSubmit()}
-          onCancel={() => {
-            setFormOpen(false)
-            setEditingData(null)
-            form.resetFields()
-          }}
-          destroyOnHidden
-          confirmLoading={submitting}
-          okText={t('common.submit')}
-          width={900}
-        >
-          <Form form={form} layout='vertical' preserve={false}>
-            <Form.Item
-              name='name'
-              label={t('alertSubscription.form.name.label')}
-              rules={[
-                {
-                  required: true,
-                  message: t('alertSubscription.form.name.required'),
-                },
-              ]}
-            >
-              <Input
-                placeholder={t('alertSubscription.form.name.placeholder')}
-                maxLength={100}
-                disabled={formLoading}
-              />
-            </Form.Item>
+      <AlertSubscriptionDetailForm
+        open={detailFormOpen}
+        mode={formMode}
+        initialData={editingData}
+        formLoading={formLoading}
+        onCancel={() => {
+          setDetailFormOpen(false)
+          setEditingData(null)
+        }}
+        onSuccess={() => void fetchData()}
+      />
 
-            <Form.Item
-              name='remark'
-              label={t('alertSubscription.form.remark.label')}
-            >
-              <TextArea
-                rows={3}
-                placeholder={t('alertSubscription.form.remark.placeholder')}
-                disabled={formLoading}
-              />
-            </Form.Item>
-
-            <Divider>{t('alertSubscription.form.filter.title')}</Divider>
-
-            <KeyValueEditor
-              name='labelsPairs'
-              label={t('alertSubscription.form.labels.label')}
-              extra={t('alertSubscription.form.labels.help')}
-              disabled={formLoading}
-            />
-
-            <KeyValueEditor
-              name='excludeLabelsPairs'
-              label={t('alertSubscription.form.excludeLabels.label')}
-              disabled={formLoading}
-            />
-
-            <Divider>{t('alertSubscription.form.delivery.title')}</Divider>
-
-            <Form.Item
-              name='recipientGroupUids'
-              label={t('alertSubscription.form.recipientGroups.label')}
-            >
-              <Select
-                mode='multiple'
-                allowClear
-                showSearch
-                options={recipientGroupOptions}
-                placeholder={t(
-                  'alertSubscription.form.recipientGroups.placeholder',
-                )}
-                disabled={formLoading}
-                optionFilterProp='label'
-                maxTagCount='responsive'
-              />
-            </Form.Item>
-
-            <Form.Item
-              name='directMemberEmailConfigUid'
-              label={t('alertSubscription.form.directEmailConfig.label')}
-            >
-              <Select
-                allowClear
-                showSearch
-                options={emailOptions}
-                placeholder={t(
-                  'alertSubscription.form.directEmailConfig.placeholder',
-                )}
-                disabled={formLoading}
-                optionFilterProp='label'
-              />
-            </Form.Item>
-
-            <Form.Item
-              name='directMemberTemplateUid'
-              label={t('alertSubscription.form.directTemplate.label')}
-            >
-              <Select
-                allowClear
-                showSearch
-                options={templateOptions}
-                placeholder={t(
-                  'alertSubscription.form.directTemplate.placeholder',
-                )}
-                disabled={formLoading}
-                optionFilterProp='label'
-              />
-            </Form.Item>
-
-            <Divider>{t('alertSubscription.form.members.title')}</Divider>
-
-            <Form.List
-              name='members'
-              rules={[
-                {
-                  validator: async (
-                    _,
-                    members?: SubscriptionMemberFormValue[],
-                  ) => {
-                    const selected = (members ?? [])
-                      .map((item) => item?.memberUid)
-                      .filter((item): item is string => Boolean(item))
-                    if (new Set(selected).size !== selected.length) {
-                      throw new Error(
-                        t('alertSubscription.form.member.duplicate'),
-                      )
-                    }
-                  },
-                },
-              ]}
-            >
-              {(fields, { add, remove }, { errors }) => (
-                <div className='flex flex-col gap-3'>
-                  {fields.map((field) => (
-                    <div
-                      key={field.key}
-                      className='rounded-md border border-(--ant-color-border-secondary) p-3'
-                    >
-                      <Space
-                        wrap
-                        align='start'
-                        className='w-full justify-between'
-                      >
-                        <div className='grid grid-cols-1 md:grid-cols-4 gap-3 flex-1'>
-                          <Form.Item
-                            name={[field.name, 'memberUid']}
-                            label={t('alertSubscription.form.member.label')}
-                            rules={[
-                              {
-                                required: true,
-                                message: t(
-                                  'alertSubscription.form.member.required',
-                                ),
-                              },
-                            ]}
-                          >
-                            <Select
-                              showSearch
-                              allowClear
-                              options={memberOptions.map((item) => ({
-                                ...item,
-                                disabled:
-                                  item.disabled ||
-                                  watchedMembers.some(
-                                    (member, index) =>
-                                      index !== field.name &&
-                                      member?.memberUid === item.value,
-                                  ),
-                              }))}
-                              placeholder={t(
-                                'alertSubscription.form.member.placeholder',
-                              )}
-                              disabled={formLoading}
-                              optionFilterProp='label'
-                            />
-                          </Form.Item>
-                          <Form.Item
-                            name={[field.name, 'isEmail']}
-                            valuePropName='checked'
-                            label={t('alertSubscription.form.channel.email')}
-                          >
-                            <Checkbox disabled={formLoading}>
-                              {t('alertSubscription.form.channel.email')}
-                            </Checkbox>
-                          </Form.Item>
-                          <Form.Item
-                            name={[field.name, 'isSms']}
-                            valuePropName='checked'
-                            label={t('alertSubscription.form.channel.sms')}
-                          >
-                            <Checkbox disabled={formLoading}>
-                              {t('alertSubscription.form.channel.sms')}
-                            </Checkbox>
-                          </Form.Item>
-                          <Form.Item
-                            name={[field.name, 'isPhone']}
-                            valuePropName='checked'
-                            label={t('alertSubscription.form.channel.phone')}
-                          >
-                            <Checkbox disabled={formLoading}>
-                              {t('alertSubscription.form.channel.phone')}
-                            </Checkbox>
-                          </Form.Item>
-                        </div>
-                        <Button danger onClick={() => remove(field.name)}>
-                          {t('common.delete')}
-                        </Button>
-                      </Space>
-                    </div>
-                  ))}
-                  <Button onClick={() => add()}>{t('common.add')}</Button>
-                  <Form.ErrorList errors={errors} />
-                </div>
-              )}
-            </Form.List>
-          </Form>
-        </Modal>
-
-        <Modal
+      <Modal
           title={t('alertSubscription.modal.detail.title')}
           open={detailOpen}
           onCancel={() => {
@@ -996,6 +681,15 @@ export default function AlertSubscriptionsPage() {
             <Text>{t('common.noData')}</Text>
           )}
         </Modal>
+    </>
+  )
+}
+
+export default function AlertSubscriptionsPage() {
+  return (
+    <App className='h-full'>
+      <PageContent>
+        <AlertSubscriptionsContent />
       </PageContent>
     </App>
   )

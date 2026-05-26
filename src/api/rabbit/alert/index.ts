@@ -1,41 +1,16 @@
 import { http } from '../../index'
 import type {
-  AlertRecordItem,
   AlertSubscriptionItem,
   CreateAlertSubscriptionParams,
   CreateAlertSubscriptionReply,
   DeleteAlertSubscriptionReply,
-  ListAlertRecordsParams,
-  ListAlertRecordsResponse,
   ListAlertSubscriptionsParams,
   ListAlertSubscriptionsResponse,
-  ReceivePrometheusWebhookReply,
-  ReceivePrometheusWebhookRequest,
   UpdateAlertSubscriptionParams,
   UpdateAlertSubscriptionReply,
   UpdateAlertSubscriptionStatusParams,
   UpdateAlertSubscriptionStatusReply,
 } from './types'
-
-export const receivePrometheusWebhook = (
-  params?: ReceivePrometheusWebhookRequest,
-): Promise<ReceivePrometheusWebhookReply> => {
-  return http.post<ReceivePrometheusWebhookReply>(
-    '/alerts/prometheus/webhook',
-    { ...params },
-    { skipAuth: true },
-  )
-}
-
-export const getAlertRecordDetail = (uid: string): Promise<AlertRecordItem> => {
-  return http.get<AlertRecordItem>(`/alerts/${uid}`)
-}
-
-export const getAlertRecordList = (
-  params?: ListAlertRecordsParams,
-): Promise<ListAlertRecordsResponse> => {
-  return http.get<ListAlertRecordsResponse>('/alerts', { ...params })
-}
 
 export const createAlertSubscription = (
   params?: CreateAlertSubscriptionParams,
@@ -86,20 +61,14 @@ export const updateAlertSubscriptionStatus = (
 }
 
 export type {
-  AlertRecordItem,
   AlertSubscriptionItem,
   AlertSubscriptionMemberItem,
   AlertSubscriptionMemberRequest,
   CreateAlertSubscriptionParams,
   CreateAlertSubscriptionReply,
   DeleteAlertSubscriptionReply,
-  ListAlertRecordsParams,
-  ListAlertRecordsResponse,
   ListAlertSubscriptionsParams,
   ListAlertSubscriptionsResponse,
-  PrometheusAlertItem,
-  ReceivePrometheusWebhookReply,
-  ReceivePrometheusWebhookRequest,
   UpdateAlertSubscriptionParams,
   UpdateAlertSubscriptionReply,
   UpdateAlertSubscriptionStatusParams,

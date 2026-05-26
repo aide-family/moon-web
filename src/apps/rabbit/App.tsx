@@ -19,7 +19,6 @@ import {
   UserOutlined,
   TeamOutlined,
   BellOutlined,
-  AlertOutlined,
 } from '@ant-design/icons'
 import TemplateManagement from '@/pages/rabbit/templates'
 import EmailManagement from '@/pages/rabbit/emails'
@@ -28,7 +27,6 @@ import MessageManagement from '@/pages/rabbit/messages'
 import SenderManagement from '@/pages/rabbit/sender'
 import RecipientGroupsPage from '@/pages/rabbit/recipient-groups'
 import AlertSubscriptionsPage from '@/pages/rabbit/alert-subscriptions'
-import AlertsPage from '@/pages/rabbit/alerts'
 import LayoutComponent from '@/components/layout/Layout'
 import LoginPage from '@/pages/main/login'
 import { isInMicroApp } from '@/utils'
@@ -98,13 +96,6 @@ function getRabbitAppConfig(t: (key: string) => string): AppConfigItem[] {
       label: t('menu.rabbitAlertSubscriptions'),
       path: '/alert-subscriptions',
       element: <AlertSubscriptionsPage />,
-    },
-    {
-      key: 'rabbit-alerts',
-      icon: <AlertOutlined />,
-      label: t('menu.rabbitAlerts'),
-      path: '/alerts',
-      element: <AlertsPage />,
     },
     {
       key: 'rabbit-goddess',

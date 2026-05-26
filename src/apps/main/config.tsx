@@ -146,18 +146,6 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
           path: '/rabbit/alert-subscriptions',
         },
       },
-      {
-        key: 'rabbit-alerts',
-        icon: <AlertOutlined />,
-        label: t('menu.rabbitAlerts'),
-        path: '/rabbit/alerts',
-        subApp: {
-          name: 'rabbit-alerts',
-          devUrl: 'http://localhost:5175/alerts',
-          prodUrl: 'http://localhost:4175/alerts',
-          path: '/rabbit/alerts',
-        },
-      },
     ],
   },
   // 策略管理服务（后端端口 8003，微前端嵌套）

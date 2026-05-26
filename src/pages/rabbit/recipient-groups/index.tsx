@@ -5,11 +5,9 @@ import {
   Button,
   Descriptions,
   Dropdown,
-  Form,
   Input,
   Modal,
   Radio,
-  Select,
   Space,
   Table,
   Tag,
@@ -19,28 +17,20 @@ import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
 import dayjs from 'dayjs'
 import CopyButton from '@/components/CopyButton'
-import KeyValueEditor, {
-  formatRecordJson,
-  keyValueRowsToRecord,
-  recordToKeyValueRows,
-  type KeyValueRow,
-} from '@/components/KeyValueEditor'
+import { formatRecordJson } from '@/components/KeyValueEditor'
+import RecipientGroupDetailForm from './components/DetailForm'
 import PageContent from '@/components/layout/PageContent'
 import { useLocale } from '@/contexts/LocaleContext'
 import { MENU_DIVIDER } from '@/utils/menu'
 import { emptyPlaceholder, renderStatusTag } from '@/utils/marksman'
 import { GlobalStatus } from '@/api/common/types'
 import {
-  createRecipientGroup,
   deleteRecipientGroup,
   getRecipientGroupDetail,
   getRecipientGroupList,
-  updateRecipientGroup,
   updateRecipientGroupStatus,
-  type CreateRecipientGroupParams,
   type RecipientGroupItem,
   type RecipientGroupListParams,
-  type UpdateRecipientGroupParams,
 } from '@/api/rabbit/recipient-group'
 import { getTemplateSelectList } from '@/api/rabbit/template'
 import { getEmailConfigSelectList } from '@/api/rabbit/email'
@@ -55,15 +45,6 @@ interface SelectOption {
   label: string
   disabled?: boolean
   tooltip?: string
-}
-
-interface RecipientGroupFormValues {
-  name?: string
-  metadataPairs?: KeyValueRow[]
-  templates?: string[]
-  emailConfigs?: string[]
-  webhookConfigs?: string[]
-  members?: string[]
 }
 
 const defaultSearchParams: RecipientGroupListParams = {
@@ -88,10 +69,9 @@ const toSelectOptions = (
       tooltip: item.tooltip,
     }))
 
-export default function RecipientGroupsPage() {
+function RecipientGroupsContent() {
   const { modal, message } = App.useApp()
   const { t } = useLocale()
-  const [form] = Form.useForm<RecipientGroupFormValues>()
 
   const [loading, setLoading] = useState(false)
   const [dataSource, setDataSource] = useState<RecipientGroupItem[]>([])
@@ -107,10 +87,9 @@ export default function RecipientGroupsPage() {
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailData, setDetailData] = useState<RecipientGroupItem | null>(null)
 
-  const [formOpen, setFormOpen] = useState(false)
+  const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create')
   const [formLoading, setFormLoading] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
   const [editingData, setEditingData] = useState<RecipientGroupItem | null>(
     null,
   )
@@ -187,43 +166,25 @@ export default function RecipientGroupsPage() {
     void fetchData(1, pagination.pageSize)
   }, [fetchData, pagination.pageSize])
 
-  const openCreateModal = async () => {
+  const openCreateModal = () => {
     setFormMode('create')
     setEditingData(null)
-    form.resetFields()
-    form.setFieldsValue({ metadataPairs: [] })
-    setFormOpen(true)
-    await loadOptions()
+    setFormLoading(false)
+    setDetailFormOpen(true)
   }
 
   const openEditModal = async (record: RecipientGroupItem) => {
     if (!record.uid) return
     setFormMode('edit')
+    setEditingData(null)
     setFormLoading(true)
-    setFormOpen(true)
+    setDetailFormOpen(true)
     try {
-      await loadOptions()
       const detail = await getRecipientGroupDetail(record.uid)
       setEditingData(detail)
-      form.setFieldsValue({
-        name: detail.name,
-        metadataPairs: recordToKeyValueRows(detail.metadata),
-        templates: (detail.templates ?? [])
-          .map((item) => item.uid)
-          .filter((value): value is string => Boolean(value)),
-        emailConfigs: (detail.emailConfigs ?? [])
-          .map((item) => item.uid)
-          .filter((value): value is string => Boolean(value)),
-        webhookConfigs: (detail.webhookConfigs ?? [])
-          .map((item) => item.uid)
-          .filter((value): value is string => Boolean(value)),
-        members: (detail.members ?? [])
-          .map((item) => item.uid)
-          .filter((value): value is string => Boolean(value)),
-      })
     } catch (error) {
       console.error('获取收件人组详情失败:', error)
-      setFormOpen(false)
+      setDetailFormOpen(false)
     } finally {
       setFormLoading(false)
     }
@@ -275,41 +236,6 @@ export default function RecipientGroupsPage() {
     void fetchData()
     if (detailData?.uid === record.uid) {
       setDetailData((prev) => (prev ? { ...prev, status } : prev))
-    }
-  }
-
-  const handleSubmit = async () => {
-    try {
-      const values = await form.validateFields()
-      const payload: CreateRecipientGroupParams | UpdateRecipientGroupParams = {
-        name: values.name?.trim(),
-        metadata: keyValueRowsToRecord(values.metadataPairs),
-        templates: values.templates ?? [],
-        emailConfigs: values.emailConfigs ?? [],
-        webhookConfigs: values.webhookConfigs ?? [],
-        members: values.members ?? [],
-      }
-      setSubmitting(true)
-      if (formMode === 'create') {
-        await createRecipientGroup(payload)
-        message.success(t('message.create.success'))
-      } else if (editingData?.uid) {
-        await updateRecipientGroup(editingData.uid, {
-          ...payload,
-          uid: editingData.uid,
-        })
-        message.success(t('message.update.success'))
-      }
-      setFormOpen(false)
-      form.resetFields()
-      setEditingData(null)
-      void fetchData()
-    } catch (error) {
-      if (error && typeof error === 'object' && 'errorFields' in error) return
-      console.error('保存收件人组失败:', error)
-      message.error(t('message.error'))
-    } finally {
-      setSubmitting(false)
     }
   }
 
@@ -455,9 +381,8 @@ export default function RecipientGroupsPage() {
   ]
 
   return (
-    <App className='h-full'>
-      <PageContent>
-        <div className='flex flex-col gap-4 h-full'>
+    <>
+      <div className='flex flex-col gap-4 h-full'>
           <div className='flex items-center justify-between gap-3'>
             <Space wrap>
               <Input
@@ -491,9 +416,17 @@ export default function RecipientGroupsPage() {
                   {t(`common.status.${GlobalStatus.DISABLED}`)}
                 </Radio.Button>
               </Radio.Group>
+              <Button
+                type='primary'
+                onClick={() =>
+                  handleSearch({ keyword: searchParams.keyword ?? '' })
+                }
+              >
+                {t('common.search')}
+              </Button>
               <Button onClick={handleReset}>{t('common.reset')}</Button>
             </Space>
-            <Button type='primary' onClick={() => void openCreateModal()}>
+            <Button type='primary' onClick={openCreateModal}>
               {t('common.add')}
             </Button>
           </div>
@@ -516,118 +449,19 @@ export default function RecipientGroupsPage() {
           />
         </div>
 
-        <Modal
-          title={
-            formMode === 'create'
-              ? t('recipientGroup.modal.create.title')
-              : t('recipientGroup.modal.edit.title')
-          }
-          open={formOpen}
-          onOk={() => void handleSubmit()}
-          onCancel={() => {
-            setFormOpen(false)
-            setEditingData(null)
-            form.resetFields()
-          }}
-          destroyOnHidden
-          confirmLoading={submitting}
-          okText={t('common.submit')}
-          width={760}
-        >
-          <Form form={form} layout='vertical' preserve={false}>
-            <Form.Item
-              name='name'
-              label={t('recipientGroup.form.name.label')}
-              rules={[
-                {
-                  required: true,
-                  message: t('recipientGroup.form.name.required'),
-                },
-              ]}
-            >
-              <Input
-                placeholder={t('recipientGroup.form.name.placeholder')}
-                maxLength={100}
-                disabled={formLoading}
-              />
-            </Form.Item>
+      <RecipientGroupDetailForm
+        open={detailFormOpen}
+        mode={formMode}
+        initialData={editingData}
+        formLoading={formLoading}
+        onCancel={() => {
+          setDetailFormOpen(false)
+          setEditingData(null)
+        }}
+        onSuccess={() => void fetchData()}
+      />
 
-            <KeyValueEditor
-              name='metadataPairs'
-              label={t('recipientGroup.form.metadata.label')}
-              extra={t('recipientGroup.form.metadata.help')}
-              disabled={formLoading}
-            />
-
-            <Form.Item
-              name='templates'
-              label={t('recipientGroup.form.templates.label')}
-            >
-              <Select
-                mode='multiple'
-                allowClear
-                showSearch
-                options={templateOptions}
-                placeholder={t('recipientGroup.form.templates.placeholder')}
-                disabled={formLoading}
-                optionFilterProp='label'
-                maxTagCount='responsive'
-              />
-            </Form.Item>
-
-            <Form.Item
-              name='emailConfigs'
-              label={t('recipientGroup.form.emailConfigs.label')}
-            >
-              <Select
-                mode='multiple'
-                allowClear
-                showSearch
-                options={emailOptions}
-                placeholder={t('recipientGroup.form.emailConfigs.placeholder')}
-                disabled={formLoading}
-                optionFilterProp='label'
-                maxTagCount='responsive'
-              />
-            </Form.Item>
-
-            <Form.Item
-              name='webhookConfigs'
-              label={t('recipientGroup.form.webhookConfigs.label')}
-            >
-              <Select
-                mode='multiple'
-                allowClear
-                showSearch
-                options={webhookOptions}
-                placeholder={t(
-                  'recipientGroup.form.webhookConfigs.placeholder',
-                )}
-                disabled={formLoading}
-                optionFilterProp='label'
-                maxTagCount='responsive'
-              />
-            </Form.Item>
-
-            <Form.Item
-              name='members'
-              label={t('recipientGroup.form.members.label')}
-            >
-              <Select
-                mode='multiple'
-                allowClear
-                showSearch
-                options={memberOptions}
-                placeholder={t('recipientGroup.form.members.placeholder')}
-                disabled={formLoading}
-                optionFilterProp='label'
-                maxTagCount='responsive'
-              />
-            </Form.Item>
-          </Form>
-        </Modal>
-
-        <Modal
+      <Modal
           title={t('recipientGroup.modal.detail.title')}
           open={detailOpen}
           onCancel={() => {
@@ -775,6 +609,15 @@ export default function RecipientGroupsPage() {
             </div>
           ) : null}
         </Modal>
+    </>
+  )
+}
+
+export default function RecipientGroupsPage() {
+  return (
+    <App className='h-full'>
+      <PageContent>
+        <RecipientGroupsContent />
       </PageContent>
     </App>
   )
