@@ -105,7 +105,6 @@ export interface AlertEventItem {
 export interface ListRealtimeAlertParams {
   page?: number
   pageSize?: number
-  status?: number
   startAtUnix?: string
   endAtUnix?: string
   keyword?: string

@@ -41,7 +41,6 @@ import {
 /** 实时告警列表筛选表单（仅 Tab 内使用） */
 interface AlertFilterFormValues {
   keyword?: string
-  status?: number
   timeRange?: [dayjs.Dayjs, dayjs.Dayjs] | null
 }
 
@@ -65,7 +64,6 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     suppressedReason: string
     suppressUntil?: dayjs.Dayjs | null
   }>()
-  const filterStatus = Form.useWatch('status', filterForm)
   const timeRange = Form.useWatch('timeRange', filterForm)
   const startAt = timeRange?.[0] ?? null
   const endAt = timeRange?.[1] ?? null
@@ -139,7 +137,6 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
           ...defaultListParams,
           page: currentPage,
           pageSize: currentPageSize,
-          status: filterStatus,
           startAtUnix: startAt ? String(startAt.unix()) : undefined,
           endAtUnix: endAt ? String(endAt.unix()) : undefined,
           keyword: trimmedKw !== '' ? trimmedKw : undefined,
@@ -173,7 +170,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
         }
       }
     },
-    [alertPageUid, filterStatus, startAt, endAt, listKeyword],
+    [alertPageUid, startAt, endAt, listKeyword],
   )
 
   // 仅在组件卸载时控制 mountedRef：不在 filter 变化时把它置为 false
@@ -783,7 +780,6 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
         open={detailModalOpen}
         alertPageUid={alertPageUid}
         fallbackRecord={detailModalRecord}
-        listStatus={filterStatus}
         listStartAtUnix={startAt ? String(startAt.unix()) : undefined}
         listEndAtUnix={endAt ? String(endAt.unix()) : undefined}
         onCancel={() => {

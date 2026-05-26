@@ -5,6 +5,11 @@ import { zhCN as emailZh, enUS as emailEn } from './rabbit/email'
 import { zhCN as webhookZh, enUS as webhookEn } from './rabbit/webhook'
 import { zhCN as messageZh, enUS as messageEn } from './rabbit/message'
 import { zhCN as senderZh, enUS as senderEn } from './rabbit/sender'
+import {
+  zhCN as recipientGroupZh,
+  enUS as recipientGroupEn,
+} from './rabbit/recipientGroup'
+import { zhCN as rabbitAlertZh, enUS as rabbitAlertEn } from './rabbit/alert'
 import { zhCN as userZh, enUS as userEn } from './user'
 import { zhCN as memberZh, enUS as memberEn } from './member'
 import { zhCN as datasourceZh, enUS as datasourceEn } from './datasource'
@@ -18,10 +23,6 @@ import {
   zhCN as realtimeAlertZh,
   enUS as realtimeAlertEn,
 } from './realtimeAlert'
-import {
-  zhCN as notificationGroupZh,
-  enUS as notificationGroupEn,
-} from './notificationGroup'
 import { zhCN as jadeTreeZh, enUS as jadeTreeEn } from './jadeTree'
 import type { LocaleType } from '@/contexts/LocaleContext'
 
@@ -41,6 +42,8 @@ const zhCN = mergeResources(
   webhookZh,
   messageZh,
   senderZh,
+  recipientGroupZh,
+  rabbitAlertZh,
   userZh,
   memberZh,
   datasourceZh,
@@ -48,7 +51,6 @@ const zhCN = mergeResources(
   levelZh,
   strategyGroupZh,
   realtimeAlertZh,
-  notificationGroupZh,
   jadeTreeZh,
 )
 
@@ -61,6 +63,8 @@ const enUS = mergeResources(
   webhookEn,
   messageEn,
   senderEn,
+  recipientGroupEn,
+  rabbitAlertEn,
   userEn,
   memberEn,
   datasourceEn,
@@ -68,7 +72,6 @@ const enUS = mergeResources(
   levelEn,
   strategyGroupEn,
   realtimeAlertEn,
-  notificationGroupEn,
   jadeTreeEn,
 )
 
@@ -88,3 +91,8 @@ export { zhCN as emailZh, enUS as emailEn } from './rabbit/email'
 export { zhCN as webhookZh, enUS as webhookEn } from './rabbit/webhook'
 export { zhCN as messageZh, enUS as messageEn } from './rabbit/message'
 export { zhCN as senderZh, enUS as senderEn } from './rabbit/sender'
+export {
+  zhCN as recipientGroupZh,
+  enUS as recipientGroupEn,
+} from './rabbit/recipientGroup'
+export { zhCN as rabbitAlertZh, enUS as rabbitAlertEn } from './rabbit/alert'

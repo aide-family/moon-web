@@ -40,7 +40,6 @@ import StrategyListWrapper from '@/pages/marksman/strategies'
 import StrategyDetailPage from '@/pages/marksman/strategies/detail'
 import LevelListWrapper from '@/pages/marksman/levels'
 import RealtimeAlertListWrapper from '@/pages/marksman/realtime-alerts'
-import NotificationGroupListWrapper from '@/pages/marksman/notification-groups'
 
 function AppContent() {
   const { themeConfig } = useTheme()
@@ -76,13 +75,6 @@ function AppContent() {
         label: t('menu.levels'),
         path: '/levels',
         element: <LevelListWrapper />,
-      },
-      {
-        key: 'notification-groups',
-        icon: <BellOutlined />,
-        label: t('menu.notificationGroups'),
-        path: '/notification-groups',
-        element: <NotificationGroupListWrapper />,
       },
       {
         key: 'marksman-goddess',

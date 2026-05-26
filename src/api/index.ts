@@ -34,7 +34,6 @@ export * from './marksman/metricQuery/index'
 export * from './marksman/strategy/index'
 export * from './marksman/strategyMetric/index'
 export * from './marksman/strategyGroup/index'
-export * from './marksman/notificationGroup/index'
 
 // rabbit：消息与发送
 export * from './rabbit/sender/index'
@@ -42,6 +41,8 @@ export * from './rabbit/email/index'
 export * from './rabbit/webhook/index'
 export * from './rabbit/template/index'
 export * from './rabbit/message-log/index'
+export * from './rabbit/recipient-group/index'
+export * from './rabbit/alert/index'
 
 // jade_tree：机器信息、探测任务、SSH命令
 export * from './jade_tree/machineInfo/index'

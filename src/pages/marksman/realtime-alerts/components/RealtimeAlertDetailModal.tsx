@@ -20,8 +20,6 @@ export interface RealtimeAlertDetailModalProps {
   alertPageUid: string
   /** 列表行快照：作为 uid 来源及请求失败时的兜底 */
   fallbackRecord: AlertEventItem | null
-  /** 与当前实时列表筛选一致，供列表接口兜底查询 */
-  listStatus?: number
   listStartAtUnix?: string
   listEndAtUnix?: string
 }
@@ -131,10 +129,7 @@ function formatLabelsJson(labels: Record<string, string> | undefined): string {
 async function fetchLatestAlertEvent(params: {
   alertPageUid: string
   uid: string
-  listFilter: Pick<
-    ListRealtimeAlertParams,
-    'status' | 'startAtUnix' | 'endAtUnix'
-  >
+  listFilter: Pick<ListRealtimeAlertParams, 'startAtUnix' | 'endAtUnix'>
 }): Promise<AlertEventItem> {
   const { alertPageUid, uid, listFilter } = params
   try {
@@ -159,7 +154,6 @@ export const RealtimeAlertDetailModal: React.FC<
   onCancel,
   alertPageUid,
   fallbackRecord,
-  listStatus,
   listStartAtUnix,
   listEndAtUnix,
 }) => {
@@ -187,7 +181,6 @@ export const RealtimeAlertDetailModal: React.FC<
           alertPageUid,
           uid,
           listFilter: {
-            status: listStatus,
             startAtUnix: listStartAtUnix,
             endAtUnix: listEndAtUnix,
           },
@@ -203,15 +196,7 @@ export const RealtimeAlertDetailModal: React.FC<
         if (fetchSeqRef.current === seq) setLoading(false)
       }
     })()
-  }, [
-    open,
-    fallbackRecord,
-    alertPageUid,
-    listStatus,
-    listStartAtUnix,
-    listEndAtUnix,
-    t,
-  ])
+  }, [open, fallbackRecord, alertPageUid, listStartAtUnix, listEndAtUnix, t])
 
   const renderStatus = (status?: AlertStatus) => {
     if (status == null) return emptyPlaceholder(status)
