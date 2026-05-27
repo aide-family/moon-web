@@ -25,6 +25,7 @@ import {
   BellOutlined,
   ThunderboltOutlined,
   AlertOutlined,
+  HistoryOutlined,
   UserOutlined,
 } from '@ant-design/icons'
 import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
@@ -40,6 +41,7 @@ import StrategyListWrapper from '@/pages/marksman/strategies'
 import StrategyDetailPage from '@/pages/marksman/strategies/detail'
 import LevelListWrapper from '@/pages/marksman/levels'
 import RealtimeAlertListWrapper from '@/pages/marksman/realtime-alerts'
+import HistoryAlertListWrapper from '@/pages/marksman/history-alerts'
 
 function AppContent() {
   const { themeConfig } = useTheme()
@@ -54,6 +56,13 @@ function AppContent() {
         label: t('menu.realtimeAlerts'),
         path: '/realtime-alerts',
         element: <RealtimeAlertListWrapper />,
+      },
+      {
+        key: 'history-alerts',
+        icon: <HistoryOutlined />,
+        label: t('menu.historyAlerts'),
+        path: '/history-alerts',
+        element: <HistoryAlertListWrapper />,
       },
       {
         key: 'datasources',

@@ -135,6 +135,75 @@ export interface ListHistoryAlertParams {
 /** 历史告警列表响应 */
 export type ListHistoryAlertResponse = ListRealtimeAlertResponse
 
+/** 历史告警导出任务状态 */
+export enum HistoryAlertExportTaskStatus {
+  UNKNOWN = 0,
+  PENDING = 1,
+  RUNNING = 2,
+  COMPLETED = 3,
+  FAILED = 4,
+  CANCELLED = 5,
+}
+
+/** 历史告警导出筛选条件 */
+export interface HistoryAlertExportFilter {
+  startAtUnix?: string
+  endAtUnix?: string
+  status?: number
+  strategyGroupUids?: string[]
+  levelUids?: string[]
+  strategyUids?: string[]
+  datasourceUids?: string[]
+  keyword?: string
+}
+
+/** 创建历史告警导出任务 POST /v1/alert/history-alerts/export-tasks */
+export interface CreateHistoryAlertExportTaskParams {
+  filter?: HistoryAlertExportFilter
+}
+
+export interface CreateHistoryAlertExportTaskReply {
+  uid?: string
+}
+
+/** 历史告警导出任务项 */
+export interface HistoryAlertExportTaskItem {
+  uid?: string
+  status?: HistoryAlertExportTaskStatus | number | string
+  totalRows?: string
+  processedRows?: string
+  fileName?: string
+  errorMessage?: string
+  createdAt?: string
+  updatedAt?: string
+  completedAt?: string
+}
+
+/** 历史告警导出任务列表 GET /v1/alert/history-alerts/export-tasks */
+export interface ListHistoryAlertExportTaskParams {
+  page?: number
+  pageSize?: number
+  status?: HistoryAlertExportTaskStatus | number
+}
+
+export interface ListHistoryAlertExportTaskResponse {
+  items?: HistoryAlertExportTaskItem[]
+  total?: string
+  page?: number
+  pageSize?: number
+}
+
+/** SSE 推送的导出任务事件 */
+export interface HistoryAlertExportTaskEvent {
+  uid: number
+  status: HistoryAlertExportTaskStatus | number
+  totalRows: number
+  processedRows: number
+  fileName: string
+  errorMessage: string
+  completedAt: string
+}
+
 /** 告警统计（GET /v1/alert/statistics） */
 export interface GetAlertStatisticsReply {
   totalActiveCount?: string

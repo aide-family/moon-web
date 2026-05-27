@@ -23,6 +23,10 @@ import {
   zhCN as realtimeAlertZh,
   enUS as realtimeAlertEn,
 } from './realtimeAlert'
+import {
+  zhCN as historyAlertZh,
+  enUS as historyAlertEn,
+} from './historyAlert'
 import { zhCN as jadeTreeZh, enUS as jadeTreeEn } from './jadeTree'
 import type { LocaleType } from '@/contexts/LocaleContext'
 
@@ -51,6 +55,7 @@ const zhCN = mergeResources(
   levelZh,
   strategyGroupZh,
   realtimeAlertZh,
+  historyAlertZh,
   jadeTreeZh,
 )
 
@@ -72,6 +77,7 @@ const enUS = mergeResources(
   levelEn,
   strategyGroupEn,
   realtimeAlertEn,
+  historyAlertEn,
   jadeTreeEn,
 )
 

@@ -16,6 +16,10 @@ import type {
   ListRealtimeAlertResponse,
   ListHistoryAlertParams,
   ListHistoryAlertResponse,
+  CreateHistoryAlertExportTaskParams,
+  CreateHistoryAlertExportTaskReply,
+  ListHistoryAlertExportTaskParams,
+  ListHistoryAlertExportTaskResponse,
   InterveneAlertParams,
   BatchInterveneAlertParams,
   RecoverAlertParams,
@@ -40,6 +44,14 @@ export type {
   ListRealtimeAlertResponse,
   ListHistoryAlertParams,
   ListHistoryAlertResponse,
+  HistoryAlertExportFilter,
+  CreateHistoryAlertExportTaskParams,
+  CreateHistoryAlertExportTaskReply,
+  HistoryAlertExportTaskItem,
+  ListHistoryAlertExportTaskParams,
+  ListHistoryAlertExportTaskResponse,
+  HistoryAlertExportTaskEvent,
+  HistoryAlertExportTaskStatus,
   InterveneAlertParams,
   BatchInterveneAlertParams,
   RecoverAlertParams,
@@ -112,6 +124,62 @@ export const getHistoryAlertList = (
   return http.get<ListHistoryAlertResponse>('/alert/history-alerts', {
     ...params,
   })
+}
+
+/** 创建历史告警导出任务 POST /v1/alert/history-alerts/export-tasks */
+export const createHistoryAlertExportTask = (
+  params: CreateHistoryAlertExportTaskParams,
+): Promise<CreateHistoryAlertExportTaskReply> => {
+  return http.post<CreateHistoryAlertExportTaskReply>(
+    '/alert/history-alerts/export-tasks',
+    params as unknown as Record<string, unknown>,
+  )
+}
+
+/** 历史告警导出任务列表 GET /v1/alert/history-alerts/export-tasks */
+export const listHistoryAlertExportTasks = (
+  params?: ListHistoryAlertExportTaskParams,
+): Promise<ListHistoryAlertExportTaskResponse> => {
+  return http.get<ListHistoryAlertExportTaskResponse>(
+    '/alert/history-alerts/export-tasks',
+    { ...params },
+  )
+}
+
+/** 取消历史告警导出任务 POST /v1/alert/history-alerts/export-tasks/{uid}/cancel */
+export const cancelHistoryAlertExportTask = (
+  uid: string,
+): Promise<Record<string, never>> => {
+  return http.post<Record<string, never>>(
+    `/alert/history-alerts/export-tasks/${uid}/cancel`,
+    {},
+  )
+}
+
+/** 下载历史告警导出文件 GET /v1/alert/history-alerts/export-tasks/{uid}/download */
+export const downloadHistoryAlertExportTask = async (
+  uid: string,
+  fileName: string,
+): Promise<void> => {
+  const token =
+    localStorage.getItem('token') || sessionStorage.getItem('token') || ''
+  const namespace = localStorage.getItem('namespace') || ''
+  const response = await fetch(`/v1/alert/history-alerts/export-tasks/${uid}/download`, {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : '',
+      'X-Namespace': namespace,
+    },
+  })
+  if (!response.ok) {
+    throw new Error(`download failed: ${response.status}`)
+  }
+  const blob = await response.blob()
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = fileName || `history-alerts-${uid}.csv`
+  link.click()
+  URL.revokeObjectURL(url)
 }
 
 /** 介入告警 POST /v1/alert/realtime-alerts/{uid}/intervene */

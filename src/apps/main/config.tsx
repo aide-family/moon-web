@@ -168,6 +168,18 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         },
       },
       {
+        key: 'marksman-history-alerts',
+        icon: <HistoryOutlined />,
+        label: t('menu.historyAlerts'),
+        path: '/marksman/history-alerts',
+        subApp: {
+          name: 'marksman-history-alerts',
+          devUrl: 'http://localhost:5176/history-alerts',
+          prodUrl: 'http://localhost:4176/history-alerts',
+          path: '/marksman/history-alerts',
+        },
+      },
+      {
         key: 'marksman-datasources',
         icon: <HddOutlined />,
         label: t('menu.datasources'),
