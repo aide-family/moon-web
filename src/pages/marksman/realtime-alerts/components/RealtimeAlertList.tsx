@@ -47,6 +47,7 @@ import {
   compareAlertPagePriority,
   readStoredActiveAlertPageUid,
   resolveActiveAlertPageUid,
+  type RealtimeAlertRefreshIntervalMs,
   writeStoredActiveAlertPageUid,
 } from '../realtimeAlertStorage'
 
@@ -54,7 +55,7 @@ type AlertPageFormMode = 'create' | 'edit'
 
 export interface RealtimeAlertListProps {
   stats: GetAlertStatisticsReply | null
-  autoRefreshEnabled: boolean
+  refreshIntervalMs: RealtimeAlertRefreshIntervalMs
   rowBgColorEnabled: boolean
   /** 刷新页头统计（与告警页 Tab 计数联动） */
   onRefreshStats?: () => Promise<void>
@@ -62,7 +63,7 @@ export interface RealtimeAlertListProps {
 
 export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
   stats,
-  autoRefreshEnabled,
+  refreshIntervalMs,
   rowBgColorEnabled,
   onRefreshStats,
 }) => {
@@ -218,14 +219,14 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
   }, [fetchAvailableAlertPages, fetchBoundAlertPages])
 
   useEffect(() => {
-    if (!autoRefreshEnabled) return
+    if (refreshIntervalMs <= 0) return
     const timer = window.setInterval(() => {
       void refreshPageContext({ silent: true })
-    }, 60_000)
+    }, refreshIntervalMs)
     return () => {
       window.clearInterval(timer)
     }
-  }, [autoRefreshEnabled, refreshPageContext])
+  }, [refreshIntervalMs, refreshPageContext])
 
   useEffect(() => {
     if (!alertPageModalOpen && !manageAlertPagesModalOpen) return

@@ -1,6 +1,38 @@
 import type { AlertPageItem } from '@/api/marksman/alert'
 
 const STORAGE_KEY_PREFIX = 'marksman:realtime-alert:active-alert-page'
+const REFRESH_INTERVAL_STORAGE_KEY =
+  'marksman:realtime-alert:refresh-interval-ms'
+
+export const REALTIME_ALERT_REFRESH_INTERVALS = [
+  0, 5_000, 10_000, 30_000, 60_000, 5 * 60_000, 15 * 60_000,
+] as const
+
+export type RealtimeAlertRefreshIntervalMs =
+  (typeof REALTIME_ALERT_REFRESH_INTERVALS)[number]
+
+const REFRESH_INTERVAL_SET = new Set<number>(REALTIME_ALERT_REFRESH_INTERVALS)
+
+export function isValidRefreshIntervalMs(
+  value: number,
+): value is RealtimeAlertRefreshIntervalMs {
+  return REFRESH_INTERVAL_SET.has(value)
+}
+
+export function readStoredRefreshIntervalMs(): RealtimeAlertRefreshIntervalMs {
+  if (typeof window === 'undefined') return 0
+  const raw = localStorage.getItem(REFRESH_INTERVAL_STORAGE_KEY)
+  if (raw == null || raw === '') return 0
+  const parsed = Number(raw)
+  return isValidRefreshIntervalMs(parsed) ? parsed : 0
+}
+
+export function writeStoredRefreshIntervalMs(
+  intervalMs: RealtimeAlertRefreshIntervalMs,
+): void {
+  if (typeof window === 'undefined') return
+  localStorage.setItem(REFRESH_INTERVAL_STORAGE_KEY, String(intervalMs))
+}
 
 export function getActiveAlertPageStorageKey(namespaceUid: string): string {
   const ns = namespaceUid.trim()

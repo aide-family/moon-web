@@ -7,15 +7,36 @@ import PageContent from '@/components/layout/PageContent'
 import { useLocale } from '@/contexts/LocaleContext'
 import { emptyPlaceholder } from '@/utils/marksman'
 import { useTheme } from '@/contexts/useTheme'
-import { App, Space, Spin, Switch, Tooltip } from 'antd'
+import { ReloadOutlined } from '@ant-design/icons'
+import { App, Select, Space, Spin, Switch, Tooltip } from 'antd'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RealtimeAlertList } from './components/RealtimeAlertList'
+import {
+  readStoredRefreshIntervalMs,
+  REALTIME_ALERT_REFRESH_INTERVALS,
+  type RealtimeAlertRefreshIntervalMs,
+  writeStoredRefreshIntervalMs,
+} from './realtimeAlertStorage'
+
+const REFRESH_INTERVAL_LABEL_KEYS: Record<
+  RealtimeAlertRefreshIntervalMs,
+  string
+> = {
+  0: 'realtimeAlert.autoRefresh.off',
+  5000: 'realtimeAlert.autoRefresh.5s',
+  10000: 'realtimeAlert.autoRefresh.10s',
+  30000: 'realtimeAlert.autoRefresh.30s',
+  60000: 'realtimeAlert.autoRefresh.1m',
+  300000: 'realtimeAlert.autoRefresh.5m',
+  900000: 'realtimeAlert.autoRefresh.15m',
+}
 
 export default function RealtimeAlertListWrapper() {
   const { t } = useLocale()
   const { actualThemeMode } = useTheme()
   const isDark = actualThemeMode === 'dark'
-  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true)
+  const [refreshIntervalMs, setRefreshIntervalMs] =
+    useState<RealtimeAlertRefreshIntervalMs>(() => readStoredRefreshIntervalMs())
   /** 是否对实时告警表格行应用接口返回的 bgColor（默认开启） */
   const [rowBgColorEnabled, setRowBgColorEnabled] = useState(true)
   const [statsLoading, setStatsLoading] = useState(false)
@@ -25,6 +46,23 @@ export default function RealtimeAlertListWrapper() {
   const [levelSelectList, setLevelSelectList] = useState<
     { value: string; label: string }[]
   >([])
+
+  const refreshIntervalOptions = useMemo(
+    () =>
+      REALTIME_ALERT_REFRESH_INTERVALS.map((value) => ({
+        value,
+        label: t(REFRESH_INTERVAL_LABEL_KEYS[value]),
+      })),
+    [t],
+  )
+
+  const handleRefreshIntervalChange = useCallback(
+    (value: RealtimeAlertRefreshIntervalMs) => {
+      setRefreshIntervalMs(value)
+      writeStoredRefreshIntervalMs(value)
+    },
+    [],
+  )
 
   const refreshStatsSilently = useCallback(async () => {
     if (statsRefreshInFlightRef.current) return
@@ -160,19 +198,18 @@ export default function RealtimeAlertListWrapper() {
             </div>
             <Space size='middle' wrap className='shrink-0 justify-end'>
               <Space size='small' wrap align='center'>
-                <Tooltip
-                  title={t('realtimeAlert.autoRefresh.interval', {
-                    minutes: 1,
-                  })}
-                >
-                  <span className={mutedTextClassName} style={mutedTextStyle}>
-                    {t('realtimeAlert.autoRefresh.label')}
-                  </span>
-                </Tooltip>
-                <Switch
+                <ReloadOutlined
+                  className={mutedTextClassName}
+                  style={mutedTextStyle}
+                />
+                <Select<RealtimeAlertRefreshIntervalMs>
                   size='small'
-                  checked={autoRefreshEnabled}
-                  onChange={(checked) => setAutoRefreshEnabled(checked)}
+                  value={refreshIntervalMs}
+                  options={refreshIntervalOptions}
+                  onChange={handleRefreshIntervalChange}
+                  popupMatchSelectWidth={false}
+                  style={{ minWidth: 96 }}
+                  aria-label={t('realtimeAlert.autoRefresh.label')}
                 />
               </Space>
               <Space size='small' wrap align='center'>
@@ -273,7 +310,7 @@ export default function RealtimeAlertListWrapper() {
 
         <RealtimeAlertList
           stats={stats}
-          autoRefreshEnabled={autoRefreshEnabled}
+          refreshIntervalMs={refreshIntervalMs}
           rowBgColorEnabled={rowBgColorEnabled}
           onRefreshStats={refreshStatsSilently}
         />
