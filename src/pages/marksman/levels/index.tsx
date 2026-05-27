@@ -41,18 +41,28 @@ const defaultSearchParams: LevelListParams = {
   type: undefined,
 }
 
+function parseLevelTypeFromUrl(raw: string | undefined): LevelType | undefined {
+  if (
+    raw === LevelType.LEVEL_TYPE_ALERT ||
+    raw === LevelType.LEVEL_TYPE_DATASOURCE
+  ) {
+    return raw
+  }
+  return undefined
+}
+
 function parseSearchParamsFromUrl(params: URLSearchParams): LevelListParams {
-  const rawType = getParam(params, 'type')
-  const parsedType =
-    rawType != null && rawType !== '' ? Number(rawType) : undefined
-  const type =
-    parsedType != null && Number.isFinite(parsedType)
-      ? (parsedType as unknown as LevelType)
-      : undefined
+  const statusParam = getParam(params, 'status')
+  const status =
+    statusParam === GlobalStatus.ENABLED
+      ? GlobalStatus.ENABLED
+      : statusParam === GlobalStatus.DISABLED
+        ? GlobalStatus.DISABLED
+        : undefined
   return {
     keyword: getParam(params, 'keyword') ?? '',
-    status: (getParam(params, 'status') as GlobalStatus) ?? undefined,
-    type,
+    status,
+    type: parseLevelTypeFromUrl(getParam(params, 'type')),
   }
 }
 

@@ -46,15 +46,19 @@ interface AlertFilterFormValues {
 
 export interface AlertPageTabContentProps {
   alertPageUid: string
-  autoRefreshEnabled?: boolean
   /** 是否对表格行应用接口返回的 bgColor */
   rowBgColorEnabled?: boolean
+  /** 父级触发刷新（自动刷新 / 搜索时递增） */
+  refreshSignal?: number
+  /** 点击搜索时刷新告警页列表与页头统计 */
+  onSearchRefresh?: () => void | Promise<void>
 }
 
 export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   alertPageUid,
-  autoRefreshEnabled = false,
   rowBgColorEnabled = true,
+  refreshSignal = 0,
+  onSearchRefresh,
 }) => {
   const { message } = App.useApp()
   const { t } = useLocale()
@@ -221,16 +225,15 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     debouncedFetchData()
   }, [fetchData, debouncedFetchData])
 
+  const lastRefreshSignalRef = useRef(0)
   useEffect(() => {
-    if (!autoRefreshEnabled) return
-    const timer = window.setInterval(() => {
-      const { current, pageSize } = paginationRef.current
-      void fetchData(current, pageSize, { silent: true })
-    }, 60_000)
-    return () => {
-      window.clearInterval(timer)
+    if (refreshSignal <= 0 || refreshSignal === lastRefreshSignalRef.current) {
+      return
     }
-  }, [autoRefreshEnabled, fetchData])
+    lastRefreshSignalRef.current = refreshSignal
+    const { current, pageSize } = paginationRef.current
+    void fetchData(current, pageSize, { silent: true })
+  }, [refreshSignal, fetchData])
 
   useEffect(() => {
     const updateTableHeight = () => {
@@ -273,9 +276,12 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     const trimmed = String(raw).trim()
     setListKeyword(trimmed)
     setPagination((prev) => ({ ...prev, current: 1 }))
-    void fetchData(1, paginationRef.current.pageSize, {
-      listKeywordSnapshot: trimmed,
-    })
+    void (async () => {
+      await onSearchRefresh?.()
+      void fetchData(1, paginationRef.current.pageSize, {
+        listKeywordSnapshot: trimmed,
+      })
+    })()
   }
 
   const handleTableChange = (page: number, pageSize: number) => {

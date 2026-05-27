@@ -15,6 +15,7 @@ import { getLevelSelectList, LevelType } from '@/api/marksman/level'
 import { getStrategySelectList } from '@/api/marksman/strategy'
 import { getStrategyGroupSelectList } from '@/api/marksman/strategyGroup'
 import { useLocale } from '@/contexts/LocaleContext'
+import { useNamespace } from '@/contexts/useNamespace'
 import { emptyPlaceholder } from '@/utils/marksman'
 import { GlobalStatus } from '@/api'
 import { LinkOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons'
@@ -42,6 +43,12 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertPageTabContent } from './AlertPageTabContent'
 import { buildCreateAlertPageFilter } from './realtimeAlertHelpers'
 import { getDatasourceSelectList } from '@/api/marksman/datasource'
+import {
+  compareAlertPagePriority,
+  readStoredActiveAlertPageUid,
+  resolveActiveAlertPageUid,
+  writeStoredActiveAlertPageUid,
+} from '../realtimeAlertStorage'
 
 type AlertPageFormMode = 'create' | 'edit'
 
@@ -49,15 +56,19 @@ export interface RealtimeAlertListProps {
   stats: GetAlertStatisticsReply | null
   autoRefreshEnabled: boolean
   rowBgColorEnabled: boolean
+  /** 刷新页头统计（与告警页 Tab 计数联动） */
+  onRefreshStats?: () => Promise<void>
 }
 
 export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
   stats,
   autoRefreshEnabled,
   rowBgColorEnabled,
+  onRefreshStats,
 }) => {
   const { message } = App.useApp()
   const { t } = useLocale()
+  const { currentNamespace } = useNamespace()
   const [availableAlertPages, setAvailableAlertPages] = useState<
     AlertPageItem[]
   >([])
@@ -102,6 +113,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
   const [form] = Form.useForm()
   const [bindForm] = Form.useForm()
   const mountedRef = useRef(true)
+  const [listRefreshSignal, setListRefreshSignal] = useState(0)
 
   const disabledStrategyGroupSet = useMemo(() => {
     return new Set(
@@ -149,24 +161,52 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
     }
   }, [])
 
-  const fetchBoundAlertPages = useCallback(async () => {
-    setBoundAlertPagesLoading(true)
-    try {
-      const res = await listUserAlertPages()
-      if (!mountedRef.current) return
-      const items = res.items ?? []
-      setBoundAlertPages(items)
-      setActiveTabKey((prev) => {
-        if (items.length === 0) return undefined
-        if (!prev || !items.some((p) => p.uid === prev)) return items[0]?.uid
-        return prev
-      })
-    } catch (e) {
-      console.error('获取绑定告警页失败:', e)
-    } finally {
-      if (mountedRef.current) setBoundAlertPagesLoading(false)
-    }
-  }, [])
+  const fetchBoundAlertPages = useCallback(
+    async (options?: { silent?: boolean }) => {
+      const silent = options?.silent ?? false
+      if (!silent) setBoundAlertPagesLoading(true)
+      try {
+        const res = await listUserAlertPages()
+        if (!mountedRef.current) return
+        const items = res.items ?? []
+        setBoundAlertPages(items)
+        const storedUid = readStoredActiveAlertPageUid(currentNamespace)
+        setActiveTabKey((prev) => {
+          const next = resolveActiveAlertPageUid(items, {
+            preferredUid: prev,
+            storedUid,
+          })
+          if (next) {
+            writeStoredActiveAlertPageUid(currentNamespace, next)
+          }
+          return next
+        })
+      } catch (e) {
+        console.error('获取绑定告警页失败:', e)
+      } finally {
+        if (!silent && mountedRef.current) setBoundAlertPagesLoading(false)
+      }
+    },
+    [currentNamespace],
+  )
+
+  const refreshPageMetadata = useCallback(
+    async (options?: { silent?: boolean }) => {
+      await Promise.all([
+        fetchBoundAlertPages(options),
+        onRefreshStats?.(),
+      ])
+    },
+    [fetchBoundAlertPages, onRefreshStats],
+  )
+
+  const refreshPageContext = useCallback(
+    async (options?: { silent?: boolean }) => {
+      await refreshPageMetadata(options)
+      setListRefreshSignal((n) => n + 1)
+    },
+    [refreshPageMetadata],
+  )
 
   useEffect(() => {
     mountedRef.current = true
@@ -176,6 +216,16 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
       mountedRef.current = false
     }
   }, [fetchAvailableAlertPages, fetchBoundAlertPages])
+
+  useEffect(() => {
+    if (!autoRefreshEnabled) return
+    const timer = window.setInterval(() => {
+      void refreshPageContext({ silent: true })
+    }, 60_000)
+    return () => {
+      window.clearInterval(timer)
+    }
+  }, [autoRefreshEnabled, refreshPageContext])
 
   useEffect(() => {
     if (!alertPageModalOpen && !manageAlertPagesModalOpen) return
@@ -268,7 +318,10 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
         form.resetFields()
         setEditingAlertPageUid(null)
         await fetchAvailableAlertPages()
-        if (newUid) setActiveTabKey((prev) => (prev ? prev : newUid))
+        if (newUid) {
+          writeStoredActiveAlertPageUid(currentNamespace, newUid)
+          setActiveTabKey((prev) => (prev ? prev : newUid))
+        }
       } else if (editingAlertPageUid) {
         await updateAlertPage(editingAlertPageUid, {
           name,
@@ -342,18 +395,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
     () =>
       [...boundAlertPages]
         .filter((page) => page.uid)
-        .sort((a, b) => {
-          const ao = Number.isFinite(Number(a.sortOrder))
-            ? Number(a.sortOrder)
-            : Number.NEGATIVE_INFINITY
-          const bo = Number.isFinite(Number(b.sortOrder))
-            ? Number(b.sortOrder)
-            : Number.NEGATIVE_INFINITY
-          if (ao !== bo) return bo - ao
-          return (a.name ?? '').localeCompare(b.name ?? '', undefined, {
-            numeric: true,
-          })
-        })
+        .sort(compareAlertPagePriority)
         .map((page) => {
           const uid = page.uid as string
           const count = alertPageCountMap.get(uid)
@@ -637,7 +679,10 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
             </Tooltip>
             <Tabs
               activeKey={activeKey}
-              onChange={(key) => setActiveTabKey(key)}
+              onChange={(key) => {
+                setActiveTabKey(key)
+                writeStoredActiveAlertPageUid(currentNamespace, key)
+              }}
               items={tabItems}
               className='flex-1 min-w-0 [&_.ant-tabs-content]:hidden [&_.ant-tabs-tab]:overflow-visible'
             />
@@ -646,8 +691,9 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
             {activeKey ? (
               <AlertPageTabContent
                 alertPageUid={activeKey}
-                autoRefreshEnabled={autoRefreshEnabled}
                 rowBgColorEnabled={rowBgColorEnabled}
+                refreshSignal={listRefreshSignal}
+                onSearchRefresh={() => refreshPageMetadata({ silent: false })}
               />
             ) : null}
           </div>

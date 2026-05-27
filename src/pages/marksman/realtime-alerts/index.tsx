@@ -21,7 +21,6 @@ export default function RealtimeAlertListWrapper() {
   const [statsLoading, setStatsLoading] = useState(false)
   const mountedRef = useRef(true)
   const statsRefreshInFlightRef = useRef(false)
-  const initialLoadedRef = useRef(false)
   const [stats, setStats] = useState<GetAlertStatisticsReply | null>(null)
   const [levelSelectList, setLevelSelectList] = useState<
     { value: string; label: string }[]
@@ -80,7 +79,6 @@ export default function RealtimeAlertListWrapper() {
       } finally {
         if (!cancelled && mountedRef.current) {
           setStatsLoading(false)
-          initialLoadedRef.current = true
         }
       }
     }
@@ -90,20 +88,6 @@ export default function RealtimeAlertListWrapper() {
       mountedRef.current = false
     }
   }, [])
-
-  useEffect(() => {
-    if (!autoRefreshEnabled) return
-    const timer = window.setInterval(() => {
-      void refreshStatsSilently()
-    }, 60_000)
-    // 避免与首屏 Promise.allSettled 重复请求
-    if (initialLoadedRef.current) {
-      void refreshStatsSilently()
-    }
-    return () => {
-      window.clearInterval(timer)
-    }
-  }, [autoRefreshEnabled, refreshStatsSilently])
 
   const parseCount = (v?: string) => {
     const n = v == null ? 0 : Number(v)
@@ -291,6 +275,7 @@ export default function RealtimeAlertListWrapper() {
           stats={stats}
           autoRefreshEnabled={autoRefreshEnabled}
           rowBgColorEnabled={rowBgColorEnabled}
+          onRefreshStats={refreshStatsSilently}
         />
       </PageContent>
     </App>
