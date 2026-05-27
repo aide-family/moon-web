@@ -193,10 +193,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
 
   const refreshPageMetadata = useCallback(
     async (options?: { silent?: boolean }) => {
-      await Promise.all([
-        fetchBoundAlertPages(options),
-        onRefreshStats?.(),
-      ])
+      await Promise.all([fetchBoundAlertPages(options), onRefreshStats?.()])
     },
     [fetchBoundAlertPages, onRefreshStats],
   )
