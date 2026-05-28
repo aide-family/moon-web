@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   App,
-  Avatar,
   Button,
   Descriptions,
   Dropdown,
@@ -32,9 +31,6 @@ import {
   type RecipientGroupItem,
   type RecipientGroupListParams,
 } from '@/api/rabbit/recipient-group'
-import { getTemplateSelectList } from '@/api/rabbit/template'
-import { getEmailConfigSelectList } from '@/api/rabbit/email'
-import { getWebhookConfigSelectList } from '@/api/rabbit/webhook'
 import { selectMembers } from '@/api/account/member'
 import { MemberStatus } from '@/api/account/member'
 
@@ -94,34 +90,21 @@ function RecipientGroupsContent() {
     null,
   )
 
-  const [templateOptions, setTemplateOptions] = useState<SelectOption[]>([])
-  const [emailOptions, setEmailOptions] = useState<SelectOption[]>([])
-  const [webhookOptions, setWebhookOptions] = useState<SelectOption[]>([])
   const [memberOptions, setMemberOptions] = useState<SelectOption[]>([])
   const paginationRef = useRef(pagination)
   paginationRef.current = pagination
 
-  const optionLabelMap = useMemo(() => {
+  const memberLabelMap = useMemo(() => {
     const map = new Map<string, string>()
-    ;[
-      ...templateOptions,
-      ...emailOptions,
-      ...webhookOptions,
-      ...memberOptions,
-    ].forEach((item) => map.set(item.value, item.label))
+    memberOptions.forEach((item) => map.set(item.value, item.label))
     return map
-  }, [emailOptions, memberOptions, templateOptions, webhookOptions])
+  }, [memberOptions])
 
-  const loadOptions = useCallback(async () => {
-    const [templateRes, emailRes, webhookRes, memberRes] = await Promise.all([
-      getTemplateSelectList({ limit: 100, status: GlobalStatus.ENABLED }),
-      getEmailConfigSelectList({ limit: 100, status: GlobalStatus.ENABLED }),
-      getWebhookConfigSelectList({ limit: 100, status: GlobalStatus.ENABLED }),
-      selectMembers({ limit: 100, status: MemberStatus.JOINED }),
-    ])
-    setTemplateOptions(toSelectOptions(templateRes.items))
-    setEmailOptions(toSelectOptions(emailRes.items))
-    setWebhookOptions(toSelectOptions(webhookRes.items))
+  const loadMemberOptions = useCallback(async () => {
+    const memberRes = await selectMembers({
+      limit: 100,
+      status: MemberStatus.JOINED,
+    })
     setMemberOptions(toSelectOptions(memberRes.items))
   }, [])
 
@@ -196,7 +179,7 @@ function RecipientGroupsContent() {
     setDetailLoading(true)
     setDetailData(null)
     try {
-      await loadOptions()
+      await loadMemberOptions()
       const detail = await getRecipientGroupDetail(record.uid)
       setDetailData(detail)
     } catch (error) {
@@ -549,24 +532,34 @@ function RecipientGroupsContent() {
               <Descriptions.Item label={t('recipientGroup.detail.members')}>
                 {(detailData.members ?? []).length > 0 ? (
                   <div className='flex flex-col gap-2'>
-                    {detailData.members?.map((item) => (
-                      <div key={item.uid} className='flex items-center gap-2'>
-                        <Avatar size='small' src={item.avatar}>
-                          {(item.name || item.email || item.uid || '?')
-                            .slice(0, 1)
-                            .toUpperCase()}
-                        </Avatar>
-                        <Space wrap size={[4, 4]}>
-                          <Tag>{item.name || item.email || item.uid}</Tag>
-                          {item.email ? (
-                            <Tag color='blue'>{item.email}</Tag>
-                          ) : null}
-                          {item.phone ? (
-                            <Tag color='gold'>{item.phone}</Tag>
-                          ) : null}
-                        </Space>
-                      </div>
-                    ))}
+                    {detailData.members?.map((member) => {
+                      const channels = [
+                        member.isEmail
+                          ? t('recipientGroup.form.channel.email')
+                          : null,
+                        member.isSms
+                          ? t('recipientGroup.form.channel.sms')
+                          : null,
+                        member.isPhone
+                          ? t('recipientGroup.form.channel.phone')
+                          : null,
+                      ].filter(Boolean)
+                      const displayName =
+                        member.memberName ||
+                        memberLabelMap.get(member.memberUid ?? '') ||
+                        member.memberUid ||
+                        '-'
+                      return (
+                        <div key={`${member.memberUid}-${channels.join('-')}`}>
+                          <Space wrap>
+                            <span>{displayName}</span>
+                            {channels.map((channel) => (
+                              <Tag key={channel}>{channel}</Tag>
+                            ))}
+                          </Space>
+                        </div>
+                      )
+                    })}
                   </div>
                 ) : (
                   '-'
@@ -594,18 +587,6 @@ function RecipientGroupsContent() {
                 webhooks: String(detailData.webhookConfigs?.length ?? 0),
                 members: String(detailData.members?.length ?? 0),
               })}
-            </div>
-          ) : null}
-          {detailData?.members?.length ? (
-            <div className='mt-3'>
-              {detailData.members.map((member) => (
-                <Tag key={member.uid}>
-                  {optionLabelMap.get(member.uid ?? '') ||
-                    member.name ||
-                    member.email ||
-                    member.uid}
-                </Tag>
-              ))}
             </div>
           ) : null}
         </Modal>

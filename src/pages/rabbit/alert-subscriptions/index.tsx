@@ -629,30 +629,18 @@ function AlertSubscriptionsContent() {
                           ? t('alertSubscription.form.channel.phone')
                           : null,
                       ].filter(Boolean)
+                      const displayName =
+                        member.memberName ||
+                        memberLabelMap.get(member.memberUid ?? '') ||
+                        member.memberUid ||
+                        '-'
                       return (
                         <div key={`${member.memberUid}-${channels.join('-')}`}>
                           <Space wrap>
-                            <Tag color='blue'>
-                              {member.memberName ||
-                                member.memberEmail ||
-                                memberLabelMap.get(member.memberUid ?? '') ||
-                                member.memberUid}
-                            </Tag>
-                            {member.memberUid ? (
-                              <CopyButton
-                                copyValue={member.memberUid}
-                                text={member.memberUid}
-                              />
-                            ) : null}
+                            <span>{displayName}</span>
                             {channels.map((channel) => (
                               <Tag key={channel}>{channel}</Tag>
                             ))}
-                            {member.memberEmail ? (
-                              <Tag color='cyan'>{member.memberEmail}</Tag>
-                            ) : null}
-                            {member.memberPhone ? (
-                              <Tag color='gold'>{member.memberPhone}</Tag>
-                            ) : null}
                           </Space>
                         </div>
                       )

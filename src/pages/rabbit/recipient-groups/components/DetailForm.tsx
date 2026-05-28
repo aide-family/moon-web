@@ -1,5 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Form, Input, Modal, Select, message } from 'antd'
+import {
+  Button,
+  Checkbox,
+  Divider,
+  Form,
+  Input,
+  Modal,
+  Select,
+  Space,
+  message,
+} from 'antd'
 import KeyValueEditor, {
   keyValueRowsToRecord,
   recordToKeyValueRows,
@@ -12,6 +22,7 @@ import {
   updateRecipientGroup,
   type CreateRecipientGroupParams,
   type RecipientGroupItem,
+  type RecipientGroupMemberRequest,
   type UpdateRecipientGroupParams,
 } from '@/api/rabbit/recipient-group'
 import { getTemplateSelectList } from '@/api/rabbit/template'
@@ -27,13 +38,20 @@ interface SelectOption {
   tooltip?: string
 }
 
+interface GroupMemberFormValue {
+  memberUid?: string
+  isEmail?: boolean
+  isSms?: boolean
+  isPhone?: boolean
+}
+
 interface RecipientGroupFormValues {
   name?: string
   metadataPairs?: KeyValueRow[]
   templates?: string[]
   emailConfigs?: string[]
   webhookConfigs?: string[]
-  members?: string[]
+  members?: GroupMemberFormValue[]
 }
 
 export interface RecipientGroupDetailFormProps {
@@ -62,6 +80,20 @@ const toSelectOptions = (
       tooltip: item.tooltip,
     }))
 
+const normalizeMembers = (
+  members?: GroupMemberFormValue[],
+): RecipientGroupMemberRequest[] => {
+  return (members ?? [])
+    .filter((item) => item.memberUid)
+    .map((item) => ({
+      memberUid: item.memberUid,
+      isEmail: Boolean(item.isEmail),
+      isSms: Boolean(item.isSms),
+      isPhone: Boolean(item.isPhone),
+    }))
+    .filter((item) => item.isEmail || item.isSms || item.isPhone)
+}
+
 export default function RecipientGroupDetailForm({
   open,
   mode,
@@ -77,6 +109,8 @@ export default function RecipientGroupDetailForm({
   const [emailOptions, setEmailOptions] = useState<SelectOption[]>([])
   const [webhookOptions, setWebhookOptions] = useState<SelectOption[]>([])
   const [memberOptions, setMemberOptions] = useState<SelectOption[]>([])
+
+  const watchedMembers = Form.useWatch('members', form) ?? []
 
   const loadOptions = useCallback(async () => {
     const [templateRes, emailRes, webhookRes, memberRes] = await Promise.all([
@@ -115,15 +149,18 @@ export default function RecipientGroupDetailForm({
         webhookConfigs: (initialData.webhookConfigs ?? [])
           .map((item) => item.uid)
           .filter((value): value is string => Boolean(value)),
-        members: (initialData.members ?? [])
-          .map((item) => item.uid)
-          .filter((value): value is string => Boolean(value)),
+        members: (initialData.members ?? []).map((item) => ({
+          memberUid: item.memberUid,
+          isEmail: item.isEmail,
+          isSms: item.isSms,
+          isPhone: item.isPhone,
+        })),
       })
       return
     }
     if (mode === 'create') {
       form.resetFields()
-      form.setFieldsValue({ metadataPairs: [] })
+      form.setFieldsValue({ metadataPairs: [], members: [] })
     }
   }, [open, mode, initialData, form])
 
@@ -135,13 +172,14 @@ export default function RecipientGroupDetailForm({
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields()
+      const members = normalizeMembers(values.members)
       const payload: CreateRecipientGroupParams | UpdateRecipientGroupParams = {
         name: values.name?.trim(),
         metadata: keyValueRowsToRecord(values.metadataPairs),
         templates: values.templates ?? [],
         emailConfigs: values.emailConfigs ?? [],
         webhookConfigs: values.webhookConfigs ?? [],
-        members: values.members ?? [],
+        members,
       }
 
       setSubmitting(true)
@@ -182,7 +220,7 @@ export default function RecipientGroupDetailForm({
       confirmLoading={submitting}
       okButtonProps={{ disabled: formLoading }}
       okText={t('common.submit')}
-      width={760}
+      width={900}
     >
       <Form form={form} layout='vertical' preserve={false}>
         <Form.Item
@@ -257,21 +295,107 @@ export default function RecipientGroupDetailForm({
           />
         </Form.Item>
 
-        <Form.Item
+        <Divider>{t('recipientGroup.form.members.title')}</Divider>
+
+        <Form.List
           name='members'
-          label={t('recipientGroup.form.members.label')}
+          rules={[
+            {
+              validator: async (_, members?: GroupMemberFormValue[]) => {
+                const selected = (members ?? [])
+                  .map((item) => item?.memberUid)
+                  .filter((item): item is string => Boolean(item))
+                if (new Set(selected).size !== selected.length) {
+                  throw new Error(t('recipientGroup.form.member.duplicate'))
+                }
+              },
+            },
+          ]}
         >
-          <Select
-            mode='multiple'
-            allowClear
-            showSearch
-            options={memberOptions}
-            placeholder={t('recipientGroup.form.members.placeholder')}
-            disabled={formLoading}
-            optionFilterProp='label'
-            maxTagCount='responsive'
-          />
-        </Form.Item>
+          {(fields, { add, remove }, { errors }) => (
+            <div className='flex flex-col gap-3'>
+              {fields.map((field) => (
+                <div
+                  key={field.key}
+                  className='rounded-md border border-(--ant-color-border-secondary) p-3'
+                >
+                  <Space
+                    wrap
+                    align='start'
+                    className='w-full justify-between'
+                  >
+                    <div className='grid grid-cols-1 md:grid-cols-4 gap-3 flex-1'>
+                      <Form.Item
+                        name={[field.name, 'memberUid']}
+                        label={t('recipientGroup.form.member.label')}
+                        rules={[
+                          {
+                            required: true,
+                            message: t(
+                              'recipientGroup.form.member.required',
+                            ),
+                          },
+                        ]}
+                      >
+                        <Select
+                          showSearch
+                          allowClear
+                          options={memberOptions.map((item) => ({
+                            ...item,
+                            disabled:
+                              item.disabled ||
+                              watchedMembers.some(
+                                (member, index) =>
+                                  index !== field.name &&
+                                  member?.memberUid === item.value,
+                              ),
+                          }))}
+                          placeholder={t(
+                            'recipientGroup.form.member.placeholder',
+                          )}
+                          disabled={formLoading}
+                          optionFilterProp='label'
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        name={[field.name, 'isEmail']}
+                        valuePropName='checked'
+                        label={t('recipientGroup.form.channel.email')}
+                      >
+                        <Checkbox disabled={formLoading}>
+                          {t('recipientGroup.form.channel.email')}
+                        </Checkbox>
+                      </Form.Item>
+                      <Form.Item
+                        name={[field.name, 'isSms']}
+                        valuePropName='checked'
+                        label={t('recipientGroup.form.channel.sms')}
+                      >
+                        <Checkbox disabled={formLoading}>
+                          {t('recipientGroup.form.channel.sms')}
+                        </Checkbox>
+                      </Form.Item>
+                      <Form.Item
+                        name={[field.name, 'isPhone']}
+                        valuePropName='checked'
+                        label={t('recipientGroup.form.channel.phone')}
+                      >
+                        <Checkbox disabled={formLoading}>
+                          {t('recipientGroup.form.channel.phone')}
+                        </Checkbox>
+                      </Form.Item>
+                    </div>
+                    <Button danger onClick={() => remove(field.name)}>
+                      {t('common.delete')}
+                    </Button>
+                  </Space>
+                </div>
+              ))}
+              <Button onClick={() => add()}>{t('common.add')}</Button>
+              <Form.ErrorList errors={errors} />
+            </div>
+          )}
+        </Form.List>
       </Form>
     </Modal>
   )

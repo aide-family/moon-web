@@ -119,7 +119,7 @@ export default function KeyValueEditor({
             ) : (
               <Text type='secondary'>{t('common.kv.empty')}</Text>
             )}
-            <Space direction='vertical' size={4} className='w-full'>
+            <Space orientation='vertical' size={4} className='w-full'>
               <Button
                 type='dashed'
                 icon={<PlusOutlined />}

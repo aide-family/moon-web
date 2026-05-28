@@ -306,23 +306,46 @@ export default function MessageManagement() {
         title: t('messageLog.table.message'),
         dataIndex: 'message',
         key: 'message',
-        ellipsis: true,
-        minWidth: 300,
-        render: (text: string, record: MessageLogItem) => (
-          <Space size={4} wrap orientation='horizontal' align='start'>
-            {record.retryTotal != null && record.retryTotal > 0 && (
-              <Tag color='orange'>
-                {t('messageLog.retryBadge', { n: record.retryTotal })}
-              </Tag>
-            )}
-            {record.lastError && (
-              <Tooltip title={record.lastError}>
-                <Tag color='red'>{t('messageLog.errorLabel')}</Tag>
-              </Tooltip>
-            )}
-            <span>{text || '-'}</span>
-          </Space>
-        ),
+        width: 500,
+        ellipsis: { showTitle: false },
+        render: (text: string, record: MessageLogItem) => {
+          const messageText = text || '-'
+          return (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                maxWidth: 500,
+                minWidth: 0,
+              }}
+            >
+              {record.retryTotal != null && record.retryTotal > 0 && (
+                <Tag color='orange' style={{ flexShrink: 0 }}>
+                  {t('messageLog.retryBadge', { n: record.retryTotal })}
+                </Tag>
+              )}
+              {record.lastError && (
+                <Tooltip title={record.lastError}>
+                  <Tag color='red' style={{ flexShrink: 0 }}>
+                    {t('messageLog.errorLabel')}
+                  </Tag>
+                </Tooltip>
+              )}
+              <span
+                style={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  minWidth: 0,
+                  flex: 1,
+                }}
+              >
+                {messageText}
+              </span>
+            </div>
+          )
+        },
       },
       {
         title: t('table.action'),

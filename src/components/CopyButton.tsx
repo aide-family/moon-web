@@ -2,6 +2,7 @@ import { CopyOutlined } from '@ant-design/icons'
 import { App, Button } from 'antd'
 import type { ButtonProps } from 'antd'
 import { useLocale } from '@/contexts/LocaleContext'
+import { copyTextToClipboard } from '@/utils/clipboard'
 
 interface CopyButtonProps extends Omit<ButtonProps, 'children' | 'onClick'> {
   copyValue?: string | number | null
@@ -22,15 +23,10 @@ export default function CopyButton({
 
   const handleCopy = async () => {
     if (copyDisabled) return
-    if (typeof navigator === 'undefined' || !navigator.clipboard?.writeText) {
-      message.error(t('common.copy.failed'))
-      return
-    }
-    try {
-      await navigator.clipboard.writeText(String(copyValue))
+    const ok = await copyTextToClipboard(String(copyValue))
+    if (ok) {
       message.success(t('common.copy.success'))
-    } catch (error) {
-      console.error('复制失败:', error)
+    } else {
       message.error(t('common.copy.failed'))
     }
   }
@@ -42,6 +38,7 @@ export default function CopyButton({
       size={size}
       icon={<CopyOutlined />}
       disabled={copyDisabled}
+      onMouseDown={(e) => e.preventDefault()}
       onClick={() => void handleCopy()}
     >
       {text ?? t('common.copy')}

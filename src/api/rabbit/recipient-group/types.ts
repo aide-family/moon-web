@@ -1,8 +1,21 @@
 import { GlobalStatus } from '@/api/common/types'
-import type { MemberItem } from '@/api/account/member'
 import type { EmailItem } from '@/api/rabbit/email'
 import type { TemplateItem } from '@/api/rabbit/template'
 import type { WebhookItem } from '@/api/rabbit/webhook'
+
+export interface RecipientGroupMemberRequest {
+  memberUid?: string
+  isEmail?: boolean
+  isSms?: boolean
+  isPhone?: boolean
+}
+
+export interface RecipientGroupMemberItem extends RecipientGroupMemberRequest {
+  memberName?: string
+  memberAvatar?: string
+  memberEmail?: string
+  memberPhone?: string
+}
 
 export interface RecipientGroupItem {
   uid: string
@@ -11,7 +24,7 @@ export interface RecipientGroupItem {
   templates?: TemplateItem[]
   emailConfigs?: EmailItem[]
   webhookConfigs?: WebhookItem[]
-  members?: MemberItem[]
+  members?: RecipientGroupMemberItem[]
   status: GlobalStatus
   createdAt?: string
   updatedAt?: string
@@ -38,7 +51,7 @@ export interface CreateRecipientGroupParams {
   emailConfigs?: string[]
   smsConfigs?: string[]
   webhookConfigs?: string[]
-  members?: string[]
+  members?: RecipientGroupMemberRequest[]
 }
 
 export interface CreateRecipientGroupReply {

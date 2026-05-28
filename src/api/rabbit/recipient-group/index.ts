@@ -75,6 +75,8 @@ export type {
   RecipientGroupItem,
   RecipientGroupListParams,
   RecipientGroupListResponse,
+  RecipientGroupMemberItem,
+  RecipientGroupMemberRequest,
   SelectRecipientGroupItem,
   SelectRecipientGroupParams,
   SelectRecipientGroupResponse,

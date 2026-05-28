@@ -54,7 +54,7 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
       styles={{ body: { maxHeight: '70vh', overflowY: 'auto' } }}
     >
       {data ? (
-        <Space direction='vertical' size='middle' style={{ width: '100%' }}>
+        <Space orientation='vertical' size='middle' style={{ width: '100%' }}>
           <Descriptions
             column={2}
             bordered
