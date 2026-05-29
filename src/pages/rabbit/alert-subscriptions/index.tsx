@@ -4,21 +4,22 @@ import {
   App,
   Button,
   Descriptions,
-  Dropdown,
   Input,
   Modal,
   Radio,
   Space,
-  Table,
   Tag,
   Typography,
+  Pagination,
+  Spin,
+  Empty,
 } from 'antd'
-import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
 import dayjs from 'dayjs'
 import CopyButton from '@/components/CopyButton'
 import { formatRecordJson } from '@/components/keyValueUtils'
 import AlertSubscriptionDetailForm from './components/DetailForm'
+import MessageSubscriptionCard from './components/MessageSubscriptionCard'
 import PageContent from '@/components/layout/PageContent'
 import { useLocale } from '@/contexts/LocaleContext'
 import { MENU_DIVIDER } from '@/utils/menu'
@@ -113,7 +114,7 @@ function AlertSubscriptionsContent() {
       const detail = await fetchEditDetail(record.uid)
       setEditingData(detail)
     } catch (error) {
-      console.error('获取告警订阅详情失败:', error)
+      console.error('获取消息订阅详情失败:', error)
       setDetailFormOpen(false)
     }
   })
@@ -142,207 +143,90 @@ function AlertSubscriptionsContent() {
     reset(defaultSearchParams)
   })
 
-  const handleDelete = async (record: AlertSubscriptionItem) => {
+  const handlePageChange = useMemoizedFn((page: number, pageSize: number) => {
+    changePage(page, pageSize)
+  })
+
+  const handleDelete = useMemoizedFn(async (record: AlertSubscriptionItem) => {
     if (!record.uid) return
     await deleteAlertSubscription(record.uid)
     message.success(t('message.delete.success'))
     refresh()
-  }
+  })
 
-  const handleStatusChange = async (
-    record: AlertSubscriptionItem,
-    status: GlobalStatus,
-  ) => {
-    if (!record.uid) return
-    await updateAlertSubscriptionStatus({ uid: record.uid, status })
-    message.success(t('message.update.success'))
-    refresh()
-    if (detailData?.uid === record.uid) {
-      mutateDetailData((prev) => (prev ? { ...prev, status } : prev))
-    }
-  }
+  const handleStatusChange = useMemoizedFn(
+    async (record: AlertSubscriptionItem, status: GlobalStatus) => {
+      if (!record.uid) return
+      await updateAlertSubscriptionStatus({ uid: record.uid, status })
+      message.success(t('message.update.success'))
+      refresh()
+      if (detailData?.uid === record.uid) {
+        mutateDetailData((prev) => (prev ? { ...prev, status } : prev))
+      }
+    },
+  )
 
-  const columns: ColumnsType<AlertSubscriptionItem> = [
-    {
-      title: t('alertSubscription.table.uid'),
-      dataIndex: 'uid',
-      key: 'uid',
-      width: 160,
-      render: emptyPlaceholder,
-    },
-    {
-      title: t('alertSubscription.table.name'),
-      dataIndex: 'name',
-      key: 'name',
-      minWidth: 180,
-      render: emptyPlaceholder,
-    },
-    {
-      title: t('alertSubscription.table.status'),
-      dataIndex: 'status',
-      key: 'status',
-      width: 100,
-      align: 'center',
-      render: (status: GlobalStatus) => renderStatusTag(status, t),
-    },
-    {
-      title: t('alertSubscription.table.remark'),
-      dataIndex: 'remark',
-      key: 'remark',
-      minWidth: 180,
-      render: emptyPlaceholder,
-    },
-    {
-      title: t('alertSubscription.table.recipientGroups'),
-      key: 'recipientGroupUids',
-      width: 140,
-      align: 'center',
-      render: (_, record) => record.recipientGroupUids?.length ?? 0,
-    },
-    {
-      title: t('alertSubscription.table.members'),
-      key: 'members',
-      width: 100,
-      align: 'center',
-      render: (_, record) => record.members?.length ?? 0,
-    },
-    {
-      title: t('alertSubscription.table.labels'),
-      key: 'labels',
-      minWidth: 220,
-      render: (_, record) => {
-        const entries = Object.entries(record.labels ?? {})
-        return entries.length > 0 ? (
-          <Space size={[4, 4]} wrap>
-            {entries.slice(0, 4).map(([key, value]) => (
-              <Tag key={key}>{`${key}=${value}`}</Tag>
-            ))}
-          </Space>
-        ) : (
-          '-'
-        )
-      },
-    },
-    {
-      title: t('alertSubscription.table.excludeLabels'),
-      key: 'excludeLabels',
-      minWidth: 220,
-      render: (_, record) => {
-        const entries = Object.entries(record.excludeLabels ?? {})
-        return entries.length > 0 ? (
-          <Space size={[4, 4]} wrap>
-            {entries.slice(0, 3).map(([key, value]) => (
-              <Tag key={key} color='orange'>{`${key}=${value}`}</Tag>
-            ))}
-          </Space>
-        ) : (
-          '-'
-        )
-      },
-    },
-    {
-      title: t('alertSubscription.table.directEmailConfig'),
-      key: 'directMemberEmailConfigUid',
-      minWidth: 180,
-      render: (_, record) =>
-        formatDirectConfigDisplay(
-          record.directMemberEmailConfig?.name,
-          record.directMemberEmailConfigUid,
-        ),
-    },
-    {
-      title: t('alertSubscription.table.directTemplate'),
-      key: 'directMemberTemplateUid',
-      minWidth: 180,
-      render: (_, record) =>
-        formatDirectConfigDisplay(
-          record.directMemberTemplate?.name,
-          record.directMemberTemplateUid,
-        ),
-    },
-    {
-      title: t('alertSubscription.table.updatedAt'),
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      width: 180,
-      render: (value?: string) =>
-        value ? dayjs(value).format('YYYY-MM-DD HH:mm:ss') : '-',
-    },
-    {
-      title: t('table.action'),
-      key: 'action',
-      width: 140,
-      fixed: 'right',
-      align: 'center',
-      render: (_, record) => {
-        const isEnabled = record.status === GlobalStatus.ENABLED
-        const actionText = isEnabled
-          ? t(`common.status.${GlobalStatus.DISABLED}`)
-          : t(`common.status.${GlobalStatus.ENABLED}`)
-        const menuItems: MenuProps['items'] = [
-          {
-            key: 'edit',
-            label: t('common.edit'),
-            onClick: () => void openEditModal(record),
-          },
-          {
-            key: 'status',
-            label: actionText,
-            onClick: () =>
-              modal.confirm({
-                title: t('alertSubscription.confirm.status.title', {
-                  action: actionText,
-                }),
-                content: t('alertSubscription.confirm.status.content', {
-                  action: actionText,
-                  name: record.name ?? record.uid ?? '',
-                }),
-                onOk: () =>
-                  handleStatusChange(
-                    record,
-                    isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED,
-                  ),
+  const getSubscriptionMenuItems = useMemoizedFn(
+    (record: AlertSubscriptionItem): MenuProps['items'] => {
+      const isEnabled = record.status === GlobalStatus.ENABLED
+      const actionText = isEnabled
+        ? t(`common.status.${GlobalStatus.DISABLED}`)
+        : t(`common.status.${GlobalStatus.ENABLED}`)
+
+      return [
+        {
+          key: 'edit',
+          label: t('common.edit'),
+          onClick: () => void openEditModal(record),
+        },
+        {
+          key: 'status',
+          label: actionText,
+          onClick: () =>
+            modal.confirm({
+              title: t('alertSubscription.confirm.status.title', {
+                action: actionText,
               }),
-          },
-          MENU_DIVIDER,
-          {
-            key: 'delete',
-            label: t('common.delete'),
-            danger: true,
-            onClick: () =>
-              modal.confirm({
-                title: t('alertSubscription.confirm.delete.title'),
-                content: t('alertSubscription.confirm.delete.content', {
-                  name: record.name ?? record.uid ?? '',
-                }),
-                onOk: () => handleDelete(record),
+              content: t('alertSubscription.confirm.status.content', {
+                action: actionText,
+                name: record.name ?? record.uid ?? '',
               }),
-          },
-        ]
-        return (
-          <Space size='small'>
-            <Button type='link' onClick={() => openDetailModal(record)}>
-              {t('common.detail')}
-            </Button>
-            <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-              <Button type='link'>{t('common.more')}</Button>
-            </Dropdown>
-          </Space>
-        )
-      },
+              onOk: () =>
+                handleStatusChange(
+                  record,
+                  isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED,
+                ),
+            }),
+        },
+        MENU_DIVIDER,
+        {
+          key: 'delete',
+          label: t('common.delete'),
+          danger: true,
+          onClick: () =>
+            modal.confirm({
+              title: t('alertSubscription.confirm.delete.title'),
+              content: t('alertSubscription.confirm.delete.content', {
+                name: record.name ?? record.uid ?? '',
+              }),
+              onOk: () => handleDelete(record),
+            }),
+        },
+      ]
     },
-  ]
+  )
 
   return (
     <>
-      <div className='flex flex-col gap-4 h-full'>
-        <div className='flex items-center justify-between gap-3'>
-          <Space wrap>
+      <div className='flex flex-col h-full min-h-0 min-w-0'>
+        <div className='flex flex-wrap items-center justify-between gap-y-3 gap-x-4 mb-4 shrink-0 min-w-0'>
+          <Space size='middle' wrap className='min-w-0'>
+            <span>{t('table.search.keyword')}:</span>
             <Input
               value={searchParams.keyword}
               placeholder={t('table.search.placeholder')}
               allowClear
-              style={{ width: 240 }}
+              className='w-full min-w-[120px] sm:w-48 md:w-60'
               onChange={(e) =>
                 setSearchParams((prev) => ({
                   ...prev,
@@ -353,6 +237,7 @@ function AlertSubscriptionsContent() {
                 handleSearch({ keyword: searchParams.keyword ?? '' })
               }
             />
+            <span>{t('common.status')}:</span>
             <Radio.Group
               value={searchParams.status}
               onChange={(e) => handleSearch({ status: e.target.value })}
@@ -384,20 +269,41 @@ function AlertSubscriptionsContent() {
           </Button>
         </div>
 
-        <Table<AlertSubscriptionItem>
-          rowKey='uid'
-          loading={loading}
-          columns={columns}
-          dataSource={dataSource}
-          scroll={{ x: 1480 }}
-          pagination={{
-            current: pagination.current,
-            pageSize: pagination.pageSize,
-            total: pagination.total,
-            showSizeChanger: true,
-          }}
-          onChange={(page) => changePage(page.current!, page.pageSize!)}
-        />
+        <div className='flex-1 min-h-0 overflow-y-auto overflow-x-hidden min-w-0'>
+          <Spin spinning={loading}>
+            {dataSource.length > 0 ? (
+              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 min-w-0'>
+                {dataSource.map((item) => (
+                  <MessageSubscriptionCard
+                    key={item.uid}
+                    item={item}
+                    menuItems={getSubscriptionMenuItems(item)}
+                    onView={() => openDetailModal(item)}
+                  />
+                ))}
+              </div>
+            ) : (
+              !loading && (
+                <Empty className='py-16' description={t('common.noData')} />
+              )
+            )}
+          </Spin>
+        </div>
+
+        <div className='shrink-0 pt-3 mt-3 border-t border-(--ant-color-border-secondary) min-w-0'>
+          <Pagination
+            className='flex justify-end'
+            current={pagination.current}
+            pageSize={pagination.pageSize}
+            total={pagination.total}
+            showSizeChanger
+            showQuickJumper
+            responsive
+            showTotal={(total) => t('table.total', { total })}
+            onChange={handlePageChange}
+            onShowSizeChange={handlePageChange}
+          />
+        </div>
       </div>
 
       <AlertSubscriptionDetailForm
@@ -574,8 +480,8 @@ function AlertSubscriptionsContent() {
 
 export default function AlertSubscriptionsPage() {
   return (
-    <App className='h-full'>
-      <PageContent>
+    <App className='h-full min-h-0'>
+      <PageContent className='overflow-hidden!'>
         <AlertSubscriptionsContent />
       </PageContent>
     </App>

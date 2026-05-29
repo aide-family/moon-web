@@ -238,7 +238,7 @@ export default function AlertSubscriptionDetailForm({
       handleCancel()
     } catch (error) {
       if (error && typeof error === 'object' && 'errorFields' in error) return
-      console.error('保存告警订阅失败:', error)
+      console.error('保存消息订阅失败:', error)
       message.error(t('message.error'))
     } finally {
       setSubmitting(false)

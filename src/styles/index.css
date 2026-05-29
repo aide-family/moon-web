@@ -195,18 +195,18 @@ micro-app iframe {
   flex-shrink: 0;
 }
 
-/* 邮件配置卡片：悬停时放大突出 */
-.email-config-card-wrapper {
+/* 配置卡片（邮件/Webhook 等）：悬停时放大突出 */
+.config-card-wrapper {
   overflow: visible;
 }
 
-.email-config-card {
+.config-card {
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease;
 }
 
-.email-config-card:hover {
+.config-card:hover {
   position: relative;
   z-index: 2;
   transform: scale(1.03);
