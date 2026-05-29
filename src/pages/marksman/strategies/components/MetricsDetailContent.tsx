@@ -507,14 +507,14 @@ export default function MetricsDetailContent({
                               label: o.label ?? o.value,
                               disabled: o.disabled || usedUids.has(o.value!),
                             }))}
-                          optionFilterProp='label'
-                          showSearch
-                          filterOption={(input, opt) =>
-                            (opt?.label ?? '')
-                              .toString()
-                              .toLowerCase()
-                              .includes(input.toLowerCase())
-                          }
+                          showSearch={{
+                            optionFilterProp: 'label',
+                            filterOption: (input, opt) =>
+                              (opt?.label ?? '')
+                                .toString()
+                                .toLowerCase()
+                                .includes(input.toLowerCase()),
+                          }}
                         />
                       )
                     }

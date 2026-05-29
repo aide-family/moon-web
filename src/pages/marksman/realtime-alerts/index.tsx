@@ -1,5 +1,4 @@
 import { GlobalStatus } from '@/api/common/types'
-import type { GetAlertStatisticsReply } from '@/api/marksman/alert'
 import { getAlertStatistics } from '@/api/marksman/alert'
 import type { LevelCount } from '@/api/marksman/alert/types'
 import { getLevelSelectList, LevelType } from '@/api/marksman/level'
@@ -9,7 +8,8 @@ import { emptyPlaceholder } from '@/utils/marksman'
 import { useTheme } from '@/contexts/useTheme'
 import { ReloadOutlined } from '@ant-design/icons'
 import { App, Select, Space, Spin, Switch, Tooltip } from 'antd'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useMemo, useState } from 'react'
+import { useMemoizedFn, useRequest } from 'ahooks'
 import { RealtimeAlertList } from './components/RealtimeAlertList'
 import {
   readStoredRefreshIntervalMs,
@@ -36,16 +36,34 @@ export default function RealtimeAlertListWrapper() {
   const { actualThemeMode } = useTheme()
   const isDark = actualThemeMode === 'dark'
   const [refreshIntervalMs, setRefreshIntervalMs] =
-    useState<RealtimeAlertRefreshIntervalMs>(() => readStoredRefreshIntervalMs())
+    useState<RealtimeAlertRefreshIntervalMs>(() =>
+      readStoredRefreshIntervalMs(),
+    )
   /** 是否对实时告警表格行应用接口返回的 bgColor（默认开启） */
   const [rowBgColorEnabled, setRowBgColorEnabled] = useState(true)
-  const [statsLoading, setStatsLoading] = useState(false)
-  const mountedRef = useRef(true)
-  const statsRefreshInFlightRef = useRef(false)
-  const [stats, setStats] = useState<GetAlertStatisticsReply | null>(null)
-  const [levelSelectList, setLevelSelectList] = useState<
-    { value: string; label: string }[]
-  >([])
+
+  const {
+    data: stats,
+    loading: statsLoading,
+    refresh: refreshStatsSilently,
+  } = useRequest(getAlertStatistics, {
+    pollingInterval: refreshIntervalMs || undefined,
+    pollingWhenHidden: false,
+  })
+
+  const { data: levelSelectList = [] } = useRequest(async () => {
+    const res = await getLevelSelectList({
+      limit: 10,
+      status: GlobalStatus.ENABLED,
+      type: LevelType.LEVEL_TYPE_ALERT,
+    })
+    return (res.items ?? [])
+      .filter((i): i is { value: string; label?: string } => Boolean(i?.value))
+      .map((i) => ({
+        value: i.value,
+        label: i.label ?? i.value,
+      }))
+  })
 
   const refreshIntervalOptions = useMemo(
     () =>
@@ -56,76 +74,12 @@ export default function RealtimeAlertListWrapper() {
     [t],
   )
 
-  const handleRefreshIntervalChange = useCallback(
+  const handleRefreshIntervalChange = useMemoizedFn(
     (value: RealtimeAlertRefreshIntervalMs) => {
       setRefreshIntervalMs(value)
       writeStoredRefreshIntervalMs(value)
     },
-    [],
   )
-
-  const refreshStatsSilently = useCallback(async () => {
-    if (statsRefreshInFlightRef.current) return
-    statsRefreshInFlightRef.current = true
-    try {
-      const res = await getAlertStatistics()
-      if (!mountedRef.current) return
-      setStats(res)
-    } catch (e) {
-      // 自动刷新失败时不破坏当前展示，仍保持旧数据
-      console.error('获取告警实时统计失败:', e)
-    } finally {
-      statsRefreshInFlightRef.current = false
-    }
-  }, [])
-
-  useEffect(() => {
-    mountedRef.current = true
-    let cancelled = false
-    const run = async () => {
-      setStatsLoading(true)
-      try {
-        const [statsResult, levelsResult] = await Promise.allSettled([
-          getAlertStatistics(),
-          getLevelSelectList({
-            limit: 10,
-            status: GlobalStatus.ENABLED,
-            type: LevelType.LEVEL_TYPE_ALERT,
-          }),
-        ])
-        if (cancelled) return
-        if (statsResult.status === 'fulfilled') {
-          setStats(statsResult.value)
-        } else {
-          console.error('获取告警实时统计失败:', statsResult.reason)
-          setStats(null)
-        }
-        if (levelsResult.status === 'fulfilled') {
-          const items = (levelsResult.value.items ?? [])
-            .filter((i): i is { value: string; label?: string } =>
-              Boolean(i?.value),
-            )
-            .map((i) => ({
-              value: i.value,
-              label: i.label ?? i.value,
-            }))
-          setLevelSelectList(items)
-        } else {
-          console.error('获取告警等级列表失败:', levelsResult.reason)
-          setLevelSelectList([])
-        }
-      } finally {
-        if (!cancelled && mountedRef.current) {
-          setStatsLoading(false)
-        }
-      }
-    }
-    run()
-    return () => {
-      cancelled = true
-      mountedRef.current = false
-    }
-  }, [])
 
   const parseCount = (v?: string) => {
     const n = v == null ? 0 : Number(v)
@@ -309,10 +263,12 @@ export default function RealtimeAlertListWrapper() {
         </div>
 
         <RealtimeAlertList
-          stats={stats}
+          stats={stats ?? null}
           refreshIntervalMs={refreshIntervalMs}
           rowBgColorEnabled={rowBgColorEnabled}
-          onRefreshStats={refreshStatsSilently}
+          onRefreshStats={async () => {
+            await refreshStatsSilently()
+          }}
         />
       </PageContent>
     </App>

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useRef } from 'react'
+import { useMemoizedFn, useMount, useSafeState } from 'ahooks'
 import {
   Avatar,
   Spin,
@@ -59,10 +60,9 @@ const ProfilePage: React.FC = () => {
     },
   } = theme.useToken()
 
-  const mountedRef = useRef(true)
   const fetchingRef = useRef(false)
-  const [loading, setLoading] = useState(true)
-  const [info, setInfo] = useState<SelfInfo | null>(null)
+  const [loading, setLoading] = useSafeState(true)
+  const [info, setInfo] = useSafeState<SelfInfo | null>(null)
 
   const [emailModalOpen, setEmailModalOpen] = useState(false)
   const [avatarModalOpen, setAvatarModalOpen] = useState(false)
@@ -77,31 +77,27 @@ const ProfilePage: React.FC = () => {
   const [phoneSubmitting, setPhoneSubmitting] = useState(false)
   const [remarkSubmitting, setRemarkSubmitting] = useState(false)
 
-  const fetchInfo = useCallback(() => {
+  const fetchInfo = useMemoizedFn(() => {
     if (fetchingRef.current) return
     fetchingRef.current = true
     getSelfInfo()
       .then((data) => {
-        if (mountedRef.current) setInfo(data ?? null)
+        setInfo(data ?? null)
       })
       .catch(() => {
-        if (mountedRef.current) setInfo(null)
+        setInfo(null)
       })
       .finally(() => {
         fetchingRef.current = false
-        if (mountedRef.current) setLoading(false)
+        setLoading(false)
       })
-  }, [])
+  })
 
-  useEffect(() => {
-    mountedRef.current = true
+  useMount(() => {
     fetchInfo()
-    return () => {
-      mountedRef.current = false
-    }
-  }, [fetchInfo])
+  })
 
-  const handleEmailOk = useCallback(() => {
+  const handleEmailOk = useMemoizedFn(() => {
     emailForm.validateFields().then((values) => {
       setEmailSubmitting(true)
       const newEmail = values.email
@@ -121,9 +117,9 @@ const ProfilePage: React.FC = () => {
           setEmailSubmitting(false)
         })
     })
-  }, [emailForm, messageApi, t, fetchInfo])
+  })
 
-  const handleAvatarOk = useCallback(() => {
+  const handleAvatarOk = useMemoizedFn(() => {
     avatarForm.validateFields().then((values) => {
       setAvatarSubmitting(true)
       const newAvatar = values.avatar
@@ -143,19 +139,19 @@ const ProfilePage: React.FC = () => {
           setAvatarSubmitting(false)
         })
     })
-  }, [avatarForm, messageApi, t, fetchInfo])
+  })
 
-  const handleEmailCancel = useCallback(() => {
+  const handleEmailCancel = useMemoizedFn(() => {
     setEmailModalOpen(false)
     emailForm.resetFields()
-  }, [emailForm])
+  })
 
-  const handleAvatarCancel = useCallback(() => {
+  const handleAvatarCancel = useMemoizedFn(() => {
     setAvatarModalOpen(false)
     avatarForm.resetFields()
-  }, [avatarForm])
+  })
 
-  const handlePhoneOk = useCallback(() => {
+  const handlePhoneOk = useMemoizedFn(() => {
     phoneForm.validateFields().then((values) => {
       setPhoneSubmitting(true)
       const newPhone = values.phone
@@ -175,14 +171,14 @@ const ProfilePage: React.FC = () => {
           setPhoneSubmitting(false)
         })
     })
-  }, [phoneForm, messageApi, t, fetchInfo])
+  })
 
-  const handlePhoneCancel = useCallback(() => {
+  const handlePhoneCancel = useMemoizedFn(() => {
     setPhoneModalOpen(false)
     phoneForm.resetFields()
-  }, [phoneForm])
+  })
 
-  const handleRemarkOk = useCallback(() => {
+  const handleRemarkOk = useMemoizedFn(() => {
     return remarkForm.validateFields().then((values) => {
       setRemarkSubmitting(true)
       const newRemark = values.remark ?? ''
@@ -202,12 +198,12 @@ const ProfilePage: React.FC = () => {
           setRemarkSubmitting(false)
         })
     })
-  }, [remarkForm, messageApi, t, fetchInfo])
+  })
 
-  const handleRemarkCancel = useCallback(() => {
+  const handleRemarkCancel = useMemoizedFn(() => {
     setRemarkModalOpen(false)
     remarkForm.resetFields()
-  }, [remarkForm])
+  })
 
   if (loading) {
     return (

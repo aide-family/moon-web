@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect } from 'react'
+import { useDebounceFn, useMemoizedFn } from 'ahooks'
 import {
   Form,
   Input,
@@ -48,17 +49,11 @@ export default function SenderManagement() {
   >([])
   const [emailConfigLoading, setEmailConfigLoading] = useState(false)
   const [emailConfigKeyword, setEmailConfigKeyword] = useState('')
-  const emailConfigSearchTimerRef = useRef<ReturnType<
-    typeof setTimeout
-  > | null>(null)
   const [webhookConfigOptions, setWebhookConfigOptions] = useState<
     WebhookItemSelect[]
   >([])
   const [webhookConfigLoading, setWebhookConfigLoading] = useState(false)
   const [webhookConfigKeyword, setWebhookConfigKeyword] = useState('')
-  const webhookConfigSearchTimerRef = useRef<ReturnType<
-    typeof setTimeout
-  > | null>(null)
   const [webhookTemplateType, setWebhookTemplateType] = useState<
     MessageType | undefined
   >(undefined)
@@ -73,25 +68,17 @@ export default function SenderManagement() {
     if (sendType !== 'webhookTemplate') setWebhookTemplateType(undefined)
   }, [sendType])
 
-  const handleEmailConfigSearch = useCallback((value: string) => {
-    if (emailConfigSearchTimerRef.current)
-      clearTimeout(emailConfigSearchTimerRef.current)
-    emailConfigSearchTimerRef.current = setTimeout(
-      () => setEmailConfigKeyword(value),
-      300,
-    )
-  }, [])
+  const { run: handleEmailConfigSearch } = useDebounceFn(
+    (value: string) => setEmailConfigKeyword(value),
+    { wait: 300 },
+  )
 
-  const handleWebhookConfigSearch = useCallback((value: string) => {
-    if (webhookConfigSearchTimerRef.current)
-      clearTimeout(webhookConfigSearchTimerRef.current)
-    webhookConfigSearchTimerRef.current = setTimeout(
-      () => setWebhookConfigKeyword(value),
-      300,
-    )
-  }, [])
+  const { run: handleWebhookConfigSearch } = useDebounceFn(
+    (value: string) => setWebhookConfigKeyword(value),
+    { wait: 300 },
+  )
 
-  const fetchWebhookConfigOptions = useCallback((keyword?: string) => {
+  const fetchWebhookConfigOptions = useMemoizedFn((keyword?: string) => {
     setWebhookConfigLoading(true)
     getWebhookConfigSelectList({
       keyword: keyword?.trim() || undefined,
@@ -100,7 +87,7 @@ export default function SenderManagement() {
       .then((res) => setWebhookConfigOptions(res.items ?? []))
       .catch(() => setWebhookConfigOptions([]))
       .finally(() => setWebhookConfigLoading(false))
-  }, [])
+  })
 
   useEffect(() => {
     if (!needWebhookConfig) return
@@ -124,7 +111,7 @@ export default function SenderManagement() {
       .finally(() => setTemplateLoading(false))
   }, [needTemplate, sendType, webhookTemplateType])
 
-  const fetchEmailConfigOptions = useCallback((keyword?: string) => {
+  const fetchEmailConfigOptions = useMemoizedFn((keyword?: string) => {
     setEmailConfigLoading(true)
     getEmailConfigSelectList({
       keyword: keyword?.trim() || undefined,
@@ -133,7 +120,7 @@ export default function SenderManagement() {
       .then((res) => setEmailConfigOptions(res.items ?? []))
       .catch(() => setEmailConfigOptions([]))
       .finally(() => setEmailConfigLoading(false))
-  }, [])
+  })
 
   useEffect(() => {
     if (!needEmailConfig) return

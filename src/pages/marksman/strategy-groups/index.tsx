@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useMemoizedFn } from 'ahooks'
 import { useSearchParams } from 'react-router-dom'
 import {
   App,
@@ -32,10 +33,25 @@ import PageContent from '@/components/layout/PageContent'
 import { MENU_DIVIDER } from '@/utils/menu'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 import { emptyPlaceholder, renderStatusTag } from '@/utils/marksman'
+import { usePaginatedRequest } from '@/utils/hooks/usePaginatedRequest'
+import { useDetailRequest } from '@/utils/hooks/useDetailRequest'
+import { useAdaptiveTableHeight } from '@/utils/hooks/useAdaptiveTableHeight'
 
 const defaultSearchParams: StrategyGroupListParams = {
   keyword: '',
   status: undefined,
+}
+
+type StrategyGroupListQuery = Omit<
+  StrategyGroupListParams,
+  'page' | 'pageSize'
+>
+
+function toListQuery(params: StrategyGroupListParams): StrategyGroupListQuery {
+  return {
+    keyword: params.keyword ?? '',
+    status: params.status,
+  }
 }
 
 function parseSearchParamsFromUrl(
@@ -58,13 +74,6 @@ export const StrategyGroupList: React.FC = () => {
   const { modal } = App.useApp()
   const { t } = useLocale()
   const [urlSearchParams, setUrlSearchParams] = useSearchParams()
-  const [loading, setLoading] = useState(false)
-  const [dataSource, setDataSource] = useState<StrategyGroupItem[]>([])
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 50,
-    total: 0,
-  })
   const [searchParams, setSearchParams] = useState<StrategyGroupListParams>(
     () => parseSearchParamsFromUrl(urlSearchParams),
   )
@@ -77,62 +86,51 @@ export const StrategyGroupList: React.FC = () => {
   const [editingData, setEditingData] = useState<StrategyGroupItem | null>(null)
 
   const [detailViewOpen, setDetailViewOpen] = useState(false)
-  const [viewingData, setViewingData] = useState<StrategyGroupItem | null>(null)
-  const [detailLoading, setDetailLoading] = useState(false)
+  const [viewingUid, setViewingUid] = useState<string>()
 
-  const tableContainerRef = useRef<HTMLDivElement>(null)
-  const tableWrapperRef = useRef<HTMLDivElement>(null)
-  const [tableHeight, setTableHeight] = useState(400)
+  const { tableContainerRef, tableWrapperRef, tableHeight } =
+    useAdaptiveTableHeight()
+  const skipAutoSearchRef = useRef(true)
 
-  const fetchData = async (
-    page?: number,
-    pageSize?: number,
-    override?: Partial<StrategyGroupListParams>,
-  ) => {
-    setLoading(true)
-    try {
-      const currentPage = page ?? pagination.current
-      const currentPageSize = pageSize ?? pagination.pageSize
-      const effective = override
-        ? { ...searchParams, ...override }
-        : searchParams
-      const params: StrategyGroupListParams = {
-        page: currentPage,
-        pageSize: currentPageSize,
-        keyword: effective.keyword || undefined,
-        status: effective.status,
-      }
-      const response = await getStrategyGroupList(params)
-      setDataSource(response.items ?? [])
-      setPagination((prev) => ({
-        ...prev,
-        current: currentPage,
-        pageSize: currentPageSize,
-        total: parseInt(String(response.total ?? '0'), 10),
-      }))
-    } catch (error) {
-      console.error('获取策略组列表失败:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const list = usePaginatedRequest<StrategyGroupItem, StrategyGroupListQuery>({
+    service: ({ page, pageSize, keyword, status }) =>
+      getStrategyGroupList({
+        page,
+        pageSize,
+        keyword: keyword || undefined,
+        status,
+      }),
+    defaultQuery: toListQuery(parseSearchParamsFromUrl(urlSearchParams)),
+  })
 
-  const handleSearch = (override?: Partial<StrategyGroupListParams>) => {
-    if (override) setSearchParams((prev) => ({ ...prev, ...override }))
-    setPagination((prev) => ({ ...prev, current: 1 }))
-    fetchData(1, pagination.pageSize, override)
-  }
+  const {
+    data: viewingData,
+    loading: detailLoading,
+    refresh: refreshDetail,
+    mutate: mutateDetail,
+  } = useDetailRequest(getStrategyGroupDetail, viewingUid, detailViewOpen)
 
-  const handleReset = () => {
+  const handleSearch = useMemoizedFn(
+    (override?: Partial<StrategyGroupListParams>) => {
+      if (override) setSearchParams((prev) => ({ ...prev, ...override }))
+      list.search(
+        toListQuery({
+          ...searchParams,
+          ...override,
+        }),
+      )
+    },
+  )
+
+  const handleReset = useMemoizedFn(() => {
     setSearchParams(defaultSearchParams)
     setUrlSearchParams({})
-    setPagination({ current: 1, pageSize: 50, total: 0 })
-    fetchData()
-  }
+    list.reset(toListQuery(defaultSearchParams))
+  })
 
-  const handleTableChange = (page: number, pageSize: number) => {
-    fetchData(page, pageSize)
-  }
+  const handleTableChange = useMemoizedFn((page: number, pageSize: number) => {
+    list.changePage(page, pageSize)
+  })
 
   const handleAdd = () => {
     setDetailFormMode('create')
@@ -140,20 +138,10 @@ export const StrategyGroupList: React.FC = () => {
     setDetailFormOpen(true)
   }
 
-  const handleViewDetail = async (record: StrategyGroupItem) => {
+  const handleViewDetail = (record: StrategyGroupItem) => {
     if (!record.uid) return
+    setViewingUid(record.uid)
     setDetailViewOpen(true)
-    setViewingData(null)
-    setDetailLoading(true)
-    try {
-      const data = await getStrategyGroupDetail(record.uid)
-      setViewingData(data)
-    } catch (error) {
-      console.error('获取策略组详情失败:', error)
-      setDetailViewOpen(false)
-    } finally {
-      setDetailLoading(false)
-    }
   }
 
   const handleEdit = (record: StrategyGroupItem) => {
@@ -174,7 +162,7 @@ export const StrategyGroupList: React.FC = () => {
     try {
       await deleteStrategyGroup(record.uid)
       message.success(t('message.delete.success'))
-      fetchData()
+      list.refresh()
       if (detailViewOpen && viewingData?.uid === record.uid)
         setDetailViewOpen(false)
     } catch (error) {
@@ -190,9 +178,9 @@ export const StrategyGroupList: React.FC = () => {
     try {
       await updateStrategyGroupStatus({ uid: record.uid, status: newStatus })
       message.success(t('message.update.success'))
-      fetchData()
+      list.refresh()
       if (viewingData?.uid === record.uid) {
-        setViewingData({ ...viewingData, status: newStatus })
+        mutateDetail({ ...viewingData, status: newStatus })
       }
     } catch (error) {
       console.error('修改状态失败:', error)
@@ -201,11 +189,9 @@ export const StrategyGroupList: React.FC = () => {
 
   const handleDetailFormSuccess = () => {
     setDetailFormOpen(false)
-    fetchData()
-    if (detailViewOpen && viewingData?.uid) {
-      getStrategyGroupDetail(viewingData.uid)
-        .then(setViewingData)
-        .catch(() => {})
+    list.refresh()
+    if (detailViewOpen && viewingUid) {
+      refreshDetail()
     }
   }
 
@@ -333,7 +319,6 @@ export const StrategyGroupList: React.FC = () => {
     },
   ]
 
-  // URL 变化时（如浏览器后退）同步到表单
   useEffect(() => {
     const next = parseSearchParamsFromUrl(urlSearchParams)
     setSearchParams(next)
@@ -341,7 +326,6 @@ export const StrategyGroupList: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlSearchParams.toString()])
 
-  // 搜索条件变化即同步到 URL（replace 避免每次输入都产生历史记录）
   useEffect(() => {
     applySearchToUrl(
       setUrlSearchParams,
@@ -355,7 +339,11 @@ export const StrategyGroupList: React.FC = () => {
   }, [searchParams.keyword, searchParams.status])
 
   useEffect(() => {
-    fetchData()
+    if (skipAutoSearchRef.current) {
+      skipAutoSearchRef.current = false
+      return
+    }
+    list.search(toListQuery(searchParams))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.status])
 
@@ -365,33 +353,6 @@ export const StrategyGroupList: React.FC = () => {
       status: searchParams.status,
     })
   }, [searchParams.keyword, searchParams.status, searchForm])
-
-  useEffect(() => {
-    const updateTableHeight = () => {
-      if (tableContainerRef.current && tableWrapperRef.current) {
-        const containerHeight = tableContainerRef.current.clientHeight
-        const theadEl =
-          tableWrapperRef.current.querySelector('.ant-table-thead')
-        const paginationEl =
-          tableWrapperRef.current.querySelector('.ant-pagination')
-        const theadHeight = theadEl
-          ? (theadEl as HTMLElement).getBoundingClientRect().height
-          : 0
-        const paginationHeight = paginationEl
-          ? (paginationEl as HTMLElement).getBoundingClientRect().height + 16
-          : 0
-        setTableHeight(
-          Math.max(containerHeight - theadHeight - paginationHeight - 24, 100),
-        )
-      }
-    }
-    const timer = setTimeout(updateTableHeight, 100)
-    window.addEventListener('resize', updateTableHeight)
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('resize', updateTableHeight)
-    }
-  }, [dataSource, pagination])
 
   return (
     <div className='h-full flex flex-col'>
@@ -405,7 +366,6 @@ export const StrategyGroupList: React.FC = () => {
               keyword: allValues.keyword ?? '',
               status: allValues.status,
             }))
-            setPagination((prev) => ({ ...prev, current: 1 }))
           }}
         >
           <Space size='middle' wrap>
@@ -457,15 +417,15 @@ export const StrategyGroupList: React.FC = () => {
         <div ref={tableWrapperRef} className='h-full flex flex-col flex-1'>
           <Table
             columns={columns}
-            dataSource={dataSource}
+            dataSource={list.dataSource}
             rowKey='uid'
-            loading={loading}
+            loading={list.loading}
             size='small'
             scroll={{ y: tableHeight, x: '100%' }}
             pagination={{
-              current: pagination.current,
-              pageSize: pagination.pageSize,
-              total: pagination.total,
+              current: list.pagination.current,
+              pageSize: list.pagination.pageSize,
+              total: list.pagination.total,
               showSizeChanger: true,
               showQuickJumper: true,
               showTotal: (total) => t('table.total', { total }),
@@ -487,7 +447,10 @@ export const StrategyGroupList: React.FC = () => {
         open={detailViewOpen}
         data={viewingData}
         loading={detailLoading}
-        onCancel={() => setDetailViewOpen(false)}
+        onCancel={() => {
+          setDetailViewOpen(false)
+          setViewingUid(undefined)
+        }}
         onEdit={handleEditFromDetail}
       />
     </div>

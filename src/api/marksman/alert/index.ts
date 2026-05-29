@@ -164,12 +164,15 @@ export const downloadHistoryAlertExportTask = async (
   const token =
     localStorage.getItem('token') || sessionStorage.getItem('token') || ''
   const namespace = localStorage.getItem('namespace') || ''
-  const response = await fetch(`/v1/alert/history-alerts/export-tasks/${uid}/download`, {
-    headers: {
-      Authorization: token ? `Bearer ${token}` : '',
-      'X-Namespace': namespace,
+  const response = await fetch(
+    `/v1/alert/history-alerts/export-tasks/${uid}/download`,
+    {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : '',
+        'X-Namespace': namespace,
+      },
     },
-  })
+  )
   if (!response.ok) {
     throw new Error(`download failed: ${response.status}`)
   }

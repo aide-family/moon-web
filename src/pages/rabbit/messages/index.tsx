@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
+import { useMemoizedFn } from 'ahooks'
 import { useSearchParams } from 'react-router-dom'
 import {
   Table,
@@ -20,7 +21,6 @@ import {
   cancelMessage,
   retryMessage,
   type MessageLogItem,
-  type ListMessageLogsParams,
 } from '@/api/rabbit/message-log'
 import { getStatusLabel, getStatusColor, getTypeLabel } from './constants'
 import { getMessageTypeIconType } from '@/pages/rabbit/constants/appIcons'
@@ -29,6 +29,16 @@ import DetailView from './components/DetailView'
 import { useLocale } from '@/contexts/LocaleContext'
 import PageContent from '@/components/layout/PageContent'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
+import { usePaginatedRequest } from '@/utils/hooks/usePaginatedRequest'
+import { useDetailRequest } from '@/utils/hooks/useDetailRequest'
+import { useAdaptiveTableHeight } from '@/utils/hooks/useAdaptiveTableHeight'
+
+type MessageSearchQuery = {
+  status?: string
+  messageType?: string
+  startAtUnix?: string
+  endAtUnix?: string
+}
 
 const { RangePicker } = DatePicker
 
@@ -38,12 +48,7 @@ const defaultDateRange = () => {
   return { startAtUnix: String(start.unix()), endAtUnix: String(end.unix()) }
 }
 
-function parseSearchParamsFromUrl(params: URLSearchParams): {
-  status?: string
-  messageType?: string
-  startAtUnix?: string
-  endAtUnix?: string
-} {
+function parseSearchParamsFromUrl(params: URLSearchParams): MessageSearchQuery {
   const start = getParam(params, 'startAtUnix')
   const end = getParam(params, 'endAtUnix')
   const def = defaultDateRange()
@@ -59,67 +64,25 @@ export default function MessageManagement() {
   const { t } = useLocale()
   const { modal } = App.useApp()
   const [urlSearchParams, setUrlSearchParams] = useSearchParams()
-  const [loading, setLoading] = useState(false)
-  const [dataSource, setDataSource] = useState<MessageLogItem[]>([])
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 50,
-    total: 0,
-  })
-  const [searchParams, setSearchParams] = useState<{
-    status?: string
-    messageType?: string
-    startAtUnix?: string
-    endAtUnix?: string
-  }>(() => parseSearchParamsFromUrl(urlSearchParams))
-  const [tableHeight, setTableHeight] = useState(0)
-  const tableContainerRef = useRef<HTMLDivElement>(null)
-  const tableWrapperRef = useRef<HTMLDivElement>(null)
-  const [detailOpen, setDetailOpen] = useState(false)
-  const [detailData, setDetailData] = useState<MessageLogItem | null>(null)
-  const [detailLoading, setDetailLoading] = useState(false)
-  const mountedRef = useRef(true)
-  const paginationRef = useRef(pagination)
-  paginationRef.current = pagination
-
-  const fetchData = useCallback(
-    async (page?: number, pageSize?: number) => {
-      setLoading(true)
-      try {
-        const cur = paginationRef.current
-        const currentPage = page ?? cur.current
-        const currentPageSize = pageSize ?? cur.pageSize
-        const params: ListMessageLogsParams = {
-          page: currentPage,
-          pageSize: currentPageSize,
-          status: searchParams.status,
-          messageType: searchParams.messageType,
-          startAtUnix: searchParams.startAtUnix,
-          endAtUnix: searchParams.endAtUnix,
-        }
-        const res = await listMessageLogs(params)
-        if (!mountedRef.current) return
-        setDataSource(res.items ?? [])
-        setPagination((prev) => ({
-          ...prev,
-          current: currentPage,
-          pageSize: currentPageSize,
-          total: parseInt(String(res.total ?? 0), 10),
-        }))
-      } catch (error) {
-        console.error('获取消息日志列表失败:', error)
-        if (mountedRef.current) setDataSource([])
-      } finally {
-        if (mountedRef.current) setLoading(false)
-      }
-    },
-    [
-      searchParams.status,
-      searchParams.messageType,
-      searchParams.startAtUnix,
-      searchParams.endAtUnix,
-    ],
+  const [searchParams, setSearchParams] = useState<MessageSearchQuery>(() =>
+    parseSearchParamsFromUrl(urlSearchParams),
   )
+  const list = usePaginatedRequest<MessageLogItem, MessageSearchQuery>({
+    service: (params) => listMessageLogs(params),
+    defaultQuery: parseSearchParamsFromUrl(urlSearchParams),
+  })
+  const { dataSource, loading, pagination, refresh, search, reset, changePage } =
+    list
+  const { tableContainerRef, tableWrapperRef, tableHeight } =
+    useAdaptiveTableHeight()
+  const [detailOpen, setDetailOpen] = useState(false)
+  const [detailUid, setDetailUid] = useState<string>()
+  const skipAutoSearchRef = useRef(true)
+  const {
+    data: detailData,
+    loading: detailLoading,
+    error: detailError,
+  } = useDetailRequest(getMessageLog, detailUid, detailOpen)
 
   useEffect(() => {
     setSearchParams(parseSearchParamsFromUrl(urlSearchParams))
@@ -144,89 +107,77 @@ export default function MessageManagement() {
     setUrlSearchParams,
   ])
 
-  const handleSearch = useCallback(() => {
-    setPagination((prev) => ({ ...prev, current: 1 }))
-    fetchData(1, paginationRef.current.pageSize)
-  }, [fetchData])
+  const handleSearch = useMemoizedFn(() => {
+    search({
+      status: searchParams.status,
+      messageType: searchParams.messageType,
+      startAtUnix: searchParams.startAtUnix,
+      endAtUnix: searchParams.endAtUnix,
+    })
+  })
 
-  const handleReset = useCallback(() => {
+  const handleReset = useMemoizedFn(() => {
     const def = defaultDateRange()
-    setSearchParams({ ...def, status: undefined, messageType: undefined })
+    const resetParams: MessageSearchQuery = {
+      ...def,
+      status: undefined,
+      messageType: undefined,
+    }
+    setSearchParams(resetParams)
     setUrlSearchParams({})
-    setPagination({ current: 1, pageSize: 50, total: 0 })
-    fetchData(1, 50)
-  }, [fetchData, setUrlSearchParams])
+    reset(resetParams)
+  })
 
-  const handleTableChange = useCallback(
-    (page: number, pageSize: number) => {
-      fetchData(page, pageSize)
-    },
-    [fetchData],
-  )
+  const handleTableChange = useMemoizedFn((page: number, pageSize: number) => {
+    changePage(page, pageSize)
+  })
 
-  const handleViewDetail = useCallback(async (record: MessageLogItem) => {
+  const handleViewDetail = useMemoizedFn((record: MessageLogItem) => {
     const uid = record.uid
     if (!uid) return
+    setDetailUid(uid)
     setDetailOpen(true)
-    setDetailData(null)
-    setDetailLoading(true)
-    try {
-      const data = await getMessageLog(uid)
-      if (!mountedRef.current) return
-      setDetailData(data)
-    } catch (error) {
-      console.error('获取消息详情失败:', error)
-      if (mountedRef.current) setDetailData(record)
-    } finally {
-      if (mountedRef.current) setDetailLoading(false)
-    }
-  }, [])
+  })
 
-  const handleCancel = useCallback(
-    async (record: MessageLogItem) => {
-      const uid = record.uid
-      if (!uid) return
-      modal.confirm({
-        title: t('messageLog.confirm.cancel.title'),
-        content: t('messageLog.confirm.cancel.content', { uid }),
-        okText: t('common.ok'),
-        cancelText: t('common.cancel'),
-        onOk: async () => {
-          try {
-            await cancelMessage(uid)
-            antdMessage.success(t('message.update.success'))
-            fetchData()
-          } catch (error) {
-            console.error('取消消息失败:', error)
-          }
-        },
-      })
-    },
-    [fetchData, modal, t],
-  )
+  const handleCancel = useMemoizedFn(async (record: MessageLogItem) => {
+    const uid = record.uid
+    if (!uid) return
+    modal.confirm({
+      title: t('messageLog.confirm.cancel.title'),
+      content: t('messageLog.confirm.cancel.content', { uid }),
+      okText: t('common.ok'),
+      cancelText: t('common.cancel'),
+      onOk: async () => {
+        try {
+          await cancelMessage(uid)
+          antdMessage.success(t('message.update.success'))
+          refresh()
+        } catch (error) {
+          console.error('取消消息失败:', error)
+        }
+      },
+    })
+  })
 
-  const handleRetry = useCallback(
-    async (record: MessageLogItem) => {
-      const uid = record.uid
-      if (!uid) return
-      modal.confirm({
-        title: t('messageLog.confirm.retry.title'),
-        content: t('messageLog.confirm.retry.content', { uid }),
-        okText: t('common.ok'),
-        cancelText: t('common.cancel'),
-        onOk: async () => {
-          try {
-            await retryMessage(uid)
-            antdMessage.success(t('message.update.success'))
-            fetchData()
-          } catch (error) {
-            console.error('重试消息失败:', error)
-          }
-        },
-      })
-    },
-    [fetchData, modal, t],
-  )
+  const handleRetry = useMemoizedFn(async (record: MessageLogItem) => {
+    const uid = record.uid
+    if (!uid) return
+    modal.confirm({
+      title: t('messageLog.confirm.retry.title'),
+      content: t('messageLog.confirm.retry.content', { uid }),
+      okText: t('common.ok'),
+      cancelText: t('common.cancel'),
+      onOk: async () => {
+        try {
+          await retryMessage(uid)
+          antdMessage.success(t('message.update.success'))
+          refresh()
+        } catch (error) {
+          console.error('重试消息失败:', error)
+        }
+      },
+    })
+  })
 
   const MAX_RANGE_DAYS = 31
 
@@ -393,34 +344,25 @@ export default function MessageManagement() {
   }, [handleCancel, handleRetry, handleViewDetail, t])
 
   useEffect(() => {
-    mountedRef.current = true
-    return () => {
-      mountedRef.current = false
+    if (detailOpen && detailError) {
+      console.error('获取消息详情失败:', detailError)
+      setDetailOpen(false)
+      setDetailUid(undefined)
     }
-  }, [])
+  }, [detailOpen, detailError])
 
   useEffect(() => {
-    fetchData()
+    if (skipAutoSearchRef.current) {
+      skipAutoSearchRef.current = false
+      return
+    }
+    search({
+      ...list.query,
+      status: searchParams.status,
+      messageType: searchParams.messageType,
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.status, searchParams.messageType])
-
-  useEffect(() => {
-    const calc = () => {
-      if (!tableContainerRef.current || !tableWrapperRef.current) return
-      const containerHeight = tableContainerRef.current.clientHeight
-      const thead = tableWrapperRef.current.querySelector('.ant-table-thead')
-      const pag = tableWrapperRef.current.querySelector('.ant-pagination')
-      const theadHeight = thead ? (thead as HTMLElement).offsetHeight : 0
-      const pagHeight = pag ? (pag as HTMLElement).offsetHeight : 0
-      const padding = 32
-      setTableHeight(
-        Math.max(containerHeight - theadHeight - pagHeight - padding, 100),
-      )
-    }
-    calc()
-    window.addEventListener('resize', calc)
-    return () => window.removeEventListener('resize', calc)
-  }, [dataSource])
 
   return (
     <App className='h-full'>
@@ -726,11 +668,11 @@ export default function MessageManagement() {
           </div>
           <DetailView
             open={detailOpen}
-            data={detailData}
+            data={detailData ?? null}
             loading={detailLoading}
             onCancel={() => {
               setDetailOpen(false)
-              setDetailData(null)
+              setDetailUid(undefined)
             }}
           />
         </div>

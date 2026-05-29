@@ -5,7 +5,13 @@ const REFRESH_INTERVAL_STORAGE_KEY =
   'marksman:realtime-alert:refresh-interval-ms'
 
 export const REALTIME_ALERT_REFRESH_INTERVALS = [
-  0, 5_000, 10_000, 30_000, 60_000, 5 * 60_000, 15 * 60_000,
+  0,
+  5_000,
+  10_000,
+  30_000,
+  60_000,
+  5 * 60_000,
+  15 * 60_000,
 ] as const
 
 export type RealtimeAlertRefreshIntervalMs =
@@ -43,7 +49,9 @@ export function readStoredActiveAlertPageUid(
   namespaceUid: string,
 ): string | undefined {
   if (typeof window === 'undefined') return undefined
-  const stored = localStorage.getItem(getActiveAlertPageStorageKey(namespaceUid))
+  const stored = localStorage.getItem(
+    getActiveAlertPageStorageKey(namespaceUid),
+  )
   const trimmed = stored?.trim()
   return trimmed ? trimmed : undefined
 }

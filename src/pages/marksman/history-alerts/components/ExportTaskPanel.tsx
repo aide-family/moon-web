@@ -15,7 +15,8 @@ import {
 import { App, Button, Drawer, Progress, Space, Table, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect } from 'react'
+import { useMemoizedFn, useSafeState } from 'ahooks'
 
 export interface ExportTaskPanelProps {
   open: boolean
@@ -34,15 +35,7 @@ export function ExportTaskPanel({
 }: ExportTaskPanelProps) {
   const { message } = App.useApp()
   const { t } = useLocale()
-  const [actionUid, setActionUid] = useState<string | null>(null)
-  const mountedRef = useRef(true)
-
-  useEffect(() => {
-    mountedRef.current = true
-    return () => {
-      mountedRef.current = false
-    }
-  }, [])
+  const [actionUid, setActionUid] = useSafeState<string | null>(null)
 
   useEffect(() => {
     if (open) {
@@ -50,24 +43,21 @@ export function ExportTaskPanel({
     }
   }, [open, onRefresh])
 
-  const handleCancel = useCallback(
-    async (uid?: string) => {
-      if (!uid) return
-      setActionUid(uid)
-      try {
-        await cancelHistoryAlertExportTask(uid)
-        message.success(t('historyAlert.exportTask.message.cancel.success'))
-        await onRefresh()
-      } catch (error) {
-        console.error('取消导出任务失败:', error)
-      } finally {
-        if (mountedRef.current) setActionUid(null)
-      }
-    },
-    [message, onRefresh, t],
-  )
+  const handleCancel = useMemoizedFn(async (uid?: string) => {
+    if (!uid) return
+    setActionUid(uid)
+    try {
+      await cancelHistoryAlertExportTask(uid)
+      message.success(t('historyAlert.exportTask.message.cancel.success'))
+      await onRefresh()
+    } catch (error) {
+      console.error('取消导出任务失败:', error)
+    } finally {
+      setActionUid(null)
+    }
+  })
 
-  const handleDownload = useCallback(
+  const handleDownload = useMemoizedFn(
     async (record: HistoryAlertExportTaskItem) => {
       if (!record.uid) return
       setActionUid(record.uid)
@@ -80,10 +70,9 @@ export function ExportTaskPanel({
         console.error('下载导出文件失败:', error)
         message.error(t('historyAlert.exportTask.message.download.failed'))
       } finally {
-        if (mountedRef.current) setActionUid(null)
+        setActionUid(null)
       }
     },
-    [message, t],
   )
 
   const columns: ColumnsType<HistoryAlertExportTaskItem> = [
@@ -178,7 +167,7 @@ export function ExportTaskPanel({
       open={open}
       onClose={onClose}
       size={920}
-      destroyOnClose={false}
+      destroyOnHidden={false}
       extra={
         <Button onClick={() => void onRefresh()} loading={loading}>
           {t('historyAlert.exportTask.action.refresh')}

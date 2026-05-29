@@ -1,20 +1,20 @@
 import type { SSHCommandItem } from '@/api'
 import {
   executeSSHCommand,
+  getSSHCommandDetail,
   getSSHCommandList,
   submitCreateSSHCommand,
   submitUpdateSSHCommand,
 } from '@/api'
 import PageContent from '@/components/layout/PageContent'
 import { useLocale } from '@/contexts/LocaleContext'
-import {
-  DEFAULT_PAGE_SIZE,
-  usePaginationState,
-} from '@/utils/hooks/usePaginationState'
+import { useDetailRequest } from '@/utils/hooks/useDetailRequest'
+import { usePaginatedRequest } from '@/utils/hooks/usePaginatedRequest'
 import type { MenuProps } from 'antd'
 import { App, Button, Dropdown, Form, Space } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useMemoizedFn } from 'ahooks'
 import SSHCommandsTab from './components/SSHCommandsTab'
 import ExecuteSSHModal, {
   type ExecuteFormValues,
@@ -24,17 +24,24 @@ import SSHCommandFormModal, {
   type SSHCommandFormValues,
 } from './components/modals/SSHCommandFormModal'
 
-const formatTotal = (value?: string): number =>
-  Number.parseInt(value ?? '0', 10) || 0
+type SSHCommandListQuery = {
+  keyword: string
+}
 
 const SSHCommandsPage: React.FC = () => {
   const { message } = App.useApp()
   const { t } = useLocale()
 
-  const [sshCommands, setSSHCommands] = useState<SSHCommandItem[]>([])
-  const [sshLoading, setSSHLoading] = useState(false)
   const [sshKeyword, setSSHKeyword] = useState('')
-  const [sshPagination, setSSHPagination] = usePaginationState()
+  const list = usePaginatedRequest<SSHCommandItem, SSHCommandListQuery>({
+    service: ({ page, pageSize, keyword }) =>
+      getSSHCommandList({
+        page,
+        pageSize,
+        keyword: keyword || undefined,
+      }),
+    defaultQuery: { keyword: '' },
+  })
 
   const [sshFormOpen, setSSHFormOpen] = useState(false)
   const [sshEditing, setSSHEditing] = useState<SSHCommandItem>()
@@ -50,41 +57,30 @@ const SSHCommandsPage: React.FC = () => {
   const [executeForm] = Form.useForm<ExecuteFormValues>()
 
   const [commandDetailOpen, setCommandDetailOpen] = useState(false)
-  const [commandDetailData, setCommandDetailData] = useState<SSHCommandItem>()
-
-  const fetchSSHCommands = useCallback(
-    async (
-      page = sshPagination.current,
-      pageSize = sshPagination.pageSize,
-      keyword = sshKeyword,
-    ) => {
-      setSSHLoading(true)
-      try {
-        const res = await getSSHCommandList({
-          page,
-          pageSize,
-          keyword: keyword || undefined,
-        })
-        setSSHCommands(res.items ?? [])
-        setSSHPagination({
-          current: page,
-          pageSize,
-          total: formatTotal(res.total),
-        })
-      } catch (error) {
-        console.error('获取 SSH 命令列表失败', error)
-        setSSHCommands([])
-      } finally {
-        setSSHLoading(false)
-      }
-    },
-    [setSSHPagination, sshKeyword, sshPagination],
-  )
+  const [commandDetailUid, setCommandDetailUid] = useState<string>()
+  const {
+    data: commandDetailData,
+    loading: commandDetailLoading,
+    error: commandDetailError,
+  } = useDetailRequest(getSSHCommandDetail, commandDetailUid, commandDetailOpen)
 
   useEffect(() => {
-    void fetchSSHCommands(1, DEFAULT_PAGE_SIZE)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    if (commandDetailError && commandDetailOpen) {
+      console.error('获取 SSH 命令详情失败', commandDetailError)
+      setCommandDetailOpen(false)
+      setCommandDetailUid(undefined)
+    }
+  }, [commandDetailError, commandDetailOpen])
+
+  const openCommandDetail = useMemoizedFn((row: SSHCommandItem) => {
+    if (!row.uid) return
+    setCommandDetailUid(row.uid)
+    setCommandDetailOpen(true)
+  })
+
+  const handleSearch = useMemoizedFn(() => {
+    list.search({ keyword: sshKeyword })
+  })
 
   const sshColumns: ColumnsType<SSHCommandItem> = useMemo(
     () => [
@@ -129,13 +125,7 @@ const SSHCommandsPage: React.FC = () => {
         align: 'center',
         render: (_, row) => (
           <Space size='small'>
-            <Button
-              type='link'
-              onClick={() => {
-                setCommandDetailData(row)
-                setCommandDetailOpen(true)
-              }}
-            >
+            <Button type='link' onClick={() => openCommandDetail(row)}>
               {t('common.detail')}
             </Button>
             <Dropdown
@@ -175,7 +165,7 @@ const SSHCommandsPage: React.FC = () => {
         ),
       },
     ],
-    [executeForm, sshForm, t],
+    [executeForm, openCommandDetail, sshForm, t],
   )
 
   const handleSubmitSSHCommand = async () => {
@@ -193,7 +183,7 @@ const SSHCommandsPage: React.FC = () => {
       }
       setSSHFormOpen(false)
       setSSHEditing(undefined)
-      void fetchSSHCommands()
+      list.refresh()
     } catch (error) {
       if (
         typeof error === 'object' &&
@@ -229,11 +219,12 @@ const SSHCommandsPage: React.FC = () => {
         <SSHCommandsTab
           sshKeyword={sshKeyword}
           setSSHKeyword={setSSHKeyword}
-          sshPagination={sshPagination}
+          sshPagination={list.pagination}
           sshColumns={sshColumns}
-          sshCommands={sshCommands}
-          sshLoading={sshLoading}
-          onSearch={fetchSSHCommands}
+          sshCommands={list.dataSource}
+          sshLoading={list.loading}
+          onSearch={handleSearch}
+          onPageChange={list.changePage}
           onCreate={() => {
             setSSHEditing(undefined)
             sshForm.resetFields()
@@ -264,7 +255,11 @@ const SSHCommandsPage: React.FC = () => {
         <SSHCommandDetailModal
           open={commandDetailOpen}
           data={commandDetailData}
-          onCancel={() => setCommandDetailOpen(false)}
+          loading={commandDetailLoading}
+          onCancel={() => {
+            setCommandDetailOpen(false)
+            setCommandDetailUid(undefined)
+          }}
         />
       </PageContent>
     </App>

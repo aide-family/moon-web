@@ -43,14 +43,23 @@ import {
   message,
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { useMemoizedFn } from 'ahooks'
 import { useNavigate } from 'react-router-dom'
 import DetailForm from './components/DetailForm'
+import { usePaginatedRequest } from '@/utils/hooks/usePaginatedRequest'
+import { useInfinitePaginatedRequest } from '@/utils/hooks/useInfinitePaginatedRequest'
+import { useDetailRequest } from '@/utils/hooks/useDetailRequest'
+import { useAdaptiveTableHeight } from '@/utils/hooks/useAdaptiveTableHeight'
 
-const defaultSearchParams: StrategyListParams = {
+type StrategyListQuery = Omit<StrategyListParams, 'page' | 'pageSize'>
+
+const defaultSearchParams: StrategyListQuery = {
   keyword: '',
   status: undefined,
 }
+
+type StrategyGroupSidebarQuery = Pick<StrategyGroupListParams, 'keyword'>
 
 export interface StrategyListContentProps {
   /** 左侧选中的策略组 UID，用于过滤右侧列表 */
@@ -63,20 +72,12 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
   const { modal } = App.useApp()
   const { t } = useLocale()
   const navigate = useNavigate()
-  const [loading, setLoading] = useState(false)
-  const [dataSource, setDataSource] = useState<StrategyItem[]>([])
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 50,
-    total: 0,
-  })
   const [searchParams, setSearchParams] =
-    useState<StrategyListParams>(defaultSearchParams)
-  const [searchForm] = Form.useForm<StrategyListParams>()
-  const [tableHeight, setTableHeight] = useState<number>(0)
-  const tableContainerRef = useRef<HTMLDivElement>(null)
-  const tableWrapperRef = useRef<HTMLDivElement>(null)
-  const isFirstMount = useRef(true)
+    useState<StrategyListQuery>(defaultSearchParams)
+  const [searchForm] = Form.useForm<StrategyListQuery>()
+  const { tableContainerRef, tableWrapperRef, tableHeight } =
+    useAdaptiveTableHeight()
+  const skipAutoSearchRef = useRef(true)
   const isFirstStrategyGroupMount = useRef(true)
   const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>(
@@ -84,70 +85,49 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
   )
   const [editingData, setEditingData] = useState<StrategyItem | null>(null)
 
-  const cancelledRef = useRef(false)
+  const list = usePaginatedRequest<StrategyItem, StrategyListQuery>({
+    service: ({ page, pageSize, keyword, type, driver, status, strategyGroupUID }) =>
+      getStrategyList({
+        page,
+        pageSize,
+        keyword: keyword || undefined,
+        type,
+        driver,
+        status,
+        strategyGroupUID,
+      }),
+    defaultQuery: defaultSearchParams,
+  })
 
-  const fetchData = useCallback(
-    async (
-      page?: number,
-      pageSize?: number,
-      paramsOverride?: Partial<StrategyListParams>,
-    ) => {
-      setLoading(true)
-      try {
-        const currentPage = page ?? pagination.current
-        const currentPageSize = pageSize ?? pagination.pageSize
-        const base = paramsOverride ?? searchParams
-        const params: StrategyListParams = {
-          page: currentPage,
-          pageSize: currentPageSize,
-          keyword: base.keyword || undefined,
-          type: base.type,
-          driver: base.driver,
-          status: base.status,
-          strategyGroupUID: selectedStrategyGroupUID ?? base.strategyGroupUID,
-        }
-        const response = await getStrategyList(params)
-        if (cancelledRef.current) return
-        const items = response?.items ?? []
-        const total = parseInt(String(response?.total ?? 0), 10)
-        setDataSource(items)
-        setPagination((prev) => ({
-          ...prev,
-          current: currentPage,
-          pageSize: currentPageSize,
-          total,
-        }))
-      } catch (error) {
-        if (cancelledRef.current) return
-        console.error('获取策略列表失败:', error)
-      } finally {
-        if (!cancelledRef.current) setLoading(false)
-      }
-    },
-    // 依赖为当前分页与筛选项，用于请求参数；避免把整个 pagination 放入导致无效依赖
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      pagination.current,
-      pagination.pageSize,
-      searchParams,
-      selectedStrategyGroupUID,
-    ],
-  )
+  const { dataSource, loading, pagination, refresh, search, reset, changePage } =
+    list
 
-  const handleSearch = (override?: Partial<StrategyListParams>) => {
+  const buildListQuery = (
+    override?: Partial<StrategyListQuery>,
+  ): StrategyListQuery => ({
+    keyword: searchParams.keyword,
+    status: searchParams.status,
+    type: searchParams.type,
+    driver: searchParams.driver,
+    strategyGroupUID: selectedStrategyGroupUID ?? undefined,
+    ...override,
+  })
+
+  const handleSearch = (override?: Partial<StrategyListQuery>) => {
     if (override) setSearchParams((prev) => ({ ...prev, ...override }))
-    setPagination((prev) => ({ ...prev, current: 1 }))
-    fetchData(1, pagination.pageSize, override)
+    search(buildListQuery(override))
   }
 
   const handleReset = () => {
     setSearchParams(defaultSearchParams)
-    setPagination((prev) => ({ ...prev, current: 1, total: 0 }))
-    fetchData(1, pagination.pageSize, defaultSearchParams)
+    reset({
+      ...defaultSearchParams,
+      strategyGroupUID: selectedStrategyGroupUID ?? undefined,
+    })
   }
 
   const handleTableChange = (page: number, pageSize: number) => {
-    fetchData(page, pageSize)
+    changePage(page, pageSize)
   }
 
   const columns: ColumnsType<StrategyItem> = [
@@ -296,7 +276,7 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
     try {
       await deleteStrategy(record.uid)
       message.success(t('message.delete.success'))
-      fetchData(pagination.current, pagination.pageSize)
+      refresh()
     } catch (error) {
       console.error('删除失败:', error)
     }
@@ -310,7 +290,7 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
     try {
       await updateStrategyStatus({ uid: record.uid, status: newStatus })
       message.success(t('message.update.success'))
-      fetchData(pagination.current, pagination.pageSize)
+      refresh()
     } catch (error) {
       console.error('修改状态失败:', error)
     }
@@ -318,61 +298,28 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
 
   const handleFormSuccess = () => {
     setDetailFormOpen(false)
-    fetchData(pagination.current, pagination.pageSize)
+    refresh()
   }
 
-  useEffect(() => {
-    cancelledRef.current = false
-    fetchData()
-    return () => {
-      cancelledRef.current = true
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // 左侧选中策略组变化时重新请求（跳过首次挂载，避免与上面 [] 的 effect 重复请求）
+  // 左侧选中策略组变化时重新请求（跳过首次挂载，避免与初始请求重复）
   useEffect(() => {
     if (isFirstStrategyGroupMount.current) {
       isFirstStrategyGroupMount.current = false
       return
     }
-    setPagination((prev) => ({ ...prev, current: 1 }))
-    fetchData(1, pagination.pageSize)
+    search(buildListQuery())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStrategyGroupUID])
 
   // 状态筛选变更时自动请求列表
   useEffect(() => {
-    if (isFirstMount.current) {
-      isFirstMount.current = false
+    if (skipAutoSearchRef.current) {
+      skipAutoSearchRef.current = false
       return
     }
-    setPagination((prev) => ({ ...prev, current: 1 }))
-    fetchData(1, pagination.pageSize)
+    search(buildListQuery())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.status])
-
-  useEffect(() => {
-    const calculateTableHeight = () => {
-      if (tableContainerRef.current && tableWrapperRef.current) {
-        const containerHeight = tableContainerRef.current.clientHeight
-        const thead = tableWrapperRef.current.querySelector('.ant-table-thead')
-        const paginationEl =
-          tableWrapperRef.current.querySelector('.ant-pagination')
-        const theadHeight = thead ? (thead as HTMLElement).offsetHeight : 0
-        const paginationHeight = paginationEl
-          ? (paginationEl as HTMLElement).offsetHeight
-          : 0
-        const tableBodyPadding = 16 * 2
-        const calculatedHeight =
-          containerHeight - theadHeight - paginationHeight - tableBodyPadding
-        setTableHeight(Math.max(calculatedHeight, 100))
-      }
-    }
-    calculateTableHeight()
-    window.addEventListener('resize', calculateTableHeight)
-    return () => window.removeEventListener('resize', calculateTableHeight)
-  }, [dataSource])
 
   useEffect(() => {
     searchForm.setFieldsValue({
@@ -486,80 +433,56 @@ const StrategyGroupSidebar: React.FC<{
   const { t } = useLocale()
   const [keyword, setKeyword] = useState('')
   const [sidebarSearchForm] = Form.useForm<{ keyword?: string }>()
-  const [loading, setLoading] = useState(false)
-  const [loadingMore, setLoadingMore] = useState(false)
-  const [dataSource, setDataSource] = useState<StrategyGroupItem[]>([])
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 50,
-    total: 0,
-  })
   const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>(
     'create',
   )
   const [editingData, setEditingData] = useState<StrategyGroupItem | null>(null)
   const [detailViewOpen, setDetailViewOpen] = useState(false)
-  const [viewingData, setViewingData] = useState<StrategyGroupItem | null>(null)
-  const [detailLoading, setDetailLoading] = useState(false)
+  const [viewingUid, setViewingUid] = useState<string>()
 
-  const hasMore = dataSource.length < pagination.total && pagination.total > 0
+  const list = useInfinitePaginatedRequest<
+    StrategyGroupItem,
+    StrategyGroupSidebarQuery
+  >({
+    service: ({ page, pageSize, keyword: kw }) =>
+      getStrategyGroupList({
+        page,
+        pageSize,
+        keyword: kw || undefined,
+      }),
+    defaultQuery: { keyword: '' },
+    defaultPageSize: 50,
+  })
 
-  const fetchData = useCallback(
-    async (page: number, append: boolean, override?: { keyword?: string }) => {
-      if (append) setLoadingMore(true)
-      else setLoading(true)
-      try {
-        const effectiveKeyword =
-          override?.keyword !== undefined ? override.keyword : keyword
-        const params: StrategyGroupListParams = {
-          page,
-          pageSize: pagination.pageSize,
-          keyword: effectiveKeyword || undefined,
-        }
-        const response = await getStrategyGroupList(params)
-        const items = response?.items ?? []
-        const total = parseInt(String(response?.total ?? '0'), 10)
-        if (append) {
-          setDataSource((prev) => [...prev, ...items])
-        } else {
-          setDataSource(items)
-          setViewingData(null)
-          if (items.length === 0) {
-            onSelect(null)
-          }
-        }
-        setPagination((prev) => ({ ...prev, current: page, total }))
-      } catch (error) {
-        console.error('获取策略组列表失败:', error)
-      } finally {
-        setLoading(false)
-        setLoadingMore(false)
-      }
-    },
-    [keyword, pagination.pageSize, onSelect],
-  )
+  const {
+    dataSource,
+    loading,
+    loadingMore,
+    page,
+    search: listSearch,
+    loadMore,
+  } = list
 
-  const loadMore = useCallback(() => {
-    if (loading || loadingMore || !hasMore) return
-    fetchData(pagination.current + 1, true)
-  }, [loading, loadingMore, hasMore, pagination, fetchData])
-
-  const handleScroll = useCallback(
-    (e: React.UIEvent<HTMLDivElement>) => {
-      const el = e.currentTarget
-      const threshold = 80
-      if (el.scrollHeight - el.scrollTop - el.clientHeight <= threshold) {
-        loadMore()
-      }
-    },
-    [loadMore],
-  )
+  const {
+    data: viewingData,
+    loading: detailLoading,
+    mutate: mutateViewingData,
+  } = useDetailRequest(getStrategyGroupDetail, viewingUid, detailViewOpen)
 
   useEffect(() => {
-    fetchData(1, false)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    if (page === 1 && !loading && dataSource.length === 0) {
+      onSelect(null)
+    }
+  }, [page, loading, dataSource.length, onSelect])
+
+  const handleScroll = useMemoizedFn((e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget
+    const threshold = 80
+    if (el.scrollHeight - el.scrollTop - el.clientHeight <= threshold) {
+      loadMore()
+    }
+  })
 
   useEffect(() => {
     sidebarSearchForm.setFieldsValue({ keyword })
@@ -567,8 +490,7 @@ const StrategyGroupSidebar: React.FC<{
 
   const handleSearch = (override?: { keyword?: string }) => {
     if (override?.keyword !== undefined) setKeyword(override.keyword)
-    setPagination((prev) => ({ ...prev, current: 1, total: 0 }))
-    fetchData(1, false, override)
+    listSearch({ keyword: override?.keyword ?? keyword })
   }
 
   const handleAdd = () => {
@@ -581,11 +503,9 @@ const StrategyGroupSidebar: React.FC<{
     if (!record.uid) return
     if (selectedUid === record.uid) {
       onSelect(null)
-      setViewingData(null)
       return
     }
     onSelect(record.uid)
-    setViewingData(null)
   }
 
   const handleEdit = async (record: StrategyGroupItem) => {
@@ -618,19 +538,10 @@ const StrategyGroupSidebar: React.FC<{
     }
   }
 
-  const handleViewDetail = async (record: StrategyGroupItem) => {
+  const handleViewDetail = (record: StrategyGroupItem) => {
     if (!record.uid) return
+    setViewingUid(record.uid)
     setDetailViewOpen(true)
-    setDetailLoading(true)
-    setViewingData(null)
-    try {
-      const data = await getStrategyGroupDetail(record.uid)
-      setViewingData(data)
-    } catch (error) {
-      console.error('获取策略组详情失败:', error)
-    } finally {
-      setDetailLoading(false)
-    }
   }
 
   const handleDelete = async (record: StrategyGroupItem) => {
@@ -640,9 +551,8 @@ const StrategyGroupSidebar: React.FC<{
       message.success(t('message.delete.success'))
       if (selectedUid === record.uid) {
         onSelect(null)
-        setViewingData(null)
       }
-      fetchData(1, false)
+      listSearch({ keyword })
       onRefresh?.()
     } catch (error) {
       console.error('删除失败:', error)
@@ -657,9 +567,9 @@ const StrategyGroupSidebar: React.FC<{
     try {
       await updateStrategyGroupStatus({ uid: record.uid, status: newStatus })
       message.success(t('message.update.success'))
-      fetchData(1, false)
+      listSearch({ keyword })
       if (viewingData?.uid === record.uid) {
-        setViewingData({ ...viewingData, status: newStatus })
+        mutateViewingData({ ...viewingData, status: newStatus })
       }
       onRefresh?.()
     } catch (error) {
@@ -669,11 +579,10 @@ const StrategyGroupSidebar: React.FC<{
 
   const handleDetailFormSuccess = (created?: StrategyGroupItem) => {
     setDetailFormOpen(false)
-    fetchData(1, false)
+    listSearch({ keyword })
     onRefresh?.()
     if (created?.uid) {
       onSelect(created.uid)
-      setViewingData(null)
     }
   }
 
@@ -837,7 +746,10 @@ const StrategyGroupSidebar: React.FC<{
         open={detailViewOpen}
         data={viewingData}
         loading={detailLoading}
-        onCancel={() => setDetailViewOpen(false)}
+        onCancel={() => {
+          setDetailViewOpen(false)
+          setViewingUid(undefined)
+        }}
         onEdit={handleEditFromDetail}
       />
     </>

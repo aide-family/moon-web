@@ -1,15 +1,9 @@
-import type {
-  AlertEventItem,
-  ListRealtimeAlertParams,
-} from '@/api/marksman/alert'
-import {
-  getRealtimeAlertDetail,
-  getRealtimeAlertList,
-} from '@/api/marksman/alert'
+import type { AlertEventItem } from '@/api/marksman/alert'
+import { getRealtimeAlertDetail } from '@/api/marksman/alert'
 import type { AlertStatus } from '@/api/common/types'
 import { useLocale } from '@/contexts/LocaleContext'
 import { emptyPlaceholder } from '@/utils/marksman'
-import { Badge, Descriptions, Modal, Spin, Tag, Tooltip, message } from 'antd'
+import { Badge, Descriptions, Modal, Spin, Tag, Tooltip } from 'antd'
 import dayjs from 'dayjs'
 import React, { useEffect, useRef, useState } from 'react'
 import { ALERT_STATUS_MAP } from './realtimeAlertHelpers'
@@ -17,11 +11,7 @@ import { ALERT_STATUS_MAP } from './realtimeAlertHelpers'
 export interface RealtimeAlertDetailModalProps {
   open: boolean
   onCancel: () => void
-  alertPageUid: string
-  /** 列表行快照：作为 uid 来源及请求失败时的兜底 */
-  fallbackRecord: AlertEventItem | null
-  listStartAtUnix?: string
-  listEndAtUnix?: string
+  uid: string | null
 }
 
 type FieldKind = 'text' | 'time' | 'status' | 'labels' | 'number' | 'bgColor'
@@ -126,37 +116,9 @@ function formatLabelsJson(labels: Record<string, string> | undefined): string {
   }
 }
 
-async function fetchLatestAlertEvent(params: {
-  alertPageUid: string
-  uid: string
-  listFilter: Pick<ListRealtimeAlertParams, 'startAtUnix' | 'endAtUnix'>
-}): Promise<AlertEventItem> {
-  const { alertPageUid, uid, listFilter } = params
-  try {
-    return await getRealtimeAlertDetail(uid)
-  } catch {
-    const res = await getRealtimeAlertList(alertPageUid, {
-      page: 1,
-      pageSize: 200,
-      ...listFilter,
-      keyword: uid,
-    })
-    const hit = res.items?.find((i) => i.uid === uid)
-    if (hit) return hit
-    throw new Error('ALERT_DETAIL_NOT_FOUND')
-  }
-}
-
 export const RealtimeAlertDetailModal: React.FC<
   RealtimeAlertDetailModalProps
-> = ({
-  open,
-  onCancel,
-  alertPageUid,
-  fallbackRecord,
-  listStartAtUnix,
-  listEndAtUnix,
-}) => {
+> = ({ open, onCancel, uid }) => {
   const { t } = useLocale()
   const [loading, setLoading] = useState(false)
   const [record, setRecord] = useState<AlertEventItem | null>(null)
@@ -168,35 +130,26 @@ export const RealtimeAlertDetailModal: React.FC<
       setLoading(false)
       return
     }
-    if (!fallbackRecord?.uid) return
+    if (!uid) return
 
-    const uid = fallbackRecord.uid
     const seq = ++fetchSeqRef.current
     setLoading(true)
     setRecord(null)
 
     void (async () => {
       try {
-        const latest = await fetchLatestAlertEvent({
-          alertPageUid,
-          uid,
-          listFilter: {
-            startAtUnix: listStartAtUnix,
-            endAtUnix: listEndAtUnix,
-          },
-        })
+        const detail = await getRealtimeAlertDetail(uid)
         if (fetchSeqRef.current !== seq) return
-        setRecord(latest)
+        setRecord(detail)
       } catch (e) {
         console.error('获取告警详情失败:', e)
         if (fetchSeqRef.current !== seq) return
-        message.warning(t('realtimeAlert.message.detailFallback'))
-        setRecord(fallbackRecord)
+        setRecord(null)
       } finally {
         if (fetchSeqRef.current === seq) setLoading(false)
       }
     })()
-  }, [open, fallbackRecord, alertPageUid, listStartAtUnix, listEndAtUnix, t])
+  }, [open, uid])
 
   const renderStatus = (status?: AlertStatus) => {
     if (status == null) return emptyPlaceholder(status)
@@ -250,25 +203,25 @@ export const RealtimeAlertDetailModal: React.FC<
       default:
         // 只展示名称；id 用 Tooltip 展示
         if (field.key === 'strategyGroupName') {
-          const uid = d.strategyGroupUid
+          const strategyGroupUid = d.strategyGroupUid
           const nameText = emptyPlaceholder(v as string | undefined)
-          if (!uid) return nameText
-          return <Tooltip title={String(uid)}>{nameText}</Tooltip>
+          if (!strategyGroupUid) return nameText
+          return <Tooltip title={String(strategyGroupUid)}>{nameText}</Tooltip>
         }
         if (field.key === 'strategyName') {
-          const uid = d.strategyUid
+          const strategyUid = d.strategyUid
           const nameText = emptyPlaceholder(v as string | undefined)
-          if (!uid) return nameText
-          return <Tooltip title={String(uid)}>{nameText}</Tooltip>
+          if (!strategyUid) return nameText
+          return <Tooltip title={String(strategyUid)}>{nameText}</Tooltip>
         }
         if (field.key === 'levelName') {
-          const uid = d.levelUid
+          const levelUid = d.levelUid
           const nameText = emptyPlaceholder(v as string | undefined)
-          if (!uid) return nameText
-          return <Tooltip title={String(uid)}>{nameText}</Tooltip>
+          if (!levelUid) return nameText
+          return <Tooltip title={String(levelUid)}>{nameText}</Tooltip>
         }
         if (field.key === 'datasourceName') {
-          const uid = d.datasourceUid
+          const datasourceUid = d.datasourceUid
           const nameText = emptyPlaceholder(v as string | undefined)
           const levelText = emptyPlaceholder(d.datasourceLevelName)
           const content = (
@@ -281,26 +234,26 @@ export const RealtimeAlertDetailModal: React.FC<
               </span>
             </span>
           )
-          if (!uid) return content
-          return <Tooltip title={String(uid)}>{content}</Tooltip>
+          if (!datasourceUid) return content
+          return <Tooltip title={String(datasourceUid)}>{content}</Tooltip>
         }
         if (field.key === 'intervenedByName') {
-          const uid = d.intervenedBy
+          const intervenedBy = d.intervenedBy
           const nameText = emptyPlaceholder(v as string | undefined)
-          if (!uid) return nameText
-          return <Tooltip title={String(uid)}>{nameText}</Tooltip>
+          if (!intervenedBy) return nameText
+          return <Tooltip title={String(intervenedBy)}>{nameText}</Tooltip>
         }
         if (field.key === 'suppressedByName') {
-          const uid = d.suppressedBy
+          const suppressedBy = d.suppressedBy
           const nameText = emptyPlaceholder(v as string | undefined)
-          if (!uid) return nameText
-          return <Tooltip title={String(uid)}>{nameText}</Tooltip>
+          if (!suppressedBy) return nameText
+          return <Tooltip title={String(suppressedBy)}>{nameText}</Tooltip>
         }
         if (field.key === 'recoveredByName') {
-          const uid = d.recoveredBy
+          const recoveredBy = d.recoveredBy
           const nameText = emptyPlaceholder(v as string | undefined)
-          if (!uid) return nameText
-          return <Tooltip title={String(uid)}>{nameText}</Tooltip>
+          if (!recoveredBy) return nameText
+          return <Tooltip title={String(recoveredBy)}>{nameText}</Tooltip>
         }
 
         return emptyPlaceholder(v as string | undefined)

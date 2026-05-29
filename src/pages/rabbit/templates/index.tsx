@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useRef, useEffect, useMemo } from 'react'
+import { useMemoizedFn } from 'ahooks'
 import { useSearchParams } from 'react-router-dom'
 import {
   Table,
@@ -17,6 +18,7 @@ import {
   type TemplateItem,
   type TemplateListParams,
   getTemplateTableList,
+  getTemplateDetail,
   deleteTemplate,
   updateTemplateStatus,
   GlobalStatus,
@@ -33,10 +35,15 @@ import { MENU_DIVIDER } from '@/utils/menu'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 import { MessageType } from '@/api'
 import { renderStatusTag } from '@/utils/marksman'
+import { usePaginatedRequest } from '@/utils/hooks/usePaginatedRequest'
+import { useDetailRequest } from '@/utils/hooks/useDetailRequest'
+import { useAdaptiveTableHeight } from '@/utils/hooks/useAdaptiveTableHeight'
 
-const defaultSearchParams: TemplateListParams = {}
+type TemplateListQuery = Omit<TemplateListParams, 'page' | 'pageSize'>
 
-function parseSearchParamsFromUrl(params: URLSearchParams): TemplateListParams {
+const defaultSearchParams: TemplateListQuery = {}
+
+function parseSearchParamsFromUrl(params: URLSearchParams): TemplateListQuery {
   return {
     keyword: getParam(params, 'keyword') ?? '',
     status: getParam(params, 'status') as GlobalStatus,
@@ -48,68 +55,35 @@ const TemplateListContent: React.FC = () => {
   const { modal } = App.useApp()
   const { t } = useLocale()
   const [urlSearchParams, setUrlSearchParams] = useSearchParams()
-  const [loading, setLoading] = useState(false)
-  const [dataSource, setDataSource] = useState<TemplateItem[]>([])
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 50,
-    total: 0,
-  })
-  const [searchParams, setSearchParams] = useState<TemplateListParams>(() =>
+  const [searchParams, setSearchParams] = useState<TemplateListQuery>(() =>
     parseSearchParamsFromUrl(urlSearchParams),
   )
-  const [tableHeight, setTableHeight] = useState<number>(0)
-  const tableContainerRef = useRef<HTMLDivElement>(null)
-  const tableWrapperRef = useRef<HTMLDivElement>(null)
+  const list = usePaginatedRequest<TemplateItem, TemplateListQuery>({
+    service: (params) =>
+      getTemplateTableList({
+        ...params,
+        keyword: params.keyword || undefined,
+      }),
+    defaultQuery: parseSearchParamsFromUrl(urlSearchParams),
+  })
+  const { dataSource, loading, pagination, refresh, search, reset, changePage } =
+    list
+  const { tableContainerRef, tableWrapperRef, tableHeight } =
+    useAdaptiveTableHeight()
   const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>(
     'create',
   )
   const [editingData, setEditingData] = useState<TemplateItem | null>(null)
   const [detailViewOpen, setDetailViewOpen] = useState(false)
-  const [viewingData, setViewingData] = useState<TemplateItem | null>(null)
-  const mountedRef = useRef(true)
-  const paginationRef = useRef(pagination)
-  paginationRef.current = pagination
-
-  const fetchData = useCallback(
-    async (page?: number, pageSize?: number, keywordOverride?: string) => {
-      setLoading(true)
-      try {
-        const cur = paginationRef.current
-        const currentPage = page ?? cur.current
-        const currentPageSize = pageSize ?? cur.pageSize
-        const keyword =
-          keywordOverride !== undefined
-            ? keywordOverride || undefined
-            : searchParams.keyword || undefined
-        const params: TemplateListParams = {
-          page: currentPage,
-          pageSize: currentPageSize,
-          keyword,
-          status: searchParams.status,
-          messageType: searchParams.messageType,
-        }
-        const response = await getTemplateTableList(params)
-        if (!mountedRef.current) return
-        if (response) {
-          setDataSource(response.items ?? [])
-          setPagination((prev) => ({
-            ...prev,
-            current: currentPage,
-            pageSize: currentPageSize,
-            total: parseInt(response.total || '0', 10),
-          }))
-        }
-      } catch (error) {
-        console.error('获取模板列表失败:', error)
-        if (mountedRef.current) setDataSource([])
-      } finally {
-        if (mountedRef.current) setLoading(false)
-      }
-    },
-    [searchParams.keyword, searchParams.status, searchParams.messageType],
-  )
+  const [viewingUid, setViewingUid] = useState<string>()
+  const skipAutoSearchRef = useRef(true)
+  const {
+    data: viewingData,
+    loading: detailLoading,
+    error: detailError,
+    mutate: mutateViewingData,
+  } = useDetailRequest(getTemplateDetail, viewingUid, detailViewOpen)
 
   // URL 变化时（如浏览器后退）同步到表单
   useEffect(() => {
@@ -134,63 +108,52 @@ const TemplateListContent: React.FC = () => {
     setUrlSearchParams,
   ])
 
-  const handleSearch = useCallback(
-    (keywordFromInput?: string) => {
-      if (keywordFromInput !== undefined) {
-        setSearchParams((prev) => ({ ...prev, keyword: keywordFromInput }))
-      }
-      setPagination((prev) => ({ ...prev, current: 1 }))
-      fetchData(1, paginationRef.current.pageSize, keywordFromInput)
-    },
-    [fetchData],
-  )
+  const handleSearch = useMemoizedFn((keywordFromInput?: string) => {
+    if (keywordFromInput !== undefined) {
+      setSearchParams((prev) => ({ ...prev, keyword: keywordFromInput }))
+    }
+    const keyword =
+      keywordFromInput !== undefined ? keywordFromInput : searchParams.keyword
+    search({
+      keyword: keyword || undefined,
+      status: searchParams.status,
+      messageType: searchParams.messageType,
+    })
+  })
 
-  const handleReset = useCallback(() => {
+  const handleReset = useMemoizedFn(() => {
     setSearchParams(defaultSearchParams)
     setUrlSearchParams({})
-    setPagination({ current: 1, pageSize: 50, total: 0 })
-    fetchData(1, 10)
-  }, [fetchData, setUrlSearchParams])
+    reset(defaultSearchParams)
+  })
 
-  const handleTableChange = useCallback(
-    (page: number, pageSize: number) => {
-      fetchData(page, pageSize)
-    },
-    [fetchData],
-  )
+  const handleTableChange = useMemoizedFn((page: number, pageSize: number) => {
+    changePage(page, pageSize)
+  })
 
-  // 处理删除
-  const handleDelete = useCallback(
-    async (record: TemplateItem) => {
-      try {
-        await deleteTemplate(record.uid)
-        message.success(t('message.delete.success'))
-        fetchData()
-      } catch (error) {
-        console.error('删除失败:', error)
-        // 错误信息已由 API 拦截器处理
-      }
-    },
-    [fetchData, t],
-  )
+  const handleDelete = useMemoizedFn(async (record: TemplateItem) => {
+    try {
+      await deleteTemplate(record.uid)
+      message.success(t('message.delete.success'))
+      refresh()
+    } catch (error) {
+      console.error('删除失败:', error)
+    }
+  })
 
-  // 处理修改状态
-  const handleStatusChange = useCallback(
+  const handleStatusChange = useMemoizedFn(
     async (record: TemplateItem, newStatus: GlobalStatus) => {
       try {
         await updateTemplateStatus({ uid: record.uid, status: newStatus })
         message.success(t('message.update.success'))
-        fetchData()
-        // 如果详情页打开，需要更新详情页数据
-        if (viewingData && viewingData.uid === record.uid) {
-          setViewingData({ ...viewingData, status: newStatus })
+        refresh()
+        if (viewingUid === record.uid && viewingData) {
+          mutateViewingData({ ...viewingData, status: newStatus })
         }
       } catch (error) {
         console.error('修改状态失败:', error)
-        // 错误信息已由 API 拦截器处理
       }
     },
-    [fetchData, t, viewingData],
   )
 
   const columns: ColumnsType<TemplateItem> = useMemo(() => {
@@ -342,11 +305,11 @@ const TemplateListContent: React.FC = () => {
     setDetailFormOpen(true)
   }
 
-  // 处理查看详情
-  const handleViewDetail = (record: TemplateItem) => {
-    setViewingData(record)
+  const handleViewDetail = useMemoizedFn((record: TemplateItem) => {
+    if (!record.uid) return
+    setViewingUid(record.uid)
     setDetailViewOpen(true)
-  }
+  })
 
   // 处理编辑
   const handleEdit = (record: TemplateItem) => {
@@ -368,52 +331,30 @@ const TemplateListContent: React.FC = () => {
     message.info(t('common.export'))
   }
 
-  // 处理表单成功
   const handleFormSuccess = () => {
-    fetchData()
+    refresh()
   }
 
   useEffect(() => {
-    mountedRef.current = true
-    return () => {
-      mountedRef.current = false
+    if (detailViewOpen && detailError) {
+      console.error('获取模板详情失败:', detailError)
+      setDetailViewOpen(false)
+      setViewingUid(undefined)
     }
-  }, [])
+  }, [detailViewOpen, detailError])
 
   useEffect(() => {
-    fetchData()
-    // 仅在 status / messageType 变化时重新拉取，keyword 由「搜索」按钮触发
+    if (skipAutoSearchRef.current) {
+      skipAutoSearchRef.current = false
+      return
+    }
+    search({
+      ...list.query,
+      status: searchParams.status,
+      messageType: searchParams.messageType,
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.status, searchParams.messageType])
-
-  // 计算表格高度
-  useEffect(() => {
-    const calculateTableHeight = () => {
-      if (tableContainerRef.current && tableWrapperRef.current) {
-        const containerHeight = tableContainerRef.current.clientHeight
-        const thead = tableWrapperRef.current.querySelector('.ant-table-thead')
-        const pagination =
-          tableWrapperRef.current.querySelector('.ant-pagination')
-
-        const theadHeight = thead ? (thead as HTMLElement).offsetHeight : 0
-        const paginationHeight = pagination
-          ? (pagination as HTMLElement).offsetHeight
-          : 0
-        const tableBodyPadding = 16 * 2 // 上下各16px
-
-        // 计算表格可用的滚动高度 = 容器高度 - 表头高度 - 分页器高度 - 表格主体 padding
-        const calculatedHeight =
-          containerHeight - theadHeight - paginationHeight - tableBodyPadding
-        setTableHeight(Math.max(calculatedHeight, 100)) // 最小高度100px
-      }
-    }
-
-    calculateTableHeight()
-    window.addEventListener('resize', calculateTableHeight)
-    return () => {
-      window.removeEventListener('resize', calculateTableHeight)
-    }
-  }, [dataSource])
 
   return (
     <div className='flex flex-col h-full'>
@@ -437,7 +378,6 @@ const TemplateListContent: React.FC = () => {
             value={searchParams.status}
             onChange={(e) => {
               setSearchParams((prev) => ({ ...prev, status: e.target.value }))
-              setPagination((prev) => ({ ...prev, current: 1 }))
             }}
             buttonStyle='solid'
           >
@@ -460,7 +400,6 @@ const TemplateListContent: React.FC = () => {
                 ...prev,
                 messageType: value,
               }))
-              setPagination((prev) => ({ ...prev, current: 1 }))
             }}
             className='w-45'
             options={[
@@ -536,10 +475,11 @@ const TemplateListContent: React.FC = () => {
       {/* 详情查看弹窗 */}
       <DetailView
         open={detailViewOpen}
-        data={viewingData}
+        data={viewingData ?? null}
+        loading={detailLoading}
         onCancel={() => {
           setDetailViewOpen(false)
-          setViewingData(null)
+          setViewingUid(undefined)
         }}
         onEdit={handleEditFromDetail}
       />

@@ -32,7 +32,7 @@ export const getEmailTableList = (
  * @returns 邮件配置详情
  */
 export const getEmailDetail = (uid: string): Promise<EmailItem> => {
-  return http.get<EmailItem>(`/email/${uid}`)
+  return http.get<EmailItem>(`/email/config/${uid}`)
 }
 
 /**

@@ -2,6 +2,7 @@ import type { ProbeTaskItem, ProbeTaskListParams } from '@/api'
 import {
   createProbeTask,
   deleteProbeTask,
+  getProbeTaskDetail,
   getProbeTaskList,
   ProbeTaskStatus,
   updateProbeTask,
@@ -9,23 +10,19 @@ import {
 } from '@/api'
 import PageContent from '@/components/layout/PageContent'
 import { useLocale } from '@/contexts/LocaleContext'
-import {
-  DEFAULT_PAGE_SIZE,
-  usePaginationState,
-} from '@/utils/hooks/usePaginationState'
+import { useDetailRequest } from '@/utils/hooks/useDetailRequest'
+import { usePaginatedRequest } from '@/utils/hooks/usePaginatedRequest'
 import { MENU_DIVIDER } from '@/utils/menu'
 import type { MenuProps } from 'antd'
 import { App, Button, Dropdown, Form, Space, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useMemoizedFn } from 'ahooks'
 import ProbeTasksTab from './components/ProbeTasksTab'
 import ProbeTaskDetailModal from './components/modals/ProbeTaskDetailModal'
 import ProbeTaskFormModal, {
   type ProbeTaskFormValues,
 } from './components/modals/ProbeTaskFormModal'
-
-const formatTotal = (value?: string): number =>
-  Number.parseInt(value ?? '0', 10) || 0
 
 const getProbeStatusTagColor = (status?: ProbeTaskStatus): string => {
   if (status === ProbeTaskStatus.ENABLED) return 'success'
@@ -33,64 +30,54 @@ const getProbeStatusTagColor = (status?: ProbeTaskStatus): string => {
   return 'warning'
 }
 
+type ProbeTaskListQuery = Omit<ProbeTaskListParams, 'page' | 'pageSize'>
+
+const defaultProbeQuery: ProbeTaskListQuery = {
+  keyword: '',
+  type: undefined,
+  status: undefined,
+}
+
 const ProbeTasksPage: React.FC = () => {
   const { message, modal } = App.useApp()
   const { t } = useLocale()
 
-  const [probeTasks, setProbeTasks] = useState<ProbeTaskItem[]>([])
-  const [probeLoading, setProbeLoading] = useState(false)
-  const [probePagination, setProbePagination] = usePaginationState()
-  const [probeSearchParams, setProbeSearchParams] =
-    useState<ProbeTaskListParams>({
-      keyword: '',
-      type: undefined,
-      status: undefined,
-    })
+  const list = usePaginatedRequest<ProbeTaskItem, ProbeTaskListQuery>({
+    service: ({ page, pageSize, type, keyword, status }) =>
+      getProbeTaskList({
+        page,
+        pageSize,
+        type: type || undefined,
+        keyword: keyword || undefined,
+        status,
+      }),
+    defaultQuery: defaultProbeQuery,
+  })
 
   const [probeOpen, setProbeOpen] = useState(false)
   const [probeEditing, setProbeEditing] = useState<ProbeTaskItem>()
   const [probeForm] = Form.useForm<ProbeTaskFormValues>()
   const [probeDetailOpen, setProbeDetailOpen] = useState(false)
-  const [probeDetailData, setProbeDetailData] = useState<ProbeTaskItem>()
-
-  const fetchProbeTasks = useCallback(
-    async (
-      page = probePagination.current,
-      pageSize = probePagination.pageSize,
-      override?: Partial<ProbeTaskListParams>,
-    ) => {
-      setProbeLoading(true)
-      try {
-        const effective = override
-          ? { ...probeSearchParams, ...override }
-          : probeSearchParams
-        const res = await getProbeTaskList({
-          page,
-          pageSize,
-          type: effective.type || undefined,
-          keyword: effective.keyword || undefined,
-          status: effective.status,
-        })
-        setProbeTasks(res.items ?? [])
-        setProbePagination({
-          current: page,
-          pageSize,
-          total: formatTotal(res.total),
-        })
-      } catch (error) {
-        console.error('获取探测任务失败', error)
-        setProbeTasks([])
-      } finally {
-        setProbeLoading(false)
-      }
-    },
-    [probePagination, probeSearchParams, setProbePagination],
-  )
+  const [probeDetailUid, setProbeDetailUid] = useState<string>()
+  const {
+    data: probeDetailData,
+    loading: probeDetailLoading,
+    error: probeDetailError,
+  } = useDetailRequest(getProbeTaskDetail, probeDetailUid, probeDetailOpen)
 
   useEffect(() => {
-    void fetchProbeTasks(1, DEFAULT_PAGE_SIZE)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    if (probeDetailError && probeDetailOpen) {
+      console.error('获取探测任务详情失败', probeDetailError)
+      setProbeDetailOpen(false)
+      setProbeDetailUid(undefined)
+    }
+  }, [probeDetailError, probeDetailOpen])
+
+  const openProbeDetail = useMemoizedFn((row: ProbeTaskItem) => {
+    if (!row.uid) return
+    setProbeDetailUid(row.uid)
+    setProbeDetailOpen(true)
+  })
 
   const probeColumns: ColumnsType<ProbeTaskItem> = useMemo(
     () => [
@@ -160,13 +147,7 @@ const ProbeTasksPage: React.FC = () => {
         align: 'center',
         render: (_, row) => (
           <Space size='small'>
-            <Button
-              type='link'
-              onClick={() => {
-                setProbeDetailData(row)
-                setProbeDetailOpen(true)
-              }}
-            >
+            <Button type='link' onClick={() => openProbeDetail(row)}>
               {t('common.detail')}
             </Button>
             <Dropdown
@@ -204,7 +185,7 @@ const ProbeTasksPage: React.FC = () => {
                             : ProbeTaskStatus.ENABLED,
                       })
                       message.success(t('message.update.success'))
-                      void fetchProbeTasks()
+                      list.refresh()
                     },
                   },
                   MENU_DIVIDER,
@@ -221,7 +202,7 @@ const ProbeTasksPage: React.FC = () => {
                           if (!row.uid) return
                           await deleteProbeTask(row.uid)
                           message.success(t('message.delete.success'))
-                          void fetchProbeTasks()
+                          list.refresh()
                         },
                       })
                     },
@@ -236,7 +217,7 @@ const ProbeTasksPage: React.FC = () => {
         ),
       },
     ],
-    [fetchProbeTasks, message, modal, probeForm, t],
+    [list, message, modal, openProbeDetail, probeForm, t],
   )
 
   const handleSubmitProbeTask = async () => {
@@ -254,7 +235,7 @@ const ProbeTasksPage: React.FC = () => {
       }
       setProbeOpen(false)
       setProbeEditing(undefined)
-      void fetchProbeTasks()
+      list.refresh()
     } catch (error) {
       if (
         typeof error === 'object' &&
@@ -270,13 +251,15 @@ const ProbeTasksPage: React.FC = () => {
     <App className='h-full'>
       <PageContent>
         <ProbeTasksTab
-          probePagination={probePagination}
-          probeSearchParams={probeSearchParams}
-          setProbeSearchParams={setProbeSearchParams}
+          probePagination={list.pagination}
+          probeSearchParams={list.query}
+          setProbeSearchParams={list.setQuery}
           probeColumns={probeColumns}
-          probeTasks={probeTasks}
-          probeLoading={probeLoading}
-          onFetchProbeTasks={fetchProbeTasks}
+          probeTasks={list.dataSource}
+          probeLoading={list.loading}
+          onSearch={list.search}
+          onPageChange={list.changePage}
+          onReset={() => list.reset(defaultProbeQuery)}
           onCreate={() => {
             setProbeEditing(undefined)
             probeForm.resetFields()
@@ -298,7 +281,11 @@ const ProbeTasksPage: React.FC = () => {
         <ProbeTaskDetailModal
           open={probeDetailOpen}
           data={probeDetailData}
-          onCancel={() => setProbeDetailOpen(false)}
+          loading={probeDetailLoading}
+          onCancel={() => {
+            setProbeDetailOpen(false)
+            setProbeDetailUid(undefined)
+          }}
         />
       </PageContent>
     </App>

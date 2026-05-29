@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect } from 'react'
+import { useCountDown, useMemoizedFn } from 'ahooks'
 import { Carousel, Form, Input, Button, message, Dropdown, Modal } from 'antd'
 import type { MenuProps } from 'antd'
 import {
@@ -37,8 +38,12 @@ export default function LoginPage() {
   const [loginForm] = Form.useForm()
   const [registerForm] = Form.useForm()
   const [sendingCode, setSendingCode] = useState(false)
-  const [codeCountdown, setCodeCountdown] = useState(0)
-  const codeTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [countdownTarget, setCountdownTarget] = useState<number>()
+  const [countdown] = useCountDown({
+    targetDate: countdownTarget,
+    onEnd: () => setSendingCode(false),
+  })
+  const codeCountdown = Math.ceil(countdown / 1000)
   const [captchaModalOpen, setCaptchaModalOpen] = useState(false)
   const [captchaModalForForm, setCaptchaModalForForm] = useState<
     'login' | 'register' | null
@@ -51,7 +56,7 @@ export default function LoginPage() {
   const [oauthOptions, setOauthOptions] = useState<OAuth2ReportItem[]>([])
   const [loginLoading, setLoginLoading] = useState(false)
 
-  const fetchCaptcha = useCallback(() => {
+  const fetchCaptcha = useMemoizedFn(() => {
     setCaptchaLoading(true)
     getCaptcha()
       .then((res) => {
@@ -63,7 +68,7 @@ export default function LoginPage() {
         setModalCaptchaB64s('')
       })
       .finally(() => setCaptchaLoading(false))
-  }, [])
+  })
 
   useEffect(() => {
     getOauth2Reports().then(setOauthOptions)
@@ -87,27 +92,11 @@ export default function LoginPage() {
     }
   }
 
-  const runCodeCountdown = () => {
-    if (codeTimerRef.current) {
-      clearInterval(codeTimerRef.current)
-      codeTimerRef.current = null
-    }
+  const runCodeCountdown = useMemoizedFn(() => {
     setSendingCode(true)
-    setCodeCountdown(60)
+    setCountdownTarget(Date.now() + 60 * 1000)
     message.success(t('login.codeSent'))
-    const timer = setInterval(() => {
-      setCodeCountdown((c) => {
-        if (c <= 1) {
-          clearInterval(timer)
-          codeTimerRef.current = null
-          setSendingCode(false)
-          return 0
-        }
-        return c - 1
-      })
-    }, 1000)
-    codeTimerRef.current = timer
-  }
+  })
 
   const openCaptchaModal = (forForm: 'login' | 'register') => {
     const form = forForm === 'login' ? loginForm : registerForm

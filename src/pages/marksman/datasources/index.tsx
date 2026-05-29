@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useMemoizedFn } from 'ahooks'
 import { Input, Button, message, App, Dropdown, Form, Spin, Tabs } from 'antd'
 import type { MenuProps } from 'antd'
 import {
@@ -16,110 +17,84 @@ import { useLocale } from '@/contexts/LocaleContext'
 import PageContent from '@/components/layout/PageContent'
 import { getTypeLabel, getDriverLabel } from '@/utils/marksman'
 import { MENU_DIVIDER } from '@/utils/menu'
+import { useInfinitePaginatedRequest } from '@/utils/hooks/useInfinitePaginatedRequest'
+import { useDetailRequest } from '@/utils/hooks/useDetailRequest'
 
-const defaultSearchParams: DatasourceListParams = {
+type DatasourceListQuery = Omit<DatasourceListParams, 'page' | 'pageSize'>
+
+const defaultSearchParams: DatasourceListQuery = {
   keyword: '',
 }
 
 const DatasourceList: React.FC = () => {
   const { modal } = App.useApp()
   const { t } = useLocale()
-  const [loading, setLoading] = useState(false)
-  const [dataSource, setDataSource] = useState<DatasourceItem[]>([])
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 20,
-    total: 0,
-  })
   const [searchParams, setSearchParams] =
-    useState<DatasourceListParams>(defaultSearchParams)
-  const [searchForm] = Form.useForm<DatasourceListParams>()
+    useState<DatasourceListQuery>(defaultSearchParams)
+  const [searchForm] = Form.useForm<DatasourceListQuery>()
   const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>(
     'create',
   )
   const [editingData, setEditingData] = useState<DatasourceItem | null>(null)
   const [selectedUid, setSelectedUid] = useState<string | null>(null)
-  const [viewingData, setViewingData] = useState<DatasourceItem | null>(null)
-  const [detailLoading, setDetailLoading] = useState(false)
-  const [loadingMore, setLoadingMore] = useState(false)
 
-  const pageSize = 20
-  const hasMore = dataSource.length < pagination.total && pagination.total > 0
-
-  const fetchData = useCallback(
-    async (
-      page: number,
-      append: boolean,
-      override?: Partial<DatasourceListParams>,
-    ) => {
-      if (append) setLoadingMore(true)
-      else setLoading(true)
-      try {
-        const effective = override
-          ? { ...searchParams, ...override }
-          : searchParams
-        const params: DatasourceListParams = {
+  const list = useInfinitePaginatedRequest<DatasourceItem, DatasourceListQuery>(
+    {
+      service: ({ page, pageSize, keyword, type, driver, status }) =>
+        getDatasourceList({
           page,
           pageSize,
-          keyword: effective.keyword || undefined,
-          type: effective.type,
-          driver: effective.driver,
-          status: effective.status,
-        }
-        const response = await getDatasourceList(params)
-        if (response) {
-          const items = response.items ?? []
-          const total = parseInt(String(response.total ?? '0'), 10)
-          if (append) {
-            setDataSource((prev) => [...prev, ...items])
-          } else {
-            setDataSource(items)
-            if (items.length > 0 && items[0].uid) {
-              setSelectedUid(items[0].uid)
-              setViewingData(null)
-              setDetailLoading(true)
-              getDatasourceDetail(items[0].uid)
-                .then(setViewingData)
-                .catch(() => {})
-                .finally(() => setDetailLoading(false))
-            } else {
-              setSelectedUid(null)
-              setViewingData(null)
-            }
-          }
-          setPagination((prev) => ({ ...prev, current: page, pageSize, total }))
-        }
-      } catch (error) {
-        console.error('获取数据源列表失败:', error)
-      } finally {
-        setLoading(false)
-        setLoadingMore(false)
-      }
+          keyword: keyword || undefined,
+          type,
+          driver,
+          status,
+        }),
+      defaultQuery: defaultSearchParams,
+      defaultPageSize: 20,
     },
-    [searchParams],
   )
 
-  const loadMore = useCallback(() => {
-    if (loading || loadingMore || !hasMore) return
-    fetchData(pagination.current + 1, true)
-  }, [loading, loadingMore, hasMore, pagination, fetchData])
+  const {
+    dataSource,
+    loading,
+    loadingMore,
+    hasMore,
+    page,
+    search: listSearch,
+    loadMore,
+  } = list
 
-  const handleScroll = useCallback(
-    (e: React.UIEvent<HTMLDivElement>) => {
-      const el = e.currentTarget
-      const threshold = 80
-      if (el.scrollHeight - el.scrollTop - el.clientHeight <= threshold) {
-        loadMore()
-      }
-    },
-    [loadMore],
-  )
+  const {
+    data: viewingData,
+    loading: detailLoading,
+    refresh: refreshViewingData,
+  } = useDetailRequest(getDatasourceDetail, selectedUid ?? undefined, !!selectedUid)
 
-  const handleSearch = (override?: Partial<DatasourceListParams>) => {
+  useEffect(() => {
+    if (page !== 1 || loading) return
+    const firstUid = dataSource[0]?.uid
+    if (firstUid) {
+      setSelectedUid(firstUid)
+    } else {
+      setSelectedUid(null)
+    }
+  }, [dataSource, page, loading])
+
+  const handleScroll = useMemoizedFn((e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget
+    const threshold = 80
+    if (el.scrollHeight - el.scrollTop - el.clientHeight <= threshold) {
+      loadMore()
+    }
+  })
+
+  const handleSearch = (override?: Partial<DatasourceListQuery>) => {
     if (override) setSearchParams((prev) => ({ ...prev, ...override }))
-    setPagination((prev) => ({ ...prev, current: 1, total: 0 }))
-    fetchData(1, false, override)
+    listSearch({
+      ...searchParams,
+      ...override,
+    })
   }
 
   const handleAdd = () => {
@@ -128,19 +103,9 @@ const DatasourceList: React.FC = () => {
     setDetailFormOpen(true)
   }
 
-  const handleSelectItem = async (record: DatasourceItem) => {
+  const handleSelectItem = (record: DatasourceItem) => {
     if (!record.uid) return
     setSelectedUid(record.uid)
-    setViewingData(null)
-    setDetailLoading(true)
-    try {
-      const data = await getDatasourceDetail(record.uid)
-      setViewingData(data)
-    } catch (error) {
-      console.error('获取数据源详情失败:', error)
-    } finally {
-      setDetailLoading(false)
-    }
   }
 
   const handleEdit = (record: DatasourceItem) => {
@@ -162,9 +127,8 @@ const DatasourceList: React.FC = () => {
       message.success(t('message.delete.success'))
       if (selectedUid === record.uid) {
         setSelectedUid(null)
-        setViewingData(null)
       }
-      fetchData(1, false)
+      listSearch(searchParams)
     } catch (error) {
       console.error('删除失败:', error)
     }
@@ -172,25 +136,11 @@ const DatasourceList: React.FC = () => {
 
   const handleDetailFormSuccess = () => {
     setDetailFormOpen(false)
-    fetchData(1, false)
+    listSearch(searchParams)
     if (viewingData?.uid) {
-      getDatasourceDetail(viewingData.uid)
-        .then(setViewingData)
-        .catch(() => {})
+      refreshViewingData()
     }
   }
-
-  const refreshViewingData = useCallback(() => {
-    if (!viewingData?.uid) return
-    getDatasourceDetail(viewingData.uid)
-      .then(setViewingData)
-      .catch(() => {})
-  }, [viewingData?.uid])
-
-  useEffect(() => {
-    fetchData(1, false)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   useEffect(() => {
     searchForm.setFieldsValue({
@@ -209,7 +159,7 @@ const DatasourceList: React.FC = () => {
               layout='inline'
               className='flex-1 min-w-0'
               onValuesChange={(_, allValues) => {
-                setSearchParams((prev: DatasourceListParams) => ({
+                setSearchParams((prev: DatasourceListQuery) => ({
                   ...prev,
                   keyword: allValues.keyword ?? '',
                 }))

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, Descriptions, Button, Space } from 'antd'
+import { Modal, Descriptions, Button, Space, Spin } from 'antd'
 import type { EmailItem } from '@/api/rabbit/email/index'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -8,6 +8,7 @@ import { renderStatusTag } from '@/utils/marksman'
 interface DetailViewProps {
   open: boolean
   data?: EmailItem | null
+  loading?: boolean
   onCancel: () => void
   onEdit?: (data: EmailItem) => void
 }
@@ -15,6 +16,7 @@ interface DetailViewProps {
 const DetailView: React.FC<DetailViewProps> = ({
   open,
   data,
+  loading = false,
   onCancel,
   onEdit,
 }) => {
@@ -45,7 +47,11 @@ const DetailView: React.FC<DetailViewProps> = ({
       width={800}
       destroyOnHidden
     >
-      {data ? (
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '40px 0' }}>
+          <Spin size='large' />
+        </div>
+      ) : data ? (
         <Descriptions
           column={1}
           bordered

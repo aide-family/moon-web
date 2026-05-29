@@ -17,6 +17,7 @@ import { getStrategyGroupSelectList } from '@/api/marksman/strategyGroup'
 import { useLocale } from '@/contexts/LocaleContext'
 import { useNamespace } from '@/contexts/useNamespace'
 import { emptyPlaceholder } from '@/utils/marksman'
+import { useDetailRequest } from '@/utils/hooks/useDetailRequest'
 import { GlobalStatus } from '@/api'
 import { LinkOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons'
 import {
@@ -39,7 +40,8 @@ import {
   Tooltip,
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useInterval, useMemoizedFn, useRequest } from 'ahooks'
 import { AlertPageTabContent } from './AlertPageTabContent'
 import { buildCreateAlertPageFilter } from './realtimeAlertHelpers'
 import { getDatasourceSelectList } from '@/api/marksman/datasource'
@@ -52,6 +54,29 @@ import {
 } from '../realtimeAlertStorage'
 
 type AlertPageFormMode = 'create' | 'edit'
+
+type SelectOption = { value: string; label: string; disabled?: boolean }
+
+type CreateFilterOptions = {
+  strategyGroupSelectOptions: SelectOption[]
+  levelSelectOptions: SelectOption[]
+  strategySelectOptions: SelectOption[]
+  datasourceSelectOptions: SelectOption[]
+  datasourceLevelSelectOptions: SelectOption[]
+}
+
+const mapSelectItems = (
+  items: { value?: string; label?: string; disabled?: unknown }[],
+): SelectOption[] =>
+  (items ?? [])
+    .filter(
+      (i): i is { value: string; label?: string; disabled?: unknown } =>
+        !!i.value,
+    )
+    .map((i) => ({
+      value: i.value,
+      label: i.label ?? i.value,
+    }))
 
 export interface RealtimeAlertListProps {
   stats: GetAlertStatisticsReply | null
@@ -70,13 +95,6 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
   const { message } = App.useApp()
   const { t } = useLocale()
   const { currentNamespace } = useNamespace()
-  const [availableAlertPages, setAvailableAlertPages] = useState<
-    AlertPageItem[]
-  >([])
-  const [availableAlertPagesLoading, setAvailableAlertPagesLoading] =
-    useState(false)
-  const [boundAlertPages, setBoundAlertPages] = useState<AlertPageItem[]>([])
-  const [boundAlertPagesLoading, setBoundAlertPagesLoading] = useState(false)
   const [activeTabKey, setActiveTabKey] = useState<string | undefined>(
     undefined,
   )
@@ -86,35 +104,235 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
   const [editingAlertPageUid, setEditingAlertPageUid] = useState<string | null>(
     null,
   )
-  const [alertPageDetailLoading, setAlertPageDetailLoading] = useState(false)
-  const [alertPageSubmitLoading, setAlertPageSubmitLoading] = useState(false)
   const [deletingAlertPageUid, setDeletingAlertPageUid] = useState<
     string | null
   >(null)
   const [manageAlertPagesModalOpen, setManageAlertPagesModalOpen] =
     useState(false)
   const [bindModalOpen, setBindModalOpen] = useState(false)
-  const [bindLoading, setBindLoading] = useState(false)
-  const [createFilterOptionsLoading, setCreateFilterOptionsLoading] =
-    useState(false)
-  const [strategyGroupSelectOptions, setStrategyGroupSelectOptions] = useState<
-    { value: string; label: string; disabled?: boolean }[]
-  >([])
-  const [levelSelectOptions, setLevelSelectOptions] = useState<
-    { value: string; label: string; disabled?: boolean }[]
-  >([])
-  const [strategySelectOptions, setStrategySelectOptions] = useState<
-    { value: string; label: string; disabled?: boolean }[]
-  >([])
-  const [datasourceSelectOptions, setDatasourceSelectOptions] = useState<
-    { value: string; label: string; disabled?: boolean }[]
-  >([])
-  const [datasourceLevelSelectOptions, setDatasourceLevelSelectOptions] =
-    useState<{ value: string; label: string; disabled?: boolean }[]>([])
   const [form] = Form.useForm()
   const [bindForm] = Form.useForm()
-  const mountedRef = useRef(true)
   const [listRefreshSignal, setListRefreshSignal] = useState(0)
+
+  const updateActiveTabFromBoundPages = useMemoizedFn((items: AlertPageItem[]) => {
+    const storedUid = readStoredActiveAlertPageUid(currentNamespace)
+    setActiveTabKey((prev) => {
+      const next = resolveActiveAlertPageUid(items, {
+        preferredUid: prev,
+        storedUid,
+      })
+      if (next) {
+        writeStoredActiveAlertPageUid(currentNamespace, next)
+      }
+      return next
+    })
+  })
+
+  const {
+    data: availableAlertPages = [],
+    loading: availableAlertPagesLoading,
+    refresh: refreshAvailableAlertPages,
+  } = useRequest(
+    async () => {
+      try {
+        const res = await getAlertPageList({ page: 1, pageSize: 50 })
+        return res.items ?? []
+      } catch (e) {
+        console.error('获取告警页列表失败:', e)
+        return [] as AlertPageItem[]
+      }
+    },
+    { refreshDeps: [currentNamespace] },
+  )
+
+  const {
+    data: boundAlertPages = [],
+    loading: boundAlertPagesLoading,
+    refresh: refreshBoundAlertPages,
+    mutate: mutateBoundAlertPages,
+  } = useRequest(
+    async () => {
+      try {
+        const res = await listUserAlertPages()
+        return res.items ?? []
+      } catch (e) {
+        console.error('获取绑定告警页失败:', e)
+        return [] as AlertPageItem[]
+      }
+    },
+    {
+      refreshDeps: [currentNamespace],
+      onSuccess: (items) => {
+        updateActiveTabFromBoundPages(items)
+      },
+    },
+  )
+
+  const refreshBoundAlertPagesSilent = useMemoizedFn(async () => {
+    try {
+      const res = await listUserAlertPages()
+      const items = res.items ?? []
+      mutateBoundAlertPages(items)
+      updateActiveTabFromBoundPages(items)
+    } catch (e) {
+      console.error('获取绑定告警页失败:', e)
+    }
+  })
+
+  const refreshPageMetadata = useMemoizedFn(
+    async (options?: { silent?: boolean }) => {
+      const silent = options?.silent ?? false
+      await Promise.all([
+        silent ? refreshBoundAlertPagesSilent() : refreshBoundAlertPages(),
+        onRefreshStats?.(),
+      ])
+    },
+  )
+
+  const refreshPageContext = useMemoizedFn(
+    async (options?: { silent?: boolean }) => {
+      await refreshPageMetadata(options)
+      setListRefreshSignal((n) => n + 1)
+    },
+  )
+
+  useInterval(
+    () => {
+      void refreshPageContext({ silent: true })
+    },
+    refreshIntervalMs > 0 ? refreshIntervalMs : undefined,
+  )
+
+  const filterModalOpen = alertPageModalOpen || manageAlertPagesModalOpen
+
+  const { data: createFilterOptions, loading: createFilterOptionsLoading } =
+    useRequest(
+      async (): Promise<CreateFilterOptions> => {
+        try {
+          const [sgRes, lvRes, stRes, dsRes, dsLevelRes] = await Promise.all([
+            getStrategyGroupSelectList({ limit: 100 }),
+            getLevelSelectList({
+              limit: 100,
+              status: GlobalStatus.ENABLED,
+              type: LevelType.LEVEL_TYPE_ALERT,
+            }),
+            getStrategySelectList({ limit: 100 }),
+            getDatasourceSelectList({ limit: 100 }),
+            getLevelSelectList({
+              limit: 100,
+              status: GlobalStatus.ENABLED,
+              type: LevelType.LEVEL_TYPE_DATASOURCE,
+            }),
+          ])
+
+          return {
+            strategyGroupSelectOptions: mapSelectItems(sgRes.items ?? []),
+            levelSelectOptions: mapSelectItems(lvRes.items ?? []),
+            strategySelectOptions: mapSelectItems(stRes.items ?? []),
+            datasourceSelectOptions: mapSelectItems(dsRes.items ?? []),
+            datasourceLevelSelectOptions: mapSelectItems(dsLevelRes.items ?? []),
+          }
+        } catch (e) {
+          console.error('加载告警页筛选项失败:', e)
+          return {
+            strategyGroupSelectOptions: [],
+            levelSelectOptions: [],
+            strategySelectOptions: [],
+            datasourceSelectOptions: [],
+            datasourceLevelSelectOptions: [],
+          }
+        }
+      },
+      { ready: filterModalOpen, refreshDeps: [filterModalOpen] },
+    )
+
+  const strategyGroupSelectOptions =
+    createFilterOptions?.strategyGroupSelectOptions ?? []
+  const levelSelectOptions = createFilterOptions?.levelSelectOptions ?? []
+  const strategySelectOptions = createFilterOptions?.strategySelectOptions ?? []
+  const datasourceSelectOptions =
+    createFilterOptions?.datasourceSelectOptions ?? []
+  const datasourceLevelSelectOptions =
+    createFilterOptions?.datasourceLevelSelectOptions ?? []
+
+  const {
+    data: editingAlertPageDetail,
+    loading: alertPageDetailLoading,
+    error: editingAlertPageDetailError,
+  } = useDetailRequest(
+    getAlertPage,
+    editingAlertPageUid ?? undefined,
+    alertPageModalOpen && alertPageFormMode === 'edit' && !!editingAlertPageUid,
+  )
+
+  useEffect(() => {
+    if (!editingAlertPageDetail || alertPageFormMode !== 'edit') return
+    form.setFieldsValue({
+      name: editingAlertPageDetail.name,
+      color: editingAlertPageDetail.color,
+      sortOrder: editingAlertPageDetail.sortOrder,
+      filterStrategyGroupUids:
+        editingAlertPageDetail.filter?.strategyGroupUids ?? [],
+      filterLevelUids: editingAlertPageDetail.filter?.levelUids ?? [],
+      filterStrategyUids: editingAlertPageDetail.filter?.strategyUids ?? [],
+      filterDatasourceUids: editingAlertPageDetail.filter?.datasourceUids ?? [],
+      filterDatasourceLevelUids:
+        editingAlertPageDetail.filter?.datasourceLevelUids ?? [],
+    })
+  }, [alertPageFormMode, editingAlertPageDetail, form])
+
+  useEffect(() => {
+    if (!editingAlertPageDetailError || alertPageFormMode !== 'edit') return
+    console.error('获取告警页详情失败:', editingAlertPageDetailError)
+    setAlertPageModalOpen(false)
+    setEditingAlertPageUid(null)
+  }, [alertPageFormMode, editingAlertPageDetailError])
+
+  const { loading: alertPageSubmitLoading, runAsync: submitAlertPageAsync } =
+    useRequest(
+      async (payload: {
+        mode: AlertPageFormMode
+        editingUid?: string | null
+        values: Record<string, unknown>
+      }) => {
+        const { mode, editingUid, values } = payload
+        const filter = buildCreateAlertPageFilter(
+          values as Parameters<typeof buildCreateAlertPageFilter>[0],
+        )
+        const sortOrder =
+          values.sortOrder === null || values.sortOrder === undefined
+            ? undefined
+            : Number(values.sortOrder)
+        const name = String(values.name ?? '').trim()
+        const color = String(values.color ?? '').trim()
+
+        if (mode === 'create') {
+          return createAlertPage({
+            name,
+            color,
+            sortOrder,
+            filter,
+          })
+        }
+        if (editingUid) {
+          await updateAlertPage(editingUid, {
+            name,
+            color,
+            sortOrder,
+            filter,
+          })
+        }
+        return undefined
+      },
+      { manual: true },
+    )
+
+  const { runAsync: deleteAlertPageAsync } = useRequest(deleteAlertPage, {
+    manual: true,
+  })
+
+  const { loading: bindLoading, runAsync: saveUserAlertPagesAsync } =
+    useRequest(saveUserAlertPages, { manual: true })
 
   const disabledStrategyGroupSet = useMemo(() => {
     return new Set(
@@ -148,191 +366,39 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
     )
   }, [datasourceLevelSelectOptions])
 
-  const fetchAvailableAlertPages = useCallback(async () => {
-    setAvailableAlertPagesLoading(true)
-    try {
-      const res = await getAlertPageList({ page: 1, pageSize: 50 })
-      if (!mountedRef.current) return
-      const items = res.items ?? []
-      setAvailableAlertPages(items)
-    } catch (e) {
-      console.error('获取告警页列表失败:', e)
-    } finally {
-      if (mountedRef.current) setAvailableAlertPagesLoading(false)
-    }
-  }, [])
-
-  const fetchBoundAlertPages = useCallback(
-    async (options?: { silent?: boolean }) => {
-      const silent = options?.silent ?? false
-      if (!silent) setBoundAlertPagesLoading(true)
-      try {
-        const res = await listUserAlertPages()
-        if (!mountedRef.current) return
-        const items = res.items ?? []
-        setBoundAlertPages(items)
-        const storedUid = readStoredActiveAlertPageUid(currentNamespace)
-        setActiveTabKey((prev) => {
-          const next = resolveActiveAlertPageUid(items, {
-            preferredUid: prev,
-            storedUid,
-          })
-          if (next) {
-            writeStoredActiveAlertPageUid(currentNamespace, next)
-          }
-          return next
-        })
-      } catch (e) {
-        console.error('获取绑定告警页失败:', e)
-      } finally {
-        if (!silent && mountedRef.current) setBoundAlertPagesLoading(false)
-      }
-    },
-    [currentNamespace],
-  )
-
-  const refreshPageMetadata = useCallback(
-    async (options?: { silent?: boolean }) => {
-      await Promise.all([fetchBoundAlertPages(options), onRefreshStats?.()])
-    },
-    [fetchBoundAlertPages, onRefreshStats],
-  )
-
-  const refreshPageContext = useCallback(
-    async (options?: { silent?: boolean }) => {
-      await refreshPageMetadata(options)
-      setListRefreshSignal((n) => n + 1)
-    },
-    [refreshPageMetadata],
-  )
-
-  useEffect(() => {
-    mountedRef.current = true
-    fetchAvailableAlertPages()
-    fetchBoundAlertPages()
-    return () => {
-      mountedRef.current = false
-    }
-  }, [fetchAvailableAlertPages, fetchBoundAlertPages])
-
-  useEffect(() => {
-    if (refreshIntervalMs <= 0) return
-    const timer = window.setInterval(() => {
-      void refreshPageContext({ silent: true })
-    }, refreshIntervalMs)
-    return () => {
-      window.clearInterval(timer)
-    }
-  }, [refreshIntervalMs, refreshPageContext])
-
-  useEffect(() => {
-    if (!alertPageModalOpen && !manageAlertPagesModalOpen) return
-    let cancelled = false
-    const loadFilterSelects = async () => {
-      setCreateFilterOptionsLoading(true)
-      try {
-        const [sgRes, lvRes, stRes, dsRes, dsLevelRes] = await Promise.all([
-          getStrategyGroupSelectList({ limit: 100 }),
-          getLevelSelectList({
-            limit: 100,
-            status: GlobalStatus.ENABLED,
-            type: LevelType.LEVEL_TYPE_ALERT,
-          }),
-          getStrategySelectList({ limit: 100 }),
-          getDatasourceSelectList({ limit: 100 }),
-          getLevelSelectList({
-            limit: 100,
-            status: GlobalStatus.ENABLED,
-            type: LevelType.LEVEL_TYPE_DATASOURCE,
-          }),
-        ])
-        if (cancelled || !mountedRef.current) return
-
-        const mapItems = (
-          items: { value?: string; label?: string; disabled?: unknown }[],
-        ) =>
-          (items ?? [])
-            .filter(
-              (i): i is { value: string; label?: string; disabled?: unknown } =>
-                !!i.value,
-            )
-            .map((i) => ({
-              value: i.value,
-              label: i.label ?? i.value,
-            }))
-        setStrategyGroupSelectOptions(mapItems(sgRes.items ?? []))
-        setLevelSelectOptions(mapItems(lvRes.items ?? []))
-        setStrategySelectOptions(mapItems(stRes.items ?? []))
-        setDatasourceSelectOptions(mapItems(dsRes.items ?? []))
-        setDatasourceLevelSelectOptions(mapItems(dsLevelRes.items ?? []))
-      } catch (e) {
-        console.error('加载告警页筛选项失败:', e)
-        if (!cancelled && mountedRef.current) {
-          setStrategyGroupSelectOptions([])
-          setLevelSelectOptions([])
-          setStrategySelectOptions([])
-          setDatasourceSelectOptions([])
-          setDatasourceLevelSelectOptions([])
-        }
-      } finally {
-        if (!cancelled && mountedRef.current)
-          setCreateFilterOptionsLoading(false)
-      }
-    }
-    void loadFilterSelects()
-    return () => {
-      cancelled = true
-    }
-  }, [alertPageModalOpen, manageAlertPagesModalOpen])
-
-  const openCreateAlertPageModal = useCallback(() => {
+  const openCreateAlertPageModal = useMemoizedFn(() => {
     setAlertPageFormMode('create')
     setEditingAlertPageUid(null)
     form.resetFields()
     setAlertPageModalOpen(true)
-  }, [form])
+  })
 
-  const handleAlertPageModalOk = async () => {
+  const handleAlertPageModalOk = useMemoizedFn(async () => {
     try {
       const values = await form.validateFields()
-      setAlertPageSubmitLoading(true)
-      const filter = buildCreateAlertPageFilter(values)
-      const sortOrder =
-        values.sortOrder === null || values.sortOrder === undefined
-          ? undefined
-          : Number(values.sortOrder)
-      const name = values.name?.trim()
-      const color = values.color?.trim()
+      const res = await submitAlertPageAsync({
+        mode: alertPageFormMode,
+        editingUid: editingAlertPageUid,
+        values,
+      })
       if (alertPageFormMode === 'create') {
-        const res = await createAlertPage({
-          name,
-          color,
-          sortOrder,
-          filter,
-        })
-        const newUid = res.uid
+        const newUid = res?.uid
         message.success(t('realtimeAlert.message.createAlertPage.success'))
         setAlertPageModalOpen(false)
         form.resetFields()
         setEditingAlertPageUid(null)
-        await fetchAvailableAlertPages()
+        await refreshAvailableAlertPages()
         if (newUid) {
           writeStoredActiveAlertPageUid(currentNamespace, newUid)
           setActiveTabKey((prev) => (prev ? prev : newUid))
         }
       } else if (editingAlertPageUid) {
-        await updateAlertPage(editingAlertPageUid, {
-          name,
-          color,
-          sortOrder,
-          filter,
-        })
         message.success(t('realtimeAlert.message.updateAlertPage.success'))
         setAlertPageModalOpen(false)
         form.resetFields()
         setEditingAlertPageUid(null)
-        await fetchAvailableAlertPages()
-        await fetchBoundAlertPages()
+        await refreshAvailableAlertPages()
+        await refreshBoundAlertPages()
       }
     } catch (e) {
       if (e && typeof e === 'object' && 'errorFields' in e) return
@@ -340,10 +406,8 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
         alertPageFormMode === 'create' ? '创建告警页失败:' : '更新告警页失败:',
         e,
       )
-    } finally {
-      setAlertPageSubmitLoading(false)
     }
-  }
+  })
 
   const bindAlertPageOptions = useMemo(() => {
     return availableAlertPages
@@ -420,61 +484,32 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
 
   const activeKey = activeTabKey ?? tabItems[0]?.key
 
-  const openManageAlertPagesModal = useCallback(() => {
+  const openManageAlertPagesModal = useMemoizedFn(() => {
     setManageAlertPagesModalOpen(true)
-    void fetchAvailableAlertPages()
-  }, [fetchAvailableAlertPages])
+    void refreshAvailableAlertPages()
+  })
 
-  const openEditAlertPageModal = useCallback(
-    async (uid: string) => {
-      if (!uid) return
-      setAlertPageFormMode('edit')
-      setEditingAlertPageUid(uid)
-      form.resetFields()
-      setAlertPageModalOpen(true)
-      setAlertPageDetailLoading(true)
-      try {
-        const detail = await getAlertPage(uid)
-        if (!mountedRef.current) return
-        form.setFieldsValue({
-          name: detail.name,
-          color: detail.color,
-          sortOrder: detail.sortOrder,
-          filterStrategyGroupUids: detail.filter?.strategyGroupUids ?? [],
-          filterLevelUids: detail.filter?.levelUids ?? [],
-          filterStrategyUids: detail.filter?.strategyUids ?? [],
-          filterDatasourceUids: detail.filter?.datasourceUids ?? [],
-          filterDatasourceLevelUids: detail.filter?.datasourceLevelUids ?? [],
-        })
-      } catch (e) {
-        console.error('获取告警页详情失败:', e)
-        if (mountedRef.current) {
-          setAlertPageModalOpen(false)
-          setEditingAlertPageUid(null)
-        }
-      } finally {
-        if (mountedRef.current) setAlertPageDetailLoading(false)
-      }
-    },
-    [form],
-  )
+  const openEditAlertPageModal = useMemoizedFn((uid: string) => {
+    if (!uid) return
+    setAlertPageFormMode('edit')
+    setEditingAlertPageUid(uid)
+    form.resetFields()
+    setAlertPageModalOpen(true)
+  })
 
-  const handleDeleteAlertPage = useCallback(
-    async (uid: string) => {
-      setDeletingAlertPageUid(uid)
-      try {
-        await deleteAlertPage(uid)
-        message.success(t('realtimeAlert.message.deleteAlertPage.success'))
-        await fetchAvailableAlertPages()
-        await fetchBoundAlertPages()
-      } catch (e) {
-        console.error('删除告警页失败:', e)
-      } finally {
-        setDeletingAlertPageUid(null)
-      }
-    },
-    [fetchAvailableAlertPages, fetchBoundAlertPages, t],
-  )
+  const handleDeleteAlertPage = useMemoizedFn(async (uid: string) => {
+    setDeletingAlertPageUid(uid)
+    try {
+      await deleteAlertPageAsync(uid)
+      message.success(t('realtimeAlert.message.deleteAlertPage.success'))
+      await refreshAvailableAlertPages()
+      await refreshBoundAlertPages()
+    } catch (e) {
+      console.error('删除告警页失败:', e)
+    } finally {
+      setDeletingAlertPageUid(null)
+    }
+  })
 
   const manageAlertPagesColumns: ColumnsType<AlertPageItem> = useMemo(
     () => [
@@ -533,7 +568,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
               <Button
                 type='link'
                 size='small'
-                onClick={() => void openEditAlertPageModal(uid)}
+                onClick={() => openEditAlertPageModal(uid)}
               >
                 {t('common.edit')}
               </Button>
@@ -568,35 +603,32 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
     ],
   )
 
-  const openBindModal = useCallback(() => {
+  const openBindModal = useMemoizedFn(() => {
     const selected = boundAlertPages
       .filter((p) => p.uid)
       .map((p) => p.uid as string)
     bindForm.setFieldsValue({ alertPageUids: selected })
     setBindModalOpen(true)
-  }, [bindForm, boundAlertPages])
+  })
 
-  const handleBindOk = async () => {
+  const handleBindOk = useMemoizedFn(async () => {
     type BindFormValues = {
       alertPageUids?: string[]
     }
     try {
       const values = (await bindForm.validateFields()) as BindFormValues
-      setBindLoading(true)
-      await saveUserAlertPages({
+      await saveUserAlertPagesAsync({
         alertPageUids: values.alertPageUids,
       })
       message.success(t('realtimeAlert.message.bind.success'))
       setBindModalOpen(false)
       bindForm.resetFields()
-      await fetchBoundAlertPages()
+      await refreshBoundAlertPages()
     } catch (e) {
       if (e && typeof e === 'object' && 'errorFields' in e) return
       console.error('绑定个人告警页失败:', e)
-    } finally {
-      setBindLoading(false)
     }
-  }
+  })
 
   const showGlobalEmpty =
     availableAlertPages.length === 0 &&
@@ -714,7 +746,6 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
           setAlertPageModalOpen(false)
           form.resetFields()
           setEditingAlertPageUid(null)
-          setAlertPageDetailLoading(false)
         }}
         confirmLoading={alertPageSubmitLoading}
         okButtonProps={{ disabled: alertPageDetailLoading }}
@@ -769,7 +800,6 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
                     format='hex'
                     allowClear
                     showText
-                    // className='w-full'
                   />
                 </Form.Item>
               </Col>
@@ -792,8 +822,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
               <Select
                 mode='multiple'
                 allowClear
-                showSearch
-                optionFilterProp='label'
+                showSearch={{ optionFilterProp: 'label' }}
                 loading={createFilterOptionsLoading}
                 placeholder={t(
                   'realtimeAlert.form.alertPageFilter.strategyGroups.placeholder',
@@ -811,8 +840,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
               <Select
                 mode='multiple'
                 allowClear
-                showSearch
-                optionFilterProp='label'
+                showSearch={{ optionFilterProp: 'label' }}
                 loading={createFilterOptionsLoading}
                 placeholder={t(
                   'realtimeAlert.form.alertPageFilter.levels.placeholder',
@@ -830,8 +858,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
               <Select
                 mode='multiple'
                 allowClear
-                showSearch
-                optionFilterProp='label'
+                showSearch={{ optionFilterProp: 'label' }}
                 loading={createFilterOptionsLoading}
                 placeholder={t(
                   'realtimeAlert.form.alertPageFilter.strategies.placeholder',
@@ -849,8 +876,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
               <Select
                 mode='multiple'
                 allowClear
-                showSearch
-                optionFilterProp='label'
+                showSearch={{ optionFilterProp: 'label' }}
                 loading={createFilterOptionsLoading}
                 placeholder={t(
                   'realtimeAlert.form.alertPageFilter.datasources.placeholder',
@@ -870,8 +896,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
               <Select
                 mode='multiple'
                 allowClear
-                showSearch
-                optionFilterProp='label'
+                showSearch={{ optionFilterProp: 'label' }}
                 loading={createFilterOptionsLoading}
                 placeholder={t(
                   'realtimeAlert.form.alertPageFilter.datasourceLevels.placeholder',

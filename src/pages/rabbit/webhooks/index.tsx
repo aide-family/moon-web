@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useRef, useEffect, useMemo } from 'react'
+import { useMemoizedFn } from 'ahooks'
 import { useSearchParams } from 'react-router-dom'
 import {
   Table,
@@ -17,6 +18,7 @@ import {
   type WebhookItem,
   type WebhookListParams,
   getWebhookTableList,
+  getWebhookDetail,
   deleteWebhook,
   updateWebhookStatus,
 } from '@/api/rabbit/webhook/index'
@@ -35,14 +37,19 @@ import { IconFont } from '@/components/Icon/IconFont'
 import { MENU_DIVIDER } from '@/utils/menu'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 import { renderStatusTag } from '@/utils/marksman'
+import { usePaginatedRequest } from '@/utils/hooks/usePaginatedRequest'
+import { useDetailRequest } from '@/utils/hooks/useDetailRequest'
+import { useAdaptiveTableHeight } from '@/utils/hooks/useAdaptiveTableHeight'
 
-const defaultSearchParams: WebhookListParams = {
+type WebhookListQuery = Omit<WebhookListParams, 'page' | 'pageSize'>
+
+const defaultSearchParams: WebhookListQuery = {
   keyword: '',
   status: undefined,
   app: undefined,
 }
 
-function parseSearchParamsFromUrl(params: URLSearchParams): WebhookListParams {
+function parseSearchParamsFromUrl(params: URLSearchParams): WebhookListQuery {
   return {
     keyword: getParam(params, 'keyword') ?? '',
     status:
@@ -55,66 +62,35 @@ const WebhookListContent: React.FC = () => {
   const { modal } = App.useApp()
   const { t } = useLocale()
   const [urlSearchParams, setUrlSearchParams] = useSearchParams()
-  const [loading, setLoading] = useState(false)
-  const [dataSource, setDataSource] = useState<WebhookItem[]>([])
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 50,
-    total: 0,
-  })
-  const [searchParams, setSearchParams] = useState<WebhookListParams>(() =>
+  const [searchParams, setSearchParams] = useState<WebhookListQuery>(() =>
     parseSearchParamsFromUrl(urlSearchParams),
   )
-  const [tableHeight, setTableHeight] = useState<number>(0)
-  const tableContainerRef = useRef<HTMLDivElement>(null)
-  const tableWrapperRef = useRef<HTMLDivElement>(null)
+  const list = usePaginatedRequest<WebhookItem, WebhookListQuery>({
+    service: (params) =>
+      getWebhookTableList({
+        ...params,
+        keyword: params.keyword || undefined,
+      }),
+    defaultQuery: parseSearchParamsFromUrl(urlSearchParams),
+  })
+  const { dataSource, loading, pagination, refresh, search, reset, changePage } =
+    list
+  const { tableContainerRef, tableWrapperRef, tableHeight } =
+    useAdaptiveTableHeight()
   const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>(
     'create',
   )
   const [editingData, setEditingData] = useState<WebhookItem | null>(null)
   const [detailViewOpen, setDetailViewOpen] = useState(false)
-  const [viewingData, setViewingData] = useState<WebhookItem | null>(null)
-  const mountedRef = useRef(true)
-  const paginationRef = useRef(pagination)
-  paginationRef.current = pagination
-
-  const fetchData = useCallback(
-    async (page?: number, pageSize?: number, keywordOverride?: string) => {
-      setLoading(true)
-      try {
-        const cur = paginationRef.current
-        const currentPage = page ?? cur.current
-        const currentPageSize = pageSize ?? cur.pageSize
-        const keyword =
-          keywordOverride !== undefined
-            ? keywordOverride || undefined
-            : searchParams.keyword || undefined
-        const params: WebhookListParams = {
-          page: currentPage,
-          pageSize: currentPageSize,
-          keyword,
-          status: searchParams.status,
-          app: searchParams.app,
-        }
-        const response = await getWebhookTableList(params)
-        if (!mountedRef.current) return
-        setDataSource(response?.items ?? [])
-        setPagination((prev) => ({
-          ...prev,
-          current: currentPage,
-          pageSize: currentPageSize,
-          total: parseInt(String(response?.total ?? 0), 10),
-        }))
-      } catch (error) {
-        console.error('获取Webhook列表失败:', error)
-        if (mountedRef.current) setDataSource([])
-      } finally {
-        if (mountedRef.current) setLoading(false)
-      }
-    },
-    [searchParams.keyword, searchParams.status, searchParams.app],
-  )
+  const [viewingUid, setViewingUid] = useState<string>()
+  const skipAutoSearchRef = useRef(true)
+  const {
+    data: viewingData,
+    loading: detailLoading,
+    error: detailError,
+    mutate: mutateViewingData,
+  } = useDetailRequest(getWebhookDetail, viewingUid, detailViewOpen)
 
   useEffect(() => {
     setSearchParams(parseSearchParamsFromUrl(urlSearchParams))
@@ -137,60 +113,52 @@ const WebhookListContent: React.FC = () => {
     setUrlSearchParams,
   ])
 
-  const handleSearch = useCallback(
-    (keywordFromInput?: string) => {
-      if (keywordFromInput !== undefined) {
-        setSearchParams((prev) => ({ ...prev, keyword: keywordFromInput }))
-      }
-      setPagination((prev) => ({ ...prev, current: 1 }))
-      fetchData(1, paginationRef.current.pageSize, keywordFromInput)
-    },
-    [fetchData],
-  )
+  const handleSearch = useMemoizedFn((keywordFromInput?: string) => {
+    if (keywordFromInput !== undefined) {
+      setSearchParams((prev) => ({ ...prev, keyword: keywordFromInput }))
+    }
+    const keyword =
+      keywordFromInput !== undefined ? keywordFromInput : searchParams.keyword
+    search({
+      keyword: keyword || undefined,
+      status: searchParams.status,
+      app: searchParams.app,
+    })
+  })
 
-  const handleReset = useCallback(() => {
+  const handleReset = useMemoizedFn(() => {
     setSearchParams(defaultSearchParams)
     setUrlSearchParams({})
-    setPagination({ current: 1, pageSize: 50, total: 0 })
-    fetchData(1, 50)
-  }, [fetchData, setUrlSearchParams])
+    reset(defaultSearchParams)
+  })
 
-  const handleTableChange = useCallback(
-    (page: number, pageSize: number) => {
-      fetchData(page, pageSize)
-    },
-    [fetchData],
-  )
+  const handleTableChange = useMemoizedFn((page: number, pageSize: number) => {
+    changePage(page, pageSize)
+  })
 
-  // 处理删除
-  const handleDelete = useCallback(
-    async (record: WebhookItem) => {
-      try {
-        await deleteWebhook(record.uid)
-        message.success(t('message.delete.success'))
-        fetchData()
-      } catch (error) {
-        console.error('删除失败:', error)
-      }
-    },
-    [fetchData, t],
-  )
+  const handleDelete = useMemoizedFn(async (record: WebhookItem) => {
+    try {
+      await deleteWebhook(record.uid)
+      message.success(t('message.delete.success'))
+      refresh()
+    } catch (error) {
+      console.error('删除失败:', error)
+    }
+  })
 
-  // 处理修改状态
-  const handleStatusChange = useCallback(
+  const handleStatusChange = useMemoizedFn(
     async (record: WebhookItem, newStatus: GlobalStatus) => {
       try {
         await updateWebhookStatus({ uid: record.uid, status: newStatus })
         message.success(t('message.update.success'))
-        fetchData()
-        if (viewingData && viewingData.uid === record.uid) {
-          setViewingData({ ...viewingData, status: newStatus })
+        refresh()
+        if (viewingUid === record.uid && viewingData) {
+          mutateViewingData({ ...viewingData, status: newStatus })
         }
       } catch (error) {
         console.error('修改状态失败:', error)
       }
     },
-    [fetchData, t, viewingData],
   )
 
   const columns: ColumnsType<WebhookItem> = useMemo(() => {
@@ -354,11 +322,11 @@ const WebhookListContent: React.FC = () => {
     setDetailFormOpen(true)
   }
 
-  // 处理查看详情
-  const handleViewDetail = (record: WebhookItem) => {
-    setViewingData(record)
+  const handleViewDetail = useMemoizedFn((record: WebhookItem) => {
+    if (!record.uid) return
+    setViewingUid(record.uid)
     setDetailViewOpen(true)
-  }
+  })
 
   // 处理编辑
   const handleEdit = (record: WebhookItem) => {
@@ -380,51 +348,30 @@ const WebhookListContent: React.FC = () => {
     message.info(t('common.export'))
   }
 
-  // 处理表单成功
   const handleFormSuccess = () => {
-    fetchData()
+    refresh()
   }
 
   useEffect(() => {
-    mountedRef.current = true
-    return () => {
-      mountedRef.current = false
+    if (detailViewOpen && detailError) {
+      console.error('获取 Webhook 详情失败:', detailError)
+      setDetailViewOpen(false)
+      setViewingUid(undefined)
     }
-  }, [])
+  }, [detailViewOpen, detailError])
 
   useEffect(() => {
-    fetchData()
+    if (skipAutoSearchRef.current) {
+      skipAutoSearchRef.current = false
+      return
+    }
+    search({
+      ...list.query,
+      status: searchParams.status,
+      app: searchParams.app,
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.status, searchParams.app])
-
-  // 计算表格高度
-  useEffect(() => {
-    const calculateTableHeight = () => {
-      if (tableContainerRef.current && tableWrapperRef.current) {
-        const containerHeight = tableContainerRef.current.clientHeight
-        const thead = tableWrapperRef.current.querySelector('.ant-table-thead')
-        const pagination =
-          tableWrapperRef.current.querySelector('.ant-pagination')
-
-        const theadHeight = thead ? (thead as HTMLElement).offsetHeight : 0
-        const paginationHeight = pagination
-          ? (pagination as HTMLElement).offsetHeight
-          : 0
-        const tableBodyPadding = 16 * 2 // 上下各16px
-
-        // 计算表格可用的滚动高度 = 容器高度 - 表头高度 - 分页器高度 - 表格主体 padding
-        const calculatedHeight =
-          containerHeight - theadHeight - paginationHeight - tableBodyPadding
-        setTableHeight(Math.max(calculatedHeight, 100)) // 最小高度100px
-      }
-    }
-
-    calculateTableHeight()
-    window.addEventListener('resize', calculateTableHeight)
-    return () => {
-      window.removeEventListener('resize', calculateTableHeight)
-    }
-  }, [dataSource])
 
   return (
     <div className='flex flex-col h-full'>
@@ -448,7 +395,6 @@ const WebhookListContent: React.FC = () => {
             value={searchParams.status}
             onChange={(e) => {
               setSearchParams((prev) => ({ ...prev, status: e.target.value }))
-              setPagination((prev) => ({ ...prev, current: 1 }))
             }}
             buttonStyle='solid'
           >
@@ -471,7 +417,6 @@ const WebhookListContent: React.FC = () => {
                 ...prev,
                 app: value === '' ? undefined : value,
               }))
-              setPagination((prev) => ({ ...prev, current: 1 }))
             }}
             className='w-30'
             allowClear
@@ -548,10 +493,11 @@ const WebhookListContent: React.FC = () => {
       {/* 详情查看弹窗 */}
       <DetailView
         open={detailViewOpen}
-        data={viewingData}
+        data={viewingData ?? null}
+        loading={detailLoading}
         onCancel={() => {
           setDetailViewOpen(false)
-          setViewingData(null)
+          setViewingUid(undefined)
         }}
         onEdit={handleEditFromDetail}
       />

@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useMemoizedFn } from 'ahooks'
 import {
   Button,
   Checkbox,
@@ -112,7 +113,7 @@ export default function RecipientGroupDetailForm({
 
   const watchedMembers = Form.useWatch('members', form) ?? []
 
-  const loadOptions = useCallback(async () => {
+  const loadOptions = useMemoizedFn(async () => {
     const [templateRes, emailRes, webhookRes, memberRes] = await Promise.all([
       getTemplateSelectList({ limit: 100, status: GlobalStatus.ENABLED }),
       getEmailConfigSelectList({ limit: 100, status: GlobalStatus.ENABLED }),
@@ -123,7 +124,7 @@ export default function RecipientGroupDetailForm({
     setEmailOptions(toSelectOptions(emailRes.items))
     setWebhookOptions(toSelectOptions(webhookRes.items))
     setMemberOptions(toSelectOptions(memberRes.items))
-  }, [])
+  })
 
   useEffect(() => {
     if (!open) return
@@ -254,11 +255,10 @@ export default function RecipientGroupDetailForm({
           <Select
             mode='multiple'
             allowClear
-            showSearch
+            showSearch={{ optionFilterProp: 'label' }}
             options={templateOptions}
             placeholder={t('recipientGroup.form.templates.placeholder')}
             disabled={formLoading}
-            optionFilterProp='label'
             maxTagCount='responsive'
           />
         </Form.Item>
@@ -270,11 +270,10 @@ export default function RecipientGroupDetailForm({
           <Select
             mode='multiple'
             allowClear
-            showSearch
+            showSearch={{ optionFilterProp: 'label' }}
             options={emailOptions}
             placeholder={t('recipientGroup.form.emailConfigs.placeholder')}
             disabled={formLoading}
-            optionFilterProp='label'
             maxTagCount='responsive'
           />
         </Form.Item>
@@ -286,11 +285,10 @@ export default function RecipientGroupDetailForm({
           <Select
             mode='multiple'
             allowClear
-            showSearch
+            showSearch={{ optionFilterProp: 'label' }}
             options={webhookOptions}
             placeholder={t('recipientGroup.form.webhookConfigs.placeholder')}
             disabled={formLoading}
-            optionFilterProp='label'
             maxTagCount='responsive'
           />
         </Form.Item>
@@ -319,11 +317,7 @@ export default function RecipientGroupDetailForm({
                   key={field.key}
                   className='rounded-md border border-(--ant-color-border-secondary) p-3'
                 >
-                  <Space
-                    wrap
-                    align='start'
-                    className='w-full justify-between'
-                  >
+                  <Space wrap align='start' className='w-full justify-between'>
                     <div className='grid grid-cols-1 md:grid-cols-4 gap-3 flex-1'>
                       <Form.Item
                         name={[field.name, 'memberUid']}
@@ -331,14 +325,12 @@ export default function RecipientGroupDetailForm({
                         rules={[
                           {
                             required: true,
-                            message: t(
-                              'recipientGroup.form.member.required',
-                            ),
+                            message: t('recipientGroup.form.member.required'),
                           },
                         ]}
                       >
                         <Select
-                          showSearch
+                          showSearch={{ optionFilterProp: 'label' }}
                           allowClear
                           options={memberOptions.map((item) => ({
                             ...item,
@@ -354,7 +346,6 @@ export default function RecipientGroupDetailForm({
                             'recipientGroup.form.member.placeholder',
                           )}
                           disabled={formLoading}
-                          optionFilterProp='label'
                         />
                       </Form.Item>
                       <Form.Item

@@ -1,11 +1,12 @@
 import React from 'react'
-import { Button, Descriptions, Modal, Space, Tag } from 'antd'
+import { Button, Descriptions, Modal, Space, Spin, Tag } from 'antd'
 import { useLocale } from '@/contexts/LocaleContext'
 import { ProbeTaskStatus, type ProbeTaskItem } from '@/api'
 
 interface ProbeTaskDetailModalProps {
   open: boolean
   data?: ProbeTaskItem
+  loading?: boolean
   onCancel: () => void
 }
 
@@ -23,6 +24,7 @@ const renderProbeStatus = (
 const ProbeTaskDetailModal: React.FC<ProbeTaskDetailModalProps> = ({
   open,
   data,
+  loading = false,
   onCancel,
 }) => {
   const { t } = useLocale()
@@ -41,7 +43,11 @@ const ProbeTaskDetailModal: React.FC<ProbeTaskDetailModalProps> = ({
       destroyOnHidden
       styles={{ body: { maxHeight: '70vh', overflowY: 'auto' } }}
     >
-      {data ? (
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '40px 0' }}>
+          <Spin size='large' />
+        </div>
+      ) : data ? (
         <Descriptions
           column={1}
           bordered

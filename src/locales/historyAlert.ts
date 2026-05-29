@@ -33,7 +33,8 @@ export const zhCN = {
   'historyAlert.exportTask.status.inProgress': '进行中',
   'historyAlert.exportTask.status.success': '成功',
   'historyAlert.exportTask.status.failed': '失败',
-  'historyAlert.exportTask.message.create.success': '导出任务已提交，请稍后在导出任务列表查看进度',
+  'historyAlert.exportTask.message.create.success':
+    '导出任务已提交，请稍后在导出任务列表查看进度',
   'historyAlert.exportTask.message.completed': '导出任务已完成，可下载文件',
   'historyAlert.exportTask.message.failed': '导出任务失败',
   'historyAlert.exportTask.message.cancel.success': '已取消导出任务',

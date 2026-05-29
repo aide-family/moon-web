@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useRef, useEffect, useMemo } from 'react'
+import { useMemoizedFn } from 'ahooks'
 import { useSearchParams } from 'react-router-dom'
 import {
   Table,
@@ -16,6 +17,7 @@ import {
   type EmailItem,
   type EmailListParams,
   getEmailTableList,
+  getEmailDetail,
   deleteEmail,
   updateEmailStatus,
 } from '@/api/rabbit/email/index'
@@ -28,13 +30,18 @@ import { GlobalStatus } from '@/api'
 import { MENU_DIVIDER } from '@/utils/menu'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
 import { renderStatusTag } from '@/utils/marksman'
+import { usePaginatedRequest } from '@/utils/hooks/usePaginatedRequest'
+import { useDetailRequest } from '@/utils/hooks/useDetailRequest'
+import { useAdaptiveTableHeight } from '@/utils/hooks/useAdaptiveTableHeight'
 
-const defaultSearchParams: EmailListParams = {
+type EmailListQuery = Omit<EmailListParams, 'page' | 'pageSize'>
+
+const defaultSearchParams: EmailListQuery = {
   keyword: '',
   status: undefined,
 }
 
-function parseSearchParamsFromUrl(params: URLSearchParams): EmailListParams {
+function parseSearchParamsFromUrl(params: URLSearchParams): EmailListQuery {
   return {
     keyword: getParam(params, 'keyword') ?? '',
     status: (getParam(params, 'status') as GlobalStatus) ?? undefined,
@@ -45,65 +52,35 @@ const EmailListContent: React.FC = () => {
   const { modal } = App.useApp()
   const { t } = useLocale()
   const [urlSearchParams, setUrlSearchParams] = useSearchParams()
-  const [loading, setLoading] = useState(false)
-  const [dataSource, setDataSource] = useState<EmailItem[]>([])
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 50,
-    total: 0,
-  })
-  const [searchParams, setSearchParams] = useState<EmailListParams>(() =>
+  const [searchParams, setSearchParams] = useState<EmailListQuery>(() =>
     parseSearchParamsFromUrl(urlSearchParams),
   )
-  const [tableHeight, setTableHeight] = useState<number>(0)
-  const tableContainerRef = useRef<HTMLDivElement>(null)
-  const tableWrapperRef = useRef<HTMLDivElement>(null)
+  const list = usePaginatedRequest<EmailItem, EmailListQuery>({
+    service: (params) =>
+      getEmailTableList({
+        ...params,
+        keyword: params.keyword || undefined,
+      }),
+    defaultQuery: parseSearchParamsFromUrl(urlSearchParams),
+  })
+  const { dataSource, loading, pagination, refresh, search, reset, changePage } =
+    list
+  const { tableContainerRef, tableWrapperRef, tableHeight } =
+    useAdaptiveTableHeight()
   const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>(
     'create',
   )
   const [editingData, setEditingData] = useState<EmailItem | null>(null)
   const [detailViewOpen, setDetailViewOpen] = useState(false)
-  const [viewingData, setViewingData] = useState<EmailItem | null>(null)
-  const mountedRef = useRef(true)
-  const paginationRef = useRef(pagination)
-  paginationRef.current = pagination
-
-  const fetchData = useCallback(
-    async (page?: number, pageSize?: number, keywordOverride?: string) => {
-      setLoading(true)
-      try {
-        const cur = paginationRef.current
-        const currentPage = page ?? cur.current
-        const currentPageSize = pageSize ?? cur.pageSize
-        const keyword =
-          keywordOverride !== undefined
-            ? keywordOverride || undefined
-            : searchParams.keyword || undefined
-        const params: EmailListParams = {
-          page: currentPage,
-          pageSize: currentPageSize,
-          keyword,
-          status: searchParams.status,
-        }
-        const response = await getEmailTableList(params)
-        if (!mountedRef.current) return
-        setDataSource(response?.items ?? [])
-        setPagination((prev) => ({
-          ...prev,
-          current: currentPage,
-          pageSize: currentPageSize,
-          total: parseInt(String(response?.total ?? 0), 10),
-        }))
-      } catch (error) {
-        console.error('获取邮件配置列表失败:', error)
-        if (mountedRef.current) setDataSource([])
-      } finally {
-        if (mountedRef.current) setLoading(false)
-      }
-    },
-    [searchParams.keyword, searchParams.status],
-  )
+  const [viewingUid, setViewingUid] = useState<string>()
+  const skipAutoSearchRef = useRef(true)
+  const {
+    data: viewingData,
+    loading: detailLoading,
+    error: detailError,
+    mutate: mutateViewingData,
+  } = useDetailRequest(getEmailDetail, viewingUid, detailViewOpen)
 
   useEffect(() => {
     setSearchParams(parseSearchParamsFromUrl(urlSearchParams))
@@ -117,60 +94,51 @@ const EmailListContent: React.FC = () => {
     )
   }, [searchParams.keyword, searchParams.status, setUrlSearchParams])
 
-  const handleSearch = useCallback(
-    (keywordFromInput?: string) => {
-      if (keywordFromInput !== undefined) {
-        setSearchParams((prev) => ({ ...prev, keyword: keywordFromInput }))
-      }
-      setPagination((prev) => ({ ...prev, current: 1 }))
-      fetchData(1, paginationRef.current.pageSize, keywordFromInput)
-    },
-    [fetchData],
-  )
+  const handleSearch = useMemoizedFn((keywordFromInput?: string) => {
+    if (keywordFromInput !== undefined) {
+      setSearchParams((prev) => ({ ...prev, keyword: keywordFromInput }))
+    }
+    const keyword =
+      keywordFromInput !== undefined ? keywordFromInput : searchParams.keyword
+    search({
+      keyword: keyword || undefined,
+      status: searchParams.status,
+    })
+  })
 
-  const handleReset = useCallback(() => {
+  const handleReset = useMemoizedFn(() => {
     setSearchParams(defaultSearchParams)
     setUrlSearchParams({})
-    setPagination({ current: 1, pageSize: 50, total: 0 })
-    fetchData(1, 50)
-  }, [fetchData, setUrlSearchParams])
+    reset(defaultSearchParams)
+  })
 
-  const handleTableChange = useCallback(
-    (page: number, pageSize: number) => {
-      fetchData(page, pageSize)
-    },
-    [fetchData],
-  )
+  const handleTableChange = useMemoizedFn((page: number, pageSize: number) => {
+    changePage(page, pageSize)
+  })
 
-  // 处理删除
-  const handleDelete = useCallback(
-    async (record: EmailItem) => {
-      try {
-        await deleteEmail(record.uid)
-        message.success(t('message.delete.success'))
-        fetchData()
-      } catch (error) {
-        console.error('删除失败:', error)
-      }
-    },
-    [fetchData, t],
-  )
+  const handleDelete = useMemoizedFn(async (record: EmailItem) => {
+    try {
+      await deleteEmail(record.uid)
+      message.success(t('message.delete.success'))
+      refresh()
+    } catch (error) {
+      console.error('删除失败:', error)
+    }
+  })
 
-  // 处理修改状态
-  const handleStatusChange = useCallback(
+  const handleStatusChange = useMemoizedFn(
     async (record: EmailItem, newStatus: GlobalStatus) => {
       try {
         await updateEmailStatus({ uid: record.uid, status: newStatus })
         message.success(t('message.update.success'))
-        fetchData()
-        if (viewingData && viewingData.uid === record.uid) {
-          setViewingData({ ...viewingData, status: newStatus })
+        refresh()
+        if (viewingUid === record.uid && viewingData) {
+          mutateViewingData({ ...viewingData, status: newStatus })
         }
       } catch (error) {
         console.error('修改状态失败:', error)
       }
     },
-    [fetchData, t, viewingData],
   )
 
   const columns: ColumnsType<EmailItem> = useMemo(() => {
@@ -325,11 +293,11 @@ const EmailListContent: React.FC = () => {
     setDetailFormOpen(true)
   }
 
-  // 处理查看详情
-  const handleViewDetail = (record: EmailItem) => {
-    setViewingData(record)
+  const handleViewDetail = useMemoizedFn((record: EmailItem) => {
+    if (!record.uid) return
+    setViewingUid(record.uid)
     setDetailViewOpen(true)
-  }
+  })
 
   // 处理编辑
   const handleEdit = (record: EmailItem) => {
@@ -351,51 +319,26 @@ const EmailListContent: React.FC = () => {
     message.info(t('common.export'))
   }
 
-  // 处理表单成功
   const handleFormSuccess = () => {
-    fetchData()
+    refresh()
   }
 
   useEffect(() => {
-    mountedRef.current = true
-    return () => {
-      mountedRef.current = false
+    if (detailViewOpen && detailError) {
+      console.error('获取邮件配置详情失败:', detailError)
+      setDetailViewOpen(false)
+      setViewingUid(undefined)
     }
-  }, [])
+  }, [detailViewOpen, detailError])
 
   useEffect(() => {
-    fetchData()
+    if (skipAutoSearchRef.current) {
+      skipAutoSearchRef.current = false
+      return
+    }
+    search({ ...list.query, status: searchParams.status })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.status])
-
-  // 计算表格高度
-  useEffect(() => {
-    const calculateTableHeight = () => {
-      if (tableContainerRef.current && tableWrapperRef.current) {
-        const containerHeight = tableContainerRef.current.clientHeight
-        const thead = tableWrapperRef.current.querySelector('.ant-table-thead')
-        const pagination =
-          tableWrapperRef.current.querySelector('.ant-pagination')
-
-        const theadHeight = thead ? (thead as HTMLElement).offsetHeight : 0
-        const paginationHeight = pagination
-          ? (pagination as HTMLElement).offsetHeight
-          : 0
-        const tableBodyPadding = 16 * 2 // 上下各16px
-
-        // 计算表格可用的滚动高度 = 容器高度 - 表头高度 - 分页器高度 - 表格主体 padding
-        const calculatedHeight =
-          containerHeight - theadHeight - paginationHeight - tableBodyPadding
-        setTableHeight(Math.max(calculatedHeight, 100)) // 最小高度100px
-      }
-    }
-
-    calculateTableHeight()
-    window.addEventListener('resize', calculateTableHeight)
-    return () => {
-      window.removeEventListener('resize', calculateTableHeight)
-    }
-  }, [dataSource])
 
   return (
     <div className='flex flex-col h-full'>
@@ -419,7 +362,6 @@ const EmailListContent: React.FC = () => {
             value={searchParams.status}
             onChange={(e) => {
               setSearchParams((prev) => ({ ...prev, status: e.target.value }))
-              setPagination((prev) => ({ ...prev, current: 1 }))
             }}
             buttonStyle='solid'
           >
@@ -487,10 +429,11 @@ const EmailListContent: React.FC = () => {
       {/* 详情查看弹窗 */}
       <DetailView
         open={detailViewOpen}
-        data={viewingData}
+        data={viewingData ?? null}
+        loading={detailLoading}
         onCancel={() => {
           setDetailViewOpen(false)
-          setViewingData(null)
+          setViewingUid(undefined)
         }}
         onEdit={handleEditFromDetail}
       />

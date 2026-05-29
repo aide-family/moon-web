@@ -48,10 +48,13 @@ export function subscribeHistoryAlertExportEvents(
   const run = async () => {
     while (!closed) {
       try {
-        const response = await fetch('/v1/alert/history-alerts/export-tasks/events', {
-          headers: getAuthHeaders(),
-          signal: controller.signal,
-        })
+        const response = await fetch(
+          '/v1/alert/history-alerts/export-tasks/events',
+          {
+            headers: getAuthHeaders(),
+            signal: controller.signal,
+          },
+        )
         if (!response.ok || !response.body) {
           throw new Error(`SSE connect failed: ${response.status}`)
         }
@@ -66,12 +69,18 @@ export function subscribeHistoryAlertExportEvents(
           buffer = parts.pop() ?? ''
           for (const part of parts) {
             const parsed = parseSSEBlock(part.trim())
-            if (!parsed || parsed.event === 'ping' || parsed.event === 'connected') {
+            if (
+              !parsed ||
+              parsed.event === 'ping' ||
+              parsed.event === 'connected'
+            ) {
               continue
             }
             if (parsed.event === 'export-task') {
               try {
-                options.onEvent(JSON.parse(parsed.data) as HistoryAlertExportTaskEvent)
+                options.onEvent(
+                  JSON.parse(parsed.data) as HistoryAlertExportTaskEvent,
+                )
               } catch (error) {
                 options.onError?.(error)
               }
@@ -83,7 +92,9 @@ export function subscribeHistoryAlertExportEvents(
         options.onError?.(error)
       }
       if (closed) return
-      await new Promise((resolve) => setTimeout(resolve, SSE_RECONNECT_DELAY_MS))
+      await new Promise((resolve) =>
+        setTimeout(resolve, SSE_RECONNECT_DELAY_MS),
+      )
     }
   }
 

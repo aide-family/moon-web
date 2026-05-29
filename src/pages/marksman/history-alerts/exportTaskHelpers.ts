@@ -7,21 +7,22 @@ import type { HistoryFilterFormValues } from './types'
 
 export type { HistoryFilterFormValues }
 
-const EXPORT_TASK_STATUS_STRING_MAP: Record<string, HistoryAlertExportTaskStatus> =
-  {
-    HISTORY_ALERT_EXPORT_TASK_STATUS_UNKNOWN:
-      HistoryAlertExportTaskStatus.UNKNOWN,
-    HISTORY_ALERT_EXPORT_TASK_STATUS_PENDING:
-      HistoryAlertExportTaskStatus.PENDING,
-    HISTORY_ALERT_EXPORT_TASK_STATUS_RUNNING:
-      HistoryAlertExportTaskStatus.RUNNING,
-    HISTORY_ALERT_EXPORT_TASK_STATUS_COMPLETED:
-      HistoryAlertExportTaskStatus.COMPLETED,
-    HISTORY_ALERT_EXPORT_TASK_STATUS_FAILED:
-      HistoryAlertExportTaskStatus.FAILED,
-    HISTORY_ALERT_EXPORT_TASK_STATUS_CANCELLED:
-      HistoryAlertExportTaskStatus.CANCELLED,
-  }
+const EXPORT_TASK_STATUS_STRING_MAP: Record<
+  string,
+  HistoryAlertExportTaskStatus
+> = {
+  HISTORY_ALERT_EXPORT_TASK_STATUS_UNKNOWN:
+    HistoryAlertExportTaskStatus.UNKNOWN,
+  HISTORY_ALERT_EXPORT_TASK_STATUS_PENDING:
+    HistoryAlertExportTaskStatus.PENDING,
+  HISTORY_ALERT_EXPORT_TASK_STATUS_RUNNING:
+    HistoryAlertExportTaskStatus.RUNNING,
+  HISTORY_ALERT_EXPORT_TASK_STATUS_COMPLETED:
+    HistoryAlertExportTaskStatus.COMPLETED,
+  HISTORY_ALERT_EXPORT_TASK_STATUS_FAILED: HistoryAlertExportTaskStatus.FAILED,
+  HISTORY_ALERT_EXPORT_TASK_STATUS_CANCELLED:
+    HistoryAlertExportTaskStatus.CANCELLED,
+}
 
 /** Backend protojson returns enum as string; SSE uses numeric status. */
 export function normalizeExportTaskStatus(
@@ -94,8 +95,7 @@ export function isExportTaskCompleted(
   status?: HistoryAlertExportTaskStatus | number | string,
 ): boolean {
   return (
-    normalizeExportTaskStatus(status) ===
-    HistoryAlertExportTaskStatus.COMPLETED
+    normalizeExportTaskStatus(status) === HistoryAlertExportTaskStatus.COMPLETED
   )
 }
 
@@ -109,7 +109,9 @@ export function isExportTaskFailed(
   )
 }
 
-export function getExportTaskDetail(record: HistoryAlertExportTaskItem): string {
+export function getExportTaskDetail(
+  record: HistoryAlertExportTaskItem,
+): string {
   const status = normalizeExportTaskStatus(record.status)
   if (status === HistoryAlertExportTaskStatus.COMPLETED) {
     return record.fileName?.trim() || '-'

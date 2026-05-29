@@ -16,11 +16,8 @@ interface SSHCommandsTabProps {
   sshColumns: ColumnsType<SSHCommandItem>
   sshCommands: SSHCommandItem[]
   sshLoading: boolean
-  onSearch: (
-    page: number,
-    pageSize: number,
-    keyword: string,
-  ) => Promise<void> | void
+  onSearch: () => void
+  onPageChange: (page: number, pageSize: number) => void
   onCreate: () => void
 }
 
@@ -32,11 +29,12 @@ const SSHCommandsTab: React.FC<SSHCommandsTabProps> = ({
   sshCommands,
   sshLoading,
   onSearch,
+  onPageChange,
   onCreate,
 }) => {
   const { t } = useLocale()
   const { tableContainerRef, tableWrapperRef, tableHeight } =
-    useAdaptiveTableHeight([sshCommands, sshPagination])
+    useAdaptiveTableHeight()
 
   return (
     <div className='h-full flex flex-col'>
@@ -48,15 +46,12 @@ const SSHCommandsTab: React.FC<SSHCommandsTabProps> = ({
           onPressEnter={(e) => {
             const value = (e.target as HTMLInputElement).value
             setSSHKeyword(value)
-            void onSearch(1, sshPagination.pageSize, value)
+            onSearch()
           }}
           placeholder={t('jadeTree.command.searchPlaceholder')}
           style={{ width: 260 }}
         />
-        <Button
-          type='primary'
-          onClick={() => void onSearch(1, sshPagination.pageSize, sshKeyword)}
-        >
+        <Button type='primary' onClick={onSearch}>
           {t('common.search')}
         </Button>
         <Button onClick={onCreate} type='primary'>
@@ -83,10 +78,8 @@ const SSHCommandsTab: React.FC<SSHCommandsTabProps> = ({
               showSizeChanger: true,
               showQuickJumper: true,
               showTotal: (total) => t('table.total', { total }),
-              onChange: (current, pageSize) =>
-                void onSearch(current, pageSize, sshKeyword),
-              onShowSizeChange: (current, pageSize) =>
-                void onSearch(current, pageSize, sshKeyword),
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
             }}
           />
         </div>

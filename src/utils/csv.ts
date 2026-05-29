@@ -11,7 +11,9 @@ export function buildCsvContent(rows: string[][]): string {
   const bom = '\uFEFF'
   return (
     bom +
-    rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(',')).join('\n')
+    rows
+      .map((row) => row.map((cell) => escapeCsvCell(cell)).join(','))
+      .join('\n')
   )
 }
 

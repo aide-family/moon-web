@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
+import { useRequest } from 'ahooks'
 import {
   Modal,
   Descriptions,
@@ -214,10 +215,24 @@ const DetailView: React.FC<DetailViewProps> = ({
   embedded = false,
 }) => {
   const { t } = useLocale()
-  const [statusRes, setStatusRes] =
-    useState<GetDatasourceStatusResponse | null>(null)
-  const [statusLoading, setStatusLoading] = useState(false)
   const [updatingStatus, setUpdatingStatus] = useState(false)
+
+  const { data: statusRes, loading: statusLoading } = useRequest(
+    () => {
+      const endTime = dayjs()
+      const startTime = endTime.subtract(3, 'hour')
+      return getDatasourceStatus(data!.uid!, {
+        endTime: endTime.unix(),
+        startTime: startTime.unix(),
+      })
+    },
+    {
+      ready: !!data?.uid,
+      refreshDeps: [data?.uid],
+      pollingInterval: 30000,
+      pollingWhenHidden: false,
+    },
+  )
 
   const handleToggleStatus = () => {
     const uid = data?.uid
@@ -253,45 +268,6 @@ const DetailView: React.FC<DetailViewProps> = ({
       },
     })
   }
-
-  useEffect(() => {
-    if (!data?.uid) {
-      queueMicrotask(() => {
-        setStatusRes(null)
-        setStatusLoading(false)
-      })
-      return
-    }
-    let cancelled = false
-    let isFirst = true
-    const fetchStatus = () => {
-      if (isFirst) {
-        queueMicrotask(() => setStatusLoading(true))
-        isFirst = false
-      }
-      const endTime = dayjs()
-      const startTime = endTime.subtract(3, 'hour')
-      getDatasourceStatus(data.uid!, {
-        endTime: endTime.unix(),
-        startTime: startTime.unix(),
-      })
-        .then((res) => {
-          if (!cancelled) setStatusRes(res)
-        })
-        .catch(() => {
-          if (!cancelled) setStatusRes(null)
-        })
-        .finally(() => {
-          if (!cancelled) setStatusLoading(false)
-        })
-    }
-    fetchStatus()
-    const timer = setInterval(fetchStatus, 30 * 1000)
-    return () => {
-      cancelled = true
-      clearInterval(timer)
-    }
-  }, [data?.uid])
 
   const handleEdit = () => {
     if (data && onEdit) onEdit(data)

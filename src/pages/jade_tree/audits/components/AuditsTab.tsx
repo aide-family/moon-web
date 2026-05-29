@@ -6,13 +6,11 @@ import { Button, Form, Input, Radio, Space, Table } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import React from 'react'
 
+type AuditListQuery = Omit<SSHCommandAuditListParams, 'page' | 'pageSize'>
+
 interface AuditsTabProps {
-  auditSearchParams: SSHCommandAuditListParams
-  setAuditSearchParams: (
-    value:
-      | SSHCommandAuditListParams
-      | ((prev: SSHCommandAuditListParams) => SSHCommandAuditListParams),
-  ) => void
+  auditSearchParams: AuditListQuery
+  setAuditSearchParams: React.Dispatch<React.SetStateAction<AuditListQuery>>
   auditPagination: {
     current: number
     pageSize: number
@@ -21,11 +19,8 @@ interface AuditsTabProps {
   auditColumns: ColumnsType<SSHCommandAuditItem>
   audits: SSHCommandAuditItem[]
   auditLoading: boolean
-  onFetchAudits: (
-    page?: number,
-    pageSize?: number,
-    override?: Partial<SSHCommandAuditListParams>,
-  ) => Promise<void> | void
+  onSearch: (params: Partial<AuditListQuery>) => void
+  onPageChange: (page: number, pageSize: number) => void
 }
 
 const AuditsTab: React.FC<AuditsTabProps> = ({
@@ -35,22 +30,24 @@ const AuditsTab: React.FC<AuditsTabProps> = ({
   auditColumns,
   audits,
   auditLoading,
-  onFetchAudits,
+  onSearch,
+  onPageChange,
 }) => {
   const { t } = useLocale()
-  const [searchForm] = Form.useForm<SSHCommandAuditListParams>()
+  const [searchForm] = Form.useForm<AuditListQuery>()
   const { tableContainerRef, tableWrapperRef, tableHeight } =
-    useAdaptiveTableHeight([audits, auditPagination, auditSearchParams])
-  const handleSearch = (override?: Partial<SSHCommandAuditListParams>) => {
+    useAdaptiveTableHeight()
+
+  const handleSearch = (override?: Partial<AuditListQuery>) => {
     const values = searchForm.getFieldsValue()
-    const nextParams: SSHCommandAuditListParams = {
+    const nextParams: AuditListQuery = {
       keyword: values.keyword ?? '',
       kind: values.kind,
       statusFilter: values.statusFilter,
       ...override,
     }
     setAuditSearchParams(nextParams)
-    void onFetchAudits(1, auditPagination.pageSize, nextParams)
+    onSearch(nextParams)
   }
 
   return (
@@ -181,10 +178,8 @@ const AuditsTab: React.FC<AuditsTabProps> = ({
               showSizeChanger: true,
               showQuickJumper: true,
               showTotal: (total) => t('table.total', { total }),
-              onChange: (current, pageSize) =>
-                void onFetchAudits(current, pageSize),
-              onShowSizeChange: (current, pageSize) =>
-                void onFetchAudits(current, pageSize),
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
             }}
           />
         </div>

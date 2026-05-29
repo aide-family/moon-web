@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, Descriptions, Button, Space } from 'antd'
+import { Modal, Descriptions, Button, Space, Spin } from 'antd'
 import type { TemplateItem } from '@/api/rabbit/template/index'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -11,6 +11,7 @@ import { renderStatusTag } from '@/utils/marksman'
 interface DetailViewProps {
   open: boolean
   data?: TemplateItem | null
+  loading?: boolean
   onCancel: () => void
   onEdit?: (data: TemplateItem) => void
 }
@@ -18,6 +19,7 @@ interface DetailViewProps {
 const DetailView: React.FC<DetailViewProps> = ({
   open,
   data,
+  loading = false,
   onCancel,
   onEdit,
 }) => {
@@ -59,7 +61,11 @@ const DetailView: React.FC<DetailViewProps> = ({
       width={800}
       destroyOnHidden
     >
-      {data ? (
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '40px 0' }}>
+          <Spin size='large' />
+        </div>
+      ) : data ? (
         <Descriptions
           column={1}
           bordered

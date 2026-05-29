@@ -1,6 +1,5 @@
 import type {
   AlertEventItem,
-  HistoryAlertExportTaskItem,
   ListHistoryAlertParams,
 } from '@/api/marksman/alert'
 import {
@@ -31,7 +30,8 @@ import {
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useMemoizedFn, useRequest } from 'ahooks'
 import { ALERT_STATUS_MAP } from '../realtime-alerts/components/realtimeAlertHelpers'
 import { RealtimeAlertDetailModal } from '../realtime-alerts/components/RealtimeAlertDetailModal'
 import { ExportTaskPanel } from './components/ExportTaskPanel'
@@ -44,6 +44,8 @@ import {
   normalizeExportTaskItem,
 } from './exportTaskHelpers'
 import type { HistoryFilterFormValues } from './types'
+import { usePaginatedRequest } from '@/utils/hooks/usePaginatedRequest'
+import { useAdaptiveTableHeight } from '@/utils/hooks/useAdaptiveTableHeight'
 
 const { RangePicker } = DatePicker
 
@@ -59,6 +61,16 @@ const defaultTimeRange = (): [dayjs.Dayjs, dayjs.Dayjs] => {
   const end = dayjs()
   const start = dayjs().subtract(14, 'day')
   return [start, end]
+}
+
+const defaultFilterValues = (): HistoryFilterFormValues => ({
+  timeRange: defaultTimeRange(),
+})
+
+type HistoryListQuery = HistoryFilterFormValues & Record<string, unknown>
+
+function asListQuery(values: HistoryFilterFormValues): HistoryListQuery {
+  return values as HistoryListQuery
 }
 
 const STATUS_FILTER_OPTIONS: { value: number; labelKey: string }[] = [
@@ -136,34 +148,66 @@ export function HistoryAlertList() {
   const { message } = App.useApp()
   const { t } = useLocale()
   const [filterForm] = Form.useForm<HistoryFilterFormValues>()
-  const [loading, setLoading] = useState(false)
-  const [exporting, setExporting] = useState(false)
   const [exportTaskDrawerOpen, setExportTaskDrawerOpen] = useState(false)
-  const [exportTasks, setExportTasks] = useState<HistoryAlertExportTaskItem[]>(
-    [],
-  )
-  const [exportTasksLoading, setExportTasksLoading] = useState(false)
-  const [dataSource, setDataSource] = useState<AlertEventItem[]>([])
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 50,
-    total: 0,
-  })
-  const [filterValues, setFilterValues] = useState<HistoryFilterFormValues>({
-    timeRange: defaultTimeRange(),
-  })
   const [detailModalOpen, setDetailModalOpen] = useState(false)
-  const [detailModalRecord, setDetailModalRecord] =
-    useState<AlertEventItem | null>(null)
-  const [strategyGroupOptions, setStrategyGroupOptions] = useState<
-    SelectOption[]
-  >([])
-  const [levelOptions, setLevelOptions] = useState<SelectOption[]>([])
-  const [strategyOptions, setStrategyOptions] = useState<SelectOption[]>([])
-  const [datasourceOptions, setDatasourceOptions] = useState<SelectOption[]>([])
-  const mountedRef = useRef(true)
-  const paginationRef = useRef(pagination)
-  paginationRef.current = pagination
+  const [detailModalUid, setDetailModalUid] = useState<string | null>(null)
+
+  const list = usePaginatedRequest<AlertEventItem, HistoryListQuery>({
+    service: ({ page, pageSize, ...filters }) =>
+      getHistoryAlertList(buildListParams(filters, page, pageSize)),
+    defaultQuery: asListQuery(defaultFilterValues()),
+  })
+
+  const { dataSource, loading, pagination, search, reset, changePage } = list
+
+  const { data: filterOptions } = useRequest(async () => {
+    const [strategyGroups, levels, strategies, datasources] =
+      await Promise.all([
+        getStrategyGroupSelectList({
+          limit: SELECT_LIMIT,
+          status: GlobalStatus.ENABLED,
+        }),
+        getLevelSelectList({
+          limit: SELECT_LIMIT,
+          status: GlobalStatus.ENABLED,
+          type: LevelType.LEVEL_TYPE_ALERT,
+        }),
+        getStrategySelectList({
+          limit: SELECT_LIMIT,
+          status: GlobalStatus.ENABLED,
+        }),
+        getDatasourceSelectList({
+          limit: SELECT_LIMIT,
+        }),
+      ])
+    return {
+      strategyGroupOptions: mapSelectItems(strategyGroups.items),
+      levelOptions: mapSelectItems(levels.items),
+      strategyOptions: mapSelectItems(strategies.items),
+      datasourceOptions: mapSelectItems(datasources.items),
+    }
+  })
+
+  const strategyGroupOptions = filterOptions?.strategyGroupOptions ?? []
+  const levelOptions = filterOptions?.levelOptions ?? []
+  const strategyOptions = filterOptions?.strategyOptions ?? []
+  const datasourceOptions = filterOptions?.datasourceOptions ?? []
+
+  const {
+    data: exportTasks = [],
+    loading: exportTasksLoading,
+    refresh: refreshExportTasks,
+    mutate: mutateExportTasks,
+  } = useRequest(() =>
+    listHistoryAlertExportTasks({ page: 1, pageSize: 50 }).then((res) =>
+      (res.items ?? []).map(normalizeExportTaskItem),
+    ),
+  )
+
+  const { loading: exporting, runAsync: runExport } = useRequest(
+    createHistoryAlertExportTask,
+    { manual: true },
+  )
 
   const statusOptions = useMemo(
     () =>
@@ -192,33 +236,7 @@ export function HistoryAlertList() {
     ]
   }, [t])
 
-  const fetchData = useCallback(
-    async (page?: number, pageSize?: number, filters = filterValues) => {
-      setLoading(true)
-      try {
-        const currentPage = page ?? paginationRef.current.current
-        const currentPageSize = pageSize ?? paginationRef.current.pageSize
-        const params = buildListParams(filters, currentPage, currentPageSize)
-        const res = await getHistoryAlertList(params)
-        if (!mountedRef.current) return
-        setDataSource(res.items ?? [])
-        setPagination((prev) => ({
-          ...prev,
-          current: currentPage,
-          pageSize: currentPageSize,
-          total: parseInt(String(res.total ?? '0'), 10),
-        }))
-      } catch (error) {
-        console.error('获取历史告警列表失败:', error)
-        if (mountedRef.current) setDataSource([])
-      } finally {
-        if (mountedRef.current) setLoading(false)
-      }
-    },
-    [filterValues],
-  )
-
-  const validateTimeRange = useCallback(
+  const validateTimeRange = useMemoizedFn(
     (range?: [dayjs.Dayjs, dayjs.Dayjs]) => {
       if (!range?.[0] || !range?.[1]) return true
       const diff = range[1].unix() - range[0].unix()
@@ -228,18 +246,15 @@ export function HistoryAlertList() {
       }
       return true
     },
-    [message, t],
   )
 
-  const handleSearch = useCallback(async () => {
+  const handleSearch = useMemoizedFn(async () => {
     const values = await filterForm.validateFields()
     if (!validateTimeRange(values.timeRange)) return
-    setFilterValues(values)
-    setPagination((prev) => ({ ...prev, current: 1 }))
-    await fetchData(1, paginationRef.current.pageSize, values)
-  }, [filterForm, fetchData, validateTimeRange])
+    search(asListQuery(values))
+  })
 
-  const handleReset = useCallback(() => {
+  const handleReset = useMemoizedFn(() => {
     const initialValues: HistoryFilterFormValues = {
       keyword: '',
       timeRange: defaultTimeRange(),
@@ -250,42 +265,25 @@ export function HistoryAlertList() {
       datasourceUids: [],
     }
     filterForm.setFieldsValue(initialValues)
-    setFilterValues(initialValues)
-    setPagination((prev) => ({ ...prev, current: 1 }))
-    void fetchData(1, paginationRef.current.pageSize, initialValues)
-  }, [filterForm, fetchData])
+    reset(asListQuery(initialValues))
+  })
 
-  const refreshExportTasks = useCallback(async () => {
-    setExportTasksLoading(true)
-    try {
-      const res = await listHistoryAlertExportTasks({ page: 1, pageSize: 50 })
-      setExportTasks((res.items ?? []).map(normalizeExportTaskItem))
-    } catch (error) {
-      console.error('获取导出任务列表失败:', error)
-    } finally {
-      setExportTasksLoading(false)
-    }
-  }, [])
-
-  const handleExport = useCallback(async () => {
+  const handleExport = useMemoizedFn(async () => {
     const values = await filterForm.validateFields()
     if (!validateTimeRange(values.timeRange)) return
 
-    setExporting(true)
     try {
-      await createHistoryAlertExportTask({
+      await runExport({
         filter: buildExportFilter(values),
       })
       message.success(t('historyAlert.exportTask.message.create.success'))
       setExportTaskDrawerOpen(true)
-      await refreshExportTasks()
+      refreshExportTasks()
     } catch (error) {
       console.error('提交历史告警导出任务失败:', error)
       message.error(t('historyAlert.message.export.failed'))
-    } finally {
-      setExporting(false)
     }
-  }, [filterForm, message, refreshExportTasks, t, validateTimeRange])
+  })
 
   const activeExportTaskCount = useMemo(
     () => exportTasks.filter((item) => isExportTaskActive(item.status)).length,
@@ -293,10 +291,18 @@ export function HistoryAlertList() {
   )
 
   useEffect(() => {
-    void refreshExportTasks()
+    filterForm.setFieldsValue({
+      keyword: '',
+      timeRange: defaultTimeRange(),
+    })
+  }, [filterForm])
+
+  useEffect(() => {
     const unsubscribe = subscribeHistoryAlertExportEvents({
       onEvent: (event) => {
-        setExportTasks((prev) => mergeExportTaskEvent(prev, event))
+        mutateExportTasks((prev) =>
+          mergeExportTaskEvent(prev ?? [], event),
+        )
         if (isExportTaskCompleted(event.status)) {
           message.success(t('historyAlert.exportTask.message.completed'))
         } else if (isExportTaskFailed(event.status)) {
@@ -310,80 +316,10 @@ export function HistoryAlertList() {
       },
     })
     return unsubscribe
-  }, [message, refreshExportTasks, t])
+  }, [message, mutateExportTasks, t])
 
-  useEffect(() => {
-    mountedRef.current = true
-    filterForm.setFieldsValue({
-      keyword: '',
-      timeRange: defaultTimeRange(),
-    })
-
-    const loadFilterOptions = async () => {
-      try {
-        const [strategyGroups, levels, strategies, datasources] =
-          await Promise.all([
-            getStrategyGroupSelectList({
-              limit: SELECT_LIMIT,
-              status: GlobalStatus.ENABLED,
-            }),
-            getLevelSelectList({
-              limit: SELECT_LIMIT,
-              status: GlobalStatus.ENABLED,
-              type: LevelType.LEVEL_TYPE_ALERT,
-            }),
-            getStrategySelectList({
-              limit: SELECT_LIMIT,
-              status: GlobalStatus.ENABLED,
-            }),
-            getDatasourceSelectList({
-              limit: SELECT_LIMIT,
-            }),
-          ])
-        if (!mountedRef.current) return
-        setStrategyGroupOptions(mapSelectItems(strategyGroups.items))
-        setLevelOptions(mapSelectItems(levels.items))
-        setStrategyOptions(mapSelectItems(strategies.items))
-        setDatasourceOptions(mapSelectItems(datasources.items))
-      } catch (error) {
-        console.error('加载历史告警筛选项失败:', error)
-      }
-    }
-
-    void loadFilterOptions()
-    void fetchData(1, paginationRef.current.pageSize, {
-      timeRange: defaultTimeRange(),
-    })
-
-    return () => {
-      mountedRef.current = false
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  const tableContainerRef = useRef<HTMLDivElement>(null)
-  const tableWrapperRef = useRef<HTMLDivElement>(null)
-  const [tableHeight, setTableHeight] = useState(400)
-
-  useEffect(() => {
-    const updateTableHeight = () => {
-      if (!tableContainerRef.current || !tableWrapperRef.current) return
-      const containerHeight = tableContainerRef.current.clientHeight
-      const thead = tableWrapperRef.current.querySelector('.ant-table-thead')
-      const paginationEl =
-        tableWrapperRef.current.querySelector('.ant-pagination')
-      const theadHeight = thead ? (thead as HTMLElement).offsetHeight : 0
-      const paginationHeight = paginationEl
-        ? (paginationEl as HTMLElement).offsetHeight
-        : 0
-      const calculatedHeight = containerHeight - theadHeight - paginationHeight - 32
-      setTableHeight(Math.max(calculatedHeight, 100))
-    }
-
-    updateTableHeight()
-    window.addEventListener('resize', updateTableHeight)
-    return () => window.removeEventListener('resize', updateTableHeight)
-  }, [dataSource, pagination])
+  const { tableContainerRef, tableWrapperRef, tableHeight } =
+    useAdaptiveTableHeight()
 
   const columns: ColumnsType<AlertEventItem> = [
     {
@@ -483,7 +419,8 @@ export function HistoryAlertList() {
           type='link'
           size='small'
           onClick={() => {
-            setDetailModalRecord(record)
+            if (!record.uid) return
+            setDetailModalUid(record.uid)
             setDetailModalOpen(true)
           }}
         >
@@ -493,172 +430,161 @@ export function HistoryAlertList() {
     },
   ]
 
-  const listStartAtUnix = filterValues.timeRange?.[0]
-    ? String(filterValues.timeRange[0].unix())
-    : undefined
-  const listEndAtUnix = filterValues.timeRange?.[1]
-    ? String(filterValues.timeRange[1].unix())
-    : undefined
-
   return (
     <PageContent>
-        <div className='mb-4 shrink-0'>
-          <div className='mb-3 flex items-center justify-between gap-3'>
-            <div className='text-base font-medium'>{t('historyAlert.title')}</div>
-            <Badge count={activeExportTaskCount} size='small' showZero={false}>
-              <Button onClick={() => setExportTaskDrawerOpen(true)}>
-                {t('historyAlert.exportTask.action.openList')}
-              </Button>
-            </Badge>
-          </div>
-          <Form<HistoryFilterFormValues>
-            form={filterForm}
-            layout='inline'
-            className='gap-y-2'
-            initialValues={{
-              keyword: '',
-              timeRange: defaultTimeRange(),
-              strategyGroupUids: [],
-              levelUids: [],
-              strategyUids: [],
-              datasourceUids: [],
-            }}
-          >
-            <Form.Item
-              name='keyword'
-              label={t('historyAlert.search.label')}
-              className='w-full max-w-sm'
-            >
-              <Input
-                allowClear
-                autoComplete='off'
-                placeholder={t('historyAlert.search.placeholder')}
-                onPressEnter={() => void handleSearch()}
-              />
-            </Form.Item>
-            <Form.Item
-              name='timeRange'
-              label={t('historyAlert.filter.timeRange')}
-            >
-              <RangePicker
-                showTime
-                presets={rangePresets}
-                allowClear={false}
-              />
-            </Form.Item>
-            <Form.Item name='status' label={t('historyAlert.filter.status')}>
-              <Select
-                allowClear
-                placeholder={t('realtimeAlert.filter.status.all')}
-                style={{ minWidth: 140 }}
-                options={statusOptions}
-              />
-            </Form.Item>
-            <Form.Item
-              name='strategyGroupUids'
-              label={t('historyAlert.filter.strategyGroup')}
-            >
-              <Select
-                mode='multiple'
-                allowClear
-                maxTagCount='responsive'
-                placeholder={t('historyAlert.filter.strategyGroup.placeholder')}
-                style={{ minWidth: 180 }}
-                options={strategyGroupOptions}
-              />
-            </Form.Item>
-            <Form.Item name='levelUids' label={t('historyAlert.filter.level')}>
-              <Select
-                mode='multiple'
-                allowClear
-                maxTagCount='responsive'
-                placeholder={t('historyAlert.filter.level.placeholder')}
-                style={{ minWidth: 160 }}
-                options={levelOptions}
-              />
-            </Form.Item>
-            <Form.Item
-              name='strategyUids'
-              label={t('historyAlert.filter.strategy')}
-            >
-              <Select
-                mode='multiple'
-                allowClear
-                maxTagCount='responsive'
-                placeholder={t('historyAlert.filter.strategy.placeholder')}
-                style={{ minWidth: 160 }}
-                options={strategyOptions}
-              />
-            </Form.Item>
-            <Form.Item
-              name='datasourceUids'
-              label={t('historyAlert.filter.datasource')}
-            >
-              <Select
-                mode='multiple'
-                allowClear
-                maxTagCount='responsive'
-                placeholder={t('historyAlert.filter.datasource.placeholder')}
-                style={{ minWidth: 160 }}
-                options={datasourceOptions}
-              />
-            </Form.Item>
-            <Form.Item>
-              <Space wrap>
-                <Button type='primary' onClick={() => void handleSearch()}>
-                  {t('common.search')}
-                </Button>
-                <Button onClick={handleReset}>{t('common.reset')}</Button>
-                <Button loading={exporting} onClick={() => void handleExport()}>
-                  {t('common.export')}
-                </Button>
-              </Space>
-            </Form.Item>
-          </Form>
+      <div className='mb-4 shrink-0'>
+        <div className='mb-3 flex items-center justify-between gap-3'>
+          <div className='text-base font-medium'>{t('historyAlert.title')}</div>
+          <Badge count={activeExportTaskCount} size='small' showZero={false}>
+            <Button onClick={() => setExportTaskDrawerOpen(true)}>
+              {t('historyAlert.exportTask.action.openList')}
+            </Button>
+          </Badge>
         </div>
-
-        <div
-          ref={tableContainerRef}
-          className='flex-1 flex overflow-hidden flex-col min-h-0'
+        <Form<HistoryFilterFormValues>
+          form={filterForm}
+          layout='inline'
+          className='gap-y-2'
+          initialValues={{
+            keyword: '',
+            timeRange: defaultTimeRange(),
+            strategyGroupUids: [],
+            levelUids: [],
+            strategyUids: [],
+            datasourceUids: [],
+          }}
         >
-          <div ref={tableWrapperRef} className='h-full flex flex-col flex-1'>
-            <Table
-              columns={columns}
-              dataSource={dataSource}
-              rowKey='uid'
-              loading={loading}
-              size='small'
-              scroll={{ y: tableHeight, x: 'max-content' }}
-              pagination={{
-                current: pagination.current,
-                pageSize: pagination.pageSize,
-                total: pagination.total,
-                showSizeChanger: true,
-                showTotal: (total) => t('table.total', { total }),
-                onChange: (page, pageSize) => {
-                  void fetchData(page, pageSize)
-                },
-              }}
+          <Form.Item
+            name='keyword'
+            label={t('historyAlert.search.label')}
+            className='w-full max-w-sm'
+          >
+            <Input
+              allowClear
+              autoComplete='off'
+              placeholder={t('historyAlert.search.placeholder')}
+              onPressEnter={() => void handleSearch()}
             />
-          </div>
+          </Form.Item>
+          <Form.Item
+            name='timeRange'
+            label={t('historyAlert.filter.timeRange')}
+          >
+            <RangePicker showTime presets={rangePresets} allowClear={false} />
+          </Form.Item>
+          <Form.Item name='status' label={t('historyAlert.filter.status')}>
+            <Select
+              allowClear
+              placeholder={t('realtimeAlert.filter.status.all')}
+              style={{ minWidth: 140 }}
+              options={statusOptions}
+            />
+          </Form.Item>
+          <Form.Item
+            name='strategyGroupUids'
+            label={t('historyAlert.filter.strategyGroup')}
+          >
+            <Select
+              mode='multiple'
+              allowClear
+              maxTagCount='responsive'
+              placeholder={t('historyAlert.filter.strategyGroup.placeholder')}
+              style={{ minWidth: 180 }}
+              options={strategyGroupOptions}
+            />
+          </Form.Item>
+          <Form.Item name='levelUids' label={t('historyAlert.filter.level')}>
+            <Select
+              mode='multiple'
+              allowClear
+              maxTagCount='responsive'
+              placeholder={t('historyAlert.filter.level.placeholder')}
+              style={{ minWidth: 160 }}
+              options={levelOptions}
+            />
+          </Form.Item>
+          <Form.Item
+            name='strategyUids'
+            label={t('historyAlert.filter.strategy')}
+          >
+            <Select
+              mode='multiple'
+              allowClear
+              maxTagCount='responsive'
+              placeholder={t('historyAlert.filter.strategy.placeholder')}
+              style={{ minWidth: 160 }}
+              options={strategyOptions}
+            />
+          </Form.Item>
+          <Form.Item
+            name='datasourceUids'
+            label={t('historyAlert.filter.datasource')}
+          >
+            <Select
+              mode='multiple'
+              allowClear
+              maxTagCount='responsive'
+              placeholder={t('historyAlert.filter.datasource.placeholder')}
+              style={{ minWidth: 160 }}
+              options={datasourceOptions}
+            />
+          </Form.Item>
+          <Form.Item>
+            <Space wrap>
+              <Button type='primary' onClick={() => void handleSearch()}>
+                {t('common.search')}
+              </Button>
+              <Button onClick={handleReset}>{t('common.reset')}</Button>
+              <Button loading={exporting} onClick={() => void handleExport()}>
+                {t('common.export')}
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </div>
+
+      <div
+        ref={tableContainerRef}
+        className='flex-1 flex overflow-hidden flex-col min-h-0'
+      >
+        <div ref={tableWrapperRef} className='h-full flex flex-col flex-1'>
+          <Table
+            columns={columns}
+            dataSource={dataSource}
+            rowKey='uid'
+            loading={loading}
+            size='small'
+            scroll={{ y: tableHeight, x: 'max-content' }}
+            pagination={{
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              showSizeChanger: true,
+              showTotal: (total) => t('table.total', { total }),
+              onChange: (page, pageSize) => {
+                changePage(page, pageSize)
+              },
+            }}
+          />
         </div>
+      </div>
 
-        <RealtimeAlertDetailModal
-          open={detailModalOpen}
-          onCancel={() => setDetailModalOpen(false)}
-          alertPageUid='0'
-          fallbackRecord={detailModalRecord}
-          listStartAtUnix={listStartAtUnix}
-          listEndAtUnix={listEndAtUnix}
-        />
+      <RealtimeAlertDetailModal
+        open={detailModalOpen}
+        onCancel={() => {
+          setDetailModalOpen(false)
+          setDetailModalUid(null)
+        }}
+        uid={detailModalUid}
+      />
 
-        <ExportTaskPanel
-          open={exportTaskDrawerOpen}
-          onClose={() => setExportTaskDrawerOpen(false)}
-          tasks={exportTasks}
-          loading={exportTasksLoading}
-          onRefresh={refreshExportTasks}
-        />
+      <ExportTaskPanel
+        open={exportTaskDrawerOpen}
+        onClose={() => setExportTaskDrawerOpen(false)}
+        tasks={exportTasks}
+        loading={exportTasksLoading}
+        onRefresh={refreshExportTasks}
+      />
     </PageContent>
   )
 }

@@ -9,26 +9,24 @@ import {
 } from '@/api'
 import { useAdaptiveTableHeight } from '@/utils/hooks/useAdaptiveTableHeight'
 
+type ProbeTaskListQuery = Omit<ProbeTaskListParams, 'page' | 'pageSize'>
+
 interface ProbeTasksTabProps {
   probePagination: {
     current: number
     pageSize: number
     total: number
   }
-  probeSearchParams: ProbeTaskListParams
-  setProbeSearchParams: (
-    value:
-      | ProbeTaskListParams
-      | ((prev: ProbeTaskListParams) => ProbeTaskListParams),
-  ) => void
+  probeSearchParams: ProbeTaskListQuery
+  setProbeSearchParams: React.Dispatch<
+    React.SetStateAction<ProbeTaskListQuery>
+  >
   probeColumns: ColumnsType<ProbeTaskItem>
   probeTasks: ProbeTaskItem[]
   probeLoading: boolean
-  onFetchProbeTasks: (
-    page?: number,
-    pageSize?: number,
-    override?: Partial<ProbeTaskListParams>,
-  ) => Promise<void> | void
+  onSearch: (params: Partial<ProbeTaskListQuery>) => void
+  onPageChange: (page: number, pageSize: number) => void
+  onReset: () => void
   onCreate: () => void
 }
 
@@ -39,13 +37,27 @@ const ProbeTasksTab: React.FC<ProbeTasksTabProps> = ({
   probeColumns,
   probeTasks,
   probeLoading,
-  onFetchProbeTasks,
+  onSearch,
+  onPageChange,
+  onReset,
   onCreate,
 }) => {
   const { t } = useLocale()
-  const [searchForm] = Form.useForm<ProbeTaskListParams>()
+  const [searchForm] = Form.useForm<ProbeTaskListQuery>()
   const { tableContainerRef, tableWrapperRef, tableHeight } =
-    useAdaptiveTableHeight([probeTasks, probePagination, probeSearchParams])
+    useAdaptiveTableHeight()
+
+  const handleSearch = (override?: Partial<ProbeTaskListQuery>) => {
+    const values = searchForm.getFieldsValue()
+    const nextParams: ProbeTaskListQuery = {
+      keyword: values.keyword ?? '',
+      type: values.type,
+      status: values.status,
+      ...override,
+    }
+    setProbeSearchParams(nextParams)
+    onSearch(nextParams)
+  }
 
   return (
     <div className='h-full flex flex-col'>
@@ -70,7 +82,7 @@ const ProbeTasksTab: React.FC<ProbeTasksTabProps> = ({
                 allowClear
                 placeholder={t('table.search.placeholder')}
                 onPressEnter={(e) =>
-                  void onFetchProbeTasks(1, probePagination.pageSize, {
+                  handleSearch({
                     keyword: (e.target as HTMLInputElement).value,
                   })
                 }
@@ -104,27 +116,13 @@ const ProbeTasksTab: React.FC<ProbeTasksTabProps> = ({
                 </Radio.Button>
               </Radio.Group>
             </Form.Item>
-            <Button
-              type='primary'
-              onClick={() =>
-                void onFetchProbeTasks(1, probePagination.pageSize)
-              }
-            >
+            <Button type='primary' onClick={() => handleSearch()}>
               {t('common.search')}
             </Button>
             <Button
               onClick={() => {
                 searchForm.resetFields()
-                setProbeSearchParams({
-                  keyword: '',
-                  type: undefined,
-                  status: undefined,
-                })
-                void onFetchProbeTasks(1, probePagination.pageSize, {
-                  keyword: '',
-                  type: undefined,
-                  status: undefined,
-                })
+                onReset()
               }}
             >
               {t('common.reset')}
@@ -157,10 +155,8 @@ const ProbeTasksTab: React.FC<ProbeTasksTabProps> = ({
               showSizeChanger: true,
               showQuickJumper: true,
               showTotal: (total) => t('table.total', { total }),
-              onChange: (current, pageSize) =>
-                void onFetchProbeTasks(current, pageSize),
-              onShowSizeChange: (current, pageSize) =>
-                void onFetchProbeTasks(current, pageSize),
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
             }}
           />
         </div>

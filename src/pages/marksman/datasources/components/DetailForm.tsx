@@ -226,14 +226,14 @@ const DetailForm: React.FC<DetailFormProps> = ({
           <Select
             placeholder={t('datasource.form.levelUid.placeholder')}
             allowClear
-            showSearch
-            optionFilterProp='label'
-            filterOption={(input, opt) =>
-              (opt?.label ?? '')
-                .toString()
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
+            showSearch={{
+              optionFilterProp: 'label',
+              filterOption: (input, opt) =>
+                (opt?.label ?? '')
+                  .toString()
+                  .toLowerCase()
+                  .includes(input.toLowerCase()),
+            }}
             options={levelSelectOptions.map((o) => ({
               value: o.value,
               label: o.label ?? o.value,

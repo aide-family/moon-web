@@ -28,20 +28,25 @@ import {
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { defaultListParams } from './realtimeAlertHelpers'
-import { RealtimeAlertDetailModal } from './RealtimeAlertDetailModal'
-import { useDebounceFn } from 'ahooks'
+import React, { useEffect, useRef, useState } from 'react'
+import { useMemoizedFn, useRequest } from 'ahooks'
 import {
   selectMembers,
   type SelectMemberItem,
-  type SelectMembersParams,
 } from '@/api/account/member'
+import { defaultListParams } from './realtimeAlertHelpers'
+import { RealtimeAlertDetailModal } from './RealtimeAlertDetailModal'
+import { useAdaptiveTableHeight } from '@/utils/hooks/useAdaptiveTableHeight'
 
 /** 实时告警列表筛选表单（仅 Tab 内使用） */
 interface AlertFilterFormValues {
   keyword?: string
   timeRange?: [dayjs.Dayjs, dayjs.Dayjs] | null
+}
+
+type AlertListData = {
+  items: AlertEventItem[]
+  total: number
 }
 
 export interface AlertPageTabContentProps {
@@ -71,8 +76,6 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   const timeRange = Form.useWatch('timeRange', filterForm)
   const startAt = timeRange?.[0] ?? null
   const endAt = timeRange?.[1] ?? null
-  const [loading, setLoading] = useState(false)
-  const [dataSource, setDataSource] = useState<AlertEventItem[]>([])
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 50,
@@ -80,13 +83,8 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   })
   const [selectedUids, setSelectedUids] = useState<string[]>([])
   const [batchActionLoading, setBatchActionLoading] = useState(false)
-  const paginationRef = useRef(pagination)
-  useEffect(() => {
-    paginationRef.current = pagination
-  }, [pagination])
   const [detailModalOpen, setDetailModalOpen] = useState(false)
-  const [detailModalRecord, setDetailModalRecord] =
-    useState<AlertEventItem | null>(null)
+  const [detailModalUid, setDetailModalUid] = useState<string | null>(null)
   const [suppressOpen, setSuppressOpen] = useState(false)
   const [suppressRecord, setSuppressRecord] = useState<AlertEventItem | null>(
     null,
@@ -104,126 +102,76 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   const [batchRecoverOpen, setBatchRecoverOpen] = useState(false)
   const [batchRecoverSaving, setBatchRecoverSaving] = useState(false)
   const [batchRecoverForm] = Form.useForm<{ recoveredReason?: string }>()
-  const [memberOptions, setMemberOptions] = useState<SelectMemberItem[]>([])
-  const [memberOptionsLoading, setMemberOptionsLoading] = useState(false)
+  const [memberSearchKeyword, setMemberSearchKeyword] = useState<
+    string | undefined
+  >(undefined)
   const [interveneMemberForm] = Form.useForm<{ memberUid?: string }>()
 
   /** 已提交给列表接口的关键字（与输入框通过「搜索」同步） */
   const [listKeyword, setListKeyword] = useState('')
-  const mountedRef = useRef(true)
-  const fetchRequestSeqRef = useRef(0)
-  const tableContainerRef = useRef<HTMLDivElement>(null)
-  const tableWrapperRef = useRef<HTMLDivElement>(null)
-  const [tableHeight, setTableHeight] = useState(400)
+  const skipNextEffectFetchRef = useRef(false)
+  const { tableContainerRef, tableWrapperRef, tableHeight } =
+    useAdaptiveTableHeight()
 
-  const fetchData = useCallback(
-    async (
-      page?: number,
-      pageSize?: number,
-      options?: {
-        silent?: boolean
-        /** 本次请求使用的关键字（避免尚未 commit 的 listKeyword 状态） */
-        listKeywordSnapshot?: string
-      },
-    ) => {
-      const silent = options?.silent ?? false
-      const seq = ++fetchRequestSeqRef.current
-      if (!silent) setLoading(true)
-      try {
-        const currentPage = page ?? 1
-        const currentPageSize = pageSize ?? paginationRef.current.pageSize
-        const trimmedKw = (
-          options?.listKeywordSnapshot !== undefined
-            ? options.listKeywordSnapshot
-            : listKeyword
-        ).trim()
-        const params: ListRealtimeAlertParams = {
-          ...defaultListParams,
-          page: currentPage,
-          pageSize: currentPageSize,
-          startAtUnix: startAt ? String(startAt.unix()) : undefined,
-          endAtUnix: endAt ? String(endAt.unix()) : undefined,
-          keyword: trimmedKw !== '' ? trimmedKw : undefined,
-        }
-        const res = await getRealtimeAlertList(alertPageUid, params)
-        if (!mountedRef.current) return
-        // 避免并发请求导致状态被旧响应覆盖
-        if (seq !== fetchRequestSeqRef.current) return
-        const items = res.items ?? []
-        const total = parseInt(String(res.total ?? '0'), 10)
-
-        setDataSource(items)
-        setPagination((prev) => ({
-          ...prev,
-          current: currentPage,
-          pageSize: currentPageSize,
-          total,
-        }))
-      } catch (e) {
-        console.error('获取实时告警列表失败:', e)
-        if (mountedRef.current && seq === fetchRequestSeqRef.current) {
-          setDataSource([])
-        }
-      } finally {
-        if (
-          !silent &&
-          mountedRef.current &&
-          seq === fetchRequestSeqRef.current
-        ) {
-          setLoading(false)
-        }
-      }
+  const buildListParams = useMemoizedFn(
+    (overrides?: { page?: number; pageSize?: number; keyword?: string }) => {
+      const trimmedKw = (overrides?.keyword ?? listKeyword).trim()
+      return {
+        ...defaultListParams,
+        page: overrides?.page ?? pagination.current,
+        pageSize: overrides?.pageSize ?? pagination.pageSize,
+        startAtUnix: startAt ? String(startAt.unix()) : undefined,
+        endAtUnix: endAt ? String(endAt.unix()) : undefined,
+        keyword: trimmedKw !== '' ? trimmedKw : undefined,
+      } satisfies ListRealtimeAlertParams
     },
-    [alertPageUid, startAt, endAt, listKeyword],
   )
 
-  // 仅在组件卸载时控制 mountedRef：不在 filter 变化时把它置为 false
-  useEffect(() => {
-    mountedRef.current = true
-    return () => {
-      mountedRef.current = false
-    }
-  }, [])
-
-  // 防抖请求：避免用户切时间范围时短时间内触发多次列表拉取
-  const fetchDataRef = useRef(fetchData)
-  useEffect(() => {
-    fetchDataRef.current = fetchData
-  }, [fetchData])
-
-  const skipNextEffectFetchRef = useRef(false)
-  const hasInitialFetchedRef = useRef(false)
-
-  const { run: debouncedFetchData, cancel: cancelDebouncedFetchData } =
-    useDebounceFn(
-      () => {
-        void fetchDataRef.current(undefined, undefined, { silent: false })
+  const {
+    data: listData,
+    loading,
+    refresh,
+    mutate,
+    cancel: cancelListFetch,
+  } = useRequest(
+    async (): Promise<AlertListData> => {
+      try {
+        const res = await getRealtimeAlertList(
+          alertPageUid,
+          buildListParams(),
+        )
+        const items = res.items ?? []
+        const total = Number.parseInt(String(res.total ?? '0'), 10)
+        return { items, total }
+      } catch (e) {
+        console.error('获取实时告警列表失败:', e)
+        return { items: [], total: 0 }
+      }
+    },
+    {
+      refreshDeps: [
+        listKeyword,
+        startAt,
+        endAt,
+        pagination.current,
+        pagination.pageSize,
+        alertPageUid,
+      ],
+      debounceWait: 300,
+      onBefore: () => {
+        if (skipNextEffectFetchRef.current) {
+          skipNextEffectFetchRef.current = false
+          return { stopNow: true }
+        }
       },
-      { wait: 300 },
-    )
+      onSuccess: (result) => {
+        setPagination((prev) => ({ ...prev, total: result.total }))
+      },
+    },
+  )
 
-  // 组件卸载时取消防抖，避免卸载后仍触发 setLoading
-  useEffect(() => {
-    return () => {
-      cancelDebouncedFetchData()
-    }
-  }, [cancelDebouncedFetchData])
-
-  useEffect(() => {
-    if (!hasInitialFetchedRef.current) {
-      hasInitialFetchedRef.current = true
-      void fetchData(undefined, undefined, { silent: false })
-      return
-    }
-
-    // 点击「搜索」时会显式 fetchData；这里跳过紧随其后的 filter 变化触发
-    if (skipNextEffectFetchRef.current) {
-      skipNextEffectFetchRef.current = false
-      return
-    }
-
-    debouncedFetchData()
-  }, [fetchData, debouncedFetchData])
+  const dataSource = listData?.items ?? []
+  const tableLoading = loading && listData === undefined
 
   const lastRefreshSignalRef = useRef(0)
   useEffect(() => {
@@ -231,40 +179,24 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       return
     }
     lastRefreshSignalRef.current = refreshSignal
-    const { current, pageSize } = paginationRef.current
-    void fetchData(current, pageSize, { silent: true })
-  }, [refreshSignal, fetchData])
-
-  useEffect(() => {
-    const updateTableHeight = () => {
-      if (tableContainerRef.current && tableWrapperRef.current) {
-        const containerHeight = tableContainerRef.current.clientHeight
-        const theadEl =
-          tableWrapperRef.current.querySelector('.ant-table-thead')
-        const paginationEl =
-          tableWrapperRef.current.querySelector('.ant-pagination')
-        const theadHeight = theadEl
-          ? (theadEl as HTMLElement).getBoundingClientRect().height
-          : 0
-        const paginationHeight = paginationEl
-          ? (paginationEl as HTMLElement).getBoundingClientRect().height + 16
-          : 0
-        setTableHeight(
-          Math.max(containerHeight - theadHeight - paginationHeight - 24, 100),
+    void (async () => {
+      try {
+        const res = await getRealtimeAlertList(
+          alertPageUid,
+          buildListParams(),
         )
+        const items = res.items ?? []
+        const total = Number.parseInt(String(res.total ?? '0'), 10)
+        mutate({ items, total })
+        setPagination((prev) => ({ ...prev, total }))
+      } catch (e) {
+        console.error('获取实时告警列表失败:', e)
       }
-    }
-    const timer = setTimeout(updateTableHeight, 100)
-    window.addEventListener('resize', updateTableHeight)
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('resize', updateTableHeight)
-    }
-  }, [dataSource, pagination])
+    })()
+  }, [refreshSignal, alertPageUid, buildListParams, mutate])
 
-  const handleSearch = (overrideKeyword?: string) => {
-    // 避免「已排队的防抖请求」与本次点击「搜索」立即请求重复
-    cancelDebouncedFetchData()
+  const handleSearch = useMemoizedFn((overrideKeyword?: string) => {
+    cancelListFetch()
     skipNextEffectFetchRef.current = true
     if (overrideKeyword !== undefined) {
       filterForm.setFieldValue('keyword', overrideKeyword)
@@ -278,91 +210,88 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     setPagination((prev) => ({ ...prev, current: 1 }))
     void (async () => {
       await onSearchRefresh?.()
-      void fetchData(1, paginationRef.current.pageSize, {
-        listKeywordSnapshot: trimmed,
-      })
+      try {
+        const res = await getRealtimeAlertList(
+          alertPageUid,
+          buildListParams({ page: 1, keyword: trimmed }),
+        )
+        const items = res.items ?? []
+        const total = Number.parseInt(String(res.total ?? '0'), 10)
+        mutate({ items, total })
+        setPagination((prev) => ({ ...prev, current: 1, total }))
+      } catch (e) {
+        console.error('获取实时告警列表失败:', e)
+        mutate({ items: [], total: 0 })
+      }
     })()
-  }
+  })
 
-  const handleTableChange = (page: number, pageSize: number) => {
-    fetchData(page, pageSize)
-  }
+  const handleTableChange = useMemoizedFn((page: number, pageSize: number) => {
+    setPagination((prev) => ({ ...prev, current: page, pageSize }))
+  })
 
-  const handleReset = () => {
+  const handleReset = useMemoizedFn(() => {
     filterForm.resetFields()
     setListKeyword('')
     setPagination((prev) => ({ ...prev, current: 1 }))
-  }
+  })
 
-  const fetchInterveneMemberOptions = useCallback(async (keyword?: string) => {
-    setMemberOptionsLoading(true)
-    try {
-      const params: SelectMembersParams = {
-        keyword: keyword?.trim() || undefined,
-        limit: 20,
+  const {
+    data: memberOptions = [],
+    loading: memberOptionsLoading,
+    mutate: mutateMemberOptions,
+  } = useRequest(
+    async () => {
+      try {
+        const res = await selectMembers({
+          keyword: memberSearchKeyword?.trim() || undefined,
+          limit: 20,
+        })
+        return res.items ?? []
+      } catch (e) {
+        console.error('拉取成员下拉失败:', e)
+        return [] as SelectMemberItem[]
       }
-      const res = await selectMembers(params)
-      setMemberOptions(res.items ?? [])
-    } catch (e) {
-      console.error('拉取成员下拉失败:', e)
-      setMemberOptions([])
-    } finally {
-      setMemberOptionsLoading(false)
-    }
-  }, [])
+    },
+    {
+      ready: interveneMemberModalOpen,
+      refreshDeps: [memberSearchKeyword, interveneMemberModalOpen],
+      debounceWait: 300,
+    },
+  )
 
-  const { run: debouncedFetchInterveneMembers, cancel: cancelDebounceMembers } =
-    useDebounceFn(
-      (keyword?: string) => {
-        void fetchInterveneMemberOptions(keyword)
-      },
-      { wait: 300 },
-    )
-
-  useEffect(() => {
-    if (!interveneMemberModalOpen) return
-    void fetchInterveneMemberOptions()
-    return () => {
-      cancelDebounceMembers()
-    }
-  }, [
-    interveneMemberModalOpen,
-    fetchInterveneMemberOptions,
-    cancelDebounceMembers,
-  ])
-
-  const openInterveneMemberModal = (uids: string[]) => {
+  const openInterveneMemberModal = useMemoizedFn((uids: string[]) => {
     const cleaned = (uids ?? []).map(String).filter(Boolean)
     if (cleaned.length === 0) return
     setInterveneTargetUids(cleaned)
-    setMemberOptions([])
-    setMemberOptionsLoading(false)
+    setMemberSearchKeyword(undefined)
+    mutateMemberOptions([])
     setInterveneMemberSaving(false)
     setBatchActionLoading(false)
     interveneMemberForm.resetFields()
     setInterveneMemberModalOpen(true)
-  }
+  })
 
-  const handleIntervene = async (record: AlertEventItem) => {
+  const handleIntervene = useMemoizedFn(async (record: AlertEventItem) => {
     if (!record.uid) return
     setActionLoading(true)
     try {
       await interveneAlert(record.uid)
       message.success(t('realtimeAlert.message.intervene.success'))
-      fetchData(pagination.current, pagination.pageSize)
+      refresh()
     } catch (e) {
       console.error('介入告警失败:', e)
     } finally {
       setActionLoading(false)
     }
-  }
+  })
 
-  const handleBatchIntervene = async () => {
+  const handleBatchIntervene = useMemoizedFn(async () => {
     if (selectedUids.length === 0) return
     openInterveneMemberModal(selectedUids)
-  }
+  })
 
-  const handleInterveneMemberOk = async () => {
+  const handleInterveneMemberOk = useMemoizedFn(async () => {
     const count = interveneTargetUids.length
     if (count === 0) return
 
@@ -386,7 +315,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       setInterveneTargetUids([])
       setInterveneMemberModalOpen(false)
       interveneMemberForm.resetFields()
-      fetchData(pagination.current, pagination.pageSize)
+      refresh()
     } catch (e) {
       console.error('介入失败:', e)
       message.error(t('message.error'))
@@ -394,9 +323,9 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       setBatchActionLoading(false)
       setInterveneMemberSaving(false)
     }
-  }
+  })
 
-  const handleBatchRecoverOk = async () => {
+  const handleBatchRecoverOk = useMemoizedFn(async () => {
     const count = selectedUids.length
     if (count === 0) return
     try {
@@ -414,7 +343,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       setSelectedUids([])
       setBatchRecoverOpen(false)
       batchRecoverForm.resetFields()
-      fetchData(pagination.current, pagination.pageSize)
+      refresh()
     } catch (e) {
       if (e && typeof e === 'object' && 'errorFields' in e) return
       console.error('批量恢复失败:', e)
@@ -423,15 +352,15 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       setBatchActionLoading(false)
       setBatchRecoverSaving(false)
     }
-  }
+  })
 
-  const openRecover = (record: AlertEventItem) => {
+  const openRecover = useMemoizedFn((record: AlertEventItem) => {
     setRecoverRecord(record)
     recoverForm.setFieldsValue({ recoveredReason: '' })
     setRecoverOpen(true)
-  }
+  })
 
-  const handleRecoverOk = async () => {
+  const handleRecoverOk = useMemoizedFn(async () => {
     if (!recoverRecord?.uid) return
     setActionLoading(true)
     try {
@@ -443,25 +372,25 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       setRecoverOpen(false)
       setRecoverRecord(null)
       recoverForm.resetFields()
-      fetchData(pagination.current, pagination.pageSize)
+      refresh()
     } catch (e) {
       if (e && typeof e === 'object' && 'errorFields' in e) return
       console.error('恢复告警失败:', e)
     } finally {
       setActionLoading(false)
     }
-  }
+  })
 
-  const openSuppress = (record: AlertEventItem) => {
+  const openSuppress = useMemoizedFn((record: AlertEventItem) => {
     setSuppressRecord(record)
     suppressForm.setFieldsValue({
       suppressedReason: '',
       suppressUntil: dayjs().add(1, 'hour'),
     })
     setSuppressOpen(true)
-  }
+  })
 
-  const handleSuppressOk = async () => {
+  const handleSuppressOk = useMemoizedFn(async () => {
     if (!suppressRecord?.uid) return
     setActionLoading(true)
     try {
@@ -476,14 +405,14 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
       setSuppressOpen(false)
       setSuppressRecord(null)
       suppressForm.resetFields()
-      fetchData(pagination.current, pagination.pageSize)
+      refresh()
     } catch (e) {
       if (e && typeof e === 'object' && 'errorFields' in e) return
       console.error('抑制告警失败:', e)
     } finally {
       setActionLoading(false)
     }
-  }
+  })
 
   const renderInterveneInfo = (record: AlertEventItem) => {
     const intervenedByText = emptyPlaceholder(record.intervenedByName)
@@ -624,7 +553,8 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
               type='link'
               size='small'
               onClick={() => {
-                setDetailModalRecord(record)
+                if (!record.uid) return
+                setDetailModalUid(record.uid)
                 setDetailModalOpen(true)
               }}
             >
@@ -743,7 +673,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
             columns={columns}
             dataSource={dataSource}
             rowKey='uid'
-            loading={loading}
+            loading={tableLoading}
             size='small'
             rowSelection={{
               selectedRowKeys: selectedUids,
@@ -784,13 +714,10 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
 
       <RealtimeAlertDetailModal
         open={detailModalOpen}
-        alertPageUid={alertPageUid}
-        fallbackRecord={detailModalRecord}
-        listStartAtUnix={startAt ? String(startAt.unix()) : undefined}
-        listEndAtUnix={endAt ? String(endAt.unix()) : undefined}
+        uid={detailModalUid}
         onCancel={() => {
           setDetailModalOpen(false)
-          setDetailModalRecord(null)
+          setDetailModalUid(null)
         }}
       />
 
@@ -804,7 +731,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
           setInterveneMemberModalOpen(false)
           setInterveneTargetUids([])
           interveneMemberForm.resetFields()
-          setMemberOptions([])
+          mutateMemberOptions([])
         }}
         confirmLoading={interveneMemberSaving}
         okText={t('common.ok')}
@@ -827,14 +754,15 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
             ]}
           >
             <Select
-              showSearch
+              showSearch={{
+                filterOption: false,
+                onSearch: (value) => setMemberSearchKeyword(value),
+              }}
               allowClear
               placeholder={t(
                 'realtimeAlert.modal.interveneMember.form.memberUid.placeholder',
               )}
-              filterOption={false}
               loading={memberOptionsLoading}
-              onSearch={(value) => debouncedFetchInterveneMembers(value)}
               options={memberOptions
                 .filter((i) => Boolean(i.value))
                 .map((i) => ({

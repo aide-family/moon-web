@@ -41,11 +41,7 @@ const MachinesTab: React.FC<MachinesTabProps> = ({
   const { t } = useLocale()
   const [searchForm] = Form.useForm<ClusterMachineInfoListParams>()
   const { tableContainerRef, tableWrapperRef, tableHeight } =
-    useAdaptiveTableHeight([
-      clusterMachines,
-      machinePagination,
-      machineSearchParams,
-    ])
+    useAdaptiveTableHeight()
 
   const handleSearch = (override?: Partial<ClusterMachineInfoListParams>) => {
     const values = searchForm.getFieldsValue()

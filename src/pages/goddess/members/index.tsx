@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useMemoizedFn, useSafeState } from 'ahooks'
 import { useSearchParams } from 'react-router-dom'
 import {
   Table,
@@ -34,11 +35,24 @@ import { useLocale } from '@/contexts/LocaleContext'
 import PageContent from '@/components/layout/PageContent'
 import { MENU_DIVIDER } from '@/utils/menu'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
+import { usePaginatedRequest } from '@/utils/hooks/usePaginatedRequest'
+import { useDetailRequest } from '@/utils/hooks/useDetailRequest'
+import { useAdaptiveTableHeight } from '@/utils/hooks/useAdaptiveTableHeight'
 
 const defaultSearchParams: ListMembersParams = {
   keyword: '',
   email: '',
   status: undefined,
+}
+
+type MembersListQuery = Omit<ListMembersParams, 'page' | 'pageSize'>
+
+function toListQuery(params: ListMembersParams): MembersListQuery {
+  return {
+    keyword: params.keyword ?? '',
+    email: params.email ?? '',
+    status: params.status,
+  }
 }
 
 function parseSearchParamsFromUrl(params: URLSearchParams): ListMembersParams {
@@ -61,24 +75,34 @@ const MembersList: React.FC = () => {
   const { modal } = App.useApp()
   const { t } = useLocale()
   const [urlSearchParams, setUrlSearchParams] = useSearchParams()
-  const [loading, setLoading] = useState(false)
-  const [dataSource, setDataSource] = useState<MemberItem[]>([])
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 50,
-    total: 0,
-  })
   const [searchParams, setSearchParams] = useState<ListMembersParams>(() =>
     parseSearchParamsFromUrl(urlSearchParams),
   )
-  const [tableHeight, setTableHeight] = useState<number>(0)
-  const tableContainerRef = useRef<HTMLDivElement>(null)
-  const tableWrapperRef = useRef<HTMLDivElement>(null)
+  const { tableContainerRef, tableWrapperRef, tableHeight } =
+    useAdaptiveTableHeight()
   const [detailOpen, setDetailOpen] = useState(false)
-  const [viewingData, setViewingData] = useState<MemberItem | null>(null)
+  const [viewingUid, setViewingUid] = useState<string>()
   const [inviteOpen, setInviteOpen] = useState(false)
-  const [inviteSubmitting, setInviteSubmitting] = useState(false)
+  const [inviteSubmitting, setInviteSubmitting] = useSafeState(false)
   const [inviteForm] = Form.useForm<InviteMemberBody>()
+  const skipAutoSearchRef = useRef(true)
+
+  const list = usePaginatedRequest<MemberItem, MembersListQuery>({
+    service: ({ page, pageSize, keyword, email, status }) =>
+      listMembers({
+        page,
+        pageSize,
+        keyword: keyword || undefined,
+        email: email || undefined,
+        status,
+      }),
+    defaultQuery: toListQuery(parseSearchParamsFromUrl(urlSearchParams)),
+  })
+
+  const {
+    data: viewingData,
+    mutate: mutateDetail,
+  } = useDetailRequest(getMember, viewingUid, detailOpen)
 
   const getStatusInfo = (status?: string) => {
     const s = normalizeMemberStatus(status)
@@ -104,48 +128,6 @@ const MembersList: React.FC = () => {
     return { text: t(info.textKey), color: info.color }
   }
 
-  const fetchData = async (
-    page?: number,
-    pageSize?: number,
-    override?: Partial<ListMembersParams>,
-  ) => {
-    setLoading(true)
-    try {
-      const currentPage = page ?? pagination.current
-      const currentPageSize = pageSize ?? pagination.pageSize
-      const params: ListMembersParams = {
-        page: currentPage,
-        pageSize: currentPageSize,
-        keyword:
-          override?.keyword !== undefined
-            ? override.keyword || undefined
-            : searchParams.keyword || undefined,
-        email:
-          override?.email !== undefined
-            ? override.email || undefined
-            : searchParams.email || undefined,
-        status:
-          override?.status !== undefined
-            ? override.status
-            : searchParams.status,
-      }
-      const response = await listMembers(params)
-      if (response) {
-        setDataSource(response.items ?? [])
-        setPagination((prev) => ({
-          ...prev,
-          current: currentPage,
-          pageSize: currentPageSize,
-          total: parseInt(response.total ?? '0', 10),
-        }))
-      }
-    } catch (error) {
-      console.error('获取成员列表失败:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
     setSearchParams(parseSearchParamsFromUrl(urlSearchParams))
   }, [urlSearchParams])
@@ -167,35 +149,33 @@ const MembersList: React.FC = () => {
     setUrlSearchParams,
   ])
 
-  const handleSearch = (override?: Partial<ListMembersParams>) => {
+  const handleSearch = useMemoizedFn((override?: Partial<ListMembersParams>) => {
     if (override) {
       setSearchParams((prev) => ({ ...prev, ...override }))
     }
-    setPagination((prev) => ({ ...prev, current: 1 }))
-    fetchData(1, pagination.pageSize, override)
-  }
+    list.search(
+      toListQuery({
+        ...searchParams,
+        ...override,
+      }),
+    )
+  })
 
-  const handleReset = () => {
+  const handleReset = useMemoizedFn(() => {
     setSearchParams(defaultSearchParams)
     setUrlSearchParams({})
-    setPagination({ current: 1, pageSize: 50, total: 0 })
-    fetchData()
-  }
+    list.reset(toListQuery(defaultSearchParams))
+  })
 
-  const handleTableChange = (page: number, pageSize: number) => {
-    fetchData(page, pageSize)
-  }
+  const handleTableChange = useMemoizedFn((page: number, pageSize: number) => {
+    list.changePage(page, pageSize)
+  })
 
-  const handleViewDetail = async (record: MemberItem) => {
+  const handleViewDetail = useMemoizedFn((record: MemberItem) => {
     if (!record.uid) return
-    try {
-      const member = await getMember(record.uid)
-      setViewingData(member)
-      setDetailOpen(true)
-    } catch (error) {
-      console.error('获取成员详情失败:', error)
-    }
-  }
+    setViewingUid(record.uid)
+    setDetailOpen(true)
+  })
 
   const handleUpdateStatus = (record: MemberItem, newStatus: MemberStatus) => {
     if (!record.uid) return
@@ -218,9 +198,9 @@ const MembersList: React.FC = () => {
     try {
       await updateMemberStatus({ uid, status: newStatus })
       message.success(t('message.update.success'))
-      fetchData()
+      list.refresh()
       if (detailOpen && viewingData?.uid === uid) {
-        setViewingData((prev) => (prev ? { ...prev, status: newStatus } : null))
+        mutateDetail((prev) => (prev ? { ...prev, status: newStatus } : prev))
       }
     } catch (error) {
       console.error('更新状态失败:', error)
@@ -243,10 +223,10 @@ const MembersList: React.FC = () => {
     try {
       await dismissMember(uid)
       message.success(t('message.update.success'))
-      fetchData()
+      list.refresh()
       if (detailOpen && viewingData?.uid === uid) {
         setDetailOpen(false)
-        setViewingData(null)
+        setViewingUid(undefined)
       }
     } catch (error) {
       console.error('移除成员失败:', error)
@@ -261,7 +241,7 @@ const MembersList: React.FC = () => {
       message.success(t('message.create.success'))
       setInviteOpen(false)
       inviteForm.resetFields()
-      fetchData()
+      list.refresh()
     } catch (e) {
       if (e && typeof e === 'object' && 'errorFields' in e) return
       console.error('邀请失败:', e)
@@ -374,64 +354,13 @@ const MembersList: React.FC = () => {
   ]
 
   useEffect(() => {
-    fetchData()
+    if (skipAutoSearchRef.current) {
+      skipAutoSearchRef.current = false
+      return
+    }
+    list.search(toListQuery(searchParams))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.status])
-
-  useEffect(() => {
-    const updateTableHeight = () => {
-      if (tableContainerRef.current && tableWrapperRef.current) {
-        const containerHeight = tableContainerRef.current.clientHeight
-        const theadElement =
-          tableWrapperRef.current.querySelector('.ant-table-thead')
-        let theadHeight = 0
-        if (theadElement) {
-          const theadRect = theadElement.getBoundingClientRect()
-          const theadStyle = window.getComputedStyle(theadElement)
-          theadHeight =
-            theadRect.height + (parseFloat(theadStyle.marginBottom) || 0)
-        }
-        const paginationElement =
-          tableWrapperRef.current.querySelector('.ant-pagination')
-        let paginationHeight = 0
-        if (paginationElement) {
-          const rect = paginationElement.getBoundingClientRect()
-          const style = window.getComputedStyle(paginationElement)
-          paginationHeight =
-            rect.height +
-            (parseFloat(style.marginTop) || 0) +
-            (parseFloat(style.marginBottom) || 0)
-        }
-        const bodyEl = tableWrapperRef.current.querySelector('.ant-table-body')
-        let bodyPadding = 0
-        if (bodyEl) {
-          const s = window.getComputedStyle(bodyEl)
-          bodyPadding =
-            (parseFloat(s.paddingTop) || 0) + (parseFloat(s.paddingBottom) || 0)
-        }
-        setTableHeight(
-          Math.max(
-            containerHeight - theadHeight - paginationHeight - bodyPadding,
-            100,
-          ),
-        )
-      }
-    }
-    const timer = setTimeout(updateTableHeight, 100)
-    let resizeObserver: ResizeObserver | null = null
-    if (tableContainerRef.current) {
-      resizeObserver = new ResizeObserver(() =>
-        setTimeout(updateTableHeight, 0),
-      )
-      resizeObserver.observe(tableContainerRef.current)
-    }
-    window.addEventListener('resize', updateTableHeight)
-    return () => {
-      clearTimeout(timer)
-      resizeObserver?.disconnect()
-      window.removeEventListener('resize', updateTableHeight)
-    }
-  }, [dataSource, pagination])
 
   return (
     <div className='h-full flex flex-col'>
@@ -497,15 +426,15 @@ const MembersList: React.FC = () => {
         <div ref={tableWrapperRef} className='h-full flex flex-col flex-1'>
           <Table
             columns={columns}
-            dataSource={dataSource}
+            dataSource={list.dataSource}
             rowKey='uid'
-            loading={loading}
+            loading={list.loading}
             size='small'
             scroll={{ y: tableHeight }}
             pagination={{
-              current: pagination.current,
-              pageSize: pagination.pageSize,
-              total: pagination.total,
+              current: list.pagination.current,
+              pageSize: list.pagination.pageSize,
+              total: list.pagination.total,
               showSizeChanger: true,
               showTotal: (total) => t('table.total', { total }),
               onChange: handleTableChange,
@@ -517,7 +446,10 @@ const MembersList: React.FC = () => {
       <MemberDetailView
         open={detailOpen}
         data={viewingData}
-        onCancel={() => setDetailOpen(false)}
+        onCancel={() => {
+          setDetailOpen(false)
+          setViewingUid(undefined)
+        }}
       />
       <Modal
         title={t('member.modal.invite.title')}

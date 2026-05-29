@@ -1,0 +1,95 @@
+---
+description: Ant Design v6 组件库用法与 API 规范（基于官方 LLM 文档）
+globs: src/**/*.{tsx,ts}
+alwaysApply: false
+---
+
+# Ant Design v6 组件库规范
+
+编写 Ant Design 代码时，以官方文档为准：**https://ant.design/llms-full.txt**（完整组件 API）与 **https://ant.design/components/overview-cn/**（组件总览）。本项目使用 `antd@^6`，仅使用 v6 推荐 API，禁止已废弃写法。
+
+## 全局与上下文
+
+- 根节点：`ConfigProvider` 包裹 `App`，`App.useApp()` 须在 `<App>` 子树内调用。
+- 静态方法：优先 `const { message, modal, notification } = App.useApp()`，避免直接 `message.success()` / `Modal.confirm()`（上下文与主题可能不一致）。
+- 图标：从 `@ant-design/icons` 按需引入；`antd` 内置 `Icon` 组件已在 v6 移除。
+- 类型工具：`GetRef`、`GetProps`、`GetProp` 用于提取组件 ref/props 类型。
+
+```tsx
+import type { GetProps } from 'antd'
+type SelectOption = GetProp<typeof Select, 'options'>[number]
+```
+
+## v6 已移除 / 禁止使用的 API
+
+| 废弃 | 替代 |
+|------|------|
+| `visible` / `onVisibleChange` | `open` / `onOpenChange` |
+| `destroyOnClose` / `destroyPopupOnHide` | `destroyOnHidden` |
+| `bodyStyle` / `headStyle` / `overlayStyle` / `overlayClassName` | `styles.*` / `classNames.*`（语义化 DOM） |
+| `dropdownRender` / `dropdownClassName` | `popupRender` / `classNames.popup.root` |
+| `List`、`BackTop`、`Dropdown.Button`、`antd/Icon` | 不用或改用 `Flex`/`Space`、`FloatButton`、`Space.Compact` |
+| `Notification.message` | `title` |
+| `Tabs.tabPosition` | `tabPlacement`（`start`/`end` 逻辑位置） |
+| `Table` 列 `fixed: 'left'/'right'` | `fixed: 'start'/'end'` |
+| `pagination.position` | `pagination.placement` |
+| `Space.direction` / `split` | `orientation` / `separator` |
+| `Divider.type` | `orientation`（`vertical` 语法糖） |
+| `Collapse.expandIconPosition` | `expandIconPlacement` |
+| `Steps.labelPlacement` | `titlePlacement` |
+| `Table` `rowKey` 函数第二参数 index | 仅用 `record` 的稳定字段 |
+
+## 常用组件要点
+
+### Modal / Drawer
+
+- 受控：`open` + `onCancel`；提交用 `confirmLoading`。
+- 关闭时回收本地 state；详情弹窗可用 `footer={null}`。
+- 样式：`styles={{ body: {...} }}`，不用 `bodyStyle`。
+
+### Form
+
+- `const [form] = Form.useForm()`；提交 `form.validateFields()`。
+- 校验失败（`errorFields`）直接 return；其它异常记录并提示。
+- 动态字段：`Form.useWatch`（v6 支持动态 name path）；联动用 `shouldUpdate` 或 `dependencies`。
+- Checkbox/Switch 绑定：`valuePropName="checked"`。
+
+### Table
+
+- 必须设 `rowKey`（业务稳定字段，如 `uid`）；列类型 `ColumnsType<RowType>`。
+- 分页受控：`pagination={{ current, pageSize, total }}` + `onChange`。
+- 列渲染处理 `undefined`（`emptyPlaceholder` 或 `'-'`）。
+
+### Dropdown / Select / Cascader
+
+- `Dropdown`：`menu={{ items }}`，`items` 类型 `MenuProps['items']`；危险项 `danger: true`。
+- 弹出层：`open` / `destroyOnHidden` / `popupRender`。
+
+### Message / Notification
+
+- 通过 `App.useApp()` 调用；Notification 用 `title` + `description`。
+
+### 其它
+
+- `DatePicker`/`TimePicker`：值用 `dayjs`（项目已配置）。
+- `Upload`：`fileList` 受控 + `onChange` 更新列表。
+- `Popconfirm`/`Tooltip`：危险操作二次确认；`Tooltip` 包裹 disabled 子元素时用 `<span>` 包裹。
+
+## 样式定制（v6 语义化）
+
+优先 `classNames` / `styles` 按语义 DOM 定制，可在 `ConfigProvider` 全局配置：
+
+```tsx
+<Modal
+  classNames={{ header: 'my-header' }}
+  styles={{ body: { padding: 16 } }}
+/>
+```
+
+v6 默认启用 CSS 变量主题；逻辑位置属性（`start`/`end`）优于物理 `left`/`right`，利于 RTL。
+
+## 编写原则
+
+1. 不确定 API 时查 **https://ant.design/llms-full.txt**，不凭记忆臆造 props。
+2. 控制台出现 deprecation 警告必须按提示替换。
+3. 页面级业务约定（i18n、请求封装等）见 `moon-web-pages-conventions.mdc`，本规则专注 Ant Design 组件本身。

@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useMemoizedFn, useRequest } from 'ahooks'
 import {
   App,
   Button,
@@ -36,6 +37,13 @@ import { getEmailConfigSelectList } from '@/api/rabbit/email'
 import { getTemplateSelectList } from '@/api/rabbit/template'
 import { selectMembers } from '@/api/account/member'
 import { MemberStatus } from '@/api/account/member'
+import { usePaginatedRequest } from '@/utils/hooks/usePaginatedRequest'
+import { useDetailRequest } from '@/utils/hooks/useDetailRequest'
+
+type AlertSubscriptionListQuery = Omit<
+  ListAlertSubscriptionsParams,
+  'page' | 'pageSize'
+>
 
 const { Text } = Typography
 
@@ -46,7 +54,7 @@ interface SelectOption {
   tooltip?: string
 }
 
-const defaultSearchParams: ListAlertSubscriptionsParams = {
+const defaultSearchParams: AlertSubscriptionListQuery = {
   keyword: '',
   status: undefined,
 }
@@ -72,27 +80,38 @@ function AlertSubscriptionsContent() {
   const { modal, message } = App.useApp()
   const { t } = useLocale()
 
-  const [loading, setLoading] = useState(false)
-  const [dataSource, setDataSource] = useState<AlertSubscriptionItem[]>([])
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 50,
-    total: 0,
-  })
   const [searchParams, setSearchParams] =
-    useState<ListAlertSubscriptionsParams>(defaultSearchParams)
+    useState<AlertSubscriptionListQuery>(defaultSearchParams)
+  const list = usePaginatedRequest<
+    AlertSubscriptionItem,
+    AlertSubscriptionListQuery
+  >({
+    service: (params) =>
+      getAlertSubscriptionList({
+        ...params,
+        keyword: params.keyword || undefined,
+      }),
+    defaultQuery: defaultSearchParams,
+  })
+  const { dataSource, loading, pagination, refresh, search, reset, changePage } =
+    list
 
   const [detailOpen, setDetailOpen] = useState(false)
-  const [detailLoading, setDetailLoading] = useState(false)
-  const [detailData, setDetailData] = useState<AlertSubscriptionItem | null>(
-    null,
-  )
+  const [detailUid, setDetailUid] = useState<string>()
+  const {
+    data: detailData,
+    loading: detailLoading,
+    mutate: mutateDetailData,
+  } = useDetailRequest(getAlertSubscriptionDetail, detailUid, detailOpen)
 
   const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create')
-  const [formLoading, setFormLoading] = useState(false)
   const [editingData, setEditingData] = useState<AlertSubscriptionItem | null>(
     null,
+  )
+  const { runAsync: fetchEditDetail, loading: formLoading } = useRequest(
+    (uid: string) => getAlertSubscriptionDetail(uid),
+    { manual: true },
   )
 
   const [recipientGroupOptions, setRecipientGroupOptions] = useState<
@@ -101,8 +120,6 @@ function AlertSubscriptionsContent() {
   const [memberOptions, setMemberOptions] = useState<SelectOption[]>([])
   const [emailOptions, setEmailOptions] = useState<SelectOption[]>([])
   const [templateOptions, setTemplateOptions] = useState<SelectOption[]>([])
-  const paginationRef = useRef(pagination)
-  paginationRef.current = pagination
 
   const groupLabelMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -116,7 +133,7 @@ function AlertSubscriptionsContent() {
     return map
   }, [memberOptions])
 
-  const loadOptions = useCallback(async () => {
+  const loadOptions = useMemoizedFn(async () => {
     const [groupRes, memberRes, emailRes, templateRes] = await Promise.all([
       getRecipientGroupSelectList({
         limit: 100,
@@ -133,107 +150,58 @@ function AlertSubscriptionsContent() {
     setMemberOptions(toSelectOptions(memberRes.items))
     setEmailOptions(toSelectOptions(emailRes.items))
     setTemplateOptions(toSelectOptions(templateRes.items))
-  }, [])
-
-  const fetchData = useCallback(
-    async (
-      page?: number,
-      pageSize?: number,
-      override?: Partial<ListAlertSubscriptionsParams>,
-    ) => {
-      setLoading(true)
-      try {
-        const currentPagination = paginationRef.current
-        const currentPage = page ?? currentPagination.current
-        const currentPageSize = pageSize ?? currentPagination.pageSize
-        const effective = override
-          ? { ...searchParams, ...override }
-          : searchParams
-        const response = await getAlertSubscriptionList({
-          page: currentPage,
-          pageSize: currentPageSize,
-          keyword: effective.keyword || undefined,
-          status: effective.status,
-        })
-        setDataSource(response.items ?? [])
-        setPagination((prev) => ({
-          ...prev,
-          current: currentPage,
-          pageSize: currentPageSize,
-          total: parseInt(String(response.total ?? 0), 10),
-        }))
-      } catch (error) {
-        console.error('获取告警订阅列表失败:', error)
-        setDataSource([])
-      } finally {
-        setLoading(false)
-      }
-    },
-    [searchParams],
-  )
-
-  useEffect(() => {
-    void fetchData(1, pagination.pageSize)
-  }, [fetchData, pagination.pageSize])
+  })
 
   const openCreateModal = () => {
     setFormMode('create')
     setEditingData(null)
-    setFormLoading(false)
     setDetailFormOpen(true)
   }
 
-  const openEditModal = async (record: AlertSubscriptionItem) => {
+  const openEditModal = useMemoizedFn(async (record: AlertSubscriptionItem) => {
     if (!record.uid) return
     setFormMode('edit')
     setEditingData(null)
-    setFormLoading(true)
     setDetailFormOpen(true)
     try {
-      const detail = await getAlertSubscriptionDetail(record.uid)
+      const detail = await fetchEditDetail(record.uid)
       setEditingData(detail)
     } catch (error) {
       console.error('获取告警订阅详情失败:', error)
       setDetailFormOpen(false)
-    } finally {
-      setFormLoading(false)
     }
-  }
+  })
 
-  const openDetailModal = async (record: AlertSubscriptionItem) => {
+  const openDetailModal = useMemoizedFn((record: AlertSubscriptionItem) => {
     if (!record.uid) return
+    setDetailUid(record.uid)
     setDetailOpen(true)
-    setDetailLoading(true)
-    setDetailData(null)
-    try {
-      await loadOptions()
-      const detail = await getAlertSubscriptionDetail(record.uid)
-      setDetailData(detail)
-    } catch (error) {
-      console.error('获取告警订阅详情失败:', error)
-      setDetailOpen(false)
-    } finally {
-      setDetailLoading(false)
-    }
-  }
+    void loadOptions()
+  })
 
-  const handleSearch = (override?: Partial<ListAlertSubscriptionsParams>) => {
-    if (override) {
-      setSearchParams((prev) => ({ ...prev, ...override }))
-    }
-    void fetchData(1, pagination.pageSize, override)
-  }
+  const handleSearch = useMemoizedFn(
+    (override?: Partial<AlertSubscriptionListQuery>) => {
+      if (override) {
+        setSearchParams((prev) => ({ ...prev, ...override }))
+      }
+      const next = { ...searchParams, ...override }
+      search({
+        keyword: next.keyword || undefined,
+        status: next.status,
+      })
+    },
+  )
 
-  const handleReset = () => {
+  const handleReset = useMemoizedFn(() => {
     setSearchParams(defaultSearchParams)
-    void fetchData(1, pagination.pageSize, defaultSearchParams)
-  }
+    reset(defaultSearchParams)
+  })
 
   const handleDelete = async (record: AlertSubscriptionItem) => {
     if (!record.uid) return
     await deleteAlertSubscription(record.uid)
     message.success(t('message.delete.success'))
-    void fetchData()
+    refresh()
   }
 
   const handleStatusChange = async (
@@ -243,9 +211,9 @@ function AlertSubscriptionsContent() {
     if (!record.uid) return
     await updateAlertSubscriptionStatus({ uid: record.uid, status })
     message.success(t('message.update.success'))
-    void fetchData()
+    refresh()
     if (detailData?.uid === record.uid) {
-      setDetailData((prev) => (prev ? { ...prev, status } : prev))
+      mutateDetailData((prev) => (prev ? { ...prev, status } : prev))
     }
   }
 
@@ -410,7 +378,7 @@ function AlertSubscriptionsContent() {
         ]
         return (
           <Space size='small'>
-            <Button type='link' onClick={() => void openDetailModal(record)}>
+            <Button type='link' onClick={() => openDetailModal(record)}>
               {t('common.detail')}
             </Button>
             <Dropdown menu={{ items: menuItems }} trigger={['click']}>
@@ -425,71 +393,69 @@ function AlertSubscriptionsContent() {
   return (
     <>
       <div className='flex flex-col gap-4 h-full'>
-          <div className='flex items-center justify-between gap-3'>
-            <Space wrap>
-              <Input
-                value={searchParams.keyword}
-                placeholder={t('table.search.placeholder')}
-                allowClear
-                style={{ width: 240 }}
-                onChange={(e) =>
-                  setSearchParams((prev) => ({
-                    ...prev,
-                    keyword: e.target.value,
-                  }))
-                }
-                onPressEnter={() =>
-                  handleSearch({ keyword: searchParams.keyword ?? '' })
-                }
-              />
-              <Radio.Group
-                value={searchParams.status}
-                onChange={(e) => handleSearch({ status: e.target.value })}
-                optionType='button'
-                buttonStyle='solid'
-              >
-                <Radio.Button value={undefined}>
-                  {t('table.search.all')}
-                </Radio.Button>
-                <Radio.Button value={GlobalStatus.ENABLED}>
-                  {t(`common.status.${GlobalStatus.ENABLED}`)}
-                </Radio.Button>
-                <Radio.Button value={GlobalStatus.DISABLED}>
-                  {t(`common.status.${GlobalStatus.DISABLED}`)}
-                </Radio.Button>
-              </Radio.Group>
-              <Button
-                type='primary'
-                onClick={() =>
-                  handleSearch({ keyword: searchParams.keyword ?? '' })
-                }
-              >
-                {t('common.search')}
-              </Button>
-              <Button onClick={handleReset}>{t('common.reset')}</Button>
-            </Space>
-            <Button type='primary' onClick={openCreateModal}>
-              {t('common.add')}
+        <div className='flex items-center justify-between gap-3'>
+          <Space wrap>
+            <Input
+              value={searchParams.keyword}
+              placeholder={t('table.search.placeholder')}
+              allowClear
+              style={{ width: 240 }}
+              onChange={(e) =>
+                setSearchParams((prev) => ({
+                  ...prev,
+                  keyword: e.target.value,
+                }))
+              }
+              onPressEnter={() =>
+                handleSearch({ keyword: searchParams.keyword ?? '' })
+              }
+            />
+            <Radio.Group
+              value={searchParams.status}
+              onChange={(e) => handleSearch({ status: e.target.value })}
+              optionType='button'
+              buttonStyle='solid'
+            >
+              <Radio.Button value={undefined}>
+                {t('table.search.all')}
+              </Radio.Button>
+              <Radio.Button value={GlobalStatus.ENABLED}>
+                {t(`common.status.${GlobalStatus.ENABLED}`)}
+              </Radio.Button>
+              <Radio.Button value={GlobalStatus.DISABLED}>
+                {t(`common.status.${GlobalStatus.DISABLED}`)}
+              </Radio.Button>
+            </Radio.Group>
+            <Button
+              type='primary'
+              onClick={() =>
+                handleSearch({ keyword: searchParams.keyword ?? '' })
+              }
+            >
+              {t('common.search')}
             </Button>
-          </div>
-
-          <Table<AlertSubscriptionItem>
-            rowKey='uid'
-            loading={loading}
-            columns={columns}
-            dataSource={dataSource}
-            scroll={{ x: 1480 }}
-            pagination={{
-              current: pagination.current,
-              pageSize: pagination.pageSize,
-              total: pagination.total,
-              showSizeChanger: true,
-            }}
-            onChange={(page) =>
-              void fetchData(page.current, page.pageSize, searchParams)
-            }
-          />
+            <Button onClick={handleReset}>{t('common.reset')}</Button>
+          </Space>
+          <Button type='primary' onClick={openCreateModal}>
+            {t('common.add')}
+          </Button>
         </div>
+
+        <Table<AlertSubscriptionItem>
+          rowKey='uid'
+          loading={loading}
+          columns={columns}
+          dataSource={dataSource}
+          scroll={{ x: 1480 }}
+          pagination={{
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: pagination.total,
+            showSizeChanger: true,
+          }}
+          onChange={(page) => changePage(page.current!, page.pageSize!)}
+        />
+      </div>
 
       <AlertSubscriptionDetailForm
         open={detailFormOpen}
@@ -500,175 +466,167 @@ function AlertSubscriptionsContent() {
           setDetailFormOpen(false)
           setEditingData(null)
         }}
-        onSuccess={() => void fetchData()}
+        onSuccess={() => refresh()}
       />
 
       <Modal
-          title={t('alertSubscription.modal.detail.title')}
-          open={detailOpen}
-          onCancel={() => {
-            setDetailOpen(false)
-            setDetailData(null)
-          }}
-          footer={
-            <Button onClick={() => setDetailOpen(false)}>
-              {t('common.close')}
-            </Button>
-          }
-          width={900}
-          destroyOnHidden
-        >
-          {detailLoading ? null : detailData ? (
-            <Descriptions
-              column={1}
-              bordered
-              size='small'
-              styles={{ label: { width: 220, minWidth: 220 } }}
+        title={t('alertSubscription.modal.detail.title')}
+        open={detailOpen}
+        onCancel={() => {
+          setDetailOpen(false)
+          setDetailUid(undefined)
+        }}
+        footer={
+          <Button onClick={() => setDetailOpen(false)}>
+            {t('common.close')}
+          </Button>
+        }
+        width={900}
+        destroyOnHidden
+      >
+        {detailLoading ? null : detailData ? (
+          <Descriptions
+            column={1}
+            bordered
+            size='small'
+            styles={{ label: { width: 220, minWidth: 220 } }}
+          >
+            <Descriptions.Item label={t('alertSubscription.detail.uid')}>
+              <Space>
+                <span>{emptyPlaceholder(detailData.uid)}</span>
+                <CopyButton copyValue={detailData.uid} />
+              </Space>
+            </Descriptions.Item>
+            <Descriptions.Item label={t('alertSubscription.detail.name')}>
+              {emptyPlaceholder(detailData.name)}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('alertSubscription.detail.status')}>
+              {renderStatusTag(detailData.status ?? GlobalStatus.UNKNOWN, t)}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('alertSubscription.detail.remark')}>
+              {emptyPlaceholder(detailData.remark)}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('alertSubscription.detail.labels')}>
+              {detailData.labels &&
+              Object.keys(detailData.labels).length > 0 ? (
+                <div className='flex flex-col gap-2'>
+                  <Space wrap size={[4, 4]}>
+                    {Object.entries(detailData.labels).map(([key, value]) => (
+                      <Tag key={key}>{`${key}=${value}`}</Tag>
+                    ))}
+                  </Space>
+                  <CopyButton
+                    copyValue={formatRecordJson(detailData.labels)}
+                    className='self-start'
+                  />
+                </div>
+              ) : (
+                '-'
+              )}
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={t('alertSubscription.detail.excludeLabels')}
             >
-              <Descriptions.Item label={t('alertSubscription.detail.uid')}>
-                <Space>
-                  <span>{emptyPlaceholder(detailData.uid)}</span>
-                  <CopyButton copyValue={detailData.uid} />
-                </Space>
-              </Descriptions.Item>
-              <Descriptions.Item label={t('alertSubscription.detail.name')}>
-                {emptyPlaceholder(detailData.name)}
-              </Descriptions.Item>
-              <Descriptions.Item label={t('alertSubscription.detail.status')}>
-                {renderStatusTag(detailData.status ?? GlobalStatus.UNKNOWN, t)}
-              </Descriptions.Item>
-              <Descriptions.Item label={t('alertSubscription.detail.remark')}>
-                {emptyPlaceholder(detailData.remark)}
-              </Descriptions.Item>
-              <Descriptions.Item label={t('alertSubscription.detail.labels')}>
-                {detailData.labels &&
-                Object.keys(detailData.labels).length > 0 ? (
-                  <div className='flex flex-col gap-2'>
-                    <Space wrap size={[4, 4]}>
-                      {Object.entries(detailData.labels).map(([key, value]) => (
-                        <Tag key={key}>{`${key}=${value}`}</Tag>
-                      ))}
-                    </Space>
-                    <CopyButton
-                      copyValue={formatRecordJson(detailData.labels)}
-                      className='self-start'
-                    />
-                  </div>
-                ) : (
-                  '-'
-                )}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={t('alertSubscription.detail.excludeLabels')}
-              >
-                {detailData.excludeLabels &&
-                Object.keys(detailData.excludeLabels).length > 0 ? (
-                  <div className='flex flex-col gap-2'>
-                    <Space wrap size={[4, 4]}>
-                      {Object.entries(detailData.excludeLabels).map(
-                        ([key, value]) => (
-                          <Tag
-                            key={key}
-                            color='orange'
-                          >{`${key}=${value}`}</Tag>
-                        ),
-                      )}
-                    </Space>
-                    <CopyButton
-                      copyValue={formatRecordJson(detailData.excludeLabels)}
-                      className='self-start'
-                    />
-                  </div>
-                ) : (
-                  '-'
-                )}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={t('alertSubscription.detail.recipientGroups')}
-              >
-                <Space wrap>
-                  {(detailData.recipientGroupUids ?? []).length > 0
-                    ? detailData.recipientGroupUids?.map((uid) => (
-                        <Tag key={uid}>{groupLabelMap.get(uid) ?? uid}</Tag>
-                      ))
-                    : '-'}
-                </Space>
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={t('alertSubscription.detail.directEmailConfig')}
-              >
-                {detailData.directMemberEmailConfigUid
-                  ? emailOptions.find(
-                      (item) =>
-                        item.value === detailData.directMemberEmailConfigUid,
-                    )?.label || detailData.directMemberEmailConfigUid
+              {detailData.excludeLabels &&
+              Object.keys(detailData.excludeLabels).length > 0 ? (
+                <div className='flex flex-col gap-2'>
+                  <Space wrap size={[4, 4]}>
+                    {Object.entries(detailData.excludeLabels).map(
+                      ([key, value]) => (
+                        <Tag key={key} color='orange'>{`${key}=${value}`}</Tag>
+                      ),
+                    )}
+                  </Space>
+                  <CopyButton
+                    copyValue={formatRecordJson(detailData.excludeLabels)}
+                    className='self-start'
+                  />
+                </div>
+              ) : (
+                '-'
+              )}
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={t('alertSubscription.detail.recipientGroups')}
+            >
+              <Space wrap>
+                {(detailData.recipientGroupUids ?? []).length > 0
+                  ? detailData.recipientGroupUids?.map((uid) => (
+                      <Tag key={uid}>{groupLabelMap.get(uid) ?? uid}</Tag>
+                    ))
                   : '-'}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={t('alertSubscription.detail.directTemplate')}
-              >
-                {detailData.directMemberTemplateUid
-                  ? templateOptions.find(
-                      (item) =>
-                        item.value === detailData.directMemberTemplateUid,
-                    )?.label || detailData.directMemberTemplateUid
-                  : '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label={t('alertSubscription.detail.members')}>
-                {(detailData.members ?? []).length > 0 ? (
-                  <div className='flex flex-col gap-2'>
-                    {detailData.members?.map((member) => {
-                      const channels = [
-                        member.isEmail
-                          ? t('alertSubscription.form.channel.email')
-                          : null,
-                        member.isSms
-                          ? t('alertSubscription.form.channel.sms')
-                          : null,
-                        member.isPhone
-                          ? t('alertSubscription.form.channel.phone')
-                          : null,
-                      ].filter(Boolean)
-                      const displayName =
-                        member.memberName ||
-                        memberLabelMap.get(member.memberUid ?? '') ||
-                        member.memberUid ||
-                        '-'
-                      return (
-                        <div key={`${member.memberUid}-${channels.join('-')}`}>
-                          <Space wrap>
-                            <span>{displayName}</span>
-                            {channels.map((channel) => (
-                              <Tag key={channel}>{channel}</Tag>
-                            ))}
-                          </Space>
-                        </div>
-                      )
-                    })}
-                  </div>
-                ) : (
-                  '-'
-                )}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={t('alertSubscription.detail.createdAt')}
-              >
-                {detailData.createdAt
-                  ? dayjs(detailData.createdAt).format('YYYY-MM-DD HH:mm:ss')
-                  : '-'}
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={t('alertSubscription.detail.updatedAt')}
-              >
-                {detailData.updatedAt
-                  ? dayjs(detailData.updatedAt).format('YYYY-MM-DD HH:mm:ss')
-                  : '-'}
-              </Descriptions.Item>
-            </Descriptions>
-          ) : (
-            <Text>{t('common.noData')}</Text>
-          )}
-        </Modal>
+              </Space>
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={t('alertSubscription.detail.directEmailConfig')}
+            >
+              {detailData.directMemberEmailConfigUid
+                ? emailOptions.find(
+                    (item) =>
+                      item.value === detailData.directMemberEmailConfigUid,
+                  )?.label || detailData.directMemberEmailConfigUid
+                : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={t('alertSubscription.detail.directTemplate')}
+            >
+              {detailData.directMemberTemplateUid
+                ? templateOptions.find(
+                    (item) => item.value === detailData.directMemberTemplateUid,
+                  )?.label || detailData.directMemberTemplateUid
+                : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('alertSubscription.detail.members')}>
+              {(detailData.members ?? []).length > 0 ? (
+                <div className='flex flex-col gap-2'>
+                  {detailData.members?.map((member) => {
+                    const channels = [
+                      member.isEmail
+                        ? t('alertSubscription.form.channel.email')
+                        : null,
+                      member.isSms
+                        ? t('alertSubscription.form.channel.sms')
+                        : null,
+                      member.isPhone
+                        ? t('alertSubscription.form.channel.phone')
+                        : null,
+                    ].filter(Boolean)
+                    const displayName =
+                      member.memberName ||
+                      memberLabelMap.get(member.memberUid ?? '') ||
+                      member.memberUid ||
+                      '-'
+                    return (
+                      <div key={`${member.memberUid}-${channels.join('-')}`}>
+                        <Space wrap>
+                          <span>{displayName}</span>
+                          {channels.map((channel) => (
+                            <Tag key={channel}>{channel}</Tag>
+                          ))}
+                        </Space>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                '-'
+              )}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('alertSubscription.detail.createdAt')}>
+              {detailData.createdAt
+                ? dayjs(detailData.createdAt).format('YYYY-MM-DD HH:mm:ss')
+                : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('alertSubscription.detail.updatedAt')}>
+              {detailData.updatedAt
+                ? dayjs(detailData.updatedAt).format('YYYY-MM-DD HH:mm:ss')
+                : '-'}
+            </Descriptions.Item>
+          </Descriptions>
+        ) : (
+          <Text>{t('common.noData')}</Text>
+        )}
+      </Modal>
     </>
   )
 }

@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useState } from 'react'
+import { useMemoizedFn, useRequest } from 'ahooks'
 import {
   App,
   Button,
@@ -31,182 +32,107 @@ import {
   type RecipientGroupItem,
   type RecipientGroupListParams,
 } from '@/api/rabbit/recipient-group'
-import { selectMembers } from '@/api/account/member'
-import { MemberStatus } from '@/api/account/member'
+import { usePaginatedRequest } from '@/utils/hooks/usePaginatedRequest'
+import { useDetailRequest } from '@/utils/hooks/useDetailRequest'
+
+type RecipientGroupListQuery = Omit<
+  RecipientGroupListParams,
+  'page' | 'pageSize'
+>
 
 const { Text } = Typography
 
-interface SelectOption {
-  value: string
-  label: string
-  disabled?: boolean
-  tooltip?: string
-}
-
-const defaultSearchParams: RecipientGroupListParams = {
+const defaultSearchParams: RecipientGroupListQuery = {
   keyword: '',
   status: undefined,
 }
-
-const toSelectOptions = (
-  items?: Array<{
-    value?: string
-    label?: string
-    disabled?: boolean
-    tooltip?: string
-  }>,
-): SelectOption[] =>
-  (items ?? [])
-    .filter((item) => Boolean(item.value))
-    .map((item) => ({
-      value: item.value!,
-      label: item.label ?? item.value!,
-      disabled: item.disabled,
-      tooltip: item.tooltip,
-    }))
 
 function RecipientGroupsContent() {
   const { modal, message } = App.useApp()
   const { t } = useLocale()
 
-  const [loading, setLoading] = useState(false)
-  const [dataSource, setDataSource] = useState<RecipientGroupItem[]>([])
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 50,
-    total: 0,
-  })
   const [searchParams, setSearchParams] =
-    useState<RecipientGroupListParams>(defaultSearchParams)
+    useState<RecipientGroupListQuery>(defaultSearchParams)
+  const list = usePaginatedRequest<RecipientGroupItem, RecipientGroupListQuery>(
+    {
+      service: (params) =>
+        getRecipientGroupList({
+          ...params,
+          keyword: params.keyword || undefined,
+        }),
+      defaultQuery: defaultSearchParams,
+    },
+  )
+  const { dataSource, loading, pagination, refresh, search, reset, changePage } =
+    list
 
   const [detailOpen, setDetailOpen] = useState(false)
-  const [detailLoading, setDetailLoading] = useState(false)
-  const [detailData, setDetailData] = useState<RecipientGroupItem | null>(null)
+  const [detailUid, setDetailUid] = useState<string>()
+  const {
+    data: detailData,
+    loading: detailLoading,
+    mutate: mutateDetailData,
+  } = useDetailRequest(getRecipientGroupDetail, detailUid, detailOpen)
 
   const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create')
-  const [formLoading, setFormLoading] = useState(false)
   const [editingData, setEditingData] = useState<RecipientGroupItem | null>(
     null,
   )
-
-  const [memberOptions, setMemberOptions] = useState<SelectOption[]>([])
-  const paginationRef = useRef(pagination)
-  paginationRef.current = pagination
-
-  const memberLabelMap = useMemo(() => {
-    const map = new Map<string, string>()
-    memberOptions.forEach((item) => map.set(item.value, item.label))
-    return map
-  }, [memberOptions])
-
-  const loadMemberOptions = useCallback(async () => {
-    const memberRes = await selectMembers({
-      limit: 100,
-      status: MemberStatus.JOINED,
-    })
-    setMemberOptions(toSelectOptions(memberRes.items))
-  }, [])
-
-  const fetchData = useCallback(
-    async (
-      page?: number,
-      pageSize?: number,
-      override?: Partial<RecipientGroupListParams>,
-    ) => {
-      setLoading(true)
-      try {
-        const currentPagination = paginationRef.current
-        const currentPage = page ?? currentPagination.current
-        const currentPageSize = pageSize ?? currentPagination.pageSize
-        const effective = override
-          ? { ...searchParams, ...override }
-          : searchParams
-        const response = await getRecipientGroupList({
-          page: currentPage,
-          pageSize: currentPageSize,
-          keyword: effective.keyword || undefined,
-          status: effective.status,
-        })
-        setDataSource(response.items ?? [])
-        setPagination((prev) => ({
-          ...prev,
-          current: currentPage,
-          pageSize: currentPageSize,
-          total: parseInt(String(response.total ?? 0), 10),
-        }))
-      } catch (error) {
-        console.error('获取收件人组列表失败:', error)
-        setDataSource([])
-      } finally {
-        setLoading(false)
-      }
-    },
-    [searchParams],
+  const { runAsync: fetchEditDetail, loading: formLoading } = useRequest(
+    (uid: string) => getRecipientGroupDetail(uid),
+    { manual: true },
   )
-
-  useEffect(() => {
-    void fetchData(1, pagination.pageSize)
-  }, [fetchData, pagination.pageSize])
 
   const openCreateModal = () => {
     setFormMode('create')
     setEditingData(null)
-    setFormLoading(false)
     setDetailFormOpen(true)
   }
 
-  const openEditModal = async (record: RecipientGroupItem) => {
+  const openEditModal = useMemoizedFn(async (record: RecipientGroupItem) => {
     if (!record.uid) return
     setFormMode('edit')
     setEditingData(null)
-    setFormLoading(true)
     setDetailFormOpen(true)
     try {
-      const detail = await getRecipientGroupDetail(record.uid)
+      const detail = await fetchEditDetail(record.uid)
       setEditingData(detail)
     } catch (error) {
       console.error('获取收件人组详情失败:', error)
       setDetailFormOpen(false)
-    } finally {
-      setFormLoading(false)
     }
-  }
+  })
 
-  const openDetailModal = async (record: RecipientGroupItem) => {
+  const openDetailModal = useMemoizedFn((record: RecipientGroupItem) => {
     if (!record.uid) return
+    setDetailUid(record.uid)
     setDetailOpen(true)
-    setDetailLoading(true)
-    setDetailData(null)
-    try {
-      await loadMemberOptions()
-      const detail = await getRecipientGroupDetail(record.uid)
-      setDetailData(detail)
-    } catch (error) {
-      console.error('获取收件人组详情失败:', error)
-      setDetailOpen(false)
-    } finally {
-      setDetailLoading(false)
-    }
-  }
+  })
 
-  const handleSearch = (override?: Partial<RecipientGroupListParams>) => {
-    if (override) {
-      setSearchParams((prev) => ({ ...prev, ...override }))
-    }
-    void fetchData(1, pagination.pageSize, override)
-  }
+  const handleSearch = useMemoizedFn(
+    (override?: Partial<RecipientGroupListQuery>) => {
+      if (override) {
+        setSearchParams((prev) => ({ ...prev, ...override }))
+      }
+      const next = { ...searchParams, ...override }
+      search({
+        keyword: next.keyword || undefined,
+        status: next.status,
+      })
+    },
+  )
 
-  const handleReset = () => {
+  const handleReset = useMemoizedFn(() => {
     setSearchParams(defaultSearchParams)
-    void fetchData(1, pagination.pageSize, defaultSearchParams)
-  }
+    reset(defaultSearchParams)
+  })
 
   const handleDelete = async (record: RecipientGroupItem) => {
     if (!record.uid) return
     await deleteRecipientGroup(record.uid)
     message.success(t('message.delete.success'))
-    void fetchData()
+    refresh()
   }
 
   const handleStatusChange = async (
@@ -216,9 +142,9 @@ function RecipientGroupsContent() {
     if (!record.uid) return
     await updateRecipientGroupStatus({ uid: record.uid, status })
     message.success(t('message.update.success'))
-    void fetchData()
+    refresh()
     if (detailData?.uid === record.uid) {
-      setDetailData((prev) => (prev ? { ...prev, status } : prev))
+      mutateDetailData((prev) => (prev ? { ...prev, status } : prev))
     }
   }
 
@@ -351,7 +277,7 @@ function RecipientGroupsContent() {
         ]
         return (
           <Space size='small'>
-            <Button type='link' onClick={() => void openDetailModal(record)}>
+            <Button type='link' onClick={() => openDetailModal(record)}>
               {t('common.detail')}
             </Button>
             <Dropdown menu={{ items: menuItems }} trigger={['click']}>
@@ -366,71 +292,69 @@ function RecipientGroupsContent() {
   return (
     <>
       <div className='flex flex-col gap-4 h-full'>
-          <div className='flex items-center justify-between gap-3'>
-            <Space wrap>
-              <Input
-                value={searchParams.keyword}
-                placeholder={t('table.search.placeholder')}
-                allowClear
-                style={{ width: 240 }}
-                onChange={(e) =>
-                  setSearchParams((prev) => ({
-                    ...prev,
-                    keyword: e.target.value,
-                  }))
-                }
-                onPressEnter={() =>
-                  handleSearch({ keyword: searchParams.keyword ?? '' })
-                }
-              />
-              <Radio.Group
-                value={searchParams.status}
-                onChange={(e) => handleSearch({ status: e.target.value })}
-                optionType='button'
-                buttonStyle='solid'
-              >
-                <Radio.Button value={undefined}>
-                  {t('table.search.all')}
-                </Radio.Button>
-                <Radio.Button value={GlobalStatus.ENABLED}>
-                  {t(`common.status.${GlobalStatus.ENABLED}`)}
-                </Radio.Button>
-                <Radio.Button value={GlobalStatus.DISABLED}>
-                  {t(`common.status.${GlobalStatus.DISABLED}`)}
-                </Radio.Button>
-              </Radio.Group>
-              <Button
-                type='primary'
-                onClick={() =>
-                  handleSearch({ keyword: searchParams.keyword ?? '' })
-                }
-              >
-                {t('common.search')}
-              </Button>
-              <Button onClick={handleReset}>{t('common.reset')}</Button>
-            </Space>
-            <Button type='primary' onClick={openCreateModal}>
-              {t('common.add')}
+        <div className='flex items-center justify-between gap-3'>
+          <Space wrap>
+            <Input
+              value={searchParams.keyword}
+              placeholder={t('table.search.placeholder')}
+              allowClear
+              style={{ width: 240 }}
+              onChange={(e) =>
+                setSearchParams((prev) => ({
+                  ...prev,
+                  keyword: e.target.value,
+                }))
+              }
+              onPressEnter={() =>
+                handleSearch({ keyword: searchParams.keyword ?? '' })
+              }
+            />
+            <Radio.Group
+              value={searchParams.status}
+              onChange={(e) => handleSearch({ status: e.target.value })}
+              optionType='button'
+              buttonStyle='solid'
+            >
+              <Radio.Button value={undefined}>
+                {t('table.search.all')}
+              </Radio.Button>
+              <Radio.Button value={GlobalStatus.ENABLED}>
+                {t(`common.status.${GlobalStatus.ENABLED}`)}
+              </Radio.Button>
+              <Radio.Button value={GlobalStatus.DISABLED}>
+                {t(`common.status.${GlobalStatus.DISABLED}`)}
+              </Radio.Button>
+            </Radio.Group>
+            <Button
+              type='primary'
+              onClick={() =>
+                handleSearch({ keyword: searchParams.keyword ?? '' })
+              }
+            >
+              {t('common.search')}
             </Button>
-          </div>
-
-          <Table<RecipientGroupItem>
-            rowKey='uid'
-            loading={loading}
-            columns={columns}
-            dataSource={dataSource}
-            scroll={{ x: 1200 }}
-            pagination={{
-              current: pagination.current,
-              pageSize: pagination.pageSize,
-              total: pagination.total,
-              showSizeChanger: true,
-            }}
-            onChange={(page) =>
-              void fetchData(page.current, page.pageSize, searchParams)
-            }
-          />
+            <Button onClick={handleReset}>{t('common.reset')}</Button>
+          </Space>
+          <Button type='primary' onClick={openCreateModal}>
+            {t('common.add')}
+          </Button>
         </div>
+
+        <Table<RecipientGroupItem>
+          rowKey='uid'
+          loading={loading}
+          columns={columns}
+          dataSource={dataSource}
+          scroll={{ x: 1200 }}
+          pagination={{
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: pagination.total,
+            showSizeChanger: true,
+          }}
+          onChange={(page) => changePage(page.current!, page.pageSize!)}
+        />
+      </div>
 
       <RecipientGroupDetailForm
         open={detailFormOpen}
@@ -441,155 +365,148 @@ function RecipientGroupsContent() {
           setDetailFormOpen(false)
           setEditingData(null)
         }}
-        onSuccess={() => void fetchData()}
+        onSuccess={() => refresh()}
       />
 
       <Modal
-          title={t('recipientGroup.modal.detail.title')}
-          open={detailOpen}
-          onCancel={() => {
-            setDetailOpen(false)
-            setDetailData(null)
-          }}
-          footer={
-            <Button onClick={() => setDetailOpen(false)}>
-              {t('common.close')}
-            </Button>
-          }
-          width={860}
-          destroyOnHidden
-        >
-          {detailLoading ? null : detailData ? (
-            <Descriptions
-              column={1}
-              bordered
-              size='small'
-              styles={{ label: { width: 180, minWidth: 180 } }}
+        title={t('recipientGroup.modal.detail.title')}
+        open={detailOpen}
+        onCancel={() => {
+          setDetailOpen(false)
+          setDetailUid(undefined)
+        }}
+        footer={
+          <Button onClick={() => setDetailOpen(false)}>
+            {t('common.close')}
+          </Button>
+        }
+        width={860}
+        destroyOnHidden
+      >
+        {detailLoading ? null : detailData ? (
+          <Descriptions
+            column={1}
+            bordered
+            size='small'
+            styles={{ label: { width: 180, minWidth: 180 } }}
+          >
+            <Descriptions.Item label={t('recipientGroup.detail.uid')}>
+              <Space>
+                <span>{emptyPlaceholder(detailData.uid)}</span>
+                <CopyButton copyValue={detailData.uid} />
+              </Space>
+            </Descriptions.Item>
+            <Descriptions.Item label={t('recipientGroup.detail.name')}>
+              {emptyPlaceholder(detailData.name)}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('recipientGroup.detail.status')}>
+              {renderStatusTag(detailData.status, t)}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('recipientGroup.detail.metadata')}>
+              {detailData.metadata &&
+              Object.keys(detailData.metadata).length > 0 ? (
+                <div className='flex flex-col gap-2'>
+                  <Space wrap size={[4, 4]}>
+                    {Object.entries(detailData.metadata).map(([key, value]) => (
+                      <Tag key={key}>{`${key}=${value}`}</Tag>
+                    ))}
+                  </Space>
+                  <CopyButton
+                    copyValue={formatRecordJson(detailData.metadata)}
+                    className='self-start'
+                  />
+                </div>
+              ) : (
+                '-'
+              )}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('recipientGroup.detail.templates')}>
+              <Space wrap>
+                {(detailData.templates ?? []).length > 0
+                  ? detailData.templates?.map((item) => (
+                      <Tag key={item.uid}>{item.name || item.uid}</Tag>
+                    ))
+                  : '-'}
+              </Space>
+            </Descriptions.Item>
+            <Descriptions.Item label={t('recipientGroup.detail.emailConfigs')}>
+              <Space wrap>
+                {(detailData.emailConfigs ?? []).length > 0
+                  ? detailData.emailConfigs?.map((item) => (
+                      <Tag key={item.uid}>{item.name || item.uid}</Tag>
+                    ))
+                  : '-'}
+              </Space>
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={t('recipientGroup.detail.webhookConfigs')}
             >
-              <Descriptions.Item label={t('recipientGroup.detail.uid')}>
-                <Space>
-                  <span>{emptyPlaceholder(detailData.uid)}</span>
-                  <CopyButton copyValue={detailData.uid} />
-                </Space>
-              </Descriptions.Item>
-              <Descriptions.Item label={t('recipientGroup.detail.name')}>
-                {emptyPlaceholder(detailData.name)}
-              </Descriptions.Item>
-              <Descriptions.Item label={t('recipientGroup.detail.status')}>
-                {renderStatusTag(detailData.status, t)}
-              </Descriptions.Item>
-              <Descriptions.Item label={t('recipientGroup.detail.metadata')}>
-                {detailData.metadata &&
-                Object.keys(detailData.metadata).length > 0 ? (
-                  <div className='flex flex-col gap-2'>
-                    <Space wrap size={[4, 4]}>
-                      {Object.entries(detailData.metadata).map(
-                        ([key, value]) => (
-                          <Tag key={key}>{`${key}=${value}`}</Tag>
-                        ),
-                      )}
-                    </Space>
-                    <CopyButton
-                      copyValue={formatRecordJson(detailData.metadata)}
-                      className='self-start'
-                    />
-                  </div>
-                ) : (
-                  '-'
-                )}
-              </Descriptions.Item>
-              <Descriptions.Item label={t('recipientGroup.detail.templates')}>
-                <Space wrap>
-                  {(detailData.templates ?? []).length > 0
-                    ? detailData.templates?.map((item) => (
-                        <Tag key={item.uid}>{item.name || item.uid}</Tag>
-                      ))
-                    : '-'}
-                </Space>
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={t('recipientGroup.detail.emailConfigs')}
-              >
-                <Space wrap>
-                  {(detailData.emailConfigs ?? []).length > 0
-                    ? detailData.emailConfigs?.map((item) => (
-                        <Tag key={item.uid}>{item.name || item.uid}</Tag>
-                      ))
-                    : '-'}
-                </Space>
-              </Descriptions.Item>
-              <Descriptions.Item
-                label={t('recipientGroup.detail.webhookConfigs')}
-              >
-                <Space wrap>
-                  {(detailData.webhookConfigs ?? []).length > 0
-                    ? detailData.webhookConfigs?.map((item) => (
-                        <Tag key={item.uid}>{item.name || item.uid}</Tag>
-                      ))
-                    : '-'}
-                </Space>
-              </Descriptions.Item>
-              <Descriptions.Item label={t('recipientGroup.detail.members')}>
-                {(detailData.members ?? []).length > 0 ? (
-                  <div className='flex flex-col gap-2'>
-                    {detailData.members?.map((member) => {
-                      const channels = [
-                        member.isEmail
-                          ? t('recipientGroup.form.channel.email')
-                          : null,
-                        member.isSms
-                          ? t('recipientGroup.form.channel.sms')
-                          : null,
-                        member.isPhone
-                          ? t('recipientGroup.form.channel.phone')
-                          : null,
-                      ].filter(Boolean)
-                      const displayName =
-                        member.memberName ||
-                        memberLabelMap.get(member.memberUid ?? '') ||
-                        member.memberUid ||
-                        '-'
-                      return (
-                        <div key={`${member.memberUid}-${channels.join('-')}`}>
-                          <Space wrap>
-                            <span>{displayName}</span>
-                            {channels.map((channel) => (
-                              <Tag key={channel}>{channel}</Tag>
-                            ))}
-                          </Space>
-                        </div>
-                      )
-                    })}
-                  </div>
-                ) : (
-                  '-'
-                )}
-              </Descriptions.Item>
-              <Descriptions.Item label={t('recipientGroup.detail.updatedAt')}>
-                {detailData.updatedAt
-                  ? dayjs(detailData.updatedAt).format('YYYY-MM-DD HH:mm:ss')
+              <Space wrap>
+                {(detailData.webhookConfigs ?? []).length > 0
+                  ? detailData.webhookConfigs?.map((item) => (
+                      <Tag key={item.uid}>{item.name || item.uid}</Tag>
+                    ))
                   : '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label={t('recipientGroup.detail.createdAt')}>
-                {detailData.createdAt
-                  ? dayjs(detailData.createdAt).format('YYYY-MM-DD HH:mm:ss')
-                  : '-'}
-              </Descriptions.Item>
-            </Descriptions>
-          ) : (
-            <Text>{t('common.noData')}</Text>
-          )}
-          {detailData ? (
-            <div className='mt-3 text-xs text-(--ant-color-text-secondary)'>
-              {t('recipientGroup.detail.tip', {
-                templates: String(detailData.templates?.length ?? 0),
-                emails: String(detailData.emailConfigs?.length ?? 0),
-                webhooks: String(detailData.webhookConfigs?.length ?? 0),
-                members: String(detailData.members?.length ?? 0),
-              })}
-            </div>
-          ) : null}
-        </Modal>
+              </Space>
+            </Descriptions.Item>
+            <Descriptions.Item label={t('recipientGroup.detail.members')}>
+              {(detailData.members ?? []).length > 0 ? (
+                <div className='flex flex-col gap-2'>
+                  {detailData.members?.map((member) => {
+                    const channels = [
+                      member.isEmail
+                        ? t('recipientGroup.form.channel.email')
+                        : null,
+                      member.isSms
+                        ? t('recipientGroup.form.channel.sms')
+                        : null,
+                      member.isPhone
+                        ? t('recipientGroup.form.channel.phone')
+                        : null,
+                    ].filter(Boolean)
+                    const displayName =
+                      member.memberName || member.memberUid || '-'
+                    return (
+                      <div key={`${member.memberUid}-${channels.join('-')}`}>
+                        <Space wrap>
+                          <span>{displayName}</span>
+                          {channels.map((channel) => (
+                            <Tag key={channel}>{channel}</Tag>
+                          ))}
+                        </Space>
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                '-'
+              )}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('recipientGroup.detail.updatedAt')}>
+              {detailData.updatedAt
+                ? dayjs(detailData.updatedAt).format('YYYY-MM-DD HH:mm:ss')
+                : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('recipientGroup.detail.createdAt')}>
+              {detailData.createdAt
+                ? dayjs(detailData.createdAt).format('YYYY-MM-DD HH:mm:ss')
+                : '-'}
+            </Descriptions.Item>
+          </Descriptions>
+        ) : (
+          <Text>{t('common.noData')}</Text>
+        )}
+        {detailData ? (
+          <div className='mt-3 text-xs text-(--ant-color-text-secondary)'>
+            {t('recipientGroup.detail.tip', {
+              templates: String(detailData.templates?.length ?? 0),
+              emails: String(detailData.emailConfigs?.length ?? 0),
+              webhooks: String(detailData.webhookConfigs?.length ?? 0),
+              members: String(detailData.members?.length ?? 0),
+            })}
+          </div>
+        ) : null}
+      </Modal>
     </>
   )
 }

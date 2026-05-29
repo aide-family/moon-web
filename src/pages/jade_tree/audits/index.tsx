@@ -1,29 +1,26 @@
 import type { SSHCommandAuditItem, SSHCommandAuditListParams } from '@/api'
 import {
   approveSSHCommandAudit,
+  getSSHCommandAuditDetail,
   getSSHCommandAuditList,
   rejectSSHCommandAudit,
   SSHCommandAuditStatus,
 } from '@/api'
 import PageContent from '@/components/layout/PageContent'
 import { useLocale } from '@/contexts/LocaleContext'
-import {
-  DEFAULT_PAGE_SIZE,
-  usePaginationState,
-} from '@/utils/hooks/usePaginationState'
+import { useDetailRequest } from '@/utils/hooks/useDetailRequest'
+import { usePaginatedRequest } from '@/utils/hooks/usePaginatedRequest'
 import { MENU_DIVIDER } from '@/utils/menu'
 import type { MenuProps } from 'antd'
 import { App, Button, Dropdown, Form, Space, Tag } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useMemoizedFn } from 'ahooks'
 import AuditsTab from './components/AuditsTab'
 import AuditDetailModal from './components/modals/AuditDetailModal'
 import RejectAuditModal, {
   type RejectFormValues,
 } from './components/modals/RejectAuditModal'
-
-const formatTotal = (value?: string): number =>
-  Number.parseInt(value ?? '0', 10) || 0
 
 const getSSHAuditTagColor = (status?: SSHCommandAuditStatus): string => {
   if (status === SSHCommandAuditStatus.APPROVED) return 'success'
@@ -32,64 +29,58 @@ const getSSHAuditTagColor = (status?: SSHCommandAuditStatus): string => {
   return 'default'
 }
 
+type AuditListQuery = Omit<SSHCommandAuditListParams, 'page' | 'pageSize'>
+
+const defaultAuditQuery: AuditListQuery = {
+  statusFilter: undefined,
+  keyword: '',
+  kind: undefined,
+}
+
 const AuditsPage: React.FC = () => {
   const { message } = App.useApp()
   const { t } = useLocale()
 
-  const [audits, setAudits] = useState<SSHCommandAuditItem[]>([])
-  const [auditLoading, setAuditLoading] = useState(false)
-  const [auditSearchParams, setAuditSearchParams] =
-    useState<SSHCommandAuditListParams>({
-      statusFilter: undefined,
-      keyword: '',
-      kind: undefined,
-    })
-  const [auditPagination, setAuditPagination] = usePaginationState()
+  const list = usePaginatedRequest<SSHCommandAuditItem, AuditListQuery>({
+    service: ({ page, pageSize, statusFilter, keyword, kind }) =>
+      getSSHCommandAuditList({
+        page,
+        pageSize,
+        statusFilter,
+        keyword: keyword || undefined,
+        kind,
+      }),
+    defaultQuery: defaultAuditQuery,
+  })
 
   const [rejectOpen, setRejectOpen] = useState(false)
   const [rejectTarget, setRejectTarget] = useState<SSHCommandAuditItem>()
   const [rejectForm] = Form.useForm<RejectFormValues>()
   const [auditDetailOpen, setAuditDetailOpen] = useState(false)
-  const [auditDetailData, setAuditDetailData] = useState<SSHCommandAuditItem>()
-
-  const fetchAudits = useCallback(
-    async (
-      page = auditPagination.current,
-      pageSize = auditPagination.pageSize,
-      override?: Partial<SSHCommandAuditListParams>,
-    ) => {
-      setAuditLoading(true)
-      try {
-        const effective = override
-          ? { ...auditSearchParams, ...override }
-          : auditSearchParams
-        const res = await getSSHCommandAuditList({
-          page,
-          pageSize,
-          statusFilter: effective.statusFilter,
-          keyword: effective.keyword || undefined,
-          kind: effective.kind,
-        })
-        setAudits(res.items ?? [])
-        setAuditPagination({
-          current: page,
-          pageSize,
-          total: formatTotal(res.total),
-        })
-      } catch (error) {
-        console.error('获取审核列表失败', error)
-        setAudits([])
-      } finally {
-        setAuditLoading(false)
-      }
-    },
-    [auditPagination, auditSearchParams, setAuditPagination],
+  const [auditDetailUid, setAuditDetailUid] = useState<string>()
+  const {
+    data: auditDetailData,
+    loading: auditDetailLoading,
+    error: auditDetailError,
+  } = useDetailRequest(
+    getSSHCommandAuditDetail,
+    auditDetailUid,
+    auditDetailOpen,
   )
 
   useEffect(() => {
-    void fetchAudits(1, DEFAULT_PAGE_SIZE)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    if (auditDetailError && auditDetailOpen) {
+      console.error('获取审核详情失败', auditDetailError)
+      setAuditDetailOpen(false)
+      setAuditDetailUid(undefined)
+    }
+  }, [auditDetailError, auditDetailOpen])
+
+  const openAuditDetail = useMemoizedFn((row: SSHCommandAuditItem) => {
+    if (!row.uid) return
+    setAuditDetailUid(row.uid)
+    setAuditDetailOpen(true)
+  })
 
   const auditColumns: ColumnsType<SSHCommandAuditItem> = useMemo(
     () => [
@@ -143,13 +134,7 @@ const AuditsPage: React.FC = () => {
         align: 'center',
         render: (_, row) => (
           <Space size='small'>
-            <Button
-              type='link'
-              onClick={() => {
-                setAuditDetailData(row)
-                setAuditDetailOpen(true)
-              }}
-            >
+            <Button type='link' onClick={() => openAuditDetail(row)}>
               {t('common.detail')}
             </Button>
             {row.status === SSHCommandAuditStatus.PENDING ? (
@@ -163,7 +148,7 @@ const AuditsPage: React.FC = () => {
                         if (!row.uid) return
                         await approveSSHCommandAudit(row.uid, { uid: row.uid })
                         message.success(t('message.update.success'))
-                        void fetchAudits()
+                        list.refresh()
                       },
                     },
                     MENU_DIVIDER,
@@ -188,7 +173,7 @@ const AuditsPage: React.FC = () => {
         ),
       },
     ],
-    [fetchAudits, message, rejectForm, t],
+    [list, message, openAuditDetail, rejectForm, t],
   )
 
   const handleSubmitRejectAudit = async () => {
@@ -201,7 +186,7 @@ const AuditsPage: React.FC = () => {
       })
       message.success(t('message.update.success'))
       setRejectOpen(false)
-      void fetchAudits()
+      list.refresh()
     } catch (error) {
       if (
         typeof error === 'object' &&
@@ -217,13 +202,14 @@ const AuditsPage: React.FC = () => {
     <App className='h-full'>
       <PageContent>
         <AuditsTab
-          auditSearchParams={auditSearchParams}
-          setAuditSearchParams={setAuditSearchParams}
-          auditPagination={auditPagination}
+          auditSearchParams={list.query}
+          setAuditSearchParams={list.setQuery}
+          auditPagination={list.pagination}
           auditColumns={auditColumns}
-          audits={audits}
-          auditLoading={auditLoading}
-          onFetchAudits={fetchAudits}
+          audits={list.dataSource}
+          auditLoading={list.loading}
+          onSearch={list.search}
+          onPageChange={list.changePage}
         />
 
         <RejectAuditModal
@@ -236,7 +222,11 @@ const AuditsPage: React.FC = () => {
         <AuditDetailModal
           open={auditDetailOpen}
           data={auditDetailData}
-          onCancel={() => setAuditDetailOpen(false)}
+          loading={auditDetailLoading}
+          onCancel={() => {
+            setAuditDetailOpen(false)
+            setAuditDetailUid(undefined)
+          }}
         />
       </PageContent>
     </App>

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useMemoizedFn } from 'ahooks'
 import { useSearchParams } from 'react-router-dom'
 import {
   App,
@@ -34,11 +35,24 @@ import {
   getLevelTypeLabel,
   renderStatusTag,
 } from '@/utils/marksman'
+import { usePaginatedRequest } from '@/utils/hooks/usePaginatedRequest'
+import { useDetailRequest } from '@/utils/hooks/useDetailRequest'
+import { useAdaptiveTableHeight } from '@/utils/hooks/useAdaptiveTableHeight'
 
 const defaultSearchParams: LevelListParams = {
   keyword: '',
   status: undefined,
   type: undefined,
+}
+
+type LevelListQuery = Omit<LevelListParams, 'page' | 'pageSize'>
+
+function toListQuery(params: LevelListParams): LevelListQuery {
+  return {
+    keyword: params.keyword ?? '',
+    status: params.status,
+    type: params.type,
+  }
 }
 
 function parseLevelTypeFromUrl(raw: string | undefined): LevelType | undefined {
@@ -70,13 +84,6 @@ const LevelList: React.FC = () => {
   const { modal } = App.useApp()
   const { t } = useLocale()
   const [urlSearchParams, setUrlSearchParams] = useSearchParams()
-  const [loading, setLoading] = useState(false)
-  const [dataSource, setDataSource] = useState<LevelItem[]>([])
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 50,
-    total: 0,
-  })
   const [searchParams, setSearchParams] = useState<LevelListParams>(() =>
     parseSearchParamsFromUrl(urlSearchParams),
   )
@@ -89,63 +96,50 @@ const LevelList: React.FC = () => {
   const [editingData, setEditingData] = useState<LevelItem | null>(null)
 
   const [detailViewOpen, setDetailViewOpen] = useState(false)
-  const [viewingData, setViewingData] = useState<LevelItem | null>(null)
-  const [detailLoading, setDetailLoading] = useState(false)
+  const [viewingUid, setViewingUid] = useState<string>()
 
-  const tableContainerRef = useRef<HTMLDivElement>(null)
-  const tableWrapperRef = useRef<HTMLDivElement>(null)
-  const [tableHeight, setTableHeight] = useState(400)
+  const { tableContainerRef, tableWrapperRef, tableHeight } =
+    useAdaptiveTableHeight()
+  const skipAutoSearchRef = useRef(true)
 
-  const fetchData = async (
-    page?: number,
-    pageSize?: number,
-    override?: Partial<LevelListParams>,
-  ) => {
-    setLoading(true)
-    try {
-      const currentPage = page ?? pagination.current
-      const currentPageSize = pageSize ?? pagination.pageSize
-      const effective = override
-        ? { ...searchParams, ...override }
-        : searchParams
-      const params: LevelListParams = {
-        page: currentPage,
-        pageSize: currentPageSize,
-        keyword: effective.keyword || undefined,
-        status: effective.status,
-        type: effective.type,
-      }
-      const response = await getLevelList(params)
-      setDataSource(response.items ?? [])
-      setPagination((prev) => ({
-        ...prev,
-        current: currentPage,
-        pageSize: currentPageSize,
-        total: parseInt(String(response.total ?? '0'), 10),
-      }))
-    } catch (error) {
-      console.error('获取告警等级列表失败:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const list = usePaginatedRequest<LevelItem, LevelListQuery>({
+    service: ({ page, pageSize, keyword, status, type }) =>
+      getLevelList({
+        page,
+        pageSize,
+        keyword: keyword || undefined,
+        status,
+        type,
+      }),
+    defaultQuery: toListQuery(parseSearchParamsFromUrl(urlSearchParams)),
+  })
 
-  const handleSearch = (override?: Partial<LevelListParams>) => {
+  const {
+    data: viewingData,
+    loading: detailLoading,
+    refresh: refreshDetail,
+    mutate: mutateDetail,
+  } = useDetailRequest(getLevelDetail, viewingUid, detailViewOpen)
+
+  const handleSearch = useMemoizedFn((override?: Partial<LevelListParams>) => {
     if (override) setSearchParams((prev) => ({ ...prev, ...override }))
-    setPagination((prev) => ({ ...prev, current: 1 }))
-    fetchData(1, pagination.pageSize, override)
-  }
+    list.search(
+      toListQuery({
+        ...searchParams,
+        ...override,
+      }),
+    )
+  })
 
-  const handleReset = () => {
+  const handleReset = useMemoizedFn(() => {
     setSearchParams(defaultSearchParams)
     setUrlSearchParams({})
-    setPagination({ current: 1, pageSize: 50, total: 0 })
-    fetchData()
-  }
+    list.reset(toListQuery(defaultSearchParams))
+  })
 
-  const handleTableChange = (page: number, pageSize: number) => {
-    fetchData(page, pageSize)
-  }
+  const handleTableChange = useMemoizedFn((page: number, pageSize: number) => {
+    list.changePage(page, pageSize)
+  })
 
   const handleAdd = () => {
     setDetailFormMode('create')
@@ -153,20 +147,10 @@ const LevelList: React.FC = () => {
     setDetailFormOpen(true)
   }
 
-  const handleViewDetail = async (record: LevelItem) => {
+  const handleViewDetail = (record: LevelItem) => {
     if (!record.uid) return
+    setViewingUid(record.uid)
     setDetailViewOpen(true)
-    setViewingData(null)
-    setDetailLoading(true)
-    try {
-      const data = await getLevelDetail(record.uid)
-      setViewingData(data)
-    } catch (error) {
-      console.error('获取告警等级详情失败:', error)
-      setDetailViewOpen(false)
-    } finally {
-      setDetailLoading(false)
-    }
   }
 
   const handleEdit = (record: LevelItem) => {
@@ -187,7 +171,7 @@ const LevelList: React.FC = () => {
     try {
       await deleteLevel(record.uid)
       message.success(t('message.delete.success'))
-      fetchData()
+      list.refresh()
       if (detailViewOpen && viewingData?.uid === record.uid)
         setDetailViewOpen(false)
     } catch (error) {
@@ -203,9 +187,9 @@ const LevelList: React.FC = () => {
     try {
       await updateLevelStatus({ uid: record.uid, status: newStatus })
       message.success(t('message.update.success'))
-      fetchData()
+      list.refresh()
       if (viewingData && viewingData.uid === record.uid) {
-        setViewingData({ ...viewingData, status: newStatus })
+        mutateDetail({ ...viewingData, status: newStatus })
       }
     } catch (error) {
       console.error('修改状态失败:', error)
@@ -214,11 +198,9 @@ const LevelList: React.FC = () => {
 
   const handleDetailFormSuccess = () => {
     setDetailFormOpen(false)
-    fetchData()
-    if (detailViewOpen && viewingData?.uid) {
-      getLevelDetail(viewingData.uid)
-        .then(setViewingData)
-        .catch(() => {})
+    list.refresh()
+    if (detailViewOpen && viewingUid) {
+      refreshDetail()
     }
   }
 
@@ -354,14 +336,12 @@ const LevelList: React.FC = () => {
     },
   ]
 
-  // URL 变化时（如浏览器后退）同步到表单
   useEffect(() => {
     const next = parseSearchParamsFromUrl(urlSearchParams)
     setSearchParams(next)
     searchForm.setFieldsValue(next)
   }, [urlSearchParams, searchForm])
 
-  // 搜索条件变化即同步到 URL（replace 避免每次输入都产生历史记录）
   useEffect(() => {
     applySearchToUrl(
       setUrlSearchParams,
@@ -380,7 +360,11 @@ const LevelList: React.FC = () => {
   ])
 
   useEffect(() => {
-    fetchData()
+    if (skipAutoSearchRef.current) {
+      skipAutoSearchRef.current = false
+      return
+    }
+    list.search(toListQuery(searchParams))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.status, searchParams.type])
 
@@ -392,36 +376,8 @@ const LevelList: React.FC = () => {
     })
   }, [searchParams.keyword, searchParams.status, searchParams.type, searchForm])
 
-  useEffect(() => {
-    const updateTableHeight = () => {
-      if (tableContainerRef.current && tableWrapperRef.current) {
-        const containerHeight = tableContainerRef.current.clientHeight
-        const theadEl =
-          tableWrapperRef.current.querySelector('.ant-table-thead')
-        const paginationEl =
-          tableWrapperRef.current.querySelector('.ant-pagination')
-        const theadHeight = theadEl
-          ? (theadEl as HTMLElement).getBoundingClientRect().height
-          : 0
-        const paginationHeight = paginationEl
-          ? (paginationEl as HTMLElement).getBoundingClientRect().height + 16
-          : 0
-        setTableHeight(
-          Math.max(containerHeight - theadHeight - paginationHeight - 24, 100),
-        )
-      }
-    }
-    const timer = setTimeout(updateTableHeight, 100)
-    window.addEventListener('resize', updateTableHeight)
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('resize', updateTableHeight)
-    }
-  }, [dataSource, pagination])
-
   return (
     <div className='h-full flex flex-col'>
-      {/* 搜索和操作栏（参考模板/数据源等页面表格头部搜索） */}
       <div className='flex items-center justify-between mb-4 shrink-0'>
         <Form
           form={searchForm}
@@ -433,7 +389,6 @@ const LevelList: React.FC = () => {
               status: allValues.status,
               type: allValues.type,
             }))
-            setPagination((prev) => ({ ...prev, current: 1 }))
           }}
         >
           <Space size='middle' wrap>
@@ -499,15 +454,15 @@ const LevelList: React.FC = () => {
         <div ref={tableWrapperRef} className='h-full flex flex-col flex-1'>
           <Table
             columns={columns}
-            dataSource={dataSource}
+            dataSource={list.dataSource}
             rowKey='uid'
-            loading={loading}
+            loading={list.loading}
             size='small'
             scroll={{ y: tableHeight, x: '100%' }}
             pagination={{
-              current: pagination.current,
-              pageSize: pagination.pageSize,
-              total: pagination.total,
+              current: list.pagination.current,
+              pageSize: list.pagination.pageSize,
+              total: list.pagination.total,
               showSizeChanger: true,
               showQuickJumper: true,
               showTotal: (total) => t('table.total', { total }),
@@ -529,7 +484,10 @@ const LevelList: React.FC = () => {
         open={detailViewOpen}
         data={viewingData}
         loading={detailLoading}
-        onCancel={() => setDetailViewOpen(false)}
+        onCancel={() => {
+          setDetailViewOpen(false)
+          setViewingUid(undefined)
+        }}
         onEdit={handleEditFromDetail}
       />
     </div>
