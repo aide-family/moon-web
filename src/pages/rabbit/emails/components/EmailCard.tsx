@@ -1,8 +1,7 @@
-import { Card, Button, Dropdown, Space, Typography, Descriptions } from 'antd'
+import { Card, Button, Dropdown, Space, Typography, Flex } from 'antd'
 import { MailOutlined, EllipsisOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import type { EmailItem } from '@/api/rabbit/email/index'
-import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
 import { emptyPlaceholder, renderStatusTag } from '@/utils/marksman'
 
@@ -15,13 +14,16 @@ interface EmailCardProps {
 const EmailCard: React.FC<EmailCardProps> = ({ item, menuItems, onView }) => {
   const { t } = useLocale()
 
-  const formatTime = (text?: string) =>
-    text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'
+  const endpoint =
+    item.host != null && item.host !== ''
+      ? `${item.host}${item.port != null ? `:${item.port}` : ''}`
+      : '-'
 
   return (
     <div className='config-card-wrapper h-full min-w-0 p-1'>
       <Card
         hoverable
+        size='small'
         className='h-full min-w-0 overflow-hidden config-card'
         title={
           <Space size='small' className='min-w-0 max-w-full'>
@@ -43,48 +45,19 @@ const EmailCard: React.FC<EmailCardProps> = ({ item, menuItems, onView }) => {
           </Dropdown>,
         ]}
       >
-        <Descriptions
-          column={1}
-          size='small'
-          colon={false}
-          className='min-w-0'
-          styles={{
-            label: {
-              color: 'var(--ant-color-text-secondary)',
-              width: 72,
-              paddingBottom: 4,
-            },
-            content: { paddingBottom: 4, minWidth: 0, overflow: 'hidden' },
-          }}
-        >
-          <Descriptions.Item label={t('email.table.host')}>
-            <Typography.Text ellipsis title={item.host}>
-              {emptyPlaceholder(item.host)}
-            </Typography.Text>
-          </Descriptions.Item>
-          <Descriptions.Item label={t('email.table.port')}>
-            {item.port != null ? item.port : '-'}
-          </Descriptions.Item>
-          <Descriptions.Item label={t('email.table.username')}>
-            <Typography.Text ellipsis title={item.username}>
-              {emptyPlaceholder(item.username)}
-            </Typography.Text>
-          </Descriptions.Item>
-          <Descriptions.Item label={t('email.table.uid')}>
-            <Typography.Text
-              ellipsis
-              copyable={!!item.uid}
-              className='text-xs text-(--ant-color-text-secondary)'
-            >
-              {emptyPlaceholder(item.uid)}
-            </Typography.Text>
-          </Descriptions.Item>
-          <Descriptions.Item label={t('email.table.updatedAt')}>
-            <span className='text-xs text-(--ant-color-text-secondary)'>
-              {formatTime(item.updatedAt)}
-            </span>
-          </Descriptions.Item>
-        </Descriptions>
+        <Flex vertical gap={4} className='min-w-0'>
+          <Typography.Text ellipsis className='text-sm' title={endpoint}>
+            {endpoint}
+          </Typography.Text>
+          <Typography.Text
+            type='secondary'
+            ellipsis
+            className='text-xs'
+            title={item.username}
+          >
+            {emptyPlaceholder(item.username)}
+          </Typography.Text>
+        </Flex>
       </Card>
     </div>
   )

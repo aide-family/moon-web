@@ -1,8 +1,7 @@
-import { Card, Button, Dropdown, Space, Typography, Descriptions } from 'antd'
+import { Card, Button, Dropdown, Space, Typography, Flex } from 'antd'
 import { EllipsisOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import type { WebhookItem } from '@/api/rabbit/webhook/index'
-import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
 import { emptyPlaceholder, renderStatusTag } from '@/utils/marksman'
 import { IconFont } from '@/components/Icon/IconFont'
@@ -21,13 +20,8 @@ const WebhookCard: React.FC<WebhookCardProps> = ({
 }) => {
   const { t } = useLocale()
 
-  const formatTime = (text?: string) =>
-    text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'
-
   const appLabel =
-    item.app != null && item.app !== ''
-      ? getAppLabel(item.app, t)
-      : '-'
+    item.app != null && item.app !== '' ? getAppLabel(item.app, t) : '-'
   const methodLabel =
     item.method != null && item.method !== ''
       ? getMethodLabel(item.method, t)
@@ -37,6 +31,7 @@ const WebhookCard: React.FC<WebhookCardProps> = ({
     <div className='config-card-wrapper h-full min-w-0 p-1'>
       <Card
         hoverable
+        size='small'
         className='h-full min-w-0 overflow-hidden config-card'
         title={
           <Space size='small' className='min-w-0 max-w-full'>
@@ -63,48 +58,14 @@ const WebhookCard: React.FC<WebhookCardProps> = ({
           </Dropdown>,
         ]}
       >
-        <Descriptions
-          column={1}
-          size='small'
-          colon={false}
-          className='min-w-0'
-          styles={{
-            label: {
-              color: 'var(--ant-color-text-secondary)',
-              width: 72,
-              paddingBottom: 4,
-            },
-            content: { paddingBottom: 4, minWidth: 0, overflow: 'hidden' },
-          }}
-        >
-          <Descriptions.Item label={t('webhook.table.app')}>
-            <Typography.Text ellipsis title={appLabel}>
-              {appLabel}
-            </Typography.Text>
-          </Descriptions.Item>
-          <Descriptions.Item label={t('webhook.table.url')}>
-            <Typography.Text ellipsis title={item.url}>
-              {emptyPlaceholder(item.url)}
-            </Typography.Text>
-          </Descriptions.Item>
-          <Descriptions.Item label={t('webhook.table.method')}>
-            {methodLabel}
-          </Descriptions.Item>
-          <Descriptions.Item label={t('webhook.table.uid')}>
-            <Typography.Text
-              ellipsis
-              copyable={!!item.uid}
-              className='text-xs text-(--ant-color-text-secondary)'
-            >
-              {emptyPlaceholder(item.uid)}
-            </Typography.Text>
-          </Descriptions.Item>
-          <Descriptions.Item label={t('webhook.table.updatedAt')}>
-            <span className='text-xs text-(--ant-color-text-secondary)'>
-              {formatTime(item.updatedAt)}
-            </span>
-          </Descriptions.Item>
-        </Descriptions>
+        <Flex vertical gap={4} className='min-w-0'>
+          <Typography.Text type='secondary' ellipsis className='text-xs'>
+            {appLabel} · {methodLabel}
+          </Typography.Text>
+          <Typography.Text ellipsis className='text-sm' title={item.url}>
+            {emptyPlaceholder(item.url)}
+          </Typography.Text>
+        </Flex>
       </Card>
     </div>
   )

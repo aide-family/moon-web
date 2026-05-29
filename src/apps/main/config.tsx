@@ -99,18 +99,6 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         },
       },
       {
-        key: 'rabbit-messages',
-        icon: <HistoryOutlined />,
-        label: t('menu.rabbitMessages'),
-        path: '/rabbit/messages',
-        subApp: {
-          name: 'rabbit-messages',
-          devUrl: 'http://localhost:5175/messages',
-          prodUrl: 'http://localhost:4175/messages',
-          path: '/rabbit/messages',
-        },
-      },
-      {
         key: 'rabbit-sender',
         icon: <SendOutlined />,
         label: t('menu.rabbitSender'),
@@ -144,6 +132,18 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
           devUrl: 'http://localhost:5175/alert-subscriptions',
           prodUrl: 'http://localhost:4175/alert-subscriptions',
           path: '/rabbit/alert-subscriptions',
+        },
+      },
+      {
+        key: 'rabbit-messages',
+        icon: <HistoryOutlined />,
+        label: t('menu.rabbitMessages'),
+        path: '/rabbit/messages',
+        subApp: {
+          name: 'rabbit-messages',
+          devUrl: 'http://localhost:5175/messages',
+          prodUrl: 'http://localhost:4175/messages',
+          path: '/rabbit/messages',
         },
       },
     ],
