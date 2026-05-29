@@ -71,13 +71,6 @@ function getRabbitAppConfig(t: (key: string) => string): AppConfigItem[] {
       element: <WebhookManagement />,
     },
     {
-      key: 'rabbit-sender',
-      icon: <SendOutlined />,
-      label: t('rabbit.sender.title'),
-      path: '/sender',
-      element: <SenderManagement />,
-    },
-    {
       key: 'rabbit-recipient-groups',
       icon: <TeamOutlined />,
       label: t('menu.rabbitRecipientGroups'),
@@ -90,6 +83,13 @@ function getRabbitAppConfig(t: (key: string) => string): AppConfigItem[] {
       label: t('menu.rabbitAlertSubscriptions'),
       path: '/alert-subscriptions',
       element: <AlertSubscriptionsPage />,
+    },
+    {
+      key: 'rabbit-sender',
+      icon: <SendOutlined />,
+      label: t('rabbit.sender.title'),
+      path: '/sender',
+      element: <SenderManagement />,
     },
     {
       key: 'rabbit-messages',
