@@ -3,6 +3,16 @@
 
 export const zhCN = {
   'rabbit.sender.title': '发送消息',
+  'sender.description': '选择通道与发送方式，填写消息后提交发送任务。',
+  'sender.channel': '消息通道',
+  'sender.channel.email': '邮件',
+  'sender.channel.webhook': '网络钩子',
+  'sender.mode': '发送方式',
+  'sender.mode.direct': '直接发送',
+  'sender.mode.template': '模板发送',
+  'sender.section.config': '发送配置',
+  'sender.section.recipients': '收件人',
+  'sender.section.content': '消息内容',
   'sender.sendType': '类型',
   'sender.type.email': '邮件',
   'sender.type.emailTemplate': '邮件（模板）',
@@ -48,6 +58,17 @@ export const zhCN = {
 
 export const enUS = {
   'rabbit.sender.title': 'Send Message',
+  'sender.description':
+    'Choose a channel and delivery mode, then compose your message.',
+  'sender.channel': 'Channel',
+  'sender.channel.email': 'Email',
+  'sender.channel.webhook': 'Webhook',
+  'sender.mode': 'Delivery Mode',
+  'sender.mode.direct': 'Direct',
+  'sender.mode.template': 'Template',
+  'sender.section.config': 'Configuration',
+  'sender.section.recipients': 'Recipients',
+  'sender.section.content': 'Message Content',
   'sender.sendType': 'Type',
   'sender.type.email': 'Email',
   'sender.type.emailTemplate': 'Email (Template)',

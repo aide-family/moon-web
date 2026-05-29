@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useDebounceFn, useMemoizedFn } from 'ahooks'
+import { useState, useEffect, useMemo } from 'react'
+import { useDebounceFn, useMemoizedFn, useRequest } from 'ahooks'
 import {
   Form,
   Input,
@@ -7,10 +7,22 @@ import {
   Select,
   AutoComplete,
   App,
-  message,
   Row,
   Col,
+  Segmented,
+  Typography,
+  Space,
+  Flex,
+  Divider,
+  theme,
 } from 'antd'
+import {
+  MailOutlined,
+  ApiOutlined,
+  SendOutlined,
+  EditOutlined,
+  FileTextOutlined,
+} from '@ant-design/icons'
 import {
   sendEmail,
   sendEmailWithTemplate,
@@ -27,46 +39,94 @@ import { MessageType } from '@/api/common/types'
 import { useLocale } from '@/contexts/LocaleContext'
 import PageContent from '@/components/layout/PageContent'
 
+type SendChannel = 'email' | 'webhook'
+type SendMode = 'direct' | 'template'
 type SendType = 'email' | 'emailTemplate' | 'webhook' | 'webhookTemplate'
 
-const SEND_TYPES: { value: SendType; labelKey: string }[] = [
-  { value: 'email', labelKey: 'sender.type.email' },
-  { value: 'emailTemplate', labelKey: 'sender.type.emailTemplate' },
-  { value: 'webhook', labelKey: 'sender.type.webhook' },
-  { value: 'webhookTemplate', labelKey: 'sender.type.webhookTemplate' },
-]
+function toSendType(channel: SendChannel, mode: SendMode): SendType {
+  if (channel === 'email') {
+    return mode === 'direct' ? 'email' : 'emailTemplate'
+  }
+  return mode === 'direct' ? 'webhook' : 'webhookTemplate'
+}
+
+function mapEmailConfigOptions(items: EmailItemSelect[]) {
+  return items
+    .filter(
+      (item) =>
+        (item.value ?? (item as unknown as { uid?: string }).uid) != null,
+    )
+    .map((item) => {
+      const value =
+        item.value ?? (item as unknown as { uid?: string }).uid ?? ''
+      const label =
+        item.label ?? (item as unknown as { name?: string }).name ?? value
+      return {
+        value,
+        label,
+        disabled: item.disabled,
+        title: item.tooltip,
+      }
+    })
+}
+
+function mapWebhookConfigOptions(items: WebhookItemSelect[]) {
+  return items
+    .filter(
+      (item) =>
+        (item.value ?? (item as unknown as { uid?: string }).uid) != null,
+    )
+    .map((item) => {
+      const value =
+        item.value ?? (item as unknown as { uid?: string }).uid ?? ''
+      const label =
+        item.label ?? (item as unknown as { name?: string }).name ?? value
+      return {
+        value,
+        label,
+        disabled: item.disabled,
+        title: item.tooltip,
+      }
+    })
+}
+
+function mapTemplateOptions(items: TemplateItemSelect[]) {
+  return items
+    .filter((item) => item.value != null)
+    .map((item) => ({
+      value: item.value!,
+      label: item.label ?? item.value,
+      disabled: item.disabled,
+      title: item.tooltip,
+    }))
+}
+
 export default function SenderManagement() {
   const { t } = useLocale()
+  const { message } = App.useApp()
+  const { token } = theme.useToken()
   const [form] = Form.useForm()
-  const [sendType, setSendType] = useState<SendType>('email')
-  const [submitting, setSubmitting] = useState(false)
+  const [channel, setChannel] = useState<SendChannel>('email')
+  const [mode, setMode] = useState<SendMode>('direct')
+  const sendType = useMemo(() => toSendType(channel, mode), [channel, mode])
+
   const [templateOptions, setTemplateOptions] = useState<TemplateItemSelect[]>(
     [],
   )
-  const [templateLoading, setTemplateLoading] = useState(false)
   const [emailConfigOptions, setEmailConfigOptions] = useState<
     EmailItemSelect[]
   >([])
-  const [emailConfigLoading, setEmailConfigLoading] = useState(false)
   const [emailConfigKeyword, setEmailConfigKeyword] = useState('')
   const [webhookConfigOptions, setWebhookConfigOptions] = useState<
     WebhookItemSelect[]
   >([])
-  const [webhookConfigLoading, setWebhookConfigLoading] = useState(false)
   const [webhookConfigKeyword, setWebhookConfigKeyword] = useState('')
   const [webhookTemplateType, setWebhookTemplateType] = useState<
     MessageType | undefined
   >(undefined)
 
-  const needTemplate =
-    sendType === 'emailTemplate' || sendType === 'webhookTemplate'
-  const needEmailConfig = sendType === 'email' || sendType === 'emailTemplate'
-  const needWebhookConfig =
-    sendType === 'webhook' || sendType === 'webhookTemplate'
-
-  useEffect(() => {
-    if (sendType !== 'webhookTemplate') setWebhookTemplateType(undefined)
-  }, [sendType])
+  const needTemplate = mode === 'template'
+  const isEmail = channel === 'email'
 
   const { run: handleEmailConfigSearch } = useDebounceFn(
     (value: string) => setEmailConfigKeyword(value),
@@ -78,68 +138,110 @@ export default function SenderManagement() {
     { wait: 300 },
   )
 
-  const fetchWebhookConfigOptions = useMemoizedFn((keyword?: string) => {
-    setWebhookConfigLoading(true)
-    getWebhookConfigSelectList({
-      keyword: keyword?.trim() || undefined,
-      limit: 20,
-    })
-      .then((res) => setWebhookConfigOptions(res.items ?? []))
-      .catch(() => setWebhookConfigOptions([]))
-      .finally(() => setWebhookConfigLoading(false))
-  })
+  const { loading: emailConfigLoading, run: fetchEmailConfigOptions } =
+    useRequest(
+      (keyword?: string) =>
+        getEmailConfigSelectList({
+          keyword: keyword?.trim() || undefined,
+          limit: 100,
+        }).then((res) => res.items ?? []),
+      {
+        manual: true,
+        onSuccess: setEmailConfigOptions,
+        onError: () => setEmailConfigOptions([]),
+      },
+    )
+
+  const { loading: webhookConfigLoading, run: fetchWebhookConfigOptions } =
+    useRequest(
+      (keyword?: string) =>
+        getWebhookConfigSelectList({
+          keyword: keyword?.trim() || undefined,
+          limit: 20,
+        }).then((res) => res.items ?? []),
+      {
+        manual: true,
+        onSuccess: setWebhookConfigOptions,
+        onError: () => setWebhookConfigOptions([]),
+      },
+    )
+
+  const { loading: templateLoading, run: fetchTemplateOptions } = useRequest(
+    (params: { messageType?: MessageType }) =>
+      getTemplateSelectList({ limit: 20, ...params }).then(
+        (res) => res.items ?? [],
+      ),
+    {
+      manual: true,
+      onSuccess: setTemplateOptions,
+      onError: () => setTemplateOptions([]),
+    },
+  )
 
   useEffect(() => {
-    if (!needWebhookConfig) return
+    if (!isEmail) return
+    fetchEmailConfigOptions(emailConfigKeyword)
+  }, [isEmail, emailConfigKeyword, fetchEmailConfigOptions])
+
+  useEffect(() => {
+    if (isEmail) return
     fetchWebhookConfigOptions(webhookConfigKeyword)
-  }, [needWebhookConfig, webhookConfigKeyword, fetchWebhookConfigOptions])
+  }, [isEmail, webhookConfigKeyword, fetchWebhookConfigOptions])
 
   useEffect(() => {
-    if (!needTemplate) return
-    if (sendType === 'webhookTemplate' && !webhookTemplateType) {
+    if (!needTemplate) {
       setTemplateOptions([])
       return
     }
-    setTemplateLoading(true)
-    const params =
-      sendType === 'emailTemplate'
-        ? { limit: 20, messageType: MessageType.EMAIL }
-        : { limit: 20, messageType: webhookTemplateType! }
-    getTemplateSelectList(params)
-      .then((res) => setTemplateOptions(res.items ?? []))
-      .catch(() => setTemplateOptions([]))
-      .finally(() => setTemplateLoading(false))
-  }, [needTemplate, sendType, webhookTemplateType])
-
-  const fetchEmailConfigOptions = useMemoizedFn((keyword?: string) => {
-    setEmailConfigLoading(true)
-    getEmailConfigSelectList({
-      keyword: keyword?.trim() || undefined,
-      limit: 100,
-    })
-      .then((res) => setEmailConfigOptions(res.items ?? []))
-      .catch(() => setEmailConfigOptions([]))
-      .finally(() => setEmailConfigLoading(false))
-  })
+    if (!isEmail && !webhookTemplateType) {
+      setTemplateOptions([])
+      return
+    }
+    fetchTemplateOptions(
+      isEmail
+        ? { messageType: MessageType.EMAIL }
+        : { messageType: webhookTemplateType },
+    )
+  }, [
+    needTemplate,
+    isEmail,
+    webhookTemplateType,
+    fetchTemplateOptions,
+  ])
 
   useEffect(() => {
-    if (!needEmailConfig) return
-    fetchEmailConfigOptions(emailConfigKeyword)
-  }, [needEmailConfig, emailConfigKeyword, fetchEmailConfigOptions])
+    if (isEmail) setWebhookTemplateType(undefined)
+  }, [isEmail])
 
-  const handleSubmit = async () => {
-    try {
-      const values = await form.validateFields()
-      const uid = values.uid?.trim()
+  const handleChannelChange = useMemoizedFn((value: SendChannel) => {
+    setChannel(value)
+    setMode('direct')
+    setWebhookTemplateType(undefined)
+    form.resetFields()
+  })
+
+  const handleModeChange = useMemoizedFn((value: SendMode) => {
+    setMode(value)
+    form.resetFields()
+  })
+
+  const handleReset = useMemoizedFn(() => {
+    form.resetFields()
+    setWebhookTemplateType(undefined)
+  })
+
+  const { loading: submitting, runAsync: submitMessage } = useRequest(
+    async (values: Record<string, unknown>) => {
+      const uid = String(values.uid ?? '').trim()
       if (!uid) {
         message.warning(t('sender.form.uidPlaceholder'))
         return
       }
-      setSubmitting(true)
+
       switch (sendType) {
         case 'email': {
-          const toStr = values.to?.trim()
-          const ccStr = values.cc?.trim()
+          const toStr = String(values.to ?? '').trim()
+          const ccStr = String(values.cc ?? '').trim()
           const headersList = (values.headers ?? []) as {
             key?: string
             value?: string
@@ -154,19 +256,19 @@ export default function SenderManagement() {
               : undefined
           await sendEmail(uid, {
             uid,
-            subject: values.subject?.trim() ?? '',
-            body: values.body?.trim() ?? '',
-            contentType: values.contentType?.trim(),
+            subject: String(values.subject ?? '').trim(),
+            body: String(values.body ?? '').trim(),
+            contentType: String(values.contentType ?? '').trim() || undefined,
             to: toStr
               ? toStr
                   .split(',')
-                  .map((s: string) => s.trim())
+                  .map((s) => s.trim())
                   .filter(Boolean)
               : undefined,
             cc: ccStr
               ? ccStr
                   .split(',')
-                  .map((s: string) => s.trim())
+                  .map((s) => s.trim())
                   .filter(Boolean)
               : undefined,
             headers,
@@ -174,53 +276,61 @@ export default function SenderManagement() {
           break
         }
         case 'emailTemplate': {
-          const toStr = values.to?.trim()
-          const ccStr = values.cc?.trim()
+          const toStr = String(values.to ?? '').trim()
+          const ccStr = String(values.cc ?? '').trim()
           await sendEmailWithTemplate(uid, {
-            templateUID: values.templateUID?.trim(),
-            jsonData: values.jsonData?.trim(),
+            templateUID: String(values.templateUID ?? '').trim(),
+            jsonData: String(values.jsonData ?? '').trim() || undefined,
             to: toStr
               ? toStr
                   .split(',')
-                  .map((s: string) => s.trim())
+                  .map((s) => s.trim())
                   .filter(Boolean)
               : undefined,
             cc: ccStr
               ? ccStr
                   .split(',')
-                  .map((s: string) => s.trim())
+                  .map((s) => s.trim())
                   .filter(Boolean)
               : undefined,
           })
           break
         }
         case 'webhook':
-          await sendWebhook(uid, { data: values.data?.trim() })
+          await sendWebhook(uid, {
+            data: String(values.data ?? '').trim() || undefined,
+          })
           break
         case 'webhookTemplate':
           await sendWebhookWithTemplate(uid, {
-            templateUID: values.templateUID?.trim(),
-            jsonData: values.jsonData?.trim(),
+            templateUID: String(values.templateUID ?? '').trim(),
+            jsonData: String(values.jsonData ?? '').trim() || undefined,
           })
           break
         default:
           break
       }
+    },
+    { manual: true },
+  )
+
+  const handleSubmit = useMemoizedFn(async () => {
+    try {
+      const values = await form.validateFields()
+      await submitMessage(values)
       message.success(t('sender.success'))
       form.resetFields()
+      setWebhookTemplateType(undefined)
     } catch (error) {
       if (error && typeof error === 'object' && 'errorFields' in error) {
         return
       }
       console.error('发送失败:', error)
       message.error(t('sender.error'))
-    } finally {
-      setSubmitting(false)
     }
-  }
+  })
 
-  /** 四种发送方式各自的表单项渲染 */
-  const renderUidEmail = () => (
+  const renderEmailConfigSelect = () => (
     <Form.Item
       name='uid'
       label={t('sender.form.uidEmail')}
@@ -233,28 +343,12 @@ export default function SenderManagement() {
         allowClear
         showSearch={{ onSearch: handleEmailConfigSearch }}
         loading={emailConfigLoading}
-        options={emailConfigOptions
-          .filter(
-            (item) =>
-              (item.value ?? (item as unknown as { uid?: string }).uid) != null,
-          )
-          .map((item) => {
-            const value =
-              item.value ?? (item as unknown as { uid?: string }).uid ?? ''
-            const label =
-              item.label ?? (item as unknown as { name?: string }).name ?? value
-            return {
-              value,
-              label,
-              disabled: item.disabled,
-              title: item.tooltip,
-            }
-          })}
+        options={mapEmailConfigOptions(emailConfigOptions)}
       />
     </Form.Item>
   )
 
-  const renderUidWebhook = () => (
+  const renderWebhookConfigSelect = () => (
     <Form.Item
       name='uid'
       label={t('sender.form.uidWebhook')}
@@ -267,324 +361,332 @@ export default function SenderManagement() {
         allowClear
         showSearch={{ onSearch: handleWebhookConfigSearch }}
         loading={webhookConfigLoading}
-        options={webhookConfigOptions
-          .filter(
-            (item) =>
-              (item.value ?? (item as unknown as { uid?: string }).uid) != null,
-          )
-          .map((item) => {
-            const value =
-              item.value ?? (item as unknown as { uid?: string }).uid ?? ''
-            const label =
-              item.label ?? (item as unknown as { name?: string }).name ?? value
-            return {
-              ...item,
-              value,
-              label,
-              disabled: item.disabled,
-              title: item.tooltip,
-            }
-          })}
+        options={mapWebhookConfigOptions(webhookConfigOptions)}
         onChange={(value) => {
           const item = webhookConfigOptions.find((i) => i.value === value)
-          if (item) {
+          if (item?.app != null) {
             setWebhookTemplateType(
-              ('WEBHOOK_' + String(item.app)) as MessageType,
+              `WEBHOOK_${String(item.app)}` as MessageType,
             )
+          } else {
+            setWebhookTemplateType(undefined)
           }
         }}
       />
     </Form.Item>
   )
 
-  return (
-    <App className='h-full min-h-0 flex flex-col'>
-      <div className='flex flex-1 min-h-0'>
-        <div className='flex flex-1 min-h-0 gap-4'>
-          {/* 左侧：发送方式 */}
+  const renderTemplateSelect = () => (
+    <Form.Item
+      name='templateUID'
+      label={t('sender.form.templateUID')}
+      rules={[
+        {
+          required: true,
+          message: t('sender.form.templateUIDPlaceholder'),
+        },
+      ]}
+    >
+      <Select
+        placeholder={t('sender.form.templateUIDPlaceholder')}
+        allowClear
+        showSearch
+        loading={templateLoading}
+        disabled={!isEmail && !webhookTemplateType}
+        options={mapTemplateOptions(templateOptions)}
+      />
+    </Form.Item>
+  )
 
-          <PageContent className='w-56 shrink-0 overflow-auto'>
-            <div className='flex items-center gap-2 px-3 h-10 font-bold whitespace-nowrap'>
-              {t('sender.sendType')}
-            </div>
-            <div className='flex flex-col gap-2 pt-2'>
-              {SEND_TYPES.map(({ value, labelKey }) => (
-                <div
-                  key={value}
-                  onClick={() => {
-                    if (value !== sendType) {
-                      setSendType(value)
-                      form.resetFields()
-                    }
-                  }}
-                  className={`
-                  w-full text-left px-3 py-2.5 rounded-md transition-colors
-                  whitespace-nowrap overflow-hidden text-ellipsis
-                  ${
-                    sendType === value
-                      ? 'bg-(--ant-color-primary-bg) text-(--ant-color-primary)'
-                      : 'bg-transparent hover:bg-(--ant-color-fill-tertiary)'
-                  }
-                `}
-                >
-                  {t(labelKey)}
-                </div>
+  const renderTemplateDataField = () => (
+    <Form.Item name='jsonData' label={t('sender.form.jsonData')}>
+      <Input.TextArea
+        placeholder={t('sender.form.jsonDataPlaceholder')}
+        rows={6}
+        allowClear
+        className='font-mono text-sm'
+      />
+    </Form.Item>
+  )
+
+  const renderRecipientFields = () => (
+    <Row gutter={16}>
+      <Col xs={24} md={12}>
+        <Form.Item name='to' label={t('sender.form.to')}>
+          <Input
+            placeholder={t('sender.form.toPlaceholder')}
+            allowClear
+          />
+        </Form.Item>
+      </Col>
+      <Col xs={24} md={12}>
+        <Form.Item name='cc' label={t('sender.form.cc')}>
+          <Input
+            placeholder={t('sender.form.ccPlaceholder')}
+            allowClear
+          />
+        </Form.Item>
+      </Col>
+    </Row>
+  )
+
+  const renderEmailDirectContent = () => (
+    <>
+      <Row gutter={16}>
+        <Col xs={24} md={16}>
+          <Form.Item
+            name='subject'
+            label={t('sender.form.subject')}
+            rules={[
+              {
+                required: true,
+                message: t('sender.form.subjectPlaceholder'),
+              },
+            ]}
+          >
+            <Input
+              placeholder={t('sender.form.subjectPlaceholder')}
+              allowClear
+            />
+          </Form.Item>
+        </Col>
+        <Col xs={24} md={8}>
+          <Form.Item
+            name='contentType'
+            label={t('sender.form.contentType')}
+          >
+            <AutoComplete
+              placeholder={t('sender.form.contentTypePlaceholder')}
+              allowClear
+              options={[
+                { value: 'text/plain', label: 'text/plain' },
+                { value: 'text/html', label: 'text/html' },
+              ]}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+      <Form.Item label={t('sender.form.headers')}>
+        <Form.List name='headers'>
+          {(fields, { add, remove }) => (
+            <>
+              {fields.map(({ key, name, ...rest }) => (
+                <Row key={key} gutter={8} align='middle' className='mb-2'>
+                  <Col flex='1'>
+                    <Form.Item
+                      {...rest}
+                      name={[name, 'key']}
+                      rules={[
+                        {
+                          required: true,
+                          message: t('sender.form.headerKeyRequired'),
+                        },
+                      ]}
+                      style={{ marginBottom: 0 }}
+                    >
+                      <Input
+                        placeholder={t('sender.form.headerKeyPlaceholder')}
+                        allowClear
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col flex='1'>
+                    <Form.Item
+                      {...rest}
+                      name={[name, 'value']}
+                      style={{ marginBottom: 0 }}
+                      rules={[
+                        {
+                          required: true,
+                          message: t('sender.form.headerValueRequired'),
+                        },
+                      ]}
+                    >
+                      <Input
+                        placeholder={t('sender.form.headerValuePlaceholder')}
+                        allowClear
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col>
+                    <Button
+                      type='text'
+                      danger
+                      onClick={() => remove(name)}
+                    >
+                      {t('sender.form.headerRemove')}
+                    </Button>
+                  </Col>
+                </Row>
               ))}
-            </div>
-          </PageContent>
-
-          {/* 右侧：表单 */}
-          <PageContent className='flex-1 min-w-0 min-h-0 overflow-auto'>
-            <div className='flex justify-end mb-4'>
-              <Button
-                type='primary'
-                loading={submitting}
-                onClick={() => form.submit()}
-              >
-                {t('sender.submit')}
+              <Button type='dashed' onClick={() => add()} block>
+                {t('sender.form.headersAdd')}
               </Button>
-            </div>
-            <Form form={form} layout='vertical' onFinish={handleSubmit}>
-              {/* 1. 邮件 - 直接发送 */}
-              {sendType === 'email' && (
-                <>
-                  <Row gutter={16}>
-                    <Col span={12}>{renderUidEmail()}</Col>
-                    <Col span={12}>
-                      <Form.Item
-                        name='subject'
-                        label={t('sender.form.subject')}
-                        rules={[
-                          {
-                            required: true,
-                            message: t('sender.form.subjectPlaceholder'),
-                          },
-                        ]}
-                      >
-                        <Input
-                          placeholder={t('sender.form.subjectPlaceholder')}
-                          allowClear
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                      <Form.Item
-                        name='contentType'
-                        label={t('sender.form.contentType')}
-                      >
-                        <AutoComplete
-                          placeholder={t('sender.form.contentTypePlaceholder')}
-                          allowClear
-                          options={[
-                            { value: 'text/plain', label: 'text/plain' },
-                            { value: 'text/html', label: 'text/html' },
-                          ]}
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col span={16}>
-                      <Form.Item name='to' label={t('sender.form.to')}>
-                        <Input
-                          placeholder={t('sender.form.toPlaceholder')}
-                          allowClear
-                        />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  <Form.Item name='cc' label={t('sender.form.cc')}>
-                    <Input
-                      placeholder={t('sender.form.ccPlaceholder')}
-                      allowClear
-                    />
-                  </Form.Item>
-                  <Form.Item label={t('sender.form.headers')}>
-                    <Form.List name='headers'>
-                      {(fields, { add, remove }) => (
-                        <>
-                          {fields.map(({ key, name, ...rest }) => (
-                            <Row
-                              key={key}
-                              gutter={8}
-                              align='middle'
-                              className='mb-2'
-                            >
-                              <Col flex='1'>
-                                <Form.Item
-                                  {...rest}
-                                  name={[name, 'key']}
-                                  rules={[
-                                    {
-                                      required: true,
-                                      message: t(
-                                        'sender.form.headerKeyRequired',
-                                      ),
-                                    },
-                                  ]}
-                                  style={{ marginBottom: 0 }}
-                                >
-                                  <Input
-                                    placeholder={t(
-                                      'sender.form.headerKeyPlaceholder',
-                                    )}
-                                    allowClear
-                                  />
-                                </Form.Item>
-                              </Col>
-                              <Col flex='1'>
-                                <Form.Item
-                                  {...rest}
-                                  name={[name, 'value']}
-                                  style={{ marginBottom: 0 }}
-                                  rules={[
-                                    {
-                                      required: true,
-                                      message: t(
-                                        'sender.form.headerValueRequired',
-                                      ),
-                                    },
-                                  ]}
-                                >
-                                  <Input
-                                    placeholder={t(
-                                      'sender.form.headerValuePlaceholder',
-                                    )}
-                                    allowClear
-                                  />
-                                </Form.Item>
-                              </Col>
-                              <Col>
-                                <Button
-                                  type='text'
-                                  danger
-                                  onClick={() => remove(name)}
-                                >
-                                  {t('sender.form.headerRemove')}
-                                </Button>
-                              </Col>
-                            </Row>
-                          ))}
-                          <Button type='dashed' onClick={() => add()} block>
-                            {t('sender.form.headersAdd')}
-                          </Button>
-                        </>
-                      )}
-                    </Form.List>
-                  </Form.Item>
-                  <Form.Item
-                    name='body'
-                    label={t('sender.form.body')}
-                    rules={[
-                      {
-                        required: true,
-                        message: t('sender.form.bodyPlaceholder'),
-                      },
-                    ]}
-                  >
-                    <Input.TextArea
-                      placeholder={t('sender.form.bodyPlaceholder')}
-                      rows={8}
-                      allowClear
-                    />
-                  </Form.Item>
-                </>
+            </>
+          )}
+        </Form.List>
+      </Form.Item>
+      <Form.Item
+        name='body'
+        label={t('sender.form.body')}
+        rules={[
+          {
+            required: true,
+            message: t('sender.form.bodyPlaceholder'),
+          },
+        ]}
+      >
+        <Input.TextArea
+          placeholder={t('sender.form.bodyPlaceholder')}
+          rows={8}
+          allowClear
+        />
+      </Form.Item>
+    </>
+  )
+
+  return (
+    <App className='h-full min-h-0'>
+      <PageContent className='overflow-hidden! h-full'>
+        <Flex vertical className='h-full min-h-0 min-w-0'>
+          <div className='shrink-0 mb-4'>
+            <Typography.Title level={5} className='mb-1!'>
+              {t('rabbit.sender.title')}
+            </Typography.Title>
+            <Typography.Text type='secondary'>
+              {t('sender.description')}
+            </Typography.Text>
+          </div>
+
+          <div
+            className='shrink-0 mb-4 rounded-lg px-4 py-3 flex flex-wrap gap-6'
+            style={{ background: token.colorFillTertiary }}
+          >
+            <Space orientation='vertical' size={4}>
+              <Typography.Text type='secondary' className='text-xs'>
+                {t('sender.channel')}
+              </Typography.Text>
+              <Segmented
+                value={channel}
+                onChange={(value) => handleChannelChange(value as SendChannel)}
+                options={[
+                  {
+                    label: t('sender.channel.email'),
+                    value: 'email',
+                    icon: <MailOutlined />,
+                  },
+                  {
+                    label: t('sender.channel.webhook'),
+                    value: 'webhook',
+                    icon: <ApiOutlined />,
+                  },
+                ]}
+              />
+            </Space>
+            <Space orientation='vertical' size={4}>
+              <Typography.Text type='secondary' className='text-xs'>
+                {t('sender.mode')}
+              </Typography.Text>
+              <Segmented
+                value={mode}
+                onChange={(value) => handleModeChange(value as SendMode)}
+                options={[
+                  {
+                    label: t('sender.mode.direct'),
+                    value: 'direct',
+                    icon: <EditOutlined />,
+                  },
+                  {
+                    label: t('sender.mode.template'),
+                    value: 'template',
+                    icon: <FileTextOutlined />,
+                  },
+                ]}
+              />
+            </Space>
+          </div>
+
+          <div className='flex-1 min-h-0 overflow-y-auto overflow-x-hidden min-w-0'>
+            <Form
+              form={form}
+              layout='vertical'
+              onFinish={handleSubmit}
+              requiredMark='optional'
+            >
+              <Divider
+                titlePlacement='left'
+                plain
+                styles={{ root: { marginTop: 0 } }}
+              >
+                {t('sender.section.config')}
+              </Divider>
+              {needTemplate ? (
+                <Row gutter={16}>
+                  <Col xs={24} md={12}>
+                    {isEmail
+                      ? renderEmailConfigSelect()
+                      : renderWebhookConfigSelect()}
+                  </Col>
+                  <Col xs={24} md={12}>
+                    {renderTemplateSelect()}
+                  </Col>
+                </Row>
+              ) : isEmail ? (
+                renderEmailConfigSelect()
+              ) : (
+                renderWebhookConfigSelect()
               )}
 
-              {/* 2. 邮件 - 模板发送 */}
-              {sendType === 'emailTemplate' && (
+              {isEmail ? (
                 <>
-                  {renderUidEmail()}
-                  <Form.Item
-                    name='templateUID'
-                    label={t('sender.form.templateUID')}
-                  >
-                    <Select
-                      placeholder={t('sender.form.templateUIDPlaceholder')}
-                      allowClear
-                      showSearch
-                      loading={templateLoading}
-                      options={templateOptions
-                        .filter((item) => item.value != null)
-                        .map((item) => ({
-                          value: item.value!,
-                          label: item.label ?? item.value,
-                          disabled: item.disabled,
-                          title: item.tooltip,
-                        }))}
-                    />
-                  </Form.Item>
-                  <Form.Item name='jsonData' label={t('sender.form.jsonData')}>
-                    <Input.TextArea
-                      placeholder={t('sender.form.jsonDataPlaceholder')}
-                      rows={8}
-                      allowClear
-                    />
-                  </Form.Item>
-                  <Form.Item name='to' label={t('sender.form.to')}>
-                    <Input
-                      placeholder={t('sender.form.toPlaceholder')}
-                      allowClear
-                    />
-                  </Form.Item>
-                  <Form.Item name='cc' label={t('sender.form.cc')}>
-                    <Input
-                      placeholder={t('sender.form.ccPlaceholder')}
-                      allowClear
-                    />
-                  </Form.Item>
+                  <Divider titlePlacement='left' plain>
+                    {t('sender.section.recipients')}
+                  </Divider>
+                  {renderRecipientFields()}
                 </>
-              )}
+              ) : null}
 
-              {/* 3. Webhook - 直接发送 */}
+              <Divider titlePlacement='left' plain>
+                {t('sender.section.content')}
+              </Divider>
+              {sendType === 'email' && renderEmailDirectContent()}
+              {sendType === 'emailTemplate' && renderTemplateDataField()}
               {sendType === 'webhook' && (
-                <>
-                  {renderUidWebhook()}
-                  <Form.Item name='data' label={t('sender.form.data')}>
-                    <Input.TextArea
-                      placeholder={t('sender.form.dataPlaceholder')}
-                      rows={8}
-                      allowClear
-                    />
-                  </Form.Item>
-                </>
+                <Form.Item
+                  name='data'
+                  label={t('sender.form.data')}
+                  rules={[
+                    {
+                      required: true,
+                      message: t('sender.form.dataPlaceholder'),
+                    },
+                  ]}
+                >
+                  <Input.TextArea
+                    placeholder={t('sender.form.dataPlaceholder')}
+                    rows={8}
+                    allowClear
+                    className='font-mono text-sm'
+                  />
+                </Form.Item>
               )}
-
-              {/* 4. Webhook - 模板发送 */}
-              {sendType === 'webhookTemplate' && (
-                <>
-                  {renderUidWebhook()}
-                  <Form.Item
-                    name='templateUID'
-                    label={t('sender.form.templateUID')}
-                  >
-                    <Select
-                      placeholder={t('sender.form.templateUIDPlaceholder')}
-                      allowClear
-                      showSearch
-                      loading={templateLoading}
-                      disabled={!webhookTemplateType}
-                      options={templateOptions
-                        .filter((item) => item.value != null)
-                        .map((item) => ({
-                          value: item.value!,
-                          label: item.label ?? item.value,
-                          disabled: item.disabled,
-                          title: item.tooltip,
-                        }))}
-                    />
-                  </Form.Item>
-                  <Form.Item name='jsonData' label={t('sender.form.jsonData')}>
-                    <Input.TextArea
-                      placeholder={t('sender.form.jsonDataPlaceholder')}
-                      rows={8}
-                      allowClear
-                    />
-                  </Form.Item>
-                </>
-              )}
+              {sendType === 'webhookTemplate' && renderTemplateDataField()}
             </Form>
-          </PageContent>
-        </div>
-      </div>
+          </div>
+
+          <Flex justify='end' gap={8} className='shrink-0 pt-4 mt-2'>
+            <Button onClick={handleReset}>{t('common.reset')}</Button>
+            <Button
+              type='primary'
+              icon={<SendOutlined />}
+              loading={submitting}
+              onClick={() => form.submit()}
+            >
+              {t('sender.submit')}
+            </Button>
+          </Flex>
+        </Flex>
+      </PageContent>
     </App>
   )
 }
