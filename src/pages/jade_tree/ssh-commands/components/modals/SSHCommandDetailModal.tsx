@@ -34,7 +34,6 @@ const SSHCommandDetailModal: React.FC<SSHCommandDetailModalProps> = ({
       }
       width={760}
       destroyOnHidden
-      styles={{ body: { maxHeight: '70vh', overflowY: 'auto' } }}
     >
       {loading ? (
         <div style={{ textAlign: 'center', padding: '40px 0' }}>

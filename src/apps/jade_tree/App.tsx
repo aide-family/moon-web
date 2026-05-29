@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom'
 import { App as AntdApp, ConfigProvider } from 'antd'
 import { useMemo } from 'react'
+import { antdModalProviderConfig } from '@/utils/antdModalConfig'
 import {
   ApiOutlined,
   AuditOutlined,
@@ -97,7 +98,11 @@ function AppContent() {
     : NamespaceProvider
 
   return (
-    <ConfigProvider locale={antdLocale} theme={themeConfig}>
+    <ConfigProvider
+      locale={antdLocale}
+      theme={themeConfig}
+      modal={antdModalProviderConfig}
+    >
       <AntdApp>
         <BrowserRouter>
           <OAuthTokenHandler>

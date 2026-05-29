@@ -121,7 +121,6 @@ const DetailView: React.FC<DetailViewProps> = ({
       }
       width={700}
       destroyOnHidden
-      styles={{ body: { maxHeight: '70vh', overflowY: 'auto' } }}
     >
       {body}
     </Modal>

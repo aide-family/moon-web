@@ -1,19 +1,16 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useRequest } from 'ahooks'
 import {
   Modal,
   Descriptions,
   Button,
-  Space,
   Spin,
   Tooltip,
-  message,
 } from 'antd'
 import {
   type DatasourceItem,
   getDatasourceStatus,
   type GetDatasourceStatusResponse,
-  updateDatasourceStatus,
 } from '@/api/marksman/datasource/index'
 import dayjs from 'dayjs'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -30,8 +27,6 @@ interface DetailViewProps {
   data?: DatasourceItem | null
   loading?: boolean
   onCancel?: () => void
-  onEdit?: (data: DatasourceItem) => void
-  onStatusUpdated?: () => void
   /** 内嵌模式：在右侧面板展示，不用 Modal */
   embedded?: boolean
 }
@@ -210,12 +205,9 @@ const DetailView: React.FC<DetailViewProps> = ({
   data,
   loading = false,
   onCancel,
-  onEdit,
-  onStatusUpdated,
   embedded = false,
 }) => {
   const { t } = useLocale()
-  const [updatingStatus, setUpdatingStatus] = useState(false)
 
   const { data: statusRes, loading: statusLoading } = useRequest(
     () => {
@@ -233,45 +225,6 @@ const DetailView: React.FC<DetailViewProps> = ({
       pollingWhenHidden: false,
     },
   )
-
-  const handleToggleStatus = () => {
-    const uid = data?.uid
-    if (!uid) return
-
-    const raw = data?.status
-    const isEnabled = raw === GlobalStatus.ENABLED
-    const nextStatus = isEnabled ? GlobalStatus.DISABLED : GlobalStatus.ENABLED
-    const actionText = isEnabled
-      ? t('common.status.DISABLED')
-      : t('common.status.ENABLED')
-    const name = data?.name ?? uid
-
-    Modal.confirm({
-      title: t('datasource.confirm.status.title', { action: actionText }),
-      content: t('datasource.confirm.status.content', {
-        action: actionText,
-        name,
-      }),
-      okText: t('common.ok'),
-      cancelText: t('common.cancel'),
-      onOk: async () => {
-        setUpdatingStatus(true)
-        try {
-          await updateDatasourceStatus({ uid, status: nextStatus })
-          message.success(t('message.update.success'))
-          onStatusUpdated?.()
-        } catch (e) {
-          console.error('修改数据源状态失败:', e)
-        } finally {
-          setUpdatingStatus(false)
-        }
-      },
-    })
-  }
-
-  const handleEdit = () => {
-    if (data && onEdit) onEdit(data)
-  }
 
   const statusPoints = statusRes ? collectStatusPoints(statusRes) : []
   const statusLabel = t('datasource.detail.status')
@@ -296,32 +249,7 @@ const DetailView: React.FC<DetailViewProps> = ({
   )
 
   if (embedded) {
-    return (
-      <div className='flex flex-col h-full'>
-        <div className='flex justify-end shrink-0 mb-2'>
-          <Space>
-            <Button
-              size='small'
-              loading={updatingStatus}
-              disabled={!data?.uid}
-              onClick={handleToggleStatus}
-              type='primary'
-              danger={data?.status === GlobalStatus.ENABLED}
-            >
-              {t(
-                `common.status.${data?.status === GlobalStatus.ENABLED ? GlobalStatus.DISABLED : GlobalStatus.ENABLED}`,
-              )}
-            </Button>
-            {data && onEdit && (
-              <Button type='primary' size='small' onClick={handleEdit}>
-                {t('common.edit')}
-              </Button>
-            )}
-          </Space>
-        </div>
-        <div className='flex-1 min-h-0 overflow-auto'>{body}</div>
-      </div>
-    )
+    return <div className='h-full overflow-auto'>{body}</div>
   }
 
   return (
@@ -329,27 +257,9 @@ const DetailView: React.FC<DetailViewProps> = ({
       title={t('datasource.modal.detail.title')}
       open={open}
       onCancel={onCancel}
-      footer={
-        <Space>
-          <Button onClick={onCancel}>{t('common.close')}</Button>
-          <Button
-            size='small'
-            loading={updatingStatus}
-            disabled={!data?.uid}
-            onClick={handleToggleStatus}
-          >
-            {t(`common.status.${data?.status}`)}
-          </Button>
-          {data && onEdit && (
-            <Button type='primary' onClick={handleEdit}>
-              {t('common.edit')}
-            </Button>
-          )}
-        </Space>
-      }
+      footer={<Button onClick={onCancel}>{t('common.close')}</Button>}
       width={700}
       destroyOnHidden
-      styles={{ body: { maxHeight: '70vh', overflowY: 'auto' } }}
     >
       {body}
     </Modal>

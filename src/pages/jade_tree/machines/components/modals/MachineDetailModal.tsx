@@ -51,7 +51,6 @@ const MachineDetailModal: React.FC<MachineDetailModalProps> = ({
       }
       width={860}
       destroyOnHidden
-      styles={{ body: { maxHeight: '70vh', overflowY: 'auto' } }}
     >
       {data ? (
         <Space orientation='vertical' size='middle' style={{ width: '100%' }}>

@@ -13,11 +13,12 @@ import {
   Select,
   message,
 } from 'antd'
-import KeyValueEditor, {
+import KeyValueEditor from '@/components/KeyValueEditor'
+import {
   keyValueRowsToRecord,
   recordToKeyValueRows,
   type KeyValueRow,
-} from '@/components/KeyValueEditor'
+} from '@/components/keyValueUtils'
 import { useLocale } from '@/contexts/LocaleContext'
 import { GlobalStatus } from '@/api/common/types'
 import {

@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useMemo } from 'react'
-import { Modal, Form, Input, Select, message } from 'antd'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useRequest } from 'ahooks'
+import { Modal, Form, Input, Select, Row, Col, message } from 'antd'
 import type {
   CreateDatasourceParams,
   UpdateDatasourceParams,
@@ -13,11 +14,26 @@ import {
 } from '@/api/marksman/datasource/index'
 import {
   getLevelSelectList,
-  type LevelItemSelect,
   LevelType,
 } from '@/api/marksman/level'
 import { GlobalStatus } from '@/api'
+import KeyValueEditor from '@/components/KeyValueEditor'
+import {
+  keyValueRowsToRecord,
+  recordToKeyValueRows,
+  type KeyValueRow,
+} from '@/components/keyValueUtils'
 import { useLocale } from '@/contexts/LocaleContext'
+
+interface DatasourceFormValues {
+  name?: string
+  type?: DatasourceType
+  driver?: DatasourceDriver
+  levelUid?: string
+  url?: string
+  remark?: string
+  metadataPairs?: KeyValueRow[]
+}
 
 interface DetailFormProps {
   open: boolean
@@ -37,11 +53,20 @@ const DetailForm: React.FC<DetailFormProps> = ({
   closable = true,
 }) => {
   const { t } = useLocale()
-  const [form] = Form.useForm()
+  const [form] = Form.useForm<DatasourceFormValues>()
   const [loading, setLoading] = useState(false)
-  const [levelSelectOptions, setLevelSelectOptions] = useState<
-    LevelItemSelect[]
-  >([])
+
+  const { data: levelSelectRes } = useRequest(
+    () =>
+      getLevelSelectList({
+        limit: 100,
+        status: GlobalStatus.ENABLED,
+        type: LevelType.LEVEL_TYPE_DATASOURCE,
+      }),
+    { ready: open },
+  )
+
+  const levelSelectOptions = levelSelectRes?.items ?? []
 
   const typeOptions = useMemo(
     () =>
@@ -68,60 +93,19 @@ const DetailForm: React.FC<DetailFormProps> = ({
         levelUid: initialData.levelUid,
         url: initialData.url ?? '',
         remark: initialData.remark ?? '',
-        metadata: initialData.metadata
-          ? JSON.stringify(initialData.metadata, null, 2)
-          : '',
+        metadataPairs: recordToKeyValueRows(initialData.metadata),
       })
     } else if (open && mode === 'create') {
       form.resetFields()
     }
   }, [open, mode, initialData, form])
 
-  useEffect(() => {
-    if (!open) return
-    let cancelled = false
-    const run = async () => {
-      try {
-        const res = await getLevelSelectList({
-          limit: 100,
-          status: GlobalStatus.ENABLED,
-          type: LevelType.LEVEL_TYPE_DATASOURCE,
-        })
-        if (!cancelled) setLevelSelectOptions(res?.items ?? [])
-      } catch {
-        if (!cancelled) setLevelSelectOptions([])
-      }
-    }
-    void run()
-    return () => {
-      cancelled = true
-    }
-  }, [open])
-
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields()
       setLoading(true)
 
-      let metadata: Record<string, string> | undefined
-      if (values.metadata && String(values.metadata).trim()) {
-        try {
-          const parsed = JSON.parse(String(values.metadata).trim())
-          if (
-            typeof parsed === 'object' &&
-            parsed !== null &&
-            !Array.isArray(parsed)
-          ) {
-            metadata = Object.fromEntries(
-              Object.entries(parsed).map(([k, v]) => [k, String(v)]),
-            )
-          }
-        } catch {
-          message.error(t('message.error'))
-          setLoading(false)
-          return
-        }
-      }
+      const metadata = keyValueRowsToRecord(values.metadataPairs)
 
       if (mode === 'create') {
         const params: CreateDatasourceParams = {
@@ -154,7 +138,9 @@ const DetailForm: React.FC<DetailFormProps> = ({
       }
       onCancel()
     } catch (err) {
+      if (err && typeof err === 'object' && 'errorFields' in err) return
       console.error('提交失败:', err)
+      message.error(t('message.error'))
     } finally {
       setLoading(false)
     }
@@ -181,66 +167,88 @@ const DetailForm: React.FC<DetailFormProps> = ({
       confirmLoading={loading}
       okText={t('common.submit')}
       cancelButtonProps={closable ? undefined : { style: { display: 'none' } }}
+      width='60vw'
     >
       <Form form={form} layout='vertical' preserve={false}>
-        <Form.Item
-          name='name'
-          label={t('datasource.form.name.label')}
-          rules={[
-            { required: true, message: t('datasource.form.name.placeholder') },
-          ]}
-        >
-          <Input
-            placeholder={t('datasource.form.name.placeholder')}
-            allowClear
-          />
-        </Form.Item>
-        <Form.Item
-          name='type'
-          label={t('datasource.form.type.label')}
-          rules={[
-            { required: true, message: t('datasource.form.type.placeholder') },
-          ]}
-        >
-          <Select
-            placeholder={t('datasource.form.type.placeholder')}
-            options={typeOptions}
-          />
-        </Form.Item>
-        <Form.Item
-          name='driver'
-          label={t('datasource.form.driver.label')}
-          rules={[
-            {
-              required: true,
-              message: t('datasource.form.driver.placeholder'),
-            },
-          ]}
-        >
-          <Select
-            placeholder={t('datasource.form.driver.placeholder')}
-            options={driverOptions}
-          />
-        </Form.Item>
-        <Form.Item name='levelUid' label={t('datasource.form.levelUid.label')}>
-          <Select
-            placeholder={t('datasource.form.levelUid.placeholder')}
-            allowClear
-            showSearch={{
-              optionFilterProp: 'label',
-              filterOption: (input, opt) =>
-                (opt?.label ?? '')
-                  .toString()
-                  .toLowerCase()
-                  .includes(input.toLowerCase()),
-            }}
-            options={levelSelectOptions.map((o) => ({
-              value: o.value,
-              label: o.label ?? o.value,
-              disabled: o.disabled,
-            }))}
-          />
-        </Form.Item>
+        <Row gutter={16}>
+          <Col span={16}>
+            <Form.Item
+              name='name'
+              label={t('datasource.form.name.label')}
+              rules={[
+                {
+                  required: true,
+                  message: t('datasource.form.name.placeholder'),
+                },
+              ]}
+            >
+              <Input
+                placeholder={t('datasource.form.name.placeholder')}
+                allowClear
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              name='levelUid'
+              label={t('datasource.form.levelUid.label')}
+            >
+              <Select
+                placeholder={t('datasource.form.levelUid.placeholder')}
+                allowClear
+                showSearch={{
+                  optionFilterProp: 'label',
+                  filterOption: (input, opt) =>
+                    (opt?.label ?? '')
+                      .toString()
+                      .toLowerCase()
+                      .includes(input.toLowerCase()),
+                }}
+                options={levelSelectOptions.map((o) => ({
+                  value: o.value,
+                  label: o.label ?? o.value,
+                  disabled: o.disabled,
+                }))}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              name='type'
+              label={t('datasource.form.type.label')}
+              rules={[
+                {
+                  required: true,
+                  message: t('datasource.form.type.placeholder'),
+                },
+              ]}
+            >
+              <Select
+                placeholder={t('datasource.form.type.placeholder')}
+                options={typeOptions}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name='driver'
+              label={t('datasource.form.driver.label')}
+              rules={[
+                {
+                  required: true,
+                  message: t('datasource.form.driver.placeholder'),
+                },
+              ]}
+            >
+              <Select
+                placeholder={t('datasource.form.driver.placeholder')}
+                options={driverOptions}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
         <Form.Item
           name='url'
           label={t('datasource.form.url.label')}
@@ -284,12 +292,12 @@ const DetailForm: React.FC<DetailFormProps> = ({
             allowClear
           />
         </Form.Item>
-        <Form.Item name='metadata' label={t('datasource.form.metadata.label')}>
-          <Input.TextArea
-            rows={4}
-            placeholder={t('datasource.form.metadata.placeholder')}
-          />
-        </Form.Item>
+        <KeyValueEditor
+          name='metadataPairs'
+          label={t('datasource.form.metadata.label')}
+          extra={t('datasource.form.metadata.help')}
+          columnRatio={[1, 2]}
+        />
       </Form>
     </Modal>
   )

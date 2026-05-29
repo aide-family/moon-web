@@ -127,13 +127,6 @@ const RuleDetailModal: React.FC<RuleDetailModalProps> = ({
       confirmLoading={saving}
       destroyOnHidden
       width={640}
-      styles={{
-        body: {
-          maxHeight: '70vh',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-        },
-      }}
     >
       <Form form={form} layout='vertical'>
         <Form.Item

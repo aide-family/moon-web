@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom'
 import { ConfigProvider } from 'antd'
 import { useMemo } from 'react'
+import { antdModalProviderConfig } from '@/utils/antdModalConfig'
 import { OAuthTokenHandler } from '@/components/OAuthTokenHandler'
 import { AuthGuard } from '@/components/AuthGuard'
 import { TokenRefreshHandler } from '@/components/TokenRefreshHandler'
@@ -128,7 +129,11 @@ function AppContent() {
     ? NoopNamespaceProvider
     : NamespaceProvider
   return (
-    <ConfigProvider locale={antdLocale} theme={themeConfig}>
+    <ConfigProvider
+      locale={antdLocale}
+      theme={themeConfig}
+      modal={antdModalProviderConfig}
+    >
       <BrowserRouter>
         <OAuthTokenHandler>
           <Routes>

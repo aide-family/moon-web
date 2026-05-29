@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react'
 import { useMemoizedFn } from 'ahooks'
 import { Input, Button, message, App, Dropdown, Form, Spin, Tabs } from 'antd'
 import type { MenuProps } from 'antd'
+import { GlobalStatus } from '@/api'
 import {
   type DatasourceItem,
   type DatasourceListParams,
   getDatasourceList,
   getDatasourceDetail,
   deleteDatasource,
+  updateDatasourceStatus,
 } from '@/api/marksman/datasource/index'
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
@@ -114,11 +116,21 @@ const DatasourceList: React.FC = () => {
     setDetailFormOpen(true)
   }
 
-  const handleEditFromDetail = (data: DatasourceItem) => {
-    setDetailFormMode('edit')
-    setEditingData(data)
-    setDetailFormOpen(true)
-  }
+  const handleStatusChange = useMemoizedFn(
+    async (record: DatasourceItem, newStatus: GlobalStatus) => {
+      if (!record.uid) return
+      try {
+        await updateDatasourceStatus({ uid: record.uid, status: newStatus })
+        message.success(t('message.update.success'))
+        listSearch(searchParams)
+        if (viewingData?.uid === record.uid) {
+          refreshViewingData()
+        }
+      } catch (error) {
+        console.error('修改数据源状态失败:', error)
+      }
+    },
+  )
 
   const handleDelete = async (record: DatasourceItem) => {
     if (!record.uid) return
@@ -194,11 +206,39 @@ const DatasourceList: React.FC = () => {
               <>
                 {dataSource.map((item) => {
                   const isSelected = selectedUid === item.uid
+                  const isEnabled = item.status === GlobalStatus.ENABLED
+                  const action = isEnabled
+                    ? t(`common.status.${GlobalStatus.DISABLED}`)
+                    : t(`common.status.${GlobalStatus.ENABLED}`)
                   const menuItems: MenuProps['items'] = [
                     {
                       key: 'edit',
                       label: t('common.edit'),
                       onClick: () => handleEdit(item),
+                    },
+                    {
+                      key: 'status',
+                      label: action,
+                      onClick: () => {
+                        modal.confirm({
+                          title: t('datasource.confirm.status.title', {
+                            action,
+                          }),
+                          content: t('datasource.confirm.status.content', {
+                            action,
+                            name: item.name ?? item.uid ?? '',
+                          }),
+                          okText: t('common.ok'),
+                          cancelText: t('common.cancel'),
+                          onOk: () =>
+                            handleStatusChange(
+                              item,
+                              isEnabled
+                                ? GlobalStatus.DISABLED
+                                : GlobalStatus.ENABLED,
+                            ),
+                        })
+                      },
                     },
                     MENU_DIVIDER,
                     {
@@ -222,12 +262,26 @@ const DatasourceList: React.FC = () => {
                     <div
                       key={item.uid}
                       className={`
-                        flex items-center justify-between gap-2 cursor-pointer px-3 py-2 border-b border-(--ant-color-border-secondary)
+                        relative flex items-center justify-between gap-2 cursor-pointer pl-5 pr-3 py-2 border-b border-(--ant-color-border-secondary)
                         transition-colors rounded-(--ant-border-radius)
                         ${isSelected ? 'bg-(--ant-color-primary-bg) text-(--ant-color-primary)' : 'hover:bg-(--ant-color-fill-tertiary)'}
                       `}
                       onClick={() => handleSelectItem(item)}
                     >
+                      <span
+                        className='absolute top-2 left-2 shrink-0 w-1.5 h-1.5 rounded-full'
+                        style={{
+                          backgroundColor:
+                            item.status === GlobalStatus.ENABLED
+                              ? 'var(--ant-color-success)'
+                              : item.status === GlobalStatus.DISABLED
+                                ? 'var(--ant-color-error)'
+                                : 'var(--ant-color-text-tertiary)',
+                        }}
+                        title={t(
+                          `common.status.${item.status ?? GlobalStatus.UNKNOWN}`,
+                        )}
+                      />
                       <div className='min-w-0 flex-1'>
                         <div className='flex items-center gap-2'>
                           <div
@@ -291,8 +345,6 @@ const DatasourceList: React.FC = () => {
                         embedded
                         data={viewingData}
                         loading={detailLoading}
-                        onEdit={handleEditFromDetail}
-                        onStatusUpdated={refreshViewingData}
                       />
                     </div>
                   ),

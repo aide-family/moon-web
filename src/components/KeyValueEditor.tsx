@@ -1,13 +1,10 @@
+import type { CSSProperties } from 'react'
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 import { Button, Form, Input, Space, Typography } from 'antd'
 import { useLocale } from '@/contexts/LocaleContext'
+import type { KeyValueRow } from '@/components/keyValueUtils'
 
 const { Text } = Typography
-
-export interface KeyValueRow {
-  key?: string
-  value?: string
-}
 
 interface KeyValueEditorProps {
   name: string
@@ -17,36 +14,9 @@ interface KeyValueEditorProps {
   keyPlaceholder?: string
   valuePlaceholder?: string
   addLabel?: string
+  /** key 与 value 列宽比例，默认 1:1 */
+  columnRatio?: readonly [number, number]
 }
-
-export const recordToKeyValueRows = (
-  value?: Record<string, string>,
-): KeyValueRow[] =>
-  Object.entries(value ?? {}).map(([key, itemValue]) => ({
-    key,
-    value: itemValue,
-  }))
-
-export const keyValueRowsToRecord = (
-  rows?: KeyValueRow[],
-): Record<string, string> | undefined => {
-  const entries = (rows ?? []).reduce<Array<[string, string]>>((acc, row) => {
-    const key = row.key?.trim()
-    const value = row.value?.trim() ?? ''
-    if (!key) {
-      if (value) {
-        throw new Error('invalid key-value row')
-      }
-      return acc
-    }
-    acc.push([key, value])
-    return acc
-  }, [])
-  return entries.length ? Object.fromEntries(entries) : undefined
-}
-
-export const formatRecordJson = (value?: Record<string, string>): string =>
-  value && Object.keys(value).length > 0 ? JSON.stringify(value, null, 2) : '-'
 
 export default function KeyValueEditor({
   name,
@@ -56,8 +26,13 @@ export default function KeyValueEditor({
   keyPlaceholder,
   valuePlaceholder,
   addLabel,
+  columnRatio,
 }: KeyValueEditorProps) {
   const { t } = useLocale()
+  const [keyRatio, valueRatio] = columnRatio ?? [1, 1]
+  const rowGridStyle: CSSProperties = {
+    gridTemplateColumns: `minmax(0, ${keyRatio}fr) minmax(0, ${valueRatio}fr) auto`,
+  }
 
   return (
     <Form.Item label={label} extra={extra}>
@@ -90,7 +65,8 @@ export default function KeyValueEditor({
               fields.map((field) => (
                 <div
                   key={field.key}
-                  className='grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2'
+                  className='grid gap-2'
+                  style={rowGridStyle}
                 >
                   <Form.Item name={[field.name, 'key']} className='mb-0'>
                     <Input
