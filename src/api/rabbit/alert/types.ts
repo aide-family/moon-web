@@ -1,4 +1,7 @@
 import { GlobalStatus } from '@/api/common/types'
+import type { EmailItem } from '@/api/rabbit/email'
+import type { RecipientGroupItem } from '@/api/rabbit/recipient-group'
+import type { TemplateItem } from '@/api/rabbit/template'
 
 export interface AlertSubscriptionMemberRequest {
   memberUid?: string
@@ -27,6 +30,9 @@ export interface AlertSubscriptionItem {
   status?: GlobalStatus
   createdAt?: string
   updatedAt?: string
+  recipientGroups?: RecipientGroupItem[]
+  directMemberEmailConfig?: EmailItem
+  directMemberTemplate?: TemplateItem
 }
 
 export interface CreateAlertSubscriptionParams {

@@ -3,12 +3,14 @@ import { useMemoizedFn } from 'ahooks'
 import {
   Button,
   Checkbox,
+  Col,
   Divider,
+  Flex,
   Form,
   Input,
   Modal,
+  Row,
   Select,
-  Space,
   message,
 } from 'antd'
 import KeyValueEditor, {
@@ -66,6 +68,15 @@ export interface AlertSubscriptionDetailFormProps {
   formLoading?: boolean
   onCancel: () => void
   onSuccess: () => void
+}
+
+const normalizeOptionalUid = (
+  value?: string | number | null,
+): string | undefined => {
+  if (value == null || value === '' || value === 0 || value === '0') {
+    return undefined
+  }
+  return String(value)
 }
 
 const toSelectOptions = (
@@ -156,8 +167,14 @@ export default function AlertSubscriptionDetailForm({
         labelsPairs: recordToKeyValueRows(initialData.labels),
         excludeLabelsPairs: recordToKeyValueRows(initialData.excludeLabels),
         recipientGroupUids: initialData.recipientGroupUids ?? [],
-        directMemberEmailConfigUid: initialData.directMemberEmailConfigUid,
-        directMemberTemplateUid: initialData.directMemberTemplateUid,
+        directMemberEmailConfigUid: normalizeOptionalUid(
+          initialData.directMemberEmailConfigUid ??
+            initialData.directMemberEmailConfig?.uid,
+        ),
+        directMemberTemplateUid: normalizeOptionalUid(
+          initialData.directMemberTemplateUid ??
+            initialData.directMemberTemplate?.uid,
+        ),
         members: (initialData.members ?? []).map((item) => ({
           memberUid: item.memberUid,
           isEmail: item.isEmail,
@@ -195,8 +212,12 @@ export default function AlertSubscriptionDetailForm({
         excludeLabels: keyValueRowsToRecord(values.excludeLabelsPairs),
         recipientGroupUids: values.recipientGroupUids ?? [],
         members,
-        directMemberEmailConfigUid: values.directMemberEmailConfigUid,
-        directMemberTemplateUid: values.directMemberTemplateUid,
+        directMemberEmailConfigUid: normalizeOptionalUid(
+          values.directMemberEmailConfigUid,
+        ),
+        directMemberTemplateUid: normalizeOptionalUid(
+          values.directMemberTemplateUid,
+        ),
       }
 
       setSubmitting(true)
@@ -302,33 +323,40 @@ export default function AlertSubscriptionDetailForm({
           />
         </Form.Item>
 
-        <Form.Item
-          name='directMemberEmailConfigUid'
-          label={t('alertSubscription.form.directEmailConfig.label')}
-        >
-          <Select
-            allowClear
-            showSearch={{ optionFilterProp: 'label' }}
-            options={emailOptions}
-            placeholder={t(
-              'alertSubscription.form.directEmailConfig.placeholder',
-            )}
-            disabled={formLoading}
-          />
-        </Form.Item>
-
-        <Form.Item
-          name='directMemberTemplateUid'
-          label={t('alertSubscription.form.directTemplate.label')}
-        >
-          <Select
-            allowClear
-            showSearch={{ optionFilterProp: 'label' }}
-            options={templateOptions}
-            placeholder={t('alertSubscription.form.directTemplate.placeholder')}
-            disabled={formLoading}
-          />
-        </Form.Item>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              name='directMemberEmailConfigUid'
+              label={t('alertSubscription.form.directEmailConfig.label')}
+            >
+              <Select
+                allowClear
+                showSearch={{ optionFilterProp: 'label' }}
+                options={emailOptions}
+                placeholder={t(
+                  'alertSubscription.form.directEmailConfig.placeholder',
+                )}
+                disabled={formLoading}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name='directMemberTemplateUid'
+              label={t('alertSubscription.form.directTemplate.label')}
+            >
+              <Select
+                allowClear
+                showSearch={{ optionFilterProp: 'label' }}
+                options={templateOptions}
+                placeholder={t(
+                  'alertSubscription.form.directTemplate.placeholder',
+                )}
+                disabled={formLoading}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
 
         <Divider>{t('alertSubscription.form.members.title')}</Divider>
 
@@ -348,17 +376,27 @@ export default function AlertSubscriptionDetailForm({
           ]}
         >
           {(fields, { add, remove }, { errors }) => (
-            <div className='flex flex-col gap-3'>
+            <div className='flex flex-col gap-2'>
               {fields.map((field) => (
                 <div
                   key={field.key}
-                  className='rounded-md border border-(--ant-color-border-secondary) p-3'
+                  className='rounded-md border border-(--ant-color-border-secondary) px-3 pb-2 pt-1'
                 >
-                  <Space wrap align='start' className='w-full justify-between'>
-                    <div className='grid grid-cols-1 md:grid-cols-4 gap-3 flex-1'>
+                  <div className='mb-1 flex justify-end'>
+                    <Button
+                      type='link'
+                      danger
+                      size='small'
+                      className='h-auto px-1'
+                      onClick={() => remove(field.name)}
+                    >
+                      {t('common.delete')}
+                    </Button>
+                  </div>
+                  <Row gutter={12} align='middle' wrap={false}>
+                    <Col span={12}>
                       <Form.Item
                         name={[field.name, 'memberUid']}
-                        label={t('alertSubscription.form.member.label')}
                         rules={[
                           {
                             required: true,
@@ -367,8 +405,10 @@ export default function AlertSubscriptionDetailForm({
                             ),
                           },
                         ]}
+                        noStyle
                       >
                         <Select
+                          className='w-full'
                           showSearch={{ optionFilterProp: 'label' }}
                           allowClear
                           options={memberOptions.map((item) => ({
@@ -387,38 +427,39 @@ export default function AlertSubscriptionDetailForm({
                           disabled={formLoading}
                         />
                       </Form.Item>
-                      <Form.Item
-                        name={[field.name, 'isEmail']}
-                        valuePropName='checked'
-                        label={t('alertSubscription.form.channel.email')}
-                      >
-                        <Checkbox disabled={formLoading}>
-                          {t('alertSubscription.form.channel.email')}
-                        </Checkbox>
-                      </Form.Item>
-                      <Form.Item
-                        name={[field.name, 'isSms']}
-                        valuePropName='checked'
-                        label={t('alertSubscription.form.channel.sms')}
-                      >
-                        <Checkbox disabled={formLoading}>
-                          {t('alertSubscription.form.channel.sms')}
-                        </Checkbox>
-                      </Form.Item>
-                      <Form.Item
-                        name={[field.name, 'isPhone']}
-                        valuePropName='checked'
-                        label={t('alertSubscription.form.channel.phone')}
-                      >
-                        <Checkbox disabled={formLoading}>
-                          {t('alertSubscription.form.channel.phone')}
-                        </Checkbox>
-                      </Form.Item>
-                    </div>
-                    <Button danger onClick={() => remove(field.name)}>
-                      {t('common.delete')}
-                    </Button>
-                  </Space>
+                    </Col>
+                    <Col span={12}>
+                      <Flex gap={4} align='center' wrap={false}>
+                        <Form.Item
+                          name={[field.name, 'isEmail']}
+                          valuePropName='checked'
+                          noStyle
+                        >
+                          <Checkbox disabled={formLoading}>
+                            {t('alertSubscription.form.channel.email')}
+                          </Checkbox>
+                        </Form.Item>
+                        <Form.Item
+                          name={[field.name, 'isSms']}
+                          valuePropName='checked'
+                          noStyle
+                        >
+                          <Checkbox disabled={formLoading}>
+                            {t('alertSubscription.form.channel.sms')}
+                          </Checkbox>
+                        </Form.Item>
+                        <Form.Item
+                          name={[field.name, 'isPhone']}
+                          valuePropName='checked'
+                          noStyle
+                        >
+                          <Checkbox disabled={formLoading}>
+                            {t('alertSubscription.form.channel.phone')}
+                          </Checkbox>
+                        </Form.Item>
+                      </Flex>
+                    </Col>
+                  </Row>
                 </div>
               ))}
               <Button onClick={() => add()}>{t('common.add')}</Button>

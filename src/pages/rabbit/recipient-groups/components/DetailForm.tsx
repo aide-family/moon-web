@@ -3,12 +3,14 @@ import { useMemoizedFn } from 'ahooks'
 import {
   Button,
   Checkbox,
+  Col,
   Divider,
+  Flex,
   Form,
   Input,
   Modal,
+  Row,
   Select,
-  Space,
   message,
 } from 'antd'
 import KeyValueEditor, {
@@ -311,25 +313,37 @@ export default function RecipientGroupDetailForm({
           ]}
         >
           {(fields, { add, remove }, { errors }) => (
-            <div className='flex flex-col gap-3'>
+            <div className='flex flex-col gap-2'>
               {fields.map((field) => (
                 <div
                   key={field.key}
-                  className='rounded-md border border-(--ant-color-border-secondary) p-3'
+                  className='rounded-md border border-(--ant-color-border-secondary) px-3 pb-2 pt-1'
                 >
-                  <Space wrap align='start' className='w-full justify-between'>
-                    <div className='grid grid-cols-1 md:grid-cols-4 gap-3 flex-1'>
+                  <div className='mb-1 flex justify-end'>
+                    <Button
+                      type='link'
+                      danger
+                      size='small'
+                      className='h-auto px-1'
+                      onClick={() => remove(field.name)}
+                    >
+                      {t('common.delete')}
+                    </Button>
+                  </div>
+                  <Row gutter={12} align='middle' wrap={false}>
+                    <Col span={12}>
                       <Form.Item
                         name={[field.name, 'memberUid']}
-                        label={t('recipientGroup.form.member.label')}
                         rules={[
                           {
                             required: true,
                             message: t('recipientGroup.form.member.required'),
                           },
                         ]}
+                        noStyle
                       >
                         <Select
+                          className='w-full'
                           showSearch={{ optionFilterProp: 'label' }}
                           allowClear
                           options={memberOptions.map((item) => ({
@@ -348,38 +362,39 @@ export default function RecipientGroupDetailForm({
                           disabled={formLoading}
                         />
                       </Form.Item>
-                      <Form.Item
-                        name={[field.name, 'isEmail']}
-                        valuePropName='checked'
-                        label={t('recipientGroup.form.channel.email')}
-                      >
-                        <Checkbox disabled={formLoading}>
-                          {t('recipientGroup.form.channel.email')}
-                        </Checkbox>
-                      </Form.Item>
-                      <Form.Item
-                        name={[field.name, 'isSms']}
-                        valuePropName='checked'
-                        label={t('recipientGroup.form.channel.sms')}
-                      >
-                        <Checkbox disabled={formLoading}>
-                          {t('recipientGroup.form.channel.sms')}
-                        </Checkbox>
-                      </Form.Item>
-                      <Form.Item
-                        name={[field.name, 'isPhone']}
-                        valuePropName='checked'
-                        label={t('recipientGroup.form.channel.phone')}
-                      >
-                        <Checkbox disabled={formLoading}>
-                          {t('recipientGroup.form.channel.phone')}
-                        </Checkbox>
-                      </Form.Item>
-                    </div>
-                    <Button danger onClick={() => remove(field.name)}>
-                      {t('common.delete')}
-                    </Button>
-                  </Space>
+                    </Col>
+                    <Col span={12}>
+                      <Flex gap={4} align='center' wrap={false}>
+                        <Form.Item
+                          name={[field.name, 'isEmail']}
+                          valuePropName='checked'
+                          noStyle
+                        >
+                          <Checkbox disabled={formLoading}>
+                            {t('recipientGroup.form.channel.email')}
+                          </Checkbox>
+                        </Form.Item>
+                        <Form.Item
+                          name={[field.name, 'isSms']}
+                          valuePropName='checked'
+                          noStyle
+                        >
+                          <Checkbox disabled={formLoading}>
+                            {t('recipientGroup.form.channel.sms')}
+                          </Checkbox>
+                        </Form.Item>
+                        <Form.Item
+                          name={[field.name, 'isPhone']}
+                          valuePropName='checked'
+                          noStyle
+                        >
+                          <Checkbox disabled={formLoading}>
+                            {t('recipientGroup.form.channel.phone')}
+                          </Checkbox>
+                        </Form.Item>
+                      </Flex>
+                    </Col>
+                  </Row>
                 </div>
               ))}
               <Button onClick={() => add()}>{t('common.add')}</Button>

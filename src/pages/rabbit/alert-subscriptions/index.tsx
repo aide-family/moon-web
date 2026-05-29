@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useMemoizedFn, useRequest } from 'ahooks'
 import {
   App,
@@ -32,11 +32,6 @@ import {
   type AlertSubscriptionItem,
   type ListAlertSubscriptionsParams,
 } from '@/api/rabbit/alert'
-import { getRecipientGroupSelectList } from '@/api/rabbit/recipient-group'
-import { getEmailConfigSelectList } from '@/api/rabbit/email'
-import { getTemplateSelectList } from '@/api/rabbit/template'
-import { selectMembers } from '@/api/account/member'
-import { MemberStatus } from '@/api/account/member'
 import { usePaginatedRequest } from '@/utils/hooks/usePaginatedRequest'
 import { useDetailRequest } from '@/utils/hooks/useDetailRequest'
 
@@ -47,34 +42,16 @@ type AlertSubscriptionListQuery = Omit<
 
 const { Text } = Typography
 
-interface SelectOption {
-  value: string
-  label: string
-  disabled?: boolean
-  tooltip?: string
-}
-
 const defaultSearchParams: AlertSubscriptionListQuery = {
   keyword: '',
   status: undefined,
 }
 
-const toSelectOptions = (
-  items?: Array<{
-    value?: string
-    label?: string
-    disabled?: boolean
-    tooltip?: string
-  }>,
-): SelectOption[] =>
-  (items ?? [])
-    .filter((item) => Boolean(item.value))
-    .map((item) => ({
-      value: item.value!,
-      label: item.label ?? item.value!,
-      disabled: item.disabled,
-      tooltip: item.tooltip,
-    }))
+const formatDirectConfigDisplay = (name?: string, uid?: string) => {
+  if (name) return name
+  if (!uid || uid === '0') return '-'
+  return uid
+}
 
 function AlertSubscriptionsContent() {
   const { modal, message } = App.useApp()
@@ -93,8 +70,15 @@ function AlertSubscriptionsContent() {
       }),
     defaultQuery: defaultSearchParams,
   })
-  const { dataSource, loading, pagination, refresh, search, reset, changePage } =
-    list
+  const {
+    dataSource,
+    loading,
+    pagination,
+    refresh,
+    search,
+    reset,
+    changePage,
+  } = list
 
   const [detailOpen, setDetailOpen] = useState(false)
   const [detailUid, setDetailUid] = useState<string>()
@@ -113,44 +97,6 @@ function AlertSubscriptionsContent() {
     (uid: string) => getAlertSubscriptionDetail(uid),
     { manual: true },
   )
-
-  const [recipientGroupOptions, setRecipientGroupOptions] = useState<
-    SelectOption[]
-  >([])
-  const [memberOptions, setMemberOptions] = useState<SelectOption[]>([])
-  const [emailOptions, setEmailOptions] = useState<SelectOption[]>([])
-  const [templateOptions, setTemplateOptions] = useState<SelectOption[]>([])
-
-  const groupLabelMap = useMemo(() => {
-    const map = new Map<string, string>()
-    recipientGroupOptions.forEach((item) => map.set(item.value, item.label))
-    return map
-  }, [recipientGroupOptions])
-
-  const memberLabelMap = useMemo(() => {
-    const map = new Map<string, string>()
-    memberOptions.forEach((item) => map.set(item.value, item.label))
-    return map
-  }, [memberOptions])
-
-  const loadOptions = useMemoizedFn(async () => {
-    const [groupRes, memberRes, emailRes, templateRes] = await Promise.all([
-      getRecipientGroupSelectList({
-        limit: 100,
-        status: GlobalStatus.ENABLED,
-      }),
-      selectMembers({ limit: 100, status: MemberStatus.JOINED }),
-      getEmailConfigSelectList({ limit: 100, status: GlobalStatus.ENABLED }),
-      getTemplateSelectList({
-        limit: 100,
-        status: GlobalStatus.ENABLED,
-      }),
-    ])
-    setRecipientGroupOptions(toSelectOptions(groupRes.items))
-    setMemberOptions(toSelectOptions(memberRes.items))
-    setEmailOptions(toSelectOptions(emailRes.items))
-    setTemplateOptions(toSelectOptions(templateRes.items))
-  })
 
   const openCreateModal = () => {
     setFormMode('create')
@@ -176,7 +122,6 @@ function AlertSubscriptionsContent() {
     if (!record.uid) return
     setDetailUid(record.uid)
     setDetailOpen(true)
-    void loadOptions()
   })
 
   const handleSearch = useMemoizedFn(
@@ -300,22 +245,20 @@ function AlertSubscriptionsContent() {
       key: 'directMemberEmailConfigUid',
       minWidth: 180,
       render: (_, record) =>
-        record.directMemberEmailConfigUid
-          ? emailOptions.find(
-              (item) => item.value === record.directMemberEmailConfigUid,
-            )?.label || record.directMemberEmailConfigUid
-          : '-',
+        formatDirectConfigDisplay(
+          record.directMemberEmailConfig?.name,
+          record.directMemberEmailConfigUid,
+        ),
     },
     {
       title: t('alertSubscription.table.directTemplate'),
       key: 'directMemberTemplateUid',
       minWidth: 180,
       render: (_, record) =>
-        record.directMemberTemplateUid
-          ? templateOptions.find(
-              (item) => item.value === record.directMemberTemplateUid,
-            )?.label || record.directMemberTemplateUid
-          : '-',
+        formatDirectConfigDisplay(
+          record.directMemberTemplate?.name,
+          record.directMemberTemplateUid,
+        ),
     },
     {
       title: t('alertSubscription.table.updatedAt'),
@@ -550,31 +493,32 @@ function AlertSubscriptionsContent() {
               label={t('alertSubscription.detail.recipientGroups')}
             >
               <Space wrap>
-                {(detailData.recipientGroupUids ?? []).length > 0
-                  ? detailData.recipientGroupUids?.map((uid) => (
-                      <Tag key={uid}>{groupLabelMap.get(uid) ?? uid}</Tag>
+                {(detailData.recipientGroups ?? []).length > 0
+                  ? detailData.recipientGroups?.map((group) => (
+                      <Tag key={group.uid}>{group.name || group.uid}</Tag>
                     ))
-                  : '-'}
+                  : (detailData.recipientGroupUids ?? []).length > 0
+                    ? detailData.recipientGroupUids?.map((uid) => (
+                        <Tag key={uid}>{uid}</Tag>
+                      ))
+                    : '-'}
               </Space>
             </Descriptions.Item>
             <Descriptions.Item
               label={t('alertSubscription.detail.directEmailConfig')}
             >
-              {detailData.directMemberEmailConfigUid
-                ? emailOptions.find(
-                    (item) =>
-                      item.value === detailData.directMemberEmailConfigUid,
-                  )?.label || detailData.directMemberEmailConfigUid
-                : '-'}
+              {formatDirectConfigDisplay(
+                detailData.directMemberEmailConfig?.name,
+                detailData.directMemberEmailConfigUid,
+              )}
             </Descriptions.Item>
             <Descriptions.Item
               label={t('alertSubscription.detail.directTemplate')}
             >
-              {detailData.directMemberTemplateUid
-                ? templateOptions.find(
-                    (item) => item.value === detailData.directMemberTemplateUid,
-                  )?.label || detailData.directMemberTemplateUid
-                : '-'}
+              {formatDirectConfigDisplay(
+                detailData.directMemberTemplate?.name,
+                detailData.directMemberTemplateUid,
+              )}
             </Descriptions.Item>
             <Descriptions.Item label={t('alertSubscription.detail.members')}>
               {(detailData.members ?? []).length > 0 ? (
@@ -592,10 +536,7 @@ function AlertSubscriptionsContent() {
                         : null,
                     ].filter(Boolean)
                     const displayName =
-                      member.memberName ||
-                      memberLabelMap.get(member.memberUid ?? '') ||
-                      member.memberUid ||
-                      '-'
+                      member.memberName || member.memberUid || '-'
                     return (
                       <div key={`${member.memberUid}-${channels.join('-')}`}>
                         <Space wrap>

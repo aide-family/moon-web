@@ -63,8 +63,15 @@ function RecipientGroupsContent() {
       defaultQuery: defaultSearchParams,
     },
   )
-  const { dataSource, loading, pagination, refresh, search, reset, changePage } =
-    list
+  const {
+    dataSource,
+    loading,
+    pagination,
+    refresh,
+    search,
+    reset,
+    changePage,
+  } = list
 
   const [detailOpen, setDetailOpen] = useState(false)
   const [detailUid, setDetailUid] = useState<string>()
