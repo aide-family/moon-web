@@ -46,3 +46,41 @@ export interface MetricQueryRangeParams {
 export interface MetricQueryRangeResponse {
   response?: Record<string, unknown>
 }
+
+/** Prometheus 标签集 */
+export type PrometheusLabelSet = Record<string, string>
+
+/** Prometheus 即时查询结果项 */
+export interface PrometheusVectorResult {
+  metric: PrometheusLabelSet
+  value: [number, string]
+}
+
+/** Prometheus 区间查询结果项 */
+export interface PrometheusMatrixResult {
+  metric: PrometheusLabelSet
+  values: [number, string][]
+}
+
+/** Prometheus API 响应（/api/v1/query、/api/v1/query_range 等） */
+export interface PrometheusApiResponse {
+  status: 'success' | 'error'
+  data?: {
+    resultType: 'vector' | 'matrix' | 'scalar' | 'string'
+    result:
+      | PrometheusVectorResult[]
+      | PrometheusMatrixResult[]
+      | [number, string]
+  }
+  error?: string
+  errorType?: string
+}
+
+/** REST 代理 GET 请求参数 */
+export interface MetricProxyGetParams {
+  uid: string
+  /** 路径后缀，无前导斜杠，如 api/v1/query */
+  path: string
+  /** 查询参数，会拼接到代理路径后 */
+  params?: Record<string, string | number | undefined>
+}

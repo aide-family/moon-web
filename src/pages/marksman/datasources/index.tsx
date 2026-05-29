@@ -14,6 +14,7 @@ import {
 import DetailForm from './components/DetailForm'
 import DetailView from './components/DetailView'
 import MetadataView from './components/MetadataView'
+import QuickQueryView from './components/QuickQueryView'
 import { EllipsisOutlined } from '@ant-design/icons'
 import { useLocale } from '@/contexts/LocaleContext'
 import PageContent from '@/components/layout/PageContent'
@@ -333,7 +334,7 @@ const DatasourceList: React.FC = () => {
         <PageContent className='flex-1 min-w-0 min-h-0 flex flex-col overflow-hidden'>
           {selectedUid ? (
             <Tabs
-              className='flex-1 min-h-0 flex flex-col [&_.ant-tabs-content]:flex-1 [&_.ant-tabs-tabpane]:h-full [&_.ant-tabs-tabpane]:overflow-auto'
+              className='flex-1 min-h-0 flex flex-col [&_.ant-tabs-content-holder]:flex-1 [&_.ant-tabs-content-holder]:min-h-0 [&_.ant-tabs-content]:h-full [&_.ant-tabs-content]:min-h-0 [&_.ant-tabs-tabpane]:h-full [&_.ant-tabs-tabpane]:min-h-0'
               style={{ height: '100%' }}
               items={[
                 {
@@ -358,15 +359,11 @@ const DatasourceList: React.FC = () => {
                   key: 'quickQuery',
                   label: t('datasource.tab.quickQuery'),
                   children: (
-                    <div className='p-4 h-full flex flex-col gap-3'>
-                      <Input.TextArea
-                        placeholder={t('datasource.quickQuery.placeholder')}
-                        rows={6}
-                        className='font-mono text-sm'
+                    <div className='h-full min-h-0 overflow-hidden flex flex-col'>
+                      <QuickQueryView
+                        uid={selectedUid}
+                        datasource={viewingData}
                       />
-                      <Button type='primary'>
-                        {t('datasource.quickQuery.run')}
-                      </Button>
                     </div>
                   ),
                 },
