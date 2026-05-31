@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Modal, Form, Input, Select, message } from 'antd'
+import { App, Modal, Form, Input, Select } from 'antd'
 import type {
   CreateTemplateParams,
   UpdateTemplateParams,
@@ -27,6 +27,7 @@ const DetailForm: React.FC<DetailFormProps> = ({
   onSuccess,
 }) => {
   const { t } = useLocale()
+  const { message } = App.useApp()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
 

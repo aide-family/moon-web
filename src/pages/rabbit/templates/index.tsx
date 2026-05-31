@@ -7,7 +7,6 @@ import {
   Radio,
   Button,
   Space,
-  message,
   Dropdown,
   App,
   Select,
@@ -52,7 +51,7 @@ function parseSearchParamsFromUrl(params: URLSearchParams): TemplateListQuery {
 }
 
 const TemplateListContent: React.FC = () => {
-  const { modal } = App.useApp()
+  const { modal, message } = App.useApp()
   const { t } = useLocale()
   const [urlSearchParams, setUrlSearchParams] = useSearchParams()
   const [searchParams, setSearchParams] = useState<TemplateListQuery>(() =>
