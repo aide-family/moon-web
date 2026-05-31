@@ -1,13 +1,14 @@
 import type { CSSProperties } from 'react'
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 import { Button, Form, Input, Space, Typography } from 'antd'
+import type { NamePath } from 'antd/es/form/interface'
 import { useLocale } from '@/contexts/LocaleContext'
 import type { KeyValueRow } from '@/components/keyValueUtils'
 
 const { Text } = Typography
 
 interface KeyValueEditorProps {
-  name: string
+  name: NamePath
   label: React.ReactNode
   extra?: React.ReactNode
   disabled?: boolean

@@ -71,8 +71,18 @@ export const zhCN = {
   'strategy.ruleDetail.labels.keyPlaceholder': 'key',
   'strategy.ruleDetail.labels.valuePlaceholder': 'value',
   'strategy.ruleDetail.labels.keyRequired': '请输入 key',
-  'strategy.ruleDetail.datasourceUIDs': '数据源',
-  'strategy.ruleDetail.datasourceUIDs.placeholder': '请选择数据源',
+  'strategy.ruleDetail.datasourceFilter.title': '数据源筛选',
+  'strategy.ruleDetail.datasourceFilter.all': '全部数据源',
+  'strategy.ruleDetail.datasourceFilter.includeUids': '正选数据源',
+  'strategy.ruleDetail.datasourceFilter.excludeUids': '反选数据源',
+  'strategy.ruleDetail.datasourceFilter.includeLabels': '正选标签',
+  'strategy.ruleDetail.datasourceFilter.excludeLabels': '反选标签',
+  'strategy.ruleDetail.datasourceFilter.includeUids.placeholder':
+    '选择正选数据源',
+  'strategy.ruleDetail.datasourceFilter.excludeUids.placeholder':
+    '选择反选数据源',
+  'strategy.ruleDetail.datasourceFilter.labelsHelp':
+    'metadata 标签需全部匹配；正选与 UID 筛选为或关系',
 
   'strategy.alertLevel.add': '新增',
   'strategy.alertLevel.modal.title': '新增告警规则等级',
@@ -179,8 +189,18 @@ export const enUS = {
   'strategy.ruleDetail.labels.keyPlaceholder': 'key',
   'strategy.ruleDetail.labels.valuePlaceholder': 'value',
   'strategy.ruleDetail.labels.keyRequired': 'Please enter key',
-  'strategy.ruleDetail.datasourceUIDs': 'Datasources',
-  'strategy.ruleDetail.datasourceUIDs.placeholder': 'Select datasources',
+  'strategy.ruleDetail.datasourceFilter.title': 'Datasource Filter',
+  'strategy.ruleDetail.datasourceFilter.all': 'All datasources',
+  'strategy.ruleDetail.datasourceFilter.includeUids': 'Include datasources',
+  'strategy.ruleDetail.datasourceFilter.excludeUids': 'Exclude datasources',
+  'strategy.ruleDetail.datasourceFilter.includeLabels': 'Include labels',
+  'strategy.ruleDetail.datasourceFilter.excludeLabels': 'Exclude labels',
+  'strategy.ruleDetail.datasourceFilter.includeUids.placeholder':
+    'Select included datasources',
+  'strategy.ruleDetail.datasourceFilter.excludeUids.placeholder':
+    'Select excluded datasources',
+  'strategy.ruleDetail.datasourceFilter.labelsHelp':
+    'Metadata labels require all key-value pairs to match; include UIDs and labels are ORed',
 
   'strategy.alertLevel.add': 'Add',
   'strategy.alertLevel.modal.title': 'Add Alarm Rule Level',

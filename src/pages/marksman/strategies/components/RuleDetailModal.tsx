@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react'
-import { Modal, Form, Input, Select, message, Button, Space } from 'antd'
+import React from 'react'
+import { Modal, Form, Input, message, Button, Space } from 'antd'
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
+import { useRequest, useMemoizedFn } from 'ahooks'
 import { saveStrategyMetric } from '@/api/marksman/strategyMetric'
 import type {
   StrategyMetricItem,
@@ -8,6 +9,11 @@ import type {
 } from '@/api/marksman/strategyMetric'
 import { getDatasourceSelectList } from '@/api/marksman/datasource'
 import { useLocale } from '@/contexts/LocaleContext'
+import DatasourceFilterForm from './DatasourceFilterForm'
+import {
+  datasourceFilterToForm,
+  formToDatasourceFilter,
+} from '../utils/datasourceFilter'
 
 interface RuleDetailModalProps {
   open: boolean
@@ -47,57 +53,49 @@ const RuleDetailModal: React.FC<RuleDetailModalProps> = ({
 }) => {
   const { t } = useLocale()
   const [form] = Form.useForm()
-  const [saving, setSaving] = useState(false)
-  const [datasourceOptions, setDatasourceOptions] = useState<
-    { value: string; label: string }[]
-  >([])
+  const [saving, setSaving] = React.useState(false)
 
-  useEffect(() => {
-    if (open) {
-      getDatasourceSelectList({ limit: 100 })
-        .then((res) => {
-          const items = res?.items ?? []
-          setDatasourceOptions(
-            items.map((item) => ({
-              value: item.value ?? '',
-              label: item.label ?? item.value ?? '',
-            })),
-          )
-        })
-        .catch(() => setDatasourceOptions([]))
-    }
-  }, [open])
+  const { data: datasourceSelectData } = useRequest(
+    () => getDatasourceSelectList({ limit: 100 }),
+    { ready: open, refreshDeps: [open] },
+  )
 
-  useEffect(() => {
+  const datasourceOptions = React.useMemo(
+    () =>
+      (datasourceSelectData?.items ?? []).map((item) => ({
+        value: item.value ?? '',
+        label: item.label ?? item.value ?? '',
+      })),
+    [datasourceSelectData],
+  )
+
+  React.useEffect(() => {
     if (open && initialData) {
       form.setFieldsValue({
         expr: initialData.expr ?? '',
         summary: initialData.summary ?? '',
         description: initialData.description ?? '',
         labels: labelsToFields(initialData.labels),
-        datasourceUIDs: initialData.datasourceUIDs ?? undefined,
+        datasourceFilter: datasourceFilterToForm(initialData.datasourceFilter),
       })
     } else if (open) {
       form.resetFields()
     }
   }, [open, initialData, form])
 
-  const handleSubmit = async () => {
+  const handleSubmit = useMemoizedFn(async () => {
     if (!strategyUID) return
     try {
       const values = await form.validateFields()
       const labels = fieldsToLabels(values.labels)
+      const datasourceFilter = formToDatasourceFilter(values.datasourceFilter)
       const params: SaveStrategyMetricParams = {
         strategyUID,
         expr: values.expr?.trim() || undefined,
         summary: values.summary?.trim() || undefined,
         description: values.description?.trim() || undefined,
         labels: labels && Object.keys(labels).length > 0 ? labels : undefined,
-        datasourceUIDs:
-          Array.isArray(values.datasourceUIDs) &&
-          values.datasourceUIDs.length > 0
-            ? values.datasourceUIDs
-            : undefined,
+        datasourceFilter,
       }
       setSaving(true)
       await saveStrategyMetric(strategyUID, params)
@@ -105,49 +103,46 @@ const RuleDetailModal: React.FC<RuleDetailModalProps> = ({
       onSuccess()
       onCancel()
     } catch (err) {
+      if (
+        err &&
+        typeof err === 'object' &&
+        'errorFields' in err &&
+        Array.isArray((err as { errorFields?: unknown[] }).errorFields)
+      ) {
+        return
+      }
       console.error('保存规则明细失败:', err)
     } finally {
       setSaving(false)
     }
-  }
+  })
 
-  const handleCancel = () => {
+  const handleCancel = useMemoizedFn(() => {
     form.resetFields()
     onCancel()
-  }
+  })
 
   return (
     <Modal
       title={t('strategy.ruleDetail.modal.title')}
       open={open}
-      onOk={handleSubmit}
+      onOk={() => void handleSubmit()}
       onCancel={handleCancel}
       okText={t('common.ok')}
       cancelText={t('common.cancel')}
       confirmLoading={saving}
       destroyOnHidden
-      width={640}
+      width={720}
     >
       <Form form={form} layout='vertical'>
-        <Form.Item
-          name='datasourceUIDs'
-          label={t('strategy.ruleDetail.datasourceUIDs')}
-        >
-          <Select
-            mode='multiple'
-            allowClear
-            placeholder={t('strategy.ruleDetail.datasourceUIDs.placeholder')}
-            options={datasourceOptions}
-            showSearch={{ optionFilterProp: 'label' }}
-          />
-        </Form.Item>
+        <DatasourceFilterForm datasourceOptions={datasourceOptions} />
         <Form.Item
           name='expr'
           label={t('strategy.detail.expr')}
           rules={[{ required: false }]}
         >
           <Input.TextArea
-            rows={1}
+            rows={2}
             placeholder={t('strategy.ruleDetail.expr.placeholder')}
           />
         </Form.Item>
@@ -190,7 +185,7 @@ const RuleDetailModal: React.FC<RuleDetailModalProps> = ({
                     <Form.Item
                       {...restField}
                       name={[name, 'value']}
-                      style={{ marginBottom: 0, width: 340 }}
+                      style={{ marginBottom: 0, width: 420 }}
                     >
                       <Input
                         placeholder={t(

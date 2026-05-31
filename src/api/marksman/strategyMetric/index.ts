@@ -17,6 +17,7 @@ export type {
   SaveStrategyMetricParams,
   SaveStrategyMetricLevelParams,
   UpdateStrategyMetricLevelStatusParams,
+  DatasourceFilter,
 } from './types'
 
 /** 获取策略指标 GET /v1/metric/strategy/{strategyUID} */

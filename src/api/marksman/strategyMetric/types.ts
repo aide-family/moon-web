@@ -9,8 +9,21 @@ import type {
   SampleMode,
   ConditionMetric,
 } from '../../common/types'
+import type { DatasourceItem } from '../datasource/types'
 import type { LevelItem } from '../level'
 import type { StrategyItem } from '../strategy/types'
+
+/** 策略指标数据源筛选（正选/反选 UID 与 metadata 标签） */
+export interface DatasourceFilter {
+  /** 正选数据源 UID */
+  datasourceUids?: string[]
+  /** 反选数据源 UID */
+  excludeDatasourceUids?: string[]
+  /** 正选 metadata 标签（全部匹配） */
+  datasourceLabels?: Record<string, string>
+  /** 反选 metadata 标签（全部匹配则排除） */
+  excludeDatasourceLabels?: Record<string, string>
+}
 
 /** 策略指标等级项（GET 列表元素 / GET 单条等级） */
 export interface StrategyMetricLevelItem {
@@ -35,7 +48,11 @@ export interface StrategyMetricItem {
   createdAt?: string
   updatedAt?: string
   labels?: Record<string, string>
-  datasourceUIDs?: string[]
+  datasourceFilter?: DatasourceFilter
+  /** 正选数据源详情（与 datasourceFilter.datasourceUids 对应） */
+  includeDatasources?: DatasourceItem[]
+  /** 反选数据源详情（与 datasourceFilter.excludeDatasourceUids 对应） */
+  excludeDatasources?: DatasourceItem[]
   strategy?: StrategyItem
 }
 
@@ -46,7 +63,7 @@ export interface SaveStrategyMetricParams {
   summary?: string
   description?: string
   labels?: Record<string, string>
-  datasourceUIDs?: string[]
+  datasourceFilter?: DatasourceFilter
 }
 
 /** 保存策略指标等级请求体 POST /v1/metric/strategy/{strategyUID}/level */

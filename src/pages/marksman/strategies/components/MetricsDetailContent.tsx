@@ -43,6 +43,7 @@ import {
 } from '@/utils/marksman'
 import DetailForm from './DetailForm'
 import RuleDetailModal from './RuleDetailModal'
+import DatasourceFilterDisplay from './DatasourceFilterDisplay'
 
 /** 将 labels 对象格式化为可读字符串，避免 [object Object] */
 function formatLabels(labels: unknown): string {
@@ -101,7 +102,6 @@ export default function MetricsDetailContent({
   const [levelSelectOptions, setLevelSelectOptions] = useState<
     LevelItemSelect[]
   >([])
-
   const fetchData = () => {
     setLoading(true)
     getStrategyMetric(strategyUID)
@@ -414,6 +414,15 @@ export default function MetricsDetailContent({
             >
               <Descriptions.Item label={t('strategy.detail.expr')}>
                 {emptyPlaceholder(data.expr)}
+              </Descriptions.Item>
+              <Descriptions.Item
+                label={t('strategy.ruleDetail.datasourceFilter.title')}
+              >
+                <DatasourceFilterDisplay
+                  filter={data.datasourceFilter}
+                  includeDatasources={data.includeDatasources}
+                  excludeDatasources={data.excludeDatasources}
+                />
               </Descriptions.Item>
               <Descriptions.Item label={t('strategy.detail.customLabels')}>
                 {formatLabels(data.labels)}
