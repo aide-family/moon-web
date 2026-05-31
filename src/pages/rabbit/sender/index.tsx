@@ -60,6 +60,72 @@ type SendType = 'email' | 'emailTemplate' | 'webhook' | 'webhookTemplate'
 const MESSAGE_POLL_INTERVAL_MS = 1000
 const NOTIFICATION_AUTO_CLOSE_SECONDS = 3
 
+function getSelectPopupContainer(triggerNode: HTMLElement) {
+  return triggerNode.parentElement ?? document.body
+}
+
+function parseEmailList(value: unknown): string[] | undefined {
+  const str = String(value ?? '').trim()
+  if (!str) return undefined
+  const list = str.split(',').map((s) => s.trim()).filter(Boolean)
+  return list.length > 0 ? list : undefined
+}
+
+async function submitSendMessage(
+  sendType: SendType,
+  values: Record<string, unknown>,
+): Promise<SendReply | undefined> {
+  const uid = String(values.uid ?? '').trim()
+  if (!uid) return undefined
+
+  switch (sendType) {
+    case 'email': {
+      const headersList = (values.headers ?? []) as {
+        key?: string
+        value?: string
+      }[]
+      const headers: Record<string, string> | undefined =
+        headersList.length > 0
+          ? Object.fromEntries(
+              headersList
+                .filter((h) => (h.key ?? '').trim())
+                .map((h) => [(h.key ?? '').trim(), (h.value ?? '').trim()]),
+            )
+          : undefined
+      return sendEmail(uid, {
+        uid,
+        subject: String(values.subject ?? '').trim(),
+        body: String(values.body ?? '').trim(),
+        contentType: String(values.contentType ?? '').trim() || undefined,
+        to: parseEmailList(values.to),
+        cc: parseEmailList(values.cc),
+        headers,
+      })
+    }
+    case 'emailTemplate':
+      return sendEmailWithTemplate(uid, {
+        uid,
+        templateUID: String(values.templateUID ?? '').trim(),
+        jsonData: String(values.jsonData ?? '').trim(),
+        to: parseEmailList(values.to),
+        cc: parseEmailList(values.cc),
+      })
+    case 'webhook':
+      return sendWebhook(uid, {
+        uid,
+        data: String(values.data ?? '').trim(),
+      })
+    case 'webhookTemplate':
+      return sendWebhookWithTemplate(uid, {
+        uid,
+        templateUID: String(values.templateUID ?? '').trim(),
+        jsonData: String(values.jsonData ?? '').trim(),
+      })
+    default:
+      return undefined
+  }
+}
+
 const TERMINAL_MESSAGE_STATUSES = new Set<MessageStatus>([
   MessageStatus.SENT,
   MessageStatus.FAILED,
@@ -225,7 +291,10 @@ function mapTemplateOptions(items: TemplateItemSelect[]) {
 
 export default function SenderManagement() {
   return (
-    <App className='h-full min-h-0'>
+    <App
+      className='h-full min-h-0'
+      notification={{ getContainer: () => document.body }}
+    >
       <SenderContent />
     </App>
   )
@@ -358,86 +427,24 @@ function SenderContent() {
     setWebhookTemplateType(undefined)
   })
 
-  const { runAsync: submitMessage } = useRequest(
-    async (values: Record<string, unknown>): Promise<SendReply | undefined> => {
-      const uid = String(values.uid ?? '').trim()
-      if (!uid) return undefined
-
-      switch (sendType) {
-        case 'email': {
-          const toStr = String(values.to ?? '').trim()
-          const ccStr = String(values.cc ?? '').trim()
-          const headersList = (values.headers ?? []) as {
-            key?: string
-            value?: string
-          }[]
-          const headers: Record<string, string> | undefined =
-            headersList.length > 0
-              ? Object.fromEntries(
-                  headersList
-                    .filter((h) => (h.key ?? '').trim())
-                    .map((h) => [(h.key ?? '').trim(), (h.value ?? '').trim()]),
-                )
-              : undefined
-          return sendEmail(uid, {
-            uid,
-            subject: String(values.subject ?? '').trim(),
-            body: String(values.body ?? '').trim(),
-            contentType: String(values.contentType ?? '').trim() || undefined,
-            to: toStr
-              ? toStr
-                  .split(',')
-                  .map((s) => s.trim())
-                  .filter(Boolean)
-              : undefined,
-            cc: ccStr
-              ? ccStr
-                  .split(',')
-                  .map((s) => s.trim())
-                  .filter(Boolean)
-              : undefined,
-            headers,
-          })
-        }
-        case 'emailTemplate': {
-          const toStr = String(values.to ?? '').trim()
-          const ccStr = String(values.cc ?? '').trim()
-          return sendEmailWithTemplate(uid, {
-            templateUID: String(values.templateUID ?? '').trim(),
-            jsonData: String(values.jsonData ?? '').trim() || undefined,
-            to: toStr
-              ? toStr
-                  .split(',')
-                  .map((s) => s.trim())
-                  .filter(Boolean)
-              : undefined,
-            cc: ccStr
-              ? ccStr
-                  .split(',')
-                  .map((s) => s.trim())
-                  .filter(Boolean)
-              : undefined,
-          })
-        }
-        case 'webhook':
-          return sendWebhook(uid, {
-            data: String(values.data ?? '').trim() || undefined,
-          })
-        case 'webhookTemplate':
-          return sendWebhookWithTemplate(uid, {
-            templateUID: String(values.templateUID ?? '').trim(),
-            jsonData: String(values.jsonData ?? '').trim() || undefined,
-          })
-        default:
-          return undefined
-      }
-    },
-    { manual: true },
-  )
+  const showSendFailureNotification = useMemoizedFn((log: MessageLogItem) => {
+    notification.error({
+      title:
+        log.status === MessageStatus.CANCELLED
+          ? t('sender.cancelledNotification.title')
+          : t('sender.failedNotification.title'),
+      description: <SendFailedNotificationContent log={log} t={t} />,
+      duration: NOTIFICATION_AUTO_CLOSE_SECONDS,
+      showProgress: true,
+    })
+  })
 
   const waitForSendResult = useMemoizedFn(async (reply: SendReply) => {
     const msgUid = reply.uid?.trim()
-    if (!msgUid) return
+    if (!msgUid) {
+      messageApi.error(t('sender.error'))
+      return
+    }
 
     try {
       const log = await pollMessageLogUntilTerminal(
@@ -455,15 +462,7 @@ function SenderContent() {
         log.status === MessageStatus.FAILED ||
         log.status === MessageStatus.CANCELLED
       ) {
-        notification.error({
-          title:
-            log.status === MessageStatus.CANCELLED
-              ? t('sender.cancelledNotification.title')
-              : t('sender.failedNotification.title'),
-          description: <SendFailedNotificationContent log={log} t={t} />,
-          duration: NOTIFICATION_AUTO_CLOSE_SECONDS,
-          showProgress: true,
-        })
+        showSendFailureNotification(log)
       }
     } catch (error) {
       if (unmountedRef.current) return
@@ -477,8 +476,11 @@ function SenderContent() {
       const values = await form.validateFields()
       startSending()
       try {
-        const reply = await submitMessage(values)
-        if (!reply) return
+        const reply = await submitSendMessage(sendType, values)
+        if (!reply?.uid?.trim()) {
+          messageApi.error(t('sender.error'))
+          return
+        }
 
         form.resetFields()
         setWebhookTemplateType(undefined)
@@ -508,6 +510,7 @@ function SenderContent() {
         allowClear
         showSearch={{ onSearch: handleEmailConfigSearch }}
         loading={emailConfigLoading}
+        getPopupContainer={getSelectPopupContainer}
         options={mapEmailConfigOptions(emailConfigOptions)}
       />
     </Form.Item>
@@ -526,6 +529,7 @@ function SenderContent() {
         allowClear
         showSearch={{ onSearch: handleWebhookConfigSearch }}
         loading={webhookConfigLoading}
+        getPopupContainer={getSelectPopupContainer}
         options={mapWebhookConfigOptions(webhookConfigOptions)}
         onChange={(value) => {
           const item = webhookConfigOptions.find((i) => i.value === value)
@@ -556,13 +560,23 @@ function SenderContent() {
         showSearch
         loading={templateLoading}
         disabled={!isEmail && !webhookTemplateType}
+        getPopupContainer={getSelectPopupContainer}
         options={mapTemplateOptions(templateOptions)}
       />
     </Form.Item>
   )
 
   const renderTemplateDataField = () => (
-    <Form.Item name='jsonData' label={t('sender.form.jsonData')}>
+    <Form.Item
+      name='jsonData'
+      label={t('sender.form.jsonData')}
+      rules={[
+        {
+          required: true,
+          message: t('sender.form.jsonDataRequired'),
+        },
+      ]}
+    >
       <Input.TextArea
         placeholder={t('sender.form.jsonDataPlaceholder')}
         rows={6}
@@ -575,7 +589,20 @@ function SenderContent() {
   const renderRecipientFields = () => (
     <Row gutter={16}>
       <Col xs={24} md={12}>
-        <Form.Item name='to' label={t('sender.form.to')}>
+        <Form.Item
+          name='to'
+          label={t('sender.form.to')}
+          rules={
+            needTemplate && isEmail
+              ? [
+                  {
+                    required: true,
+                    message: t('sender.form.toPlaceholder'),
+                  },
+                ]
+              : undefined
+          }
+        >
           <Input placeholder={t('sender.form.toPlaceholder')} allowClear />
         </Form.Item>
       </Col>
@@ -612,6 +639,7 @@ function SenderContent() {
             <AutoComplete
               placeholder={t('sender.form.contentTypePlaceholder')}
               allowClear
+              getPopupContainer={getSelectPopupContainer}
               options={[
                 { value: 'text/plain', label: 'text/plain' },
                 { value: 'text/html', label: 'text/html' },
