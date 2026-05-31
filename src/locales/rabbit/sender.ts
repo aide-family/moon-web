@@ -54,6 +54,10 @@ export const zhCN = {
   'sender.submit': '发送',
   'sender.success': '发送成功',
   'sender.error': '发送失败',
+  'sender.statusCheckError': '获取消息状态失败',
+  'sender.failedNotification.title': '消息发送失败',
+  'sender.cancelledNotification.title': '消息已取消',
+  'sender.notification.autoCloseCountdown': '{seconds} 秒后自动关闭',
 }
 
 export const enUS = {
@@ -111,4 +115,8 @@ export const enUS = {
   'sender.submit': 'Send',
   'sender.success': 'Sent successfully',
   'sender.error': 'Send failed',
+  'sender.statusCheckError': 'Failed to fetch message status',
+  'sender.failedNotification.title': 'Message send failed',
+  'sender.cancelledNotification.title': 'Message cancelled',
+  'sender.notification.autoCloseCountdown': 'Auto closes in {seconds}s',
 }

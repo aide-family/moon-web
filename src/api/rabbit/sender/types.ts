@@ -42,3 +42,8 @@ export interface SendMessageParams {
   uid: string
   [key: string]: unknown
 }
+
+/** 发送响应（SendReply） */
+export interface SendReply {
+  uid?: string
+}

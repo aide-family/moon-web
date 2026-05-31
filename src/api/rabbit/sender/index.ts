@@ -12,6 +12,7 @@ import type {
   SendWebhookParams,
   SendWebhookWithTemplateParams,
   SendMessageParams,
+  SendReply,
 } from './types'
 
 /**
@@ -22,8 +23,8 @@ import type {
 export function sendEmail(
   uid: string,
   params: SendEmailParams,
-): Promise<unknown> {
-  return http.post<unknown>(`/sender/email/${uid}`, { ...params })
+): Promise<SendReply> {
+  return http.post<SendReply>(`/sender/email/${uid}`, { ...params })
 }
 
 /**
@@ -34,8 +35,8 @@ export function sendEmail(
 export function sendEmailWithTemplate(
   uid: string,
   params?: SendEmailWithTemplateParams,
-): Promise<unknown> {
-  return http.post<unknown>(`/sender/email/${uid}/template`, { ...params })
+): Promise<SendReply> {
+  return http.post<SendReply>(`/sender/email/${uid}/template`, { ...params })
 }
 
 /**
@@ -43,8 +44,8 @@ export function sendEmailWithTemplate(
  * POST /sender/message
  * Body(application/json, 必需): uid 等
  */
-export function sendMessage(params: SendMessageParams): Promise<unknown> {
-  return http.post<unknown>('/sender/message', { ...params })
+export function sendMessage(params: SendMessageParams): Promise<SendReply> {
+  return http.post<SendReply>('/sender/message', { ...params })
 }
 
 /**
@@ -55,8 +56,8 @@ export function sendMessage(params: SendMessageParams): Promise<unknown> {
 export function sendWebhook(
   uid: string,
   params?: SendWebhookParams,
-): Promise<unknown> {
-  return http.post<unknown>(`/sender/webhook/${uid}`, { ...params })
+): Promise<SendReply> {
+  return http.post<SendReply>(`/sender/webhook/${uid}`, { ...params })
 }
 
 /**
@@ -67,8 +68,8 @@ export function sendWebhook(
 export function sendWebhookWithTemplate(
   uid: string,
   params?: SendWebhookWithTemplateParams,
-): Promise<unknown> {
-  return http.post<unknown>(`/sender/webhook/${uid}/template`, { ...params })
+): Promise<SendReply> {
+  return http.post<SendReply>(`/sender/webhook/${uid}/template`, { ...params })
 }
 
 export type {
@@ -77,4 +78,5 @@ export type {
   SendWebhookParams,
   SendWebhookWithTemplateParams,
   SendMessageParams,
+  SendReply,
 } from './types'
