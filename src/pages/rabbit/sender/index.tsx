@@ -461,62 +461,70 @@ function SenderContent() {
     })
   })
 
-  const waitForSendResult = useMemoizedFn(async (reply: SendReply) => {
-    const msgUid = reply.uid?.trim()
-    if (!msgUid) {
-      messageApi.error(t('sender.error'))
-      return
-    }
+  const waitForSendResult = useMemoizedFn(
+    async (reply: SendReply): Promise<boolean> => {
+      const msgUid = reply.uid?.trim()
+      if (!msgUid) {
+        messageApi.error(t('sender.error'))
+        return false
+      }
 
+      try {
+        const log = await pollMessageLogUntilTerminal(
+          msgUid,
+          () => unmountedRef.current,
+        )
+        if (!log || unmountedRef.current) return false
+
+        if (log.status === MessageStatus.SENT) {
+          messageApi.success(t('sender.success'))
+          return true
+        }
+
+        if (
+          log.status === MessageStatus.FAILED ||
+          log.status === MessageStatus.CANCELLED
+        ) {
+          showSendFailureNotification(log)
+        }
+        return false
+      } catch (error) {
+        if (unmountedRef.current) return false
+        console.error('获取消息状态失败:', error)
+        messageApi.error(t('sender.statusCheckError'))
+        return false
+      }
+    },
+  )
+
+  const handleSubmit = useMemoizedFn(async (values: Record<string, unknown>) => {
     try {
-      const log = await pollMessageLogUntilTerminal(
-        msgUid,
-        () => unmountedRef.current,
-      )
-      if (!log || unmountedRef.current) return
-
-      if (log.status === MessageStatus.SENT) {
-        messageApi.success(t('sender.success'))
+      const reply = await submitSendMessage(sendType, values)
+      if (!reply?.uid?.trim()) {
+        messageApi.error(t('sender.error'))
         return
       }
 
-      if (
-        log.status === MessageStatus.FAILED ||
-        log.status === MessageStatus.CANCELLED
-      ) {
-        showSendFailureNotification(log)
+      const success = await waitForSendResult(reply)
+      if (success) {
+        form.resetFields()
+        setWebhookTemplateType(undefined)
       }
     } catch (error) {
-      if (unmountedRef.current) return
-      console.error('获取消息状态失败:', error)
-      messageApi.error(t('sender.statusCheckError'))
+      console.error('发送失败:', error)
+      messageApi.error(t('sender.error'))
+    } finally {
+      stopSending()
     }
   })
 
-  const handleSubmit = useMemoizedFn(async () => {
-    try {
-      const values = await form.validateFields()
-      startSending()
-      try {
-        const reply = await submitSendMessage(sendType, values)
-        if (!reply?.uid?.trim()) {
-          messageApi.error(t('sender.error'))
-          return
-        }
+  const handleSubmitFailed = useMemoizedFn(() => {
+    stopSending()
+  })
 
-        form.resetFields()
-        setWebhookTemplateType(undefined)
-        await waitForSendResult(reply)
-      } finally {
-        stopSending()
-      }
-    } catch (error) {
-      if (error && typeof error === 'object' && 'errorFields' in error) {
-        return
-      }
-      console.error('发送失败:', error)
-      messageApi.error(t('sender.error'))
-    }
+  const handleSendClick = useMemoizedFn(() => {
+    startSending()
+    form.submit()
   })
 
   const renderEmailConfigSelect = () => (
@@ -814,7 +822,9 @@ function SenderContent() {
           <Form
             form={form}
             layout='vertical'
+            disabled={sending}
             onFinish={handleSubmit}
+            onFinishFailed={handleSubmitFailed}
             requiredMark='optional'
           >
             <Divider
@@ -879,13 +889,15 @@ function SenderContent() {
         </div>
 
         <Flex justify='end' gap={8} className='shrink-0 pt-4 mt-2'>
-          <Button onClick={handleReset}>{t('common.reset')}</Button>
+          <Button onClick={handleReset} disabled={sending}>
+            {t('common.reset')}
+          </Button>
           <Button
             type='primary'
             icon={<SendOutlined />}
             loading={sending}
             disabled={sending}
-            onClick={() => form.submit()}
+            onClick={handleSendClick}
           >
             {t('sender.submit')}
           </Button>
