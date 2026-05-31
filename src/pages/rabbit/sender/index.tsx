@@ -43,7 +43,7 @@ import { getEmailConfigSelectList } from '@/api/rabbit/email'
 import type { EmailItemSelect } from '@/api/rabbit/email'
 import { getWebhookConfigSelectList } from '@/api/rabbit/webhook'
 import type { WebhookItemSelect } from '@/api/rabbit/webhook'
-import { getTemplateSelectList } from '@/api/rabbit/template'
+import { getTemplateSelectList, getTemplateDetail } from '@/api/rabbit/template'
 import type { TemplateItemSelect } from '@/api/rabbit/template'
 import { MessageStatus, MessageType } from '@/api/common/types'
 import { useLocale } from '@/contexts/LocaleContext'
@@ -52,6 +52,7 @@ import { getStatusLabel, getTypeLabel } from '@/pages/rabbit/messages/constants'
 import { getMessageTypeIconType } from '@/pages/rabbit/constants/appIcons'
 import { getAppIconType } from '@/pages/rabbit/webhooks/constants'
 import { IconFont } from '@/components/Icon/IconFont'
+import { buildTemplateDataJsonFromDetail } from './utils/goTemplateVariables'
 
 type SendChannel = 'email' | 'webhook'
 type SendMode = 'direct' | 'template'
@@ -380,6 +381,9 @@ function SenderContent() {
     },
   )
 
+  const { loading: templateDetailLoading, runAsync: fetchTemplateDetail } =
+    useRequest(getTemplateDetail, { manual: true })
+
   useEffect(() => {
     if (!isEmail) return
     fetchEmailConfigOptions(emailConfigKeyword)
@@ -425,6 +429,24 @@ function SenderContent() {
   const handleReset = useMemoizedFn(() => {
     form.resetFields()
     setWebhookTemplateType(undefined)
+  })
+
+  const handleTemplateChange = useMemoizedFn(async (templateUID?: string) => {
+    if (!templateUID) {
+      form.setFieldValue('jsonData', undefined)
+      return
+    }
+
+    try {
+      const detail = await fetchTemplateDetail(templateUID)
+      form.setFieldValue(
+        'jsonData',
+        buildTemplateDataJsonFromDetail(detail),
+      )
+    } catch (error) {
+      console.error('获取模板详情失败:', error)
+      messageApi.error(t('sender.templateDetailError'))
+    }
   })
 
   const showSendFailureNotification = useMemoizedFn((log: MessageLogItem) => {
@@ -538,6 +560,7 @@ function SenderContent() {
           } else {
             setWebhookTemplateType(undefined)
           }
+          form.setFieldsValue({ templateUID: undefined, jsonData: undefined })
         }}
       />
     </Form.Item>
@@ -558,10 +581,13 @@ function SenderContent() {
         placeholder={t('sender.form.templateUIDPlaceholder')}
         allowClear
         showSearch
-        loading={templateLoading}
+        loading={templateLoading || templateDetailLoading}
         disabled={!isEmail && !webhookTemplateType}
         getPopupContainer={getSelectPopupContainer}
         options={mapTemplateOptions(templateOptions)}
+        onChange={(value) => {
+          void handleTemplateChange(value ? String(value) : undefined)
+        }}
       />
     </Form.Item>
   )
@@ -582,6 +608,7 @@ function SenderContent() {
         rows={6}
         allowClear
         className='font-mono text-sm'
+        readOnly={templateDetailLoading}
       />
     </Form.Item>
   )

@@ -59,6 +59,7 @@ export const zhCN = {
   'sender.failedNotification.title': '消息发送失败',
   'sender.cancelledNotification.title': '消息已取消',
   'sender.notification.autoCloseCountdown': '{seconds} 秒后自动关闭',
+  'sender.templateDetailError': '获取模板详情失败',
 }
 
 export const enUS = {
@@ -121,4 +122,5 @@ export const enUS = {
   'sender.failedNotification.title': 'Message send failed',
   'sender.cancelledNotification.title': 'Message cancelled',
   'sender.notification.autoCloseCountdown': 'Auto closes in {seconds}s',
+  'sender.templateDetailError': 'Failed to load template detail',
 }
