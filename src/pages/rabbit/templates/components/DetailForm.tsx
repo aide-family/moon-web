@@ -37,9 +37,7 @@ const DetailForm: React.FC<DetailFormProps> = ({
       form.setFieldsValue({
         name: initialData.name,
         messageType: initialData.messageType,
-        jsonData: initialData.jsonData
-          ? JSON.stringify(JSON.parse(initialData.jsonData), null, 2)
-          : '',
+        jsonData: initialData.jsonData ?? '',
       })
     } else if (open && mode === 'create') {
       // 新增模式，重置表单
@@ -52,26 +50,7 @@ const DetailForm: React.FC<DetailFormProps> = ({
       const values = await form.validateFields()
       setLoading(true)
 
-      let jsonData: string | undefined = undefined
-      if (values.jsonData && values.jsonData.trim()) {
-        try {
-          const parsed = JSON.parse(values.jsonData.trim())
-          if (
-            typeof parsed !== 'object' ||
-            parsed === null ||
-            Array.isArray(parsed)
-          ) {
-            message.error(t('template.form.jsonData.invalid'))
-            setLoading(false)
-            return
-          }
-          jsonData = JSON.stringify(parsed)
-        } catch {
-          message.error(t('template.form.jsonData.invalid'))
-          setLoading(false)
-          return
-        }
-      }
+      const jsonData = values.jsonData?.trim() || undefined
 
       if (mode === 'create') {
         const params: CreateTemplateParams = {
@@ -176,32 +155,6 @@ const DetailForm: React.FC<DetailFormProps> = ({
           label={t('template.form.jsonData.label')}
           name='jsonData'
           help={t('template.form.jsonData.help')}
-          rules={[
-            {
-              validator: (_, value) => {
-                if (!value || !value.trim()) {
-                  return Promise.resolve()
-                }
-                try {
-                  const parsed = JSON.parse(value.trim())
-                  if (
-                    typeof parsed !== 'object' ||
-                    parsed === null ||
-                    Array.isArray(parsed)
-                  ) {
-                    return Promise.reject(
-                      new Error(t('template.form.jsonData.invalid')),
-                    )
-                  }
-                  return Promise.resolve()
-                } catch {
-                  return Promise.reject(
-                    new Error(t('template.form.jsonData.invalid')),
-                  )
-                }
-              },
-            },
-          ]}
         >
           <Input.TextArea
             placeholder={t('template.form.jsonData.placeholder')}

@@ -76,6 +76,9 @@ export default defineConfig(({ mode }) => {
           'react-dom',
           'react-router-dom',
           '@micro-zoe/micro-app',
+          '@monaco-editor/react',
+          'monaco-editor',
+          'monaco-promql',
         ],
       },
       build: {

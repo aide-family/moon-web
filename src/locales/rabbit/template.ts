@@ -28,12 +28,11 @@ export const zhCN = {
   'template.form.app.label': '应用',
   'template.form.app.placeholder': '请选择应用',
   'template.form.app.required': '请选择应用',
-  'template.form.jsonData.label': 'JSON数据',
+  'template.form.jsonData.label': '模板数据',
   'template.form.jsonData.placeholder':
-    '请输入JSON格式的数据，例如：{"subject": "邮件主题", "body": "邮件内容"}',
-  'template.form.jsonData.invalid': '请输入有效的JSON格式',
+    '请输入模板数据，例如：{"subject": "邮件主题", "body": "邮件内容"}',
   'template.form.jsonData.help':
-    'JSON数据为JSON格式，可以为空。支持邮件、短信、Webhook等不同类型的模板数据结构',
+    '模板数据可以为空，支持邮件、短信、Webhook 等不同类型的模板内容',
   // 详情相关
   'template.detail.uid': '模板ID',
   'template.detail.name': '名称',
@@ -41,7 +40,7 @@ export const zhCN = {
   'template.detail.status': '状态',
   'template.detail.createdAt': '创建时间',
   'template.detail.updatedAt': '更新时间',
-  'template.detail.jsonData': 'JSON数据',
+  'template.detail.jsonData': '模板数据',
   // 搜索相关
   'template.search.app.placeholder': '应用',
 }
@@ -73,12 +72,11 @@ export const enUS = {
   'template.form.app.label': 'App',
   'template.form.app.placeholder': 'Please select app',
   'template.form.app.required': 'Please select app',
-  'template.form.jsonData.label': 'JSON Data',
+  'template.form.jsonData.label': 'Template Data',
   'template.form.jsonData.placeholder':
-    'Please enter JSON data, e.g.: {"subject": "Email Subject", "body": "Email Body"}',
-  'template.form.jsonData.invalid': 'Please enter valid JSON format',
+    'Enter template data, e.g.: {"subject": "Email Subject", "body": "Email Body"}',
   'template.form.jsonData.help':
-    'JSON data is in JSON format and can be empty. Supports different template data structures for Email, SMS, Webhook, etc.',
+    'Template data is optional. Supports Email, SMS, Webhook, and other template formats.',
   // Detail related
   'template.detail.uid': 'Template ID',
   'template.detail.name': 'Name',
@@ -86,7 +84,7 @@ export const enUS = {
   'template.detail.status': 'Status',
   'template.detail.createdAt': 'Created At',
   'template.detail.updatedAt': 'Updated At',
-  'template.detail.jsonData': 'JSON Data',
+  'template.detail.jsonData': 'Template Data',
   // Search related
   'template.search.app.placeholder': 'App',
 }
