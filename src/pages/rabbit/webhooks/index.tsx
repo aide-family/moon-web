@@ -28,10 +28,7 @@ import DetailView from './components/DetailView'
 import WebhookCard from './components/WebhookCard'
 import { useLocale } from '@/contexts/LocaleContext'
 import PageContent from '@/components/layout/PageContent'
-import {
-  getAppOptions,
-  getAppIconType,
-} from './constants'
+import { getAppOptions, getAppIconType } from './constants'
 import { IconFont } from '@/components/Icon/IconFont'
 import { MENU_DIVIDER } from '@/utils/menu'
 import { applySearchToUrl, getParam } from '@/utils/urlSearchParams'
@@ -70,8 +67,15 @@ const WebhookListContent: React.FC = () => {
       }),
     defaultQuery: parseSearchParamsFromUrl(urlSearchParams),
   })
-  const { dataSource, loading, pagination, refresh, search, reset, changePage } =
-    list
+  const {
+    dataSource,
+    loading,
+    pagination,
+    refresh,
+    search,
+    reset,
+    changePage,
+  } = list
   const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>(
     'create',

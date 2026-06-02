@@ -72,7 +72,11 @@ const DatasourceList: React.FC = () => {
     data: viewingData,
     loading: detailLoading,
     refresh: refreshViewingData,
-  } = useDetailRequest(getDatasourceDetail, selectedUid ?? undefined, !!selectedUid)
+  } = useDetailRequest(
+    getDatasourceDetail,
+    selectedUid ?? undefined,
+    !!selectedUid,
+  )
 
   useEffect(() => {
     if (page !== 1 || loading) return

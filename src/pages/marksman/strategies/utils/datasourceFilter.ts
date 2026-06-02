@@ -60,7 +60,7 @@ export function formToDatasourceFilter(
     Boolean(datasourceLabels && Object.keys(datasourceLabels).length > 0) ||
     Boolean(
       excludeDatasourceLabels &&
-        Object.keys(excludeDatasourceLabels).length > 0,
+      Object.keys(excludeDatasourceLabels).length > 0,
     )
 
   if (!hasAny) return undefined

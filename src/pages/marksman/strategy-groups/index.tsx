@@ -42,10 +42,7 @@ const defaultSearchParams: StrategyGroupListParams = {
   status: undefined,
 }
 
-type StrategyGroupListQuery = Omit<
-  StrategyGroupListParams,
-  'page' | 'pageSize'
->
+type StrategyGroupListQuery = Omit<StrategyGroupListParams, 'page' | 'pageSize'>
 
 function toListQuery(params: StrategyGroupListParams): StrategyGroupListQuery {
   return {

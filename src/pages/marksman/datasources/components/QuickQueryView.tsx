@@ -63,8 +63,7 @@ const DEFAULT_QUERY = 'up'
 const panelClassName =
   'rounded-(--ant-border-radius-lg) border border-(--ant-color-border-secondary) bg-(--ant-color-bg-container) overflow-hidden'
 
-const resultPaneClassName =
-  'h-full min-h-0 flex flex-col overflow-hidden'
+const resultPaneClassName = 'h-full min-h-0 flex flex-col overflow-hidden'
 
 const resultTabsClassName =
   'h-full min-h-0 flex flex-col [&_.ant-tabs-nav]:mb-0! [&_.ant-tabs-nav]:shrink-0 [&_.ant-tabs-nav]:px-4 [&_.ant-tabs-nav]:pt-1 [&_.ant-tabs-content-holder]:flex-1 [&_.ant-tabs-content-holder]:min-h-0 [&_.ant-tabs-content]:h-full [&_.ant-tabs-content]:min-h-0 [&_.ant-tabs-tabpane]:h-full [&_.ant-tabs-tabpane]:min-h-0 [&_.ant-tabs-tabpane]:flex [&_.ant-tabs-tabpane]:flex-col [&_.ant-tabs-tabpane]:overflow-hidden [&_.ant-tabs-tabpane]:px-4 [&_.ant-tabs-tabpane]:pb-3'

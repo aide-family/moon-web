@@ -18,9 +18,7 @@ interface ProbeTasksTabProps {
     total: number
   }
   probeSearchParams: ProbeTaskListQuery
-  setProbeSearchParams: React.Dispatch<
-    React.SetStateAction<ProbeTaskListQuery>
-  >
+  setProbeSearchParams: React.Dispatch<React.SetStateAction<ProbeTaskListQuery>>
   probeColumns: ColumnsType<ProbeTaskItem>
   probeTasks: ProbeTaskItem[]
   probeLoading: boolean

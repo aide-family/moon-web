@@ -23,7 +23,9 @@ function collectStringsFromValue(value: unknown, strings: string[]): void {
     return
   }
   if (value && typeof value === 'object') {
-    Object.values(value).forEach((item) => collectStringsFromValue(item, strings))
+    Object.values(value).forEach((item) =>
+      collectStringsFromValue(item, strings),
+    )
   }
 }
 

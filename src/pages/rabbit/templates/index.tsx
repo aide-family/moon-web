@@ -1,16 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react'
 import { useMemoizedFn } from 'ahooks'
 import { useSearchParams } from 'react-router-dom'
-import {
-  Table,
-  Input,
-  Radio,
-  Button,
-  Space,
-  Dropdown,
-  App,
-  Select,
-} from 'antd'
+import { Table, Input, Radio, Button, Space, Dropdown, App, Select } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { MenuProps } from 'antd'
 import {
@@ -65,8 +56,15 @@ const TemplateListContent: React.FC = () => {
       }),
     defaultQuery: parseSearchParamsFromUrl(urlSearchParams),
   })
-  const { dataSource, loading, pagination, refresh, search, reset, changePage } =
-    list
+  const {
+    dataSource,
+    loading,
+    pagination,
+    refresh,
+    search,
+    reset,
+    changePage,
+  } = list
   const { tableContainerRef, tableWrapperRef, tableHeight } =
     useAdaptiveTableHeight()
   const [detailFormOpen, setDetailFormOpen] = useState(false)

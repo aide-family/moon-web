@@ -114,19 +114,21 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
   const [bindForm] = Form.useForm()
   const [listRefreshSignal, setListRefreshSignal] = useState(0)
 
-  const updateActiveTabFromBoundPages = useMemoizedFn((items: AlertPageItem[]) => {
-    const storedUid = readStoredActiveAlertPageUid(currentNamespace)
-    setActiveTabKey((prev) => {
-      const next = resolveActiveAlertPageUid(items, {
-        preferredUid: prev,
-        storedUid,
+  const updateActiveTabFromBoundPages = useMemoizedFn(
+    (items: AlertPageItem[]) => {
+      const storedUid = readStoredActiveAlertPageUid(currentNamespace)
+      setActiveTabKey((prev) => {
+        const next = resolveActiveAlertPageUid(items, {
+          preferredUid: prev,
+          storedUid,
+        })
+        if (next) {
+          writeStoredActiveAlertPageUid(currentNamespace, next)
+        }
+        return next
       })
-      if (next) {
-        writeStoredActiveAlertPageUid(currentNamespace, next)
-      }
-      return next
-    })
-  })
+    },
+  )
 
   const {
     data: availableAlertPages = [],
@@ -230,7 +232,9 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
             levelSelectOptions: mapSelectItems(lvRes.items ?? []),
             strategySelectOptions: mapSelectItems(stRes.items ?? []),
             datasourceSelectOptions: mapSelectItems(dsRes.items ?? []),
-            datasourceLevelSelectOptions: mapSelectItems(dsLevelRes.items ?? []),
+            datasourceLevelSelectOptions: mapSelectItems(
+              dsLevelRes.items ?? [],
+            ),
           }
         } catch (e) {
           console.error('加载告警页筛选项失败:', e)
@@ -796,11 +800,7 @@ export const RealtimeAlertList: React.FC<RealtimeAlertListProps> = ({
                     css?.trim() ? css.trim() : undefined
                   }
                 >
-                  <ColorPicker
-                    format='hex'
-                    allowClear
-                    showText
-                  />
+                  <ColorPicker format='hex' allowClear showText />
                 </Form.Item>
               </Col>
             </Row>

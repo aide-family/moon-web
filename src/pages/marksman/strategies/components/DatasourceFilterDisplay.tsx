@@ -51,7 +51,9 @@ function DatasourceUidTags({
                 <Typography.Text
                   type='secondary'
                   className='text-xs'
-                  style={ds?.level?.bgColor ? { color: ds.level.bgColor } : undefined}
+                  style={
+                    ds?.level?.bgColor ? { color: ds.level.bgColor } : undefined
+                  }
                 >
                   {levelName}
                 </Typography.Text>

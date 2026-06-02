@@ -61,8 +61,15 @@ const EmailListContent: React.FC = () => {
       }),
     defaultQuery: parseSearchParamsFromUrl(urlSearchParams),
   })
-  const { dataSource, loading, pagination, refresh, search, reset, changePage } =
-    list
+  const {
+    dataSource,
+    loading,
+    pagination,
+    refresh,
+    search,
+    reset,
+    changePage,
+  } = list
   const [detailFormOpen, setDetailFormOpen] = useState(false)
   const [detailFormMode, setDetailFormMode] = useState<'create' | 'edit'>(
     'create',
@@ -305,10 +312,7 @@ const EmailListContent: React.FC = () => {
             </div>
           ) : (
             !loading && (
-              <Empty
-                className='py-16'
-                description={t('common.noData')}
-              />
+              <Empty className='py-16' description={t('common.noData')} />
             )
           )}
         </Spin>

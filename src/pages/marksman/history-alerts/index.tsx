@@ -161,8 +161,8 @@ export function HistoryAlertList() {
   const { dataSource, loading, pagination, search, reset, changePage } = list
 
   const { data: filterOptions } = useRequest(async () => {
-    const [strategyGroups, levels, strategies, datasources] =
-      await Promise.all([
+    const [strategyGroups, levels, strategies, datasources] = await Promise.all(
+      [
         getStrategyGroupSelectList({
           limit: SELECT_LIMIT,
           status: GlobalStatus.ENABLED,
@@ -179,7 +179,8 @@ export function HistoryAlertList() {
         getDatasourceSelectList({
           limit: SELECT_LIMIT,
         }),
-      ])
+      ],
+    )
     return {
       strategyGroupOptions: mapSelectItems(strategyGroups.items),
       levelOptions: mapSelectItems(levels.items),
@@ -300,9 +301,7 @@ export function HistoryAlertList() {
   useEffect(() => {
     const unsubscribe = subscribeHistoryAlertExportEvents({
       onEvent: (event) => {
-        mutateExportTasks((prev) =>
-          mergeExportTaskEvent(prev ?? [], event),
-        )
+        mutateExportTasks((prev) => mergeExportTaskEvent(prev ?? [], event))
         if (isExportTaskCompleted(event.status)) {
           message.success(t('historyAlert.exportTask.message.completed'))
         } else if (isExportTaskFailed(event.status)) {

@@ -71,8 +71,15 @@ export default function MessageManagement() {
     service: (params) => listMessageLogs(params),
     defaultQuery: parseSearchParamsFromUrl(urlSearchParams),
   })
-  const { dataSource, loading, pagination, refresh, search, reset, changePage } =
-    list
+  const {
+    dataSource,
+    loading,
+    pagination,
+    refresh,
+    search,
+    reset,
+    changePage,
+  } = list
   const { tableContainerRef, tableWrapperRef, tableHeight } =
     useAdaptiveTableHeight()
   const [detailOpen, setDetailOpen] = useState(false)

@@ -16,27 +16,27 @@ description: Evaluates whether ahooks hooks can replace hand-rolled React patter
 
 实现功能前，先对照下表判断能否用 ahooks 替代手写逻辑：
 
-| 手写模式                                       | 优先考虑的 ahooks                                                             |
-| ---------------------------------------------- | ----------------------------------------------------------------------------- |
-| `mountedRef` + 卸载后防 setState               | `useSafeState`、`useUnmountedRef`                                             |
-| 大量 `useCallback` 稳定事件函数                | `useMemoizedFn`                                                               |
-| 搜索/输入防抖、节流                            | `useDebounceFn`、`useThrottleFn`、`useDebounce`                               |
-| `useEffect(() => { fetch... }, [])` 仅挂载请求 | `useMount` + 已有 fetch，或 `useRequest`                                      |
-| 定时刷新 / 轮询                                | `useInterval`、`useRequest` 的 `pollingInterval`                              |
-| 组件卸载清理                                   | `useUnmount`                                                                  |
-| 本地/会话存储状态                              | `useLocalStorageState`、`useSessionStorageState`                              |
-| 布尔/切换状态                                  | `useBoolean`、`useToggle`                                                     |
+| 手写模式                                       | 优先考虑的 ahooks                                                                    |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `mountedRef` + 卸载后防 setState               | `useSafeState`、`useUnmountedRef`                                                    |
+| 大量 `useCallback` 稳定事件函数                | `useMemoizedFn`                                                                      |
+| 搜索/输入防抖、节流                            | `useDebounceFn`、`useThrottleFn`、`useDebounce`                                      |
+| `useEffect(() => { fetch... }, [])` 仅挂载请求 | `useMount` + 已有 fetch，或 `useRequest`                                             |
+| 定时刷新 / 轮询                                | `useInterval`、`useRequest` 的 `pollingInterval`                                     |
+| 组件卸载清理                                   | `useUnmount`                                                                         |
+| 本地/会话存储状态                              | `useLocalStorageState`、`useSessionStorageState`                                     |
+| 布尔/切换状态                                  | `useBoolean`、`useToggle`                                                            |
 | 列表请求 + loading/error/刷新样板              | **`usePaginatedRequest`**（见 [use-request-reference.md](use-request-reference.md)） |
-| 筛选条件变化重新拉列表                         | `usePaginatedRequest` + `search` / `refreshDeps`                                   |
+| 筛选条件变化重新拉列表                         | `usePaginatedRequest` + `search` / `refreshDeps`                                     |
 | 等 uid/路由参数就绪再请求                      | **`useDetailRequest`** 或 `useRequest` + `ready: !!uid`                              |
-| 删除/改状态后乐观更新表格                      | `useRequest` + `mutate` 或 `refresh()`                                             |
+| 删除/改状态后乐观更新表格                      | `useRequest` + `mutate` 或 `refresh()`                                               |
 | Form 筛选 + Table 分页联动                     | `useAntdTable`（API 返回 `{items,total}` 需在 service 映射为 `{list,total}`）        |
 | 分页列表（通用）                               | `usePagination`                                                                      |
 | 无限滚动列表                                   | **`useInfinitePaginatedRequest`** 或 `useInfiniteScroll`                             |
-| 窗口/元素尺寸、滚动、可见性                    | `useSize`、`useScroll`、`useInViewport`、`useDocumentVisibility`              |
-| 点击外部关闭                                   | `useClickAway`                                                                |
-| 防重复提交                                     | `useLockFn`                                                                   |
-| 复杂对象只初始化一次                           | `useCreation`（优于误用 `useMemo`）                                           |
+| 窗口/元素尺寸、滚动、可见性                    | `useSize`、`useScroll`、`useInViewport`、`useDocumentVisibility`                     |
+| 点击外部关闭                                   | `useClickAway`                                                                       |
+| 防重复提交                                     | `useLockFn`                                                                          |
+| 复杂对象只初始化一次                           | `useCreation`（优于误用 `useMemo`）                                                  |
 
 完整 Hook 列表见 [hooks-reference.md](hooks-reference.md)。
 

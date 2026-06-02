@@ -34,11 +34,11 @@
 
 列表/详情请求统一走 `src/utils/hooks/`，底层均为 `useRequest`：
 
-| Hook | 路径 | 场景 |
-| ---- | ---- | ---- |
-| `usePaginatedRequest` | `@/utils/hooks/usePaginatedRequest` | 标准分页列表（筛选 + Table 分页） |
-| `useInfinitePaginatedRequest` | `@/utils/hooks/useInfinitePaginatedRequest` | 无限滚动列表（loadMore 追加） |
-| `useDetailRequest` | `@/utils/hooks/useDetailRequest` | 弹窗/侧栏详情（`ready: !!uid && open`） |
+| Hook                          | 路径                                        | 场景                                    |
+| ----------------------------- | ------------------------------------------- | --------------------------------------- |
+| `usePaginatedRequest`         | `@/utils/hooks/usePaginatedRequest`         | 标准分页列表（筛选 + Table 分页）       |
+| `useInfinitePaginatedRequest` | `@/utils/hooks/useInfinitePaginatedRequest` | 无限滚动列表（loadMore 追加）           |
+| `useDetailRequest`            | `@/utils/hooks/useDetailRequest`            | 弹窗/侧栏详情（`ready: !!uid && open`） |
 
 ### 分页列表（推荐写法）
 
@@ -52,7 +52,16 @@ const list = usePaginatedRequest<EmailItem, EmailListQuery>({
   defaultQuery: defaultSearchParams,
 })
 
-const { dataSource, loading, refreshing, pagination, search, reset, changePage, refresh } = list
+const {
+  dataSource,
+  loading,
+  refreshing,
+  pagination,
+  search,
+  reset,
+  changePage,
+  refresh,
+} = list
 
 // loading：仅首屏无数据时为 true（避免刷新时 Table 全屏 loading 卸载行内 Dropdown）
 // refreshing：后台刷新中，可用于轻量提示
@@ -70,7 +79,11 @@ changePage(page, pageSize)
 refresh()
 
 // 详情弹窗
-const { data, loading } = useDetailRequest(getEmailDetail, viewingUid, detailOpen)
+const { data, loading } = useDetailRequest(
+  getEmailDetail,
+  viewingUid,
+  detailOpen,
+)
 ```
 
 表单 UI 的 `searchParams` 与接口 `query` 分离时：点击搜索再 `list.search({ ...searchParams })`；仅 status 等字段自动刷新用 `useEffect` + `list.search`。

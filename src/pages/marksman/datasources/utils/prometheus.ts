@@ -27,7 +27,9 @@ function isVectorResult(
 }
 
 /** 将 Prometheus 查询结果展平为表格行 */
-export function toTableRows(response: PrometheusApiResponse): PrometheusTableRow[] {
+export function toTableRows(
+  response: PrometheusApiResponse,
+): PrometheusTableRow[] {
   if (response.status !== 'success' || !response.data) return []
 
   const { resultType, result } = response.data
@@ -89,15 +91,17 @@ export function toGraphSeries(
     return []
   }
 
-  return (response.data.result as PrometheusMatrixResult[]).map((item, index) => ({
-    name: formatSeriesName(item.metric) || `series-${index}`,
-    points: (item.values ?? [])
-      .map(([time, value]) => ({
-        time,
-        value: Number.parseFloat(value),
-      }))
-      .filter((p) => Number.isFinite(p.value)),
-  }))
+  return (response.data.result as PrometheusMatrixResult[]).map(
+    (item, index) => ({
+      name: formatSeriesName(item.metric) || `series-${index}`,
+      points: (item.values ?? [])
+        .map(([time, value]) => ({
+          time,
+          value: Number.parseFloat(value),
+        }))
+        .filter((p) => Number.isFinite(p.value)),
+    }),
+  )
 }
 
 /** 收集结果中所有标签键（用于动态列） */

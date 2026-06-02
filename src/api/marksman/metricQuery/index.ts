@@ -124,7 +124,9 @@ export const prometheusMetricNames = (
 }
 
 /** Prometheus 标签名列表 GET /api/v1/labels */
-export const prometheusLabels = (uid: string): Promise<PrometheusApiResponse> => {
+export const prometheusLabels = (
+  uid: string,
+): Promise<PrometheusApiResponse> => {
   return metricProxyGet({ uid, path: 'api/v1/labels' })
 }
 

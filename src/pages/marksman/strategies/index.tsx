@@ -86,7 +86,15 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
   const [editingData, setEditingData] = useState<StrategyItem | null>(null)
 
   const list = usePaginatedRequest<StrategyItem, StrategyListQuery>({
-    service: ({ page, pageSize, keyword, type, driver, status, strategyGroupUID }) =>
+    service: ({
+      page,
+      pageSize,
+      keyword,
+      type,
+      driver,
+      status,
+      strategyGroupUID,
+    }) =>
       getStrategyList({
         page,
         pageSize,
@@ -99,8 +107,15 @@ export const StrategyListContent: React.FC<StrategyListContentProps> = ({
     defaultQuery: defaultSearchParams,
   })
 
-  const { dataSource, loading, pagination, refresh, search, reset, changePage } =
-    list
+  const {
+    dataSource,
+    loading,
+    pagination,
+    refresh,
+    search,
+    reset,
+    changePage,
+  } = list
 
   const buildListQuery = (
     override?: Partial<StrategyListQuery>,

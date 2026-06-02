@@ -30,10 +30,7 @@ import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
 import React, { useEffect, useRef, useState } from 'react'
 import { useMemoizedFn, useRequest } from 'ahooks'
-import {
-  selectMembers,
-  type SelectMemberItem,
-} from '@/api/account/member'
+import { selectMembers, type SelectMemberItem } from '@/api/account/member'
 import { defaultListParams } from './realtimeAlertHelpers'
 import { RealtimeAlertDetailModal } from './RealtimeAlertDetailModal'
 import { useAdaptiveTableHeight } from '@/utils/hooks/useAdaptiveTableHeight'
@@ -136,10 +133,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
   } = useRequest(
     async (): Promise<AlertListData> => {
       try {
-        const res = await getRealtimeAlertList(
-          alertPageUid,
-          buildListParams(),
-        )
+        const res = await getRealtimeAlertList(alertPageUid, buildListParams())
         const items = res.items ?? []
         const total = Number.parseInt(String(res.total ?? '0'), 10)
         return { items, total }
@@ -181,10 +175,7 @@ export const AlertPageTabContent: React.FC<AlertPageTabContentProps> = ({
     lastRefreshSignalRef.current = refreshSignal
     void (async () => {
       try {
-        const res = await getRealtimeAlertList(
-          alertPageUid,
-          buildListParams(),
-        )
+        const res = await getRealtimeAlertList(alertPageUid, buildListParams())
         const items = res.items ?? []
         const total = Number.parseInt(String(res.total ?? '0'), 10)
         mutate({ items, total })

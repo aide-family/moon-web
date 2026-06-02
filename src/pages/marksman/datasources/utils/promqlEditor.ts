@@ -13,7 +13,9 @@ function parseStringList(response: PrometheusApiResponse): string[] {
   if (response.status !== 'success' || !Array.isArray(response.data)) {
     return []
   }
-  return response.data.filter((item): item is string => typeof item === 'string')
+  return response.data.filter(
+    (item): item is string => typeof item === 'string',
+  )
 }
 
 /** 注册 PromQL 语法高亮与关键字补全（monaco-promql） */
@@ -128,8 +130,9 @@ export function registerPromqlDataCompletion(
       }
 
       const metricPrefix =
-        textBeforeCursor.match(/(?:^|[\s+\-*/%<>!&|,({])([a-zA-Z_:]\w*)$/)?.[1] ??
-        ''
+        textBeforeCursor.match(
+          /(?:^|[\s+\-*/%<>!&|,({])([a-zA-Z_:]\w*)$/,
+        )?.[1] ?? ''
 
       return {
         suggestions: (cache.metrics ?? [])

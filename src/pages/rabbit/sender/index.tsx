@@ -68,7 +68,10 @@ function getSelectPopupContainer(triggerNode: HTMLElement) {
 function parseEmailList(value: unknown): string[] | undefined {
   const str = String(value ?? '').trim()
   if (!str) return undefined
-  const list = str.split(',').map((s) => s.trim()).filter(Boolean)
+  const list = str
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
   return list.length > 0 ? list : undefined
 }
 
@@ -439,10 +442,7 @@ function SenderContent() {
 
     try {
       const detail = await fetchTemplateDetail(templateUID)
-      form.setFieldValue(
-        'jsonData',
-        buildTemplateDataJsonFromDetail(detail),
-      )
+      form.setFieldValue('jsonData', buildTemplateDataJsonFromDetail(detail))
     } catch (error) {
       console.error('获取模板详情失败:', error)
       messageApi.error(t('sender.templateDetailError'))
@@ -497,26 +497,28 @@ function SenderContent() {
     },
   )
 
-  const handleSubmit = useMemoizedFn(async (values: Record<string, unknown>) => {
-    try {
-      const reply = await submitSendMessage(sendType, values)
-      if (!reply?.uid?.trim()) {
-        messageApi.error(t('sender.error'))
-        return
-      }
+  const handleSubmit = useMemoizedFn(
+    async (values: Record<string, unknown>) => {
+      try {
+        const reply = await submitSendMessage(sendType, values)
+        if (!reply?.uid?.trim()) {
+          messageApi.error(t('sender.error'))
+          return
+        }
 
-      const success = await waitForSendResult(reply)
-      if (success) {
-        form.resetFields()
-        setWebhookTemplateType(undefined)
+        const success = await waitForSendResult(reply)
+        if (success) {
+          form.resetFields()
+          setWebhookTemplateType(undefined)
+        }
+      } catch (error) {
+        console.error('发送失败:', error)
+        messageApi.error(t('sender.error'))
+      } finally {
+        stopSending()
       }
-    } catch (error) {
-      console.error('发送失败:', error)
-      messageApi.error(t('sender.error'))
-    } finally {
-      stopSending()
-    }
-  })
+    },
+  )
 
   const handleSubmitFailed = useMemoizedFn(() => {
     stopSending()

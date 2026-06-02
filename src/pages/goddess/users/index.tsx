@@ -88,10 +88,11 @@ const UsersList: React.FC = () => {
     defaultQuery: toListQuery(parseSearchParamsFromUrl(urlSearchParams)),
   })
 
-  const {
-    data: viewingData,
-    mutate: mutateDetail,
-  } = useDetailRequest(getUser, viewingUid, detailOpen)
+  const { data: viewingData, mutate: mutateDetail } = useDetailRequest(
+    getUser,
+    viewingUid,
+    detailOpen,
+  )
 
   const getStatusInfo = (status?: UserStatus | string) => {
     const s = parseUserStatus(status)

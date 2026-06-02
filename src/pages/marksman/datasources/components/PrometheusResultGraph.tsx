@@ -98,8 +98,7 @@ const PrometheusResultGraph: React.FC<PrometheusResultGraphProps> = ({
         return
       }
 
-      const targetTime =
-        chartMeta.minTime + (relX / plotW) * chartMeta.timeSpan
+      const targetTime = chartMeta.minTime + (relX / plotW) * chartMeta.timeSpan
       const plotX = padding.left + relX
 
       const items = series
@@ -151,7 +150,10 @@ const PrometheusResultGraph: React.FC<PrometheusResultGraphProps> = ({
   })
 
   return (
-    <div ref={containerRef} className='flex flex-col gap-3 w-full h-full min-h-0 flex-1'>
+    <div
+      ref={containerRef}
+      className='flex flex-col gap-3 w-full h-full min-h-0 flex-1'
+    >
       <div className='relative flex-1 min-h-0 rounded-(--ant-border-radius) bg-(--ant-color-fill-alter) overflow-hidden'>
         {hover && (
           <div

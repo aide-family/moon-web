@@ -24,7 +24,9 @@ export interface UsePaginatedRequestOptions<
   TItem,
   TQuery extends Record<string, unknown>,
 > {
-  service: (params: TQuery & PageParams) => Promise<PaginatedListResponse<TItem>>
+  service: (
+    params: TQuery & PageParams,
+  ) => Promise<PaginatedListResponse<TItem>>
   defaultQuery: TQuery
   defaultPageSize?: number
   ready?: boolean

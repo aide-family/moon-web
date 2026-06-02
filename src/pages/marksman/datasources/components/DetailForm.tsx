@@ -12,10 +12,7 @@ import {
   DatasourceType,
   DatasourceDriver,
 } from '@/api/marksman/datasource/index'
-import {
-  getLevelSelectList,
-  LevelType,
-} from '@/api/marksman/level'
+import { getLevelSelectList, LevelType } from '@/api/marksman/level'
 import { GlobalStatus } from '@/api'
 import KeyValueEditor from '@/components/KeyValueEditor'
 import {

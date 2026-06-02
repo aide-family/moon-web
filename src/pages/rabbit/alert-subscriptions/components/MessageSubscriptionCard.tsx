@@ -101,7 +101,11 @@ const MessageSubscriptionCard: React.FC<MessageSubscriptionCardProps> = ({
             <Col span={12}>
               <Statistic
                 title={
-                  <Typography.Text type='secondary' ellipsis className='text-xs'>
+                  <Typography.Text
+                    type='secondary'
+                    ellipsis
+                    className='text-xs'
+                  >
                     {t('alertSubscription.table.recipientGroups')}
                   </Typography.Text>
                 }
@@ -116,7 +120,11 @@ const MessageSubscriptionCard: React.FC<MessageSubscriptionCardProps> = ({
             <Col span={12}>
               <Statistic
                 title={
-                  <Typography.Text type='secondary' ellipsis className='text-xs'>
+                  <Typography.Text
+                    type='secondary'
+                    ellipsis
+                    className='text-xs'
+                  >
                     {t('alertSubscription.table.members')}
                   </Typography.Text>
                 }

@@ -73,16 +73,16 @@ const PrometheusResultTable: React.FC<PrometheusResultTableProps> = ({
   return (
     <div className='h-full min-h-0 flex-1 overflow-auto'>
       <Table<PrometheusTableRow>
-      size='small'
-      rowKey='key'
-      loading={loading}
-      dataSource={rows}
-      columns={columns}
-      pagination={
-        rows.length > 50 ? { pageSize: 50, showSizeChanger: true } : false
-      }
-      locale={{ emptyText: t('datasource.quickQuery.empty') }}
-    />
+        size='small'
+        rowKey='key'
+        loading={loading}
+        dataSource={rows}
+        columns={columns}
+        pagination={
+          rows.length > 50 ? { pageSize: 50, showSizeChanger: true } : false
+        }
+        locale={{ emptyText: t('datasource.quickQuery.empty') }}
+      />
     </div>
   )
 }

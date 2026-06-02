@@ -99,10 +99,11 @@ const MembersList: React.FC = () => {
     defaultQuery: toListQuery(parseSearchParamsFromUrl(urlSearchParams)),
   })
 
-  const {
-    data: viewingData,
-    mutate: mutateDetail,
-  } = useDetailRequest(getMember, viewingUid, detailOpen)
+  const { data: viewingData, mutate: mutateDetail } = useDetailRequest(
+    getMember,
+    viewingUid,
+    detailOpen,
+  )
 
   const getStatusInfo = (status?: string) => {
     const s = normalizeMemberStatus(status)
@@ -149,17 +150,19 @@ const MembersList: React.FC = () => {
     setUrlSearchParams,
   ])
 
-  const handleSearch = useMemoizedFn((override?: Partial<ListMembersParams>) => {
-    if (override) {
-      setSearchParams((prev) => ({ ...prev, ...override }))
-    }
-    list.search(
-      toListQuery({
-        ...searchParams,
-        ...override,
-      }),
-    )
-  })
+  const handleSearch = useMemoizedFn(
+    (override?: Partial<ListMembersParams>) => {
+      if (override) {
+        setSearchParams((prev) => ({ ...prev, ...override }))
+      }
+      list.search(
+        toListQuery({
+          ...searchParams,
+          ...override,
+        }),
+      )
+    },
+  )
 
   const handleReset = useMemoizedFn(() => {
     setSearchParams(defaultSearchParams)

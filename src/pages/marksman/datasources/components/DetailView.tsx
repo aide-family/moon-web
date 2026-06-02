@@ -1,12 +1,6 @@
 import React from 'react'
 import { useRequest } from 'ahooks'
-import {
-  Modal,
-  Descriptions,
-  Button,
-  Spin,
-  Tooltip,
-} from 'antd'
+import { Modal, Descriptions, Button, Spin, Tooltip } from 'antd'
 import {
   type DatasourceItem,
   getDatasourceStatus,
