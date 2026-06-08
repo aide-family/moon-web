@@ -25,10 +25,15 @@ FROM nginx:1.27-alpine
 
 ARG APP_NAME
 
+ENV API_UPSTREAM=http://host.docker.internal:8000
+ENV NGINX_CONF_TEMPLATE=/etc/nginx/templates/default.conf.template
+
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY docker/nginx/app.conf /etc/nginx/conf.d/default.conf
+COPY docker/nginx/app.conf.template /etc/nginx/templates/default.conf.template
+COPY docker/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 COPY --from=builder /app/dist/${APP_NAME} /usr/share/nginx/html
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/docker-entrypoint.sh"]

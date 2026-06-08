@@ -1,0 +1,54 @@
+# Full service image: main on :80, sub-apps on preview ports (matches prodUrl in main config).
+
+map $server_port $moon_web_root {
+    default     /usr/share/nginx/html/main;
+    4174        /usr/share/nginx/html/goddess;
+    4175        /usr/share/nginx/html/rabbit;
+    4176        /usr/share/nginx/html/marksman;
+    4177        /usr/share/nginx/html/jade_tree;
+}
+
+server {
+    listen       80;
+    listen  [::]:80;
+    listen       4174;
+    listen  [::]:4174;
+    listen       4175;
+    listen  [::]:4175;
+    listen       4176;
+    listen  [::]:4176;
+    listen       4177;
+    listen  [::]:4177;
+    server_name  localhost;
+
+    root   $moon_web_root;
+    index  index.html;
+
+    location /v1/ {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass ${API_UPSTREAM}/v1/;
+    }
+
+    location /oauth2/ {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass ${API_UPSTREAM}/oauth2/;
+    }
+
+    location /health {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass ${API_UPSTREAM}/health;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

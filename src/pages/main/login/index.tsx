@@ -71,7 +71,9 @@ export default function LoginPage() {
   })
 
   useEffect(() => {
-    getOauth2Reports().then(setOauthOptions)
+    getOauth2Reports()
+      .then((res) => setOauthOptions(Array.isArray(res) ? res : []))
+      .catch(() => setOauthOptions([]))
   }, [])
 
   const onLoginFinish = async (values: Record<string, string>) => {

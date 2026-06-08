@@ -20,8 +20,13 @@ RUN pnpm run build
 
 FROM nginx:1.27-alpine
 
+ENV API_UPSTREAM=http://host.docker.internal:8000
+ENV NGINX_CONF_TEMPLATE=/etc/nginx/templates/default.conf.template
+
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY docker/nginx/all.conf /etc/nginx/conf.d/default.conf
+COPY docker/nginx/all.conf.template /etc/nginx/templates/default.conf.template
+COPY docker/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 COPY --from=builder /app/dist/main /usr/share/nginx/html/main
 COPY --from=builder /app/dist/goddess /usr/share/nginx/html/goddess
 COPY --from=builder /app/dist/rabbit /usr/share/nginx/html/rabbit
@@ -30,4 +35,4 @@ COPY --from=builder /app/dist/jade_tree /usr/share/nginx/html/jade_tree
 
 EXPOSE 80 4174 4175 4176 4177
 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
