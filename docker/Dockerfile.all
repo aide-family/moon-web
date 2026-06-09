@@ -16,11 +16,12 @@ ARG VERSION=dev
 ARG BUILD_TIME
 ARG REPO
 
-RUN cross-env APP_NAME=main vite build && \
-    cross-env APP_NAME=goddess VITE_APP_BASE=/sub/goddess/ vite build && \
-    cross-env APP_NAME=rabbit VITE_APP_BASE=/sub/rabbit/ vite build && \
-    cross-env APP_NAME=marksman VITE_APP_BASE=/sub/marksman/ vite build && \
-    cross-env APP_NAME=jade_tree VITE_APP_BASE=/sub/jade_tree/ vite build
+# Linux 容器内直接设置环境变量；pnpm run / pnpm exec 会正确解析 node_modules/.bin
+RUN pnpm run build:main && \
+    APP_NAME=goddess VITE_APP_BASE=/sub/goddess/ pnpm exec vite build && \
+    APP_NAME=rabbit VITE_APP_BASE=/sub/rabbit/ pnpm exec vite build && \
+    APP_NAME=marksman VITE_APP_BASE=/sub/marksman/ pnpm exec vite build && \
+    APP_NAME=jade_tree VITE_APP_BASE=/sub/jade_tree/ pnpm exec vite build
 
 FROM nginx:1.27-alpine
 
