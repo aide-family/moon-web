@@ -70,7 +70,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         subApp: {
           name: 'rabbit-templates',
           devUrl: 'http://localhost:5175/templates',
-          prodUrl: 'http://localhost:4175/templates',
+          prodUrl: '/sub/rabbit/templates',
           path: '/rabbit/templates',
         },
       },
@@ -82,7 +82,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         subApp: {
           name: 'rabbit-emails',
           devUrl: 'http://localhost:5175/emails',
-          prodUrl: 'http://localhost:4175/emails',
+          prodUrl: '/sub/rabbit/emails',
           path: '/rabbit/emails',
         },
       },
@@ -94,7 +94,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         subApp: {
           name: 'rabbit-webhooks',
           devUrl: 'http://localhost:5175/webhooks',
-          prodUrl: 'http://localhost:4175/webhooks',
+          prodUrl: '/sub/rabbit/webhooks',
           path: '/rabbit/webhooks',
         },
       },
@@ -106,7 +106,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         subApp: {
           name: 'rabbit-recipient-groups',
           devUrl: 'http://localhost:5175/recipient-groups',
-          prodUrl: 'http://localhost:4175/recipient-groups',
+          prodUrl: '/sub/rabbit/recipient-groups',
           path: '/rabbit/recipient-groups',
         },
       },
@@ -118,7 +118,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         subApp: {
           name: 'rabbit-alert-subscriptions',
           devUrl: 'http://localhost:5175/alert-subscriptions',
-          prodUrl: 'http://localhost:4175/alert-subscriptions',
+          prodUrl: '/sub/rabbit/alert-subscriptions',
           path: '/rabbit/alert-subscriptions',
         },
       },
@@ -130,7 +130,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         subApp: {
           name: 'rabbit-sender',
           devUrl: 'http://localhost:5175/sender',
-          prodUrl: 'http://localhost:4175/sender',
+          prodUrl: '/sub/rabbit/sender',
           path: '/rabbit/sender',
         },
       },
@@ -142,7 +142,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         subApp: {
           name: 'rabbit-messages',
           devUrl: 'http://localhost:5175/messages',
-          prodUrl: 'http://localhost:4175/messages',
+          prodUrl: '/sub/rabbit/messages',
           path: '/rabbit/messages',
         },
       },
@@ -163,7 +163,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         subApp: {
           name: 'marksman-realtime-alerts',
           devUrl: 'http://localhost:5176/realtime-alerts',
-          prodUrl: 'http://localhost:4176/realtime-alerts',
+          prodUrl: '/sub/marksman/realtime-alerts',
           path: '/marksman/realtime-alerts',
         },
       },
@@ -175,7 +175,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         subApp: {
           name: 'marksman-history-alerts',
           devUrl: 'http://localhost:5176/history-alerts',
-          prodUrl: 'http://localhost:4176/history-alerts',
+          prodUrl: '/sub/marksman/history-alerts',
           path: '/marksman/history-alerts',
         },
       },
@@ -187,7 +187,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         subApp: {
           name: 'marksman-datasources',
           devUrl: 'http://localhost:5176/datasources',
-          prodUrl: 'http://localhost:4176/datasources',
+          prodUrl: '/sub/marksman/datasources',
           path: '/marksman/datasources',
         },
       },
@@ -199,7 +199,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         subApp: {
           name: 'marksman-strategies',
           devUrl: 'http://localhost:5176/strategies',
-          prodUrl: 'http://localhost:4176/strategies',
+          prodUrl: '/sub/marksman/strategies',
           path: '/marksman/strategies',
         },
       },
@@ -211,7 +211,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         subApp: {
           name: 'marksman-levels',
           devUrl: 'http://localhost:5176/levels',
-          prodUrl: 'http://localhost:4176/levels',
+          prodUrl: '/sub/marksman/levels',
           path: '/marksman/levels',
         },
       },
@@ -231,7 +231,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         subApp: {
           name: 'jade-tree-ssh-commands',
           devUrl: 'http://localhost:5177/ssh-commands',
-          prodUrl: 'http://localhost:4177/ssh-commands',
+          prodUrl: '/sub/jade_tree/ssh-commands',
           path: '/jade-tree/ssh-commands',
         },
       },
@@ -243,7 +243,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         subApp: {
           name: 'jade-tree-audits',
           devUrl: 'http://localhost:5177/audits',
-          prodUrl: 'http://localhost:4177/audits',
+          prodUrl: '/sub/jade_tree/audits',
           path: '/jade-tree/audits',
         },
       },
@@ -255,7 +255,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         subApp: {
           name: 'jade-tree-probe-tasks',
           devUrl: 'http://localhost:5177/probe-tasks',
-          prodUrl: 'http://localhost:4177/probe-tasks',
+          prodUrl: '/sub/jade_tree/probe-tasks',
           path: '/jade-tree/probe-tasks',
         },
       },
@@ -267,7 +267,7 @@ export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
         subApp: {
           name: 'jade-tree-machines',
           devUrl: 'http://localhost:5177/machines',
-          prodUrl: 'http://localhost:4177/machines',
+          prodUrl: '/sub/jade_tree/machines',
           path: '/jade-tree/machines',
         },
       },

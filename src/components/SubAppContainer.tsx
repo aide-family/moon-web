@@ -4,6 +4,7 @@ import microApp from '@micro-zoe/micro-app'
 import { useLocale } from '@/contexts/LocaleContext'
 import { useTheme } from '@/contexts/useTheme'
 import type { SubAppConfig } from '@/types/subApp'
+import { resolveSubAppUrl } from '@/utils/subAppUrl'
 
 export interface SubAppContainerProps {
   appName: string
@@ -24,11 +25,7 @@ export function SubAppContainer({
   const { themeMode } = useTheme()
 
   const config = subAppConfigMap[appName]
-  const url = config
-    ? import.meta.env.DEV
-      ? config.devUrl
-      : config.prodUrl
-    : ''
+  const url = config ? resolveSubAppUrl(config) : ''
 
   useEffect(() => {
     if (!config) return

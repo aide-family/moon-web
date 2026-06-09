@@ -31,6 +31,7 @@ import AlertSubscriptionsPage from '@/pages/rabbit/alert-subscriptions'
 import LayoutComponent from '@/components/layout/Layout'
 import LoginPage from '@/pages/main/login'
 import { isInMicroApp } from '@/utils'
+import { getRouterBasename } from '@/utils/subAppUrl'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { useTheme } from '@/contexts/useTheme'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
@@ -134,7 +135,7 @@ function AppContent() {
       theme={themeConfig}
       modal={antdModalProviderConfig}
     >
-      <BrowserRouter>
+      <BrowserRouter basename={getRouterBasename()}>
         <OAuthTokenHandler>
           <Routes>
             <Route path='/login' element={<LoginPage />} />

@@ -16,7 +16,11 @@ ARG VERSION=dev
 ARG BUILD_TIME
 ARG REPO
 
-RUN pnpm run build
+RUN cross-env APP_NAME=main vite build && \
+    cross-env APP_NAME=goddess VITE_APP_BASE=/sub/goddess/ vite build && \
+    cross-env APP_NAME=rabbit VITE_APP_BASE=/sub/rabbit/ vite build && \
+    cross-env APP_NAME=marksman VITE_APP_BASE=/sub/marksman/ vite build && \
+    cross-env APP_NAME=jade_tree VITE_APP_BASE=/sub/jade_tree/ vite build
 
 FROM nginx:1.27-alpine
 
@@ -27,12 +31,12 @@ COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY docker/nginx/all.conf.template /etc/nginx/templates/default.conf.template
 COPY docker/docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
-COPY --from=builder /app/dist/main /usr/share/nginx/html/main
-COPY --from=builder /app/dist/goddess /usr/share/nginx/html/goddess
-COPY --from=builder /app/dist/rabbit /usr/share/nginx/html/rabbit
-COPY --from=builder /app/dist/marksman /usr/share/nginx/html/marksman
-COPY --from=builder /app/dist/jade_tree /usr/share/nginx/html/jade_tree
+COPY --from=builder /app/dist/main /usr/share/nginx/html
+COPY --from=builder /app/dist/goddess /usr/share/nginx/html/sub/goddess
+COPY --from=builder /app/dist/rabbit /usr/share/nginx/html/sub/rabbit
+COPY --from=builder /app/dist/marksman /usr/share/nginx/html/sub/marksman
+COPY --from=builder /app/dist/jade_tree /usr/share/nginx/html/sub/jade_tree
 
-EXPOSE 80 4174 4175 4176 4177
+EXPOSE 80
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

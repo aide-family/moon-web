@@ -54,8 +54,10 @@ export default defineConfig(({ mode }) => {
     )
     const appRoot = path.resolve(__dirname, `src/apps/${appName}`)
     const srcRoot = path.resolve(__dirname, './src')
+    const appBase = process.env.VITE_APP_BASE || '/'
 
     return {
+      base: appBase,
       // 在开发模式下，将 root 设置为应用目录，这样 Vite 只会处理该应用的 HTML
       root: appRoot,
       plugins: [react(), tailwindcss()],

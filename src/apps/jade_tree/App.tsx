@@ -20,6 +20,7 @@ import { OAuthTokenHandler } from '@/components/OAuthTokenHandler'
 import { AuthGuard } from '@/components/AuthGuard'
 import { TokenRefreshHandler } from '@/components/TokenRefreshHandler'
 import { isInMicroApp } from '@/utils'
+import { getRouterBasename } from '@/utils/subAppUrl'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import { useTheme } from '@/contexts/useTheme'
 import { LocaleProvider, useLocale } from '@/contexts/LocaleContext'
@@ -104,7 +105,7 @@ function AppContent() {
       modal={antdModalProviderConfig}
     >
       <AntdApp>
-        <BrowserRouter>
+        <BrowserRouter basename={getRouterBasename()}>
           <OAuthTokenHandler>
             <Routes>
               <Route path='/login' element={<LoginPage />} />
