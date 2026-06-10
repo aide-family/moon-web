@@ -21,6 +21,8 @@ import { getSystemManagementMenuItems } from '@/config/systemManagementMenu'
 import { SubAppContainer } from '@/components/SubAppContainer'
 import { PlaceholderPage } from '@/components/PlaceholderPage'
 import type { SubAppConfig } from '@/types/subApp'
+import { getIntegratedAppConfig } from '@/config/mainIntegratedMenu'
+import { isMainIntegrated } from '@/utils/mainMode'
 
 export type { SubAppConfig }
 
@@ -46,8 +48,21 @@ export interface AppConfigItem {
 
 /**
  * 获取应用配置（支持国际化）
+ * 微前端模式通过 subApp 嵌入子应用；集成模式直接渲染本地页面组件
  */
-export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => [
+export const getAppConfig = (t: (key: string) => string): AppConfigItem[] => {
+  if (isMainIntegrated()) {
+    return getIntegratedAppConfig(t)
+  }
+  return getMicroAppConfig(t)
+}
+
+/**
+ * 微前端模式菜单配置
+ */
+export const getMicroAppConfig = (
+  t: (key: string) => string,
+): AppConfigItem[] => [
   // 系统管理：主系统直接渲染，不通过微前端子应用
   {
     key: 'goddess',

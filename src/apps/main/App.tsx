@@ -18,6 +18,8 @@ import {
   getDefaultPath,
   generateRoutes,
 } from './config'
+import { isMainIntegrated } from '@/utils'
+import StrategyDetailPage from '@/pages/marksman/strategies/detail'
 
 function AppContent() {
   const { themeConfig } = useTheme()
@@ -58,6 +60,12 @@ function AppContent() {
               }
             >
               <Route index element={<Navigate to={defaultPath} replace />} />
+              {isMainIntegrated() && (
+                <Route
+                  path='/marksman/strategies/:uid'
+                  element={<StrategyDetailPage />}
+                />
+              )}
               {routes}
             </Route>
           </Routes>

@@ -9,6 +9,7 @@ const apps = ['main', 'goddess', 'rabbit', 'marksman', 'jade_tree']
 // 应用端口配置
 const appPorts = {
   main: 5172,
+  main_integrated: 5173,
   goddess: 5174,
   rabbit: 5175,
   marksman: 5176,
@@ -19,6 +20,9 @@ const appPorts = {
 export default defineConfig(({ mode }) => {
   // 获取应用名称，支持通过环境变量指定
   const appName = process.env.APP_NAME
+  const isMainIntegrated =
+    appName === 'main' && process.env.VITE_MAIN_MODE === 'integrated'
+  const buildAppName = isMainIntegrated ? 'main-integrated' : appName
   const env = loadEnv(mode, process.cwd())
   const appUrls = {
     goddess: {
@@ -87,10 +91,13 @@ export default defineConfig(({ mode }) => {
         rollupOptions: {
           input: appHtmlPath,
         },
-        outDir: path.resolve(__dirname, `dist/${appName}`),
+        outDir: path.resolve(__dirname, `dist/${buildAppName}`),
       },
       server: {
-        port: appPorts[appName as keyof typeof appPorts] || 5172,
+        port:
+          (isMainIntegrated
+            ? appPorts.main_integrated
+            : appPorts[appName as keyof typeof appPorts]) || 5172,
         cors: true,
         headers: {
           'Access-Control-Allow-Origin': '*',

@@ -5,6 +5,7 @@
 export * from './rem'
 export * from './menu'
 export * from './microApp'
+export * from './mainMode'
 export * from './subAppUrl'
 export * from './hooks/useAdaptiveTableHeight'
 export * from './hooks/usePaginationState'

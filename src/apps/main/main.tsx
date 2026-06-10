@@ -1,12 +1,12 @@
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import '@/styles/index.css'
-import { initRem } from '@/utils'
+import { initRem, isMainIntegrated } from '@/utils'
 import microApp from '@micro-zoe/micro-app'
 
-// 初始化 micro-app（只执行一次）
-// 对于 Vite 开发环境，需要禁用沙箱以支持 ES 模块
+// 微前端模式才初始化 micro-app
 if (
+  !isMainIntegrated() &&
   !(window as Window & { __MICRO_APP_STARTED__?: boolean })
     .__MICRO_APP_STARTED__
 ) {
