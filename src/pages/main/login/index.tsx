@@ -196,9 +196,13 @@ export default function LoginPage() {
           menu={{ items: themeMenuItems, selectedKeys: [themeMode] }}
           trigger={['click']}
         >
-          <button
-            type='button'
-            className='flex h-9 w-9 items-center justify-center  rounded-full border border-gray-200 bg-white/90 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800/90 dark:hover:bg-gray-700'
+          <Button
+            shape='circle'
+            variant='filled'
+            color='primary'
+            icon={
+              actualThemeMode === 'dark' ? <MoonOutlined /> : <SunOutlined />
+            }
             title={
               themeMode === 'system'
                 ? t('theme.system')
@@ -206,25 +210,19 @@ export default function LoginPage() {
                   ? t('theme.dark')
                   : t('theme.light')
             }
-          >
-            {actualThemeMode === 'dark' ? (
-              <MoonOutlined className='text-lg' />
-            ) : (
-              <SunOutlined className='text-lg' />
-            )}
-          </button>
+          />
         </Dropdown>
         <Dropdown
           menu={{ items: localeMenuItems, selectedKeys: [locale] }}
           trigger={['click']}
         >
-          <button
-            type='button'
-            className='flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white/90 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800/90 dark:hover:bg-gray-700'
+          <Button
+            shape='circle'
+            variant='filled'
+            color='primary'
+            icon={<TranslationOutlined />}
             title={locale === 'zh-CN' ? t('language.zh') : t('language.en')}
-          >
-            <TranslationOutlined className='text-lg' />
-          </button>
+          />
         </Dropdown>
       </div>
 
