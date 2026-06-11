@@ -1,8 +1,7 @@
 import type { SubAppConfig } from '@/types/subApp'
 
-/** all-in-one 部署时子应用在 nginx 下的路径前缀 */
+/** all-in-one 部署时微前端子应用在 nginx 下的路径前缀 */
 export const SUB_APP_BASE = {
-  goddess: '/sub/goddess',
   rabbit: '/sub/rabbit',
   marksman: '/sub/marksman',
   jade_tree: '/sub/jade_tree',

@@ -20,12 +20,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - app: all
-            dockerfile: docker/Dockerfile.all
+          # 1. 单一前端产物（集成模式，所有页面在同一 bundle）
+          - app: integrated
+            dockerfile: docker/Dockerfile.integrated
             build_args: ""
+          # 2. 微前端主应用产物（main 壳，子应用独立部署）
           - app: main
             dockerfile: docker/Dockerfile
             build_args: APP_NAME=main
+          # 3. 各子应用独立产物
           - app: goddess
             dockerfile: docker/Dockerfile
             build_args: APP_NAME=goddess

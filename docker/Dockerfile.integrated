@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# 微前端主应用或独立子应用产物
+# 单一前端产物：集成模式，所有页面打包在同一 bundle 中
 
 FROM node:22-alpine AS builder
 
@@ -13,20 +13,14 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-ARG APP_NAME
 ARG VERSION=dev
 ARG BUILD_TIME
 ARG REPO
 
-ENV APP_NAME=${APP_NAME}
-
-RUN test -n "${APP_NAME}" && pnpm run "build:${APP_NAME}"
+RUN pnpm run build:main:integrated
 
 FROM nginx:1.27-alpine
 
-ARG APP_NAME
-
-ENV MOON_APP_NAME=${APP_NAME}
 ENV API_UPSTREAM_MAIN=http://host.docker.internal:8000
 ENV API_UPSTREAM_RABBIT=http://host.docker.internal:8001
 ENV API_UPSTREAM_MARKSMAN=http://host.docker.internal:8003
@@ -34,10 +28,11 @@ ENV API_UPSTREAM_JADE_TREE=http://host.docker.internal:8004
 ENV NGINX_CONF_TEMPLATE=/etc/nginx/templates/default.conf.template
 
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY docker/nginx/app.conf.template /etc/nginx/templates/default.conf.template
+COPY docker/nginx/api-proxy-multi.inc.template /etc/nginx/templates/api-proxy-multi.inc.template
+COPY docker/nginx/integrated.conf.template /etc/nginx/templates/default.conf.template
 COPY docker/docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
-COPY --from=builder /app/dist/${APP_NAME} /usr/share/nginx/html
+COPY --from=builder /app/dist/main-integrated /usr/share/nginx/html
 
 EXPOSE 80
 

@@ -1,4 +1,5 @@
 # syntax=docker/dockerfile:1
+# 微前端 all-in-one：主应用 + 子应用同域部署
 
 FROM node:22-alpine AS builder
 
@@ -16,24 +17,22 @@ ARG VERSION=dev
 ARG BUILD_TIME
 ARG REPO
 
-# Linux 容器内直接设置环境变量；pnpm run / pnpm exec 会正确解析 node_modules/.bin
-RUN pnpm run build:main && \
-    APP_NAME=goddess VITE_APP_BASE=/sub/goddess/ pnpm exec vite build && \
-    APP_NAME=rabbit VITE_APP_BASE=/sub/rabbit/ pnpm exec vite build && \
-    APP_NAME=marksman VITE_APP_BASE=/sub/marksman/ pnpm exec vite build && \
-    APP_NAME=jade_tree VITE_APP_BASE=/sub/jade_tree/ pnpm exec vite build
+RUN pnpm run build:all:micro
 
 FROM nginx:1.27-alpine
 
-ENV API_UPSTREAM=http://host.docker.internal:8000
+ENV API_UPSTREAM_MAIN=http://host.docker.internal:8000
+ENV API_UPSTREAM_RABBIT=http://host.docker.internal:8001
+ENV API_UPSTREAM_MARKSMAN=http://host.docker.internal:8003
+ENV API_UPSTREAM_JADE_TREE=http://host.docker.internal:8004
 ENV NGINX_CONF_TEMPLATE=/etc/nginx/templates/default.conf.template
 
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx/api-proxy-multi.inc.template /etc/nginx/templates/api-proxy-multi.inc.template
 COPY docker/nginx/all.conf.template /etc/nginx/templates/default.conf.template
 COPY docker/docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 COPY --from=builder /app/dist/main /usr/share/nginx/html
-COPY --from=builder /app/dist/goddess /usr/share/nginx/html/sub/goddess
 COPY --from=builder /app/dist/rabbit /usr/share/nginx/html/sub/rabbit
 COPY --from=builder /app/dist/marksman /usr/share/nginx/html/sub/marksman
 COPY --from=builder /app/dist/jade_tree /usr/share/nginx/html/sub/jade_tree
