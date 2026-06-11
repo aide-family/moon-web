@@ -139,7 +139,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   // 根据实际主题模式生成Ant Design主题配置
   const themeConfig: ThemeConfig = {
     token: {
-      colorPrimary: '#6c34e6',
+      // colorPrimary: '#6c34e6',
     },
     algorithm:
       actualThemeMode === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm,
