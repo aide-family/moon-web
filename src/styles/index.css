@@ -42,6 +42,32 @@ body {
    xl: ≥1280px 桌面
 */
 
+/* 侧边栏：Logo 固定，菜单超出时在侧栏内滚动 */
+.layout-root {
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
+}
+
+.ant-layout-has-sider > .ant-layout-sider {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ant-layout-sider-children {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.layout-sider-menu-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 /* 确保关闭状态的父菜单在子菜单被选中时也保持高亮 */
 .ant-menu-dark
   .ant-menu-submenu:not(.ant-menu-submenu-open).ant-menu-submenu-selected

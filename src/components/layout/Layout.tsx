@@ -155,6 +155,8 @@ const getBreadcrumbItemsByKey = (
 
 /** Ant Design lg 断点为 1024px */
 const LG_BREAKPOINT = 1024
+/** 侧栏收起时的宽度（仅展示图标） */
+const SIDER_COLLAPSED_WIDTH = 80
 
 const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
   const screens = useBreakpoint()
@@ -175,7 +177,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
     token: { colorBgContainer },
   } = theme.useToken()
 
-  // 随断点同步：大屏默认展开，平板/手机默认收起
+  // 随断点同步：大屏默认展开全文菜单，小屏默认收起为图标栏
   useEffect(() => {
     if (isDesktop) {
       queueMicrotask(() => setCollapsed(false))
@@ -196,29 +198,20 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
     : []
   const [openKeys, setOpenKeys] = useState<string[]>(defaultOpenKeys)
 
+  const currentItemKey = currentItem?.key
+
   // 收起时不传 openKeys，Menu 非受控以便悬停弹出子菜单；展开时传 openKeys 受控
   const menuOpenKeys = collapsed ? undefined : openKeys
 
-  // 菜单从收起变为展开时，恢复当前路径对应的父级展开
+  // 路径变化或侧栏展开时，确保当前路由的父级菜单处于展开（不收起用户手动展开的其他菜单）
   useEffect(() => {
-    if (!collapsed && currentItem) {
-      const parentKeys = getParentKeys(menuItems, currentItem.key)
-      if (parentKeys.length > 0) {
-        queueMicrotask(() => setOpenKeys(parentKeys))
-      }
-    }
-  }, [collapsed, currentItem, menuItems])
-
-  // 路径变化时同步展开项（仅菜单未收起时）
-  useEffect(() => {
-    if (collapsed) return
-    if (currentItem) {
-      const parentKeys = getParentKeys(menuItems, currentItem.key)
-      if (parentKeys.length > 0) {
-        queueMicrotask(() => setOpenKeys(parentKeys))
-      }
-    }
-  }, [collapsed, currentPath, currentItem, menuItems])
+    if (collapsed || !currentItemKey) return
+    const parentKeys = getParentKeys(menuItems, currentItemKey)
+    if (parentKeys.length === 0) return
+    queueMicrotask(() =>
+      setOpenKeys((prev) => [...new Set([...prev, ...parentKeys])]),
+    )
+  }, [collapsed, currentPath, currentItemKey, menuItems])
 
   // 处理菜单点击
   const handleMenuClick: MenuProps['onClick'] = (e) => {
@@ -228,12 +221,12 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
     }
   }
 
-  // 处理子菜单展开/收起（有选中项时，其父级菜单始终保持展开）
+  // 处理子菜单展开/收起（当前选中项的父级始终保持展开，其余由用户控制）
   const handleOpenChange: MenuProps['onOpenChange'] = (keys) => {
-    const parentKeys = currentItem
-      ? getParentKeys(menuItems, currentItem.key)
+    const parentKeys = currentItemKey
+      ? getParentKeys(menuItems, currentItemKey)
       : []
-    setOpenKeys([...new Set([...parentKeys, ...keys])])
+    setOpenKeys([...new Set([...keys, ...parentKeys])])
   }
 
   // 递归转换菜单项格式
@@ -277,14 +270,14 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
   }))
 
   return (
-    <Layout className='h-full w-full'>
+    <Layout className='layout-root h-full w-full overflow-hidden'>
       <Sider
         trigger={null}
         collapsible
         collapsed={collapsed}
         width={240}
         breakpoint='lg'
-        collapsedWidth={isDesktop ? 80 : 0}
+        collapsedWidth={SIDER_COLLAPSED_WIDTH}
         onBreakpoint={(broken) => {
           if (broken) setCollapsed(true)
         }}
@@ -306,22 +299,24 @@ const LayoutComponent: React.FC<LayoutProps> = ({ menuItems, header }) => {
             {t('layout.appName')}
           </span>
         </div>
-        <Menu
-          key={location.pathname}
-          theme='dark'
-          mode='inline'
-          inlineCollapsed={collapsed}
-          selectedKeys={selectedKeys}
-          {...(menuOpenKeys !== undefined ? { openKeys: menuOpenKeys } : {})}
-          items={menuItemsData}
-          onClick={(e) => {
-            handleMenuClick(e)
-            if (!isDesktop) setCollapsed(true)
-          }}
-          onOpenChange={handleOpenChange}
-        />
+        <div className='layout-sider-menu-scroll'>
+          <Menu
+            theme='dark'
+            mode='inline'
+            inlineCollapsed={collapsed}
+            selectedKeys={selectedKeys}
+            {...(menuOpenKeys !== undefined ? { openKeys: menuOpenKeys } : {})}
+            items={menuItemsData}
+            onClick={(e) => {
+              handleMenuClick(e)
+              // 小屏点击菜单项后恢复为图标栏，避免占满屏幕
+              if (!isDesktop) setCollapsed(true)
+            }}
+            onOpenChange={handleOpenChange}
+          />
+        </div>
       </Sider>
-      <Layout className='flex flex-col min-h-0 flex-1'>
+      <Layout className='flex flex-col min-h-0 flex-1 overflow-hidden'>
         <Header
           className='h-14 md:h-16 shrink-0'
           style={{ padding: 0, background: colorBgContainer }}
