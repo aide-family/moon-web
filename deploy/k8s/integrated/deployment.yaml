@@ -1,0 +1,56 @@
+# 单一前端（集成模式）：一个 Pod 承载全部页面，nginx 按路径转发到各后端
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moon-web-integrated
+  namespace: moon-web
+  labels:
+    app.kubernetes.io/name: moon-web
+    app.kubernetes.io/component: integrated
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: moon-web
+      app.kubernetes.io/component: integrated
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: moon-web
+        app.kubernetes.io/component: integrated
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/aide-family/moon-web/integrated:v1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          env:
+            - name: API_UPSTREAM_MAIN
+              value: http://moon-main-api.moon-api.svc.cluster.local:8000
+            - name: API_UPSTREAM_RABBIT
+              value: http://moon-rabbit-api.moon-api.svc.cluster.local:8001
+            - name: API_UPSTREAM_MARKSMAN
+              value: http://moon-marksman-api.moon-api.svc.cluster.local:8003
+            - name: API_UPSTREAM_JADE_TREE
+              value: http://moon-jade-tree-api.moon-api.svc.cluster.local:8004
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi

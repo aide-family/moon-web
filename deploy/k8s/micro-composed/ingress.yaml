@@ -1,0 +1,46 @@
+# 微前端拆分部署：同一域名下 main + /sub/* 子应用（子应用需以 VITE_APP_BASE=/sub/{app}/ 构建，见 README）
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: moon-web-micro-composed
+  namespace: moon-web
+  labels:
+    app.kubernetes.io/name: moon-web
+    app.kubernetes.io/component: micro-composed
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: moon.example.com
+      http:
+        paths:
+          - path: /sub/rabbit(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: moon-web-rabbit
+                port:
+                  number: 80
+          - path: /sub/marksman(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: moon-web-marksman
+                port:
+                  number: 80
+          - path: /sub/jade_tree(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: moon-web-jade-tree
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: moon-web-main
+                port:
+                  number: 80

@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: moon-web
+
+resources:
+  - ../../namespace.yaml
+  - ../../integrated/deployment.yaml
+  - ../../integrated/service.yaml
+  - ../../integrated/ingress.yaml

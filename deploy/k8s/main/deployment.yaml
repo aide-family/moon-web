@@ -1,0 +1,52 @@
+# 微前端主应用（main 壳）：goddess 页面内嵌；rabbit/marksman/jade_tree 需同域 /sub/* 静态资源（见 README）
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moon-web-main
+  namespace: moon-web
+  labels:
+    app.kubernetes.io/name: moon-web
+    app.kubernetes.io/component: main
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: moon-web
+      app.kubernetes.io/component: main
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: moon-web
+        app.kubernetes.io/component: main
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/aide-family/moon-web/main:v1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          env:
+            - name: MOON_APP_NAME
+              value: main
+            - name: API_UPSTREAM
+              value: http://moon-main-api.moon-api.svc.cluster.local:8000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi

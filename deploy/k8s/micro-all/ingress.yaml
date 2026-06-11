@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: moon-web-all
+  namespace: moon-web
+  labels:
+    app.kubernetes.io/name: moon-web
+    app.kubernetes.io/component: all
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: moon.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: moon-web-all
+                port:
+                  number: 80

@@ -1,0 +1,57 @@
+# 微前端 all-in-one：main + /sub/* 子应用同 Pod（镜像来自 docker/Dockerfile.all，本地 tag 为 moon-web:all）
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moon-web-all
+  namespace: moon-web
+  labels:
+    app.kubernetes.io/name: moon-web
+    app.kubernetes.io/component: all
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: moon-web
+      app.kubernetes.io/component: all
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: moon-web
+        app.kubernetes.io/component: all
+    spec:
+      containers:
+        - name: web
+          # CI 未推送 all 镜像时，可改为本地构建: moon-web:all
+          image: ghcr.io/aide-family/moon-web/all:v1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          env:
+            - name: API_UPSTREAM_MAIN
+              value: http://moon-main-api.moon-api.svc.cluster.local:8000
+            - name: API_UPSTREAM_RABBIT
+              value: http://moon-rabbit-api.moon-api.svc.cluster.local:8001
+            - name: API_UPSTREAM_MARKSMAN
+              value: http://moon-marksman-api.moon-api.svc.cluster.local:8003
+            - name: API_UPSTREAM_JADE_TREE
+              value: http://moon-jade-tree-api.moon-api.svc.cluster.local:8004
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi

@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: moon-web-jade-tree
+  namespace: moon-web
+  labels:
+    app.kubernetes.io/name: moon-web
+    app.kubernetes.io/component: jade-tree
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: jade-tree.moon.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: moon-web-jade-tree
+                port:
+                  number: 80

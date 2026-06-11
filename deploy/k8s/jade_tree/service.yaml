@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: moon-web-jade-tree
+  namespace: moon-web
+  labels:
+    app.kubernetes.io/name: moon-web
+    app.kubernetes.io/component: jade-tree
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: moon-web
+    app.kubernetes.io/component: jade-tree
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
