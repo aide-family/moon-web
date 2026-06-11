@@ -1,16 +1,7 @@
 // 头部组件
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  Select,
-  Avatar,
-  Dropdown,
-  message,
-  Modal,
-  Form,
-  Input,
-  theme,
-} from 'antd'
+import { Avatar, Dropdown, message, Modal, Form, Input } from 'antd'
 import type { MenuProps } from 'antd'
 import {
   UserOutlined,
@@ -34,7 +25,6 @@ import { getSelfInfo, changeEmail, changeAvatar } from '@/api/account/self'
 
 const Header: React.FC = () => {
   const navigate = useNavigate()
-  const { token } = theme.useToken()
   // 主题管理（actualThemeMode 为当前实际应用的主题，用于展示图标）
   const { themeMode, actualThemeMode, setThemeMode } = useTheme()
   // 国际化管理
@@ -251,6 +241,46 @@ const Header: React.FC = () => {
     return actualThemeMode === 'dark' ? <MoonOutlined /> : <SunOutlined />
   }
 
+  const currentNamespaceOption = namespaceOptions.find(
+    (opt) => opt.value === currentNamespace,
+  )
+
+  const renderNamespaceLogo = (logo?: string) =>
+    logo ? (
+      <Avatar
+        src={logo}
+        size={22}
+        shape='square'
+        className='shrink-0 rounded'
+      />
+    ) : (
+      <Avatar
+        size={22}
+        shape='square'
+        className='shrink-0 rounded bg-(--ant-colorFillTertiary)'
+        icon={<GlobalOutlined />}
+      />
+    )
+
+  // 命名空间下拉菜单项
+  const namespaceMenuItems: MenuProps['items'] = namespaceOptions.map(
+    (opt) => ({
+      key: opt.value,
+      label: (
+        <span className='namespace-select-option grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2'>
+          {renderNamespaceLogo(opt.logo)}
+          <span className='truncate'>{opt.label}</span>
+        </span>
+      ),
+      disabled: opt.disabled,
+      onClick: () => {
+        if (opt.value !== currentNamespace) {
+          handleNamespaceChange(opt.value)
+        }
+      },
+    }),
+  )
+
   // 用户下拉菜单项
   const userMenuItems: MenuProps['items'] = [
     {
@@ -280,48 +310,27 @@ const Header: React.FC = () => {
   ]
 
   return (
-    <div className='flex items-center gap-2 sm:gap-4 mr-2 md:mr-4 h-8 shrink-0 flex-wrap justify-end'>
-      {/* 命名空间选择：选项与选中均展示 logo，样式与主题统一 */}
-      <Select
-        value={currentNamespace}
-        onChange={(value: string) => handleNamespaceChange(value)}
-        options={namespaceOptions.map((opt) => ({
-          value: opt.value,
-          label: (
-            <span className='flex items-center gap-2'>
-              {opt.logo ? (
-                <Avatar
-                  src={opt.logo}
-                  size={22}
-                  shape='square'
-                  className='shrink-0 rounded'
-                />
-              ) : (
-                <Avatar
-                  size={22}
-                  shape='square'
-                  className='shrink-0 rounded bg-(--ant-colorFillTertiary)'
-                  icon={<GlobalOutlined />}
-                />
-              )}
-              <span className='truncate'>{opt.label}</span>
-            </span>
-          ),
-          searchLabel: opt.label,
-          disabled: opt.disabled,
-        }))}
-        className='namespace-select-header min-w-[140px] max-w-[200px] sm:min-w-[160px] sm:max-w-[220px]'
-        loading={loading}
-        placeholder={t('namespace.select')}
-        size='small'
-        suffixIcon={<DownOutlined className='text-[10px] opacity-60' />}
-        popupMatchSelectWidth={false}
-        classNames={{ popup: { root: 'namespace-select-dropdown' } }}
-        showSearch={{ optionFilterProp: 'searchLabel' }}
-        style={{
-          borderRadius: token.borderRadiusLG,
+    <div className='flex items-center gap-2 sm:gap-4 mr-2 md:mr-4 h-8 shrink-0 justify-end'>
+      {/* 命名空间选择：min/max 自适应宽度，超出 max 省略 */}
+      <Dropdown
+        menu={{
+          items: namespaceMenuItems,
+          selectedKeys: currentNamespace ? [currentNamespace] : [],
+          className: 'namespace-select-dropdown',
         }}
-      />
+        trigger={['click']}
+        disabled={loading}
+      >
+        <div className='namespace-select-header inline-grid h-8 min-w-[100px] max-w-[160px] cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 overflow-hidden px-1 hover:opacity-80 sm:max-w-[200px]'>
+          {renderNamespaceLogo(currentNamespaceOption?.logo)}
+          <span
+            className={`truncate text-sm${currentNamespaceOption ? '' : ' text-(--ant-colorTextPlaceholder)'}`}
+          >
+            {currentNamespaceOption?.label ?? t('namespace.select')}
+          </span>
+          <DownOutlined className='shrink-0 text-[10px] opacity-60' />
+        </div>
+      </Dropdown>
       <DetailForm
         open={addNamespaceModalOpen}
         mode='create'

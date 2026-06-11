@@ -143,24 +143,45 @@ micro-app iframe {
   background-color: rgba(255, 255, 255, 0.3);
 }
 
-/* 头部命名空间选择器：圆角、下拉宽度与选项间距 */
-.namespace-select-header.ant-select .ant-select-selector {
-  border-radius: var(--ant-border-radius-lg) !important;
-  padding-inline: 10px 24px !important;
+/* 头部命名空间下拉：grid 中间列 minmax(0,1fr) 保证 max-width 下省略号生效 */
+.namespace-select-header.ant-dropdown-trigger {
+  display: inline-grid;
+  min-width: 100px;
+  max-width: 160px;
+  overflow: hidden;
 }
-.namespace-select-dropdown.ant-select-dropdown {
-  min-width: 200px !important;
+@media (min-width: 640px) {
+  .namespace-select-header.ant-dropdown-trigger {
+    max-width: 200px;
+  }
+}
+/* 头部命名空间下拉：圆角、下拉宽度与选项间距 */
+.namespace-select-dropdown.ant-dropdown-menu {
+  min-width: 100px;
+  max-width: 160px;
   border-radius: var(--ant-border-radius-lg);
   padding: 6px 0;
+  overflow: hidden;
 }
-.namespace-select-dropdown .ant-select-item-option {
+@media (min-width: 640px) {
+  .namespace-select-dropdown.ant-dropdown-menu {
+    max-width: 200px;
+  }
+}
+.namespace-select-dropdown .ant-dropdown-menu-item {
   padding-inline: 12px;
+  min-width: 0;
   min-height: 40px;
   align-items: center;
+  overflow: hidden;
 }
-.namespace-select-dropdown .ant-select-item-option-content {
-  display: flex;
-  align-items: center;
+.namespace-select-dropdown .ant-dropdown-menu-title-content {
+  min-width: 0;
+  overflow: hidden;
+}
+.namespace-select-option {
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* Modal：最大 80vh；标题/底部固定，内容区纵向滚动，禁止横向滚动条 */
