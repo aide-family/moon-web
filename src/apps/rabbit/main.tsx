@@ -2,6 +2,13 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import '@/styles/index.css'
 import { initRem } from '@/utils'
+import { message } from 'antd'
+
+/** 获取 micro-app 中当前子应用的容器节点 */
+const getContainer = () => {
+  return document.getElementById('root') || document.body
+}
+message.config({ getContainer })
 
 // 初始化 rem 等比例缩放（无论是否在微应用环境中都需要初始化，以确保 antd 样式正确转换）
 initRem({
