@@ -6,12 +6,15 @@ server {
     root   /usr/share/nginx/html;
     index  index.html;
 
+    resolver ${NGINX_RESOLVER} valid=10s ipv6=off;
+
     location /v1/ {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_pass ${API_UPSTREAM}/v1/;
+        set $upstream "${API_UPSTREAM}";
+        proxy_pass $upstream$request_uri;
     }
 
     location /oauth2/ {
@@ -19,7 +22,8 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_pass ${API_UPSTREAM}/oauth2/;
+        set $upstream "${API_UPSTREAM}";
+        proxy_pass $upstream$request_uri;
     }
 
     location /health {
@@ -27,7 +31,8 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_pass ${API_UPSTREAM}/health;
+        set $upstream "${API_UPSTREAM}";
+        proxy_pass $upstream$request_uri;
     }
 
     location / {

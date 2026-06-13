@@ -22,20 +22,20 @@ spec:
       containers:
         - name: web
           # CI 未推送 all 镜像时，可改为本地构建: moon-web:all
-          image: ghcr.io/aide-family/moon-web/all
+          image: ghcr.io/aide-family/moon-web/all:v0.0.6
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 80
           env:
             - name: API_UPSTREAM_MAIN
-              value: http://goddess.moon.svc.cluster.local:8000
+              value: http://goddess:8000
             - name: API_UPSTREAM_RABBIT
-              value: http://rabbit.moon.svc.cluster.local:8001
+              value: http://rabbit:8001
             - name: API_UPSTREAM_MARKSMAN
-              value: http://marksman.moon.svc.cluster.local:8003
+              value: http://marksman:8003
             - name: API_UPSTREAM_JADE_TREE
-              value: http://jade-tree.moon.svc.cluster.local:8004
+              value: http://jade-tree:8004
           readinessProbe:
             httpGet:
               path: /

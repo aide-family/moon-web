@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: ghcr.io/aide-family/moon-web/jade_tree
+          image: ghcr.io/aide-family/moon-web/jade_tree:v0.0.6
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -29,7 +29,7 @@ spec:
             - name: MOON_APP_NAME
               value: jade_tree
             - name: API_UPSTREAM
-              value: http://jade-tree.moon.svc.cluster.local:8004
+              value: http://jade-tree:8004
           readinessProbe:
             httpGet:
               path: /

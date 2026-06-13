@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: ghcr.io/aide-family/moon-web/marksman
+          image: ghcr.io/aide-family/moon-web/marksman:v0.0.6
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -29,7 +29,7 @@ spec:
             - name: MOON_APP_NAME
               value: marksman
             - name: API_UPSTREAM
-              value: http://marksman.moon.svc.cluster.local:8003
+              value: http://marksman:8003
           readinessProbe:
             httpGet:
               path: /

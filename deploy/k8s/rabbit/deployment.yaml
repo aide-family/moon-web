@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: ghcr.io/aide-family/moon-web/rabbit
+          image: ghcr.io/aide-family/moon-web/rabbit:v0.0.6
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -29,7 +29,7 @@ spec:
             - name: MOON_APP_NAME
               value: rabbit
             - name: API_UPSTREAM
-              value: http://rabbit.moon.svc.cluster.local:8001
+              value: http://rabbit:8001
           readinessProbe:
             httpGet:
               path: /

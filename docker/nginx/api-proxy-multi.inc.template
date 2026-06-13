@@ -1,3 +1,5 @@
+resolver ${NGINX_RESOLVER} valid=10s ipv6=off;
+
 # 集成 / 微前端 all-in-one：按路径将 /v1 分发到各子应用后端（由 entrypoint envsubst 注入）
 
 # --- Rabbit ---
@@ -6,70 +8,80 @@ location /v1/templates {
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_RABBIT}/v1/templates;
+    set $upstream "${API_UPSTREAM_RABBIT}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/template/ {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_RABBIT}/v1/template/;
+    set $upstream "${API_UPSTREAM_RABBIT}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/email/ {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_RABBIT}/v1/email/;
+    set $upstream "${API_UPSTREAM_RABBIT}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/webhook/ {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_RABBIT}/v1/webhook/;
+    set $upstream "${API_UPSTREAM_RABBIT}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/sender/ {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_RABBIT}/v1/sender/;
+    set $upstream "${API_UPSTREAM_RABBIT}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/message-log {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_RABBIT}/v1/message-log;
+    set $upstream "${API_UPSTREAM_RABBIT}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/message-logs {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_RABBIT}/v1/message-logs;
+    set $upstream "${API_UPSTREAM_RABBIT}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/alert-subscriptions {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_RABBIT}/v1/alert-subscriptions;
+    set $upstream "${API_UPSTREAM_RABBIT}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/recipient-group {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_RABBIT}/v1/recipient-group;
+    set $upstream "${API_UPSTREAM_RABBIT}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/recipient-groups {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_RABBIT}/v1/recipient-groups;
+    set $upstream "${API_UPSTREAM_RABBIT}";
+    proxy_pass $upstream$request_uri;
 }
 
 # --- Marksman ---
@@ -78,77 +90,88 @@ location /v1/strategies {
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_MARKSMAN}/v1/strategies;
+    set $upstream "${API_UPSTREAM_MARKSMAN}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/strategy/ {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_MARKSMAN}/v1/strategy/;
+    set $upstream "${API_UPSTREAM_MARKSMAN}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/strategy-groups {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_MARKSMAN}/v1/strategy-groups;
+    set $upstream "${API_UPSTREAM_MARKSMAN}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/strategy-group/ {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_MARKSMAN}/v1/strategy-group/;
+    set $upstream "${API_UPSTREAM_MARKSMAN}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/levels {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_MARKSMAN}/v1/levels;
+    set $upstream "${API_UPSTREAM_MARKSMAN}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/level/ {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_MARKSMAN}/v1/level/;
+    set $upstream "${API_UPSTREAM_MARKSMAN}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/datasources {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_MARKSMAN}/v1/datasources;
+    set $upstream "${API_UPSTREAM_MARKSMAN}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/datasource/ {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_MARKSMAN}/v1/datasource/;
+    set $upstream "${API_UPSTREAM_MARKSMAN}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/metric-query/ {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_MARKSMAN}/v1/metric-query/;
+    set $upstream "${API_UPSTREAM_MARKSMAN}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/metric/ {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_MARKSMAN}/v1/metric/;
+    set $upstream "${API_UPSTREAM_MARKSMAN}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/alert/ {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_MARKSMAN}/v1/alert/;
+    set $upstream "${API_UPSTREAM_MARKSMAN}";
+    proxy_pass $upstream$request_uri;
 }
 
 # --- Jade Tree ---
@@ -157,35 +180,40 @@ location /v1/ssh-commands {
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_JADE_TREE}/v1/ssh-commands;
+    set $upstream "${API_UPSTREAM_JADE_TREE}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/ssh-command-audits {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_JADE_TREE}/v1/ssh-command-audits;
+    set $upstream "${API_UPSTREAM_JADE_TREE}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/probe-tasks {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_JADE_TREE}/v1/probe-tasks;
+    set $upstream "${API_UPSTREAM_JADE_TREE}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/machine-info {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_JADE_TREE}/v1/machine-info;
+    set $upstream "${API_UPSTREAM_JADE_TREE}";
+    proxy_pass $upstream$request_uri;
 }
 location /v1/machine-infos {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_JADE_TREE}/v1/machine-infos;
+    set $upstream "${API_UPSTREAM_JADE_TREE}";
+    proxy_pass $upstream$request_uri;
 }
 
 # --- Main / Goddess（认证、账号、命名空间等，默认兜底）---
@@ -194,7 +222,8 @@ location /v1/ {
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_MAIN}/v1/;
+    set $upstream "${API_UPSTREAM_MAIN}";
+    proxy_pass $upstream$request_uri;
 }
 
 location /oauth2/ {
@@ -202,7 +231,8 @@ location /oauth2/ {
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_MAIN}/oauth2/;
+    set $upstream "${API_UPSTREAM_MAIN}";
+    proxy_pass $upstream$request_uri;
 }
 
 location /health {
@@ -210,5 +240,6 @@ location /health {
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_pass ${API_UPSTREAM_MAIN}/health;
+    set $upstream "${API_UPSTREAM_MAIN}";
+    proxy_pass $upstream$request_uri;
 }

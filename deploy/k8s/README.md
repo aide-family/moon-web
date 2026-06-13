@@ -145,10 +145,12 @@ kubectl run curl --rm -it --image=curlimages/curl -- \
 
 | 环境变量 | 集群内地址 | 后端 Service |
 |---|---|---|
-| `API_UPSTREAM_MAIN` | `http://goddess.moon.svc.cluster.local:8000` | `goddess` |
-| `API_UPSTREAM_RABBIT` | `http://rabbit.moon.svc.cluster.local:8001` | `rabbit` |
-| `API_UPSTREAM_MARKSMAN` | `http://marksman.moon.svc.cluster.local:8003` | `marksman` |
-| `API_UPSTREAM_JADE_TREE` | `http://jade-tree.moon.svc.cluster.local:8004` | `jade-tree` |
+| `API_UPSTREAM_MAIN` | `http://goddess:8000` | `goddess` |
+| `API_UPSTREAM_RABBIT` | `http://rabbit:8001` | `rabbit` |
+| `API_UPSTREAM_MARKSMAN` | `http://marksman:8003` | `marksman` |
+| `API_UPSTREAM_JADE_TREE` | `http://jade-tree:8004` | `jade-tree` |
+
+同命名空间内使用短 Service 名即可；nginx 通过 Pod 内 Cluster DNS 在请求时解析（见 `docker-entrypoint.sh`）。
 
 ```bash
 kubectl apply -k deploy/k8s/overlays/integrated
@@ -249,7 +251,67 @@ kubectl delete -k deploy/k8s/overlays/integrated
 
 ## 常见问题
 
-**Pod 一直 ImagePullBackOff**
+**`/v1/oauth2/reports` 返回 404**
+
+1. **后端 OAuth2 未开启**：goddess 默认 `oauth2.enable: "false"` 时不会注册 `/v1/oauth2/reports`。在 `moon/deploy/k8s/goddess/configmap.yaml` 中设置 `oauth2.enable: "true"` 并配置各第三方登录项后，重启 goddess：
+
+```bash
+kubectl rollout restart deployment/goddess -n moon
+```
+
+2. **在 Pod 内验证链路**（不要在宿主机直接 curl `*.svc`）：
+
+```bash
+# 前端 Pod -> goddess
+kubectl exec -n moon deploy/moon-web-integrated -- wget -qO- http://goddess:8000/v1/oauth2/reports
+
+# 经前端 nginx 转发
+kubectl exec -n moon deploy/moon-web-integrated -- wget -qO- http://127.0.0.1/v1/oauth2/reports
+```
+
+3. **需新版前端镜像**：`docker-entrypoint.sh` 已改为 `resolver` + `proxy_pass $upstream$request_uri`，避免代理路径错误。请重新构建 `integrated` 镜像并部署。
+
+**nginx CrashLoop：`host not found in upstream`**
+
+nginx 在启动时解析 `proxy_pass` 中的主机名会失败（尤其在 K8s 中）。镜像 `v0.0.6` 之后 `docker-entrypoint.sh` 已改为 **resolver + 变量** 在请求时解析 DNS。
+
+```bash
+# 确认 Pod 内 DNS（在 Pod 内执行，宿主机无法解析 *.svc.cluster.local）
+kubectl exec -n moon deploy/moon-web-integrated -- wget -qO- http://rabbit:8001/health
+
+# 重新构建并部署新版前端镜像后
+kubectl apply -k deploy/k8s/overlays/integrated
+kubectl rollout restart deployment/moon-web-integrated -n moon
+```
+
+Deployment 中 API 地址请使用同命名空间短名：`http://rabbit:8001`，不要用 `rabbit.moon.svc.cluster.local`（除非已升级 entrypoint）。
+
+**ErrImagePull / 拉取 `integrated:latest` not found**
+
+Deployment 中镜像未带 tag 时，kubelet 默认拉取 `:latest`。GHCR 上只有版本 tag（如 `v0.0.6`），没有 `latest`。
+
+```bash
+# 正确：通过 overlay 部署（会注入 components/image-tags 中的 newTag）
+kubectl apply -k deploy/k8s/overlays/integrated
+
+# 预览确认镜像带 tag
+kubectl kustomize deploy/k8s/overlays/integrated | grep 'image:'
+# 应看到 ghcr.io/aide-family/moon-web/integrated:v0.0.6
+```
+
+勿使用 `kubectl apply -f deploy/k8s/integrated/deployment.yaml`（除非 yaml 中已写明 tag）。
+
+若镜像仅在节点本地、未推送到 GHCR，需导入并设置拉取策略：
+
+```bash
+# 节点上已有 v0.0.6 时，可打 latest 标签临时使用（不推荐生产）
+docker tag ghcr.io/aide-family/moon-web/integrated:v0.0.6 ghcr.io/aide-family/moon-web/integrated:latest
+
+# 或在 deployment 中设置
+imagePullPolicy: IfNotPresent
+```
+
+**Pod 一直 ImagePullBackOff**（其他原因）
 
 - 检查镜像 tag 是否存在于 GHCR
 - 私有仓库是否已配置 `imagePullSecrets`
@@ -263,7 +325,7 @@ kubectl delete -k deploy/k8s/overlays/integrated
 
 ```bash
 kubectl exec -n moon deploy/moon-web-integrated -- \
-  wget -qO- http://goddess.moon.svc.cluster.local:8000/health
+  wget -qO- http://goddess:8000/health
 ```
 
 **Ingress 404 或无法访问**

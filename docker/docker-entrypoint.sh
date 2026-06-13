@@ -35,7 +35,12 @@ API_PROXY_INC="/etc/nginx/conf.d/api-proxy.inc"
 TEMPLATE="${NGINX_CONF_TEMPLATE:-/etc/nginx/templates/default.conf.template}"
 OUTPUT="/etc/nginx/conf.d/default.conf"
 
-ENVSUBST_VARS='${API_UPSTREAM} ${API_UPSTREAM_MAIN} ${API_UPSTREAM_RABBIT} ${API_UPSTREAM_MARKSMAN} ${API_UPSTREAM_JADE_TREE}'
+# K8s 集群 DNS（Pod 内 /etc/resolv.conf 的 nameserver）；Docker 本地回退 127.0.0.11
+: "${NGINX_RESOLVER:=$(awk '/^nameserver[[:space:]]/{print $2; exit}' /etc/resolv.conf)}"
+: "${NGINX_RESOLVER:=127.0.0.11}"
+export NGINX_RESOLVER
+
+ENVSUBST_VARS='${API_UPSTREAM} ${API_UPSTREAM_MAIN} ${API_UPSTREAM_RABBIT} ${API_UPSTREAM_MARKSMAN} ${API_UPSTREAM_JADE_TREE} ${NGINX_RESOLVER}'
 
 if [ ! -f "$TEMPLATE" ]; then
   echo "nginx template not found: $TEMPLATE" >&2
@@ -47,4 +52,5 @@ if [ -f "$API_PROXY_MULTI_TEMPLATE" ]; then
 fi
 
 envsubst "$ENVSUBST_VARS" < "$TEMPLATE" > "$OUTPUT"
+
 exec nginx -g 'daemon off;'

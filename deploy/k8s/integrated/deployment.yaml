@@ -21,20 +21,20 @@ spec:
     spec:
       containers:
         - name: web
-          image: ghcr.io/aide-family/moon-web/integrated
+          image: ghcr.io/aide-family/moon-web/integrated:v0.0.6
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 80
           env:
             - name: API_UPSTREAM_MAIN
-              value: http://goddess.moon.svc.cluster.local:8000
+              value: http://goddess:8000
             - name: API_UPSTREAM_RABBIT
-              value: http://rabbit.moon.svc.cluster.local:8001
+              value: http://rabbit:8001
             - name: API_UPSTREAM_MARKSMAN
-              value: http://marksman.moon.svc.cluster.local:8003
+              value: http://marksman:8003
             - name: API_UPSTREAM_JADE_TREE
-              value: http://jade-tree.moon.svc.cluster.local:8004
+              value: http://jade-tree:8004
           readinessProbe:
             httpGet:
               path: /
