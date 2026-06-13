@@ -2,14 +2,14 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: moon-web-all
-  namespace: moon-web
+  namespace: moon
   labels:
     app.kubernetes.io/name: moon-web
     app.kubernetes.io/component: all
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: 50m
 spec:
-  ingressClassName: nginx
+  ingressClassName: kong
   rules:
     - host: moon.example.com
       http:

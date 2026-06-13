@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: moon-web-rabbit
-  namespace: moon-web
+  namespace: moon
   labels:
     app.kubernetes.io/name: moon-web
     app.kubernetes.io/component: rabbit
@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: ghcr.io/aide-family/moon-web/rabbit:v1.0.0
+          image: ghcr.io/aide-family/moon-web/rabbit
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -29,7 +29,7 @@ spec:
             - name: MOON_APP_NAME
               value: rabbit
             - name: API_UPSTREAM
-              value: http://moon-rabbit-api.moon-api.svc.cluster.local:8001
+              value: http://rabbit.moon.svc.cluster.local:8001
           readinessProbe:
             httpGet:
               path: /

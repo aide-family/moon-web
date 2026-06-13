@@ -2,12 +2,12 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: moon-web-goddess
-  namespace: moon-web
+  namespace: moon
   labels:
     app.kubernetes.io/name: moon-web
     app.kubernetes.io/component: goddess
 spec:
-  ingressClassName: nginx
+  ingressClassName: kong
   rules:
     - host: goddess.moon.example.com
       http:

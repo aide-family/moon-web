@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: moon-web-marksman
-  namespace: moon-web
+  namespace: moon
   labels:
     app.kubernetes.io/name: moon-web
     app.kubernetes.io/component: marksman
@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: ghcr.io/aide-family/moon-web/marksman:v1.0.0
+          image: ghcr.io/aide-family/moon-web/marksman
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -29,7 +29,7 @@ spec:
             - name: MOON_APP_NAME
               value: marksman
             - name: API_UPSTREAM
-              value: http://moon-marksman-api.moon-api.svc.cluster.local:8003
+              value: http://marksman.moon.svc.cluster.local:8003
           readinessProbe:
             httpGet:
               path: /

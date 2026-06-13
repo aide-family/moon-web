@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: moon-web-all
-  namespace: moon-web
+  namespace: moon
   labels:
     app.kubernetes.io/name: moon-web
     app.kubernetes.io/component: all
@@ -22,20 +22,20 @@ spec:
       containers:
         - name: web
           # CI 未推送 all 镜像时，可改为本地构建: moon-web:all
-          image: ghcr.io/aide-family/moon-web/all:v1.0.0
+          image: ghcr.io/aide-family/moon-web/all
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 80
           env:
             - name: API_UPSTREAM_MAIN
-              value: http://moon-main-api.moon-api.svc.cluster.local:8000
+              value: http://goddess.moon.svc.cluster.local:8000
             - name: API_UPSTREAM_RABBIT
-              value: http://moon-rabbit-api.moon-api.svc.cluster.local:8001
+              value: http://rabbit.moon.svc.cluster.local:8001
             - name: API_UPSTREAM_MARKSMAN
-              value: http://moon-marksman-api.moon-api.svc.cluster.local:8003
+              value: http://marksman.moon.svc.cluster.local:8003
             - name: API_UPSTREAM_JADE_TREE
-              value: http://moon-jade-tree-api.moon-api.svc.cluster.local:8004
+              value: http://jade-tree.moon.svc.cluster.local:8004
           readinessProbe:
             httpGet:
               path: /

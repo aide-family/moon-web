@@ -1,22 +1,14 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: moon-web
+namespace: moon
+
+components:
+  - ../../components/image-tags
 
 resources:
-  - ../../namespace.yaml
-  - ../../main/deployment.yaml
-  - ../../main/service.yaml
-  - ../../main/ingress.yaml
-  - ../../goddess/deployment.yaml
-  - ../../goddess/service.yaml
-  - ../../goddess/ingress.yaml
-  - ../../rabbit/deployment.yaml
-  - ../../rabbit/service.yaml
-  - ../../rabbit/ingress.yaml
-  - ../../marksman/deployment.yaml
-  - ../../marksman/service.yaml
-  - ../../marksman/ingress.yaml
-  - ../../jade_tree/deployment.yaml
-  - ../../jade_tree/service.yaml
-  - ../../jade_tree/ingress.yaml
+  - ../../main
+  - ../../goddess
+  - ../../rabbit
+  - ../../marksman
+  - ../../jade_tree

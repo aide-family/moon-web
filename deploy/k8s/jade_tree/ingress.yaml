@@ -2,12 +2,12 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: moon-web-jade-tree
-  namespace: moon-web
+  namespace: moon
   labels:
     app.kubernetes.io/name: moon-web
     app.kubernetes.io/component: jade-tree
 spec:
-  ingressClassName: nginx
+  ingressClassName: kong
   rules:
     - host: jade-tree.moon.example.com
       http:

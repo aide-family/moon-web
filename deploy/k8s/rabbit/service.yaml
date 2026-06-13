@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: moon-web-rabbit
-  namespace: moon-web
+  namespace: moon
   labels:
     app.kubernetes.io/name: moon-web
     app.kubernetes.io/component: rabbit

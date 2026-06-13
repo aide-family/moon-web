@@ -1,106 +1,288 @@
-# Moon Web Kubernetes 部署
+# Moon Web Kubernetes 部署指南
 
-CI 推送镜像格式：`ghcr.io/<org>/moon-web/<app>:<tag>`
+本目录包含 Moon **前端**在 Kubernetes 上的部署清单。与后端仓库 `moon/deploy/k8s` 共用命名空间 **`moon`**，前端 nginx 将 `/v1` 等请求代理到同命名空间内的后端 Service。
+
+镜像由 GitHub Actions 在推送 `v*` tag 时自动构建，推送到 GHCR：`ghcr.io/aide-family/moon-web/<app>:<tag>`。
+
+## 镜像说明
 
 | 镜像 | 说明 |
 |---|---|
-| `integrated` | 单一前端，nginx 多后端 API 路由 |
-| `main` | 微前端主壳（goddess 内嵌） |
-| `goddess` / `rabbit` / `marksman` / `jade_tree` | 独立子应用 |
-| `all` | 微前端 all-in-one（`Dockerfile.all`，需本地构建） |
-
-## 部署前修改
-
-1. 镜像 tag：`v1.0.0` → 实际 release tag
-2. 域名：`moon.example.com` 等
-3. 后端 Service 地址：`moon-*-api.moon-api.svc.cluster.local` → 集群内真实 API Service
-4. 私有镜像仓库：在 Deployment 中增加 `imagePullSecrets`
-
-## 推荐部署模式
-
-### 模式 A：单一前端（推荐生产）
-
-一个 Deployment，页面全在 integrated bundle，API 由 nginx 按路径转发到各后端。
-
-```bash
-kubectl apply -k deploy/k8s/overlays/integrated
-```
-
-环境变量（Deployment 内已配置）：
-
-| 变量 | 默认指向 |
-|---|---|
-| `API_UPSTREAM_MAIN` | main/goddess 后端 :8000 |
-| `API_UPSTREAM_RABBIT` | rabbit 后端 :8001 |
-| `API_UPSTREAM_MARKSMAN` | marksman 后端 :8003 |
-| `API_UPSTREAM_JADE_TREE` | jade_tree 后端 :8004 |
-
-### 模式 B：微前端 all-in-one
-
-main + `/sub/rabbit|marksman|jade_tree` 静态资源在同一 Pod，与前端 `prodUrl: /sub/...` 一致。
-
-```bash
-# 先构建并推送 all 镜像（或改用本地 moon-web:all）
-pnpm run docker:build:all:micro
-kubectl apply -k deploy/k8s/overlays/micro-all
-```
-
-### 模式 C：微前端拆分（main + 子应用多 Pod）
-
-```bash
-kubectl apply -k deploy/k8s/overlays/micro-split
-```
-
-**注意**：CI 独立子应用镜像默认 `base: /`，无法直接挂载到 `/sub/rabbit/`。拆分部署需用 `build:all:micro` 方式构建子应用，或改用模式 B。
-
-### 模式 D：各应用独立域名
-
-每个子应用单独 Ingress，适合独立访问或联调。
-
-```bash
-kubectl apply -k deploy/k8s/overlays/standalone
-```
-
-独立子应用只需设置 `API_UPSTREAM`（`MOON_APP_NAME` 已在镜像内注入）。
+| `integrated` | **单一前端**（推荐）：所有页面在一个 bundle，nginx 按路径转发到各后端 |
+| `main` | 微前端主壳：goddess 页面内嵌；rabbit/marksman/jade_tree 通过 micro-app 加载 |
+| `all` | 微前端 all-in-one：main + `/sub/*` 子应用静态资源在同一 Pod |
+| `goddess` / `rabbit` / `marksman` / `jade_tree` | 独立子应用前端，可单独部署 |
 
 ## 目录结构
 
 ```
 deploy/k8s/
-├── namespace.yaml
-├── integrated/          # 单一前端
-├── main/                # 微前端主壳
-├── goddess|rabbit|.../  # 独立子应用
-├── micro-all/           # 微前端 all-in-one
-├── micro-composed/      # 拆分微前端共用 Ingress
-└── overlays/            # kustomize 组合
-    ├── integrated/
-    ├── micro-all/
-    ├── micro-split/
-    └── standalone/
+├── README.md
+├── components/
+│   └── image-tags/          # 统一镜像版本（newTag）
+├── integrated/              # 单一前端
+├── main/                    # 微前端主壳
+├── goddess|rabbit|marksman|jade_tree/  # 独立子应用
+├── micro-all/               # 微前端 all-in-one
+├── micro-composed/          # 拆分微前端的共用 Ingress
+└── overlays/                # 推荐部署入口
+    ├── integrated/          # 模式 A
+    ├── micro-all/           # 模式 B
+    ├── micro-split/         # 模式 C
+    └── standalone/          # 模式 D
 ```
 
-## 单独应用
+## 架构关系
+
+```mermaid
+flowchart TB
+  subgraph ingress [Ingress - Kong]
+    W[moon.example.com]
+  end
+
+  subgraph moon_ns [Namespace: moon]
+    FE[moon-web-integrated :80]
+    GS[goddess :8000]
+    RS[rabbit :8001]
+    MS[marksman :8003]
+    JS[jade-tree :8004]
+  end
+
+  W --> FE
+  FE -->|API_UPSTREAM_MAIN| GS
+  FE -->|API_UPSTREAM_RABBIT| RS
+  FE -->|API_UPSTREAM_MARKSMAN| MS
+  FE -->|API_UPSTREAM_JADE_TREE| JS
+```
+
+## 前置条件
+
+- Kubernetes 集群可访问，`kubectl` 已配置
+- 已安装 **[Kong Ingress Controller](https://docs.konghq.com/kubernetes-ingress-controller/)**，存在 `IngressClass` **`kong`**
+- **后端已部署**（创建 `moon` 命名空间及 API Service）：
 
 ```bash
-kubectl apply -f deploy/k8s/namespace.yaml
-kubectl apply -f deploy/k8s/rabbit/
+# 在 moon 仓库根目录
+kubectl apply -k deploy/k8s
 ```
 
-## 后端 API Service 示例
+- （可选）GHCR 镜像为私有时，需配置 `imagePullSecrets`
 
-前端 nginx 通过 Cluster DNS 访问后端，请确保 `moon-api` 命名空间存在对应 Service，例如：
+确认 Kong IngressClass：
+
+```bash
+kubectl get ingressclass
+```
+
+## 快速开始（推荐：单一前端）
+
+在 **moon-web 仓库根目录**执行：
+
+### 1. 修改镜像版本
+
+编辑 `deploy/k8s/components/image-tags/kustomization.yaml`，将 `newTag` 改为与 GitHub release tag 一致（如 `v0.0.6`）：
 
 ```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: moon-rabbit-api
-  namespace: moon-api
-spec:
-  ports:
-    - port: 8001
-      targetPort: 8001
+images:
+  - name: ghcr.io/aide-family/moon-web/integrated
+    newTag: v0.0.6
+  - name: ghcr.io/aide-family/moon-web/main
+    newTag: v0.0.6
+  # ... 其余镜像同步修改
 ```
 
-Deployment 中 `API_UPSTREAM_RABBIT=http://moon-rabbit-api.moon-api.svc.cluster.local:8001` 即指向该 Service。
+所有 overlay 通过 `components/image-tags` 引用，**只需改这一处**。
+
+### 2. 修改 Ingress 域名
+
+编辑 `deploy/k8s/integrated/ingress.yaml`，将 `moon.example.com` 改为实际域名，按需启用 `tls` 段。
+
+### 3. 预览并部署
+
+```bash
+# 预览渲染结果（不实际应用）
+kubectl kustomize deploy/k8s/overlays/integrated
+
+# 部署
+kubectl apply -k deploy/k8s/overlays/integrated
+```
+
+### 4. 验证
+
+```bash
+# Pod 状态
+kubectl get pods -n moon -l app.kubernetes.io/name=moon-web
+
+# Service
+kubectl get svc -n moon | grep moon-web
+
+# Ingress
+kubectl get ingress -n moon | grep moon-web
+
+# 集群内探活
+kubectl run curl --rm -it --image=curlimages/curl -- \
+  curl -s -o /dev/null -w "%{http_code}\n" http://moon-web-integrated.moon.svc.cluster.local/
+```
+
+对外访问：将 Ingress 域名解析到 Kong 的 External IP / LoadBalancer，浏览器打开 `https://moon.example.com`。
+
+## 部署模式
+
+根据打包方式选择对应 overlay，**不要混用多种模式**（避免 Ingress / Service 冲突）。
+
+| 模式 | 命令 | 适用场景 | Ingress 域名 |
+|---|---|---|---|
+| **A. 单一前端**（推荐） | `kubectl apply -k deploy/k8s/overlays/integrated` | 生产默认，一个入口 | `moon.example.com` |
+| **B. 微前端 all-in-one** | `kubectl apply -k deploy/k8s/overlays/micro-all` | main + 子应用同 Pod | `moon.example.com` |
+| **C. 微前端拆分** | `kubectl apply -k deploy/k8s/overlays/micro-split` | main 与子应用分 Pod | `moon.example.com` |
+| **D. 独立域名** | `kubectl apply -k deploy/k8s/overlays/standalone` | 各子应用单独访问 | 见下表 |
+
+### 模式 A：单一前端（integrated）
+
+- 镜像：`ghcr.io/aide-family/moon-web/integrated`
+- 部署资源：`moon-web-integrated` Deployment / Service / Ingress
+- API 环境变量（已在 Deployment 中配置，可按需覆盖）：
+
+| 环境变量 | 集群内地址 | 后端 Service |
+|---|---|---|
+| `API_UPSTREAM_MAIN` | `http://goddess.moon.svc.cluster.local:8000` | `goddess` |
+| `API_UPSTREAM_RABBIT` | `http://rabbit.moon.svc.cluster.local:8001` | `rabbit` |
+| `API_UPSTREAM_MARKSMAN` | `http://marksman.moon.svc.cluster.local:8003` | `marksman` |
+| `API_UPSTREAM_JADE_TREE` | `http://jade-tree.moon.svc.cluster.local:8004` | `jade-tree` |
+
+```bash
+kubectl apply -k deploy/k8s/overlays/integrated
+kubectl rollout status deployment/moon-web-integrated -n moon
+```
+
+### 模式 B：微前端 all-in-one
+
+- 镜像：`ghcr.io/aide-family/moon-web/all`（由 `docker/Dockerfile.all` 构建，CI 默认未推送，可先本地 `pnpm run docker:build:all:micro`）
+- 子应用静态资源挂载在 `/sub/rabbit`、`/sub/marksman`、`/sub/jade_tree`
+
+```bash
+kubectl apply -k deploy/k8s/overlays/micro-all
+```
+
+### 模式 C：微前端拆分
+
+- 部署 `main` + `rabbit` + `marksman` + `jade_tree` 四个前端 Pod
+- 共用 `micro-composed` Ingress，同域名下按路径分流
+
+**注意**：CI 独立子应用镜像默认 `base: /`，拆分模式要求子应用以 `VITE_APP_BASE=/sub/{app}/` 构建（见 `pnpm run build:all:micro`）。否则 iframe 资源路径不匹配。
+
+```bash
+kubectl apply -k deploy/k8s/overlays/micro-split
+```
+
+### 模式 D：各应用独立域名
+
+同时部署 main、goddess、rabbit、marksman、jade_tree 五个前端，各自独立 Ingress：
+
+| 前端 Ingress 域名 | 前端 Service | 后端 API |
+|---|---|---|
+| `moon.example.com`（main） | `moon-web-main` | `goddess` :8000 |
+| `goddess.moon.example.com` | `moon-web-goddess` | `goddess` :8000 |
+| `rabbit.moon.example.com` | `moon-web-rabbit` | `rabbit` :8001 |
+| `marksman.moon.example.com` | `moon-web-marksman` | `marksman` :8003 |
+| `jade-tree.moon.example.com` | `moon-web-jade-tree` | `jade-tree` :8004 |
+
+**注意**：后端 Ingress 已占用 `goddess.moon.example.com` 等域名指向 API。独立前端若使用相同域名会与后端冲突，请为前端使用不同子域名（如 `web-rabbit.moon.example.com`），或优先使用模式 A。
+
+```bash
+kubectl apply -k deploy/k8s/overlays/standalone
+```
+
+## 单独部署某个应用
+
+只部署某一个前端组件（需已存在 `moon` 命名空间）：
+
+```bash
+# 预览
+kubectl kustomize deploy/k8s/rabbit
+
+# 部署（namespace 由 overlay 注入，单独 apply 时需 -n moon）
+kubectl apply -k deploy/k8s/rabbit -n moon
+```
+
+单独 `kubectl apply -k deploy/k8s/rabbit` 不会自动注入镜像 tag，**推荐通过 overlay 或手动在 components/image-tags 中维护版本后使用 overlay**。
+
+## 拉取私有镜像
+
+```bash
+kubectl create secret docker-registry ghcr-secret \
+  -n moon \
+  --docker-server=ghcr.io \
+  --docker-username=<github-user> \
+  --docker-password=<github-pat>
+```
+
+在对应 `deployment.yaml` 的 `spec.template.spec` 下增加：
+
+```yaml
+imagePullSecrets:
+  - name: ghcr-secret
+```
+
+## 升级镜像
+
+1. 修改 `deploy/k8s/components/image-tags/kustomization.yaml` 中的 `newTag`
+2. 重新 apply 对应 overlay：
+
+```bash
+# 例如升级到 v0.0.7
+kubectl apply -k deploy/k8s/overlays/integrated
+
+# 观察滚动更新
+kubectl rollout status deployment/moon-web-integrated -n moon
+```
+
+## 卸载
+
+按部署时使用的 overlay 删除（示例：integrated 模式）：
+
+```bash
+kubectl delete -k deploy/k8s/overlays/integrated
+```
+
+仅删除前端资源，**不会**删除后端 `moon` 命名空间及其他服务。
+
+## 常见问题
+
+**Pod 一直 ImagePullBackOff**
+
+- 检查镜像 tag 是否存在于 GHCR
+- 私有仓库是否已配置 `imagePullSecrets`
+- 手动拉取测试：`docker pull ghcr.io/aide-family/moon-web/integrated:v0.0.6`
+
+**页面能打开但 API 请求失败**
+
+- 确认后端 Pod 正常：`kubectl get pods -n moon`
+- 确认前端 Deployment 中 `API_UPSTREAM_*` 指向正确的集群内 Service
+- 在前端 Pod 内测试：
+
+```bash
+kubectl exec -n moon deploy/moon-web-integrated -- \
+  wget -qO- http://goddess.moon.svc.cluster.local:8000/health
+```
+
+**Ingress 404 或无法访问**
+
+```bash
+kubectl get ingress -n moon
+kubectl describe ingress moon-web-integrated -n moon
+```
+
+确认 DNS 已解析、Kong Ingress Controller 正常、`ingressClassName: kong` 与集群一致。
+
+**微前端子页面空白**
+
+- 模式 A（integrated）不涉及 micro-app iframe，不应出现此问题
+- 模式 B 需使用 `all` 镜像；模式 C 需子应用以 `/sub/{app}/` 为 base 构建
+- 检查浏览器控制台是否有 `/sub/rabbit/...` 资源 404
+
+## 相关文档
+
+- 前端镜像构建：`.github/workflows/docker-image.yml`
+- 本地 Docker 验证：`pnpm run docker:build`、`pnpm run docker:verify`
+- 后端部署：`moon/deploy/k8s/README.md`

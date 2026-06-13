@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: moon-web-jade-tree
-  namespace: moon-web
+  namespace: moon
   labels:
     app.kubernetes.io/name: moon-web
     app.kubernetes.io/component: jade-tree
@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: ghcr.io/aide-family/moon-web/jade_tree:v1.0.0
+          image: ghcr.io/aide-family/moon-web/jade_tree
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -29,7 +29,7 @@ spec:
             - name: MOON_APP_NAME
               value: jade_tree
             - name: API_UPSTREAM
-              value: http://moon-jade-tree-api.moon-api.svc.cluster.local:8004
+              value: http://jade-tree.moon.svc.cluster.local:8004
           readinessProbe:
             httpGet:
               path: /

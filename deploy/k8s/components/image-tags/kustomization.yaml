@@ -1,0 +1,19 @@
+# 统一维护 moon-web 前端镜像版本，各 overlay 通过 components 引用
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+images:
+  - name: ghcr.io/aide-family/moon-web/integrated
+    newTag: v0.0.6
+  - name: ghcr.io/aide-family/moon-web/main
+    newTag: v0.0.6
+  - name: ghcr.io/aide-family/moon-web/goddess
+    newTag: v0.0.6
+  - name: ghcr.io/aide-family/moon-web/rabbit
+    newTag: v0.0.6
+  - name: ghcr.io/aide-family/moon-web/marksman
+    newTag: v0.0.6
+  - name: ghcr.io/aide-family/moon-web/jade_tree
+    newTag: v0.0.6
+  - name: ghcr.io/aide-family/moon-web/all
+    newTag: v0.0.6

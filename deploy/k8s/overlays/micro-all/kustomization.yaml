@@ -1,10 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: moon-web
+namespace: moon
+
+components:
+  - ../../components/image-tags
 
 resources:
-  - ../../namespace.yaml
-  - ../../micro-all/deployment.yaml
-  - ../../micro-all/service.yaml
-  - ../../micro-all/ingress.yaml
+  - ../../micro-all
